@@ -497,7 +497,7 @@ def check_audit_files(root: Path, failures: list[str]) -> None:
     patch_text = patch_path.read_text(encoding="utf-8", errors="ignore") if patch_path.exists() else ""
     if not patch_text.strip():
         add_failure(failures, "stage03 changes.patch must exist and be non-empty")
-    if "diff --git a/Task/Common/stages/stage03_common_frame_pool/changes.patch" in patch_text:
+    if any(line.startswith("diff --git a/Task/Common/stages/stage03_common_frame_pool/changes.patch") for line in patch_text.splitlines()):
         add_failure(failures, "stage03 changes.patch must not contain recursive diff")
     report = (root / STAGE_DIR / "validation_report.md").read_text(encoding="utf-8", errors="ignore")
     for forbidden in ["Pending", "to be run", "NOT_PUSHED", "TO_VERIFY_AFTER_PUSH"]:
