@@ -1,0 +1,39 @@
+{
+  "stage": "stage02_common_types_interfaces",
+  "branch": "stage02-03-common-foundation",
+  "baseBranch": "main",
+  "baseCommit": "dba843f535d3a678f684300f10731f1cbd19a406",
+  "added": [
+    "Task/Common/CMakeLists.txt",
+    "Task/Common/include/common/types.hpp",
+    "Task/Common/include/common/frame.hpp",
+    "Task/Common/include/common/decoder_input.hpp",
+    "Task/Common/include/common/result_types.hpp",
+    "Task/Common/include/common/interfaces.hpp",
+    "Task/Common/include/common/common.hpp",
+    "Task/Common/src/common_interfaces.cpp",
+    "Task/Common/tests/stage02/test_common02_types_interfaces.cpp",
+    "Task/Common/scripts/build_common02.py",
+    "Task/Common/scripts/check_common02.py",
+    "Task/Common/stages/stage02_common_types_interfaces/stage_plan.md",
+    "Task/Common/stages/stage02_common_types_interfaces/changed_files.md",
+    "Task/Common/stages/stage02_common_types_interfaces/validation_report.md",
+    "Task/Common/stages/stage02_common_types_interfaces/manifest.json",
+    "Task/Common/stages/stage02_common_types_interfaces/changes.patch",
+    "Task/Common/stages/stage02_common_types_interfaces/frozen_config.csv",
+    "Task/Common/stages/stage02_common_types_interfaces/commands_used.md",
+    "Task/Common/stages/stage02_common_types_interfaces/git_commit.txt",
+    "Task/Common/stages/stage02_common_types_interfaces/known_issues.md",
+    "Task/Common/stages/stage02_common_types_interfaces/snapshot/README.md"
+  ],
+  "modified": [],
+  "deleted": [],
+  "validationCommands": [
+    "python Task\\Common\\scripts\\build_common02.py",
+    "python Task\\Common\\scripts\\check_common02.py"
+  ],
+  "validationStatus": "PASS",
+  "gate": "PASS_COMMON_TYPES_INTERFACES",
+  "commitStatus": "NOT_COMMITTED",
+  "pushStatus": "NOT_PUSHED"
+}

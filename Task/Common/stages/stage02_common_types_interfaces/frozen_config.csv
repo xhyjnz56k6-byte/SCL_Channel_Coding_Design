@@ -1,0 +1,8 @@
+key,value,unit,sourceFile,meaning,status
+cppStandard,C++17,,Task/Common/scripts/build_common02.py,Required language standard,FROZEN
+Bit,std::uint8_t,,Task/Common/include/common/types.hpp,Formal bit storage type,FROZEN
+CodeRate,payloadLength/encodedLength,,Task/Common/include/common/types.hpp,Only allowed rate calculation,FROZEN
+DecoderInput,std::variant<HardBitInput;ReceivedSymbolInput;LlrInput>,,Task/Common/include/common/decoder_input.hpp,Exclusive decoder input modes,FROZEN
+CheckpointSnrFields,snrIndex+ebN0_dB,,Task/Common/include/common/result_types.hpp,Checkpoint SNR identity fields,FROZEN
+FramePoolReader,IFramePoolReader,,Task/Common/include/common/interfaces.hpp,Common-02 interface only,FROZEN
+

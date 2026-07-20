@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(CommonFoundation LANGUAGES CXX)
+
+add_library(common_foundation INTERFACE)
+target_include_directories(common_foundation INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_compile_features(common_foundation INTERFACE cxx_std_17)
+
+add_executable(common02_types_interfaces_tests tests/stage02/test_common02_types_interfaces.cpp)
+target_link_libraries(common02_types_interfaces_tests PRIVATE common_foundation)
+

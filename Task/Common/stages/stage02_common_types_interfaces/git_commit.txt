@@ -1,0 +1,8 @@
+stage: stage02_common_types_interfaces
+branch: stage02-03-common-foundation
+base_branch: main
+base_commit: dba843f535d3a678f684300f10731f1cbd19a406
+commit: NOT_COMMITTED
+push_status: NOT_PUSHED
+merge_status: NOT_MERGED
+
