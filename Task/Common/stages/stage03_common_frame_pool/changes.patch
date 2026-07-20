@@ -1,0 +1,834 @@
+﻿diff --git a/Task/Common/include/common/frame_pool.hpp b/Task/Common/include/common/frame_pool.hpp
+new file mode 100644
+index 0000000..ed649bf
+--- /dev/null
++++ b/Task/Common/include/common/frame_pool.hpp
+@@ -0,0 +1,267 @@
++#ifndef SCL_COMMON_FRAME_POOL_HPP
++#define SCL_COMMON_FRAME_POOL_HPP
++
++#include "common/frame.hpp"
++#include "common/types.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <fstream>
++#include <regex>
++#include <sstream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace scl::common {
++
++constexpr std::uint64_t kMaxFramePoolFrames = 50000;
++constexpr std::uint64_t kDefaultFramePoolShardSize = 10000;
++
++struct FramePoolShard {
++    FrameIndex startFrame = 0;
++    std::uint64_t frameCount = 0;
++    std::string fileName;
++    std::string sha256;
++};
++
++struct FramePoolManifest {
++    std::string framePoolId;
++    Length payloadLength = 0;
++    std::uint64_t totalFrames = 0;
++    std::uint64_t shardSize = 0;
++    SeedValue masterSeed = 0;
++    std::string generationAlgorithm;
++    std::string bitStorageFormat;
++    std::string endianness;
++    std::vector<FramePoolShard> shards;
++};
++
++inline std::size_t packedPayloadByteCount(Length payloadLength) {
++    if (payloadLength == 0) {
++        throw std::invalid_argument("payloadLength must be positive");
++    }
++    return (payloadLength + 7U) / 8U;
++}
++
++inline std::uint64_t splitmix64(std::uint64_t value) {
++    value += 0x9E3779B97F4A7C15ULL;
++    value = (value ^ (value >> 30U)) * 0xBF58476D1CE4E5B9ULL;
++    value = (value ^ (value >> 27U)) * 0x94D049BB133111EBULL;
++    return value ^ (value >> 31U);
++}
++
++inline Bit deterministicPayloadBit(SeedValue masterSeed,
++                                   Length payloadLength,
++                                   FrameIndex frameIndex,
++                                   Length bitIndex) {
++    if (payloadLength == 0) {
++        throw std::invalid_argument("payloadLength must be positive");
++    }
++    if (bitIndex >= payloadLength) {
++        throw std::out_of_range("bitIndex outside payloadLength");
++    }
++    std::uint64_t value = static_cast<std::uint64_t>(masterSeed);
++    value ^= static_cast<std::uint64_t>(payloadLength) * 0xD1B54A32D192ED03ULL;
++    value ^= static_cast<std::uint64_t>(frameIndex) * 0xABC98388FB8FAC03ULL;
++    value ^= static_cast<std::uint64_t>(bitIndex) * 0x8CB92BA72F3D8DD7ULL;
++    return static_cast<Bit>(splitmix64(value) & 1ULL);
++}
++
++inline BitVector generatePayloadBits(SeedValue masterSeed,
++                                     Length payloadLength,
++                                     FrameIndex frameIndex) {
++    BitVector bits(payloadLength);
++    for (Length bitIndex = 0; bitIndex < payloadLength; ++bitIndex) {
++        bits[bitIndex] = deterministicPayloadBit(masterSeed, payloadLength, frameIndex, bitIndex);
++    }
++    return bits;
++}
++
++inline std::vector<std::uint8_t> packPayloadBits(const BitVector& bits) {
++    validateBits(bits, "payloadBits");
++    std::vector<std::uint8_t> packed(packedPayloadByteCount(bits.size()), 0U);
++    for (std::size_t bitIndex = 0; bitIndex < bits.size(); ++bitIndex) {
++        if (bits[bitIndex] != 0U) {
++            packed[bitIndex / 8U] |= static_cast<std::uint8_t>(1U << (bitIndex % 8U));
++        }
++    }
++    return packed;
++}
++
++inline BitVector unpackPayloadBits(const std::vector<std::uint8_t>& packed, Length payloadLength) {
++    const std::size_t expectedBytes = packedPayloadByteCount(payloadLength);
++    if (packed.size() != expectedBytes) {
++        throw std::invalid_argument("packed payload byte count mismatch");
++    }
++    BitVector bits(payloadLength);
++    for (Length bitIndex = 0; bitIndex < payloadLength; ++bitIndex) {
++        bits[bitIndex] = static_cast<Bit>((packed[bitIndex / 8U] >> (bitIndex % 8U)) & 1U);
++    }
++    return bits;
++}
++
++inline std::string readTextFile(const std::string& path) {
++    std::ifstream input(path, std::ios::binary);
++    if (!input) {
++        throw std::runtime_error("failed to open text file: " + path);
++    }
++    std::ostringstream buffer;
++    buffer << input.rdbuf();
++    return buffer.str();
++}
++
++inline std::string dirnameOf(const std::string& path) {
++    const std::size_t slash = path.find_last_of("/\\");
++    if (slash == std::string::npos) {
++        return ".";
++    }
++    return path.substr(0, slash);
++}
++
++inline std::string joinPath(const std::string& directory, const std::string& fileName) {
++    if (directory.empty() || directory == ".") {
++        return fileName;
++    }
++    const char last = directory[directory.size() - 1U];
++    if (last == '/' || last == '\\') {
++        return directory + fileName;
++    }
++    return directory + "/" + fileName;
++}
++
++inline std::string extractJsonString(const std::string& text, const std::string& key) {
++    const std::regex pattern("\"" + key + "\"\\s*:\\s*\"([^\"]*)\"");
++    std::smatch match;
++    if (!std::regex_search(text, match, pattern)) {
++        throw std::runtime_error("manifest missing string field: " + key);
++    }
++    return match[1].str();
++}
++
++inline std::uint64_t extractJsonUInt64(const std::string& text, const std::string& key) {
++    const std::regex pattern("\"" + key + "\"\\s*:\\s*([0-9]+)");
++    std::smatch match;
++    if (!std::regex_search(text, match, pattern)) {
++        throw std::runtime_error("manifest missing integer field: " + key);
++    }
++    return static_cast<std::uint64_t>(std::stoull(match[1].str()));
++}
++
++inline FramePoolManifest loadFramePoolManifest(const std::string& manifestPath) {
++    const std::string text = readTextFile(manifestPath);
++    FramePoolManifest manifest;
++    manifest.framePoolId = extractJsonString(text, "framePoolId");
++    manifest.payloadLength = static_cast<Length>(extractJsonUInt64(text, "payloadLength"));
++    manifest.totalFrames = extractJsonUInt64(text, "totalFrames");
++    manifest.shardSize = extractJsonUInt64(text, "shardSize");
++    manifest.masterSeed = extractJsonUInt64(text, "masterSeed");
++    manifest.generationAlgorithm = extractJsonString(text, "generationAlgorithm");
++    manifest.bitStorageFormat = extractJsonString(text, "bitStorageFormat");
++    manifest.endianness = extractJsonString(text, "endianness");
++
++    if (manifest.payloadLength != 200U && manifest.payloadLength != 300U) {
++        throw std::invalid_argument("payloadLength must be 200 or 300");
++    }
++    if (manifest.totalFrames == 0U || manifest.totalFrames > kMaxFramePoolFrames) {
++        throw std::invalid_argument("totalFrames outside supported range");
++    }
++    if (manifest.shardSize == 0U) {
++        throw std::invalid_argument("shardSize must be positive");
++    }
++    if (manifest.bitStorageFormat != "packed_bits_lsb_first") {
++        throw std::invalid_argument("unsupported bitStorageFormat");
++    }
++    if (manifest.endianness != "little") {
++        throw std::invalid_argument("unsupported endianness");
++    }
++
++    const std::regex shardPattern("\\{[^{}]*\"startFrame\"[^{}]*\\}");
++    for (std::sregex_iterator it(text.begin(), text.end(), shardPattern), end; it != end; ++it) {
++        const std::string shardText = it->str();
++        FramePoolShard shard;
++        shard.startFrame = static_cast<FrameIndex>(extractJsonUInt64(shardText, "startFrame"));
++        shard.frameCount = extractJsonUInt64(shardText, "frameCount");
++        shard.fileName = extractJsonString(shardText, "fileName");
++        shard.sha256 = extractJsonString(shardText, "sha256");
++        manifest.shards.push_back(shard);
++    }
++    if (manifest.shards.empty()) {
++        throw std::runtime_error("manifest must contain at least one shard");
++    }
++    return manifest;
++}
++
++class PackedFramePoolReader {
++public:
++    explicit PackedFramePoolReader(const std::string& manifestPath)
++        : manifest_(loadFramePoolManifest(manifestPath)), directory_(dirnameOf(manifestPath)) {}
++
++    std::string framePoolId() const {
++        return manifest_.framePoolId;
++    }
++
++    Length payloadLength() const {
++        return manifest_.payloadLength;
++    }
++
++    std::uint64_t frameCount() const {
++        return manifest_.totalFrames;
++    }
++
++    PayloadFrame readFrame(FrameIndex index) const {
++        if (index >= manifest_.totalFrames) {
++            throw std::out_of_range("frameIndex outside frame pool");
++        }
++        const FramePoolShard* selected = nullptr;
++        for (const FramePoolShard& shard : manifest_.shards) {
++            if (index >= shard.startFrame && index < shard.startFrame + shard.frameCount) {
++                selected = &shard;
++                break;
++            }
++        }
++        if (selected == nullptr) {
++            throw std::runtime_error("frameIndex not covered by any shard");
++        }
++
++        const std::size_t bytesPerFrame = packedPayloadByteCount(manifest_.payloadLength);
++        const std::uint64_t frameInShard = index - selected->startFrame;
++        const std::uint64_t offset = frameInShard * static_cast<std::uint64_t>(bytesPerFrame);
++        std::ifstream input(joinPath(directory_, selected->fileName), std::ios::binary);
++        if (!input) {
++            throw std::runtime_error("failed to open shard: " + selected->fileName);
++        }
++        input.seekg(static_cast<std::streamoff>(offset), std::ios::beg);
++        std::vector<std::uint8_t> packed(bytesPerFrame);
++        input.read(reinterpret_cast<char*>(packed.data()), static_cast<std::streamsize>(packed.size()));
++        if (input.gcount() != static_cast<std::streamsize>(packed.size())) {
++            throw std::runtime_error("short read from shard");
++        }
++
++        PayloadFrame frame;
++        frame.framePoolId = manifest_.framePoolId;
++        frame.frameIndex = index;
++        frame.payloadLength = manifest_.payloadLength;
++        frame.masterSeed = manifest_.masterSeed;
++        frame.payloadBits = unpackPayloadBits(packed, manifest_.payloadLength);
++        validatePayloadFrame(frame);
++        return frame;
++    }
++
++    std::vector<PayloadFrame> readFrames(FrameIndex startIndex, std::uint64_t count) const {
++        std::vector<PayloadFrame> frames;
++        frames.reserve(static_cast<std::size_t>(count));
++        for (std::uint64_t offset = 0; offset < count; ++offset) {
++            frames.push_back(readFrame(startIndex + offset));
++        }
++        return frames;
++    }
++
++private:
++    FramePoolManifest manifest_;
++    std::string directory_;
++};
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_FRAME_POOL_HPP
+diff --git a/Task/Common/scripts/build_common03.py b/Task/Common/scripts/build_common03.py
+new file mode 100644
+index 0000000..6a9507e
+--- /dev/null
++++ b/Task/Common/scripts/build_common03.py
+@@ -0,0 +1,35 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import subprocess
++from pathlib import Path
++
++
++def main() -> int:
++    root = Path(__file__).resolve().parents[2]
++    output_dir = root / "Common" / "build" / "stage03"
++    output_dir.mkdir(parents=True, exist_ok=True)
++    executable = output_dir / "test_common03_frame_pool.exe"
++    command = [
++        "g++",
++        "-std=c++17",
++        "-Wall",
++        "-Wextra",
++        "-Werror",
++        "-I",
++        str(root / "Common" / "include"),
++        str(root / "Common" / "tests" / "stage03" / "test_common03_frame_pool.cpp"),
++        "-o",
++        str(executable),
++    ]
++    print("RUN:", " ".join(command))
++    completed = subprocess.run(command, cwd=root.parents[1])
++    if completed.returncode != 0:
++        print("COMMON-03 BUILD: FAIL")
++        return completed.returncode
++    print(f"COMMON-03 BUILD: PASS ({executable})")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/Common/scripts/check_common03.py b/Task/Common/scripts/check_common03.py
+new file mode 100644
+index 0000000..29e9faf
+--- /dev/null
++++ b/Task/Common/scripts/check_common03.py
+@@ -0,0 +1,246 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import filecmp
++import hashlib
++import json
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++from generate_common03_frame_pool import (
++    BIT_STORAGE_FORMAT,
++    ENDIANNESS,
++    GENERATION_ALGORITHM,
++    generate_payload_bits,
++    packed_payload_byte_count,
++    unpack_bits,
++)
++
++ALLOWED_PREFIXES = (
++    "Task/Common/",
++)
++
++
++def run(command: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(command, cwd=cwd, text=True, capture_output=True)
++
++
++def sha256_file(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as handle:
++        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def add_failure(failures: list[str], message: str) -> None:
++    failures.append(message)
++
++
++def check_git_scope(root: Path, failures: list[str]) -> None:
++    diff = run(["git", "diff", "--name-only", "main...HEAD"], root)
++    if diff.returncode != 0:
++        add_failure(failures, diff.stderr.strip())
++        return
++    for raw in diff.stdout.splitlines():
++        path = raw.strip().replace("\\", "/")
++        if not path:
++            continue
++        if path.startswith("Task/Common/Plan/"):
++            add_failure(failures, "Task/Common/Plan must not be committed")
++        if path.startswith("Task/Common/build/"):
++            add_failure(failures, "Task/Common/build must not be committed")
++        if path.startswith(("Task/BCH/", "Task/CC/", "Task/LDPC/")):
++            add_failure(failures, f"out-of-scope path in committed diff: {path}")
++        if not any(path.startswith(prefix) for prefix in ALLOWED_PREFIXES):
++            add_failure(failures, f"path not allowed for Common-03 branch diff: {path}")
++
++
++def check_no_later_stage_markers(root: Path, failures: list[str]) -> None:
++    files = []
++    for folder in [
++        root / "Task/Common/include/common",
++        root / "Task/Common/tests/stage03",
++    ]:
++        if folder.exists():
++            files.extend(path for path in folder.rglob("*") if path.is_file())
++    files.extend(
++        path
++        for path in [
++            root / "Task/Common/scripts/generate_common03_frame_pool.py",
++            root / "Task/Common/scripts/build_common03.py",
++        ]
++        if path.is_file()
++    )
++    joined = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in files)
++    forbidden = [
++        "std::normal_distribution",
++        "normal_distribution<",
++        "awgnTransmit",
++        "bpskModulate",
++        "computeSigma",
++        "llrValues[i]",
++        "bitErrors /",
++        "frameErrors /",
++        "StopController",
++        "resumeCheckpoint",
++        "writeCheckpoint",
++    ]
++    for marker in forbidden:
++        if marker in joined:
++            add_failure(failures, f"later-stage implementation marker found: {marker}")
++
++
++def load_manifest(path: Path) -> dict:
++    return json.loads(path.read_text(encoding="utf-8"))
++
++
++def read_frame_from_manifest(manifest_path: Path, frame_index: int) -> list[int]:
++    manifest = load_manifest(manifest_path)
++    if frame_index < 0 or frame_index >= manifest["totalFrames"]:
++        raise IndexError("frameIndex outside frame pool")
++    bytes_per_frame = manifest["bytesPerFrame"]
++    for shard in manifest["shards"]:
++        start = shard["startFrame"]
++        count = shard["frameCount"]
++        if start <= frame_index < start + count:
++            offset = (frame_index - start) * bytes_per_frame
++            with (manifest_path.parent / shard["fileName"]).open("rb") as handle:
++                handle.seek(offset)
++                data = handle.read(bytes_per_frame)
++            return unpack_bits(data, manifest["payloadLength"])
++    raise RuntimeError("frameIndex not covered by any shard")
++
++
++def check_manifest_and_payload(manifest_path: Path, expected_seed: int, failures: list[str]) -> None:
++    manifest = load_manifest(manifest_path)
++    payload_length = manifest.get("payloadLength")
++    if payload_length not in (200, 300):
++        add_failure(failures, f"invalid payloadLength in {manifest_path}")
++    if manifest.get("totalFrames", 0) <= 0 or manifest.get("totalFrames", 0) > 50000:
++        add_failure(failures, f"invalid totalFrames in {manifest_path}")
++    if manifest.get("shardSize", 0) <= 0:
++        add_failure(failures, f"invalid shardSize in {manifest_path}")
++    if manifest.get("masterSeed") != expected_seed or manifest.get("payloadSeed") != expected_seed:
++        add_failure(failures, f"seed mismatch in {manifest_path}")
++    if manifest.get("generationAlgorithm") != GENERATION_ALGORITHM:
++        add_failure(failures, f"generationAlgorithm mismatch in {manifest_path}")
++    if manifest.get("bitStorageFormat") != BIT_STORAGE_FORMAT:
++        add_failure(failures, f"bitStorageFormat mismatch in {manifest_path}")
++    if manifest.get("endianness") != ENDIANNESS:
++        add_failure(failures, f"endianness mismatch in {manifest_path}")
++    if manifest.get("bytesPerFrame") != packed_payload_byte_count(payload_length):
++        add_failure(failures, f"bytesPerFrame mismatch in {manifest_path}")
++
++    total_shard_frames = 0
++    for shard in manifest.get("shards", []):
++        shard_path = manifest_path.parent / shard["fileName"]
++        if not shard_path.exists():
++            add_failure(failures, f"missing shard file: {shard_path}")
++            continue
++        if sha256_file(shard_path) != shard["sha256"]:
++            add_failure(failures, f"shard SHA256 mismatch: {shard_path}")
++        expected_size = shard["frameCount"] * manifest["bytesPerFrame"]
++        if shard_path.stat().st_size != expected_size:
++            add_failure(failures, f"shard byte size mismatch: {shard_path}")
++        total_shard_frames += shard["frameCount"]
++    if total_shard_frames != manifest.get("totalFrames"):
++        add_failure(failures, f"shard frame counts do not sum to totalFrames in {manifest_path}")
++
++    indices = sorted({0, manifest["totalFrames"] // 2, manifest["totalFrames"] - 1})
++    for index in indices:
++        actual = read_frame_from_manifest(manifest_path, index)
++        expected = generate_payload_bits(expected_seed, payload_length, index)
++        if actual != expected:
++            add_failure(failures, f"payload mismatch at frame {index} in {manifest_path}")
++    try:
++        read_frame_from_manifest(manifest_path, manifest["totalFrames"])
++        add_failure(failures, f"out-of-range read did not fail in {manifest_path}")
++    except IndexError:
++        pass
++
++
++def check_generation(root: Path, failures: list[str]) -> list[Path]:
++    build_dir = root / "Task/Common/build/stage03"
++    pool_a = build_dir / "pool_a"
++    pool_b = build_dir / "pool_b"
++    pool_c = build_dir / "pool_c"
++    for directory in [pool_a, pool_b, pool_c]:
++        if directory.exists():
++            shutil.rmtree(directory)
++
++    seed = 2026072001
++    for directory, current_seed in [(pool_a, seed), (pool_b, seed), (pool_c, seed + 1)]:
++        completed = run(
++            [
++                sys.executable,
++                "Task/Common/scripts/generate_common03_frame_pool.py",
++                "--output-dir",
++                str(directory),
++                "--master-seed",
++                str(current_seed),
++                "--frame-count",
++                "24",
++                "--shard-size",
++                "10",
++                "--payload-length",
++                "200",
++                "300",
++            ],
++            root,
++        )
++        if completed.returncode != 0:
++            add_failure(failures, completed.stderr.strip() or completed.stdout.strip())
++
++    manifests = [pool_a / "k200/manifest.json", pool_a / "k300/manifest.json"]
++    for manifest in manifests:
++        check_manifest_and_payload(manifest, seed, failures)
++
++    for relative in [
++        Path("k200/frames_000000_000009.bin"),
++        Path("k200/frames_000010_000019.bin"),
++        Path("k200/frames_000020_000023.bin"),
++        Path("k300/frames_000000_000009.bin"),
++    ]:
++        if not filecmp.cmp(pool_a / relative, pool_b / relative, shallow=False):
++            add_failure(failures, f"same seed regeneration mismatch: {relative}")
++    if filecmp.cmp(pool_a / "k200/frames_000000_000009.bin", pool_c / "k200/frames_000000_000009.bin", shallow=False):
++        add_failure(failures, "different seed should alter at least one K=200 shard")
++
++    return manifests
++
++
++def check_cpp(root: Path, manifests: list[Path], failures: list[str]) -> None:
++    build = run([sys.executable, "Task/Common/scripts/build_common03.py"], root)
++    if build.returncode != 0:
++        add_failure(failures, build.stdout + build.stderr)
++        return
++    executable = root / "Task/Common/build/stage03/test_common03_frame_pool.exe"
++    command = [str(executable), *(str(manifest) for manifest in manifests)]
++    completed = run(command, root)
++    if completed.returncode != 0:
++        add_failure(failures, completed.stdout + completed.stderr)
++
++
++def main() -> int:
++    root = Path(__file__).resolve().parents[3]
++    failures: list[str] = []
++    manifests = check_generation(root, failures)
++    check_cpp(root, manifests, failures)
++    check_no_later_stage_markers(root, failures)
++    check_git_scope(root, failures)
++
++    if failures:
++        print("COMMON-03 CHECK: FAIL")
++        for failure in failures:
++            print(f"- {failure}")
++        return 1
++    print("COMMON-03 CHECK: PASS")
++    print("Gate: PASS_COMMON_FRAME_POOL")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/Common/scripts/generate_common03_frame_pool.py b/Task/Common/scripts/generate_common03_frame_pool.py
+new file mode 100644
+index 0000000..513b0ec
+--- /dev/null
++++ b/Task/Common/scripts/generate_common03_frame_pool.py
+@@ -0,0 +1,151 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++from datetime import datetime, timezone
++from pathlib import Path
++
++MAX_FRAME_COUNT = 50000
++GENERATION_ALGORITHM = "splitmix64_payload_v1"
++BIT_STORAGE_FORMAT = "packed_bits_lsb_first"
++ENDIANNESS = "little"
++GENERATOR_VERSION = "common03.frame_pool.v1"
++
++
++def splitmix64(value: int) -> int:
++    value = (value + 0x9E3779B97F4A7C15) & 0xFFFFFFFFFFFFFFFF
++    value = ((value ^ (value >> 30)) * 0xBF58476D1CE4E5B9) & 0xFFFFFFFFFFFFFFFF
++    value = ((value ^ (value >> 27)) * 0x94D049BB133111EB) & 0xFFFFFFFFFFFFFFFF
++    return (value ^ (value >> 31)) & 0xFFFFFFFFFFFFFFFF
++
++
++def deterministic_payload_bit(master_seed: int, payload_length: int, frame_index: int, bit_index: int) -> int:
++    if payload_length <= 0:
++        raise ValueError("payload_length must be positive")
++    if bit_index >= payload_length:
++        raise IndexError("bit_index outside payload_length")
++    value = master_seed & 0xFFFFFFFFFFFFFFFF
++    value ^= (payload_length * 0xD1B54A32D192ED03) & 0xFFFFFFFFFFFFFFFF
++    value ^= (frame_index * 0xABC98388FB8FAC03) & 0xFFFFFFFFFFFFFFFF
++    value ^= (bit_index * 0x8CB92BA72F3D8DD7) & 0xFFFFFFFFFFFFFFFF
++    return splitmix64(value) & 1
++
++
++def generate_payload_bits(master_seed: int, payload_length: int, frame_index: int) -> list[int]:
++    return [
++        deterministic_payload_bit(master_seed, payload_length, frame_index, bit_index)
++        for bit_index in range(payload_length)
++    ]
++
++
++def packed_payload_byte_count(payload_length: int) -> int:
++    if payload_length <= 0:
++        raise ValueError("payload_length must be positive")
++    return (payload_length + 7) // 8
++
++
++def pack_bits(bits: list[int]) -> bytes:
++    packed = bytearray(packed_payload_byte_count(len(bits)))
++    for bit_index, bit in enumerate(bits):
++        if bit not in (0, 1):
++            raise ValueError("payloadBits contains a non-binary bit")
++        if bit:
++            packed[bit_index // 8] |= 1 << (bit_index % 8)
++    return bytes(packed)
++
++
++def unpack_bits(data: bytes, payload_length: int) -> list[int]:
++    if len(data) != packed_payload_byte_count(payload_length):
++        raise ValueError("packed payload byte count mismatch")
++    return [(data[bit_index // 8] >> (bit_index % 8)) & 1 for bit_index in range(payload_length)]
++
++
++def sha256_file(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as handle:
++        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def shard_file_name(start_frame: int, end_frame: int) -> str:
++    return f"frames_{start_frame:06d}_{end_frame:06d}.bin"
++
++
++def write_pool(output_dir: Path, payload_length: int, frame_count: int, shard_size: int, master_seed: int) -> Path:
++    if payload_length not in (200, 300):
++        raise ValueError("payload_length must be 200 or 300")
++    if frame_count <= 0 or frame_count > MAX_FRAME_COUNT:
++        raise ValueError("frame_count must be in 1..50000")
++    if shard_size <= 0:
++        raise ValueError("shard_size must be positive")
++
++    pool_dir = output_dir / f"k{payload_length}"
++    pool_dir.mkdir(parents=True, exist_ok=True)
++    bytes_per_frame = packed_payload_byte_count(payload_length)
++    shards: list[dict[str, object]] = []
++
++    for start_frame in range(0, frame_count, shard_size):
++        count = min(shard_size, frame_count - start_frame)
++        end_frame = start_frame + count - 1
++        file_name = shard_file_name(start_frame, end_frame)
++        shard_path = pool_dir / file_name
++        with shard_path.open("wb") as handle:
++            for frame_index in range(start_frame, start_frame + count):
++                bits = generate_payload_bits(master_seed, payload_length, frame_index)
++                packed = pack_bits(bits)
++                if len(packed) != bytes_per_frame:
++                    raise RuntimeError("internal packed byte count mismatch")
++                handle.write(packed)
++        shards.append(
++            {
++                "startFrame": start_frame,
++                "frameCount": count,
++                "fileName": file_name,
++                "sha256": sha256_file(shard_path),
++            }
++        )
++
++    manifest = {
++        "schemaVersion": "common03.frame_pool_manifest.v1",
++        "framePoolId": f"payload_k{payload_length}_seed{master_seed}_frames{frame_count}",
++        "payloadLength": payload_length,
++        "totalFrames": frame_count,
++        "shardSize": shard_size,
++        "masterSeed": master_seed,
++        "payloadSeed": master_seed,
++        "generationAlgorithm": GENERATION_ALGORITHM,
++        "bitStorageFormat": BIT_STORAGE_FORMAT,
++        "endianness": ENDIANNESS,
++        "createdTime": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
++        "generatorVersion": GENERATOR_VERSION,
++        "bytesPerFrame": bytes_per_frame,
++        "shards": shards,
++    }
++    manifest_path = pool_dir / "manifest.json"
++    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
++    return manifest_path
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser(description="Generate Common-03 deterministic payload frame pools.")
++    parser.add_argument("--output-dir", required=True, type=Path)
++    parser.add_argument("--master-seed", type=int, default=2026072001)
++    parser.add_argument("--frame-count", type=int, default=24)
++    parser.add_argument("--shard-size", type=int, default=10)
++    parser.add_argument("--payload-length", type=int, nargs="+", default=[200, 300])
++    args = parser.parse_args()
++
++    manifests = [
++        write_pool(args.output_dir, payload_length, args.frame_count, args.shard_size, args.master_seed)
++        for payload_length in args.payload_length
++    ]
++    for manifest in manifests:
++        print(f"COMMON-03 FRAME POOL: {manifest}")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/Common/tests/stage03/test_common03_frame_pool.cpp b/Task/Common/tests/stage03/test_common03_frame_pool.cpp
+new file mode 100644
+index 0000000..18f0d03
+--- /dev/null
++++ b/Task/Common/tests/stage03/test_common03_frame_pool.cpp
+@@ -0,0 +1,105 @@
++#include "common/frame_pool.hpp"
++
++#include <cstdlib>
++#include <exception>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++
++void require(bool condition, const std::string& message) {
++    if (!condition) {
++        throw std::runtime_error(message);
++    }
++}
++
++void requireThrowsOutOfRange(const scl::common::PackedFramePoolReader& reader,
++                             scl::common::FrameIndex index) {
++    bool thrown = false;
++    try {
++        (void)reader.readFrame(index);
++    } catch (const std::out_of_range&) {
++        thrown = true;
++    }
++    require(thrown, "out-of-range frame read must throw");
++}
++
++void verifyManifest(const std::string& manifestPath) {
++    const scl::common::FramePoolManifest manifest = scl::common::loadFramePoolManifest(manifestPath);
++    require(!manifest.framePoolId.empty(), "framePoolId must not be empty");
++    require(manifest.payloadLength == 200U || manifest.payloadLength == 300U,
++            "payloadLength must be 200 or 300");
++    require(manifest.totalFrames > 0U, "totalFrames must be positive");
++    require(manifest.totalFrames <= scl::common::kMaxFramePoolFrames,
++            "totalFrames must respect max support");
++    require(manifest.shardSize > 0U, "shardSize must be positive");
++    require(manifest.generationAlgorithm == "splitmix64_payload_v1",
++            "generationAlgorithm mismatch");
++    require(manifest.bitStorageFormat == "packed_bits_lsb_first",
++            "bitStorageFormat mismatch");
++    require(manifest.endianness == "little", "endianness mismatch");
++    require(!manifest.shards.empty(), "manifest must include shards");
++}
++
++void verifyReader(const std::string& manifestPath) {
++    scl::common::PackedFramePoolReader reader(manifestPath);
++    require(reader.payloadLength() == 200U || reader.payloadLength() == 300U,
++            "reader payloadLength mismatch");
++    require(reader.frameCount() > 0U, "reader frameCount must be positive");
++
++    const std::vector<scl::common::FrameIndex> indices{
++        0U,
++        reader.frameCount() / 2U,
++        reader.frameCount() - 1U,
++    };
++    for (const scl::common::FrameIndex index : indices) {
++        const scl::common::PayloadFrame frame = reader.readFrame(index);
++        require(frame.framePoolId == reader.framePoolId(), "framePoolId mismatch");
++        require(frame.frameIndex == index, "frameIndex mismatch");
++        require(frame.payloadLength == reader.payloadLength(), "payloadLength mismatch");
++        require(frame.payloadBits.size() == reader.payloadLength(), "payload bit count mismatch");
++        const scl::common::BitVector expected =
++            scl::common::generatePayloadBits(frame.masterSeed, frame.payloadLength, frame.frameIndex);
++        require(frame.payloadBits == expected, "payload bits do not match deterministic generator");
++    }
++
++    if (reader.frameCount() >= 3U) {
++        const std::vector<scl::common::PayloadFrame> frames = reader.readFrames(1U, 2U);
++        require(frames.size() == 2U, "sequential read count mismatch");
++        require(frames[0].frameIndex == 1U && frames[1].frameIndex == 2U,
++                "sequential read index mismatch");
++    }
++    requireThrowsOutOfRange(reader, reader.frameCount());
++}
++
++void verifyLocalPacking() {
++    const scl::common::BitVector bits{0U, 1U, 1U, 0U, 1U, 0U, 0U, 1U, 1U};
++    const std::vector<std::uint8_t> packed = scl::common::packPayloadBits(bits);
++    const scl::common::BitVector unpacked = scl::common::unpackPayloadBits(packed, bits.size());
++    require(unpacked == bits, "pack/unpack round trip mismatch");
++
++    const scl::common::BitVector a = scl::common::generatePayloadBits(2026072001ULL, 200U, 3U);
++    const scl::common::BitVector b = scl::common::generatePayloadBits(2026072001ULL, 200U, 3U);
++    const scl::common::BitVector c = scl::common::generatePayloadBits(2026072002ULL, 200U, 3U);
++    require(a == b, "same seed must regenerate identical payload");
++    require(a != c, "different seed should change payload");
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        verifyLocalPacking();
++        for (int arg = 1; arg < argc; ++arg) {
++            verifyManifest(argv[arg]);
++            verifyReader(argv[arg]);
++        }
++        std::cout << "COMMON-03 TEST PASS\n";
++        return EXIT_SUCCESS;
++    } catch (const std::exception& ex) {
++        std::cerr << "COMMON-03 TEST FAIL: " << ex.what() << '\n';
++        return EXIT_FAILURE;
++    }
++}

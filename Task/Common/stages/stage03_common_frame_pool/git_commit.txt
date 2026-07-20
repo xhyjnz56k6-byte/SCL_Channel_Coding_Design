@@ -1,0 +1,8 @@
+stage: stage03_common_frame_pool
+branch: stage02-03-common-foundation
+base_branch: stage02-03-common-foundation
+base_commit: fe6cfa0164afd097adb972a51afd73240105c188
+audited_content_commit: 6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00
+remote_branch: origin/stage02-03-common-foundation
+remote_verification_status: TO_VERIFY_AFTER_PUSH
+merge_status: NOT_MERGED

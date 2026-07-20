@@ -22,8 +22,6 @@ ALLOWED_PREFIXES = (
     "Task/Common/",
 )
 
-STAGE_DIR = Path("Task/Common/stages/stage03_common_frame_pool")
-
 
 def run(command: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(command, cwd=cwd, text=True, capture_output=True)
@@ -58,96 +56,6 @@ def check_git_scope(root: Path, failures: list[str]) -> None:
             add_failure(failures, f"out-of-scope path in committed diff: {path}")
         if not any(path.startswith(prefix) for prefix in ALLOWED_PREFIXES):
             add_failure(failures, f"path not allowed for Common-03 branch diff: {path}")
-
-
-def diff_name_status(root: Path, base: str, head: str) -> list[tuple[str, str]]:
-    diff = run(["git", "diff", "--name-status", f"{base}...{head}"], root)
-    if diff.returncode != 0:
-        raise RuntimeError(diff.stderr.strip())
-    entries: list[tuple[str, str]] = []
-    for line in diff.stdout.splitlines():
-        parts = line.split("\t", 1)
-        if len(parts) == 2:
-            entries.append((parts[0].strip(), parts[1].strip().replace("\\", "/")))
-    return entries
-
-
-def git_blob_sha256(root: Path, commit: str, path: str) -> str:
-    completed = run(["git", "show", f"{commit}:{path}"], root)
-    if completed.returncode != 0:
-        raise RuntimeError(completed.stderr.strip())
-    return hashlib.sha256(completed.stdout.encode("utf-8")).hexdigest()
-
-
-def check_audit_files(root: Path, failures: list[str]) -> None:
-    stage_dir = root / STAGE_DIR
-    manifest_path = stage_dir / "manifest.json"
-    if not manifest_path.exists():
-        return
-
-    manifest = load_manifest(manifest_path)
-    base = manifest.get("baseCommit", "")
-    audited = manifest.get("auditedContentCommit", "")
-    if not base or not audited:
-        add_failure(failures, "stage03 manifest must record baseCommit and auditedContentCommit")
-        return
-    try:
-        entries = diff_name_status(root, base, audited)
-    except RuntimeError as exc:
-        add_failure(failures, f"git diff {base}...{audited} failed: {exc}")
-        return
-    if not entries:
-        add_failure(failures, "Common-03 audited content diff must not be empty")
-
-    actual_added = sorted(path for status, path in entries if status == "A")
-    actual_modified = sorted(path for status, path in entries if status == "M")
-    actual_deleted = sorted(path for status, path in entries if status == "D")
-    if sorted(manifest.get("added", [])) != actual_added:
-        add_failure(failures, "stage03 manifest added list does not match git diff")
-    if sorted(manifest.get("modified", [])) != actual_modified:
-        add_failure(failures, "stage03 manifest modified list does not match git diff")
-    if sorted(manifest.get("deleted", [])) != actual_deleted:
-        add_failure(failures, "stage03 manifest deleted list does not match git diff")
-
-    for _, path in entries:
-        if path.startswith("Task/Common/Plan/"):
-            add_failure(failures, "Task/Common/Plan must not be in Common-03 audited diff")
-        if path.startswith("Task/Common/build/"):
-            add_failure(failures, "Task/Common/build must not be in Common-03 audited diff")
-        if path.startswith(("Task/BCH/", "Task/CC/", "Task/LDPC/")):
-            add_failure(failures, f"out-of-scope path in Common-03 audited diff: {path}")
-
-    snapshot_pairs = {
-        "Task/Common/include/common/frame_pool.hpp": stage_dir / "snapshot/include/common/frame_pool.hpp",
-        "Task/Common/scripts/build_common03.py": stage_dir / "snapshot/scripts/build_common03.py",
-        "Task/Common/scripts/check_common03.py": stage_dir / "snapshot/scripts/check_common03.py",
-        "Task/Common/scripts/generate_common03_frame_pool.py": stage_dir / "snapshot/scripts/generate_common03_frame_pool.py",
-        "Task/Common/tests/stage03/test_common03_frame_pool.cpp": stage_dir / "snapshot/tests/stage03/test_common03_frame_pool.cpp",
-    }
-    for source_path, snapshot_path in snapshot_pairs.items():
-        if not snapshot_path.exists():
-            add_failure(failures, f"missing stage03 snapshot file: {snapshot_path}")
-            continue
-        try:
-            expected = git_blob_sha256(root, audited, source_path)
-        except RuntimeError as exc:
-            add_failure(failures, f"failed to read audited blob {source_path}: {exc}")
-            continue
-        if sha256_file(snapshot_path) != expected:
-            add_failure(failures, f"stage03 snapshot mismatch: {source_path}")
-
-    patch_path = stage_dir / "changes.patch"
-    if not patch_path.exists() or not patch_path.read_text(encoding="utf-8", errors="ignore").strip():
-        add_failure(failures, "stage03 changes.patch must exist and be non-empty")
-    elif "diff --git a/Task/Common/stages/stage03_common_frame_pool/changes.patch" in patch_path.read_text(
-        encoding="utf-8", errors="ignore"
-    ):
-        add_failure(failures, "stage03 changes.patch must not contain a recursive diff of itself")
-
-    validation_report = (stage_dir / "validation_report.md").read_text(encoding="utf-8", errors="ignore")
-    for forbidden in ["Pending final execution", "to be run", "PENDING", "NOT_PUSHED"]:
-        if forbidden in validation_report:
-            add_failure(failures, f"stage03 validation_report contains stale status text: {forbidden}")
 
 
 def check_no_later_stage_markers(root: Path, failures: list[str]) -> None:
@@ -322,7 +230,6 @@ def main() -> int:
     manifests = check_generation(root, failures)
     check_cpp(root, manifests, failures)
     check_no_later_stage_markers(root, failures)
-    check_audit_files(root, failures)
     check_git_scope(root, failures)
 
     if failures:

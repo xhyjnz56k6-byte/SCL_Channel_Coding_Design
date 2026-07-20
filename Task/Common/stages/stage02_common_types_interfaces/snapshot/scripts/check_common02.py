@@ -380,18 +380,27 @@ def check_manifest_and_git(root: Path, failures: list[str]) -> None:
 
 
 def check_git_diff(root: Path, failures: list[str]) -> None:
-    diff = run(["git", "diff", "--name-only", "main...HEAD"], root)
-    if diff.returncode != 0:
-        add_failure(failures, "git diff main...HEAD failed:\n" + diff.stderr)
+    manifest_path = root / "Task/Common/stages/stage02_common_types_interfaces/manifest.json"
+    manifest = load_json(manifest_path)
+    base = manifest.get("baseCommit", "")
+    audited = manifest.get("auditedContentCommit", "")
+    if not base or not audited:
+        add_failure(failures, "manifest must record baseCommit and auditedContentCommit")
         return
-    paths = [line.strip().replace("\\", "/") for line in diff.stdout.splitlines() if line.strip()]
+    try:
+        paths = [path for _, path in diff_name_status(root, base, audited)]
+    except RuntimeError as exc:
+        add_failure(failures, f"git diff {base}...{audited} failed: {exc}")
+        return
+    if not paths:
+        add_failure(failures, "git diff for Common-02 audited content is empty")
     for path in paths:
         if path.startswith("Task/Common/Plan/"):
             add_failure(failures, "Task/Common/Plan must not be committed")
         if path.startswith(("Task/BCH/", "Task/CC/", "Task/LDPC/")):
             add_failure(failures, f"out-of-scope path in committed diff: {path}")
         if not any(path == prefix or path.startswith(prefix) for prefix in ALLOWED_PREFIXES):
-            add_failure(failures, f"path not allowed for current Common-02 HEAD: {path}")
+            add_failure(failures, f"path not allowed for Common-02 audited content: {path}")
 
 
 def main() -> int:

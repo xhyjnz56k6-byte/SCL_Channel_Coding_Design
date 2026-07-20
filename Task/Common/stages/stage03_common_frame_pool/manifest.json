@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "common03.audit_manifest.v1",
+  "stage": "stage03_common_frame_pool",
+  "branch": "stage02-03-common-foundation",
+  "baseCommit": "fe6cfa0164afd097adb972a51afd73240105c188",
+  "auditedContentCommit": "6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00",
+  "remoteBranch": "origin/stage02-03-common-foundation",
+  "remoteVerificationStatus": "TO_VERIFY_AFTER_PUSH",
+  "mergeStatus": "NOT_MERGED",
+  "gate": "PASS_COMMON_FRAME_POOL",
+  "added": [
+    "Task/Common/include/common/frame_pool.hpp",
+    "Task/Common/scripts/build_common03.py",
+    "Task/Common/scripts/check_common03.py",
+    "Task/Common/scripts/generate_common03_frame_pool.py",
+    "Task/Common/tests/stage03/test_common03_frame_pool.cpp"
+  ],
+  "modified": [],
+  "deleted": []
+}
