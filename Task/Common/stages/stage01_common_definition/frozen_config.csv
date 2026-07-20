@@ -1,0 +1,25 @@
+key,value,unit,sourceFile,meaning,status
+projectName,SCL_Channel_Coding_Design,,Task/Common/config/global_config.json,Project identifier,FROZEN
+stageId,stage01_common_definition,,Task/Common/config/global_config.json,Stage identifier,FROZEN
+maxCodeBlockLength,1000,bit,Task/Common/config/global_config.json,Maximum code block length,FROZEN
+motherNoiseLength,1000,sample,Task/Common/config/global_config.json,Minimum standard Gaussian mother-noise length,FROZEN
+supportedPayloadLengths,"[200,300]",bit,Task/Common/config/global_config.json,Supported payload lengths,FROZEN
+rateDefinition,K_payload/N_encoded,,Task/Common/config/global_config.json,Only allowed project rate definition,FROZEN
+bpskMapping,"0->+1;1->-1",symbol,Task/Common/config/global_config.json,BPSK bit to symbol mapping,FROZEN
+hardDecisionRule,"y>=0->0;y<0->1",bit,Task/Common/config/global_config.json,Hard decision including zero boundary,FROZEN
+sigmaSquaredFormula,1/(2*R*10^(EbN0_dB/10)),,Task/Common/config/global_config.json,AWGN noise variance,FROZEN
+llrFormula,2*y_i/sigma^2,,Task/Common/config/global_config.json,LLR sign convention,FROZEN
+confidenceLevel,0.95,,Task/Common/config/global_config.json,Confidence interval level,FROZEN
+confidenceIntervalMethod,Wilson score interval,,Task/Common/config/global_config.json,Default CI method,FROZEN
+reuseNoiseAcrossSnr,true,,Task/Common/config/seed_policy.json,Cross-SNR reuse of standard Gaussian z,FROZEN
+noiseSeedFields,"masterSeed;noiseGroupId;frameIndex",,Task/Common/config/seed_policy.json,Noise seed context,FROZEN
+excludedNoiseSeedFields,"snrIndex;EbN0_dB;decoderType;decoderName;algorithmName",,Task/Common/config/seed_policy.json,Fields excluded from standard Gaussian seed,FROZEN
+smokeStop,"min=20;targetErrors=5;max=100",frame,Task/Common/config/stop_rules.json,Smoke stopping parameters,FROZEN
+prescanStop,"min=300;targetErrors=30;max=2000",frame,Task/Common/config/stop_rules.json,Prescan stopping parameters,FROZEN
+formalTrialStop,"min=1000;targetErrors=100;max=20000",frame,Task/Common/config/stop_rules.json,Formal trial stopping parameters,FROZEN
+formalStop,"min=5000;targetErrors=200;max=50000",frame,Task/Common/config/stop_rules.json,Formal stopping parameters,FROZEN
+stopLogic,"(frames>=minFrames AND frameErrors>=targetFrameErrors) OR frames>=maxFrames",,Task/Common/config/stop_rules.json,Only allowed automatic stop logic,FROZEN
+pointResultsFile,point_results.csv,,Task/Common/config/result_schema.json,Point-level result file,FROZEN
+curveSummaryFile,curve_summary.csv,,Task/Common/config/result_schema.json,Curve-level summary file,FROZEN
+plotNamingTemplate,{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png,,Task/Common/config/result_schema.json,Only allowed plot naming template,FROZEN
+overwriteExistingResults,false,,Task/Common/config/global_config.json,Default overwrite policy,FROZEN

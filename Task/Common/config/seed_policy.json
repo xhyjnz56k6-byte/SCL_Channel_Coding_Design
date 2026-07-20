@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "common01.seed_policy.v1",
+  "masterSeed": 2026072001,
+  "payloadSeedPolicy": {
+    "fields": ["masterSeed", "payloadLength", "frameIndex"],
+    "payloadLengths": [200, 300],
+    "note": "Payload generator is defined in a later stage; this stage freezes the fields only."
+  },
+  "noiseSeedPolicy": {
+    "principle": "Every frame uses an independent standard Gaussian vector. Same seed context reproduces the same frame.",
+    "differentFrameIndexMeansDifferentNoise": true,
+    "sameFrameDifferentSymbolsIndependent": true,
+    "doNotReuseOneNoiseVectorForAllFrames": true
+  },
+  "interleaverSeedPolicy": {
+    "fields": ["masterSeed", "interleaverId", "frameIndex"],
+    "onlyForBurstErrorBchOrCc": true
+  },
+  "noiseGroupIdDefinition": {
+    "field": "noiseGroupId",
+    "meaning": "Fair comparison group id. Algorithms in the same group share the same standard Gaussian noise, received symbols, or LLR as applicable.",
+    "ccSharedGroup": "hard and soft Viterbi share payload, codeword, puncturing result, standard Gaussian noise, and receivedSymbols.",
+    "ldpcSharedGroup": "Layered BP and Layered NMS share payload, codeword, H, standard Gaussian noise, receivedSymbols, and LLR."
+  },
+  "reuseNoiseAcrossSnr": true,
+  "reuseNoiseAcrossSnrFormula": "y_{s,f,i}=x_{f,i}+sigma_s*z_{f,i}",
+  "noiseSeedFields": ["masterSeed", "noiseGroupId", "frameIndex"],
+  "excludedNoiseSeedFields": [
+    "snrIndex",
+    "EbN0_dB",
+    "decoderType",
+    "decoderName",
+    "algorithmName"
+  ],
+  "snrPolicyWhenReuseNoiseAcrossSnr": {
+    "snrIndexEntersStandardGaussianSeed": false,
+    "snrOnlyChangesSigma": true
+  }
+}

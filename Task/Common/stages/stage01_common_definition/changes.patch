@@ -1,0 +1,14 @@
+Common-01 is not committed yet. This file is supplemented by the snapshot directory for review.
+
+Because the Stage files are new and untracked before commit, an ordinary `git diff` may omit their full contents. The `snapshot/` directory preserves independent copies or a manifest of the key frozen definition files so the review package is complete without creating a commit.
+
+Added files are limited to:
+
+```text
+Task/Common/config/
+Task/Common/docs/
+Task/Common/scripts/
+Task/Common/stages/stage01_common_definition/
+```
+
+No files under `Task/BCH`, `Task/CC`, or `Task/LDPC` were edited by this Stage.

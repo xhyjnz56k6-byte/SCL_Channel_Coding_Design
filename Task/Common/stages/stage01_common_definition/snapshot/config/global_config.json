@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "common01.definition.v1",
+  "projectName": "SCL_Channel_Coding_Design",
+  "stageId": "stage01_common_definition",
+  "maxCodeBlockLength": 1000,
+  "motherNoiseLength": 1000,
+  "supportedPayloadLengths": [200, 300],
+  "rateDefinition": {
+    "formula": "K_payload/N_encoded",
+    "numerator": "K_payload",
+    "denominator": "N_encoded",
+    "forbiddenAlternatives": [
+      "K_codec_input/N_encoded",
+      "mother_code_rate",
+      "Keff/N",
+      "theoretical_rate"
+    ],
+    "examples": [
+      {
+        "caseId": "bch_segmented_k200",
+        "codeType": "BCH",
+        "K_payload": 200,
+        "N_encoded": 285,
+        "expectedRate": 0.7017543859649122
+      },
+      {
+        "caseId": "bch_block_k200",
+        "codeType": "BCH",
+        "K_payload": 200,
+        "N_encoded": 248,
+        "expectedRate": 0.8064516129032258
+      },
+      {
+        "caseId": "cc_k300_r12_zero_tail",
+        "codeType": "CC",
+        "K_payload": 300,
+        "N_encoded": 612,
+        "expectedRate": 0.49019607843137253
+      },
+      {
+        "caseId": "ldpc_k300_n480",
+        "codeType": "LDPC",
+        "K_payload": 300,
+        "N_encoded": 480,
+        "expectedRate": 0.625
+      },
+      {
+        "caseId": "ldpc_k300_n576",
+        "codeType": "LDPC",
+        "K_payload": 300,
+        "N_encoded": 576,
+        "expectedRate": 0.5208333333333334
+      }
+    ]
+  },
+  "lengthDefinitions": {
+    "K_payload": "Original payload bit length. BER and FER are measured only on this range.",
+    "K_codec_input": "Actual information length entering the encoder after filler, CRC, tail bits, or other adaptation bits are added.",
+    "N_encoded": "Actual final encoded length after coding or rate matching. This is the rate denominator.",
+    "N_transmitted": "Actual bit count entering BPSK and the channel. Usually equal to N_encoded but kept independent.",
+    "fillerLength": "Number of filler bits added for code length adaptation.",
+    "crcLength": "Number of CRC bits added before encoding.",
+    "tailLength": "Number of convolutional-code termination bits.",
+    "puncturedLength": "Number of removed coded bits after puncturing.",
+    "shortenedLength": "Number of shortened input or coded positions."
+  },
+  "bpskMapping": {
+    "0": 1,
+    "1": -1
+  },
+  "hardDecisionRule": {
+    "zeroBoundaryBit": 0,
+    "rules": [
+      {
+        "condition": "receivedSymbol >= 0",
+        "bit": 0
+      },
+      {
+        "condition": "receivedSymbol < 0",
+        "bit": 1
+      }
+    ]
+  },
+  "awgnModel": {
+    "receivedSymbol": "y = x + sigma*z",
+    "standardGaussian": "z ~ N(0,1)",
+    "sigmaSquaredFormula": "1/(2*R*10^(EbN0_dB/10))",
+    "sigmaFormula": "sqrt(1/(2*R*10^(EbN0_dB/10)))",
+    "rateFormula": "R=K_payload/N_encoded"
+  },
+  "llrConvention": {
+    "formula": "LLR_i = ln(P(c_i=0|y_i)/P(c_i=1|y_i)) = 2*y_i/sigma^2",
+    "positiveMeans": "bit 0",
+    "negativeMeans": "bit 1",
+    "largerMagnitudeMeans": "higher reliability"
+  },
+  "confidenceLevel": 0.95,
+  "confidenceIntervalMethod": "Wilson score interval",
+  "zeroErrorPolicy": {
+    "csvBerWhenZeroBitErrors": 0,
+    "csvFerWhenZeroFrameErrors": 0,
+    "plotUsesUpperBound": true,
+    "upperBoundApproximation": "3/N",
+    "requiredFields": [
+      "plotBER",
+      "plotFER",
+      "isZeroBitErrorPoint",
+      "isZeroFrameErrorPoint"
+    ],
+    "forbiddenPolicy": "Do not silently replace true zero by a plot floor such as 1e-6."
+  },
+  "interleaverPolicy": {
+    "baseAwgnInterleaverEnabled": false,
+    "allowedOnlyWhen": {
+      "channelType": "BURST_ERROR",
+      "codeType": ["BCH", "CC"],
+      "interleaverEnabled": true
+    },
+    "LDPC": {
+      "interleaverAllowed": false
+    }
+  },
+  "overwritePolicy": {
+    "overwriteExistingResults": false
+  },
+  "tracePolicy": {
+    "smoke": "save first 10 full frames",
+    "prescan": "save first 3 frames and first 10 error frames",
+    "formal": "disabled by default or save error-frame summary only"
+  },
+  "timingPolicy": {
+    "included": [
+      "encoding algorithm",
+      "decoding algorithm",
+      "interleaving algorithm when enabled",
+      "deinterleaving algorithm when enabled"
+    ],
+    "excluded": [
+      "file IO",
+      "logging",
+      "CSV writing",
+      "JSON writing",
+      "plotting",
+      "frame-pool reading",
+      "noise-file reading",
+      "config-file reading"
+    ],
+    "requiredFields": [
+      "avgEncodeTime_us",
+      "maxEncodeTime_us",
+      "avgDecodeTime_us",
+      "maxDecodeTime_us",
+      "p95DecodeTime_us"
+    ],
+    "batchTimingFields": [
+      "batchSize",
+      "totalMeasuredTime",
+      "derivedPerFrameTime"
+    ]
+  }
+}

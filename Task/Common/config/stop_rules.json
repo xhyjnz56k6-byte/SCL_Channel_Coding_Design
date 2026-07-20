@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "common01.stop_rules.v1",
+  "smoke": {
+    "minFrames": 20,
+    "targetFrameErrors": 5,
+    "maxFrames": 100
+  },
+  "prescan": {
+    "minFrames": 300,
+    "targetFrameErrors": 30,
+    "maxFrames": 2000,
+    "suggestedSnrStep_dB": 0.5
+  },
+  "formalTrial": {
+    "minFrames": 1000,
+    "targetFrameErrors": 100,
+    "maxFrames": 20000
+  },
+  "formal": {
+    "minFrames": 5000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000,
+    "suggestedSnrStep_dB": 0.1
+  },
+  "stopLogic": {
+    "expression": "(frames >= minFrames AND frameErrors >= targetFrameErrors) OR frames >= maxFrames",
+    "priority": [
+      "ERROR_ABORT",
+      "MANUAL_STOP",
+      "TARGET_ERRORS_REACHED",
+      "MAX_FRAMES_REACHED"
+    ],
+    "forbiddenExpression": "frames >= minFrames OR frameErrors >= targetFrameErrors"
+  },
+  "stopReasons": [
+    "TARGET_ERRORS_REACHED",
+    "MAX_FRAMES_REACHED",
+    "MANUAL_STOP",
+    "ERROR_ABORT"
+  ]
+}
