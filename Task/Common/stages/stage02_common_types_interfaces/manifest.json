@@ -34,6 +34,7 @@
   ],
   "validationStatus": "PASS",
   "gate": "PASS_COMMON_TYPES_INTERFACES",
-  "commitStatus": "NOT_COMMITTED",
+  "commitStatus": "COMMITTED",
+  "commit": "290b868b85513398f34a5c153c39ad8f409a55a3",
   "pushStatus": "NOT_PUSHED"
 }
