@@ -112,17 +112,44 @@ git status --porcelain=v1 Task/BCH Task/CC Task/LDPC
 Results:
 
 - Current branch: `stage01-common-definition`.
-- Working tree: new untracked `Task/Common/` files only.
-- `git diff --stat` and `git diff -- Task/Common` are empty because the Stage files are new and not staged or committed.
-- `git ls-files --others --exclude-standard Task/Common` lists only Common-01 files and snapshot copies.
+- Pre-commit status originally contained new `Task/Common/` files only.
+- Post-commit compare range is `main...stage01-common-definition`.
+- `git diff --name-status main...stage01-common-definition` is the authoritative review scope after `main` was pushed.
 - `Task/BCH`, `Task/CC`, and `Task/LDPC` have no status output, so no out-of-scope edits were detected.
+- Remote `main` was later pushed so GitHub can compare `main...stage01-common-definition`.
+- The validator now checks committed `main...HEAD` paths and fails if any committed path is outside Common-01 allowed prefixes.
 
 ## Commit
 
-Initial Stage commit:
+Initial Stage commits:
 
 ```text
-899c4c4 stage01: freeze common definitions
+899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d stage01: freeze common definitions
+e76e5fbadf820be25d6c8deebf5597144d631b1f stage01: record common definition commit metadata
 ```
 
-After this commit, audit metadata is updated to record the commit hash.
+Base commit:
+
+```text
+a3449dbf5a0d33ad805ca3de406afa489b162e24 initial project baseline
+```
+
+Remote status after repair:
+
+```text
+main: pushed to origin/main
+stage01-common-definition: pushed to origin/stage01-common-definition
+merge_status: NOT_MERGED
+```
+
+## Common-01 Repair Notes
+
+The Codex/GPT review identified audit-chain issues. The repair addresses them as follows:
+
+```text
+checkpoint SNR fields: snrIndex + ebN0_dB, no ambiguous SNR field
+point required fields: expanded to include run/case/code/channel/length/SNR/count/error/hash fields
+validator: checks changes.patch, snapshot equality, Git diff boundary, and expected negative-test failure reasons
+manifest/git_commit: records full base, definition, and audit commit SHA values and push status
+remote main: pushed so GitHub can compare main...stage01-common-definition
+```

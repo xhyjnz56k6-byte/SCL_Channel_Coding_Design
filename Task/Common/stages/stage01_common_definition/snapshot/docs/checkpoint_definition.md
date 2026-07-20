@@ -10,6 +10,7 @@ runId
 experimentId
 caseId
 snrIndex
+ebN0_dB
 nextFrameIndex
 framesProcessed
 payloadBitsProcessed
@@ -33,7 +34,8 @@ gitCommit
 configHash
 framePoolHash
 caseId
-SNR
+snrIndex
+ebN0_dB
 noisePolicyVersion
 ```
 
@@ -48,4 +50,3 @@ Common-01 不实现：
 - 连续运行与恢复运行一致性测试。
 
 这些内容由 Common-07 实现。
-

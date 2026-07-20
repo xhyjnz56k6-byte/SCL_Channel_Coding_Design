@@ -9,10 +9,11 @@ known-bad mutations, and verifies that each mutation fails validation.
 from __future__ import annotations
 
 import argparse
-import copy
+import hashlib
 import json
 import math
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -33,10 +34,12 @@ REQUIRED_FILES = [
     "Task/Common/stages/stage01_common_definition/changed_files.md",
     "Task/Common/stages/stage01_common_definition/validation_report.md",
     "Task/Common/stages/stage01_common_definition/manifest.json",
+    "Task/Common/stages/stage01_common_definition/changes.patch",
     "Task/Common/stages/stage01_common_definition/frozen_config.csv",
     "Task/Common/stages/stage01_common_definition/commands_used.md",
     "Task/Common/stages/stage01_common_definition/git_commit.txt",
     "Task/Common/stages/stage01_common_definition/known_issues.md",
+    "Task/Common/stages/stage01_common_definition/snapshot/README.md",
 ]
 
 GLOBAL_FIELDS = [
@@ -78,6 +81,7 @@ CHECKPOINT_FIELDS = [
     "experimentId",
     "caseId",
     "snrIndex",
+    "ebN0_dB",
     "nextFrameIndex",
     "framesProcessed",
     "payloadBitsProcessed",
@@ -93,6 +97,54 @@ CHECKPOINT_FIELDS = [
     "noisePolicyVersion",
     "codeVersion",
     "gitCommit",
+]
+
+POINT_REQUIRED_FIELDS = [
+    "stageId",
+    "runId",
+    "experimentId",
+    "caseId",
+    "codeType",
+    "decoderType",
+    "channelType",
+    "noiseGroupId",
+    "payloadLength",
+    "encodedLength",
+    "transmittedLength",
+    "codeRate",
+    "ebN0_dB",
+    "frames",
+    "payloadBits",
+    "bitErrors",
+    "frameErrors",
+    "BER",
+    "FER",
+    "payloadSuccessRate",
+    "stopReason",
+    "masterSeed",
+    "configHash",
+    "gitCommit",
+]
+
+SNAPSHOT_PAIRS = [
+    ("Task/Common/config/global_config.json", "Task/Common/stages/stage01_common_definition/snapshot/config/global_config.json"),
+    ("Task/Common/config/seed_policy.json", "Task/Common/stages/stage01_common_definition/snapshot/config/seed_policy.json"),
+    ("Task/Common/config/stop_rules.json", "Task/Common/stages/stage01_common_definition/snapshot/config/stop_rules.json"),
+    ("Task/Common/config/result_schema.json", "Task/Common/stages/stage01_common_definition/snapshot/config/result_schema.json"),
+    ("Task/Common/docs/common_simulation_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/common_simulation_definition.md"),
+    ("Task/Common/docs/metric_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/metric_definition.md"),
+    ("Task/Common/docs/seed_policy.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/seed_policy.md"),
+    ("Task/Common/docs/plot_naming_rules.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/plot_naming_rules.md"),
+    ("Task/Common/docs/checkpoint_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/checkpoint_definition.md"),
+    ("Task/Common/docs/terminology.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/terminology.md"),
+    ("Task/Common/scripts/validate_common01_definition.py", "Task/Common/stages/stage01_common_definition/snapshot/scripts/validate_common01_definition.py"),
+]
+
+ALLOWED_DIFF_PREFIXES = [
+    "Task/Common/config/",
+    "Task/Common/docs/",
+    "Task/Common/scripts/",
+    "Task/Common/stages/stage01_common_definition/",
 ]
 
 
@@ -125,9 +177,49 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git"] + args,
+        cwd=str(root),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+
+
 def require(condition: bool, message: str, failures: list[str]) -> None:
     if not condition:
         failures.append(message)
+
+
+def validate_git_boundaries(root: Path, failures: list[str]) -> None:
+    if not (root / ".git").exists():
+        return
+    main_check = run_git(root, ["rev-parse", "--verify", "main"])
+    head_check = run_git(root, ["rev-parse", "--verify", "HEAD"])
+    if main_check.returncode != 0 or head_check.returncode != 0:
+        return
+    diff = run_git(root, ["diff", "--name-only", "main...HEAD"])
+    require(diff.returncode == 0, f"git diff main...HEAD failed: {diff.stderr.strip()}", failures)
+    if diff.returncode != 0:
+        return
+    paths = [line.strip().replace("\\", "/") for line in diff.stdout.splitlines() if line.strip()]
+    require(paths, "git diff main...HEAD must not be empty for Common-01 stage", failures)
+    for path in paths:
+        require(
+            any(path.startswith(prefix) for prefix in ALLOWED_DIFF_PREFIXES),
+            f"out-of-scope committed diff path: {path}",
+            failures,
+        )
 
 
 def validate(root: Path) -> list[str]:
@@ -146,6 +238,22 @@ def validate(root: Path) -> list[str]:
         manifest = load_json(root / "Task/Common/stages/stage01_common_definition/manifest.json")
     except (json.JSONDecodeError, DuplicateKeyError) as exc:
         return [f"JSON parse failed: {exc}"]
+
+    changes_patch = root / "Task/Common/stages/stage01_common_definition/changes.patch"
+    patch_text = read_text(changes_patch)
+    require(len(patch_text.strip()) > 0, "changes.patch must be non-empty", failures)
+    require("Task/Common/" in patch_text, "changes.patch must reference Task/Common changes", failures)
+
+    for source, snapshot in SNAPSHOT_PAIRS:
+        source_path = root / source
+        snapshot_path = root / snapshot
+        require(snapshot_path.is_file(), f"missing snapshot copy: {snapshot}", failures)
+        if source_path.is_file() and snapshot_path.is_file():
+            require(
+                sha256_file(source_path) == sha256_file(snapshot_path),
+                f"snapshot mismatch: {snapshot}",
+                failures,
+            )
 
     for field in GLOBAL_FIELDS:
         require(field in global_config, f"global_config missing field: {field}", failures)
@@ -239,6 +347,13 @@ def validate(root: Path) -> list[str]:
 
     for field in CHECKPOINT_FIELDS:
         require(field in result_schema.get("checkpointFields", []), f"checkpoint missing field: {field}", failures)
+    resume_fields = result_schema.get("checkpointResumeValidationFields", [])
+    require("SNR" not in resume_fields, "checkpoint resume validation must not use ambiguous SNR field", failures)
+    for field in ["snrIndex", "ebN0_dB"]:
+        require(field in resume_fields, f"checkpoint resume validation missing field: {field}", failures)
+    point_required = result_schema.get("requiredFields", {}).get("point_results.csv", [])
+    for field in POINT_REQUIRED_FIELDS:
+        require(field in point_required, f"point_results.csv requiredFields missing: {field}", failures)
     require(
         result_schema.get("fileSeparation", {}).get("pointResultsFile") == "point_results.csv",
         "point result file must be point_results.csv",
@@ -285,14 +400,22 @@ def validate(root: Path) -> list[str]:
 
     require(manifest.get("stage") == "stage01_common_definition", "manifest stage mismatch", failures)
     require(manifest.get("branch") == "stage01-common-definition", "manifest branch mismatch", failures)
-    require(manifest.get("gate") == "PASS_COMMON_DEFINITION", "manifest gate mismatch", failures)
+    require(
+        manifest.get("gate") in ["PENDING", "PASS_COMMON_DEFINITION", "BLOCKED_COMMON_DEFINITION", "FAIL_COMMON_DEFINITION"],
+        "manifest gate must be a known Gate value",
+        failures,
+    )
     require(
         manifest.get("commitStatus") in ["NOT_COMMITTED", "COMMITTED"],
         "manifest commitStatus must be NOT_COMMITTED or COMMITTED",
         failures,
     )
     if manifest.get("commitStatus") == "COMMITTED":
-        require(bool(manifest.get("commitHash")), "manifest commitHash is required when committed", failures)
+        for field in ["baseCommit", "definitionCommit", "auditCommit"]:
+            require(bool(manifest.get(field)), f"manifest {field} is required when committed", failures)
+    require(manifest.get("pushStatus") in ["NOT_PUSHED", "PUSHED"], "manifest pushStatus is invalid", failures)
+
+    validate_git_boundaries(root, failures)
 
     return failures
 
@@ -311,25 +434,40 @@ def mutate(path: Path, dotted: str, value_marker) -> None:
     save_json(path, data)
 
 
+def snapshot_for(relative: str) -> str | None:
+    prefix = "Task/Common/"
+    if not relative.startswith(prefix):
+        return None
+    suffix = relative[len(prefix):]
+    if suffix.startswith("config/"):
+        return f"Task/Common/stages/stage01_common_definition/snapshot/{suffix}"
+    return None
+
+
 def run_negative_tests(root: Path) -> list[str]:
     tests = [
-        ("reuseNoiseAcrossSnr false", "Task/Common/config/seed_policy.json", "reuseNoiseAcrossSnr", False),
-        ("delete K_payload definition", "Task/Common/config/global_config.json", "lengthDefinitions.K_payload", "__DELETE__"),
-        ("decoderType in noiseSeedFields", "Task/Common/config/seed_policy.json", "noiseSeedFields", ["masterSeed", "noiseGroupId", "frameIndex", "decoderType"]),
-        ("LDPC interleaver allowed", "Task/Common/config/global_config.json", "interleaverPolicy.LDPC.interleaverAllowed", True),
-        ("smoke maxFrames less than minFrames", "Task/Common/config/stop_rules.json", "smoke.maxFrames", 10),
-        ("wrong rate formula", "Task/Common/config/global_config.json", "rateDefinition.formula", "K_codec_input/N_encoded"),
-        ("delete checkpoint required field", "Task/Common/config/result_schema.json", "checkpointFields", [field for field in CHECKPOINT_FIELDS if field != "gitCommit"]),
+        ("reuseNoiseAcrossSnr false", "Task/Common/config/seed_policy.json", "reuseNoiseAcrossSnr", False, "reuseNoiseAcrossSnr must be true"),
+        ("delete K_payload definition", "Task/Common/config/global_config.json", "lengthDefinitions.K_payload", "__DELETE__", "missing length definition: K_payload"),
+        ("decoderType in noiseSeedFields", "Task/Common/config/seed_policy.json", "noiseSeedFields", ["masterSeed", "noiseGroupId", "frameIndex", "decoderType"], "decoderType must not enter noiseSeedFields"),
+        ("LDPC interleaver allowed", "Task/Common/config/global_config.json", "interleaverPolicy.LDPC.interleaverAllowed", True, "LDPC interleaver must be forbidden"),
+        ("smoke maxFrames less than minFrames", "Task/Common/config/stop_rules.json", "smoke.maxFrames", 10, "smoke: maxFrames < minFrames"),
+        ("wrong rate formula", "Task/Common/config/global_config.json", "rateDefinition.formula", "K_codec_input/N_encoded", "rate formula must be K_payload/N_encoded"),
+        ("delete checkpoint required field", "Task/Common/config/result_schema.json", "checkpointFields", [field for field in CHECKPOINT_FIELDS if field != "gitCommit"], "checkpoint missing field: gitCommit"),
     ]
     failures: list[str] = []
-    for name, relative, dotted, bad_value in tests:
+    for name, relative, dotted, bad_value, expected in tests:
         with tempfile.TemporaryDirectory(prefix="common01_neg_") as temp:
             temp_root = Path(temp)
             shutil.copytree(root / "Task", temp_root / "Task")
             mutate(temp_root / relative, dotted, bad_value)
+            snapshot_relative = snapshot_for(relative)
+            if snapshot_relative and (temp_root / snapshot_relative).is_file():
+                mutate(temp_root / snapshot_relative, dotted, bad_value)
             result = validate(temp_root)
             if not result:
                 failures.append(f"negative test did not fail: {name}")
+            elif not any(expected in failure for failure in result):
+                failures.append(f"negative test failed for the wrong reason: {name}; expected substring: {expected}; got: {result[0]}")
             else:
                 print(f"NEGATIVE TEST EXPECTED FAIL: {name}")
                 print(f"  first failure: {result[0]}")

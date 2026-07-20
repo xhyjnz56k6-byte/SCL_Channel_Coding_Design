@@ -34,7 +34,7 @@
 - 类型：新增
 - 作用：冻结 point results、curve summary、metadata、checkpoint 和 trace 字段。
 - 原因：后续输出、恢复和审计需要统一字段。
-- 关键字段：`pointResultFields`、`curveSummaryFields`、`checkpointFields`
+- 关键字段：`pointResultFields`、`requiredFields`、`curveSummaryFields`、`checkpointFields`、`checkpointResumeValidationFields`
 - 是否影响旧行为：否。
 - 与 Common-01 的关系：核心冻结配置。
 
@@ -53,6 +53,7 @@
 - 作用：实际检查 Common-01 定义文件、JSON 类型、码率样例、seed 排除、停止逻辑、文档一致性和负向测试。
 - 原因：证明 Gate 不是手写 PASS。
 - 关键入口：正常验证、`--negative-tests`
+- 修复增强：检查 `changes.patch`、snapshot SHA 一致性、`main...HEAD` 已提交路径边界、负向测试预期失败原因。
 - 是否影响旧行为：否。
 - 与 Common-01 的关系：Gate 验证脚本。
 
@@ -71,4 +72,3 @@ None.
 ## Deleted Files
 
 None.
-

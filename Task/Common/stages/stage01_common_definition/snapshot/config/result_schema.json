@@ -89,6 +89,7 @@
     "experimentId",
     "caseId",
     "snrIndex",
+    "ebN0_dB",
     "nextFrameIndex",
     "framesProcessed",
     "payloadBitsProcessed",
@@ -109,7 +110,8 @@
     "configHash",
     "framePoolHash",
     "caseId",
-    "SNR",
+    "snrIndex",
+    "ebN0_dB",
     "noisePolicyVersion"
   ],
   "traceFields": [
@@ -129,10 +131,35 @@
     "frameError"
   ],
   "requiredFields": {
-    "point_results.csv": ["stageId", "caseId", "noiseGroupId", "codeRate", "BER", "FER", "stopReason"],
+    "point_results.csv": [
+      "stageId",
+      "runId",
+      "experimentId",
+      "caseId",
+      "codeType",
+      "decoderType",
+      "channelType",
+      "noiseGroupId",
+      "payloadLength",
+      "encodedLength",
+      "transmittedLength",
+      "codeRate",
+      "ebN0_dB",
+      "frames",
+      "payloadBits",
+      "bitErrors",
+      "frameErrors",
+      "BER",
+      "FER",
+      "payloadSuccessRate",
+      "stopReason",
+      "masterSeed",
+      "configHash",
+      "gitCommit"
+    ],
     "curve_summary.csv": ["caseId", "targetMetric", "codingGain_dB", "validOrNA"],
     "run_metadata.json": ["projectName", "stageId", "gitCommit", "noisePolicyVersion"],
-    "checkpoint": ["stageId", "runId", "caseId", "snrIndex", "nextFrameIndex", "configHash"],
+    "checkpoint": ["stageId", "runId", "caseId", "snrIndex", "ebN0_dB", "nextFrameIndex", "configHash"],
     "trace.csv": ["frameIndex", "payloadPrefix", "rxSymbolsPrefix", "bitErrors", "frameError"]
   },
   "fileSeparation": {

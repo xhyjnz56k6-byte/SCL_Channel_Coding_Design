@@ -1,14 +1,3669 @@
-Common-01 is not committed yet. This file is supplemented by the snapshot directory for review.
-
-Because the Stage files are new and untracked before commit, an ordinary `git diff` may omit their full contents. The `snapshot/` directory preserves independent copies or a manifest of the key frozen definition files so the review package is complete without creating a commit.
-
-Added files are limited to:
-
-```text
-Task/Common/config/
-Task/Common/docs/
-Task/Common/scripts/
-Task/Common/stages/stage01_common_definition/
-```
-
-No files under `Task/BCH`, `Task/CC`, or `Task/LDPC` were edited by this Stage.
+﻿diff --git a/Task/Common/config/global_config.json b/Task/Common/config/global_config.json
+new file mode 100644
+index 0000000..c03b489
+--- /dev/null
++++ b/Task/Common/config/global_config.json
+@@ -0,0 +1,161 @@
++{
++  "schemaVersion": "common01.definition.v1",
++  "projectName": "SCL_Channel_Coding_Design",
++  "stageId": "stage01_common_definition",
++  "maxCodeBlockLength": 1000,
++  "motherNoiseLength": 1000,
++  "supportedPayloadLengths": [200, 300],
++  "rateDefinition": {
++    "formula": "K_payload/N_encoded",
++    "numerator": "K_payload",
++    "denominator": "N_encoded",
++    "forbiddenAlternatives": [
++      "K_codec_input/N_encoded",
++      "mother_code_rate",
++      "Keff/N",
++      "theoretical_rate"
++    ],
++    "examples": [
++      {
++        "caseId": "bch_segmented_k200",
++        "codeType": "BCH",
++        "K_payload": 200,
++        "N_encoded": 285,
++        "expectedRate": 0.7017543859649122
++      },
++      {
++        "caseId": "bch_block_k200",
++        "codeType": "BCH",
++        "K_payload": 200,
++        "N_encoded": 248,
++        "expectedRate": 0.8064516129032258
++      },
++      {
++        "caseId": "cc_k300_r12_zero_tail",
++        "codeType": "CC",
++        "K_payload": 300,
++        "N_encoded": 612,
++        "expectedRate": 0.49019607843137253
++      },
++      {
++        "caseId": "ldpc_k300_n480",
++        "codeType": "LDPC",
++        "K_payload": 300,
++        "N_encoded": 480,
++        "expectedRate": 0.625
++      },
++      {
++        "caseId": "ldpc_k300_n576",
++        "codeType": "LDPC",
++        "K_payload": 300,
++        "N_encoded": 576,
++        "expectedRate": 0.5208333333333334
++      }
++    ]
++  },
++  "lengthDefinitions": {
++    "K_payload": "Original payload bit length. BER and FER are measured only on this range.",
++    "K_codec_input": "Actual information length entering the encoder after filler, CRC, tail bits, or other adaptation bits are added.",
++    "N_encoded": "Actual final encoded length after coding or rate matching. This is the rate denominator.",
++    "N_transmitted": "Actual bit count entering BPSK and the channel. Usually equal to N_encoded but kept independent.",
++    "fillerLength": "Number of filler bits added for code length adaptation.",
++    "crcLength": "Number of CRC bits added before encoding.",
++    "tailLength": "Number of convolutional-code termination bits.",
++    "puncturedLength": "Number of removed coded bits after puncturing.",
++    "shortenedLength": "Number of shortened input or coded positions."
++  },
++  "bpskMapping": {
++    "0": 1,
++    "1": -1
++  },
++  "hardDecisionRule": {
++    "zeroBoundaryBit": 0,
++    "rules": [
++      {
++        "condition": "receivedSymbol >= 0",
++        "bit": 0
++      },
++      {
++        "condition": "receivedSymbol < 0",
++        "bit": 1
++      }
++    ]
++  },
++  "awgnModel": {
++    "receivedSymbol": "y = x + sigma*z",
++    "standardGaussian": "z ~ N(0,1)",
++    "sigmaSquaredFormula": "1/(2*R*10^(EbN0_dB/10))",
++    "sigmaFormula": "sqrt(1/(2*R*10^(EbN0_dB/10)))",
++    "rateFormula": "R=K_payload/N_encoded"
++  },
++  "llrConvention": {
++    "formula": "LLR_i = ln(P(c_i=0|y_i)/P(c_i=1|y_i)) = 2*y_i/sigma^2",
++    "positiveMeans": "bit 0",
++    "negativeMeans": "bit 1",
++    "largerMagnitudeMeans": "higher reliability"
++  },
++  "confidenceLevel": 0.95,
++  "confidenceIntervalMethod": "Wilson score interval",
++  "zeroErrorPolicy": {
++    "csvBerWhenZeroBitErrors": 0,
++    "csvFerWhenZeroFrameErrors": 0,
++    "plotUsesUpperBound": true,
++    "upperBoundApproximation": "3/N",
++    "requiredFields": [
++      "plotBER",
++      "plotFER",
++      "isZeroBitErrorPoint",
++      "isZeroFrameErrorPoint"
++    ],
++    "forbiddenPolicy": "Do not silently replace true zero by a plot floor such as 1e-6."
++  },
++  "interleaverPolicy": {
++    "baseAwgnInterleaverEnabled": false,
++    "allowedOnlyWhen": {
++      "channelType": "BURST_ERROR",
++      "codeType": ["BCH", "CC"],
++      "interleaverEnabled": true
++    },
++    "LDPC": {
++      "interleaverAllowed": false
++    }
++  },
++  "overwritePolicy": {
++    "overwriteExistingResults": false
++  },
++  "tracePolicy": {
++    "smoke": "save first 10 full frames",
++    "prescan": "save first 3 frames and first 10 error frames",
++    "formal": "disabled by default or save error-frame summary only"
++  },
++  "timingPolicy": {
++    "included": [
++      "encoding algorithm",
++      "decoding algorithm",
++      "interleaving algorithm when enabled",
++      "deinterleaving algorithm when enabled"
++    ],
++    "excluded": [
++      "file IO",
++      "logging",
++      "CSV writing",
++      "JSON writing",
++      "plotting",
++      "frame-pool reading",
++      "noise-file reading",
++      "config-file reading"
++    ],
++    "requiredFields": [
++      "avgEncodeTime_us",
++      "maxEncodeTime_us",
++      "avgDecodeTime_us",
++      "maxDecodeTime_us",
++      "p95DecodeTime_us"
++    ],
++    "batchTimingFields": [
++      "batchSize",
++      "totalMeasuredTime",
++      "derivedPerFrameTime"
++    ]
++  }
++}
+diff --git a/Task/Common/config/result_schema.json b/Task/Common/config/result_schema.json
+new file mode 100644
+index 0000000..6ef9525
+--- /dev/null
++++ b/Task/Common/config/result_schema.json
+@@ -0,0 +1,172 @@
++{
++  "schemaVersion": "common01.result_schema.v1",
++  "pointResultFields": [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "codeType",
++    "decoderType",
++    "channelType",
++    "noiseGroupId",
++    "payloadLength",
++    "codecInputLength",
++    "encodedLength",
++    "transmittedLength",
++    "fillerLength",
++    "crcLength",
++    "tailLength",
++    "puncturedLength",
++    "shortenedLength",
++    "codeRate",
++    "ebN0_dB",
++    "sigma",
++    "frames",
++    "payloadBits",
++    "bitErrors",
++    "frameErrors",
++    "BER",
++    "FER",
++    "payloadSuccessRate",
++    "decoderDeclaredSuccessRate",
++    "undetectedErrorFrames",
++    "undetectedErrorRate",
++    "berCiLower",
++    "berCiUpper",
++    "ferCiLower",
++    "ferCiUpper",
++    "plotBER",
++    "plotFER",
++    "isZeroBitErrorPoint",
++    "isZeroFrameErrorPoint",
++    "avgEncodeTime_us",
++    "maxEncodeTime_us",
++    "avgDecodeTime_us",
++    "maxDecodeTime_us",
++    "p95DecodeTime_us",
++    "avgIterations",
++    "maxIterations",
++    "earlyStopFrames",
++    "stopReason",
++    "masterSeed",
++    "framePoolId",
++    "configHash",
++    "gitCommit"
++  ],
++  "curveSummaryFields": [
++    "stageId",
++    "caseId",
++    "decoderType",
++    "targetMetric",
++    "targetValue",
++    "referenceCase",
++    "referenceCrossing_dB",
++    "candidateCrossing_dB",
++    "codingGain_dB",
++    "interpolationMethod",
++    "validOrNA"
++  ],
++  "metadataFields": [
++    "runId",
++    "experimentId",
++    "projectName",
++    "stageId",
++    "configFiles",
++    "operatingSystem",
++    "pythonVersion",
++    "compilerVersion",
++    "matlabVersion",
++    "gitCommit",
++    "startTime",
++    "endTime",
++    "seedPolicy",
++    "framePoolHash",
++    "noisePolicyVersion"
++  ],
++  "checkpointFields": [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "snrIndex",
++    "ebN0_dB",
++    "nextFrameIndex",
++    "framesProcessed",
++    "payloadBitsProcessed",
++    "bitErrors",
++    "frameErrors",
++    "payloadSuccessFrames",
++    "decoderDeclaredSuccessFrames",
++    "undetectedErrorFrames",
++    "timingAccumulator",
++    "iterationAccumulator",
++    "configHash",
++    "framePoolHash",
++    "noisePolicyVersion",
++    "codeVersion",
++    "gitCommit"
++  ],
++  "checkpointResumeValidationFields": [
++    "configHash",
++    "framePoolHash",
++    "caseId",
++    "snrIndex",
++    "ebN0_dB",
++    "noisePolicyVersion"
++  ],
++  "traceFields": [
++    "stageId",
++    "runId",
++    "caseId",
++    "frameIndex",
++    "payloadPrefix",
++    "encodedPrefix",
++    "noisePrefix",
++    "txSymbolsPrefix",
++    "rxSymbolsPrefix",
++    "hardBitsPrefix",
++    "llrPrefix",
++    "decodedPrefix",
++    "bitErrors",
++    "frameError"
++  ],
++  "requiredFields": {
++    "point_results.csv": [
++      "stageId",
++      "runId",
++      "experimentId",
++      "caseId",
++      "codeType",
++      "decoderType",
++      "channelType",
++      "noiseGroupId",
++      "payloadLength",
++      "encodedLength",
++      "transmittedLength",
++      "codeRate",
++      "ebN0_dB",
++      "frames",
++      "payloadBits",
++      "bitErrors",
++      "frameErrors",
++      "BER",
++      "FER",
++      "payloadSuccessRate",
++      "stopReason",
++      "masterSeed",
++      "configHash",
++      "gitCommit"
++    ],
++    "curve_summary.csv": ["caseId", "targetMetric", "codingGain_dB", "validOrNA"],
++    "run_metadata.json": ["projectName", "stageId", "gitCommit", "noisePolicyVersion"],
++    "checkpoint": ["stageId", "runId", "caseId", "snrIndex", "ebN0_dB", "nextFrameIndex", "configHash"],
++    "trace.csv": ["frameIndex", "payloadPrefix", "rxSymbolsPrefix", "bitErrors", "frameError"]
++  },
++  "fileSeparation": {
++    "pointResultsFile": "point_results.csv",
++    "curveSummaryFile": "curve_summary.csv",
++    "codingGainLocation": "curve_summary.csv"
++  },
++  "plotNamingTemplate": "{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png",
++  "forbiddenPlotNames": ["figure1.png", "result.png", "plot.png", "new_result.png"]
++}
+diff --git a/Task/Common/config/seed_policy.json b/Task/Common/config/seed_policy.json
+new file mode 100644
+index 0000000..f8e999f
+--- /dev/null
++++ b/Task/Common/config/seed_policy.json
+@@ -0,0 +1,39 @@
++{
++  "schemaVersion": "common01.seed_policy.v1",
++  "masterSeed": 2026072001,
++  "payloadSeedPolicy": {
++    "fields": ["masterSeed", "payloadLength", "frameIndex"],
++    "payloadLengths": [200, 300],
++    "note": "Payload generator is defined in a later stage; this stage freezes the fields only."
++  },
++  "noiseSeedPolicy": {
++    "principle": "Every frame uses an independent standard Gaussian vector. Same seed context reproduces the same frame.",
++    "differentFrameIndexMeansDifferentNoise": true,
++    "sameFrameDifferentSymbolsIndependent": true,
++    "doNotReuseOneNoiseVectorForAllFrames": true
++  },
++  "interleaverSeedPolicy": {
++    "fields": ["masterSeed", "interleaverId", "frameIndex"],
++    "onlyForBurstErrorBchOrCc": true
++  },
++  "noiseGroupIdDefinition": {
++    "field": "noiseGroupId",
++    "meaning": "Fair comparison group id. Algorithms in the same group share the same standard Gaussian noise, received symbols, or LLR as applicable.",
++    "ccSharedGroup": "hard and soft Viterbi share payload, codeword, puncturing result, standard Gaussian noise, and receivedSymbols.",
++    "ldpcSharedGroup": "Layered BP and Layered NMS share payload, codeword, H, standard Gaussian noise, receivedSymbols, and LLR."
++  },
++  "reuseNoiseAcrossSnr": true,
++  "reuseNoiseAcrossSnrFormula": "y_{s,f,i}=x_{f,i}+sigma_s*z_{f,i}",
++  "noiseSeedFields": ["masterSeed", "noiseGroupId", "frameIndex"],
++  "excludedNoiseSeedFields": [
++    "snrIndex",
++    "EbN0_dB",
++    "decoderType",
++    "decoderName",
++    "algorithmName"
++  ],
++  "snrPolicyWhenReuseNoiseAcrossSnr": {
++    "snrIndexEntersStandardGaussianSeed": false,
++    "snrOnlyChangesSigma": true
++  }
++}
+diff --git a/Task/Common/config/stop_rules.json b/Task/Common/config/stop_rules.json
+new file mode 100644
+index 0000000..1b96bd1
+--- /dev/null
++++ b/Task/Common/config/stop_rules.json
+@@ -0,0 +1,41 @@
++{
++  "schemaVersion": "common01.stop_rules.v1",
++  "smoke": {
++    "minFrames": 20,
++    "targetFrameErrors": 5,
++    "maxFrames": 100
++  },
++  "prescan": {
++    "minFrames": 300,
++    "targetFrameErrors": 30,
++    "maxFrames": 2000,
++    "suggestedSnrStep_dB": 0.5
++  },
++  "formalTrial": {
++    "minFrames": 1000,
++    "targetFrameErrors": 100,
++    "maxFrames": 20000
++  },
++  "formal": {
++    "minFrames": 5000,
++    "targetFrameErrors": 200,
++    "maxFrames": 50000,
++    "suggestedSnrStep_dB": 0.1
++  },
++  "stopLogic": {
++    "expression": "(frames >= minFrames AND frameErrors >= targetFrameErrors) OR frames >= maxFrames",
++    "priority": [
++      "ERROR_ABORT",
++      "MANUAL_STOP",
++      "TARGET_ERRORS_REACHED",
++      "MAX_FRAMES_REACHED"
++    ],
++    "forbiddenExpression": "frames >= minFrames OR frameErrors >= targetFrameErrors"
++  },
++  "stopReasons": [
++    "TARGET_ERRORS_REACHED",
++    "MAX_FRAMES_REACHED",
++    "MANUAL_STOP",
++    "ERROR_ABORT"
++  ]
++}
+diff --git a/Task/Common/docs/checkpoint_definition.md b/Task/Common/docs/checkpoint_definition.md
+new file mode 100644
+index 0000000..f37b907
+--- /dev/null
++++ b/Task/Common/docs/checkpoint_definition.md
+@@ -0,0 +1,52 @@
++# checkpoint 字段定义
++
++Common-01 只冻结 checkpoint 字段，不实现读写和 resume。
++
++## 必需字段
++
++```text
++stageId
++runId
++experimentId
++caseId
++snrIndex
++ebN0_dB
++nextFrameIndex
++framesProcessed
++payloadBitsProcessed
++bitErrors
++frameErrors
++payloadSuccessFrames
++decoderDeclaredSuccessFrames
++undetectedErrorFrames
++timingAccumulator
++iterationAccumulator
++configHash
++framePoolHash
++noisePolicyVersion
++codeVersion
++gitCommit
++```
++
++## 恢复前必须验证
++
++```text
++configHash
++framePoolHash
++caseId
++snrIndex
++ebN0_dB
++noisePolicyVersion
++```
++
++若任一字段不一致，后续 Common-07 的 checkpoint/resume 实现必须拒绝恢复。
++
++## 本阶段边界
++
++Common-01 不实现：
++
++- checkpoint 文件格式读写；
++- resume 控制流程；
++- 连续运行与恢复运行一致性测试。
++
++这些内容由 Common-07 实现。
+diff --git a/Task/Common/docs/common_simulation_definition.md b/Task/Common/docs/common_simulation_definition.md
+new file mode 100644
+index 0000000..6948db0
+--- /dev/null
++++ b/Task/Common/docs/common_simulation_definition.md
+@@ -0,0 +1,129 @@
++# Common-01 公共仿真定义
++
++本文冻结 `SCL_Channel_Coding_Design` 后续公共仿真的数学定义和工程边界。本阶段只定义规则，不实现帧池、随机数、信道、译码器或仿真 runner。
++
++## 长度字段
++
++| 字段 | 定义 | 统计或码率用途 |
++|---|---|---|
++| `K_payload` | 原始输入电文长度 | BER/FER 只统计该范围；码率分子只使用该字段 |
++| `K_codec_input` | 实际进入编码器的信息长度，可包含 filler、CRC、尾比特或适配位 | 不能作为统一码率分子 |
++| `N_encoded` | 编码或码率适配后的最终实际编码长度 | 统一码率分母 |
++| `N_transmitted` | 实际送入 BPSK 和信道的比特数 | 通常等于 `N_encoded`，但独立保留 |
++| `fillerLength` | 码长适配填充位数 | 不计入 payload BER/FER，不增加码率分子 |
++| `crcLength` | CRC 位数 | 不增加码率分子 |
++| `tailLength` | 卷积码终止尾比特数 | 不增加码率分子 |
++| `puncturedLength` | 打孔删除的编码位数 | 分母使用打孔后的实际编码长度 |
++| `shortenedLength` | 缩短位数 | 必须单独记录 |
++
++## 统一码率
++
++本项目唯一允许的统一码率定义为：
++
++```text
++R = K_payload / N_encoded
++```
++
++约束：
++
++- 分子只使用原始 payload 长度。
++- filler、CRC、卷积码尾比特和 LDPC filler 不增加分子。
++- 分块编码分母使用所有块拼接后的总编码长度。
++- 打孔后分母使用打孔后的实际编码长度。
++- 禁止使用母码理论码率替代实际仿真码率。
++- 禁止使用 `K_codec_input/N_encoded` 或 `Keff/N` 作为项目统一码率。
++
++冻结样例：
++
++| case | `K_payload` | `N_encoded` | `R` |
++|---|---:|---:|---:|
++| BCH 分块 200 bit | 200 | 285 | 0.7017543859649122 |
++| BCH 整块 200 bit | 200 | 248 | 0.8064516129032258 |
++| 卷积码 300 bit、1/2 零尾 | 300 | 612 | 0.49019607843137253 |
++| LDPC 300 到 480 | 300 | 480 | 0.625 |
++| LDPC 300 到 576 | 300 | 576 | 0.5208333333333334 |
++
++## BPSK、AWGN、硬判决和 LLR
++
++BPSK 映射冻结为：
++
++```text
++0 -> +1
++1 -> -1
++```
++
++硬判决规则冻结为：
++
++```text
++receivedSymbol >= 0 -> bit 0
++receivedSymbol <  0 -> bit 1
++```
++
++特别地，`receivedSymbol == 0` 判为 bit 0。
++
++AWGN 模型冻结为：
++
++```text
++y = x + sigma*z
++z ~ N(0,1)
++sigma^2 = 1/(2*R*10^(EbN0_dB/10))
++sigma = sqrt(1/(2*R*10^(EbN0_dB/10)))
++R = K_payload/N_encoded
++```
++
++LLR 约定冻结为：
++
++```text
++LLR_i = ln(P(c_i=0|y_i)/P(c_i=1|y_i)) = 2*y_i/sigma^2
++LLR > 0 -> 倾向 bit 0
++LLR < 0 -> 倾向 bit 1
++|LLR| 越大 -> 可靠性越高
++```
++
++## 交织位置和启用条件
++
++链路位置冻结为：
++
++```text
++编码 -> 交织 -> BPSK -> 信道 -> 解调 -> 去交织 -> 译码
++```
++
++基础 AWGN 曲线默认：
++
++```text
++interleaverEnabled = false
++```
++
++交织只允许同时满足：
++
++```text
++channelType = BURST_ERROR
++codeType in {BCH, CC}
++interleaverEnabled = true
++```
++
++LDPC 永远禁止启用交织。若出现：
++
++```text
++codeType = LDPC
++interleaverEnabled = true
++```
++
++定义检查必须判定为非法。
++
++## 输出和防覆盖
++
++点级结果使用 `point_results.csv`，每个 SNR 点一行。
++
++曲线级结果使用 `curve_summary.csv`，编码增益只允许放在曲线级结果中。
++
++元数据使用 `run_metadata.json`。
++
++默认防覆盖策略冻结为：
++
++```text
++overwriteExistingResults = false
++```
++
++已有正式结果时必须拒绝静默覆盖。
++
+diff --git a/Task/Common/docs/metric_definition.md b/Task/Common/docs/metric_definition.md
+new file mode 100644
+index 0000000..1e64253
+--- /dev/null
++++ b/Task/Common/docs/metric_definition.md
+@@ -0,0 +1,172 @@
++# 指标定义
++
++## BER
++
++```text
++BER = payload 错误 bit 数 / payload 总 bit 数
++```
++
++BER 只统计 `K_payload` 范围。禁止统计 filler、CRC、tail、parity、punctured placeholder、LDPC filler 或其他辅助位。
++
++## FER
++
++一帧 payload 中只要存在至少 1 个错误 bit：
++
++```text
++frameError = true
++FER = 错误帧数 / 总帧数
++```
++
++## payload 成功率
++
++```text
++payloadSuccessRate = 1 - FER
++```
++
++它表示最终 payload 完全正确的比例。
++
++## decoder 声明成功率
++
++```text
++decoderDeclaredSuccessRate = decoderDeclaredSuccessFrames / totalFrames
++```
++
++该指标只表示译码器自己报告成功的比例，不能替代 FER 或 payload 成功率。
++
++## 未检出错误
++
++未检出错误定义为：
++
++```text
++decoderDeclaredSuccess = true
++AND
++payloadError = true
++```
++
++字段：
++
++```text
++undetectedErrorFrames
++undetectedErrorRate = undetectedErrorFrames / totalFrames
++```
++
++## 置信区间
++
++默认置信水平：
++
++```text
++confidenceLevel = 0.95
++```
++
++默认方法：
++
++```text
++Wilson score interval
++```
++
++字段：
++
++```text
++berCiLower
++berCiUpper
++ferCiLower
++ferCiUpper
++```
++
++全项目默认只能使用一种置信区间方法。若后续阶段更改方法，必须成阶段冻结并更新所有定义、配置和验证。
++
++## 零错误点
++
++若：
++
++```text
++bitErrors = 0
++```
++
++CSV 中：
++
++```text
++BER = 0
++```
++
++若：
++
++```text
++frameErrors = 0
++```
++
++CSV 中：
++
++```text
++FER = 0
++```
++
++对数图不能直接绘制 0，因此另设：
++
++```text
++plotBER
++plotFER
++isZeroBitErrorPoint
++isZeroFrameErrorPoint
++```
++
++允许使用三倍法则近似 95% 上界：
++
++```text
++p_upper ~= 3/N
++```
++
++该值是显示上界，不是实测 BER/FER。禁止把真实 0 静默替换成 `1e-6` 或绘图下限。
++
++## 编码增益
++
++编码增益是曲线级指标：
++
++```text
++G_coding = (Eb/N0)_reference - (Eb/N0)_candidate
++```
++
++参考曲线优先使用 uncoded BPSK。目标点优先使用：
++
++```text
++FER = 1e-2
++```
++
++若双方曲线未覆盖目标点：
++
++```text
++codingGain_dB = N/A
++```
++
++禁止远距离外推。禁止把 `codingGain_dB` 作为每个 SNR 点的直接测量值。
++
++## 时延范围
++
++至少冻结字段：
++
++```text
++avgEncodeTime_us
++maxEncodeTime_us
++avgDecodeTime_us
++maxDecodeTime_us
++p95DecodeTime_us
++```
++
++可预留字段：
++
++```text
++avgInterleaveTime_us
++avgDeinterleaveTime_us
++avgEndToEndAlgorithmTime_us
++```
++
++算法计时不包含文件 IO、日志输出、CSV/JSON 写入、图片绘制、帧池读取、噪声文件读取和配置读取。
++
++极短算法允许 batch timing，但必须记录：
++
++```text
++batchSize
++totalMeasuredTime
++derivedPerFrameTime
++```
++
+diff --git a/Task/Common/docs/plot_naming_rules.md b/Task/Common/docs/plot_naming_rules.md
+new file mode 100644
+index 0000000..ed79702
+--- /dev/null
++++ b/Task/Common/docs/plot_naming_rules.md
+@@ -0,0 +1,75 @@
++# 图片和结果命名规则
++
++## 图片命名模板
++
++唯一模板：
++
++```text
++{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png
++```
++
++示例：
++
++```text
++common08_uncoded_k300_awgn_hard_ber.png
++formal_cc_k300_r12_awgn_hard_vs_soft_fer.png
++formal_ldpc_k300_n576_awgn_bp_vs_nms_fer.png
++```
++
++禁止：
++
++```text
++figure1.png
++result.png
++plot.png
++new_result.png
++```
++
++## 结果文件
++
++点级结果：
++
++```text
++point_results.csv
++```
++
++每个 SNR 点一行。
++
++曲线级结果：
++
++```text
++curve_summary.csv
++```
++
++用于目标 BER/FER、参考曲线交点、候选曲线交点、编码增益、插值方法和有效性标记。
++
++元数据：
++
++```text
++run_metadata.json
++```
++
++trace：
++
++```text
++trace.csv
++```
++
++## trace 策略
++
++```text
++smoke: 保存前 10 帧完整 trace
++prescan: 保存前 3 帧和前 10 个错误帧
++formal: 默认关闭或仅保存错误帧摘要
++```
++
++## 防覆盖
++
++默认：
++
++```text
++overwriteExistingResults = false
++```
++
++已有正式结果时必须拒绝静默覆盖。新结果应使用新的 runId、caseId、stage 目录或显式授权的覆盖参数。
++
+diff --git a/Task/Common/docs/seed_policy.md b/Task/Common/docs/seed_policy.md
+new file mode 100644
+index 0000000..f33732b
+--- /dev/null
++++ b/Task/Common/docs/seed_policy.md
+@@ -0,0 +1,105 @@
++# seed 和噪声公平性定义
++
++## 每帧独立噪声
++
++老师要求冻结为：
++
++```text
++每一帧重新生成随机噪声
++```
++
++含义：
++
++- 不同 `frameIndex` 的噪声向量不同。
++- 同一帧不同码元的噪声样本独立。
++- 不能让全部帧重复使用同一条噪声。
++- 相同 seed 和上下文下可复现。
++
++本阶段只冻结 seed 派生字段，不实现生成器。
++
++## noiseGroupId
++
++`noiseGroupId` 是公平对比组标识。同一公平对比组内的不同译码算法必须共享同一条标准高斯噪声、同一接收符号或同一 LLR。
++
++卷积码公平比较：
++
++```text
++同一 payload
++同一码字
++同一打孔结果
++同一 noiseGroupId
++同一标准高斯噪声
++同一 receivedSymbols
++├─ 硬判决 Viterbi
++└─ 软判决 Viterbi
++```
++
++LDPC 公平比较：
++
++```text
++同一 payload
++同一码字
++同一 H
++同一 noiseGroupId
++同一标准高斯噪声
++同一 receivedSymbols
++同一 LLR
++├─ Layered BP
++└─ Layered NMS
++```
++
++禁止：
++
++- 把 `decoderType` 直接放入噪声 seed。
++- 为硬/软 Viterbi 分别重新过信道。
++- 为 BP/NMS 分别重新生成 LLR。
++
++## 跨 SNR 策略
++
++默认冻结为：
++
++```text
++reuseNoiseAcrossSnr = true
++```
++
++含义：
++
++```text
++相同 noiseGroupId
++相同 frameIndex
++不同 Eb/N0 下复用相同标准高斯 z
++不同 SNR 只改变 sigma
++```
++
++数学形式：
++
++```text
++y_{s,f,i} = x_{f,i} + sigma_s*z_{f,i}
++```
++
++这不代表所有帧复用同一条噪声；不同 `frameIndex` 的 `z` 仍然不同。
++
++旧规划中“不同 SNR 使用不同噪声流”的说法被本阶段新冻结策略替代，后续实现以 `reuseNoiseAcrossSnr = true` 为准。
++
++## seed 字段边界
++
++正式字段：
++
++```text
++masterSeed
++noiseGroupId
++frameIndex
++```
++
++当 `reuseNoiseAcrossSnr = true` 时，`snrIndex` 不进入标准高斯母噪声 seed。
++
++禁止字段：
++
++```text
++decoderType
++decoderName
++algorithmName
++```
++
++这些字段不得直接进入噪声 seed。
++
+diff --git a/Task/Common/docs/terminology.md b/Task/Common/docs/terminology.md
+new file mode 100644
+index 0000000..6ccab4d
+--- /dev/null
++++ b/Task/Common/docs/terminology.md
+@@ -0,0 +1,22 @@
++# 术语表
++
++| 术语 | 冻结含义 |
++|---|---|
++| `K_payload` | 原始 payload 长度，也是 BER/FER 唯一统计范围 |
++| `K_codec_input` | 实际进入编码器的信息长度，可包含辅助位 |
++| `N_encoded` | 最终编码或码率适配后的实际编码长度 |
++| `N_transmitted` | 实际进入 BPSK 和信道的比特数 |
++| `R` | `K_payload/N_encoded` |
++| `noiseGroupId` | 公平对比组标识 |
++| `reuseNoiseAcrossSnr` | 跨 SNR 复用同一标准高斯序列，只改变 sigma |
++| `BER` | payload 错误 bit 数除以 payload 总 bit 数 |
++| `FER` | payload 错误帧数除以总帧数 |
++| `payloadSuccessRate` | `1-FER` |
++| `decoderDeclaredSuccessRate` | 译码器自行声明成功的比例 |
++| `undetectedErrorRate` | 译码器声明成功但 payload 错误的帧比例 |
++| `point_results.csv` | 每个 SNR 点一行的点级结果 |
++| `curve_summary.csv` | 每条曲线一行的曲线级结果 |
++| `codingGain_dB` | 曲线级编码增益，不是点级直接测量值 |
++| `trace.csv` | 中间过程追踪表 |
++| `checkpoint` | 长运行保存点，本阶段只冻结字段 |
++
+diff --git a/Task/Common/scripts/validate_common01_definition.py b/Task/Common/scripts/validate_common01_definition.py
+new file mode 100644
+index 0000000..a81e1a5
+--- /dev/null
++++ b/Task/Common/scripts/validate_common01_definition.py
+@@ -0,0 +1,501 @@
++#!/usr/bin/env python
++"""Validate Common-01 frozen definitions.
++
++The script checks the committed definition files. It also supports
++`--negative-tests`, which copies the definitions to a temporary tree, applies
++known-bad mutations, and verifies that each mutation fails validation.
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import math
++import shutil
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++
++REQUIRED_FILES = [
++    "Task/Common/config/global_config.json",
++    "Task/Common/config/seed_policy.json",
++    "Task/Common/config/stop_rules.json",
++    "Task/Common/config/result_schema.json",
++    "Task/Common/docs/common_simulation_definition.md",
++    "Task/Common/docs/metric_definition.md",
++    "Task/Common/docs/seed_policy.md",
++    "Task/Common/docs/plot_naming_rules.md",
++    "Task/Common/docs/checkpoint_definition.md",
++    "Task/Common/docs/terminology.md",
++    "Task/Common/stages/stage01_common_definition/stage_plan.md",
++    "Task/Common/stages/stage01_common_definition/changed_files.md",
++    "Task/Common/stages/stage01_common_definition/validation_report.md",
++    "Task/Common/stages/stage01_common_definition/manifest.json",
++    "Task/Common/stages/stage01_common_definition/changes.patch",
++    "Task/Common/stages/stage01_common_definition/frozen_config.csv",
++    "Task/Common/stages/stage01_common_definition/commands_used.md",
++    "Task/Common/stages/stage01_common_definition/git_commit.txt",
++    "Task/Common/stages/stage01_common_definition/known_issues.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/README.md",
++]
++
++GLOBAL_FIELDS = [
++    "schemaVersion",
++    "projectName",
++    "stageId",
++    "maxCodeBlockLength",
++    "motherNoiseLength",
++    "supportedPayloadLengths",
++    "rateDefinition",
++    "lengthDefinitions",
++    "bpskMapping",
++    "hardDecisionRule",
++    "awgnModel",
++    "llrConvention",
++    "confidenceLevel",
++    "confidenceIntervalMethod",
++    "zeroErrorPolicy",
++    "interleaverPolicy",
++    "overwritePolicy",
++    "tracePolicy",
++]
++
++LENGTH_FIELDS = [
++    "K_payload",
++    "K_codec_input",
++    "N_encoded",
++    "N_transmitted",
++    "fillerLength",
++    "crcLength",
++    "tailLength",
++    "puncturedLength",
++    "shortenedLength",
++]
++
++CHECKPOINT_FIELDS = [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "snrIndex",
++    "ebN0_dB",
++    "nextFrameIndex",
++    "framesProcessed",
++    "payloadBitsProcessed",
++    "bitErrors",
++    "frameErrors",
++    "payloadSuccessFrames",
++    "decoderDeclaredSuccessFrames",
++    "undetectedErrorFrames",
++    "timingAccumulator",
++    "iterationAccumulator",
++    "configHash",
++    "framePoolHash",
++    "noisePolicyVersion",
++    "codeVersion",
++    "gitCommit",
++]
++
++POINT_REQUIRED_FIELDS = [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "codeType",
++    "decoderType",
++    "channelType",
++    "noiseGroupId",
++    "payloadLength",
++    "encodedLength",
++    "transmittedLength",
++    "codeRate",
++    "ebN0_dB",
++    "frames",
++    "payloadBits",
++    "bitErrors",
++    "frameErrors",
++    "BER",
++    "FER",
++    "payloadSuccessRate",
++    "stopReason",
++    "masterSeed",
++    "configHash",
++    "gitCommit",
++]
++
++SNAPSHOT_PAIRS = [
++    ("Task/Common/config/global_config.json", "Task/Common/stages/stage01_common_definition/snapshot/config/global_config.json"),
++    ("Task/Common/config/seed_policy.json", "Task/Common/stages/stage01_common_definition/snapshot/config/seed_policy.json"),
++    ("Task/Common/config/stop_rules.json", "Task/Common/stages/stage01_common_definition/snapshot/config/stop_rules.json"),
++    ("Task/Common/config/result_schema.json", "Task/Common/stages/stage01_common_definition/snapshot/config/result_schema.json"),
++    ("Task/Common/docs/common_simulation_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/common_simulation_definition.md"),
++    ("Task/Common/docs/metric_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/metric_definition.md"),
++    ("Task/Common/docs/seed_policy.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/seed_policy.md"),
++    ("Task/Common/docs/plot_naming_rules.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/plot_naming_rules.md"),
++    ("Task/Common/docs/checkpoint_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/checkpoint_definition.md"),
++    ("Task/Common/docs/terminology.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/terminology.md"),
++    ("Task/Common/scripts/validate_common01_definition.py", "Task/Common/stages/stage01_common_definition/snapshot/scripts/validate_common01_definition.py"),
++]
++
++ALLOWED_DIFF_PREFIXES = [
++    "Task/Common/config/",
++    "Task/Common/docs/",
++    "Task/Common/scripts/",
++    "Task/Common/stages/stage01_common_definition/",
++]
++
++
++class DuplicateKeyError(ValueError):
++    pass
++
++
++def no_duplicate_object_pairs(pairs):
++    out = {}
++    for key, value in pairs:
++        if key in out:
++            raise DuplicateKeyError(f"duplicate JSON key: {key}")
++        out[key] = value
++    return out
++
++
++def load_json(path: Path):
++    with path.open("r", encoding="utf-8") as handle:
++        return json.load(handle, object_pairs_hook=no_duplicate_object_pairs)
++
++
++def save_json(path: Path, data) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    with path.open("w", encoding="utf-8", newline="\n") as handle:
++        json.dump(data, handle, ensure_ascii=False, indent=2)
++        handle.write("\n")
++
++
++def read_text(path: Path) -> str:
++    return path.read_text(encoding="utf-8")
++
++
++def sha256_file(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as handle:
++        for chunk in iter(lambda: handle.read(65536), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(
++        ["git"] + args,
++        cwd=str(root),
++        text=True,
++        stdout=subprocess.PIPE,
++        stderr=subprocess.PIPE,
++        check=False,
++    )
++
++
++def require(condition: bool, message: str, failures: list[str]) -> None:
++    if not condition:
++        failures.append(message)
++
++
++def validate_git_boundaries(root: Path, failures: list[str]) -> None:
++    if not (root / ".git").exists():
++        return
++    main_check = run_git(root, ["rev-parse", "--verify", "main"])
++    head_check = run_git(root, ["rev-parse", "--verify", "HEAD"])
++    if main_check.returncode != 0 or head_check.returncode != 0:
++        return
++    diff = run_git(root, ["diff", "--name-only", "main...HEAD"])
++    require(diff.returncode == 0, f"git diff main...HEAD failed: {diff.stderr.strip()}", failures)
++    if diff.returncode != 0:
++        return
++    paths = [line.strip().replace("\\", "/") for line in diff.stdout.splitlines() if line.strip()]
++    require(paths, "git diff main...HEAD must not be empty for Common-01 stage", failures)
++    for path in paths:
++        require(
++            any(path.startswith(prefix) for prefix in ALLOWED_DIFF_PREFIXES),
++            f"out-of-scope committed diff path: {path}",
++            failures,
++        )
++
++
++def validate(root: Path) -> list[str]:
++    failures: list[str] = []
++
++    for relative in REQUIRED_FILES:
++        require((root / relative).is_file(), f"missing required file: {relative}", failures)
++    if failures:
++        return failures
++
++    try:
++        global_config = load_json(root / "Task/Common/config/global_config.json")
++        seed_policy = load_json(root / "Task/Common/config/seed_policy.json")
++        stop_rules = load_json(root / "Task/Common/config/stop_rules.json")
++        result_schema = load_json(root / "Task/Common/config/result_schema.json")
++        manifest = load_json(root / "Task/Common/stages/stage01_common_definition/manifest.json")
++    except (json.JSONDecodeError, DuplicateKeyError) as exc:
++        return [f"JSON parse failed: {exc}"]
++
++    changes_patch = root / "Task/Common/stages/stage01_common_definition/changes.patch"
++    patch_text = read_text(changes_patch)
++    require(len(patch_text.strip()) > 0, "changes.patch must be non-empty", failures)
++    require("Task/Common/" in patch_text, "changes.patch must reference Task/Common changes", failures)
++
++    for source, snapshot in SNAPSHOT_PAIRS:
++        source_path = root / source
++        snapshot_path = root / snapshot
++        require(snapshot_path.is_file(), f"missing snapshot copy: {snapshot}", failures)
++        if source_path.is_file() and snapshot_path.is_file():
++            require(
++                sha256_file(source_path) == sha256_file(snapshot_path),
++                f"snapshot mismatch: {snapshot}",
++                failures,
++            )
++
++    for field in GLOBAL_FIELDS:
++        require(field in global_config, f"global_config missing field: {field}", failures)
++
++    require(global_config.get("projectName") == "SCL_Channel_Coding_Design", "projectName is incorrect", failures)
++    require(global_config.get("maxCodeBlockLength") == 1000, "maxCodeBlockLength must equal 1000", failures)
++    require(isinstance(global_config.get("motherNoiseLength"), int), "motherNoiseLength must be an integer", failures)
++    require(
++        global_config.get("motherNoiseLength", 0) >= global_config.get("maxCodeBlockLength", 10**9),
++        "motherNoiseLength must be >= maxCodeBlockLength",
++        failures,
++    )
++    payload_lengths = global_config.get("supportedPayloadLengths", [])
++    require(200 in payload_lengths and 300 in payload_lengths, "supportedPayloadLengths must contain 200 and 300", failures)
++
++    rate = global_config.get("rateDefinition", {})
++    require(rate.get("formula") == "K_payload/N_encoded", "rate formula must be K_payload/N_encoded", failures)
++    require(rate.get("numerator") == "K_payload", "rate numerator must be K_payload", failures)
++    require(rate.get("denominator") == "N_encoded", "rate denominator must be N_encoded", failures)
++    for example in rate.get("examples", []):
++        computed = example["K_payload"] / example["N_encoded"]
++        require(
++            math.isclose(computed, example["expectedRate"], rel_tol=0.0, abs_tol=1e-15),
++            f"rate example failed: {example.get('caseId')}",
++            failures,
++        )
++    require(len(rate.get("examples", [])) == 5, "exactly five rate examples are required", failures)
++
++    lengths = global_config.get("lengthDefinitions", {})
++    for field in LENGTH_FIELDS:
++        require(field in lengths, f"missing length definition: {field}", failures)
++
++    bpsk = global_config.get("bpskMapping", {})
++    require(bpsk.get("0") == 1 and bpsk.get("1") == -1, "BPSK mapping must be 0->+1 and 1->-1", failures)
++
++    hard = global_config.get("hardDecisionRule", {})
++    hard_text = json.dumps(hard, ensure_ascii=False)
++    require(hard.get("zeroBoundaryBit") == 0, "hard decision at y==0 must be bit 0", failures)
++    require("receivedSymbol >= 0" in hard_text and "receivedSymbol < 0" in hard_text, "hard decision rules incomplete", failures)
++
++    awgn = global_config.get("awgnModel", {})
++    require(awgn.get("sigmaSquaredFormula") == "1/(2*R*10^(EbN0_dB/10))", "AWGN sigma^2 formula mismatch", failures)
++    require(awgn.get("rateFormula") == "R=K_payload/N_encoded", "AWGN must reference payload rate", failures)
++
++    llr = global_config.get("llrConvention", {})
++    require("2*y_i/sigma^2" in llr.get("formula", ""), "LLR formula mismatch", failures)
++    require(llr.get("positiveMeans") == "bit 0" and llr.get("negativeMeans") == "bit 1", "LLR sign mismatch", failures)
++
++    require(global_config.get("confidenceLevel") == 0.95, "confidenceLevel must be 0.95", failures)
++    require(
++        global_config.get("confidenceIntervalMethod") == "Wilson score interval",
++        "confidence interval method must be Wilson score interval",
++        failures,
++    )
++
++    zero = global_config.get("zeroErrorPolicy", {})
++    for field in ["plotBER", "plotFER", "isZeroBitErrorPoint", "isZeroFrameErrorPoint"]:
++        require(field in zero.get("requiredFields", []), f"zero error policy missing field: {field}", failures)
++
++    interleaver = global_config.get("interleaverPolicy", {})
++    require(interleaver.get("baseAwgnInterleaverEnabled") is False, "base AWGN interleaver must be disabled", failures)
++    require(
++        interleaver.get("LDPC", {}).get("interleaverAllowed") is False,
++        "LDPC interleaver must be forbidden",
++        failures,
++    )
++
++    overwrite = global_config.get("overwritePolicy", {})
++    require(overwrite.get("overwriteExistingResults") is False, "overwriteExistingResults must default to false", failures)
++
++    seed_text = json.dumps(seed_policy, ensure_ascii=False)
++    require("noiseGroupId" in seed_text, "noiseGroupId must be defined", failures)
++    require(seed_policy.get("reuseNoiseAcrossSnr") is True, "reuseNoiseAcrossSnr must be true", failures)
++    require("decoderType" not in seed_policy.get("noiseSeedFields", []), "decoderType must not enter noiseSeedFields", failures)
++    require("decoderType" in seed_policy.get("excludedNoiseSeedFields", []), "decoderType must be excluded from noise seed", failures)
++    require("frameIndex" in seed_policy.get("noiseSeedFields", []), "frameIndex must enter noiseSeedFields", failures)
++    require(
++        seed_policy.get("noiseSeedPolicy", {}).get("differentFrameIndexMeansDifferentNoise") is True,
++        "different frameIndex principle must be declared in seed_policy.json",
++        failures,
++    )
++
++    for phase in ["smoke", "prescan", "formalTrial", "formal"]:
++        rules = stop_rules.get(phase, {})
++        require(rules.get("maxFrames", -1) >= rules.get("minFrames", 10**9), f"{phase}: maxFrames < minFrames", failures)
++        require(rules.get("targetFrameErrors", 0) > 0, f"{phase}: targetFrameErrors must be positive", failures)
++    stop_expression = stop_rules.get("stopLogic", {}).get("expression", "")
++    require("AND" in stop_expression and "OR" in stop_expression, "stop logic must contain correct AND/OR structure", failures)
++    for reason in ["TARGET_ERRORS_REACHED", "MAX_FRAMES_REACHED", "MANUAL_STOP", "ERROR_ABORT"]:
++        require(reason in stop_rules.get("stopReasons", []), f"missing stop reason: {reason}", failures)
++
++    for field in CHECKPOINT_FIELDS:
++        require(field in result_schema.get("checkpointFields", []), f"checkpoint missing field: {field}", failures)
++    resume_fields = result_schema.get("checkpointResumeValidationFields", [])
++    require("SNR" not in resume_fields, "checkpoint resume validation must not use ambiguous SNR field", failures)
++    for field in ["snrIndex", "ebN0_dB"]:
++        require(field in resume_fields, f"checkpoint resume validation missing field: {field}", failures)
++    point_required = result_schema.get("requiredFields", {}).get("point_results.csv", [])
++    for field in POINT_REQUIRED_FIELDS:
++        require(field in point_required, f"point_results.csv requiredFields missing: {field}", failures)
++    require(
++        result_schema.get("fileSeparation", {}).get("pointResultsFile") == "point_results.csv",
++        "point result file must be point_results.csv",
++        failures,
++    )
++    require(
++        result_schema.get("fileSeparation", {}).get("curveSummaryFile") == "curve_summary.csv",
++        "curve summary file must be curve_summary.csv",
++        failures,
++    )
++    require(
++        result_schema.get("fileSeparation", {}).get("codingGainLocation") == "curve_summary.csv",
++        "coding gain must belong to curve_summary.csv",
++        failures,
++    )
++    require(
++        result_schema.get("plotNamingTemplate") == "{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png",
++        "plot naming template missing or incorrect",
++        failures,
++    )
++
++    common_doc = read_text(root / "Task/Common/docs/common_simulation_definition.md")
++    metric_doc = read_text(root / "Task/Common/docs/metric_definition.md")
++    seed_doc = read_text(root / "Task/Common/docs/seed_policy.md")
++    plot_doc = read_text(root / "Task/Common/docs/plot_naming_rules.md")
++    checkpoint_doc = read_text(root / "Task/Common/docs/checkpoint_definition.md")
++    docs_all = "\n".join([common_doc, metric_doc, seed_doc, plot_doc, checkpoint_doc])
++    for text in [
++        "R = K_payload / N_encoded",
++        "0 -> +1",
++        "1 -> -1",
++        "receivedSymbol >= 0 -> bit 0",
++        "LLR_i",
++        "reuseNoiseAcrossSnr = true",
++        "decoderType",
++        "Wilson score interval",
++        "plotBER",
++        "point_results.csv",
++        "curve_summary.csv",
++        "{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png",
++        "overwriteExistingResults = false",
++    ]:
++        require(text in docs_all, f"docs missing core definition text: {text}", failures)
++
++    require(manifest.get("stage") == "stage01_common_definition", "manifest stage mismatch", failures)
++    require(manifest.get("branch") == "stage01-common-definition", "manifest branch mismatch", failures)
++    require(
++        manifest.get("gate") in ["PENDING", "PASS_COMMON_DEFINITION", "BLOCKED_COMMON_DEFINITION", "FAIL_COMMON_DEFINITION"],
++        "manifest gate must be a known Gate value",
++        failures,
++    )
++    require(
++        manifest.get("commitStatus") in ["NOT_COMMITTED", "COMMITTED"],
++        "manifest commitStatus must be NOT_COMMITTED or COMMITTED",
++        failures,
++    )
++    if manifest.get("commitStatus") == "COMMITTED":
++        for field in ["baseCommit", "definitionCommit", "auditCommit"]:
++            require(bool(manifest.get(field)), f"manifest {field} is required when committed", failures)
++    require(manifest.get("pushStatus") in ["NOT_PUSHED", "PUSHED"], "manifest pushStatus is invalid", failures)
++
++    validate_git_boundaries(root, failures)
++
++    return failures
++
++
++def mutate(path: Path, dotted: str, value_marker) -> None:
++    data = load_json(path)
++    target = data
++    parts = dotted.split(".")
++    for part in parts[:-1]:
++        target = target[part]
++    key = parts[-1]
++    if value_marker == "__DELETE__":
++        del target[key]
++    else:
++        target[key] = value_marker
++    save_json(path, data)
++
++
++def snapshot_for(relative: str) -> str | None:
++    prefix = "Task/Common/"
++    if not relative.startswith(prefix):
++        return None
++    suffix = relative[len(prefix):]
++    if suffix.startswith("config/"):
++        return f"Task/Common/stages/stage01_common_definition/snapshot/{suffix}"
++    return None
++
++
++def run_negative_tests(root: Path) -> list[str]:
++    tests = [
++        ("reuseNoiseAcrossSnr false", "Task/Common/config/seed_policy.json", "reuseNoiseAcrossSnr", False, "reuseNoiseAcrossSnr must be true"),
++        ("delete K_payload definition", "Task/Common/config/global_config.json", "lengthDefinitions.K_payload", "__DELETE__", "missing length definition: K_payload"),
++        ("decoderType in noiseSeedFields", "Task/Common/config/seed_policy.json", "noiseSeedFields", ["masterSeed", "noiseGroupId", "frameIndex", "decoderType"], "decoderType must not enter noiseSeedFields"),
++        ("LDPC interleaver allowed", "Task/Common/config/global_config.json", "interleaverPolicy.LDPC.interleaverAllowed", True, "LDPC interleaver must be forbidden"),
++        ("smoke maxFrames less than minFrames", "Task/Common/config/stop_rules.json", "smoke.maxFrames", 10, "smoke: maxFrames < minFrames"),
++        ("wrong rate formula", "Task/Common/config/global_config.json", "rateDefinition.formula", "K_codec_input/N_encoded", "rate formula must be K_payload/N_encoded"),
++        ("delete checkpoint required field", "Task/Common/config/result_schema.json", "checkpointFields", [field for field in CHECKPOINT_FIELDS if field != "gitCommit"], "checkpoint missing field: gitCommit"),
++    ]
++    failures: list[str] = []
++    for name, relative, dotted, bad_value, expected in tests:
++        with tempfile.TemporaryDirectory(prefix="common01_neg_") as temp:
++            temp_root = Path(temp)
++            shutil.copytree(root / "Task", temp_root / "Task")
++            mutate(temp_root / relative, dotted, bad_value)
++            snapshot_relative = snapshot_for(relative)
++            if snapshot_relative and (temp_root / snapshot_relative).is_file():
++                mutate(temp_root / snapshot_relative, dotted, bad_value)
++            result = validate(temp_root)
++            if not result:
++                failures.append(f"negative test did not fail: {name}")
++            elif not any(expected in failure for failure in result):
++                failures.append(f"negative test failed for the wrong reason: {name}; expected substring: {expected}; got: {result[0]}")
++            else:
++                print(f"NEGATIVE TEST EXPECTED FAIL: {name}")
++                print(f"  first failure: {result[0]}")
++    return failures
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--root", default=".", help="Repository root containing Task/Common")
++    parser.add_argument("--negative-tests", action="store_true", help="Run expected-failure mutation tests")
++    args = parser.parse_args()
++
++    root = Path(args.root).resolve()
++    failures = validate(root)
++
++    if args.negative_tests and not failures:
++        failures.extend(run_negative_tests(root))
++
++    if failures:
++        print("COMMON-01 VALIDATION: FAIL")
++        for failure in failures:
++            print(f"- {failure}")
++        return 1
++
++    print("COMMON-01 VALIDATION: PASS")
++    print("Gate: PASS_COMMON_DEFINITION")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/Common/stages/stage01_common_definition/changed_files.md b/Task/Common/stages/stage01_common_definition/changed_files.md
+new file mode 100644
+index 0000000..efb1a62
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/changed_files.md
+@@ -0,0 +1,74 @@
++# Changed Files
++
++## Added Files
++
++### `Task/Common/config/global_config.json`
++
++- 类型：新增
++- 作用：冻结全局数学定义、长度字段、BPSK、硬判决、AWGN、LLR、置信区间、零错误点、交织、覆盖和 trace 策略。
++- 原因：后续 Common Stage 和三类编码仿真需要统一机器可读定义。
++- 关键字段：`rateDefinition`、`lengthDefinitions`、`bpskMapping`、`awgnModel`、`interleaverPolicy`
++- 是否影响旧行为：否，当前只新增定义。
++- 与 Common-01 的关系：核心冻结配置。
++
++### `Task/Common/config/seed_policy.json`
++
++- 类型：新增
++- 作用：冻结 `masterSeed`、`noiseGroupId`、每帧独立噪声、跨 SNR 复用标准高斯和 seed 排除字段。
++- 原因：保证硬/软 Viterbi 与 BP/NMS 公平比较。
++- 关键字段：`reuseNoiseAcrossSnr`、`noiseSeedFields`、`excludedNoiseSeedFields`
++- 是否影响旧行为：否。
++- 与 Common-01 的关系：核心冻结配置。
++
++### `Task/Common/config/stop_rules.json`
++
++- 类型：新增
++- 作用：冻结 smoke、prescan、formal trial、formal 的停止参数和停止原因。
++- 原因：后续实验必须使用一致停止逻辑。
++- 关键字段：`stopLogic`、`stopReasons`
++- 是否影响旧行为：否。
++- 与 Common-01 的关系：核心冻结配置。
++
++### `Task/Common/config/result_schema.json`
++
++- 类型：新增
++- 作用：冻结 point results、curve summary、metadata、checkpoint 和 trace 字段。
++- 原因：后续输出、恢复和审计需要统一字段。
++- 关键字段：`pointResultFields`、`requiredFields`、`curveSummaryFields`、`checkpointFields`、`checkpointResumeValidationFields`
++- 是否影响旧行为：否。
++- 与 Common-01 的关系：核心冻结配置。
++
++### `Task/Common/docs/*.md`
++
++- 类型：新增
++- 作用：提供人可读定义文档，覆盖公共仿真、指标、seed、命名、checkpoint 和术语。
++- 原因：便于人工审查并避免后续阶段解释分歧。
++- 关键章节：长度字段、码率、AWGN/LLR、payload-only 指标、噪声公平性、图片命名。
++- 是否影响旧行为：否。
++- 与 Common-01 的关系：核心冻结文档。
++
++### `Task/Common/scripts/validate_common01_definition.py`
++
++- 类型：新增
++- 作用：实际检查 Common-01 定义文件、JSON 类型、码率样例、seed 排除、停止逻辑、文档一致性和负向测试。
++- 原因：证明 Gate 不是手写 PASS。
++- 关键入口：正常验证、`--negative-tests`
++- 修复增强：检查 `changes.patch`、snapshot SHA 一致性、`main...HEAD` 已提交路径边界、负向测试预期失败原因。
++- 是否影响旧行为：否。
++- 与 Common-01 的关系：Gate 验证脚本。
++
++### `Task/Common/stages/stage01_common_definition/*`
++
++- 类型：新增
++- 作用：记录 Stage 计划、文件变化、验证结果、manifest、冻结配置摘要、命令、commit 状态、已知问题和 snapshot。
++- 原因：满足 Stage 审计要求。
++- 是否影响旧行为：否。
++- 与 Common-01 的关系：审计证据。
++
++## Modified Files
++
++None.
++
++## Deleted Files
++
++None.
+diff --git a/Task/Common/stages/stage01_common_definition/commands_used.md b/Task/Common/stages/stage01_common_definition/commands_used.md
+new file mode 100644
+index 0000000..7257d8a
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/commands_used.md
+@@ -0,0 +1,80 @@
++# Commands Used
++
++Commands are recorded in execution order with result summaries.
++
++1. `git init`
++   - Result: initialized an empty repository.
++2. `git config --get user.name`
++   - Result: user name configured.
++3. `git config --get user.email`
++   - Result: user email configured.
++4. `git branch -M main`
++   - Result: reported a transient HEAD lock error, but branch state later showed `main`.
++5. `git status --short --branch`
++   - Result: no commits yet on `main` before the user-created baseline.
++6. User executed initial baseline commands externally:
++   - `git add AGENTS.md discuss.md Task 初始规划 任务要求`
++   - `git commit -m "initial project baseline"`
++   - `git switch -c stage01-common-definition`
++7. `git branch --show-current`
++   - Result: `stage01-common-definition`.
++8. `git status --short --branch`
++   - Result: clean before Common-01 edits.
++9. `git log -1 --oneline`
++   - Result: `a3449db initial project baseline`.
++10. `git remote -v`
++    - Result: no remote configured.
++11. `New-Item -ItemType Directory -Force Task\Common\config,Task\Common\docs,Task\Common\scripts,Task\Common\stages\stage01_common_definition\snapshot`
++    - Result: created Common-01 directories.
++12. `apply_patch`
++    - Result: added JSON configuration files.
++13. `apply_patch`
++    - Result: added Markdown definition documents.
++14. `apply_patch`
++    - Result: added validation script.
++15. `apply_patch`
++    - Result: added Stage audit files.
++16. `Copy-Item Task\Common\config\*.json Task\Common\stages\stage01_common_definition\snapshot\config\ -Force`
++    - Result: copied frozen JSON definitions into snapshot.
++17. `Copy-Item Task\Common\docs\*.md Task\Common\stages\stage01_common_definition\snapshot\docs\ -Force`
++    - Result: copied frozen Markdown definitions into snapshot.
++18. `Copy-Item Task\Common\scripts\validate_common01_definition.py Task\Common\stages\stage01_common_definition\snapshot\scripts\ -Force`
++    - Result: copied validation script into snapshot.
++19. `python Task\Common\scripts\validate_common01_definition.py`
++    - Result: `COMMON-01 VALIDATION: PASS`; `Gate: PASS_COMMON_DEFINITION`.
++20. `python Task\Common\scripts\validate_common01_definition.py --negative-tests`
++    - Result: all seven negative mutations failed as expected; final validation PASS.
++21. `python Task\Common\scripts\validate_common01_definition.py`
++    - Result: final normal validation PASS after audit updates.
++22. `git status --short --branch`
++    - Result: on `stage01-common-definition`; `Task/Common/` is untracked.
++23. `git diff --stat`
++    - Result: no output because new files are untracked.
++24. `git diff -- Task/Common`
++    - Result: no output because new files are untracked.
++25. `git ls-files --others --exclude-standard Task/Common`
++    - Result: listed only Common-01 files and snapshot copies.
++26. `git status --porcelain=v1 Task/BCH Task/CC Task/LDPC`
++    - Result: no output; no BCH/CC/LDPC changes detected.
++27. `git add Task/Common`
++    - Result: staged only Common-01 files.
++28. `git diff --cached --stat`
++    - Result: 32 files, 3084 insertions, all under `Task/Common`.
++29. `git diff --cached --name-only Task/BCH Task/CC Task/LDPC`
++    - Result: no output; no out-of-scope staged files.
++30. `git commit -m "stage01: freeze common definitions"`
++    - Result: created commit `899c4c4`.
++31. `git commit -m "stage01: record common definition commit metadata"`
++    - Result: created commit `e76e5fb`.
++32. `git push -u origin stage01-common-definition`
++    - Result: pushed Stage branch to `origin/stage01-common-definition`.
++33. `git push -u origin main`
++    - Result: pushed base branch to `origin/main` so GitHub can compare `main...stage01-common-definition`.
++34. `apply_patch`
++    - Result: repaired checkpoint SNR fields, validator strength, manifest, and audit metadata.
++35. `Copy-Item Task\Common\config\*.json Task\Common\stages\stage01_common_definition\snapshot\config\ -Force`
++    - Result: refreshed snapshot JSON files after repair.
++36. `Copy-Item Task\Common\docs\*.md Task\Common\stages\stage01_common_definition\snapshot\docs\ -Force`
++    - Result: refreshed snapshot docs after repair.
++37. `Copy-Item Task\Common\scripts\validate_common01_definition.py Task\Common\stages\stage01_common_definition\snapshot\scripts\ -Force`
++    - Result: refreshed snapshot validator after repair.
+diff --git a/Task/Common/stages/stage01_common_definition/frozen_config.csv b/Task/Common/stages/stage01_common_definition/frozen_config.csv
+new file mode 100644
+index 0000000..f3bbc95
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/frozen_config.csv
+@@ -0,0 +1,25 @@
++key,value,unit,sourceFile,meaning,status
++projectName,SCL_Channel_Coding_Design,,Task/Common/config/global_config.json,Project identifier,FROZEN
++stageId,stage01_common_definition,,Task/Common/config/global_config.json,Stage identifier,FROZEN
++maxCodeBlockLength,1000,bit,Task/Common/config/global_config.json,Maximum code block length,FROZEN
++motherNoiseLength,1000,sample,Task/Common/config/global_config.json,Minimum standard Gaussian mother-noise length,FROZEN
++supportedPayloadLengths,"[200,300]",bit,Task/Common/config/global_config.json,Supported payload lengths,FROZEN
++rateDefinition,K_payload/N_encoded,,Task/Common/config/global_config.json,Only allowed project rate definition,FROZEN
++bpskMapping,"0->+1;1->-1",symbol,Task/Common/config/global_config.json,BPSK bit to symbol mapping,FROZEN
++hardDecisionRule,"y>=0->0;y<0->1",bit,Task/Common/config/global_config.json,Hard decision including zero boundary,FROZEN
++sigmaSquaredFormula,1/(2*R*10^(EbN0_dB/10)),,Task/Common/config/global_config.json,AWGN noise variance,FROZEN
++llrFormula,2*y_i/sigma^2,,Task/Common/config/global_config.json,LLR sign convention,FROZEN
++confidenceLevel,0.95,,Task/Common/config/global_config.json,Confidence interval level,FROZEN
++confidenceIntervalMethod,Wilson score interval,,Task/Common/config/global_config.json,Default CI method,FROZEN
++reuseNoiseAcrossSnr,true,,Task/Common/config/seed_policy.json,Cross-SNR reuse of standard Gaussian z,FROZEN
++noiseSeedFields,"masterSeed;noiseGroupId;frameIndex",,Task/Common/config/seed_policy.json,Noise seed context,FROZEN
++excludedNoiseSeedFields,"snrIndex;EbN0_dB;decoderType;decoderName;algorithmName",,Task/Common/config/seed_policy.json,Fields excluded from standard Gaussian seed,FROZEN
++smokeStop,"min=20;targetErrors=5;max=100",frame,Task/Common/config/stop_rules.json,Smoke stopping parameters,FROZEN
++prescanStop,"min=300;targetErrors=30;max=2000",frame,Task/Common/config/stop_rules.json,Prescan stopping parameters,FROZEN
++formalTrialStop,"min=1000;targetErrors=100;max=20000",frame,Task/Common/config/stop_rules.json,Formal trial stopping parameters,FROZEN
++formalStop,"min=5000;targetErrors=200;max=50000",frame,Task/Common/config/stop_rules.json,Formal stopping parameters,FROZEN
++stopLogic,"(frames>=minFrames AND frameErrors>=targetFrameErrors) OR frames>=maxFrames",,Task/Common/config/stop_rules.json,Only allowed automatic stop logic,FROZEN
++pointResultsFile,point_results.csv,,Task/Common/config/result_schema.json,Point-level result file,FROZEN
++curveSummaryFile,curve_summary.csv,,Task/Common/config/result_schema.json,Curve-level summary file,FROZEN
++plotNamingTemplate,{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png,,Task/Common/config/result_schema.json,Only allowed plot naming template,FROZEN
++overwriteExistingResults,false,,Task/Common/config/global_config.json,Default overwrite policy,FROZEN
+diff --git a/Task/Common/stages/stage01_common_definition/git_commit.txt b/Task/Common/stages/stage01_common_definition/git_commit.txt
+new file mode 100644
+index 0000000..9e7609e
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/git_commit.txt
+@@ -0,0 +1,9 @@
++stage: stage01_common_definition
++branch: stage01-common-definition
++base_branch: main
++base_commit: a3449dbf5a0d33ad805ca3de406afa489b162e24
++definition_commit: 899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d
++audit_commit: e76e5fbadf820be25d6c8deebf5597144d631b1f
++remote_branch: origin/stage01-common-definition
++push_status: PUSHED
++merge_status: NOT_MERGED
+diff --git a/Task/Common/stages/stage01_common_definition/known_issues.md b/Task/Common/stages/stage01_common_definition/known_issues.md
+new file mode 100644
+index 0000000..e98c9a0
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/known_issues.md
+@@ -0,0 +1,26 @@
++# Known Issues
++
++No known blocking issues.
++
++## 未执行项
++
++- Common-02 类型和接口骨架未执行。
++- Common-03 公共帧池未执行。
++- Common-04 随机种子和每帧独立噪声生成器未执行。
++- Common-05 BPSK、AWGN、硬判决和 LLR 实现未执行。
++- Common-06 指标、置信区间、时延和停止控制实现未执行。
++- Common-07 checkpoint/resume、trace、结果输出和图片实现未执行。
++
++## 当前限制
++
++- 本阶段只冻结定义，不生成实际帧池、噪声文件、仿真结果或图片。
++- 本阶段已推送 `main` 和 `stage01-common-definition` 到 origin；最终是否修改 GitHub 默认分支仍需在 GitHub 页面确认。
++
++## 仍存在的歧义
++
++- No known definition ambiguity remains for Common-01.
++- GitHub 默认分支可能仍显示为 `stage01-common-definition`，但远程 `main` ref 已存在，可执行 `main...stage01-common-definition` 比较。
++
++## 后续 Common-02 才处理的事项
++
++- C++ 类型、接口、目录骨架和编译测试。
+diff --git a/Task/Common/stages/stage01_common_definition/manifest.json b/Task/Common/stages/stage01_common_definition/manifest.json
+new file mode 100644
+index 0000000..489c9fd
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/manifest.json
+@@ -0,0 +1,54 @@
++{
++  "stage": "stage01_common_definition",
++  "branch": "stage01-common-definition",
++  "baseBranch": "main",
++  "added": [
++    "Task/Common/config/global_config.json",
++    "Task/Common/config/seed_policy.json",
++    "Task/Common/config/stop_rules.json",
++    "Task/Common/config/result_schema.json",
++    "Task/Common/docs/common_simulation_definition.md",
++    "Task/Common/docs/metric_definition.md",
++    "Task/Common/docs/seed_policy.md",
++    "Task/Common/docs/plot_naming_rules.md",
++    "Task/Common/docs/checkpoint_definition.md",
++    "Task/Common/docs/terminology.md",
++    "Task/Common/scripts/validate_common01_definition.py",
++    "Task/Common/stages/stage01_common_definition/stage_plan.md",
++    "Task/Common/stages/stage01_common_definition/changed_files.md",
++    "Task/Common/stages/stage01_common_definition/validation_report.md",
++    "Task/Common/stages/stage01_common_definition/manifest.json",
++    "Task/Common/stages/stage01_common_definition/changes.patch",
++    "Task/Common/stages/stage01_common_definition/frozen_config.csv",
++    "Task/Common/stages/stage01_common_definition/commands_used.md",
++    "Task/Common/stages/stage01_common_definition/git_commit.txt",
++    "Task/Common/stages/stage01_common_definition/known_issues.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/README.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/config/global_config.json",
++    "Task/Common/stages/stage01_common_definition/snapshot/config/seed_policy.json",
++    "Task/Common/stages/stage01_common_definition/snapshot/config/stop_rules.json",
++    "Task/Common/stages/stage01_common_definition/snapshot/config/result_schema.json",
++    "Task/Common/stages/stage01_common_definition/snapshot/docs/common_simulation_definition.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/docs/metric_definition.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/docs/seed_policy.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/docs/plot_naming_rules.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/docs/checkpoint_definition.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/docs/terminology.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/scripts/validate_common01_definition.py"
++  ],
++  "modified": [],
++  "deleted": [],
++  "validationCommands": [
++    "python Task\\Common\\scripts\\validate_common01_definition.py",
++    "python Task\\Common\\scripts\\validate_common01_definition.py --negative-tests"
++  ],
++  "validationStatus": "PASS",
++  "gate": "PASS_COMMON_DEFINITION",
++  "commitStatus": "COMMITTED",
++  "baseCommit": "a3449dbf5a0d33ad805ca3de406afa489b162e24",
++  "definitionCommit": "899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d",
++  "auditCommit": "e76e5fbadf820be25d6c8deebf5597144d631b1f",
++  "remoteBranch": "origin/stage01-common-definition",
++  "pushStatus": "PUSHED",
++  "compareRange": "main...stage01-common-definition"
++}
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/README.md b/Task/Common/stages/stage01_common_definition/snapshot/README.md
+new file mode 100644
+index 0000000..7f00cc7
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/README.md
+@@ -0,0 +1,12 @@
++# Common-01 Snapshot
++
++This directory is reserved for independent review copies of the frozen definition files.
++
++Snapshot contents:
++
++- `config/`
++- `docs/`
++- `scripts/`
++- selected Stage audit files
++
++The copied config, docs, and script files are sufficient to independently inspect the frozen definitions even before a commit is created.
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/config/global_config.json b/Task/Common/stages/stage01_common_definition/snapshot/config/global_config.json
+new file mode 100644
+index 0000000..c03b489
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/config/global_config.json
+@@ -0,0 +1,161 @@
++{
++  "schemaVersion": "common01.definition.v1",
++  "projectName": "SCL_Channel_Coding_Design",
++  "stageId": "stage01_common_definition",
++  "maxCodeBlockLength": 1000,
++  "motherNoiseLength": 1000,
++  "supportedPayloadLengths": [200, 300],
++  "rateDefinition": {
++    "formula": "K_payload/N_encoded",
++    "numerator": "K_payload",
++    "denominator": "N_encoded",
++    "forbiddenAlternatives": [
++      "K_codec_input/N_encoded",
++      "mother_code_rate",
++      "Keff/N",
++      "theoretical_rate"
++    ],
++    "examples": [
++      {
++        "caseId": "bch_segmented_k200",
++        "codeType": "BCH",
++        "K_payload": 200,
++        "N_encoded": 285,
++        "expectedRate": 0.7017543859649122
++      },
++      {
++        "caseId": "bch_block_k200",
++        "codeType": "BCH",
++        "K_payload": 200,
++        "N_encoded": 248,
++        "expectedRate": 0.8064516129032258
++      },
++      {
++        "caseId": "cc_k300_r12_zero_tail",
++        "codeType": "CC",
++        "K_payload": 300,
++        "N_encoded": 612,
++        "expectedRate": 0.49019607843137253
++      },
++      {
++        "caseId": "ldpc_k300_n480",
++        "codeType": "LDPC",
++        "K_payload": 300,
++        "N_encoded": 480,
++        "expectedRate": 0.625
++      },
++      {
++        "caseId": "ldpc_k300_n576",
++        "codeType": "LDPC",
++        "K_payload": 300,
++        "N_encoded": 576,
++        "expectedRate": 0.5208333333333334
++      }
++    ]
++  },
++  "lengthDefinitions": {
++    "K_payload": "Original payload bit length. BER and FER are measured only on this range.",
++    "K_codec_input": "Actual information length entering the encoder after filler, CRC, tail bits, or other adaptation bits are added.",
++    "N_encoded": "Actual final encoded length after coding or rate matching. This is the rate denominator.",
++    "N_transmitted": "Actual bit count entering BPSK and the channel. Usually equal to N_encoded but kept independent.",
++    "fillerLength": "Number of filler bits added for code length adaptation.",
++    "crcLength": "Number of CRC bits added before encoding.",
++    "tailLength": "Number of convolutional-code termination bits.",
++    "puncturedLength": "Number of removed coded bits after puncturing.",
++    "shortenedLength": "Number of shortened input or coded positions."
++  },
++  "bpskMapping": {
++    "0": 1,
++    "1": -1
++  },
++  "hardDecisionRule": {
++    "zeroBoundaryBit": 0,
++    "rules": [
++      {
++        "condition": "receivedSymbol >= 0",
++        "bit": 0
++      },
++      {
++        "condition": "receivedSymbol < 0",
++        "bit": 1
++      }
++    ]
++  },
++  "awgnModel": {
++    "receivedSymbol": "y = x + sigma*z",
++    "standardGaussian": "z ~ N(0,1)",
++    "sigmaSquaredFormula": "1/(2*R*10^(EbN0_dB/10))",
++    "sigmaFormula": "sqrt(1/(2*R*10^(EbN0_dB/10)))",
++    "rateFormula": "R=K_payload/N_encoded"
++  },
++  "llrConvention": {
++    "formula": "LLR_i = ln(P(c_i=0|y_i)/P(c_i=1|y_i)) = 2*y_i/sigma^2",
++    "positiveMeans": "bit 0",
++    "negativeMeans": "bit 1",
++    "largerMagnitudeMeans": "higher reliability"
++  },
++  "confidenceLevel": 0.95,
++  "confidenceIntervalMethod": "Wilson score interval",
++  "zeroErrorPolicy": {
++    "csvBerWhenZeroBitErrors": 0,
++    "csvFerWhenZeroFrameErrors": 0,
++    "plotUsesUpperBound": true,
++    "upperBoundApproximation": "3/N",
++    "requiredFields": [
++      "plotBER",
++      "plotFER",
++      "isZeroBitErrorPoint",
++      "isZeroFrameErrorPoint"
++    ],
++    "forbiddenPolicy": "Do not silently replace true zero by a plot floor such as 1e-6."
++  },
++  "interleaverPolicy": {
++    "baseAwgnInterleaverEnabled": false,
++    "allowedOnlyWhen": {
++      "channelType": "BURST_ERROR",
++      "codeType": ["BCH", "CC"],
++      "interleaverEnabled": true
++    },
++    "LDPC": {
++      "interleaverAllowed": false
++    }
++  },
++  "overwritePolicy": {
++    "overwriteExistingResults": false
++  },
++  "tracePolicy": {
++    "smoke": "save first 10 full frames",
++    "prescan": "save first 3 frames and first 10 error frames",
++    "formal": "disabled by default or save error-frame summary only"
++  },
++  "timingPolicy": {
++    "included": [
++      "encoding algorithm",
++      "decoding algorithm",
++      "interleaving algorithm when enabled",
++      "deinterleaving algorithm when enabled"
++    ],
++    "excluded": [
++      "file IO",
++      "logging",
++      "CSV writing",
++      "JSON writing",
++      "plotting",
++      "frame-pool reading",
++      "noise-file reading",
++      "config-file reading"
++    ],
++    "requiredFields": [
++      "avgEncodeTime_us",
++      "maxEncodeTime_us",
++      "avgDecodeTime_us",
++      "maxDecodeTime_us",
++      "p95DecodeTime_us"
++    ],
++    "batchTimingFields": [
++      "batchSize",
++      "totalMeasuredTime",
++      "derivedPerFrameTime"
++    ]
++  }
++}
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/config/result_schema.json b/Task/Common/stages/stage01_common_definition/snapshot/config/result_schema.json
+new file mode 100644
+index 0000000..6ef9525
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/config/result_schema.json
+@@ -0,0 +1,172 @@
++{
++  "schemaVersion": "common01.result_schema.v1",
++  "pointResultFields": [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "codeType",
++    "decoderType",
++    "channelType",
++    "noiseGroupId",
++    "payloadLength",
++    "codecInputLength",
++    "encodedLength",
++    "transmittedLength",
++    "fillerLength",
++    "crcLength",
++    "tailLength",
++    "puncturedLength",
++    "shortenedLength",
++    "codeRate",
++    "ebN0_dB",
++    "sigma",
++    "frames",
++    "payloadBits",
++    "bitErrors",
++    "frameErrors",
++    "BER",
++    "FER",
++    "payloadSuccessRate",
++    "decoderDeclaredSuccessRate",
++    "undetectedErrorFrames",
++    "undetectedErrorRate",
++    "berCiLower",
++    "berCiUpper",
++    "ferCiLower",
++    "ferCiUpper",
++    "plotBER",
++    "plotFER",
++    "isZeroBitErrorPoint",
++    "isZeroFrameErrorPoint",
++    "avgEncodeTime_us",
++    "maxEncodeTime_us",
++    "avgDecodeTime_us",
++    "maxDecodeTime_us",
++    "p95DecodeTime_us",
++    "avgIterations",
++    "maxIterations",
++    "earlyStopFrames",
++    "stopReason",
++    "masterSeed",
++    "framePoolId",
++    "configHash",
++    "gitCommit"
++  ],
++  "curveSummaryFields": [
++    "stageId",
++    "caseId",
++    "decoderType",
++    "targetMetric",
++    "targetValue",
++    "referenceCase",
++    "referenceCrossing_dB",
++    "candidateCrossing_dB",
++    "codingGain_dB",
++    "interpolationMethod",
++    "validOrNA"
++  ],
++  "metadataFields": [
++    "runId",
++    "experimentId",
++    "projectName",
++    "stageId",
++    "configFiles",
++    "operatingSystem",
++    "pythonVersion",
++    "compilerVersion",
++    "matlabVersion",
++    "gitCommit",
++    "startTime",
++    "endTime",
++    "seedPolicy",
++    "framePoolHash",
++    "noisePolicyVersion"
++  ],
++  "checkpointFields": [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "snrIndex",
++    "ebN0_dB",
++    "nextFrameIndex",
++    "framesProcessed",
++    "payloadBitsProcessed",
++    "bitErrors",
++    "frameErrors",
++    "payloadSuccessFrames",
++    "decoderDeclaredSuccessFrames",
++    "undetectedErrorFrames",
++    "timingAccumulator",
++    "iterationAccumulator",
++    "configHash",
++    "framePoolHash",
++    "noisePolicyVersion",
++    "codeVersion",
++    "gitCommit"
++  ],
++  "checkpointResumeValidationFields": [
++    "configHash",
++    "framePoolHash",
++    "caseId",
++    "snrIndex",
++    "ebN0_dB",
++    "noisePolicyVersion"
++  ],
++  "traceFields": [
++    "stageId",
++    "runId",
++    "caseId",
++    "frameIndex",
++    "payloadPrefix",
++    "encodedPrefix",
++    "noisePrefix",
++    "txSymbolsPrefix",
++    "rxSymbolsPrefix",
++    "hardBitsPrefix",
++    "llrPrefix",
++    "decodedPrefix",
++    "bitErrors",
++    "frameError"
++  ],
++  "requiredFields": {
++    "point_results.csv": [
++      "stageId",
++      "runId",
++      "experimentId",
++      "caseId",
++      "codeType",
++      "decoderType",
++      "channelType",
++      "noiseGroupId",
++      "payloadLength",
++      "encodedLength",
++      "transmittedLength",
++      "codeRate",
++      "ebN0_dB",
++      "frames",
++      "payloadBits",
++      "bitErrors",
++      "frameErrors",
++      "BER",
++      "FER",
++      "payloadSuccessRate",
++      "stopReason",
++      "masterSeed",
++      "configHash",
++      "gitCommit"
++    ],
++    "curve_summary.csv": ["caseId", "targetMetric", "codingGain_dB", "validOrNA"],
++    "run_metadata.json": ["projectName", "stageId", "gitCommit", "noisePolicyVersion"],
++    "checkpoint": ["stageId", "runId", "caseId", "snrIndex", "ebN0_dB", "nextFrameIndex", "configHash"],
++    "trace.csv": ["frameIndex", "payloadPrefix", "rxSymbolsPrefix", "bitErrors", "frameError"]
++  },
++  "fileSeparation": {
++    "pointResultsFile": "point_results.csv",
++    "curveSummaryFile": "curve_summary.csv",
++    "codingGainLocation": "curve_summary.csv"
++  },
++  "plotNamingTemplate": "{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png",
++  "forbiddenPlotNames": ["figure1.png", "result.png", "plot.png", "new_result.png"]
++}
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/config/seed_policy.json b/Task/Common/stages/stage01_common_definition/snapshot/config/seed_policy.json
+new file mode 100644
+index 0000000..f8e999f
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/config/seed_policy.json
+@@ -0,0 +1,39 @@
++{
++  "schemaVersion": "common01.seed_policy.v1",
++  "masterSeed": 2026072001,
++  "payloadSeedPolicy": {
++    "fields": ["masterSeed", "payloadLength", "frameIndex"],
++    "payloadLengths": [200, 300],
++    "note": "Payload generator is defined in a later stage; this stage freezes the fields only."
++  },
++  "noiseSeedPolicy": {
++    "principle": "Every frame uses an independent standard Gaussian vector. Same seed context reproduces the same frame.",
++    "differentFrameIndexMeansDifferentNoise": true,
++    "sameFrameDifferentSymbolsIndependent": true,
++    "doNotReuseOneNoiseVectorForAllFrames": true
++  },
++  "interleaverSeedPolicy": {
++    "fields": ["masterSeed", "interleaverId", "frameIndex"],
++    "onlyForBurstErrorBchOrCc": true
++  },
++  "noiseGroupIdDefinition": {
++    "field": "noiseGroupId",
++    "meaning": "Fair comparison group id. Algorithms in the same group share the same standard Gaussian noise, received symbols, or LLR as applicable.",
++    "ccSharedGroup": "hard and soft Viterbi share payload, codeword, puncturing result, standard Gaussian noise, and receivedSymbols.",
++    "ldpcSharedGroup": "Layered BP and Layered NMS share payload, codeword, H, standard Gaussian noise, receivedSymbols, and LLR."
++  },
++  "reuseNoiseAcrossSnr": true,
++  "reuseNoiseAcrossSnrFormula": "y_{s,f,i}=x_{f,i}+sigma_s*z_{f,i}",
++  "noiseSeedFields": ["masterSeed", "noiseGroupId", "frameIndex"],
++  "excludedNoiseSeedFields": [
++    "snrIndex",
++    "EbN0_dB",
++    "decoderType",
++    "decoderName",
++    "algorithmName"
++  ],
++  "snrPolicyWhenReuseNoiseAcrossSnr": {
++    "snrIndexEntersStandardGaussianSeed": false,
++    "snrOnlyChangesSigma": true
++  }
++}
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/config/stop_rules.json b/Task/Common/stages/stage01_common_definition/snapshot/config/stop_rules.json
+new file mode 100644
+index 0000000..1b96bd1
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/config/stop_rules.json
+@@ -0,0 +1,41 @@
++{
++  "schemaVersion": "common01.stop_rules.v1",
++  "smoke": {
++    "minFrames": 20,
++    "targetFrameErrors": 5,
++    "maxFrames": 100
++  },
++  "prescan": {
++    "minFrames": 300,
++    "targetFrameErrors": 30,
++    "maxFrames": 2000,
++    "suggestedSnrStep_dB": 0.5
++  },
++  "formalTrial": {
++    "minFrames": 1000,
++    "targetFrameErrors": 100,
++    "maxFrames": 20000
++  },
++  "formal": {
++    "minFrames": 5000,
++    "targetFrameErrors": 200,
++    "maxFrames": 50000,
++    "suggestedSnrStep_dB": 0.1
++  },
++  "stopLogic": {
++    "expression": "(frames >= minFrames AND frameErrors >= targetFrameErrors) OR frames >= maxFrames",
++    "priority": [
++      "ERROR_ABORT",
++      "MANUAL_STOP",
++      "TARGET_ERRORS_REACHED",
++      "MAX_FRAMES_REACHED"
++    ],
++    "forbiddenExpression": "frames >= minFrames OR frameErrors >= targetFrameErrors"
++  },
++  "stopReasons": [
++    "TARGET_ERRORS_REACHED",
++    "MAX_FRAMES_REACHED",
++    "MANUAL_STOP",
++    "ERROR_ABORT"
++  ]
++}
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/docs/checkpoint_definition.md b/Task/Common/stages/stage01_common_definition/snapshot/docs/checkpoint_definition.md
+new file mode 100644
+index 0000000..f37b907
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/docs/checkpoint_definition.md
+@@ -0,0 +1,52 @@
++# checkpoint 字段定义
++
++Common-01 只冻结 checkpoint 字段，不实现读写和 resume。
++
++## 必需字段
++
++```text
++stageId
++runId
++experimentId
++caseId
++snrIndex
++ebN0_dB
++nextFrameIndex
++framesProcessed
++payloadBitsProcessed
++bitErrors
++frameErrors
++payloadSuccessFrames
++decoderDeclaredSuccessFrames
++undetectedErrorFrames
++timingAccumulator
++iterationAccumulator
++configHash
++framePoolHash
++noisePolicyVersion
++codeVersion
++gitCommit
++```
++
++## 恢复前必须验证
++
++```text
++configHash
++framePoolHash
++caseId
++snrIndex
++ebN0_dB
++noisePolicyVersion
++```
++
++若任一字段不一致，后续 Common-07 的 checkpoint/resume 实现必须拒绝恢复。
++
++## 本阶段边界
++
++Common-01 不实现：
++
++- checkpoint 文件格式读写；
++- resume 控制流程；
++- 连续运行与恢复运行一致性测试。
++
++这些内容由 Common-07 实现。
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/docs/common_simulation_definition.md b/Task/Common/stages/stage01_common_definition/snapshot/docs/common_simulation_definition.md
+new file mode 100644
+index 0000000..6948db0
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/docs/common_simulation_definition.md
+@@ -0,0 +1,129 @@
++# Common-01 公共仿真定义
++
++本文冻结 `SCL_Channel_Coding_Design` 后续公共仿真的数学定义和工程边界。本阶段只定义规则，不实现帧池、随机数、信道、译码器或仿真 runner。
++
++## 长度字段
++
++| 字段 | 定义 | 统计或码率用途 |
++|---|---|---|
++| `K_payload` | 原始输入电文长度 | BER/FER 只统计该范围；码率分子只使用该字段 |
++| `K_codec_input` | 实际进入编码器的信息长度，可包含 filler、CRC、尾比特或适配位 | 不能作为统一码率分子 |
++| `N_encoded` | 编码或码率适配后的最终实际编码长度 | 统一码率分母 |
++| `N_transmitted` | 实际送入 BPSK 和信道的比特数 | 通常等于 `N_encoded`，但独立保留 |
++| `fillerLength` | 码长适配填充位数 | 不计入 payload BER/FER，不增加码率分子 |
++| `crcLength` | CRC 位数 | 不增加码率分子 |
++| `tailLength` | 卷积码终止尾比特数 | 不增加码率分子 |
++| `puncturedLength` | 打孔删除的编码位数 | 分母使用打孔后的实际编码长度 |
++| `shortenedLength` | 缩短位数 | 必须单独记录 |
++
++## 统一码率
++
++本项目唯一允许的统一码率定义为：
++
++```text
++R = K_payload / N_encoded
++```
++
++约束：
++
++- 分子只使用原始 payload 长度。
++- filler、CRC、卷积码尾比特和 LDPC filler 不增加分子。
++- 分块编码分母使用所有块拼接后的总编码长度。
++- 打孔后分母使用打孔后的实际编码长度。
++- 禁止使用母码理论码率替代实际仿真码率。
++- 禁止使用 `K_codec_input/N_encoded` 或 `Keff/N` 作为项目统一码率。
++
++冻结样例：
++
++| case | `K_payload` | `N_encoded` | `R` |
++|---|---:|---:|---:|
++| BCH 分块 200 bit | 200 | 285 | 0.7017543859649122 |
++| BCH 整块 200 bit | 200 | 248 | 0.8064516129032258 |
++| 卷积码 300 bit、1/2 零尾 | 300 | 612 | 0.49019607843137253 |
++| LDPC 300 到 480 | 300 | 480 | 0.625 |
++| LDPC 300 到 576 | 300 | 576 | 0.5208333333333334 |
++
++## BPSK、AWGN、硬判决和 LLR
++
++BPSK 映射冻结为：
++
++```text
++0 -> +1
++1 -> -1
++```
++
++硬判决规则冻结为：
++
++```text
++receivedSymbol >= 0 -> bit 0
++receivedSymbol <  0 -> bit 1
++```
++
++特别地，`receivedSymbol == 0` 判为 bit 0。
++
++AWGN 模型冻结为：
++
++```text
++y = x + sigma*z
++z ~ N(0,1)
++sigma^2 = 1/(2*R*10^(EbN0_dB/10))
++sigma = sqrt(1/(2*R*10^(EbN0_dB/10)))
++R = K_payload/N_encoded
++```
++
++LLR 约定冻结为：
++
++```text
++LLR_i = ln(P(c_i=0|y_i)/P(c_i=1|y_i)) = 2*y_i/sigma^2
++LLR > 0 -> 倾向 bit 0
++LLR < 0 -> 倾向 bit 1
++|LLR| 越大 -> 可靠性越高
++```
++
++## 交织位置和启用条件
++
++链路位置冻结为：
++
++```text
++编码 -> 交织 -> BPSK -> 信道 -> 解调 -> 去交织 -> 译码
++```
++
++基础 AWGN 曲线默认：
++
++```text
++interleaverEnabled = false
++```
++
++交织只允许同时满足：
++
++```text
++channelType = BURST_ERROR
++codeType in {BCH, CC}
++interleaverEnabled = true
++```
++
++LDPC 永远禁止启用交织。若出现：
++
++```text
++codeType = LDPC
++interleaverEnabled = true
++```
++
++定义检查必须判定为非法。
++
++## 输出和防覆盖
++
++点级结果使用 `point_results.csv`，每个 SNR 点一行。
++
++曲线级结果使用 `curve_summary.csv`，编码增益只允许放在曲线级结果中。
++
++元数据使用 `run_metadata.json`。
++
++默认防覆盖策略冻结为：
++
++```text
++overwriteExistingResults = false
++```
++
++已有正式结果时必须拒绝静默覆盖。
++
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/docs/metric_definition.md b/Task/Common/stages/stage01_common_definition/snapshot/docs/metric_definition.md
+new file mode 100644
+index 0000000..1e64253
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/docs/metric_definition.md
+@@ -0,0 +1,172 @@
++# 指标定义
++
++## BER
++
++```text
++BER = payload 错误 bit 数 / payload 总 bit 数
++```
++
++BER 只统计 `K_payload` 范围。禁止统计 filler、CRC、tail、parity、punctured placeholder、LDPC filler 或其他辅助位。
++
++## FER
++
++一帧 payload 中只要存在至少 1 个错误 bit：
++
++```text
++frameError = true
++FER = 错误帧数 / 总帧数
++```
++
++## payload 成功率
++
++```text
++payloadSuccessRate = 1 - FER
++```
++
++它表示最终 payload 完全正确的比例。
++
++## decoder 声明成功率
++
++```text
++decoderDeclaredSuccessRate = decoderDeclaredSuccessFrames / totalFrames
++```
++
++该指标只表示译码器自己报告成功的比例，不能替代 FER 或 payload 成功率。
++
++## 未检出错误
++
++未检出错误定义为：
++
++```text
++decoderDeclaredSuccess = true
++AND
++payloadError = true
++```
++
++字段：
++
++```text
++undetectedErrorFrames
++undetectedErrorRate = undetectedErrorFrames / totalFrames
++```
++
++## 置信区间
++
++默认置信水平：
++
++```text
++confidenceLevel = 0.95
++```
++
++默认方法：
++
++```text
++Wilson score interval
++```
++
++字段：
++
++```text
++berCiLower
++berCiUpper
++ferCiLower
++ferCiUpper
++```
++
++全项目默认只能使用一种置信区间方法。若后续阶段更改方法，必须成阶段冻结并更新所有定义、配置和验证。
++
++## 零错误点
++
++若：
++
++```text
++bitErrors = 0
++```
++
++CSV 中：
++
++```text
++BER = 0
++```
++
++若：
++
++```text
++frameErrors = 0
++```
++
++CSV 中：
++
++```text
++FER = 0
++```
++
++对数图不能直接绘制 0，因此另设：
++
++```text
++plotBER
++plotFER
++isZeroBitErrorPoint
++isZeroFrameErrorPoint
++```
++
++允许使用三倍法则近似 95% 上界：
++
++```text
++p_upper ~= 3/N
++```
++
++该值是显示上界，不是实测 BER/FER。禁止把真实 0 静默替换成 `1e-6` 或绘图下限。
++
++## 编码增益
++
++编码增益是曲线级指标：
++
++```text
++G_coding = (Eb/N0)_reference - (Eb/N0)_candidate
++```
++
++参考曲线优先使用 uncoded BPSK。目标点优先使用：
++
++```text
++FER = 1e-2
++```
++
++若双方曲线未覆盖目标点：
++
++```text
++codingGain_dB = N/A
++```
++
++禁止远距离外推。禁止把 `codingGain_dB` 作为每个 SNR 点的直接测量值。
++
++## 时延范围
++
++至少冻结字段：
++
++```text
++avgEncodeTime_us
++maxEncodeTime_us
++avgDecodeTime_us
++maxDecodeTime_us
++p95DecodeTime_us
++```
++
++可预留字段：
++
++```text
++avgInterleaveTime_us
++avgDeinterleaveTime_us
++avgEndToEndAlgorithmTime_us
++```
++
++算法计时不包含文件 IO、日志输出、CSV/JSON 写入、图片绘制、帧池读取、噪声文件读取和配置读取。
++
++极短算法允许 batch timing，但必须记录：
++
++```text
++batchSize
++totalMeasuredTime
++derivedPerFrameTime
++```
++
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/docs/plot_naming_rules.md b/Task/Common/stages/stage01_common_definition/snapshot/docs/plot_naming_rules.md
+new file mode 100644
+index 0000000..ed79702
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/docs/plot_naming_rules.md
+@@ -0,0 +1,75 @@
++# 图片和结果命名规则
++
++## 图片命名模板
++
++唯一模板：
++
++```text
++{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png
++```
++
++示例：
++
++```text
++common08_uncoded_k300_awgn_hard_ber.png
++formal_cc_k300_r12_awgn_hard_vs_soft_fer.png
++formal_ldpc_k300_n576_awgn_bp_vs_nms_fer.png
++```
++
++禁止：
++
++```text
++figure1.png
++result.png
++plot.png
++new_result.png
++```
++
++## 结果文件
++
++点级结果：
++
++```text
++point_results.csv
++```
++
++每个 SNR 点一行。
++
++曲线级结果：
++
++```text
++curve_summary.csv
++```
++
++用于目标 BER/FER、参考曲线交点、候选曲线交点、编码增益、插值方法和有效性标记。
++
++元数据：
++
++```text
++run_metadata.json
++```
++
++trace：
++
++```text
++trace.csv
++```
++
++## trace 策略
++
++```text
++smoke: 保存前 10 帧完整 trace
++prescan: 保存前 3 帧和前 10 个错误帧
++formal: 默认关闭或仅保存错误帧摘要
++```
++
++## 防覆盖
++
++默认：
++
++```text
++overwriteExistingResults = false
++```
++
++已有正式结果时必须拒绝静默覆盖。新结果应使用新的 runId、caseId、stage 目录或显式授权的覆盖参数。
++
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/docs/seed_policy.md b/Task/Common/stages/stage01_common_definition/snapshot/docs/seed_policy.md
+new file mode 100644
+index 0000000..f33732b
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/docs/seed_policy.md
+@@ -0,0 +1,105 @@
++# seed 和噪声公平性定义
++
++## 每帧独立噪声
++
++老师要求冻结为：
++
++```text
++每一帧重新生成随机噪声
++```
++
++含义：
++
++- 不同 `frameIndex` 的噪声向量不同。
++- 同一帧不同码元的噪声样本独立。
++- 不能让全部帧重复使用同一条噪声。
++- 相同 seed 和上下文下可复现。
++
++本阶段只冻结 seed 派生字段，不实现生成器。
++
++## noiseGroupId
++
++`noiseGroupId` 是公平对比组标识。同一公平对比组内的不同译码算法必须共享同一条标准高斯噪声、同一接收符号或同一 LLR。
++
++卷积码公平比较：
++
++```text
++同一 payload
++同一码字
++同一打孔结果
++同一 noiseGroupId
++同一标准高斯噪声
++同一 receivedSymbols
++├─ 硬判决 Viterbi
++└─ 软判决 Viterbi
++```
++
++LDPC 公平比较：
++
++```text
++同一 payload
++同一码字
++同一 H
++同一 noiseGroupId
++同一标准高斯噪声
++同一 receivedSymbols
++同一 LLR
++├─ Layered BP
++└─ Layered NMS
++```
++
++禁止：
++
++- 把 `decoderType` 直接放入噪声 seed。
++- 为硬/软 Viterbi 分别重新过信道。
++- 为 BP/NMS 分别重新生成 LLR。
++
++## 跨 SNR 策略
++
++默认冻结为：
++
++```text
++reuseNoiseAcrossSnr = true
++```
++
++含义：
++
++```text
++相同 noiseGroupId
++相同 frameIndex
++不同 Eb/N0 下复用相同标准高斯 z
++不同 SNR 只改变 sigma
++```
++
++数学形式：
++
++```text
++y_{s,f,i} = x_{f,i} + sigma_s*z_{f,i}
++```
++
++这不代表所有帧复用同一条噪声；不同 `frameIndex` 的 `z` 仍然不同。
++
++旧规划中“不同 SNR 使用不同噪声流”的说法被本阶段新冻结策略替代，后续实现以 `reuseNoiseAcrossSnr = true` 为准。
++
++## seed 字段边界
++
++正式字段：
++
++```text
++masterSeed
++noiseGroupId
++frameIndex
++```
++
++当 `reuseNoiseAcrossSnr = true` 时，`snrIndex` 不进入标准高斯母噪声 seed。
++
++禁止字段：
++
++```text
++decoderType
++decoderName
++algorithmName
++```
++
++这些字段不得直接进入噪声 seed。
++
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/docs/terminology.md b/Task/Common/stages/stage01_common_definition/snapshot/docs/terminology.md
+new file mode 100644
+index 0000000..6ccab4d
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/docs/terminology.md
+@@ -0,0 +1,22 @@
++# 术语表
++
++| 术语 | 冻结含义 |
++|---|---|
++| `K_payload` | 原始 payload 长度，也是 BER/FER 唯一统计范围 |
++| `K_codec_input` | 实际进入编码器的信息长度，可包含辅助位 |
++| `N_encoded` | 最终编码或码率适配后的实际编码长度 |
++| `N_transmitted` | 实际进入 BPSK 和信道的比特数 |
++| `R` | `K_payload/N_encoded` |
++| `noiseGroupId` | 公平对比组标识 |
++| `reuseNoiseAcrossSnr` | 跨 SNR 复用同一标准高斯序列，只改变 sigma |
++| `BER` | payload 错误 bit 数除以 payload 总 bit 数 |
++| `FER` | payload 错误帧数除以总帧数 |
++| `payloadSuccessRate` | `1-FER` |
++| `decoderDeclaredSuccessRate` | 译码器自行声明成功的比例 |
++| `undetectedErrorRate` | 译码器声明成功但 payload 错误的帧比例 |
++| `point_results.csv` | 每个 SNR 点一行的点级结果 |
++| `curve_summary.csv` | 每条曲线一行的曲线级结果 |
++| `codingGain_dB` | 曲线级编码增益，不是点级直接测量值 |
++| `trace.csv` | 中间过程追踪表 |
++| `checkpoint` | 长运行保存点，本阶段只冻结字段 |
++
+diff --git a/Task/Common/stages/stage01_common_definition/snapshot/scripts/validate_common01_definition.py b/Task/Common/stages/stage01_common_definition/snapshot/scripts/validate_common01_definition.py
+new file mode 100644
+index 0000000..a81e1a5
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/snapshot/scripts/validate_common01_definition.py
+@@ -0,0 +1,501 @@
++#!/usr/bin/env python
++"""Validate Common-01 frozen definitions.
++
++The script checks the committed definition files. It also supports
++`--negative-tests`, which copies the definitions to a temporary tree, applies
++known-bad mutations, and verifies that each mutation fails validation.
++"""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import json
++import math
++import shutil
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++
++REQUIRED_FILES = [
++    "Task/Common/config/global_config.json",
++    "Task/Common/config/seed_policy.json",
++    "Task/Common/config/stop_rules.json",
++    "Task/Common/config/result_schema.json",
++    "Task/Common/docs/common_simulation_definition.md",
++    "Task/Common/docs/metric_definition.md",
++    "Task/Common/docs/seed_policy.md",
++    "Task/Common/docs/plot_naming_rules.md",
++    "Task/Common/docs/checkpoint_definition.md",
++    "Task/Common/docs/terminology.md",
++    "Task/Common/stages/stage01_common_definition/stage_plan.md",
++    "Task/Common/stages/stage01_common_definition/changed_files.md",
++    "Task/Common/stages/stage01_common_definition/validation_report.md",
++    "Task/Common/stages/stage01_common_definition/manifest.json",
++    "Task/Common/stages/stage01_common_definition/changes.patch",
++    "Task/Common/stages/stage01_common_definition/frozen_config.csv",
++    "Task/Common/stages/stage01_common_definition/commands_used.md",
++    "Task/Common/stages/stage01_common_definition/git_commit.txt",
++    "Task/Common/stages/stage01_common_definition/known_issues.md",
++    "Task/Common/stages/stage01_common_definition/snapshot/README.md",
++]
++
++GLOBAL_FIELDS = [
++    "schemaVersion",
++    "projectName",
++    "stageId",
++    "maxCodeBlockLength",
++    "motherNoiseLength",
++    "supportedPayloadLengths",
++    "rateDefinition",
++    "lengthDefinitions",
++    "bpskMapping",
++    "hardDecisionRule",
++    "awgnModel",
++    "llrConvention",
++    "confidenceLevel",
++    "confidenceIntervalMethod",
++    "zeroErrorPolicy",
++    "interleaverPolicy",
++    "overwritePolicy",
++    "tracePolicy",
++]
++
++LENGTH_FIELDS = [
++    "K_payload",
++    "K_codec_input",
++    "N_encoded",
++    "N_transmitted",
++    "fillerLength",
++    "crcLength",
++    "tailLength",
++    "puncturedLength",
++    "shortenedLength",
++]
++
++CHECKPOINT_FIELDS = [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "snrIndex",
++    "ebN0_dB",
++    "nextFrameIndex",
++    "framesProcessed",
++    "payloadBitsProcessed",
++    "bitErrors",
++    "frameErrors",
++    "payloadSuccessFrames",
++    "decoderDeclaredSuccessFrames",
++    "undetectedErrorFrames",
++    "timingAccumulator",
++    "iterationAccumulator",
++    "configHash",
++    "framePoolHash",
++    "noisePolicyVersion",
++    "codeVersion",
++    "gitCommit",
++]
++
++POINT_REQUIRED_FIELDS = [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "codeType",
++    "decoderType",
++    "channelType",
++    "noiseGroupId",
++    "payloadLength",
++    "encodedLength",
++    "transmittedLength",
++    "codeRate",
++    "ebN0_dB",
++    "frames",
++    "payloadBits",
++    "bitErrors",
++    "frameErrors",
++    "BER",
++    "FER",
++    "payloadSuccessRate",
++    "stopReason",
++    "masterSeed",
++    "configHash",
++    "gitCommit",
++]
++
++SNAPSHOT_PAIRS = [
++    ("Task/Common/config/global_config.json", "Task/Common/stages/stage01_common_definition/snapshot/config/global_config.json"),
++    ("Task/Common/config/seed_policy.json", "Task/Common/stages/stage01_common_definition/snapshot/config/seed_policy.json"),
++    ("Task/Common/config/stop_rules.json", "Task/Common/stages/stage01_common_definition/snapshot/config/stop_rules.json"),
++    ("Task/Common/config/result_schema.json", "Task/Common/stages/stage01_common_definition/snapshot/config/result_schema.json"),
++    ("Task/Common/docs/common_simulation_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/common_simulation_definition.md"),
++    ("Task/Common/docs/metric_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/metric_definition.md"),
++    ("Task/Common/docs/seed_policy.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/seed_policy.md"),
++    ("Task/Common/docs/plot_naming_rules.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/plot_naming_rules.md"),
++    ("Task/Common/docs/checkpoint_definition.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/checkpoint_definition.md"),
++    ("Task/Common/docs/terminology.md", "Task/Common/stages/stage01_common_definition/snapshot/docs/terminology.md"),
++    ("Task/Common/scripts/validate_common01_definition.py", "Task/Common/stages/stage01_common_definition/snapshot/scripts/validate_common01_definition.py"),
++]
++
++ALLOWED_DIFF_PREFIXES = [
++    "Task/Common/config/",
++    "Task/Common/docs/",
++    "Task/Common/scripts/",
++    "Task/Common/stages/stage01_common_definition/",
++]
++
++
++class DuplicateKeyError(ValueError):
++    pass
++
++
++def no_duplicate_object_pairs(pairs):
++    out = {}
++    for key, value in pairs:
++        if key in out:
++            raise DuplicateKeyError(f"duplicate JSON key: {key}")
++        out[key] = value
++    return out
++
++
++def load_json(path: Path):
++    with path.open("r", encoding="utf-8") as handle:
++        return json.load(handle, object_pairs_hook=no_duplicate_object_pairs)
++
++
++def save_json(path: Path, data) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    with path.open("w", encoding="utf-8", newline="\n") as handle:
++        json.dump(data, handle, ensure_ascii=False, indent=2)
++        handle.write("\n")
++
++
++def read_text(path: Path) -> str:
++    return path.read_text(encoding="utf-8")
++
++
++def sha256_file(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as handle:
++        for chunk in iter(lambda: handle.read(65536), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def run_git(root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(
++        ["git"] + args,
++        cwd=str(root),
++        text=True,
++        stdout=subprocess.PIPE,
++        stderr=subprocess.PIPE,
++        check=False,
++    )
++
++
++def require(condition: bool, message: str, failures: list[str]) -> None:
++    if not condition:
++        failures.append(message)
++
++
++def validate_git_boundaries(root: Path, failures: list[str]) -> None:
++    if not (root / ".git").exists():
++        return
++    main_check = run_git(root, ["rev-parse", "--verify", "main"])
++    head_check = run_git(root, ["rev-parse", "--verify", "HEAD"])
++    if main_check.returncode != 0 or head_check.returncode != 0:
++        return
++    diff = run_git(root, ["diff", "--name-only", "main...HEAD"])
++    require(diff.returncode == 0, f"git diff main...HEAD failed: {diff.stderr.strip()}", failures)
++    if diff.returncode != 0:
++        return
++    paths = [line.strip().replace("\\", "/") for line in diff.stdout.splitlines() if line.strip()]
++    require(paths, "git diff main...HEAD must not be empty for Common-01 stage", failures)
++    for path in paths:
++        require(
++            any(path.startswith(prefix) for prefix in ALLOWED_DIFF_PREFIXES),
++            f"out-of-scope committed diff path: {path}",
++            failures,
++        )
++
++
++def validate(root: Path) -> list[str]:
++    failures: list[str] = []
++
++    for relative in REQUIRED_FILES:
++        require((root / relative).is_file(), f"missing required file: {relative}", failures)
++    if failures:
++        return failures
++
++    try:
++        global_config = load_json(root / "Task/Common/config/global_config.json")
++        seed_policy = load_json(root / "Task/Common/config/seed_policy.json")
++        stop_rules = load_json(root / "Task/Common/config/stop_rules.json")
++        result_schema = load_json(root / "Task/Common/config/result_schema.json")
++        manifest = load_json(root / "Task/Common/stages/stage01_common_definition/manifest.json")
++    except (json.JSONDecodeError, DuplicateKeyError) as exc:
++        return [f"JSON parse failed: {exc}"]
++
++    changes_patch = root / "Task/Common/stages/stage01_common_definition/changes.patch"
++    patch_text = read_text(changes_patch)
++    require(len(patch_text.strip()) > 0, "changes.patch must be non-empty", failures)
++    require("Task/Common/" in patch_text, "changes.patch must reference Task/Common changes", failures)
++
++    for source, snapshot in SNAPSHOT_PAIRS:
++        source_path = root / source
++        snapshot_path = root / snapshot
++        require(snapshot_path.is_file(), f"missing snapshot copy: {snapshot}", failures)
++        if source_path.is_file() and snapshot_path.is_file():
++            require(
++                sha256_file(source_path) == sha256_file(snapshot_path),
++                f"snapshot mismatch: {snapshot}",
++                failures,
++            )
++
++    for field in GLOBAL_FIELDS:
++        require(field in global_config, f"global_config missing field: {field}", failures)
++
++    require(global_config.get("projectName") == "SCL_Channel_Coding_Design", "projectName is incorrect", failures)
++    require(global_config.get("maxCodeBlockLength") == 1000, "maxCodeBlockLength must equal 1000", failures)
++    require(isinstance(global_config.get("motherNoiseLength"), int), "motherNoiseLength must be an integer", failures)
++    require(
++        global_config.get("motherNoiseLength", 0) >= global_config.get("maxCodeBlockLength", 10**9),
++        "motherNoiseLength must be >= maxCodeBlockLength",
++        failures,
++    )
++    payload_lengths = global_config.get("supportedPayloadLengths", [])
++    require(200 in payload_lengths and 300 in payload_lengths, "supportedPayloadLengths must contain 200 and 300", failures)
++
++    rate = global_config.get("rateDefinition", {})
++    require(rate.get("formula") == "K_payload/N_encoded", "rate formula must be K_payload/N_encoded", failures)
++    require(rate.get("numerator") == "K_payload", "rate numerator must be K_payload", failures)
++    require(rate.get("denominator") == "N_encoded", "rate denominator must be N_encoded", failures)
++    for example in rate.get("examples", []):
++        computed = example["K_payload"] / example["N_encoded"]
++        require(
++            math.isclose(computed, example["expectedRate"], rel_tol=0.0, abs_tol=1e-15),
++            f"rate example failed: {example.get('caseId')}",
++            failures,
++        )
++    require(len(rate.get("examples", [])) == 5, "exactly five rate examples are required", failures)
++
++    lengths = global_config.get("lengthDefinitions", {})
++    for field in LENGTH_FIELDS:
++        require(field in lengths, f"missing length definition: {field}", failures)
++
++    bpsk = global_config.get("bpskMapping", {})
++    require(bpsk.get("0") == 1 and bpsk.get("1") == -1, "BPSK mapping must be 0->+1 and 1->-1", failures)
++
++    hard = global_config.get("hardDecisionRule", {})
++    hard_text = json.dumps(hard, ensure_ascii=False)
++    require(hard.get("zeroBoundaryBit") == 0, "hard decision at y==0 must be bit 0", failures)
++    require("receivedSymbol >= 0" in hard_text and "receivedSymbol < 0" in hard_text, "hard decision rules incomplete", failures)
++
++    awgn = global_config.get("awgnModel", {})
++    require(awgn.get("sigmaSquaredFormula") == "1/(2*R*10^(EbN0_dB/10))", "AWGN sigma^2 formula mismatch", failures)
++    require(awgn.get("rateFormula") == "R=K_payload/N_encoded", "AWGN must reference payload rate", failures)
++
++    llr = global_config.get("llrConvention", {})
++    require("2*y_i/sigma^2" in llr.get("formula", ""), "LLR formula mismatch", failures)
++    require(llr.get("positiveMeans") == "bit 0" and llr.get("negativeMeans") == "bit 1", "LLR sign mismatch", failures)
++
++    require(global_config.get("confidenceLevel") == 0.95, "confidenceLevel must be 0.95", failures)
++    require(
++        global_config.get("confidenceIntervalMethod") == "Wilson score interval",
++        "confidence interval method must be Wilson score interval",
++        failures,
++    )
++
++    zero = global_config.get("zeroErrorPolicy", {})
++    for field in ["plotBER", "plotFER", "isZeroBitErrorPoint", "isZeroFrameErrorPoint"]:
++        require(field in zero.get("requiredFields", []), f"zero error policy missing field: {field}", failures)
++
++    interleaver = global_config.get("interleaverPolicy", {})
++    require(interleaver.get("baseAwgnInterleaverEnabled") is False, "base AWGN interleaver must be disabled", failures)
++    require(
++        interleaver.get("LDPC", {}).get("interleaverAllowed") is False,
++        "LDPC interleaver must be forbidden",
++        failures,
++    )
++
++    overwrite = global_config.get("overwritePolicy", {})
++    require(overwrite.get("overwriteExistingResults") is False, "overwriteExistingResults must default to false", failures)
++
++    seed_text = json.dumps(seed_policy, ensure_ascii=False)
++    require("noiseGroupId" in seed_text, "noiseGroupId must be defined", failures)
++    require(seed_policy.get("reuseNoiseAcrossSnr") is True, "reuseNoiseAcrossSnr must be true", failures)
++    require("decoderType" not in seed_policy.get("noiseSeedFields", []), "decoderType must not enter noiseSeedFields", failures)
++    require("decoderType" in seed_policy.get("excludedNoiseSeedFields", []), "decoderType must be excluded from noise seed", failures)
++    require("frameIndex" in seed_policy.get("noiseSeedFields", []), "frameIndex must enter noiseSeedFields", failures)
++    require(
++        seed_policy.get("noiseSeedPolicy", {}).get("differentFrameIndexMeansDifferentNoise") is True,
++        "different frameIndex principle must be declared in seed_policy.json",
++        failures,
++    )
++
++    for phase in ["smoke", "prescan", "formalTrial", "formal"]:
++        rules = stop_rules.get(phase, {})
++        require(rules.get("maxFrames", -1) >= rules.get("minFrames", 10**9), f"{phase}: maxFrames < minFrames", failures)
++        require(rules.get("targetFrameErrors", 0) > 0, f"{phase}: targetFrameErrors must be positive", failures)
++    stop_expression = stop_rules.get("stopLogic", {}).get("expression", "")
++    require("AND" in stop_expression and "OR" in stop_expression, "stop logic must contain correct AND/OR structure", failures)
++    for reason in ["TARGET_ERRORS_REACHED", "MAX_FRAMES_REACHED", "MANUAL_STOP", "ERROR_ABORT"]:
++        require(reason in stop_rules.get("stopReasons", []), f"missing stop reason: {reason}", failures)
++
++    for field in CHECKPOINT_FIELDS:
++        require(field in result_schema.get("checkpointFields", []), f"checkpoint missing field: {field}", failures)
++    resume_fields = result_schema.get("checkpointResumeValidationFields", [])
++    require("SNR" not in resume_fields, "checkpoint resume validation must not use ambiguous SNR field", failures)
++    for field in ["snrIndex", "ebN0_dB"]:
++        require(field in resume_fields, f"checkpoint resume validation missing field: {field}", failures)
++    point_required = result_schema.get("requiredFields", {}).get("point_results.csv", [])
++    for field in POINT_REQUIRED_FIELDS:
++        require(field in point_required, f"point_results.csv requiredFields missing: {field}", failures)
++    require(
++        result_schema.get("fileSeparation", {}).get("pointResultsFile") == "point_results.csv",
++        "point result file must be point_results.csv",
++        failures,
++    )
++    require(
++        result_schema.get("fileSeparation", {}).get("curveSummaryFile") == "curve_summary.csv",
++        "curve summary file must be curve_summary.csv",
++        failures,
++    )
++    require(
++        result_schema.get("fileSeparation", {}).get("codingGainLocation") == "curve_summary.csv",
++        "coding gain must belong to curve_summary.csv",
++        failures,
++    )
++    require(
++        result_schema.get("plotNamingTemplate") == "{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png",
++        "plot naming template missing or incorrect",
++        failures,
++    )
++
++    common_doc = read_text(root / "Task/Common/docs/common_simulation_definition.md")
++    metric_doc = read_text(root / "Task/Common/docs/metric_definition.md")
++    seed_doc = read_text(root / "Task/Common/docs/seed_policy.md")
++    plot_doc = read_text(root / "Task/Common/docs/plot_naming_rules.md")
++    checkpoint_doc = read_text(root / "Task/Common/docs/checkpoint_definition.md")
++    docs_all = "\n".join([common_doc, metric_doc, seed_doc, plot_doc, checkpoint_doc])
++    for text in [
++        "R = K_payload / N_encoded",
++        "0 -> +1",
++        "1 -> -1",
++        "receivedSymbol >= 0 -> bit 0",
++        "LLR_i",
++        "reuseNoiseAcrossSnr = true",
++        "decoderType",
++        "Wilson score interval",
++        "plotBER",
++        "point_results.csv",
++        "curve_summary.csv",
++        "{stage}_{code}_{case}_{channel}_{decoder}_{metric}.png",
++        "overwriteExistingResults = false",
++    ]:
++        require(text in docs_all, f"docs missing core definition text: {text}", failures)
++
++    require(manifest.get("stage") == "stage01_common_definition", "manifest stage mismatch", failures)
++    require(manifest.get("branch") == "stage01-common-definition", "manifest branch mismatch", failures)
++    require(
++        manifest.get("gate") in ["PENDING", "PASS_COMMON_DEFINITION", "BLOCKED_COMMON_DEFINITION", "FAIL_COMMON_DEFINITION"],
++        "manifest gate must be a known Gate value",
++        failures,
++    )
++    require(
++        manifest.get("commitStatus") in ["NOT_COMMITTED", "COMMITTED"],
++        "manifest commitStatus must be NOT_COMMITTED or COMMITTED",
++        failures,
++    )
++    if manifest.get("commitStatus") == "COMMITTED":
++        for field in ["baseCommit", "definitionCommit", "auditCommit"]:
++            require(bool(manifest.get(field)), f"manifest {field} is required when committed", failures)
++    require(manifest.get("pushStatus") in ["NOT_PUSHED", "PUSHED"], "manifest pushStatus is invalid", failures)
++
++    validate_git_boundaries(root, failures)
++
++    return failures
++
++
++def mutate(path: Path, dotted: str, value_marker) -> None:
++    data = load_json(path)
++    target = data
++    parts = dotted.split(".")
++    for part in parts[:-1]:
++        target = target[part]
++    key = parts[-1]
++    if value_marker == "__DELETE__":
++        del target[key]
++    else:
++        target[key] = value_marker
++    save_json(path, data)
++
++
++def snapshot_for(relative: str) -> str | None:
++    prefix = "Task/Common/"
++    if not relative.startswith(prefix):
++        return None
++    suffix = relative[len(prefix):]
++    if suffix.startswith("config/"):
++        return f"Task/Common/stages/stage01_common_definition/snapshot/{suffix}"
++    return None
++
++
++def run_negative_tests(root: Path) -> list[str]:
++    tests = [
++        ("reuseNoiseAcrossSnr false", "Task/Common/config/seed_policy.json", "reuseNoiseAcrossSnr", False, "reuseNoiseAcrossSnr must be true"),
++        ("delete K_payload definition", "Task/Common/config/global_config.json", "lengthDefinitions.K_payload", "__DELETE__", "missing length definition: K_payload"),
++        ("decoderType in noiseSeedFields", "Task/Common/config/seed_policy.json", "noiseSeedFields", ["masterSeed", "noiseGroupId", "frameIndex", "decoderType"], "decoderType must not enter noiseSeedFields"),
++        ("LDPC interleaver allowed", "Task/Common/config/global_config.json", "interleaverPolicy.LDPC.interleaverAllowed", True, "LDPC interleaver must be forbidden"),
++        ("smoke maxFrames less than minFrames", "Task/Common/config/stop_rules.json", "smoke.maxFrames", 10, "smoke: maxFrames < minFrames"),
++        ("wrong rate formula", "Task/Common/config/global_config.json", "rateDefinition.formula", "K_codec_input/N_encoded", "rate formula must be K_payload/N_encoded"),
++        ("delete checkpoint required field", "Task/Common/config/result_schema.json", "checkpointFields", [field for field in CHECKPOINT_FIELDS if field != "gitCommit"], "checkpoint missing field: gitCommit"),
++    ]
++    failures: list[str] = []
++    for name, relative, dotted, bad_value, expected in tests:
++        with tempfile.TemporaryDirectory(prefix="common01_neg_") as temp:
++            temp_root = Path(temp)
++            shutil.copytree(root / "Task", temp_root / "Task")
++            mutate(temp_root / relative, dotted, bad_value)
++            snapshot_relative = snapshot_for(relative)
++            if snapshot_relative and (temp_root / snapshot_relative).is_file():
++                mutate(temp_root / snapshot_relative, dotted, bad_value)
++            result = validate(temp_root)
++            if not result:
++                failures.append(f"negative test did not fail: {name}")
++            elif not any(expected in failure for failure in result):
++                failures.append(f"negative test failed for the wrong reason: {name}; expected substring: {expected}; got: {result[0]}")
++            else:
++                print(f"NEGATIVE TEST EXPECTED FAIL: {name}")
++                print(f"  first failure: {result[0]}")
++    return failures
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--root", default=".", help="Repository root containing Task/Common")
++    parser.add_argument("--negative-tests", action="store_true", help="Run expected-failure mutation tests")
++    args = parser.parse_args()
++
++    root = Path(args.root).resolve()
++    failures = validate(root)
++
++    if args.negative_tests and not failures:
++        failures.extend(run_negative_tests(root))
++
++    if failures:
++        print("COMMON-01 VALIDATION: FAIL")
++        for failure in failures:
++            print(f"- {failure}")
++        return 1
++
++    print("COMMON-01 VALIDATION: PASS")
++    print("Gate: PASS_COMMON_DEFINITION")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/Common/stages/stage01_common_definition/stage_plan.md b/Task/Common/stages/stage01_common_definition/stage_plan.md
+new file mode 100644
+index 0000000..c6ab9a1
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/stage_plan.md
+@@ -0,0 +1,110 @@
++# Common-01 Stage Plan
++
++## Stage
++
++```text
++stage01_common_definition
++```
++
++Branch:
++
++```text
++stage01-common-definition
++```
++
++Gate:
++
++```text
++PASS_COMMON_DEFINITION
++```
++
++## 目标
++
++冻结后续公共仿真必须遵守的数学定义、字段定义、随机性公平规则、停止规则、结果 schema 和审计规则。
++
++## 非目标
++
++本阶段不实现公共帧池、随机 payload 生成器、标准高斯噪声生成器、BPSK/AWGN/硬判决/LLR C++ 类、BER/FER C++ 统计类、checkpoint 读写、simulation runner、Identity Codec、BCH、卷积码、LDPC、smoke/prescan/formal 仿真或性能曲线。
++
++## 允许修改范围
++
++```text
++Task/Common/config/
++Task/Common/docs/
++Task/Common/scripts/
++Task/Common/stages/stage01_common_definition/
++```
++
++## 禁止修改范围
++
++```text
++Task/BCH/
++Task/CC/
++Task/LDPC/
++其他旧 Stage
++其他旧结果
++其他模块源码
++```
++
++## 输入
++
++- `AGENTS.md`
++- `初始规划/CODEX_GIT_WORKFLOW.md`
++- `初始规划/v2.0-三类信道编码公共基础仿真详细规划.md`
++- `初始规划/三类信道编码公共基础仿真规划_码率定义修订版.md`
++- Common-01 任务说明
++
++## 输出
++
++- JSON 配置：`global_config.json`、`seed_policy.json`、`stop_rules.json`、`result_schema.json`
++- Markdown 定义文档
++- Python 定义检查脚本
++- Stage 审计文件和 snapshot
++
++## 定义清单
++
++- `K_payload`、`K_codec_input`、`N_encoded`、`N_transmitted`
++- `fillerLength`、`crcLength`、`tailLength`、`puncturedLength`、`shortenedLength`
++- `R = K_payload/N_encoded`
++- BPSK: `0 -> +1`, `1 -> -1`
++- AWGN: `y = x + sigma*z`
++- `sigma^2 = 1/(2*R*10^(EbN0_dB/10))`
++- hard decision: `y >= 0 -> 0`, `y < 0 -> 1`
++- LLR: `2*y/sigma^2`, positive means bit 0
++- payload-only BER/FER
++- payload success and decoder declared success are separate
++- undetected error definition
++- Wilson 95% confidence interval
++- zero-error plot upper-bound policy
++- four stop-rule levels and stop logic
++- `noiseGroupId` and cross-SNR standard Gaussian reuse
++- LDPC interleaver forbidden
++- point result and curve summary separation
++- checkpoint required fields
++- plot naming template and overwrite policy
++
++## 验证计划
++
++1. Run `python Task\Common\scripts\validate_common01_definition.py`.
++2. Run `python Task\Common\scripts\validate_common01_definition.py --negative-tests`.
++3. Run `git status --short --branch`.
++4. Run `git diff --stat`.
++5. Run `git diff -- Task/Common`.
++6. Confirm no changes under `Task/BCH`, `Task/CC`, or `Task/LDPC`.
++
++## 负向测试计划
++
++The validation script mutates temporary copies and must fail these cases:
++
++- `reuseNoiseAcrossSnr = false`
++- delete `K_payload`
++- put `decoderType` into `noiseSeedFields`
++- set LDPC `interleaverAllowed = true`
++- set `maxFrames < minFrames`
++- change rate definition to `K_codec_input/N_encoded`
++- delete a required checkpoint field
++
++## 停止边界
++
++Stop after Common-01 definitions, validation, negative tests, and audit records. Do not enter Common-02. Do not merge `main`.
++
+diff --git a/Task/Common/stages/stage01_common_definition/validation_report.md b/Task/Common/stages/stage01_common_definition/validation_report.md
+new file mode 100644
+index 0000000..7b7069a
+--- /dev/null
++++ b/Task/Common/stages/stage01_common_definition/validation_report.md
+@@ -0,0 +1,155 @@
++# Validation Report
++
++## 验证环境
++
++- OS: Windows PowerShell environment
++- Repository: `C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design`
++- Branch: `stage01-common-definition`
++- Stage: `stage01_common_definition`
++
++## 执行命令
++
++Results are finalized after the commands are run:
++
++```powershell
++python Task\Common\scripts\validate_common01_definition.py
++python Task\Common\scripts\validate_common01_definition.py --negative-tests
++git status --short --branch
++git diff --stat
++git diff -- Task/Common
++```
++
++## 正常测试
++
++Command:
++
++```powershell
++python Task\Common\scripts\validate_common01_definition.py
++```
++
++Result:
++
++```text
++COMMON-01 VALIDATION: PASS
++Gate: PASS_COMMON_DEFINITION
++```
++
++## 负向测试
++
++Command:
++
++```powershell
++python Task\Common\scripts\validate_common01_definition.py --negative-tests
++```
++
++Result: PASS. The script rejected all planned bad mutations:
++
++1. `reuseNoiseAcrossSnr` changed to false.
++2. `K_payload` definition deleted.
++3. `decoderType` inserted into `noiseSeedFields`.
++4. LDPC `interleaverAllowed` changed to true.
++5. `maxFrames < minFrames`.
++6. Rate definition changed to `K_codec_input/N_encoded`.
++7. Required checkpoint field deleted.
++
++## JSON 解析结果
++
++PASS. All four config JSON files and the Stage `manifest.json` parsed successfully with duplicate-key checking enabled.
++
++## 码率样例结果
++
++The script automatically computes:
++
++| case | expected |
++|---|---:|
++| BCH segmented 200 | 0.7017543859649122 |
++| BCH block 200 | 0.8064516129032258 |
++| CC 300 1/2 zero tail | 0.49019607843137253 |
++| LDPC 300 to 480 | 0.625 |
++| LDPC 300 to 576 | 0.5208333333333334 |
++
++## 规则一致性结果
++
++PASS. The script verified:
++
++- Project name and Stage id.
++- Required top-level JSON fields.
++- `maxCodeBlockLength == 1000`.
++- `motherNoiseLength >= maxCodeBlockLength`.
++- Payload lengths include 200 and 300.
++- Rate formula is exactly `K_payload/N_encoded`.
++- Five rate examples are computed, not string-compared.
++- BPSK mapping, hard decision, AWGN sigma, and LLR sign.
++- `noiseGroupId`, `reuseNoiseAcrossSnr`, and decoder seed exclusion.
++- Per-frame independent-noise principle is declared.
++- Stop-rule values and AND/OR stop logic.
++- LDPC interleaver prohibition and base AWGN interleaver disablement.
++- Point/curve separation and coding gain placement.
++- Checkpoint fields.
++- Plot naming template and overwrite policy.
++- Core definitions are present in both JSON and docs.
++
++## 未通过项
++
++None.
++
++## Gate
++
++Gate: PASS_COMMON_DEFINITION
++
++## Git 范围检查
++
++Executed:
++
++```powershell
++git status --short --branch
++git diff --stat
++git diff -- Task/Common
++git ls-files --others --exclude-standard Task/Common
++git status --porcelain=v1 Task/BCH Task/CC Task/LDPC
++```
++
++Results:
++
++- Current branch: `stage01-common-definition`.
++- Pre-commit status originally contained new `Task/Common/` files only.
++- Post-commit compare range is `main...stage01-common-definition`.
++- `git diff --name-status main...stage01-common-definition` is the authoritative review scope after `main` was pushed.
++- `Task/BCH`, `Task/CC`, and `Task/LDPC` have no status output, so no out-of-scope edits were detected.
++- Remote `main` was later pushed so GitHub can compare `main...stage01-common-definition`.
++- The validator now checks committed `main...HEAD` paths and fails if any committed path is outside Common-01 allowed prefixes.
++
++## Commit
++
++Initial Stage commits:
++
++```text
++899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d stage01: freeze common definitions
++e76e5fbadf820be25d6c8deebf5597144d631b1f stage01: record common definition commit metadata
++```
++
++Base commit:
++
++```text
++a3449dbf5a0d33ad805ca3de406afa489b162e24 initial project baseline
++```
++
++Remote status after repair:
++
++```text
++main: pushed to origin/main
++stage01-common-definition: pushed to origin/stage01-common-definition
++merge_status: NOT_MERGED
++```
++
++## Common-01 Repair Notes
++
++The Codex/GPT review identified audit-chain issues. The repair addresses them as follows:
++
++```text
++checkpoint SNR fields: snrIndex + ebN0_dB, no ambiguous SNR field
++point required fields: expanded to include run/case/code/channel/length/SNR/count/error/hash fields
++validator: checks changes.patch, snapshot equality, Git diff boundary, and expected negative-test failure reasons
++manifest/git_commit: records full base, definition, and audit commit SHA values and push status
++remote main: pushed so GitHub can compare main...stage01-common-definition
++```

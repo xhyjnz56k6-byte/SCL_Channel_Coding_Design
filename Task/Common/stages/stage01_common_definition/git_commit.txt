@@ -1,5 +1,9 @@
 stage: stage01_common_definition
 branch: stage01-common-definition
-commit: 899c4c4
-push_status: NOT_PUSHED
+base_branch: main
+base_commit: a3449dbf5a0d33ad805ca3de406afa489b162e24
+definition_commit: 899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d
+audit_commit: e76e5fbadf820be25d6c8deebf5597144d631b1f
+remote_branch: origin/stage01-common-definition
+push_status: PUSHED
 merge_status: NOT_MERGED

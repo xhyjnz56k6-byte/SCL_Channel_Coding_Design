@@ -64,3 +64,17 @@ Commands are recorded in execution order with result summaries.
     - Result: no output; no out-of-scope staged files.
 30. `git commit -m "stage01: freeze common definitions"`
     - Result: created commit `899c4c4`.
+31. `git commit -m "stage01: record common definition commit metadata"`
+    - Result: created commit `e76e5fb`.
+32. `git push -u origin stage01-common-definition`
+    - Result: pushed Stage branch to `origin/stage01-common-definition`.
+33. `git push -u origin main`
+    - Result: pushed base branch to `origin/main` so GitHub can compare `main...stage01-common-definition`.
+34. `apply_patch`
+    - Result: repaired checkpoint SNR fields, validator strength, manifest, and audit metadata.
+35. `Copy-Item Task\Common\config\*.json Task\Common\stages\stage01_common_definition\snapshot\config\ -Force`
+    - Result: refreshed snapshot JSON files after repair.
+36. `Copy-Item Task\Common\docs\*.md Task\Common\stages\stage01_common_definition\snapshot\docs\ -Force`
+    - Result: refreshed snapshot docs after repair.
+37. `Copy-Item Task\Common\scripts\validate_common01_definition.py Task\Common\stages\stage01_common_definition\snapshot\scripts\ -Force`
+    - Result: refreshed snapshot validator after repair.

@@ -14,13 +14,13 @@ No known blocking issues.
 ## 当前限制
 
 - 本阶段只冻结定义，不生成实际帧池、噪声文件、仿真结果或图片。
-- 本阶段不配置远端仓库，因此 push 状态为 `NOT_PUSHED`。
+- 本阶段已推送 `main` 和 `stage01-common-definition` 到 origin；最终是否修改 GitHub 默认分支仍需在 GitHub 页面确认。
 
 ## 仍存在的歧义
 
 - No known definition ambiguity remains for Common-01.
+- GitHub 默认分支可能仍显示为 `stage01-common-definition`，但远程 `main` ref 已存在，可执行 `main...stage01-common-definition` 比较。
 
 ## 后续 Common-02 才处理的事项
 
 - C++ 类型、接口、目录骨架和编译测试。
-
