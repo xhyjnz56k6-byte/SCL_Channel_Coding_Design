@@ -4,6 +4,7 @@ base_branch: main
 base_commit: a3449dbf5a0d33ad805ca3de406afa489b162e24
 definition_commit: 899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d
 audit_commit: e76e5fbadf820be25d6c8deebf5597144d631b1f
+repair_commit: abb72621b3e1fa4119f10f79e5afb85e20d571ec
 remote_branch: origin/stage01-common-definition
 push_status: PUSHED
 merge_status: NOT_MERGED

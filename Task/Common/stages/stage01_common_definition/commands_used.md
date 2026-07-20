@@ -78,3 +78,13 @@ Commands are recorded in execution order with result summaries.
     - Result: refreshed snapshot docs after repair.
 37. `Copy-Item Task\Common\scripts\validate_common01_definition.py Task\Common\stages\stage01_common_definition\snapshot\scripts\ -Force`
     - Result: refreshed snapshot validator after repair.
+38. `python Task\Common\scripts\validate_common01_definition.py`
+    - Result: PASS after validator repair.
+39. `python Task\Common\scripts\validate_common01_definition.py --negative-tests`
+    - Result: PASS; each negative mutation reported its expected failure reason.
+40. `git diff main -- Task/Common ':!Task/Common/stages/stage01_common_definition/changes.patch' | Set-Content -Encoding UTF8 Task\Common\stages\stage01_common_definition\changes.patch`
+    - Result: regenerated real review patch relative to `main`, excluding self-reference.
+41. `git add -u Task/Common`
+    - Result: staged tracked Common-01 repair files only; `Task/Common/Plan/` remained untracked.
+42. `git commit -m "stage01: repair common definition audit blockers"`
+    - Result: created repair commit `abb72621b3e1fa4119f10f79e5afb85e20d571ec`.

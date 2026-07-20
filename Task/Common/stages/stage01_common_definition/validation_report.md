@@ -126,6 +126,7 @@ Initial Stage commits:
 ```text
 899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d stage01: freeze common definitions
 e76e5fbadf820be25d6c8deebf5597144d631b1f stage01: record common definition commit metadata
+abb72621b3e1fa4119f10f79e5afb85e20d571ec stage01: repair common definition audit blockers
 ```
 
 Base commit:
@@ -151,5 +152,6 @@ checkpoint SNR fields: snrIndex + ebN0_dB, no ambiguous SNR field
 point required fields: expanded to include run/case/code/channel/length/SNR/count/error/hash fields
 validator: checks changes.patch, snapshot equality, Git diff boundary, and expected negative-test failure reasons
 manifest/git_commit: records full base, definition, and audit commit SHA values and push status
+repair commit: records `abb72621b3e1fa4119f10f79e5afb85e20d571ec`
 remote main: pushed so GitHub can compare main...stage01-common-definition
 ```

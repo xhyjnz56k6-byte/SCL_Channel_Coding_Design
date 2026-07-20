@@ -1615,10 +1615,10 @@ index 0000000..efb1a62
 +None.
 diff --git a/Task/Common/stages/stage01_common_definition/commands_used.md b/Task/Common/stages/stage01_common_definition/commands_used.md
 new file mode 100644
-index 0000000..7257d8a
+index 0000000..0a6c9c0
 --- /dev/null
 +++ b/Task/Common/stages/stage01_common_definition/commands_used.md
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,90 @@
 +# Commands Used
 +
 +Commands are recorded in execution order with result summaries.
@@ -1699,6 +1699,16 @@ index 0000000..7257d8a
 +    - Result: refreshed snapshot docs after repair.
 +37. `Copy-Item Task\Common\scripts\validate_common01_definition.py Task\Common\stages\stage01_common_definition\snapshot\scripts\ -Force`
 +    - Result: refreshed snapshot validator after repair.
++38. `python Task\Common\scripts\validate_common01_definition.py`
++    - Result: PASS after validator repair.
++39. `python Task\Common\scripts\validate_common01_definition.py --negative-tests`
++    - Result: PASS; each negative mutation reported its expected failure reason.
++40. `git diff main -- Task/Common ':!Task/Common/stages/stage01_common_definition/changes.patch' | Set-Content -Encoding UTF8 Task\Common\stages\stage01_common_definition\changes.patch`
++    - Result: regenerated real review patch relative to `main`, excluding self-reference.
++41. `git add -u Task/Common`
++    - Result: staged tracked Common-01 repair files only; `Task/Common/Plan/` remained untracked.
++42. `git commit -m "stage01: repair common definition audit blockers"`
++    - Result: created repair commit `abb72621b3e1fa4119f10f79e5afb85e20d571ec`.
 diff --git a/Task/Common/stages/stage01_common_definition/frozen_config.csv b/Task/Common/stages/stage01_common_definition/frozen_config.csv
 new file mode 100644
 index 0000000..f3bbc95
@@ -1732,16 +1742,17 @@ index 0000000..f3bbc95
 +overwriteExistingResults,false,,Task/Common/config/global_config.json,Default overwrite policy,FROZEN
 diff --git a/Task/Common/stages/stage01_common_definition/git_commit.txt b/Task/Common/stages/stage01_common_definition/git_commit.txt
 new file mode 100644
-index 0000000..9e7609e
+index 0000000..9cba2be
 --- /dev/null
 +++ b/Task/Common/stages/stage01_common_definition/git_commit.txt
-@@ -0,0 +1,9 @@
+@@ -0,0 +1,10 @@
 +stage: stage01_common_definition
 +branch: stage01-common-definition
 +base_branch: main
 +base_commit: a3449dbf5a0d33ad805ca3de406afa489b162e24
 +definition_commit: 899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d
 +audit_commit: e76e5fbadf820be25d6c8deebf5597144d631b1f
++repair_commit: abb72621b3e1fa4119f10f79e5afb85e20d571ec
 +remote_branch: origin/stage01-common-definition
 +push_status: PUSHED
 +merge_status: NOT_MERGED
@@ -1779,10 +1790,10 @@ index 0000000..e98c9a0
 +- C++ 类型、接口、目录骨架和编译测试。
 diff --git a/Task/Common/stages/stage01_common_definition/manifest.json b/Task/Common/stages/stage01_common_definition/manifest.json
 new file mode 100644
-index 0000000..489c9fd
+index 0000000..5646731
 --- /dev/null
 +++ b/Task/Common/stages/stage01_common_definition/manifest.json
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,55 @@
 +{
 +  "stage": "stage01_common_definition",
 +  "branch": "stage01-common-definition",
@@ -1833,6 +1844,7 @@ index 0000000..489c9fd
 +  "baseCommit": "a3449dbf5a0d33ad805ca3de406afa489b162e24",
 +  "definitionCommit": "899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d",
 +  "auditCommit": "e76e5fbadf820be25d6c8deebf5597144d631b1f",
++  "repairCommit": "abb72621b3e1fa4119f10f79e5afb85e20d571ec",
 +  "remoteBranch": "origin/stage01-common-definition",
 +  "pushStatus": "PUSHED",
 +  "compareRange": "main...stage01-common-definition"
@@ -3508,10 +3520,10 @@ index 0000000..c6ab9a1
 +
 diff --git a/Task/Common/stages/stage01_common_definition/validation_report.md b/Task/Common/stages/stage01_common_definition/validation_report.md
 new file mode 100644
-index 0000000..7b7069a
+index 0000000..4b4cde2
 --- /dev/null
 +++ b/Task/Common/stages/stage01_common_definition/validation_report.md
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,157 @@
 +# Validation Report
 +
 +## 验证环境
@@ -3640,6 +3652,7 @@ index 0000000..7b7069a
 +```text
 +899c4c4bb27c786fc7a5c1e5a9049b0a847edd1d stage01: freeze common definitions
 +e76e5fbadf820be25d6c8deebf5597144d631b1f stage01: record common definition commit metadata
++abb72621b3e1fa4119f10f79e5afb85e20d571ec stage01: repair common definition audit blockers
 +```
 +
 +Base commit:
@@ -3665,5 +3678,6 @@ index 0000000..7b7069a
 +point required fields: expanded to include run/case/code/channel/length/SNR/count/error/hash fields
 +validator: checks changes.patch, snapshot equality, Git diff boundary, and expected negative-test failure reasons
 +manifest/git_commit: records full base, definition, and audit commit SHA values and push status
++repair commit: records `abb72621b3e1fa4119f10f79e5afb85e20d571ec`
 +remote main: pushed so GitHub can compare main...stage01-common-definition
 +```
