@@ -56,3 +56,11 @@ Commands are recorded in execution order with result summaries.
     - Result: listed only Common-01 files and snapshot copies.
 26. `git status --porcelain=v1 Task/BCH Task/CC Task/LDPC`
     - Result: no output; no BCH/CC/LDPC changes detected.
+27. `git add Task/Common`
+    - Result: staged only Common-01 files.
+28. `git diff --cached --stat`
+    - Result: 32 files, 3084 insertions, all under `Task/Common`.
+29. `git diff --cached --name-only Task/BCH Task/CC Task/LDPC`
+    - Result: no output; no out-of-scope staged files.
+30. `git commit -m "stage01: freeze common definitions"`
+    - Result: created commit `899c4c4`.

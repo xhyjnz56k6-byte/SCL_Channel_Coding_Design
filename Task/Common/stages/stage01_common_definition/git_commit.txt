@@ -1,5 +1,5 @@
 stage: stage01_common_definition
 branch: stage01-common-definition
-commit: NOT_COMMITTED
+commit: 899c4c4
 push_status: NOT_PUSHED
 merge_status: NOT_MERGED

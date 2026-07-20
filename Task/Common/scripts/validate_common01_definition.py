@@ -286,7 +286,13 @@ def validate(root: Path) -> list[str]:
     require(manifest.get("stage") == "stage01_common_definition", "manifest stage mismatch", failures)
     require(manifest.get("branch") == "stage01-common-definition", "manifest branch mismatch", failures)
     require(manifest.get("gate") == "PASS_COMMON_DEFINITION", "manifest gate mismatch", failures)
-    require(manifest.get("commitStatus") == "NOT_COMMITTED", "manifest commitStatus must be NOT_COMMITTED", failures)
+    require(
+        manifest.get("commitStatus") in ["NOT_COMMITTED", "COMMITTED"],
+        "manifest commitStatus must be NOT_COMMITTED or COMMITTED",
+        failures,
+    )
+    if manifest.get("commitStatus") == "COMMITTED":
+        require(bool(manifest.get("commitHash")), "manifest commitHash is required when committed", failures)
 
     return failures
 

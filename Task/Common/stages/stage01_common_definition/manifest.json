@@ -44,5 +44,6 @@
   ],
   "validationStatus": "PASS",
   "gate": "PASS_COMMON_DEFINITION",
-  "commitStatus": "NOT_COMMITTED"
+  "commitStatus": "COMMITTED",
+  "commitHash": "899c4c4"
 }

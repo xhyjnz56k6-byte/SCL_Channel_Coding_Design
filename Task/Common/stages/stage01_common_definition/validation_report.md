@@ -116,3 +116,13 @@ Results:
 - `git diff --stat` and `git diff -- Task/Common` are empty because the Stage files are new and not staged or committed.
 - `git ls-files --others --exclude-standard Task/Common` lists only Common-01 files and snapshot copies.
 - `Task/BCH`, `Task/CC`, and `Task/LDPC` have no status output, so no out-of-scope edits were detected.
+
+## Commit
+
+Initial Stage commit:
+
+```text
+899c4c4 stage01: freeze common definitions
+```
+
+After this commit, audit metadata is updated to record the commit hash.
