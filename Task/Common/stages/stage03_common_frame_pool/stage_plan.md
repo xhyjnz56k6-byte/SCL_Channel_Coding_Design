@@ -6,25 +6,22 @@
 
 ## Goal
 
-Implement a reproducible, shard-based public payload frame pool foundation for 200-bit and 300-bit payloads.
+Finalize a reproducible, integrity-checked, shard-based public payload frame pool for 200-bit and 300-bit payloads.
 
-## Scope
+## Functional Scope
 
-Allowed:
+- Deterministic payload generation with `payloadPolicyVersion = 1`.
+- SplitMix64 payload derivation version `splitmix64_payload_v2`.
+- Packed payload bytes with `bitOrderWithinByte = lsb_first`.
+- Default shard size of 1000 frames.
+- Manifest v2 with deterministic bytes, shard SHA256, and `overallHash`.
+- C++ `PackedFramePoolReader final : public IFramePoolReader`.
+- Pure C++17 SHA256 implementation.
+- C++ and Python validation, including real damaged-input negative tests.
 
-- Deterministic payload bit generation.
-- Packed frame-pool shard format.
-- `manifest.json` schema and SHA256 verification.
-- C++ random/sequential frame-pool reader.
-- Python frame-pool generator and checker.
-- C++ and Python tests.
+## Explicitly Excluded
 
-Forbidden:
-
-- BPSK, AWGN, sigma, LLR, BER/FER, stop controller, checkpoint/resume I/O.
-- BCH, convolutional-code, Viterbi, LDPC, BP, or NMS implementation.
-- `Task/BCH/`, `Task/CC/`, `Task/LDPC/`.
-- `Task/Common/Plan/` and `Task/Common/build/`.
+BPSK, AWGN, Gaussian noise, sigma, LLR, BER/FER, Wilson intervals, stop controller, checkpoint/resume, BCH, convolutional-code, Viterbi, LDPC, BP/NMS, and interleaving.
 
 ## Gate
 

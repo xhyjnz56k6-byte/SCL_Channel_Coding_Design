@@ -1,8 +1,10 @@
 stage: stage03_common_frame_pool
 branch: stage02-03-common-foundation
-base_branch: stage02-03-common-foundation
-base_commit: fe6cfa0164afd097adb972a51afd73240105c188
-audited_content_commit: 6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00
+original_content_base_commit: fe6cfa0164afd097adb972a51afd73240105c188
+original_content_commit: 6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00
+original_audit_commit: 5636f802ef2b45d16ff8018dbfe24b171682992f
+repair_content_base_commit: 5636f802ef2b45d16ff8018dbfe24b171682992f
+repair_content_commit: 62146787d8ad16e77ad507cd65ba72b06534369e
 remote_branch: origin/stage02-03-common-foundation
-remote_verification_status: TO_VERIFY_AFTER_PUSH
+remote_verification_status: VERIFIED
 merge_status: NOT_MERGED

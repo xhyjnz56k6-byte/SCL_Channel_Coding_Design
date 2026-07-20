@@ -1,52 +1,44 @@
 # Commands Used
 
-## Pre-Checks
-
-1. `git status --short --branch`
-   - Result: branch `stage02-03-common-foundation`; user-preserved workspace changes remain unstaged.
-2. `git log -5 --oneline --decorate`
-   - Result: Common-02 audit closure commit `fe6cfa0` was HEAD before Common-03 feature work.
-3. `git diff --name-status fe6cfa0164afd097adb972a51afd73240105c188...6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00`
-   - Result: 5 added Common-03 files; no BCH/CC/LDPC paths.
-
-## Implementation And Validation
-
-1. `apply_patch`
-   - Result: added Common-03 C++ frame-pool header, Python generator/checker/build script, and C++ tests.
-2. `python Task\Common\scripts\check_common03.py`
-   - Result: initial failures exposed a root path issue, unordered JSON shard parsing, and checker self-scan markers.
-3. `apply_patch`
-   - Result: fixed root resolution, order-independent shard parsing, and later-stage marker scan scope.
-4. `python Task\Common\scripts\check_common03.py`
-   - Result: `COMMON-03 CHECK: PASS`; `Gate: PASS_COMMON_FRAME_POOL`.
-5. `python Task\Common\scripts\build_common03.py`
-   - Result: `COMMON-03 BUILD: PASS`.
-6. `Task\Common\build\stage03\test_common03_frame_pool.exe Task\Common\build\stage03\pool_a\k200\manifest.json Task\Common\build\stage03\pool_a\k300\manifest.json`
-   - Result: `COMMON-03 TEST PASS`.
-7. `python Task\Common\scripts\check_common02.py`
-   - Result: after restoring Common-02 snapshot-owned files byte-for-byte, `COMMON-02 CHECK: PASS`; `Gate: PASS_COMMON_TYPES_INTERFACES`.
-8. `apply_patch`
-   - Result: updated Common-02 checker range validation to use Common-02 `baseCommit...auditedContentCommit`, avoiding false failures after Common-03 files are committed.
-9. `Copy-Item Task\Common\scripts\check_common02.py Task\Common\stages\stage02_common_types_interfaces\snapshot\scripts\check_common02.py -Force`
-   - Result: synchronized the Stage02 checker snapshot.
-10. `python Task\Common\scripts\check_common02.py`
-    - Result: `COMMON-02 CHECK: PASS`; `Gate: PASS_COMMON_TYPES_INTERFACES`.
+1. `git branch --show-current`
+   - Result: `stage02-03-common-foundation`.
+2. `git status --short --branch`
+   - Result: known user/generated workspace states remained unstaged.
+3. `git log -8 --oneline --decorate`
+   - Result: Common-03 original audit commit `5636f80` was HEAD at task start.
+4. `git rev-parse main`
+   - Result: `dba843f535d3a678f684300f10731f1cbd19a406`.
+5. `git rev-parse HEAD`
+   - Result before repair: `5636f802ef2b45d16ff8018dbfe24b171682992f`.
+6. `git rev-parse origin/stage02-03-common-foundation`
+   - Result before repair: `5636f802ef2b45d16ff8018dbfe24b171682992f`.
+7. `git merge-base main HEAD`
+   - Result: `dba843f535d3a678f684300f10731f1cbd19a406`.
+8. `git diff --name-status main...HEAD`
+   - Result: only `Task/Common` committed paths.
+9. `git status --short Task/Common/Plan Task/Common/build Task/BCH Task/CC Task/LDPC`
+   - Result: `Task/Common/Plan/` and `Task/Common/build/` untracked; BCH/CC/LDPC clean.
+10. `python Task\Common\scripts\build_common03.py`
+    - Result: `COMMON-03 BUILD: PASS`.
 11. `python Task\Common\scripts\check_common03.py`
-    - Result: `COMMON-03 CHECK: PASS`; `Gate: PASS_COMMON_FRAME_POOL`.
+    - Result after repairs: `COMMON-03 CHECK: PASS`; `Gate: PASS_COMMON_FRAME_POOL`.
+12. `Task\Common\build\stage03\test_common03_frame_pool.exe ...`
+    - Result: `COMMON-03 TEST PASS`.
+13. `python Task\Common\scripts\check_common02.py`
+    - Result: `COMMON-02 CHECK: PASS`; `Gate: PASS_COMMON_TYPES_INTERFACES`.
+14. `git commit -m "common03: harden frame pool integrity and reproducibility"`
+    - Result: `62146787d8ad16e77ad507cd65ba72b06534369e`.
+15. `git push origin stage02-03-common-foundation`
+    - Result: pushed repair functional commit.
+16. `git fetch origin`
+    - Result: remote refs refreshed.
+17. `git rev-parse HEAD`
+    - Result: `62146787d8ad16e77ad507cd65ba72b06534369e`.
+18. `git rev-parse origin/stage02-03-common-foundation`
+    - Result: `62146787d8ad16e77ad507cd65ba72b06534369e`.
+19. `git merge-base --is-ancestor 62146787d8ad16e77ad507cd65ba72b06534369e origin/stage02-03-common-foundation`
+    - Result: repair functional commit is on remote.
+20. `git merge-base --is-ancestor HEAD main`
+    - Result: not merged to `main`.
 
-## Feature Commit
-
-1. `git add -- Task/Common/include/common/frame_pool.hpp Task/Common/scripts/build_common03.py Task/Common/scripts/check_common03.py Task/Common/scripts/generate_common03_frame_pool.py Task/Common/tests/stage03/test_common03_frame_pool.cpp`
-2. `git commit -m "common03: add deterministic frame pool foundation"`
-   - Result: `6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00`.
-
-## Audit Closure Procedure
-
-The final audit commit SHA is intentionally not embedded in this file to avoid self-reference.
-
-1. Generate `Task/Common/stages/stage03_common_frame_pool/changes.patch` from `fe6cfa0...6c304d0`.
-2. Run `python Task\Common\scripts\check_common03.py`.
-3. Run `python Task\Common\scripts\check_common02.py`.
-4. Stage explicit Common-03 audit files.
-5. Commit with `common03: record frame pool audit closure`.
-6. Push `stage02-03-common-foundation`.
+The final audit commit SHA is intentionally not embedded in Stage03 metadata to avoid self-reference.

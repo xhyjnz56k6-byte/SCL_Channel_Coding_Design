@@ -1,7 +1,9 @@
 # Common-03 Snapshot
 
-Snapshot of the audited Common-03 feature commit:
+This snapshot stores the final audited Common-03 functional source from repair content commit:
 
-`6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00`
+`62146787d8ad16e77ad507cd65ba72b06534369e`
 
-Large generated frame pools are intentionally not included.
+It intentionally snapshots functional files only. The Stage03 audit files are not
+self-referentially snapshotted, and generated frame-pool data under
+`Task/Common/build/` is intentionally excluded.
