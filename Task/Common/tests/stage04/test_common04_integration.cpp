@@ -34,6 +34,18 @@ int main() {
         const auto high = scl::common::runIdentitySimulation(config);
         require(high.metrics.bitErrors <= hard.metrics.bitErrors + length, "gross SNR trend failed");
     }
+    for (const scl::common::Length length : {200U, 300U}) {
+        for (scl::common::FrameIndex frame = 0; frame < 4U; ++frame) {
+            const auto payload = scl::common::generatePayloadBits(2026072001ULL, length, frame);
+            const auto symbols = scl::common::bpskModulate(payload);
+            const auto hard = scl::common::hardDecision(symbols);
+            scl::common::RealVector finiteLlr;
+            finiteLlr.reserve(symbols.size());
+            for (double symbol : symbols) finiteLlr.push_back(symbol > 0.0 ? 100.0 : -100.0);
+            const auto llr = scl::common::llrSignDecision(finiteLlr);
+            require(hard == payload && llr == payload, "no-noise hard or finite LLR identity mismatch");
+        }
+    }
     const auto merged = scl::common::mergeSimulationShards({shard(0, 0, 40), shard(1, 40, 60)});
     require(merged.frameStart == 0U && merged.frameCount == 100U && merged.metrics.processedFrames == 100U, "valid merge failed");
     requireThrows("gap", [] { (void)scl::common::mergeSimulationShards({shard(0, 0, 40), shard(1, 41, 59)}); });

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import shutil
 import subprocess
 import sys
@@ -49,6 +50,16 @@ def check_acceptance(root: Path, failures: list[str]) -> None:
         seen.add(row.get("gate"))
     for gate in gates:
         require(gate in seen, f"no acceptance evidence for {gate}", failures)
+    evidence = {row["requirementId"]: row["evidence"] for row in rows}
+    required_evidence = {
+        "G1-006": "compare_common04_cpp_python.py", "G3-006": "compare_common04_cpp_python.py",
+        "G5-004": "test_common04_checkpoint.exe", "G5-006": "merge_common04_shards.py",
+        "G6-001": "test_common04_integration.exe", "G6-004": "real_pool_smoke100",
+        "G6-006": "formal_capacity_plan", "REG-001": "check_common02.py", "REG-002": "check_common03.py",
+        "AUD-004": "manifest_functional_diff", "AUD-005": "remote_contains_functional_commit",
+    }
+    for requirement, token in required_evidence.items():
+        require(token in evidence.get(requirement, ""), f"acceptance evidence missing {token}: {requirement}", failures)
 
 
 def check_scope(root: Path, failures: list[str]) -> None:
@@ -110,6 +121,47 @@ def validate_summary(summary: Path, frame_count: int, failures: list[str]) -> li
     return rows
 
 
+def check_python_merge(root: Path, failures: list[str]) -> None:
+    directory = root / "Task/Common/build/stage04/python_merge"
+    directory.mkdir(parents=True, exist_ok=True)
+    fields = ["schemaVersion", "experimentId", "stage", "codeType", "caseName", "payloadLength", "encodedLength", "ebN0_dB", "snrIndex", "framePoolId", "noisePoolId", "configHash", "shardIndex", "frameStart", "frameCount", "processedFrames", "totalPayloadBits", "bitErrors", "frameErrors", "successfulFrames", "encodeTimeNsSum", "channelTimeNsSum", "decodeTimeNsSum", "recoveryTimeNsSum", "totalTimeNsSum", "maxDecodeTimeNs", "maxTotalTimeNs"]
+    def row(index: int, start: int, count: int) -> dict[str, str]:
+        return {"schemaVersion": "common04.result_summary.v1", "experimentId": "merge", "stage": "stage04_common_simulation_foundation", "codeType": "IDENTITY", "caseName": "k200", "payloadLength": "200", "encodedLength": "200", "ebN0_dB": "2", "snrIndex": "1", "framePoolId": "frame", "noisePoolId": "noise", "configHash": "hash", "shardIndex": str(index), "frameStart": str(start), "frameCount": str(count), "processedFrames": str(count), "totalPayloadBits": str(count * 200), "bitErrors": str(count), "frameErrors": str(count), "successfulFrames": "0", "encodeTimeNsSum": str(count * 10), "channelTimeNsSum": str(count * 20), "decodeTimeNsSum": str(count * 30), "recoveryTimeNsSum": str(count * 40), "totalTimeNsSum": str(count * 100), "maxDecodeTimeNs": str(30 + index), "maxTotalTimeNs": str(100 + index)}
+    def write(name: str, data: dict[str, str]) -> Path:
+        path = directory / name
+        with path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=fields); writer.writeheader(); writer.writerow(data)
+        return path
+    first, second = write("shard0.csv", row(0, 0, 40)), write("shard1.csv", row(1, 40, 60))
+    merged = directory / "merged.csv"
+    run_or_fail([sys.executable, "Task/Common/scripts/merge_common04_shards.py", "--output", str(merged), str(first), str(second)], root, "python shard merge positive", failures)
+    if merged.exists():
+        result = next(csv.DictReader(merged.open(encoding="utf-8")))
+        require(result["frameCount"] == "100" and result["totalTimeNsSum"] == "10000" and result["maxTotalTimeNs"] == "101", "python shard merge latency aggregation failed", failures)
+        require(abs(float(result["avgTotalTimeUs"]) - 0.1) < 1e-12, "python shard merge average latency failed", failures)
+    for name, mutate in [("gap", lambda value: value.update(frameStart="41")), ("duplicate", lambda value: value.update(shardIndex="0")), ("bad_total", lambda value: value.update(totalPayloadBits="1"))]:
+        bad = row(1, 40, 60); mutate(bad)
+        path = write(f"{name}.csv", bad)
+        result = run([sys.executable, "Task/Common/scripts/merge_common04_shards.py", "--output", str(directory / f"{name}_out.csv"), str(first), str(path)], root)
+        require(result.returncode != 0, f"python shard merge negative failed: {name}", failures)
+    missing = directory / "missing_latency.csv"
+    with missing.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=[field for field in fields if field != "totalTimeNsSum"])
+        writer.writeheader(); writer.writerow({key: value for key, value in row(1, 40, 60).items() if key != "totalTimeNsSum"})
+    result = run([sys.executable, "Task/Common/scripts/merge_common04_shards.py", "--output", str(directory / "missing_latency_out.csv"), str(first), str(missing)], root)
+    require(result.returncode != 0, "python shard merge missing latency negative failed", failures)
+
+
+def check_formal_capacity(root: Path, failures: list[str]) -> None:
+    config = json.loads((root / "Task/Common/config/common04_formal_template.json").read_text(encoding="utf-8"))
+    frames, symbols, per_shard = config["frames"], config["symbolsPerFrame"], config["framesPerShard"]
+    expected = math.ceil(frames / per_shard)
+    require((frames, symbols, per_shard, config["expectedShardCount"]) == (50000, 1000, 1000, 50), "formal capacity config mismatch", failures)
+    require(expected == 50 and frames - 1 == 49999 and (expected - 1) * per_shard == 49000, "formal capacity range mismatch", failures)
+    require(frames * symbols * 8 == 400000000, "formal capacity byte calculation mismatch", failures)
+    require(all(min(per_shard, frames - index * per_shard) > 0 for index in range(expected)), "formal shard plan invalid", failures)
+
+
 def run_pool_campaign(root: Path, label: str, frames: int, ebn0s: list[int], pool_dir: Path, failures: list[str]) -> None:
     frame_dir = pool_dir / "frames"
     noise_dir = pool_dir / "noise"
@@ -154,11 +206,15 @@ def main() -> int:
             failures.append(f"{name}: {result.stdout}{result.stderr}")
         else:
             print(f"COMMON-04 {name} CHECK: PASS\nGate: {gate}")
+    compare = run([sys.executable, "Task/Common/scripts/compare_common04_cpp_python.py"], root)
+    require(compare.returncode == 0 and "mismatchCount=0" in compare.stdout, f"C++/Python comparison failed: {compare.stdout}{compare.stderr}", failures)
+    check_python_merge(root, failures)
     output = root / "Task/Common/build/stage04/real_pool_runs"
     if output.exists():
         shutil.rmtree(output)
     run_pool_campaign(root, "smoke", 100, [0, 2, 4], output / "smoke", failures)
     run_pool_campaign(root, "prescan", 2000, list(range(7)), output / "prescan", failures)
+    check_formal_capacity(root, failures)
     check_scope(root, failures)
     check_acceptance(root, failures)
     check_manifest(root, failures)

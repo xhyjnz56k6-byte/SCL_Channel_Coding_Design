@@ -14,6 +14,7 @@ TESTS = [
     "test_common04_integration",
 ]
 RUNNER = "common04_identity_runner"
+REFERENCE_RUNNER = "common04_reference_runner"
 
 SOURCES = [
     "src/random_policy.cpp",
@@ -70,6 +71,16 @@ def main() -> int:
     command = [
         "g++", "-std=c++17", "-Wall", "-Wextra", "-Werror", "-I", str(root / "Common" / "include"),
         str(root / "Common" / "tests" / "stage04" / f"{RUNNER}.cpp"), *objects, "-o", str(runner),
+    ]
+    print("RUN:", " ".join(command))
+    completed = subprocess.run(command, cwd=root.parents[1])
+    if completed.returncode != 0:
+        print("COMMON-04 BUILD: FAIL")
+        return completed.returncode
+    reference_runner = out_dir / f"{REFERENCE_RUNNER}.exe"
+    command = [
+        "g++", "-std=c++17", "-Wall", "-Wextra", "-Werror", "-I", str(root / "Common" / "include"),
+        str(root / "Common" / "tests" / "stage04" / f"{REFERENCE_RUNNER}.cpp"), *objects, "-o", str(reference_runner),
     ]
     print("RUN:", " ".join(command))
     completed = subprocess.run(command, cwd=root.parents[1])
