@@ -22,4 +22,8 @@
 
 - `changed_files.md`, `git_commit.txt`, `manifest.json`, `validation_report.md`, `commands_used.md`, `changes.patch`, and `known_issues.md`: final reconciliation with actual commits, tests, remote push, and the generated main-to-branch patch.
 
+## Format repair commit `5cd2755`
+
+- `Task/BCH/README.md`, `algebraic_decoder_policy.md`, `bit_polynomial_convention.md`, `common_interface_audit.md`, `padding_recovery_policy.md`, `segmented_block_policy.md`, `stage_plan.md`, and `whole_block_policy.md`: remove one trailing blank line each so `git diff --check main...HEAD` can pass.
+
 No existing file is deleted. No `Task/Common`, BCH algorithm source, test implementation, runner, build artifact, or simulation result is added or modified.

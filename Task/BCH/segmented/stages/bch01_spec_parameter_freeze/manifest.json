@@ -2,7 +2,7 @@
   "stage": "bch01_spec_parameter_freeze",
   "branch": "bch-01-spec-parameter-freeze",
   "baseCommit": "80bfe5d61d11aa62fe69e91f24dd1dbad4efb164",
-  "contentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b",
+  "contentCommit": "5cd2755b277a895df68af0d20c890be80e3994ad",
   "functionalRanges": [
     {
       "name": "originalContent",
@@ -15,6 +15,12 @@
       "baseCommit": "65ab5d91dffb8fec9e1090aecdd0db42fa845a9c",
       "contentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b",
       "files": ["Task/BCH/AGENTS.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/acceptance_matrix.csv", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_integration_contract.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/frozen_config.csv", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/lookup_decoder_policy.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/matlab_validation_plan.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/noise_and_rate_policy.md"]
+    },
+    {
+      "name": "formatRepair",
+      "baseCommit": "a30cb2be94c3f1e5e091f4258f252cbadd9d9696",
+      "contentCommit": "5cd2755b277a895df68af0d20c890be80e3994ad",
+      "files": ["Task/BCH/README.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/algebraic_decoder_policy.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/bit_polynomial_convention.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_interface_audit.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/padding_recovery_policy.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/segmented_block_policy.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/stage_plan.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/whole_block_policy.md"]
     }
   ],
   "workingTreeOnly": false,
@@ -25,6 +31,6 @@
   "mergeStatus": "NOT_MERGED",
   "commitStatus": "COMMITTED",
   "pushStatus": "PUSHED",
-  "auditMetadata": {"parentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b", "purpose": "finalize audit records and patch"},
+  "auditMetadata": {"parentCommit": "5cd2755b277a895df68af0d20c890be80e3994ad", "purpose": "finalize audit records, format gate, and patch"},
   "gate": "PASS_BCH01_SPEC_PARAMETER_FREEZE_FINALIZED"
 }

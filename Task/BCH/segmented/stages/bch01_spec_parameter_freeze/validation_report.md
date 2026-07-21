@@ -19,6 +19,8 @@ Initial branch identity was `bch-01-spec-parameter-freeze`; its initial working 
 
 The default CMake generator selected unavailable NMake. A subsequent MinGW configure succeeded. The full source build is explicitly `TIMEOUT / NOT PROVEN`, not PASS. No MATLAB command was run by design.
 
+Finalization additionally removed trailing blank lines from eight BCH-01 documents after `git diff --check main...HEAD` identified them. The final audit reruns the check against the committed branch before push.
+
 ## Gate
 
 `PASS_BCH01_SPEC_PARAMETER_FREEZE_FINALIZED` after the final metadata commit and successful push.
