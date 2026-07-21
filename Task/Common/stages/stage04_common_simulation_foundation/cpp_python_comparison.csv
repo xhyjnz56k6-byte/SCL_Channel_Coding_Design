@@ -1,5 +1,5 @@
 checkName,status,evidence
-uint64_reference,PASS,compare_common04_cpp_python.py produced deterministic frozen words
-gaussian_reference,PASS,C++ and Python use SplitMix64 open-interval uniform and Box-Muller
-noise_header_parse,PASS,C++ NoisePoolReader and Python validator parse the same binary header fields
-bpsk_awgn_llr,PASS,C++ unit tests cover formula and Python checker validates reference script
+runtime_reference,PASS,compare_common04_cpp_python.py executed common04_reference_runner.exe with mismatchCount=0
+uint64_reference,PASS,NoiseKey words are compared from C++ runtime output and Python derivation
+gaussian_reference,PASS,deterministic Gaussian sample matches with absolute tolerance 1e-12
+bpsk_awgn_llr,PASS,BPSK code rate sigma received LLR hard and LLR_SIGN values match runtime output

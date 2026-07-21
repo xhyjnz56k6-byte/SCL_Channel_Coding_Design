@@ -10,4 +10,5 @@ G4,stop_before_min_frames,PASS,C++ stop controller refuses early target stop
 G5,bad_checkpoint_schema,PASS,C++ checkpoint parser rejects unsupported schema
 G5,bad_resume_identity,PASS,C++ resume validator rejects mismatched noisePoolId
 G6,empty_plot_csv,PASS,plot_common_results.py rejects empty CSV
+G5,python_shard_merge_gap_duplicate_bad_total_missing_latency,PASS,check_common04.py executes Python merge negative suite
 AUD,forbidden_scope_scan,PASS,check_common04 rejects forbidden diff and implementation markers

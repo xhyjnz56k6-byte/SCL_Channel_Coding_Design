@@ -1,0 +1,5 @@
+caseName,decisionMode,payloadLength,frames,bitErrors,frameErrors,ber,fer,successRate,status
+no_noise_identity,HARD,200,4,0,0,0,0,1,PASS
+no_noise_identity,HARD,300,4,0,0,0,0,1,PASS
+no_noise_identity,FINITE_LLR_SIGN,200,4,0,0,0,0,1,PASS
+no_noise_identity,FINITE_LLR_SIGN,300,4,0,0,0,0,1,PASS
