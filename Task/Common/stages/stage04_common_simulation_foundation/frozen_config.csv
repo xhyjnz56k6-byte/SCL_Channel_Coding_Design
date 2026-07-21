@@ -1,0 +1,47 @@
+key,value,notes
+stage,stage04_common_simulation_foundation,Common-04 shared simulation foundation
+branch,stage04-common-simulation-foundation,created from latest main
+finalGate,PASS_COMMON_SIMULATION_FOUNDATION,final Stage gate
+defaultNoiseGroupId,0,default shared noise group for identity tests
+noisePolicyVersion,1,versioned deterministic noise policy
+noiseDomainSeparator,0x4E4F4953455F3034,required domain separator for noise keys and payload key-space isolation
+noisePoolSchemaVersion,common04.noise_pool_manifest.v1,versioned noise-pool manifest schema
+noiseShardMagic,SCLN04,stable binary magic for Common-04 noise shards
+noiseShardHeaderVersion,1,versioned binary shard header
+noiseShardHashAlgorithm,SHA256,per-shard hash over complete shard bytes including header
+noisePoolOverallHashAlgorithm,SHA256_CANONICAL_MANIFEST_V1,overallHash over canonical manifest identity fields and shard hashes
+maxSymbolsPerFrame,1000,single encoded block length upper bound
+smokeFrames,100,small integration run
+prescanFrames,2000,reproducibility and trend run
+formalFrames,50000,capacity/config support only; no large pool committed
+framesPerShard,1000,default noise pool shard size
+smokeShardSize,25,small smoke shard size used to exercise shard boundaries
+formalShardCount,50,50000 frames divided by 1000 frames per shard
+samplePrecision,float64,little-endian binary samples
+sampleByteOrder,little_endian,explicit byte order
+noiseGenerationAlgorithm,splitmix64_box_muller_v1,deterministic uint64 to Gaussian
+gaussianSanitySampleCount,20000,wide sanity sample only; not a proof of normality
+gaussianMeanTolerance,0.05,wide mean sanity tolerance for finite Monte Carlo samples
+gaussianVarianceTolerance,0.08,wide variance sanity tolerance for finite Monte Carlo samples
+modulation,BPSK,bit 0 -> +1; bit 1 -> -1
+sigmaFormula,sqrt(1/(2*R*10^(EbN0_dB/10))),BPSK AWGN real channel
+llrFormula,2*y/(sigma*sigma),positive means bit 0
+llrSignConvention,positive_means_bit_0,LLR >= 0 maps to bit 0
+hardDecisionAtZero,0,received value 0 maps to hard bit 0
+decisionModes,HARD;LLR_SIGN,Common-04 identity integration
+payloadLengths,200;300,Common frame pool K values
+encodedLengthSmokeCases,248;390,tests R=200/248 and R=300/390
+codeRates,200/248;300/390,must use Common computeCodeRate rather than a second definition
+smokeEbN0dB,0;2;4,identity smoke
+prescanEbN0dB,0;1;2;3;4;5;6,identity prescan
+formalMinFrames,5000,formal stop template lower bound
+formalMaxFrames,50000,formal stop template upper bound
+formalTargetFrameErrors,200,formal stop template frame-error target
+checkpointSchemaVersion,common04.checkpoint.v1,checkpoint/resume schema
+resultSchemaVersion,common04.result_summary.v1,summary CSV and result JSON schema
+metadataSchemaVersion,common04.metadata.v1,runtime metadata schema
+configHashAlgorithm,SHA256_CANONICAL_CONFIG_V1,stable configHash with frozen include/exclude fields
+identityCodeType,IDENTITY,identity codec codeType used only for Common-04 integration tests
+commitLargeNoisePool,false,large generated noise pool is not committed
+commitBuildOutputs,false,build outputs are not committed
+mergeMain,false,Common-04 does not merge main

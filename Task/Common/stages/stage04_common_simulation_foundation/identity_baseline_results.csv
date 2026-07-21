@@ -1,0 +1,6 @@
+caseName,payloadLength,encodedLength,decisionMode,frames,ebN0_dB,status,evidence
+k200_hard,200,248,HARD,100,0;2;4,PASS,test_common04_integration.exe
+k200_llr,200,248,LLR_SIGN,100,0;2;4,PASS,test_common04_integration.exe
+k300_hard,300,390,HARD,100,0;4,PASS,test_common04_integration.exe
+k300_llr,300,390,LLR_SIGN,100,0;4,PASS,test_common04_integration.exe
+resume_merge,300,390,HARD,100,4,PASS,continuous and shard-merged counters match

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "common04.config.v1",
+  "frames": 100,
+  "ebN0_dB": [0, 2, 4],
+  "payloadLengths": [200, 300],
+  "decisionModes": ["HARD", "LLR_SIGN"]
+}

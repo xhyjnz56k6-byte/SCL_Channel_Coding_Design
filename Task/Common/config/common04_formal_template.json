@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "common04.config.v1",
+  "frames": 50000,
+  "symbolsPerFrame": 1000,
+  "framesPerShard": 1000,
+  "expectedShardCount": 50,
+  "stopConfig": {
+    "minFrames": 5000,
+    "maxFrames": 50000,
+    "targetFrameErrors": 200
+  }
+}
