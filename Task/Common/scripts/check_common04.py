@@ -139,6 +139,11 @@ def check_python_merge(root: Path, failures: list[str]) -> None:
         result = next(csv.DictReader(merged.open(encoding="utf-8")))
         require(result["frameCount"] == "100" and result["totalTimeNsSum"] == "10000" and result["maxTotalTimeNs"] == "101", "python shard merge latency aggregation failed", failures)
         require(abs(float(result["avgTotalTimeUs"]) - 0.1) < 1e-12, "python shard merge average latency failed", failures)
+        cpp_reference = {row["field"]: row["value"] for row in csv.DictReader((root / "Task/Common/build/stage04/cpp_reference_runtime.csv").open(encoding="utf-8"))}
+        for python_field, cpp_field in [("processedFrames", "cxxMergeProcessedFrames"), ("totalPayloadBits", "cxxMergeTotalPayloadBits"),
+                                        ("bitErrors", "cxxMergeBitErrors"), ("frameErrors", "cxxMergeFrameErrors"),
+                                        ("totalTimeNsSum", "cxxMergeTotalTimeNsSum"), ("maxTotalTimeNs", "cxxMergeMaxTotalTimeNs")]:
+            require(result[python_field] == cpp_reference.get(cpp_field), f"C++/Python shard merge mismatch: {python_field}", failures)
     for name, mutate in [("gap", lambda value: value.update(frameStart="41")), ("duplicate", lambda value: value.update(shardIndex="0")), ("bad_total", lambda value: value.update(totalPayloadBits="1"))]:
         bad = row(1, 40, 60); mutate(bad)
         path = write(f"{name}.csv", bad)

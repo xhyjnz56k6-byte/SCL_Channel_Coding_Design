@@ -12,7 +12,7 @@ from generate_common04_noise_pool import gaussian, word
 
 def main() -> int:
     root = Path(__file__).resolve().parents[3]
-    output = root / "Task/Common/build/stage04/cpp_python_comparison_runtime.csv"
+    output = root / "Task/Common/build/stage04/cpp_reference_runtime.csv"
     output.parent.mkdir(parents=True, exist_ok=True)
     runner = root / "Task/Common/build/stage04/common04_reference_runner.exe"
     completed = subprocess.run([str(runner), str(output)], cwd=root, text=True, capture_output=True)
@@ -38,7 +38,8 @@ def main() -> int:
         mismatches += status == "FAIL"
         rows.append({"caseName": "frozen_reference", "field": field, "cppValue": cpp_value, "pythonValue": python_value,
                      "absDiff": difference, "tolerance": tolerance, "status": status})
-    with output.open("w", newline="", encoding="utf-8") as handle:
+    comparison = root / "Task/Common/build/stage04/cpp_python_comparison_runtime.csv"
+    with comparison.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
