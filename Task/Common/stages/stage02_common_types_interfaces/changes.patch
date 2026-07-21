@@ -1,0 +1,2084 @@
+﻿diff --git a/Task/Common/CMakeLists.txt b/Task/Common/CMakeLists.txt
+new file mode 100644
+index 0000000..083081b
+--- /dev/null
++++ b/Task/Common/CMakeLists.txt
+@@ -0,0 +1,11 @@
++cmake_minimum_required(VERSION 3.16)
++
++project(CommonFoundation LANGUAGES CXX)
++
++add_library(common_foundation INTERFACE)
++target_include_directories(common_foundation INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
++target_compile_features(common_foundation INTERFACE cxx_std_17)
++
++add_executable(common02_types_interfaces_tests tests/stage02/test_common02_types_interfaces.cpp)
++target_link_libraries(common02_types_interfaces_tests PRIVATE common_foundation)
++
+diff --git a/Task/Common/include/common/common.hpp b/Task/Common/include/common/common.hpp
+new file mode 100644
+index 0000000..6a75f64
+--- /dev/null
++++ b/Task/Common/include/common/common.hpp
+@@ -0,0 +1,11 @@
++#ifndef SCL_COMMON_COMMON_HPP
++#define SCL_COMMON_COMMON_HPP
++
++#include "common/decoder_input.hpp"
++#include "common/frame.hpp"
++#include "common/interfaces.hpp"
++#include "common/result_types.hpp"
++#include "common/types.hpp"
++
++#endif  // SCL_COMMON_COMMON_HPP
++
+diff --git a/Task/Common/include/common/decoder_input.hpp b/Task/Common/include/common/decoder_input.hpp
+new file mode 100644
+index 0000000..2b4ed65
+--- /dev/null
++++ b/Task/Common/include/common/decoder_input.hpp
+@@ -0,0 +1,43 @@
++#ifndef SCL_COMMON_DECODER_INPUT_HPP
++#define SCL_COMMON_DECODER_INPUT_HPP
++
++#include "common/types.hpp"
++
++#include <variant>
++
++namespace scl::common {
++
++enum class DecoderInputKind {
++    HardBits,
++    ReceivedSymbols,
++    LlrValues
++};
++
++struct HardBitInput {
++    BitVector hardBits;
++};
++
++struct ReceivedSymbolInput {
++    RealVector receivedSymbols;
++};
++
++struct LlrInput {
++    RealVector llrValues;
++};
++
++using DecoderInput = std::variant<HardBitInput, ReceivedSymbolInput, LlrInput>;
++
++inline DecoderInputKind decoderInputKind(const DecoderInput& input) {
++    if (std::holds_alternative<HardBitInput>(input)) {
++        return DecoderInputKind::HardBits;
++    }
++    if (std::holds_alternative<ReceivedSymbolInput>(input)) {
++        return DecoderInputKind::ReceivedSymbols;
++    }
++    return DecoderInputKind::LlrValues;
++}
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_DECODER_INPUT_HPP
++
+diff --git a/Task/Common/include/common/frame.hpp b/Task/Common/include/common/frame.hpp
+new file mode 100644
+index 0000000..bf2a65b
+--- /dev/null
++++ b/Task/Common/include/common/frame.hpp
+@@ -0,0 +1,32 @@
++#ifndef SCL_COMMON_FRAME_HPP
++#define SCL_COMMON_FRAME_HPP
++
++#include "common/types.hpp"
++
++#include <stdexcept>
++#include <string>
++
++namespace scl::common {
++
++struct PayloadFrame {
++    std::string framePoolId;
++    FrameIndex frameIndex = 0;
++    Length payloadLength = 0;
++    SeedValue masterSeed = 0;
++    BitVector payloadBits;
++};
++
++inline void validatePayloadFrame(const PayloadFrame& frame) {
++    if (frame.framePoolId.empty()) {
++        throw std::invalid_argument("framePoolId must not be empty");
++    }
++    if (frame.payloadBits.size() != frame.payloadLength) {
++        throw std::invalid_argument("payloadBits.size must equal payloadLength");
++    }
++    validateBits(frame.payloadBits, "payloadBits");
++}
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_FRAME_HPP
++
+diff --git a/Task/Common/include/common/interfaces.hpp b/Task/Common/include/common/interfaces.hpp
+new file mode 100644
+index 0000000..4562fa7
+--- /dev/null
++++ b/Task/Common/include/common/interfaces.hpp
+@@ -0,0 +1,62 @@
++#ifndef SCL_COMMON_INTERFACES_HPP
++#define SCL_COMMON_INTERFACES_HPP
++
++#include "common/decoder_input.hpp"
++#include "common/frame.hpp"
++#include "common/result_types.hpp"
++#include "common/types.hpp"
++
++#include <string>
++
++namespace scl::common {
++
++class IChannelEncoder {
++public:
++    virtual ~IChannelEncoder() = default;
++
++    virtual std::string codeType() const = 0;
++    virtual CodeLengths lengths() const = 0;
++    virtual BitVector encode(const BitVector& payload) const = 0;
++};
++
++class IChannelDecoder {
++public:
++    virtual ~IChannelDecoder() = default;
++
++    virtual std::string decoderType() const = 0;
++    virtual DecoderInputKind inputKind() const = 0;
++    virtual DecodeResult decode(const DecoderInput& input) const = 0;
++};
++
++struct ChannelTransmissionRequest {
++    BitVector codedBits;
++    CodeLengths lengths;
++    double ebN0_dB = 0.0;
++};
++
++struct ChannelTransmissionView {
++    RealVector receivedSymbols;
++};
++
++class IChannel {
++public:
++    virtual ~IChannel() = default;
++
++    virtual std::string channelType() const = 0;
++    virtual ChannelTransmissionView transmit(const ChannelTransmissionRequest& request) const = 0;
++};
++
++class IFramePoolReader {
++public:
++    virtual ~IFramePoolReader() = default;
++
++    virtual std::string framePoolId() const = 0;
++    virtual Length payloadLength() const = 0;
++    virtual std::uint64_t frameCount() const = 0;
++    virtual PayloadFrame readFrame(FrameIndex index) const = 0;
++};
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_INTERFACES_HPP
++
+diff --git a/Task/Common/include/common/result_types.hpp b/Task/Common/include/common/result_types.hpp
+new file mode 100644
+index 0000000..42b3421
+--- /dev/null
++++ b/Task/Common/include/common/result_types.hpp
+@@ -0,0 +1,63 @@
++#ifndef SCL_COMMON_RESULT_TYPES_HPP
++#define SCL_COMMON_RESULT_TYPES_HPP
++
++#include "common/types.hpp"
++
++#include <cstdint>
++#include <string>
++
++namespace scl::common {
++
++struct DecodeResult {
++    BitVector payloadBits;
++    bool decoderDeclaredSuccess = false;
++    std::size_t iterationsUsed = 0;
++    std::string decoderStatus;
++};
++
++struct PointResultRecord {
++    std::string stageId;
++    std::string runId;
++    std::string experimentId;
++    std::string caseId;
++    std::string codeType;
++    std::string decoderType;
++    std::string channelType;
++    std::string noiseGroupId;
++    Length payloadLength = 0;
++    Length codecInputLength = 0;
++    Length encodedLength = 0;
++    Length transmittedLength = 0;
++    double codeRate = 0.0;
++    SnrIndex snrIndex = 0;
++    double ebN0_dB = 0.0;
++};
++
++struct CheckpointRecord {
++    std::string stageId;
++    std::string runId;
++    std::string experimentId;
++    std::string caseId;
++    SnrIndex snrIndex = 0;
++    double ebN0_dB = 0.0;
++    FrameIndex nextFrameIndex = 0;
++    std::uint64_t framesProcessed = 0;
++    std::uint64_t payloadBitsProcessed = 0;
++    std::uint64_t bitErrors = 0;
++    std::uint64_t frameErrors = 0;
++    std::uint64_t payloadSuccessFrames = 0;
++    std::uint64_t decoderDeclaredSuccessFrames = 0;
++    std::uint64_t undetectedErrorFrames = 0;
++    double timingAccumulator = 0.0;
++    double iterationAccumulator = 0.0;
++    std::string configHash;
++    std::string framePoolHash;
++    std::string noisePolicyVersion;
++    std::string codeVersion;
++    std::string gitCommit;
++};
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_RESULT_TYPES_HPP
++
+diff --git a/Task/Common/include/common/types.hpp b/Task/Common/include/common/types.hpp
+new file mode 100644
+index 0000000..8de879d
+--- /dev/null
++++ b/Task/Common/include/common/types.hpp
+@@ -0,0 +1,72 @@
++#ifndef SCL_COMMON_TYPES_HPP
++#define SCL_COMMON_TYPES_HPP
++
++#include <cstddef>
++#include <cstdint>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace scl::common {
++
++using Bit = std::uint8_t;
++using FrameIndex = std::uint64_t;
++using SeedValue = std::uint64_t;
++using Length = std::size_t;
++using SnrIndex = std::size_t;
++using BitVector = std::vector<Bit>;
++using RealVector = std::vector<double>;
++
++inline bool isValidBit(Bit bit) {
++    return bit == static_cast<Bit>(0) || bit == static_cast<Bit>(1);
++}
++
++inline void validateBit(Bit bit, const std::string& fieldName) {
++    if (!isValidBit(bit)) {
++        throw std::invalid_argument(fieldName + " contains a non-binary bit");
++    }
++}
++
++inline void validateBits(const BitVector& bits, const std::string& fieldName) {
++    for (Bit bit : bits) {
++        validateBit(bit, fieldName);
++    }
++}
++
++struct CodeLengths {
++    Length payloadLength = 0;
++    Length codecInputLength = 0;
++    Length encodedLength = 0;
++    Length transmittedLength = 0;
++    Length fillerLength = 0;
++    Length crcLength = 0;
++    Length tailLength = 0;
++    Length puncturedLength = 0;
++    Length shortenedLength = 0;
++};
++
++inline void validateCodeLengths(const CodeLengths& lengths) {
++    if (lengths.payloadLength == 0) {
++        throw std::invalid_argument("payloadLength must be positive");
++    }
++    if (lengths.encodedLength == 0) {
++        throw std::invalid_argument("encodedLength must be positive");
++    }
++    if (lengths.transmittedLength == 0) {
++        throw std::invalid_argument("transmittedLength must be positive");
++    }
++    if (lengths.codecInputLength < lengths.payloadLength) {
++        throw std::invalid_argument("codecInputLength must be >= payloadLength");
++    }
++}
++
++inline double computeCodeRate(const CodeLengths& lengths) {
++    validateCodeLengths(lengths);
++    return static_cast<double>(lengths.payloadLength) /
++           static_cast<double>(lengths.encodedLength);
++}
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_TYPES_HPP
++
+diff --git a/Task/Common/scripts/build_common02.py b/Task/Common/scripts/build_common02.py
+new file mode 100644
+index 0000000..a08cbaa
+--- /dev/null
++++ b/Task/Common/scripts/build_common02.py
+@@ -0,0 +1,49 @@
++#!/usr/bin/env python
++"""Build the Common-02 type/interface skeleton tests."""
++
++from __future__ import annotations
++
++import argparse
++import subprocess
++import sys
++from pathlib import Path
++
++
++def run(command: list[str], root: Path) -> None:
++    print("RUN:", " ".join(command))
++    result = subprocess.run(command, cwd=str(root), text=True)
++    if result.returncode != 0:
++        raise SystemExit(result.returncode)
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--root", default=".", help="Repository root")
++    args = parser.parse_args()
++
++    root = Path(args.root).resolve()
++    source = root / "Task/Common/tests/stage02/test_common02_types_interfaces.cpp"
++    output_dir = root / "Task/Common/build/stage02"
++    output_dir.mkdir(parents=True, exist_ok=True)
++    output = output_dir / "test_common02_types_interfaces.exe"
++
++    command = [
++        "g++",
++        "-std=c++17",
++        "-Wall",
++        "-Wextra",
++        "-Werror",
++        "-I",
++        str(root / "Task/Common/include"),
++        str(source),
++        "-o",
++        str(output),
++    ]
++    run(command, root)
++    print(f"COMMON-02 BUILD: PASS ({output})")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
++
+diff --git a/Task/Common/scripts/check_common02.py b/Task/Common/scripts/check_common02.py
+new file mode 100644
+index 0000000..489ba53
+--- /dev/null
++++ b/Task/Common/scripts/check_common02.py
+@@ -0,0 +1,316 @@
++#!/usr/bin/env python
++"""Validate Common-02 public types and interfaces."""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import shutil
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++
++REQUIRED_FILES = [
++    "Task/Common/CMakeLists.txt",
++    "Task/Common/include/common/types.hpp",
++    "Task/Common/include/common/frame.hpp",
++    "Task/Common/include/common/decoder_input.hpp",
++    "Task/Common/include/common/result_types.hpp",
++    "Task/Common/include/common/interfaces.hpp",
++    "Task/Common/include/common/common.hpp",
++    "Task/Common/src/common_interfaces.cpp",
++    "Task/Common/tests/stage02/test_common02_types_interfaces.cpp",
++    "Task/Common/scripts/build_common02.py",
++    "Task/Common/scripts/check_common02.py",
++    "Task/Common/stages/stage02_common_types_interfaces/stage_plan.md",
++    "Task/Common/stages/stage02_common_types_interfaces/changed_files.md",
++    "Task/Common/stages/stage02_common_types_interfaces/validation_report.md",
++    "Task/Common/stages/stage02_common_types_interfaces/manifest.json",
++    "Task/Common/stages/stage02_common_types_interfaces/changes.patch",
++    "Task/Common/stages/stage02_common_types_interfaces/frozen_config.csv",
++    "Task/Common/stages/stage02_common_types_interfaces/commands_used.md",
++    "Task/Common/stages/stage02_common_types_interfaces/git_commit.txt",
++    "Task/Common/stages/stage02_common_types_interfaces/known_issues.md",
++    "Task/Common/stages/stage02_common_types_interfaces/snapshot/README.md",
++]
++
++SNAPSHOT_PAIRS = [
++    ("Task/Common/CMakeLists.txt", "Task/Common/stages/stage02_common_types_interfaces/snapshot/CMakeLists.txt"),
++    ("Task/Common/include/common/types.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/types.hpp"),
++    ("Task/Common/include/common/frame.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/frame.hpp"),
++    ("Task/Common/include/common/decoder_input.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/decoder_input.hpp"),
++    ("Task/Common/include/common/result_types.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/result_types.hpp"),
++    ("Task/Common/include/common/interfaces.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/interfaces.hpp"),
++    ("Task/Common/include/common/common.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/common.hpp"),
++    ("Task/Common/src/common_interfaces.cpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/src/common_interfaces.cpp"),
++    ("Task/Common/tests/stage02/test_common02_types_interfaces.cpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/tests/stage02/test_common02_types_interfaces.cpp"),
++    ("Task/Common/scripts/build_common02.py", "Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/build_common02.py"),
++    ("Task/Common/scripts/check_common02.py", "Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/check_common02.py"),
++]
++
++ALLOWED_PREFIXES = [
++    "Task/Common/CMakeLists.txt",
++    "Task/Common/include/common/",
++    "Task/Common/src/",
++    "Task/Common/tests/stage02/",
++    "Task/Common/scripts/build_common02.py",
++    "Task/Common/scripts/check_common02.py",
++    "Task/Common/stages/stage02_common_types_interfaces/",
++]
++
++FORBIDDEN_INCLUDE_MARKERS = [
++    "Task/BCH",
++    "Task/CC",
++    "Task/LDPC",
++    "../BCH",
++    "../CC",
++    "../LDPC",
++]
++
++FORBIDDEN_IMPLEMENTATION_MARKERS = [
++    "normal_distribution",
++    "AWGN",
++    "Awgn",
++    "BPSK",
++    "LLR_i =",
++    "Wilson",
++    "BER =",
++    "FER =",
++    "Viterbi",
++    "Layered BP",
++    "Layered NMS",
++]
++
++
++def run(command: list[str], root: Path) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(command, cwd=str(root), text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++
++
++def sha256_file(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as handle:
++        for chunk in iter(lambda: handle.read(65536), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def add_failure(failures: list[str], message: str) -> None:
++    failures.append(message)
++
++
++def check_required_files(root: Path, failures: list[str]) -> None:
++    for relative in REQUIRED_FILES:
++        if not (root / relative).is_file():
++            add_failure(failures, f"missing required file: {relative}")
++
++
++def check_snapshot(root: Path, failures: list[str]) -> None:
++    for source, snapshot in SNAPSHOT_PAIRS:
++        source_path = root / source
++        snapshot_path = root / snapshot
++        if not snapshot_path.is_file():
++            add_failure(failures, f"missing snapshot file: {snapshot}")
++            continue
++        if source_path.is_file() and sha256_file(source_path) != sha256_file(snapshot_path):
++            add_failure(failures, f"snapshot mismatch: {snapshot}")
++
++
++def check_text_markers(root: Path, failures: list[str]) -> None:
++    include_root = root / "Task/Common/include/common"
++    test_root = root / "Task/Common/tests/stage02"
++    files = list(include_root.glob("*.hpp")) + list(test_root.glob("*.cpp"))
++    joined = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in files if path.is_file())
++    for marker in FORBIDDEN_INCLUDE_MARKERS:
++        if marker in joined:
++            add_failure(failures, f"forbidden dependency marker found: {marker}")
++
++    interface_text = (root / "Task/Common/include/common/interfaces.hpp").read_text(encoding="utf-8")
++    for expected in [
++        "virtual ~IChannelEncoder() = default;",
++        "virtual ~IChannelDecoder() = default;",
++        "virtual ~IChannel() = default;",
++        "virtual ~IFramePoolReader() = default;",
++    ]:
++        if expected not in interface_text:
++            add_failure(failures, f"missing virtual destructor text: {expected}")
++
++    result_text = (root / "Task/Common/include/common/result_types.hpp").read_text(encoding="utf-8")
++    if "SnrIndex snrIndex" not in result_text:
++        add_failure(failures, "CheckpointRecord must contain snrIndex")
++    if "double ebN0_dB" not in result_text:
++        add_failure(failures, "CheckpointRecord must contain ebN0_dB")
++    if " SNR" in result_text or "\nSNR" in result_text:
++        add_failure(failures, "ambiguous SNR field name found")
++
++    types_text = (root / "Task/Common/include/common/types.hpp").read_text(encoding="utf-8")
++    if "using Bit = std::uint8_t;" not in types_text:
++        add_failure(failures, "Bit must be std::uint8_t")
++    if "std::vector<bool>" in types_text:
++        add_failure(failures, "std::vector<bool> must not be used")
++
++    implementation_scan = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in include_root.glob("*.hpp"))
++    for marker in FORBIDDEN_IMPLEMENTATION_MARKERS:
++        if marker in implementation_scan:
++            add_failure(failures, f"forbidden implementation marker found in headers: {marker}")
++
++
++def check_build_and_test(root: Path, failures: list[str]) -> None:
++    build = run([sys.executable, "Task/Common/scripts/build_common02.py"], root)
++    if build.returncode != 0:
++        add_failure(failures, "build_common02.py failed:\n" + build.stdout + build.stderr)
++        return
++    test_exe = root / "Task/Common/build/stage02/test_common02_types_interfaces.exe"
++    test = run([str(test_exe)], root)
++    if test.returncode != 0:
++        add_failure(failures, "Common-02 C++ tests failed:\n" + test.stdout + test.stderr)
++
++
++def compile_snippet(root: Path, code: str) -> subprocess.CompletedProcess[str]:
++    with tempfile.TemporaryDirectory(prefix="common02_neg_") as temp:
++        source = Path(temp) / "negative.cpp"
++        output = Path(temp) / "negative.exe"
++        source.write_text(code, encoding="utf-8")
++        command = [
++            "g++",
++            "-std=c++17",
++            "-I",
++            str(root / "Task/Common/include"),
++            str(source),
++            "-o",
++            str(output),
++        ]
++        return run(command, root)
++
++
++def check_negative_tests(root: Path, failures: list[str]) -> None:
++    runtime_tests = [
++        (
++            "encodedLength = 0",
++            r'''
++#include "common/types.hpp"
++int main() {
++    scl::common::CodeLengths lengths{200, 200, 0, 248, 0, 0, 0, 0, 0};
++    try { scl::common::validateCodeLengths(lengths); } catch (const std::invalid_argument& ex) {
++        return std::string(ex.what()).find("encodedLength") == std::string::npos;
++    }
++    return 1;
++}
++''',
++        ),
++        (
++            "payload bit = 2",
++            r'''
++#include "common/frame.hpp"
++int main() {
++    scl::common::PayloadFrame frame{"pool", 0, 1, 1, scl::common::BitVector{2}};
++    try { scl::common::validatePayloadFrame(frame); } catch (const std::invalid_argument& ex) {
++        return std::string(ex.what()).find("non-binary") == std::string::npos;
++    }
++    return 1;
++}
++''',
++        ),
++        (
++            "payloadBits.size != payloadLength",
++            r'''
++#include "common/frame.hpp"
++int main() {
++    scl::common::PayloadFrame frame{"pool", 0, 2, 1, scl::common::BitVector{0}};
++    try { scl::common::validatePayloadFrame(frame); } catch (const std::invalid_argument& ex) {
++        return std::string(ex.what()).find("payloadLength") == std::string::npos;
++    }
++    return 1;
++}
++''',
++        ),
++    ]
++    for name, code in runtime_tests:
++        result = compile_snippet(root, code)
++        if result.returncode != 0:
++            add_failure(failures, f"negative runtime test failed to confirm expected reason: {name}\n{result.stdout}{result.stderr}")
++
++    compile_fail_tests = [
++        (
++            "DecoderInput type conflict",
++            r'''
++#include "common/decoder_input.hpp"
++int main() {
++    scl::common::DecoderInput input = scl::common::HardBitInput{{0, 1}};
++    auto bad = input.hardBits;
++    (void)bad;
++    return 0;
++}
++''',
++            "hardBits",
++        ),
++        (
++            "checkpoint missing ebN0_dB member access fails",
++            r'''
++#include "common/result_types.hpp"
++int main() {
++    scl::common::CheckpointRecord checkpoint;
++    checkpoint.SNR = 1.0;
++    return 0;
++}
++''',
++            "SNR",
++        ),
++    ]
++    for name, code, expected in compile_fail_tests:
++        result = compile_snippet(root, code)
++        if result.returncode == 0:
++            add_failure(failures, f"negative compile test unexpectedly passed: {name}")
++        elif expected not in (result.stdout + result.stderr):
++            add_failure(failures, f"negative compile test failed for unexpected reason: {name}")
++
++    check_source = (root / "Task/Common/tests/stage02/test_common02_types_interfaces.cpp").read_text(encoding="utf-8")
++    if "codecInputLength" not in check_source or "200.0 / 285.0" not in check_source:
++        add_failure(failures, "rate misuse negative coverage is missing expected payload/encoded examples")
++
++
++def check_git_diff(root: Path, failures: list[str]) -> None:
++    diff = run(["git", "diff", "--name-only", "main...HEAD"], root)
++    if diff.returncode != 0:
++        add_failure(failures, "git diff main...HEAD failed:\n" + diff.stderr)
++        return
++    paths = [line.strip().replace("\\", "/") for line in diff.stdout.splitlines() if line.strip()]
++    for path in paths:
++        if path.startswith("Task/Common/Plan/"):
++            add_failure(failures, "Task/Common/Plan must not be committed")
++        if path.startswith(("Task/BCH/", "Task/CC/", "Task/LDPC/")):
++            add_failure(failures, f"out-of-scope path in committed diff: {path}")
++        if not any(path == prefix or path.startswith(prefix) for prefix in ALLOWED_PREFIXES):
++            if not path.startswith("Task/Common/stages/stage01_common_definition/"):
++                add_failure(failures, f"path not allowed for Common-02: {path}")
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--root", default=".", help="Repository root")
++    args = parser.parse_args()
++    root = Path(args.root).resolve()
++
++    failures: list[str] = []
++    check_required_files(root, failures)
++    if not failures:
++        check_snapshot(root, failures)
++        check_text_markers(root, failures)
++        check_build_and_test(root, failures)
++        check_negative_tests(root, failures)
++        check_git_diff(root, failures)
++
++    if failures:
++        print("COMMON-02 CHECK: FAIL")
++        for failure in failures:
++            print(f"- {failure}")
++        return 1
++
++    print("COMMON-02 CHECK: PASS")
++    print("Gate: PASS_COMMON_TYPES_INTERFACES")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/Common/src/common_interfaces.cpp b/Task/Common/src/common_interfaces.cpp
+new file mode 100644
+index 0000000..1cb7762
+--- /dev/null
++++ b/Task/Common/src/common_interfaces.cpp
+@@ -0,0 +1,10 @@
++#include "common/common.hpp"
++
++namespace scl::common {
++
++// Common-02 is intentionally interface-only. This translation unit verifies
++// that the public headers can be compiled without introducing implementations
++// for codecs, modulation, noise, or metrics.
++
++}  // namespace scl::common
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/changed_files.md b/Task/Common/stages/stage02_common_types_interfaces/changed_files.md
+new file mode 100644
+index 0000000..83d3dd6
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/changed_files.md
+@@ -0,0 +1,58 @@
++# Changed Files
++
++## Added Files
++
++### `Task/Common/CMakeLists.txt`
++
++- 类型：新增
++- 作用：定义 `common_foundation` interface target and Stage02 test executable.
++- 原因：Common-02 needs an isolated build entry.
++- 是否影响旧行为：否。
++
++### `Task/Common/include/common/*.hpp`
++
++- 类型：新增
++- 作用：定义 `Bit`、`CodeLengths`、`PayloadFrame`、`DecoderInput` variant、`DecodeResult`、checkpoint/result records, channel/encoder/decoder/frame-pool interfaces.
++- 原因：冻结公共类型和接口骨架。
++- 关键定义：`computeCodeRate`、`validateCodeLengths`、`validatePayloadFrame`、`IChannelEncoder`、`IChannelDecoder`、`IChannel`、`IFramePoolReader`。
++- 是否影响旧行为：否。
++
++### `Task/Common/src/common_interfaces.cpp`
++
++- 类型：新增
++- 作用：编译公共头文件，不提供算法实现。
++- 原因：确保 headers 可以独立编译。
++- 是否影响旧行为：否。
++
++### `Task/Common/tests/stage02/test_common02_types_interfaces.cpp`
++
++- 类型：新增
++- 作用：测试 bit 类型、长度校验、五个码率样例、PayloadFrame、DecoderInput variant、virtual destructor、checkpoint SNR 字段。
++- 是否影响旧行为：否。
++
++### `Task/Common/scripts/build_common02.py`
++
++- 类型：新增
++- 作用：用 `g++ -std=c++17` 构建 Stage02 测试。
++- 是否影响旧行为：否。
++
++### `Task/Common/scripts/check_common02.py`
++
++- 类型：新增
++- 作用：自动执行构建、测试、负向测试、禁止 include/实现扫描、snapshot SHA、Git diff 边界检查。
++- 是否影响旧行为：否。
++
++### `Task/Common/stages/stage02_common_types_interfaces/`
++
++- 类型：新增
++- 作用：Stage02 审计目录。
++- 是否影响旧行为：否。
++
++## Modified Files
++
++None outside the added Common-02 files.
++
++## Deleted Files
++
++None in this Stage.
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/commands_used.md b/Task/Common/stages/stage02_common_types_interfaces/commands_used.md
+new file mode 100644
+index 0000000..749a6e5
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/commands_used.md
+@@ -0,0 +1,33 @@
++# Commands Used
++
++Commands are recorded in execution order.
++
++1. `git branch --show-current`
++   - Result: `stage02-03-common-foundation`.
++2. `git status --short --branch`
++   - Result: user-preserved deletes under `初始规划/` and untracked `Task/Common/Plan/`; neither will be staged.
++3. `git log -1 --oneline`
++   - Result: `dba843f stage01: record common definition repair metadata`.
++4. `git remote -v`
++   - Result: origin points to GitHub repository.
++5. Required Common-01 files and docs were read.
++6. `g++ --version`
++   - Result: `g++ 15.2.0` available.
++7. `apply_patch`
++   - Result: added Common-02 C++ headers, source, and test.
++8. `apply_patch`
++   - Result: added Common-02 build and check scripts.
++9. Snapshot copy commands
++   - Result: copied headers, source, test, scripts, and CMake into snapshot.
++10. `apply_patch`
++    - Result: added Stage02 audit files.
++11. `python Task\Common\scripts\build_common02.py`
++    - Result: `COMMON-02 BUILD: PASS`.
++12. `python Task\Common\scripts\check_common02.py`
++    - Result: initial fail because the script scanned its own forbidden marker constants and the rate misuse coverage was implicit.
++13. `apply_patch`
++    - Result: limited forbidden marker scan to C++ headers/tests and made codecInputLength rate misuse coverage explicit.
++14. `python Task\Common\scripts\check_common02.py`
++    - Result: `COMMON-02 CHECK: PASS`; `Gate: PASS_COMMON_TYPES_INTERFACES`.
++
++Final build, validation, commit, and push commands are appended after execution.
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/frozen_config.csv b/Task/Common/stages/stage02_common_types_interfaces/frozen_config.csv
+new file mode 100644
+index 0000000..97ab1f1
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/frozen_config.csv
+@@ -0,0 +1,8 @@
++key,value,unit,sourceFile,meaning,status
++cppStandard,C++17,,Task/Common/scripts/build_common02.py,Required language standard,FROZEN
++Bit,std::uint8_t,,Task/Common/include/common/types.hpp,Formal bit storage type,FROZEN
++CodeRate,payloadLength/encodedLength,,Task/Common/include/common/types.hpp,Only allowed rate calculation,FROZEN
++DecoderInput,std::variant<HardBitInput;ReceivedSymbolInput;LlrInput>,,Task/Common/include/common/decoder_input.hpp,Exclusive decoder input modes,FROZEN
++CheckpointSnrFields,snrIndex+ebN0_dB,,Task/Common/include/common/result_types.hpp,Checkpoint SNR identity fields,FROZEN
++FramePoolReader,IFramePoolReader,,Task/Common/include/common/interfaces.hpp,Common-02 interface only,FROZEN
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/git_commit.txt b/Task/Common/stages/stage02_common_types_interfaces/git_commit.txt
+new file mode 100644
+index 0000000..5d7e58b
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/git_commit.txt
+@@ -0,0 +1,8 @@
++stage: stage02_common_types_interfaces
++branch: stage02-03-common-foundation
++base_branch: main
++base_commit: dba843f535d3a678f684300f10731f1cbd19a406
++commit: NOT_COMMITTED
++push_status: NOT_PUSHED
++merge_status: NOT_MERGED
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/known_issues.md b/Task/Common/stages/stage02_common_types_interfaces/known_issues.md
+new file mode 100644
+index 0000000..4d71088
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/known_issues.md
+@@ -0,0 +1,14 @@
++# Known Issues
++
++No known blocking issues.
++
++## Not Executed In Common-02
++
++- Common-03 frame pool generation and reader implementation.
++- BPSK, AWGN, noise, LLR, BER/FER, stop controller, checkpoint/resume, BCH, CC, LDPC.
++
++## Preserved User Workspace State
++
++- `Task/Common/Plan/` is intentionally left untracked and unsubmitted.
++- Two `初始规划/*.md` deleted-file states are user-preserved workspace changes and are not staged by Common-02.
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/manifest.json b/Task/Common/stages/stage02_common_types_interfaces/manifest.json
+new file mode 100644
+index 0000000..3094162
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/manifest.json
+@@ -0,0 +1,39 @@
++{
++  "stage": "stage02_common_types_interfaces",
++  "branch": "stage02-03-common-foundation",
++  "baseBranch": "main",
++  "baseCommit": "dba843f535d3a678f684300f10731f1cbd19a406",
++  "added": [
++    "Task/Common/CMakeLists.txt",
++    "Task/Common/include/common/types.hpp",
++    "Task/Common/include/common/frame.hpp",
++    "Task/Common/include/common/decoder_input.hpp",
++    "Task/Common/include/common/result_types.hpp",
++    "Task/Common/include/common/interfaces.hpp",
++    "Task/Common/include/common/common.hpp",
++    "Task/Common/src/common_interfaces.cpp",
++    "Task/Common/tests/stage02/test_common02_types_interfaces.cpp",
++    "Task/Common/scripts/build_common02.py",
++    "Task/Common/scripts/check_common02.py",
++    "Task/Common/stages/stage02_common_types_interfaces/stage_plan.md",
++    "Task/Common/stages/stage02_common_types_interfaces/changed_files.md",
++    "Task/Common/stages/stage02_common_types_interfaces/validation_report.md",
++    "Task/Common/stages/stage02_common_types_interfaces/manifest.json",
++    "Task/Common/stages/stage02_common_types_interfaces/changes.patch",
++    "Task/Common/stages/stage02_common_types_interfaces/frozen_config.csv",
++    "Task/Common/stages/stage02_common_types_interfaces/commands_used.md",
++    "Task/Common/stages/stage02_common_types_interfaces/git_commit.txt",
++    "Task/Common/stages/stage02_common_types_interfaces/known_issues.md",
++    "Task/Common/stages/stage02_common_types_interfaces/snapshot/README.md"
++  ],
++  "modified": [],
++  "deleted": [],
++  "validationCommands": [
++    "python Task\\Common\\scripts\\build_common02.py",
++    "python Task\\Common\\scripts\\check_common02.py"
++  ],
++  "validationStatus": "PASS",
++  "gate": "PASS_COMMON_TYPES_INTERFACES",
++  "commitStatus": "NOT_COMMITTED",
++  "pushStatus": "NOT_PUSHED"
++}
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/CMakeLists.txt b/Task/Common/stages/stage02_common_types_interfaces/snapshot/CMakeLists.txt
+new file mode 100644
+index 0000000..083081b
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/CMakeLists.txt
+@@ -0,0 +1,11 @@
++cmake_minimum_required(VERSION 3.16)
++
++project(CommonFoundation LANGUAGES CXX)
++
++add_library(common_foundation INTERFACE)
++target_include_directories(common_foundation INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
++target_compile_features(common_foundation INTERFACE cxx_std_17)
++
++add_executable(common02_types_interfaces_tests tests/stage02/test_common02_types_interfaces.cpp)
++target_link_libraries(common02_types_interfaces_tests PRIVATE common_foundation)
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/README.md b/Task/Common/stages/stage02_common_types_interfaces/snapshot/README.md
+new file mode 100644
+index 0000000..c91638f
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/README.md
+@@ -0,0 +1,12 @@
++# Common-02 Snapshot
++
++This snapshot stores review copies of:
++
++- CMake entry.
++- Public Common-02 headers.
++- Header compilation translation unit.
++- Stage02 tests.
++- Build and check scripts.
++
++`check_common02.py` verifies SHA256 equality between the working files and these snapshot copies.
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/common.hpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/common.hpp
+new file mode 100644
+index 0000000..6a75f64
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/common.hpp
+@@ -0,0 +1,11 @@
++#ifndef SCL_COMMON_COMMON_HPP
++#define SCL_COMMON_COMMON_HPP
++
++#include "common/decoder_input.hpp"
++#include "common/frame.hpp"
++#include "common/interfaces.hpp"
++#include "common/result_types.hpp"
++#include "common/types.hpp"
++
++#endif  // SCL_COMMON_COMMON_HPP
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/decoder_input.hpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/decoder_input.hpp
+new file mode 100644
+index 0000000..2b4ed65
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/decoder_input.hpp
+@@ -0,0 +1,43 @@
++#ifndef SCL_COMMON_DECODER_INPUT_HPP
++#define SCL_COMMON_DECODER_INPUT_HPP
++
++#include "common/types.hpp"
++
++#include <variant>
++
++namespace scl::common {
++
++enum class DecoderInputKind {
++    HardBits,
++    ReceivedSymbols,
++    LlrValues
++};
++
++struct HardBitInput {
++    BitVector hardBits;
++};
++
++struct ReceivedSymbolInput {
++    RealVector receivedSymbols;
++};
++
++struct LlrInput {
++    RealVector llrValues;
++};
++
++using DecoderInput = std::variant<HardBitInput, ReceivedSymbolInput, LlrInput>;
++
++inline DecoderInputKind decoderInputKind(const DecoderInput& input) {
++    if (std::holds_alternative<HardBitInput>(input)) {
++        return DecoderInputKind::HardBits;
++    }
++    if (std::holds_alternative<ReceivedSymbolInput>(input)) {
++        return DecoderInputKind::ReceivedSymbols;
++    }
++    return DecoderInputKind::LlrValues;
++}
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_DECODER_INPUT_HPP
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/frame.hpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/frame.hpp
+new file mode 100644
+index 0000000..bf2a65b
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/frame.hpp
+@@ -0,0 +1,32 @@
++#ifndef SCL_COMMON_FRAME_HPP
++#define SCL_COMMON_FRAME_HPP
++
++#include "common/types.hpp"
++
++#include <stdexcept>
++#include <string>
++
++namespace scl::common {
++
++struct PayloadFrame {
++    std::string framePoolId;
++    FrameIndex frameIndex = 0;
++    Length payloadLength = 0;
++    SeedValue masterSeed = 0;
++    BitVector payloadBits;
++};
++
++inline void validatePayloadFrame(const PayloadFrame& frame) {
++    if (frame.framePoolId.empty()) {
++        throw std::invalid_argument("framePoolId must not be empty");
++    }
++    if (frame.payloadBits.size() != frame.payloadLength) {
++        throw std::invalid_argument("payloadBits.size must equal payloadLength");
++    }
++    validateBits(frame.payloadBits, "payloadBits");
++}
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_FRAME_HPP
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/interfaces.hpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/interfaces.hpp
+new file mode 100644
+index 0000000..4562fa7
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/interfaces.hpp
+@@ -0,0 +1,62 @@
++#ifndef SCL_COMMON_INTERFACES_HPP
++#define SCL_COMMON_INTERFACES_HPP
++
++#include "common/decoder_input.hpp"
++#include "common/frame.hpp"
++#include "common/result_types.hpp"
++#include "common/types.hpp"
++
++#include <string>
++
++namespace scl::common {
++
++class IChannelEncoder {
++public:
++    virtual ~IChannelEncoder() = default;
++
++    virtual std::string codeType() const = 0;
++    virtual CodeLengths lengths() const = 0;
++    virtual BitVector encode(const BitVector& payload) const = 0;
++};
++
++class IChannelDecoder {
++public:
++    virtual ~IChannelDecoder() = default;
++
++    virtual std::string decoderType() const = 0;
++    virtual DecoderInputKind inputKind() const = 0;
++    virtual DecodeResult decode(const DecoderInput& input) const = 0;
++};
++
++struct ChannelTransmissionRequest {
++    BitVector codedBits;
++    CodeLengths lengths;
++    double ebN0_dB = 0.0;
++};
++
++struct ChannelTransmissionView {
++    RealVector receivedSymbols;
++};
++
++class IChannel {
++public:
++    virtual ~IChannel() = default;
++
++    virtual std::string channelType() const = 0;
++    virtual ChannelTransmissionView transmit(const ChannelTransmissionRequest& request) const = 0;
++};
++
++class IFramePoolReader {
++public:
++    virtual ~IFramePoolReader() = default;
++
++    virtual std::string framePoolId() const = 0;
++    virtual Length payloadLength() const = 0;
++    virtual std::uint64_t frameCount() const = 0;
++    virtual PayloadFrame readFrame(FrameIndex index) const = 0;
++};
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_INTERFACES_HPP
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/result_types.hpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/result_types.hpp
+new file mode 100644
+index 0000000..42b3421
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/result_types.hpp
+@@ -0,0 +1,63 @@
++#ifndef SCL_COMMON_RESULT_TYPES_HPP
++#define SCL_COMMON_RESULT_TYPES_HPP
++
++#include "common/types.hpp"
++
++#include <cstdint>
++#include <string>
++
++namespace scl::common {
++
++struct DecodeResult {
++    BitVector payloadBits;
++    bool decoderDeclaredSuccess = false;
++    std::size_t iterationsUsed = 0;
++    std::string decoderStatus;
++};
++
++struct PointResultRecord {
++    std::string stageId;
++    std::string runId;
++    std::string experimentId;
++    std::string caseId;
++    std::string codeType;
++    std::string decoderType;
++    std::string channelType;
++    std::string noiseGroupId;
++    Length payloadLength = 0;
++    Length codecInputLength = 0;
++    Length encodedLength = 0;
++    Length transmittedLength = 0;
++    double codeRate = 0.0;
++    SnrIndex snrIndex = 0;
++    double ebN0_dB = 0.0;
++};
++
++struct CheckpointRecord {
++    std::string stageId;
++    std::string runId;
++    std::string experimentId;
++    std::string caseId;
++    SnrIndex snrIndex = 0;
++    double ebN0_dB = 0.0;
++    FrameIndex nextFrameIndex = 0;
++    std::uint64_t framesProcessed = 0;
++    std::uint64_t payloadBitsProcessed = 0;
++    std::uint64_t bitErrors = 0;
++    std::uint64_t frameErrors = 0;
++    std::uint64_t payloadSuccessFrames = 0;
++    std::uint64_t decoderDeclaredSuccessFrames = 0;
++    std::uint64_t undetectedErrorFrames = 0;
++    double timingAccumulator = 0.0;
++    double iterationAccumulator = 0.0;
++    std::string configHash;
++    std::string framePoolHash;
++    std::string noisePolicyVersion;
++    std::string codeVersion;
++    std::string gitCommit;
++};
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_RESULT_TYPES_HPP
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/types.hpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/types.hpp
+new file mode 100644
+index 0000000..8de879d
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/types.hpp
+@@ -0,0 +1,72 @@
++#ifndef SCL_COMMON_TYPES_HPP
++#define SCL_COMMON_TYPES_HPP
++
++#include <cstddef>
++#include <cstdint>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace scl::common {
++
++using Bit = std::uint8_t;
++using FrameIndex = std::uint64_t;
++using SeedValue = std::uint64_t;
++using Length = std::size_t;
++using SnrIndex = std::size_t;
++using BitVector = std::vector<Bit>;
++using RealVector = std::vector<double>;
++
++inline bool isValidBit(Bit bit) {
++    return bit == static_cast<Bit>(0) || bit == static_cast<Bit>(1);
++}
++
++inline void validateBit(Bit bit, const std::string& fieldName) {
++    if (!isValidBit(bit)) {
++        throw std::invalid_argument(fieldName + " contains a non-binary bit");
++    }
++}
++
++inline void validateBits(const BitVector& bits, const std::string& fieldName) {
++    for (Bit bit : bits) {
++        validateBit(bit, fieldName);
++    }
++}
++
++struct CodeLengths {
++    Length payloadLength = 0;
++    Length codecInputLength = 0;
++    Length encodedLength = 0;
++    Length transmittedLength = 0;
++    Length fillerLength = 0;
++    Length crcLength = 0;
++    Length tailLength = 0;
++    Length puncturedLength = 0;
++    Length shortenedLength = 0;
++};
++
++inline void validateCodeLengths(const CodeLengths& lengths) {
++    if (lengths.payloadLength == 0) {
++        throw std::invalid_argument("payloadLength must be positive");
++    }
++    if (lengths.encodedLength == 0) {
++        throw std::invalid_argument("encodedLength must be positive");
++    }
++    if (lengths.transmittedLength == 0) {
++        throw std::invalid_argument("transmittedLength must be positive");
++    }
++    if (lengths.codecInputLength < lengths.payloadLength) {
++        throw std::invalid_argument("codecInputLength must be >= payloadLength");
++    }
++}
++
++inline double computeCodeRate(const CodeLengths& lengths) {
++    validateCodeLengths(lengths);
++    return static_cast<double>(lengths.payloadLength) /
++           static_cast<double>(lengths.encodedLength);
++}
++
++}  // namespace scl::common
++
++#endif  // SCL_COMMON_TYPES_HPP
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/build_common02.py b/Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/build_common02.py
+new file mode 100644
+index 0000000..a08cbaa
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/build_common02.py
+@@ -0,0 +1,49 @@
++#!/usr/bin/env python
++"""Build the Common-02 type/interface skeleton tests."""
++
++from __future__ import annotations
++
++import argparse
++import subprocess
++import sys
++from pathlib import Path
++
++
++def run(command: list[str], root: Path) -> None:
++    print("RUN:", " ".join(command))
++    result = subprocess.run(command, cwd=str(root), text=True)
++    if result.returncode != 0:
++        raise SystemExit(result.returncode)
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--root", default=".", help="Repository root")
++    args = parser.parse_args()
++
++    root = Path(args.root).resolve()
++    source = root / "Task/Common/tests/stage02/test_common02_types_interfaces.cpp"
++    output_dir = root / "Task/Common/build/stage02"
++    output_dir.mkdir(parents=True, exist_ok=True)
++    output = output_dir / "test_common02_types_interfaces.exe"
++
++    command = [
++        "g++",
++        "-std=c++17",
++        "-Wall",
++        "-Wextra",
++        "-Werror",
++        "-I",
++        str(root / "Task/Common/include"),
++        str(source),
++        "-o",
++        str(output),
++    ]
++    run(command, root)
++    print(f"COMMON-02 BUILD: PASS ({output})")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/check_common02.py b/Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/check_common02.py
+new file mode 100644
+index 0000000..489ba53
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/check_common02.py
+@@ -0,0 +1,316 @@
++#!/usr/bin/env python
++"""Validate Common-02 public types and interfaces."""
++
++from __future__ import annotations
++
++import argparse
++import hashlib
++import shutil
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++
++REQUIRED_FILES = [
++    "Task/Common/CMakeLists.txt",
++    "Task/Common/include/common/types.hpp",
++    "Task/Common/include/common/frame.hpp",
++    "Task/Common/include/common/decoder_input.hpp",
++    "Task/Common/include/common/result_types.hpp",
++    "Task/Common/include/common/interfaces.hpp",
++    "Task/Common/include/common/common.hpp",
++    "Task/Common/src/common_interfaces.cpp",
++    "Task/Common/tests/stage02/test_common02_types_interfaces.cpp",
++    "Task/Common/scripts/build_common02.py",
++    "Task/Common/scripts/check_common02.py",
++    "Task/Common/stages/stage02_common_types_interfaces/stage_plan.md",
++    "Task/Common/stages/stage02_common_types_interfaces/changed_files.md",
++    "Task/Common/stages/stage02_common_types_interfaces/validation_report.md",
++    "Task/Common/stages/stage02_common_types_interfaces/manifest.json",
++    "Task/Common/stages/stage02_common_types_interfaces/changes.patch",
++    "Task/Common/stages/stage02_common_types_interfaces/frozen_config.csv",
++    "Task/Common/stages/stage02_common_types_interfaces/commands_used.md",
++    "Task/Common/stages/stage02_common_types_interfaces/git_commit.txt",
++    "Task/Common/stages/stage02_common_types_interfaces/known_issues.md",
++    "Task/Common/stages/stage02_common_types_interfaces/snapshot/README.md",
++]
++
++SNAPSHOT_PAIRS = [
++    ("Task/Common/CMakeLists.txt", "Task/Common/stages/stage02_common_types_interfaces/snapshot/CMakeLists.txt"),
++    ("Task/Common/include/common/types.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/types.hpp"),
++    ("Task/Common/include/common/frame.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/frame.hpp"),
++    ("Task/Common/include/common/decoder_input.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/decoder_input.hpp"),
++    ("Task/Common/include/common/result_types.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/result_types.hpp"),
++    ("Task/Common/include/common/interfaces.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/interfaces.hpp"),
++    ("Task/Common/include/common/common.hpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/include/common/common.hpp"),
++    ("Task/Common/src/common_interfaces.cpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/src/common_interfaces.cpp"),
++    ("Task/Common/tests/stage02/test_common02_types_interfaces.cpp", "Task/Common/stages/stage02_common_types_interfaces/snapshot/tests/stage02/test_common02_types_interfaces.cpp"),
++    ("Task/Common/scripts/build_common02.py", "Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/build_common02.py"),
++    ("Task/Common/scripts/check_common02.py", "Task/Common/stages/stage02_common_types_interfaces/snapshot/scripts/check_common02.py"),
++]
++
++ALLOWED_PREFIXES = [
++    "Task/Common/CMakeLists.txt",
++    "Task/Common/include/common/",
++    "Task/Common/src/",
++    "Task/Common/tests/stage02/",
++    "Task/Common/scripts/build_common02.py",
++    "Task/Common/scripts/check_common02.py",
++    "Task/Common/stages/stage02_common_types_interfaces/",
++]
++
++FORBIDDEN_INCLUDE_MARKERS = [
++    "Task/BCH",
++    "Task/CC",
++    "Task/LDPC",
++    "../BCH",
++    "../CC",
++    "../LDPC",
++]
++
++FORBIDDEN_IMPLEMENTATION_MARKERS = [
++    "normal_distribution",
++    "AWGN",
++    "Awgn",
++    "BPSK",
++    "LLR_i =",
++    "Wilson",
++    "BER =",
++    "FER =",
++    "Viterbi",
++    "Layered BP",
++    "Layered NMS",
++]
++
++
++def run(command: list[str], root: Path) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(command, cwd=str(root), text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++
++
++def sha256_file(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as handle:
++        for chunk in iter(lambda: handle.read(65536), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def add_failure(failures: list[str], message: str) -> None:
++    failures.append(message)
++
++
++def check_required_files(root: Path, failures: list[str]) -> None:
++    for relative in REQUIRED_FILES:
++        if not (root / relative).is_file():
++            add_failure(failures, f"missing required file: {relative}")
++
++
++def check_snapshot(root: Path, failures: list[str]) -> None:
++    for source, snapshot in SNAPSHOT_PAIRS:
++        source_path = root / source
++        snapshot_path = root / snapshot
++        if not snapshot_path.is_file():
++            add_failure(failures, f"missing snapshot file: {snapshot}")
++            continue
++        if source_path.is_file() and sha256_file(source_path) != sha256_file(snapshot_path):
++            add_failure(failures, f"snapshot mismatch: {snapshot}")
++
++
++def check_text_markers(root: Path, failures: list[str]) -> None:
++    include_root = root / "Task/Common/include/common"
++    test_root = root / "Task/Common/tests/stage02"
++    files = list(include_root.glob("*.hpp")) + list(test_root.glob("*.cpp"))
++    joined = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in files if path.is_file())
++    for marker in FORBIDDEN_INCLUDE_MARKERS:
++        if marker in joined:
++            add_failure(failures, f"forbidden dependency marker found: {marker}")
++
++    interface_text = (root / "Task/Common/include/common/interfaces.hpp").read_text(encoding="utf-8")
++    for expected in [
++        "virtual ~IChannelEncoder() = default;",
++        "virtual ~IChannelDecoder() = default;",
++        "virtual ~IChannel() = default;",
++        "virtual ~IFramePoolReader() = default;",
++    ]:
++        if expected not in interface_text:
++            add_failure(failures, f"missing virtual destructor text: {expected}")
++
++    result_text = (root / "Task/Common/include/common/result_types.hpp").read_text(encoding="utf-8")
++    if "SnrIndex snrIndex" not in result_text:
++        add_failure(failures, "CheckpointRecord must contain snrIndex")
++    if "double ebN0_dB" not in result_text:
++        add_failure(failures, "CheckpointRecord must contain ebN0_dB")
++    if " SNR" in result_text or "\nSNR" in result_text:
++        add_failure(failures, "ambiguous SNR field name found")
++
++    types_text = (root / "Task/Common/include/common/types.hpp").read_text(encoding="utf-8")
++    if "using Bit = std::uint8_t;" not in types_text:
++        add_failure(failures, "Bit must be std::uint8_t")
++    if "std::vector<bool>" in types_text:
++        add_failure(failures, "std::vector<bool> must not be used")
++
++    implementation_scan = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in include_root.glob("*.hpp"))
++    for marker in FORBIDDEN_IMPLEMENTATION_MARKERS:
++        if marker in implementation_scan:
++            add_failure(failures, f"forbidden implementation marker found in headers: {marker}")
++
++
++def check_build_and_test(root: Path, failures: list[str]) -> None:
++    build = run([sys.executable, "Task/Common/scripts/build_common02.py"], root)
++    if build.returncode != 0:
++        add_failure(failures, "build_common02.py failed:\n" + build.stdout + build.stderr)
++        return
++    test_exe = root / "Task/Common/build/stage02/test_common02_types_interfaces.exe"
++    test = run([str(test_exe)], root)
++    if test.returncode != 0:
++        add_failure(failures, "Common-02 C++ tests failed:\n" + test.stdout + test.stderr)
++
++
++def compile_snippet(root: Path, code: str) -> subprocess.CompletedProcess[str]:
++    with tempfile.TemporaryDirectory(prefix="common02_neg_") as temp:
++        source = Path(temp) / "negative.cpp"
++        output = Path(temp) / "negative.exe"
++        source.write_text(code, encoding="utf-8")
++        command = [
++            "g++",
++            "-std=c++17",
++            "-I",
++            str(root / "Task/Common/include"),
++            str(source),
++            "-o",
++            str(output),
++        ]
++        return run(command, root)
++
++
++def check_negative_tests(root: Path, failures: list[str]) -> None:
++    runtime_tests = [
++        (
++            "encodedLength = 0",
++            r'''
++#include "common/types.hpp"
++int main() {
++    scl::common::CodeLengths lengths{200, 200, 0, 248, 0, 0, 0, 0, 0};
++    try { scl::common::validateCodeLengths(lengths); } catch (const std::invalid_argument& ex) {
++        return std::string(ex.what()).find("encodedLength") == std::string::npos;
++    }
++    return 1;
++}
++''',
++        ),
++        (
++            "payload bit = 2",
++            r'''
++#include "common/frame.hpp"
++int main() {
++    scl::common::PayloadFrame frame{"pool", 0, 1, 1, scl::common::BitVector{2}};
++    try { scl::common::validatePayloadFrame(frame); } catch (const std::invalid_argument& ex) {
++        return std::string(ex.what()).find("non-binary") == std::string::npos;
++    }
++    return 1;
++}
++''',
++        ),
++        (
++            "payloadBits.size != payloadLength",
++            r'''
++#include "common/frame.hpp"
++int main() {
++    scl::common::PayloadFrame frame{"pool", 0, 2, 1, scl::common::BitVector{0}};
++    try { scl::common::validatePayloadFrame(frame); } catch (const std::invalid_argument& ex) {
++        return std::string(ex.what()).find("payloadLength") == std::string::npos;
++    }
++    return 1;
++}
++''',
++        ),
++    ]
++    for name, code in runtime_tests:
++        result = compile_snippet(root, code)
++        if result.returncode != 0:
++            add_failure(failures, f"negative runtime test failed to confirm expected reason: {name}\n{result.stdout}{result.stderr}")
++
++    compile_fail_tests = [
++        (
++            "DecoderInput type conflict",
++            r'''
++#include "common/decoder_input.hpp"
++int main() {
++    scl::common::DecoderInput input = scl::common::HardBitInput{{0, 1}};
++    auto bad = input.hardBits;
++    (void)bad;
++    return 0;
++}
++''',
++            "hardBits",
++        ),
++        (
++            "checkpoint missing ebN0_dB member access fails",
++            r'''
++#include "common/result_types.hpp"
++int main() {
++    scl::common::CheckpointRecord checkpoint;
++    checkpoint.SNR = 1.0;
++    return 0;
++}
++''',
++            "SNR",
++        ),
++    ]
++    for name, code, expected in compile_fail_tests:
++        result = compile_snippet(root, code)
++        if result.returncode == 0:
++            add_failure(failures, f"negative compile test unexpectedly passed: {name}")
++        elif expected not in (result.stdout + result.stderr):
++            add_failure(failures, f"negative compile test failed for unexpected reason: {name}")
++
++    check_source = (root / "Task/Common/tests/stage02/test_common02_types_interfaces.cpp").read_text(encoding="utf-8")
++    if "codecInputLength" not in check_source or "200.0 / 285.0" not in check_source:
++        add_failure(failures, "rate misuse negative coverage is missing expected payload/encoded examples")
++
++
++def check_git_diff(root: Path, failures: list[str]) -> None:
++    diff = run(["git", "diff", "--name-only", "main...HEAD"], root)
++    if diff.returncode != 0:
++        add_failure(failures, "git diff main...HEAD failed:\n" + diff.stderr)
++        return
++    paths = [line.strip().replace("\\", "/") for line in diff.stdout.splitlines() if line.strip()]
++    for path in paths:
++        if path.startswith("Task/Common/Plan/"):
++            add_failure(failures, "Task/Common/Plan must not be committed")
++        if path.startswith(("Task/BCH/", "Task/CC/", "Task/LDPC/")):
++            add_failure(failures, f"out-of-scope path in committed diff: {path}")
++        if not any(path == prefix or path.startswith(prefix) for prefix in ALLOWED_PREFIXES):
++            if not path.startswith("Task/Common/stages/stage01_common_definition/"):
++                add_failure(failures, f"path not allowed for Common-02: {path}")
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--root", default=".", help="Repository root")
++    args = parser.parse_args()
++    root = Path(args.root).resolve()
++
++    failures: list[str] = []
++    check_required_files(root, failures)
++    if not failures:
++        check_snapshot(root, failures)
++        check_text_markers(root, failures)
++        check_build_and_test(root, failures)
++        check_negative_tests(root, failures)
++        check_git_diff(root, failures)
++
++    if failures:
++        print("COMMON-02 CHECK: FAIL")
++        for failure in failures:
++            print(f"- {failure}")
++        return 1
++
++    print("COMMON-02 CHECK: PASS")
++    print("Gate: PASS_COMMON_TYPES_INTERFACES")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/src/common_interfaces.cpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/src/common_interfaces.cpp
+new file mode 100644
+index 0000000..1cb7762
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/src/common_interfaces.cpp
+@@ -0,0 +1,10 @@
++#include "common/common.hpp"
++
++namespace scl::common {
++
++// Common-02 is intentionally interface-only. This translation unit verifies
++// that the public headers can be compiled without introducing implementations
++// for codecs, modulation, noise, or metrics.
++
++}  // namespace scl::common
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/snapshot/tests/stage02/test_common02_types_interfaces.cpp b/Task/Common/stages/stage02_common_types_interfaces/snapshot/tests/stage02/test_common02_types_interfaces.cpp
+new file mode 100644
+index 0000000..8f7b178
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/snapshot/tests/stage02/test_common02_types_interfaces.cpp
+@@ -0,0 +1,113 @@
++#include "common/common.hpp"
++
++#include <cmath>
++#include <iostream>
++#include <stdexcept>
++#include <type_traits>
++
++using namespace scl::common;
++
++namespace {
++
++void require(bool condition, const char* message) {
++    if (!condition) {
++        throw std::runtime_error(message);
++    }
++}
++
++template <typename Fn>
++void requireThrows(Fn&& fn, const char* message) {
++    bool thrown = false;
++    try {
++        fn();
++    } catch (const std::invalid_argument&) {
++        thrown = true;
++    }
++    require(thrown, message);
++}
++
++void testBitTypeAndValidation() {
++    static_assert(std::is_same<Bit, std::uint8_t>::value, "Bit must be uint8_t");
++    static_assert(!std::is_same<Bit, bool>::value, "Bit must not be bool");
++    validateBit(0, "bit");
++    validateBit(1, "bit");
++    requireThrows([] { validateBit(2, "bit"); }, "payload bit = 2 must be rejected");
++}
++
++void testCodeLengthsAndRate() {
++    const CodeLengths bchSegmented{200, 209, 285, 285, 9, 0, 0, 0, 0};
++    const CodeLengths bchBlock{200, 200, 248, 248, 0, 0, 0, 0, 0};
++    const CodeLengths ccZeroTail{300, 306, 612, 612, 0, 0, 6, 0, 0};
++    const CodeLengths ldpc480{300, 300, 480, 480, 0, 0, 0, 0, 0};
++    const CodeLengths ldpc576{300, 300, 576, 576, 0, 0, 0, 0, 0};
++
++    require(std::fabs(computeCodeRate(bchSegmented) - (200.0 / 285.0)) < 1e-15, "BCH segmented rate mismatch");
++    require(std::fabs(computeCodeRate(bchSegmented) - (static_cast<double>(bchSegmented.codecInputLength) / 285.0)) > 1e-6,
++            "rate must not use codecInputLength");
++    require(std::fabs(computeCodeRate(bchBlock) - (200.0 / 248.0)) < 1e-15, "BCH block rate mismatch");
++    require(std::fabs(computeCodeRate(ccZeroTail) - (300.0 / 612.0)) < 1e-15, "CC rate mismatch");
++    require(std::fabs(computeCodeRate(ldpc480) - 0.625) < 1e-15, "LDPC 480 rate mismatch");
++    require(std::fabs(computeCodeRate(ldpc576) - (300.0 / 576.0)) < 1e-15, "LDPC 576 rate mismatch");
++
++    CodeLengths bad = bchBlock;
++    bad.encodedLength = 0;
++    requireThrows([&] { validateCodeLengths(bad); }, "encodedLength=0 must be rejected");
++}
++
++void testPayloadFrame() {
++    const PayloadFrame frame{"pool_k200", 3, 4, 123, BitVector{0, 1, 1, 0}};
++    validatePayloadFrame(frame);
++
++    PayloadFrame badSize = frame;
++    badSize.payloadLength = 5;
++    requireThrows([&] { validatePayloadFrame(badSize); }, "payload size mismatch must be rejected");
++
++    PayloadFrame badBit = frame;
++    badBit.payloadBits[1] = 2;
++    requireThrows([&] { validatePayloadFrame(badBit); }, "payload bit 2 must be rejected");
++}
++
++void testDecoderInputVariant() {
++    DecoderInput hard = HardBitInput{BitVector{0, 1}};
++    DecoderInput rx = ReceivedSymbolInput{RealVector{1.0, -0.5}};
++    DecoderInput llr = LlrInput{RealVector{3.0, -2.0}};
++
++    require(decoderInputKind(hard) == DecoderInputKind::HardBits, "hard input kind mismatch");
++    require(decoderInputKind(rx) == DecoderInputKind::ReceivedSymbols, "received-symbol input kind mismatch");
++    require(decoderInputKind(llr) == DecoderInputKind::LlrValues, "LLR input kind mismatch");
++    static_assert(std::variant_size<DecoderInput>::value == 3, "DecoderInput must have three alternatives");
++}
++
++void testInterfaceDestructors() {
++    static_assert(std::has_virtual_destructor<IChannelEncoder>::value, "encoder interface must have virtual destructor");
++    static_assert(std::has_virtual_destructor<IChannelDecoder>::value, "decoder interface must have virtual destructor");
++    static_assert(std::has_virtual_destructor<IChannel>::value, "channel interface must have virtual destructor");
++    static_assert(std::has_virtual_destructor<IFramePoolReader>::value, "frame pool reader must have virtual destructor");
++}
++
++void testCheckpointFields() {
++    CheckpointRecord checkpoint;
++    checkpoint.snrIndex = 2;
++    checkpoint.ebN0_dB = 1.5;
++    require(checkpoint.snrIndex == 2, "checkpoint snrIndex missing");
++    require(std::fabs(checkpoint.ebN0_dB - 1.5) < 1e-15, "checkpoint ebN0_dB missing");
++}
++
++}  // namespace
++
++int main() {
++    try {
++        testBitTypeAndValidation();
++        testCodeLengthsAndRate();
++        testPayloadFrame();
++        testDecoderInputVariant();
++        testInterfaceDestructors();
++        testCheckpointFields();
++    } catch (const std::exception& ex) {
++        std::cerr << "COMMON-02 TEST FAIL: " << ex.what() << '\n';
++        return 1;
++    }
++
++    std::cout << "COMMON-02 TEST PASS\n";
++    return 0;
++}
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/stage_plan.md b/Task/Common/stages/stage02_common_types_interfaces/stage_plan.md
+new file mode 100644
+index 0000000..bff973d
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/stage_plan.md
+@@ -0,0 +1,88 @@
++# Common-02 Stage Plan
++
++## Stage
++
++```text
++stage02_common_types_interfaces
++```
++
++Branch:
++
++```text
++stage02-03-common-foundation
++```
++
++Gate:
++
++```text
++PASS_COMMON_TYPES_INTERFACES
++```
++
++## 目标
++
++建立 Common-01 定义之上的公共 C++ 类型和接口骨架，供后续帧池、信道、指标和三类编码接入使用。
++
++## 非目标
++
++不实现 BCH、卷积码、LDPC、BPSK、AWGN、sigma、标准高斯噪声、LLR、BER/FER、置信区间、stop controller、checkpoint/resume、交织或仿真 runner。
++
++## 允许修改范围
++
++```text
++Task/Common/CMakeLists.txt
++Task/Common/include/common/
++Task/Common/src/
++Task/Common/tests/stage02/
++Task/Common/scripts/build_common02.py
++Task/Common/scripts/check_common02.py
++Task/Common/stages/stage02_common_types_interfaces/
++```
++
++## 禁止修改范围
++
++```text
++Task/BCH/
++Task/CC/
++Task/LDPC/
++Task/Common/Plan/
++Common-03 frame pool implementation
++```
++
++## 输入
++
++- Common-01 frozen definitions and schema.
++- `AGENTS.md`.
++- `初始规划/CODEX_GIT_WORKFLOW.md`.
++- Batch A task brief.
++
++## 输出
++
++- Common C++17 headers for fixed-width types, frame records, decoder input variants, result/checkpoint records, and interfaces.
++- A small translation unit that verifies header compilation without implementing algorithms.
++- Stage02 C++ tests.
++- Build and check scripts.
++- Stage02 audit files and snapshot.
++
++## 测试计划
++
++```powershell
++python Task\Common\scripts\build_common02.py
++python Task\Common\scripts\check_common02.py
++```
++
++The check script builds and runs the C++ test executable, scans for forbidden dependencies or implementations, validates snapshot SHA256 consistency, checks negative tests, and checks the committed diff boundary.
++
++## 负向测试计划
++
++- `encodedLength = 0`
++- payload bit `2`
++- `payloadBits.size() != payloadLength`
++- DecoderInput type conflict
++- ambiguous `SNR` checkpoint field
++- missing virtual destructor text scan
++- forbidden BCH/CC/LDPC include scan
++
++## 停止边界
++
++Stop after Common-02 Gate. Do not enter Common-03 until the user confirms.
++
+diff --git a/Task/Common/stages/stage02_common_types_interfaces/validation_report.md b/Task/Common/stages/stage02_common_types_interfaces/validation_report.md
+new file mode 100644
+index 0000000..3f88b50
+--- /dev/null
++++ b/Task/Common/stages/stage02_common_types_interfaces/validation_report.md
+@@ -0,0 +1,74 @@
++# Validation Report
++
++## Environment
++
++- Repository: `C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design`
++- Branch: `stage02-03-common-foundation`
++- Stage: `stage02_common_types_interfaces`
++
++## Commands
++
++Pending final execution:
++
++```powershell
++python Task\Common\scripts\build_common02.py
++python Task\Common\scripts\check_common02.py
++git diff --name-status main...HEAD
++git status --short --branch
++```
++
++## Positive Tests
++
++PASS.
++
++```text
++python Task\Common\scripts\build_common02.py
++COMMON-02 BUILD: PASS
++```
++
++The build used `g++ -std=c++17 -Wall -Wextra -Werror` and produced the Stage02 test executable under `Task/Common/build/stage02/`.
++
++```text
++python Task\Common\scripts\check_common02.py
++COMMON-02 CHECK: PASS
++Gate: PASS_COMMON_TYPES_INTERFACES
++```
++
++The C++ test verified:
++
++- `Bit` is `std::uint8_t`, not `bool`.
++- Non-binary bits are rejected.
++- `CodeLengths` validation rejects `encodedLength = 0`.
++- Five Common-01 rate examples use `payloadLength / encodedLength`.
++- `PayloadFrame` length and bit validation.
++- `DecoderInput` has distinct hard-bit, received-symbol, and LLR alternatives.
++- Interfaces have virtual destructors.
++- `CheckpointRecord` contains `snrIndex` and `ebN0_dB`.
++
++## Negative Tests
++
++PASS. The check script confirmed expected failure reasons for:
++
++- `encodedLength = 0`.
++- payload bit `2`.
++- `payloadBits.size() != payloadLength`.
++- DecoderInput member access conflict.
++- ambiguous checkpoint `SNR` member access.
++- forbidden BCH/CC/LDPC dependency markers.
++- missing virtual destructor text scan.
++
++## Gate
++
++Gate: PASS_COMMON_TYPES_INTERFACES
++
++## Git Scope
++
++Current working tree also contains user-preserved changes outside this Stage:
++
++```text
++Task/Common/Plan/        untracked, not submitted
++初始规划/*.md deletions   user-preserved, not submitted
++Task/Common/build/       generated build output, not submitted
++```
++
++Common-02 submission paths are limited to the allowed Common-02 scope.
+diff --git a/Task/Common/tests/stage02/test_common02_types_interfaces.cpp b/Task/Common/tests/stage02/test_common02_types_interfaces.cpp
+new file mode 100644
+index 0000000..8f7b178
+--- /dev/null
++++ b/Task/Common/tests/stage02/test_common02_types_interfaces.cpp
+@@ -0,0 +1,113 @@
++#include "common/common.hpp"
++
++#include <cmath>
++#include <iostream>
++#include <stdexcept>
++#include <type_traits>
++
++using namespace scl::common;
++
++namespace {
++
++void require(bool condition, const char* message) {
++    if (!condition) {
++        throw std::runtime_error(message);
++    }
++}
++
++template <typename Fn>
++void requireThrows(Fn&& fn, const char* message) {
++    bool thrown = false;
++    try {
++        fn();
++    } catch (const std::invalid_argument&) {
++        thrown = true;
++    }
++    require(thrown, message);
++}
++
++void testBitTypeAndValidation() {
++    static_assert(std::is_same<Bit, std::uint8_t>::value, "Bit must be uint8_t");
++    static_assert(!std::is_same<Bit, bool>::value, "Bit must not be bool");
++    validateBit(0, "bit");
++    validateBit(1, "bit");
++    requireThrows([] { validateBit(2, "bit"); }, "payload bit = 2 must be rejected");
++}
++
++void testCodeLengthsAndRate() {
++    const CodeLengths bchSegmented{200, 209, 285, 285, 9, 0, 0, 0, 0};
++    const CodeLengths bchBlock{200, 200, 248, 248, 0, 0, 0, 0, 0};
++    const CodeLengths ccZeroTail{300, 306, 612, 612, 0, 0, 6, 0, 0};
++    const CodeLengths ldpc480{300, 300, 480, 480, 0, 0, 0, 0, 0};
++    const CodeLengths ldpc576{300, 300, 576, 576, 0, 0, 0, 0, 0};
++
++    require(std::fabs(computeCodeRate(bchSegmented) - (200.0 / 285.0)) < 1e-15, "BCH segmented rate mismatch");
++    require(std::fabs(computeCodeRate(bchSegmented) - (static_cast<double>(bchSegmented.codecInputLength) / 285.0)) > 1e-6,
++            "rate must not use codecInputLength");
++    require(std::fabs(computeCodeRate(bchBlock) - (200.0 / 248.0)) < 1e-15, "BCH block rate mismatch");
++    require(std::fabs(computeCodeRate(ccZeroTail) - (300.0 / 612.0)) < 1e-15, "CC rate mismatch");
++    require(std::fabs(computeCodeRate(ldpc480) - 0.625) < 1e-15, "LDPC 480 rate mismatch");
++    require(std::fabs(computeCodeRate(ldpc576) - (300.0 / 576.0)) < 1e-15, "LDPC 576 rate mismatch");
++
++    CodeLengths bad = bchBlock;
++    bad.encodedLength = 0;
++    requireThrows([&] { validateCodeLengths(bad); }, "encodedLength=0 must be rejected");
++}
++
++void testPayloadFrame() {
++    const PayloadFrame frame{"pool_k200", 3, 4, 123, BitVector{0, 1, 1, 0}};
++    validatePayloadFrame(frame);
++
++    PayloadFrame badSize = frame;
++    badSize.payloadLength = 5;
++    requireThrows([&] { validatePayloadFrame(badSize); }, "payload size mismatch must be rejected");
++
++    PayloadFrame badBit = frame;
++    badBit.payloadBits[1] = 2;
++    requireThrows([&] { validatePayloadFrame(badBit); }, "payload bit 2 must be rejected");
++}
++
++void testDecoderInputVariant() {
++    DecoderInput hard = HardBitInput{BitVector{0, 1}};
++    DecoderInput rx = ReceivedSymbolInput{RealVector{1.0, -0.5}};
++    DecoderInput llr = LlrInput{RealVector{3.0, -2.0}};
++
++    require(decoderInputKind(hard) == DecoderInputKind::HardBits, "hard input kind mismatch");
++    require(decoderInputKind(rx) == DecoderInputKind::ReceivedSymbols, "received-symbol input kind mismatch");
++    require(decoderInputKind(llr) == DecoderInputKind::LlrValues, "LLR input kind mismatch");
++    static_assert(std::variant_size<DecoderInput>::value == 3, "DecoderInput must have three alternatives");
++}
++
++void testInterfaceDestructors() {
++    static_assert(std::has_virtual_destructor<IChannelEncoder>::value, "encoder interface must have virtual destructor");
++    static_assert(std::has_virtual_destructor<IChannelDecoder>::value, "decoder interface must have virtual destructor");
++    static_assert(std::has_virtual_destructor<IChannel>::value, "channel interface must have virtual destructor");
++    static_assert(std::has_virtual_destructor<IFramePoolReader>::value, "frame pool reader must have virtual destructor");
++}
++
++void testCheckpointFields() {
++    CheckpointRecord checkpoint;
++    checkpoint.snrIndex = 2;
++    checkpoint.ebN0_dB = 1.5;
++    require(checkpoint.snrIndex == 2, "checkpoint snrIndex missing");
++    require(std::fabs(checkpoint.ebN0_dB - 1.5) < 1e-15, "checkpoint ebN0_dB missing");
++}
++
++}  // namespace
++
++int main() {
++    try {
++        testBitTypeAndValidation();
++        testCodeLengthsAndRate();
++        testPayloadFrame();
++        testDecoderInputVariant();
++        testInterfaceDestructors();
++        testCheckpointFields();
++    } catch (const std::exception& ex) {
++        std::cerr << "COMMON-02 TEST FAIL: " << ex.what() << '\n';
++        return 1;
++    }
++
++    std::cout << "COMMON-02 TEST PASS\n";
++    return 0;
++}

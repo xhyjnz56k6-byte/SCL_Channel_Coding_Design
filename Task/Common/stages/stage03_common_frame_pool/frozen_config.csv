@@ -1,0 +1,13 @@
+field,value
+schemaVersion,common03.frame_pool_manifest.v2
+payloadPolicyVersion,1
+generationAlgorithm,splitmix64_payload_v2
+supportedPayloadLengths,"200;300"
+maxFrames,50000
+defaultShardSize,1000
+smokeShardSize,10
+bitStorageFormat,packed_bits
+bitOrderWithinByte,lsb_first
+integerByteOrder,not_applicable
+overallHash,canonical_manifest_content_without_paths_or_time
+verifyShardHashesDefault,true

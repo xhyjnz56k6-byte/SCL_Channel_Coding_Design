@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "common03.audit_manifest.v2",
+  "stage": "stage03_common_frame_pool",
+  "branch": "stage02-03-common-foundation",
+  "originalContentRange": {
+    "baseCommit": "fe6cfa0164afd097adb972a51afd73240105c188",
+    "contentCommit": "6c304d0ef10fb7620c05ee1ef54b5d4a58f3fe00"
+  },
+  "repairContentRange": {
+    "baseCommit": "5636f802ef2b45d16ff8018dbfe24b171682992f",
+    "contentCommit": "62146787d8ad16e77ad507cd65ba72b06534369e"
+  },
+  "auditedFunctionalFiles": [
+    "Task/Common/include/common/frame_pool.hpp",
+    "Task/Common/include/common/sha256.hpp",
+    "Task/Common/scripts/build_common03.py",
+    "Task/Common/scripts/check_common03.py",
+    "Task/Common/scripts/generate_common03_frame_pool.py",
+    "Task/Common/tests/stage03/test_common03_frame_pool.cpp"
+  ],
+  "repairContentFiles": [
+    "Task/Common/include/common/frame_pool.hpp",
+    "Task/Common/include/common/sha256.hpp",
+    "Task/Common/scripts/check_common03.py",
+    "Task/Common/scripts/generate_common03_frame_pool.py",
+    "Task/Common/tests/stage03/test_common03_frame_pool.cpp"
+  ],
+  "auditClosureFiles": [
+    "Task/Common/stages/stage03_common_frame_pool/stage_plan.md",
+    "Task/Common/stages/stage03_common_frame_pool/changed_files.md",
+    "Task/Common/stages/stage03_common_frame_pool/validation_report.md",
+    "Task/Common/stages/stage03_common_frame_pool/manifest.json",
+    "Task/Common/stages/stage03_common_frame_pool/changes.patch",
+    "Task/Common/stages/stage03_common_frame_pool/frozen_config.csv",
+    "Task/Common/stages/stage03_common_frame_pool/commands_used.md",
+    "Task/Common/stages/stage03_common_frame_pool/git_commit.txt",
+    "Task/Common/stages/stage03_common_frame_pool/known_issues.md",
+    "Task/Common/stages/stage03_common_frame_pool/snapshot/",
+    "Task/Common/stages/stage03_common_frame_pool/frame_pool_format.md",
+    "Task/Common/stages/stage03_common_frame_pool/fixture_hashes.csv",
+    "Task/Common/stages/stage03_common_frame_pool/cpp_python_comparison.csv",
+    "Task/Common/stages/stage03_common_frame_pool/negative_test_results.csv",
+    "Task/Common/stages/stage03_common_frame_pool/golden_vectors.csv"
+  ],
+  "remoteBranch": "origin/stage02-03-common-foundation",
+  "remoteVerificationStatus": "VERIFIED",
+  "mergeStatus": "NOT_MERGED",
+  "gate": "PASS_COMMON_FRAME_POOL"
+}

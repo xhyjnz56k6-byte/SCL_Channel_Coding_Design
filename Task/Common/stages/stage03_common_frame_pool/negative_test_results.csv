@@ -1,0 +1,33 @@
+testName,mutation,expectedFailure,actualFailure,verdict
+delete_schemaVersion,delete schemaVersion,missing schemaVersion,missing schemaVersion,PASS
+bad_schemaVersion,unsupported schemaVersion,unsupported schemaVersion,unsupported schemaVersion,PASS
+delete_payloadPolicyVersion,delete payloadPolicyVersion,missing payloadPolicyVersion,missing payloadPolicyVersion,PASS
+bad_payloadLength,payloadLength=201,payloadLength,payloadLength must be 200 or 300,PASS
+zero_totalFrames,totalFrames=0,totalFrames,totalFrames outside supported range,PASS
+bad_total_sum,totalFrames does not equal shard sum,totalFrames,shard frame counts must sum to totalFrames,PASS
+zero_shardSize,shardSize=0,shardSize,shardSize must be positive,PASS
+first_start_one,first shard startFrame=1,contiguous,shards must be contiguous without gaps or overlap,PASS
+gap,second shard startFrame += 1,contiguous,shards must be contiguous without gaps or overlap,PASS
+overlap,second shard startFrame -= 1,contiguous,shards must be contiguous without gaps or overlap,PASS
+zero_shard_count,shard frameCount=0,frameCount,shard frameCount must be positive,PASS
+duplicate_fileName,duplicate shard fileName,duplicate,duplicate shard fileName,PASS
+traversal_fileName,../ in shard fileName,unsafe,unsafe shard fileName,PASS
+wrong_shard_sha,wrong shard sha,SHA256,shard SHA256 mismatch,PASS
+bad_shard_sha_len,short shard sha,sha256,shard sha256 format invalid,PASS
+modify_shard_byte,flip first shard byte,SHA256,shard SHA256 mismatch,PASS
+truncate_shard,truncate shard,size,shard file size mismatch,PASS
+extra_shard_byte,append shard byte,size,shard file size mismatch,PASS
+delete_shard,delete shard file,missing shard,missing shard file,PASS
+bad_overallHash,modify overallHash,overallHash,overallHash mismatch,PASS
+delete_overallHash,delete overallHash,missing overallHash,missing overallHash,PASS
+bad_bit_order,bitOrderWithinByte=msb_first,bitOrderWithinByte,unsupported bitOrderWithinByte,PASS
+bad_bytes_per_frame,bytesPerFrame wrong,bytesPerFrame,bytesPerFrame mismatch,PASS
+negative_frame_index,frameIndex=-1,frameIndex,frameIndex outside frame pool,PASS
+frame_index_total,frameIndex==totalFrames,frameIndex,frameIndex outside frame pool,PASS
+repeat_without_overwrite,repeat generation without --overwrite,overwrite,"Traceback (most recent call last):
+  File ""C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Common\scripts\generate_common03_frame_pool.py"", line 271, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File ""C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Common\scripts\generate_common03_frame_pool.py"", line 250, in main
+    raise FileExistsError(""output directory is not empty; use --overwrite"")
+FileExistsError: output directory is not empty; use --overwrite",PASS
