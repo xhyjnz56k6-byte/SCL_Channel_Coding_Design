@@ -41,6 +41,8 @@
 - Codex 只有在用户要求时，才可 commit 和 push 当前 Stage 或批次分支。
 - Codex 禁止自动合并到 `main`。
 - 是否合并由用户在代码和 GitHub 差异审查后决定。
+- Codex 创建 commit 时，commit message 必须使用中文，格式为：
+  `模块/阶段：简短说明`
 
 ## 5. 修改前检查
 
