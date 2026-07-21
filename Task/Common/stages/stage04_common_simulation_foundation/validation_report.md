@@ -8,6 +8,8 @@ python Task/Common/scripts/check_common03.py
 python Task/Common/scripts/check_common04.py
 ```
 
+`check_common04.py` built and executed all six C++ Gate binaries, then generated temporary pool-backed smoke data (100 frames, 0/2/4 dB) and prescan data (2000 frames, 0..6 dB) for K=200 and K=300 in both HARD and LLR_SIGN modes. It validated counters, BER/FER/success-rate formulas, pool identities, metadata, PNG output, trend sanity, acceptance records, Git scope, manifest, and Common-02/03 regressions.
+
 ## Gate Results
 
 ```text
@@ -17,8 +19,8 @@ Common-04 G1: PASS_COMMON_RANDOM_POLICY
 Common-04 G2: PASS_COMMON_GAUSSIAN_NOISE
 Common-04 G3: PASS_COMMON_BPSK_AWGN_LLR
 Common-04 G4: PASS_COMMON_METRICS_CONTROL
-Common-04 G5: PASS_COMMON_CHECKPOINT_RESULTS
-Common-04 G6: PASS_COMMON_INTEGRATION
+Common-04 G5: PASS_COMMON_CHECKPOINT_RESULTS (real 37+resume-to-100 equivalence and negative checkpoint cases)
+Common-04 G6: PASS_COMMON_INTEGRATION (pool-backed K=200/K=300 smoke and prescan)
 Common-04 Final Gate: PASS_COMMON_SIMULATION_FOUNDATION
 ```
 
@@ -36,7 +38,7 @@ Main merge status: NOT_MERGED
 ## Remote Verification
 
 ```text
-Functional commit: 7731461df4c4582bfde74bf363034c9f95085a09
+Functional repair commit: 22bfde77eddeb1b1cc7009296e41c035aeeab954
 Remote branch: origin/stage04-common-simulation-foundation
 Remote verification: VERIFIED
 Main merge status: NOT_MERGED

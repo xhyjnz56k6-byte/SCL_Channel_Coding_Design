@@ -1,4 +1,4 @@
-﻿requirementId,requirement,implementationFiles,positiveTests,negativeTests,gate,status,evidence
+requirementId,requirement,implementationFiles,positiveTests,negativeTests,gate,status,evidence
 G1-001,NoiseKey contains only masterNoiseSeed noiseGroupId frameIndex symbolIndex and noisePolicyVersion,"random_policy.hpp;random_policy.cpp","test_common04_random_policy.cpp","unsupported policy version; source scan for snrIndex ebN0_dB codeType decoderType",PASS_COMMON_RANDOM_POLICY,PASS,check_common04.py:executed_real_gate_suite
 G1-002,Noise key uses frozen noiseDomainSeparator and is isolated from Common-03 payload key space,"random_policy.hpp;random_policy.cpp","test_common04_random_policy.cpp","mutated domain separator; accidental payload splitmix key reuse scan",PASS_COMMON_RANDOM_POLICY,PASS,check_common04.py:executed_real_gate_suite
 G1-003,Same NoiseKey produces identical uint64 samples,"random_policy.hpp;random_policy.cpp","test_common04_random_policy.cpp","none",PASS_COMMON_RANDOM_POLICY,PASS,check_common04.py:executed_real_gate_suite
