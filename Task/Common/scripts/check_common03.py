@@ -57,6 +57,11 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256_text_file(path: Path) -> str:
+    text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def add_failure(failures: list[str], message: str) -> None:
     failures.append(message)
 
@@ -491,7 +496,7 @@ def check_audit_files(root: Path, failures: list[str]) -> None:
         except RuntimeError as exc:
             add_failure(failures, f"failed to read repair blob {source_path}: {exc}")
             continue
-        if sha256_file(snapshot_path) != expected:
+        if sha256_text_file(snapshot_path) != expected:
             add_failure(failures, f"stage03 snapshot mismatch: {source_path}")
 
     patch_path = root / STAGE_DIR / "changes.patch"
