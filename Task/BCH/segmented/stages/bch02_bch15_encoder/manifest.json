@@ -1,0 +1,9 @@
+{
+  "stage": "bch02_bch15_encoder",
+  "branch": "bch-02-bch15-encoder",
+  "baseCommit": "93be632b326f392c728ead025a959fa4c21a2850",
+  "contentCommit": null,
+  "functionalRanges": [],
+  "gate": "NOT_EVALUATED",
+  "mergeStatus": "NOT_MERGED"
+}

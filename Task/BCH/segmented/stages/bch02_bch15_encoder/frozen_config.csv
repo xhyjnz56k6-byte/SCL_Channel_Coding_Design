@@ -1,0 +1,8 @@
+key,value,status
+stage,BCH-02,FROZEN
+n,15,FROZEN
+k,11,FROZEN
+t,1,FROZEN
+generator_polynomial,"x^4 + x + 1",FROZEN
+layout,"[11 information bits][4 parity bits]",FROZEN
+convention_version,BCH01_g_x4_x_1_v1,FROZEN

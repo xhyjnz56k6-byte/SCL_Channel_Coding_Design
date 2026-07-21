@@ -1,0 +1,8 @@
+metric,value
+encodedCount,2048
+remainderMismatch,0
+systematicBitMismatch,0
+duplicateCodewordCount,0
+independentReferenceMismatch,0
+fixedVectorMismatch,0
+exhaustive2048Mismatch,0

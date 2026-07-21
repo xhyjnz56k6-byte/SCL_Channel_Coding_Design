@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.16)
+project(Bch15Encoder LANGUAGES CXX)
+add_library(bch15_encoder src/bch15_encoder.cpp)
+target_include_directories(bch15_encoder PUBLIC include ../../../Common/include)
+target_compile_features(bch15_encoder PUBLIC cxx_std_17)
+add_executable(test_bch15_encoder tests/test_bch15_encoder.cpp)
+target_link_libraries(test_bch15_encoder PRIVATE bch15_encoder)
