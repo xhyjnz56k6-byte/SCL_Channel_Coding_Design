@@ -1,0 +1,7 @@
+#include "bch_segmented/bch15_encoder.hpp"
+#include "bch_segmented/bch15_lookup_table.hpp"
+#include <fstream>
+#include <set>
+#include <stdexcept>
+using namespace scl::bch::segmented;
+int main(int argc,char**argv){try{if(argc!=2)throw std::runtime_error("output dir");auto t=buildBch15SyndromeTable();std::set<unsigned>s;for(const auto&e:t.entries){if(e.syndrome==0||!s.insert(e.syndrome).second||lookupErrorPosition(t,e.syndrome)!=static_cast<int>(e.errorPosition))throw std::runtime_error("table");}for(unsigned v=0;v<2048;++v){scl::common::BitVector m(11,0U);for(unsigned i=0;i<11;++i)m[i]=(v>>(10-i))&1U;if(syndromeValue(computeBch15Syndrome(encodeBch15Systematic(m)))!=0)throw std::runtime_error("legal syndrome");}std::ofstream csv(std::string(argv[1])+"/syndrome_table.csv");csv<<"syndromeBits,syndromeValue,errorPosition,errorPattern\n";for(auto&e:t.entries){auto b=computeBch15Syndrome(e.errorPattern);csv<<b[0]<<b[1]<<b[2]<<b[3]<<','<<e.syndrome<<','<<e.errorPosition<<',';for(auto x:e.errorPattern)csv<<x;csv<<'\n';}csv.flush();if(!csv)throw std::runtime_error("csv");std::ofstream j(std::string(argv[1])+"/syndrome_table_manifest.json");j<<"{\"codeName\":\"BCH(15,11,1)\",\"n\":15,\"k\":11,\"t\":1,\"generatorPolynomial\":\"x^4+x+1\",\"bitOrderVersion\":\"BCH01_x14_to_x0_v1\",\"tableVersion\":\"bch15_syndrome_v1\",\"entryCount\":15,\"sha256\":\""<<t.hash<<"\"}";j.flush();if(!j)throw std::runtime_error("json");return 0;}catch(...){return 1;}}

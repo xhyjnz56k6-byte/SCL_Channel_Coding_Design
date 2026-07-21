@@ -1,0 +1,6 @@
+key,value
+generatorPolynomial,x^4+x+1
+bitOrderVersion,BCH01_x14_to_x0_v1
+tableVersion,bch15_syndrome_v1
+entryCount,15
+zeroSyndromePolicy,NO_ERROR_NOT_IN_TABLE

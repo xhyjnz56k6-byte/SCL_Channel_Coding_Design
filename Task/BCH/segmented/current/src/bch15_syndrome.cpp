@@ -1,0 +1,3 @@
+#include "bch_segmented/bch15_syndrome.hpp"
+#include <stdexcept>
+namespace scl::bch::segmented { common::BitVector computeBch15Syndrome(const common::BitVector& received){if(received.size()!=15U)throw std::invalid_argument("BCH15 received length");common::validateBits(received,"received");auto w=received;for(unsigned i=0;i<11;++i)if(w[i]){w[i]^=1U;w[i+3]^=1U;w[i+4]^=1U;}return common::BitVector(w.end()-4,w.end());} unsigned syndromeValue(const common::BitVector& s){if(s.size()!=4U)throw std::invalid_argument("syndrome length");common::validateBits(s,"syndrome");return (s[0]<<3U)|(s[1]<<2U)|(s[2]<<1U)|s[3];}}

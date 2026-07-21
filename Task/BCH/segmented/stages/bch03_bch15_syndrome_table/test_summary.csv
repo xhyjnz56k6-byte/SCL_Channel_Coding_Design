@@ -1,0 +1,7 @@
+metric,value
+legalCodewordNonzeroSyndrome,0
+singleErrorSyndromeCount,15
+zeroSingleErrorSyndrome,0
+duplicateSyndromeCount,0
+missingPositionCount,0
+referenceMismatch,0
