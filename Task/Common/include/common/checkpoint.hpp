@@ -5,6 +5,7 @@
 #include "common/types.hpp"
 
 #include <cstdint>
+#include <optional>
 #include <string>
 
 namespace scl::common {
@@ -38,6 +39,10 @@ std::string computeConfigHash(const std::string& canonicalText);
 std::string checkpointToJson(const SimulationCheckpointRecord& record);
 SimulationCheckpointRecord checkpointFromJson(const std::string& text);
 void validateResumeCompatibility(const SimulationCheckpointRecord& expected, const SimulationCheckpointRecord& actual);
+void validateCheckpointState(const SimulationCheckpointRecord& record, FrameIndex firstFrameIndex,
+                             std::uint64_t requestedFrameCount);
+void writeCheckpointFile(const std::string& path, const SimulationCheckpointRecord& record);
+SimulationCheckpointRecord readCheckpointFile(const std::string& path);
 
 }  // namespace scl::common
 

@@ -4,6 +4,8 @@
 #include "common/sha256.hpp"
 
 #include <cmath>
+#include <fstream>
+#include <limits>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
@@ -66,6 +68,13 @@ std::string checkpointToJson(const SimulationCheckpointRecord& record) {
     out << "\"bitErrors\":" << record.metrics.bitErrors << ",\n";
     out << "\"frameErrors\":" << record.metrics.frameErrors << ",\n";
     out << "\"successfulFrames\":" << record.metrics.successfulFrames << ",\n";
+    out << "\"encodeTimeNsSum\":" << record.metrics.latency.encodeTimeNsSum << ",\n";
+    out << "\"channelTimeNsSum\":" << record.metrics.latency.channelTimeNsSum << ",\n";
+    out << "\"decodeTimeNsSum\":" << record.metrics.latency.decodeTimeNsSum << ",\n";
+    out << "\"recoveryTimeNsSum\":" << record.metrics.latency.recoveryTimeNsSum << ",\n";
+    out << "\"totalTimeNsSum\":" << record.metrics.latency.totalTimeNsSum << ",\n";
+    out << "\"maxDecodeTimeNs\":" << record.metrics.latency.maxDecodeTimeNs << ",\n";
+    out << "\"maxTotalTimeNs\":" << record.metrics.latency.maxTotalTimeNs << ",\n";
     out << "\"stopReason\":" << jsonString(record.stopReason) << "\n";
     out << "}\n";
     return out.str();
@@ -97,6 +106,13 @@ SimulationCheckpointRecord checkpointFromJson(const std::string& text) {
     record.metrics.bitErrors = extractJsonUInt64(text, "bitErrors");
     record.metrics.frameErrors = extractJsonUInt64(text, "frameErrors");
     record.metrics.successfulFrames = extractJsonUInt64(text, "successfulFrames");
+    record.metrics.latency.encodeTimeNsSum = extractJsonUInt64(text, "encodeTimeNsSum");
+    record.metrics.latency.channelTimeNsSum = extractJsonUInt64(text, "channelTimeNsSum");
+    record.metrics.latency.decodeTimeNsSum = extractJsonUInt64(text, "decodeTimeNsSum");
+    record.metrics.latency.recoveryTimeNsSum = extractJsonUInt64(text, "recoveryTimeNsSum");
+    record.metrics.latency.totalTimeNsSum = extractJsonUInt64(text, "totalTimeNsSum");
+    record.metrics.latency.maxDecodeTimeNs = extractJsonUInt64(text, "maxDecodeTimeNs");
+    record.metrics.latency.maxTotalTimeNs = extractJsonUInt64(text, "maxTotalTimeNs");
     record.stopReason = extractJsonString(text, "stopReason");
     return record;
 }
@@ -106,9 +122,41 @@ void validateResumeCompatibility(const SimulationCheckpointRecord& expected, con
         expected.configHash != actual.configHash || expected.framePoolId != actual.framePoolId ||
         expected.noisePoolId != actual.noisePoolId || expected.payloadLength != actual.payloadLength ||
         expected.encodedLength != actual.encodedLength || expected.snrIndex != actual.snrIndex ||
-        expected.ebN0_dB != actual.ebN0_dB || actual.nextFrameIndex < expected.nextFrameIndex) {
+        expected.ebN0_dB != actual.ebN0_dB) {
         throw std::invalid_argument("checkpoint resume compatibility mismatch");
     }
+}
+
+void validateCheckpointState(const SimulationCheckpointRecord& record, FrameIndex firstFrameIndex,
+                             std::uint64_t requestedFrameCount) {
+    if (record.nextFrameIndex < firstFrameIndex || record.nextFrameIndex > firstFrameIndex + requestedFrameCount) {
+        throw std::invalid_argument("checkpoint nextFrameIndex outside requested range");
+    }
+    const std::uint64_t completed = record.nextFrameIndex - firstFrameIndex;
+    if (record.metrics.processedFrames != completed) {
+        throw std::invalid_argument("checkpoint processedFrames contradicts nextFrameIndex");
+    }
+    if (record.payloadLength == 0U || record.metrics.totalPayloadBits != completed * record.payloadLength) {
+        throw std::invalid_argument("checkpoint totalPayloadBits contradicts processedFrames");
+    }
+    if (record.metrics.successfulFrames + record.metrics.frameErrors != completed) {
+        throw std::invalid_argument("checkpoint success and error counters contradict processedFrames");
+    }
+}
+
+void writeCheckpointFile(const std::string& path, const SimulationCheckpointRecord& record) {
+    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+    if (!output) {
+        throw std::runtime_error("failed to open checkpoint output path");
+    }
+    output << checkpointToJson(record);
+    if (!output) {
+        throw std::runtime_error("failed to write checkpoint");
+    }
+}
+
+SimulationCheckpointRecord readCheckpointFile(const std::string& path) {
+    return checkpointFromJson(readTextFile(path));
 }
 
 }  // namespace scl::common

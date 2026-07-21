@@ -35,6 +35,10 @@ LLR = 2 * received / sigma^2
 positive LLR means bit 0
 ```
 
+Formal AWGN and LLR runs require finite `sigma > 0`. The no-noise identity check uses direct hard decisions on BPSK symbols; when a finite LLR sign check is needed without AWGN, it uses finite strong values rather than dividing by zero.
+
+The Common-04 identity baseline always uses `encodedLength = payloadLength`, hence `R = 1`. The `200/248` and `300/390` values are frozen rate/sigma interface fixtures only (`ZERO_PAD_TRANSPORT_FIXTURE`), not identity-theory baselines.
+
 Hard decision:
 
 ```text

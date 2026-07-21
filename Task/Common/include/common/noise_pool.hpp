@@ -14,6 +14,7 @@ constexpr const char* kNoiseShardMagic = "SCLN04";
 constexpr std::uint32_t kNoiseShardHeaderVersion = 1U;
 constexpr std::uint64_t kMaxNoisePoolFrames = 50000ULL;
 constexpr std::uint64_t kMaxNoiseSymbolsPerFrame = 1000ULL;
+constexpr std::uint64_t kNoiseShardHeaderBytes = 6U + 4U + 8U * 6U;
 
 struct NoisePoolShard {
     std::string fileName;
@@ -68,6 +69,8 @@ class NoisePoolReader {
 public:
     explicit NoisePoolReader(const std::string& manifestPath);
     std::string noisePoolId() const;
+    std::uint64_t frameCount() const;
+    std::uint64_t symbolsPerFrame() const;
     RealVector readFramePrefix(FrameIndex frameIndex, std::uint64_t symbolCount) const;
 
 private:

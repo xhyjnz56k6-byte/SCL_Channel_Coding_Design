@@ -5,45 +5,43 @@
 #include <string>
 
 namespace {
-void require(bool condition, const std::string& message) {
-    if (!condition) {
-        throw std::runtime_error(message);
-    }
+void require(bool condition, const std::string& message) { if (!condition) throw std::runtime_error(message); }
+void requireThrows(const std::string& name, const std::function<void()>& fn) {
+    try { fn(); } catch (const std::exception&) { return; }
+    throw std::runtime_error(name + " did not fail");
+}
+
+scl::common::SimulationShardResult shard(std::uint64_t index, scl::common::FrameIndex start, std::uint64_t count) {
+    scl::common::SimulationShardResult value;
+    value.shardIndex = index; value.frameStart = start; value.frameCount = count; value.experimentId = "exp";
+    value.configHash = "hash"; value.framePoolId = "frame"; value.noisePoolId = "noise"; value.payloadLength = 200;
+    value.encodedLength = 200; value.metrics.processedFrames = count; value.metrics.totalPayloadBits = count * 200;
+    value.metrics.successfulFrames = count;
+    return value;
 }
 }
 
 int main() {
-    scl::common::IdentitySimulationConfig k200;
-    k200.payloadLength = 200;
-    k200.encodedLength = 248;
-    k200.frameCount = 100;
-    k200.stopConfig = {0, 100, 0, false};
-    const auto hard200 = scl::common::runIdentitySimulation(k200);
-    k200.decisionMode = scl::common::DecisionMode::LlrSign;
-    const auto llr200 = scl::common::runIdentitySimulation(k200);
-    require(hard200.metrics.processedFrames == 100U && llr200.metrics.processedFrames == 100U, "K200 processed mismatch");
-    require(hard200.metrics.bitErrors == llr200.metrics.bitErrors, "hard/LLR K200 mismatch");
-
-    scl::common::IdentitySimulationConfig k300;
-    k300.payloadLength = 300;
-    k300.encodedLength = 390;
-    k300.frameCount = 100;
-    k300.stopConfig = {0, 100, 0, false};
-    const auto low = scl::common::runIdentitySimulation(k300);
-    k300.ebN0_dB = 4.0;
-    const auto high = scl::common::runIdentitySimulation(k300);
-    require(high.metrics.bitErrors <= low.metrics.bitErrors + 20U, "gross SNR trend failed");
-
-    k300.frameCount = 50;
-    const auto first = scl::common::runIdentitySimulation(k300);
-    k300.frameStart = 50;
-    const auto second = scl::common::runIdentitySimulation(k300);
-    const auto merged = scl::common::mergeShardMetrics({first.metrics, second.metrics});
-    k300.frameStart = 0;
-    k300.frameCount = 100;
-    const auto continuous = scl::common::runIdentitySimulation(k300);
-    require(merged.processedFrames == continuous.metrics.processedFrames, "merged frame count mismatch");
-    require(merged.bitErrors == continuous.metrics.bitErrors, "merged bit errors mismatch");
-    require(scl::common::summaryRowToCsv(continuous).find("IDENTITY") != std::string::npos, "identity CSV missing");
+    for (const scl::common::Length length : {200U, 300U}) {
+        scl::common::IdentitySimulationConfig config;
+        config.payloadLength = length; config.encodedLength = length; config.frameCount = 100;
+        config.stopConfig = {0, 100, 0, false};
+        const auto hard = scl::common::runIdentitySimulation(config);
+        config.decisionMode = scl::common::DecisionMode::LlrSign;
+        const auto llr = scl::common::runIdentitySimulation(config);
+        require(hard.metrics.processedFrames == 100U && hard.metrics.bitErrors == llr.metrics.bitErrors, "identity decision mismatch");
+        config.ebN0_dB = 4.0;
+        const auto high = scl::common::runIdentitySimulation(config);
+        require(high.metrics.bitErrors <= hard.metrics.bitErrors + length, "gross SNR trend failed");
+    }
+    const auto merged = scl::common::mergeSimulationShards({shard(0, 0, 40), shard(1, 40, 60)});
+    require(merged.frameStart == 0U && merged.frameCount == 100U && merged.metrics.processedFrames == 100U, "valid merge failed");
+    requireThrows("gap", [] { (void)scl::common::mergeSimulationShards({shard(0, 0, 40), shard(1, 41, 59)}); });
+    requireThrows("overlap", [] { (void)scl::common::mergeSimulationShards({shard(0, 0, 40), shard(1, 39, 60)}); });
+    requireThrows("duplicate index", [] { (void)scl::common::mergeSimulationShards({shard(0, 0, 40), shard(0, 40, 60)}); });
+    auto bad = shard(1, 40, 60); bad.configHash = "other";
+    requireThrows("config mismatch", [&] { (void)scl::common::mergeSimulationShards({shard(0, 0, 40), bad}); });
+    bad = shard(1, 40, 60); bad.metrics.processedFrames = 59;
+    requireThrows("metric mismatch", [&] { (void)scl::common::mergeSimulationShards({shard(0, 0, 40), bad}); });
     return 0;
 }

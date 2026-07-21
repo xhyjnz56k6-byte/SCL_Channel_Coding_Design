@@ -26,8 +26,8 @@ RealVector applyAwgn(const RealVector& symbols, const RealVector& standardNoise,
     if (symbols.size() != standardNoise.size()) {
         throw std::invalid_argument("AWGN symbol/noise length mismatch");
     }
-    if (!std::isfinite(sigma) || sigma < 0.0) {
-        throw std::invalid_argument("sigma must be finite and non-negative");
+    if (!std::isfinite(sigma) || sigma <= 0.0) {
+        throw std::invalid_argument("formal AWGN sigma must be finite and positive");
     }
     RealVector received(symbols.size());
     for (std::size_t i = 0; i < symbols.size(); ++i) {

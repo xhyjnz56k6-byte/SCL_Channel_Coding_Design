@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 
@@ -106,6 +107,13 @@ void validateNoisePoolManifest(const NoisePoolManifest& manifest) {
     if (manifest.noisePolicyVersion != kNoisePolicyVersion) {
         throw std::invalid_argument("unsupported noisePolicyVersion");
     }
+    if (manifest.noisePoolId.empty()) {
+        throw std::invalid_argument("noisePoolId must not be empty");
+    }
+    if (manifest.samplePrecision != "float64" || manifest.sampleByteOrder != "little_endian" ||
+        manifest.generationAlgorithm != "splitmix64_box_muller_v1") {
+        throw std::invalid_argument("unsupported noise pool sample format or algorithm");
+    }
     if (manifest.totalFrames == 0U || manifest.totalFrames > kMaxNoisePoolFrames) {
         throw std::invalid_argument("noise pool frame count outside supported range");
     }
@@ -119,20 +127,26 @@ void validateNoisePoolManifest(const NoisePoolManifest& manifest) {
         throw std::invalid_argument("noise pool requires shards");
     }
     FrameIndex expected = 0;
+    std::set<std::string> fileNames;
     for (std::size_t i = 0; i < manifest.shards.size(); ++i) {
         const auto& shard = manifest.shards[i];
         if (shard.firstFrameIndex != expected) {
             throw std::invalid_argument("noise shards must be contiguous");
         }
-        if (shard.frameCount == 0U || (i + 1U < manifest.shards.size() && shard.frameCount != manifest.framesPerShard)) {
+        if (shard.frameCount == 0U || (i + 1U < manifest.shards.size() && shard.frameCount != manifest.framesPerShard) ||
+            (i + 1U == manifest.shards.size() && shard.frameCount > manifest.framesPerShard)) {
             throw std::invalid_argument("noise shard frameCount mismatch");
         }
-        if (hasUnsafeShardFileName(shard.fileName) || !isLowerHexSha256(shard.sha256)) {
+        if (hasUnsafeShardFileName(shard.fileName) || !fileNames.insert(shard.fileName).second || !isLowerHexSha256(shard.sha256)) {
             throw std::invalid_argument("invalid noise shard metadata");
+        }
+        if (shard.sizeBytes != kNoiseShardHeaderBytes + shard.frameCount * manifest.symbolsPerFrame * 8U) {
+            throw std::invalid_argument("noise shard sizeBytes mismatch");
         }
         expected += shard.frameCount;
     }
-    if (expected != manifest.totalFrames || computeNoisePoolOverallHash(manifest) != manifest.overallHash) {
+    if (!isLowerHexSha256(manifest.overallHash) || expected != manifest.totalFrames ||
+        computeNoisePoolOverallHash(manifest) != manifest.overallHash || manifest.noisePoolId != manifest.overallHash.substr(0, 16)) {
         throw std::invalid_argument("noise pool overallHash mismatch");
     }
 }
@@ -285,7 +299,8 @@ NoisePoolReader::NoisePoolReader(const std::string& manifestPath)
         const NoiseShardHeader header = readNoiseShardHeader(path);
         if (header.firstFrameIndex != shard.firstFrameIndex || header.frameCount != shard.frameCount ||
             header.symbolsPerFrame != manifest_.symbolsPerFrame ||
-            header.masterNoiseSeed != manifest_.masterNoiseSeed || header.noiseGroupId != manifest_.noiseGroupId) {
+            header.masterNoiseSeed != manifest_.masterNoiseSeed || header.noiseGroupId != manifest_.noiseGroupId ||
+            header.noisePolicyVersion != manifest_.noisePolicyVersion) {
             throw std::runtime_error("noise shard header mismatch");
         }
     }
@@ -301,9 +316,8 @@ RealVector NoisePoolReader::readFramePrefix(FrameIndex frameIndex, std::uint64_t
     }
     for (const auto& shard : manifest_.shards) {
         if (frameIndex >= shard.firstFrameIndex && frameIndex < shard.firstFrameIndex + shard.frameCount) {
-            const std::uint64_t headerBytes = 6U + 4U + 8U * 6U;
             const std::uint64_t frameOffset = frameIndex - shard.firstFrameIndex;
-            const std::uint64_t byteOffset = headerBytes + frameOffset * manifest_.symbolsPerFrame * 8U;
+            const std::uint64_t byteOffset = kNoiseShardHeaderBytes + frameOffset * manifest_.symbolsPerFrame * 8U;
             std::ifstream in(joinPath(directory_, shard.fileName), std::ios::binary);
             in.seekg(static_cast<std::streamoff>(byteOffset), std::ios::beg);
             RealVector samples(static_cast<std::size_t>(symbolCount));
@@ -314,6 +328,14 @@ RealVector NoisePoolReader::readFramePrefix(FrameIndex frameIndex, std::uint64_t
         }
     }
     throw std::out_of_range("noise frame not covered by shard");
+}
+
+std::uint64_t NoisePoolReader::frameCount() const {
+    return manifest_.totalFrames;
+}
+
+std::uint64_t NoisePoolReader::symbolsPerFrame() const {
+    return manifest_.symbolsPerFrame;
 }
 
 }  // namespace scl::common

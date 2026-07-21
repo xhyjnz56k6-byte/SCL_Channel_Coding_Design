@@ -5,15 +5,19 @@ import argparse
 import csv
 from pathlib import Path
 
+import matplotlib
 
-PLOTS = [
-    "ber_vs_ebn0.png",
-    "fer_vs_ebn0.png",
-    "success_rate_vs_ebn0.png",
-    "avg_decode_time_vs_ebn0.png",
-    "max_decode_time_vs_ebn0.png",
-    "avg_total_time_vs_ebn0.png",
-]
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+PLOTS = {
+    "ber_vs_ebn0.png": ("ber", "BER"),
+    "fer_vs_ebn0.png": ("fer", "FER"),
+    "success_rate_vs_ebn0.png": ("successRate", "Success rate"),
+    "avg_decode_time_vs_ebn0.png": ("avgDecodeTimeUs", "Average decode time (us)"),
+    "max_decode_time_vs_ebn0.png": ("maxDecodeTimeUs", "Maximum decode time (us)"),
+    "avg_total_time_vs_ebn0.png": ("avgTotalTimeUs", "Average total time (us)"),
+}
 
 
 def main() -> int:
@@ -23,17 +27,28 @@ def main() -> int:
     args = parser.parse_args()
     with Path(args.input).open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
-    required = {"ebN0_dB", "ber", "fer", "successRate", "avgDecodeTimeUs", "maxDecodeTimeUs", "avgTotalTimeUs"}
+    required = {"ebN0_dB", *[field for field, _ in PLOTS.values()]}
     if not rows:
         raise SystemExit("empty CSV")
     if not required.issubset(rows[0]):
         raise SystemExit("missing CSV column")
     output = Path(args.output_dir)
     output.mkdir(parents=True, exist_ok=True)
-    for name in PLOTS:
-        # Minimal valid PNG signature plus deterministic text payload. Common-04 only requires
-        # non-empty plot artifacts here; full styling can be expanded in result-publication stages.
-        (output / name).write_bytes(b"\x89PNG\r\n\x1a\nCOMMON04\n" + name.encode("ascii"))
+    for name, (field, label) in PLOTS.items():
+        figure, axis = plt.subplots(figsize=(5, 3))
+        grouped: dict[tuple[str, str], list[dict[str, str]]] = {}
+        for row in rows:
+            grouped.setdefault((row["caseName"], row.get("decisionMode", "decision")), []).append(row)
+        for key, series in grouped.items():
+            series.sort(key=lambda row: float(row["ebN0_dB"]))
+            axis.plot([float(row["ebN0_dB"]) for row in series], [float(row[field]) for row in series], marker="o", label=" / ".join(key))
+        axis.set_xlabel("Eb/N0 (dB)")
+        axis.set_ylabel(label)
+        axis.grid(True)
+        axis.legend()
+        figure.tight_layout()
+        figure.savefig(output / name, dpi=120)
+        plt.close(figure)
     print(output)
     return 0
 

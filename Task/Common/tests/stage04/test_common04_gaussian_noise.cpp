@@ -58,5 +58,23 @@ int main() {
     require(header.headerVersion == scl::common::kNoiseShardHeaderVersion, "header version mismatch");
     requireThrows("prefix out of range", [&] { (void)reader.readFramePrefix(0ULL, 21ULL); });
     requireThrows("frame out of range", [&] { (void)reader.readFramePrefix(60ULL, 1ULL); });
+    const fs::path corrupted = fs::path("Task/Common/build/stage04/cpp_noise_pool_corrupt");
+    fs::remove_all(corrupted);
+    fs::copy(dir, corrupted, fs::copy_options::recursive);
+    {
+        std::fstream file(corrupted / manifest.shards.front().fileName, std::ios::binary | std::ios::in | std::ios::out);
+        char value = 0;
+        file.read(&value, 1);
+        value = static_cast<char>(value ^ 0x01);
+        file.seekp(0);
+        file.write(&value, 1);
+    }
+    requireThrows("corrupted noise shard", [&] { scl::common::NoisePoolReader bad((corrupted / "manifest.json").string()); });
+    auto badManifest = manifest;
+    badManifest.samplePrecision = "float32";
+    requireThrows("sample precision", [&] { scl::common::validateNoisePoolManifest(badManifest); });
+    badManifest = manifest;
+    badManifest.shards[0].sizeBytes -= 1U;
+    requireThrows("size formula", [&] { scl::common::validateNoisePoolManifest(badManifest); });
     return 0;
 }
