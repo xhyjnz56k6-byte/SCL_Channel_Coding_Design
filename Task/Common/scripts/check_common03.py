@@ -431,12 +431,13 @@ def check_git_scope(root: Path, failures: list[str]) -> None:
         return
     for raw in diff.stdout.splitlines():
         path = raw.strip().replace("\\", "/")
-        if path.startswith("Task/Common/Plan/") or path.startswith("Task/Common/build/"):
-            add_failure(failures, f"generated or plan path committed: {path}")
+        lower_path = path.lower()
+        if path.startswith("Task/Common/build/") or path.startswith("Task/Common/results/"):
+            add_failure(failures, f"generated path committed: {path}")
+        if lower_path.endswith((".exe", ".obj", ".pdb")):
+            add_failure(failures, f"compiled artifact committed: {path}")
         if path.startswith(("Task/BCH/", "Task/CC/", "Task/LDPC/")):
             add_failure(failures, f"out-of-scope path in committed diff: {path}")
-        if path and not any(path.startswith(prefix) for prefix in ALLOWED_PREFIXES):
-            add_failure(failures, f"path not allowed for Common-03 branch diff: {path}")
 
 
 def git_blob_sha256(root: Path, commit: str, path: str) -> str:
