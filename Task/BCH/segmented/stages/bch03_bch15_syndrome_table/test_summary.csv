@@ -1,7 +1,16 @@
 metric,value
+legalCodewordCount,2048
 legalCodewordNonzeroSyndrome,0
 singleErrorSyndromeCount,15
 zeroSingleErrorSyndrome,0
 duplicateSyndromeCount,0
 missingPositionCount,0
+unexpectedSyndromeValueCount,0
 referenceMismatch,0
+errorPatternLengthMismatch,0
+errorPatternWeightMismatch,0
+errorPatternPositionMismatch,0
+lookupZeroMismatch,0
+lookupOutOfRangeMismatch,0
+invalidInputTestCount,3
+invalidInputFailureCount,0
