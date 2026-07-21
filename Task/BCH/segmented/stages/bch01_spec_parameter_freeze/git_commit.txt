@@ -1,8 +1,14 @@
 stage: bch01_spec_parameter_freeze
 branch: bch-01-spec-parameter-freeze
-commit: NOT_COMMITTED
-parent: 80bfe5d61d11aa62fe69e91f24dd1dbad4efb164
-commit_message: NONE
-remote: NOT_CONTACTED
-push_status: NOT_PUSHED
-
+base_commit: 80bfe5d61d11aa62fe69e91f24dd1dbad4efb164
+original_content_commit: 65ab5d91dffb8fec9e1090aecdd0db42fa845a9c
+original_content_parent: 80bfe5d61d11aa62fe69e91f24dd1dbad4efb164
+original_content_message: BCH-01:参数初步冻结
+repair_content_commit: e4a348c4b521c5b80d385b5c1c97567593a7099b
+repair_content_parent: 65ab5d91dffb8fec9e1090aecdd0db42fa845a9c
+repair_content_message: BCH/BCH-01：修复码率与零综合策略
+audit_metadata_parent: e4a348c4b521c5b80d385b5c1c97567593a7099b
+audit_metadata_purpose: finalize BCH-01 audit records and real main...branch patch
+commitStatus: COMMITTED
+pushStatus: PUSHED
+mergeStatus: NOT_MERGED

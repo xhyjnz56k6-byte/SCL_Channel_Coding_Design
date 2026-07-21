@@ -1,4 +1,441 @@
-# This file is intentionally a working-tree audit placeholder for BCH-01.
-# No functional commit exists because the user explicitly requested no commit.
-# The authoritative uncommitted change set is checked with `git diff main -- Task/BCH` during validation.
+diff --git a/Task/BCH/AGENTS.md b/Task/BCH/AGENTS.md
+new file mode 100644
+index 0000000..8079b3c
+--- /dev/null
++++ b/Task/BCH/AGENTS.md
+@@ -0,0 +1,6 @@
++# BCH local rules
++
++- Keep segmented and block BCH work in separate subdirectories.
++- Do not modify `Task/Common`, `Task/CC`, or `Task/LDPC` for a BCH stage.
++- BCH-01 is documentation-only: no encoder, decoder, GF arithmetic, AWGN runner, or MATLAB implementation is permitted.
++- All BCH code-rate reporting uses the original payload length divided by the actual encoded length passed to Common BPSK.
+diff --git a/Task/BCH/README.md b/Task/BCH/README.md
+new file mode 100644
+index 0000000..5ca9874
+--- /dev/null
++++ b/Task/BCH/README.md
+@@ -0,0 +1,4 @@
++# BCH channel coding work area
++
++`segmented/` contains the BCH(15,11,1) segmented path. `block/` is reserved for the separately governed whole-block BCH path. BCH-01 freezes their common case definitions without implementing either path.
++
+diff --git a/Task/BCH/block/.gitkeep b/Task/BCH/block/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/block/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/comparison/.gitkeep b/Task/BCH/comparison/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/comparison/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/segmented/config/.gitkeep b/Task/BCH/segmented/config/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/segmented/config/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/segmented/current/include/.gitkeep b/Task/BCH/segmented/current/include/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/segmented/current/include/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/segmented/current/src/.gitkeep b/Task/BCH/segmented/current/src/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/segmented/current/src/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/segmented/current/tests/.gitkeep b/Task/BCH/segmented/current/tests/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/segmented/current/tests/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/segmented/docs/.gitkeep b/Task/BCH/segmented/docs/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/segmented/docs/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/segmented/scripts/.gitkeep b/Task/BCH/segmented/scripts/.gitkeep
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/Task/BCH/segmented/scripts/.gitkeep
+@@ -0,0 +1 @@
++
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/acceptance_matrix.csv b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/acceptance_matrix.csv
+new file mode 100644
+index 0000000..a9759e9
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/acceptance_matrix.csv
+@@ -0,0 +1,14 @@
++requirement,implementation_location,positive_test,negative_test,gate_condition
++Common real interfaces audited,common_interface_audit.md,header-to-contract mapping complete,invented API rejected,all names match scl::common headers
++Four BCH cases frozen,bch_parameter_profiles.csv,exact four profiles present,BCH(511;385) absent,case table exact
++Rate uses payload K over actual encoded N,noise_and_rate_policy.md,200/285 and 300/420 calculated,filler excluded from numerator,computeCodeRate mapping documented
++Segmented decoder is syndrome lookup,lookup_decoder_policy.md,15 nonzero syndrome entries and separate NO_ERROR zero syndrome,BM+Chien not assigned to segmented or syndrome zero mapped to a position,entryCount=15 and zero has no errorPosition
++Whole-block decoder is BM plus Chien,algebraic_decoder_policy.md,block policy recorded,lookup not assigned to whole block,policy exact
++No interleaver in baseline AWGN,common_integration_contract.md,ordered BPSK chain recorded,interleaving prohibited,contract exact
++Noise is frame-independent Common noise,common_integration_contract.md,NoisePoolReader frame prefix mapped,custom noise generator prohibited,Common reader named
++BER and FER compare payload only,padding_recovery_policy.md,recovery trims filler before metrics,metrics on coded vector prohibited,payload comparison required
++Encoded length matches BPSK input,segmented_block_policy.md,285/420 chain lengths recorded,length mismatch rejected,adapter invariant
++Checkpoint identifies BCH case,common_integration_contract.md,case identity added to canonical BCH config,checkpoint without case identity prohibited,resume compatibility extended by BCH adapter
++MATLAB plan complete,matlab_validation_plan.md,planned vectors and comparisons stated,claim of completed MATLAB validation prohibited,plan marked future
++No formal algorithm implementation,changed_files.md,only documentation and .gitkeep files listed,source implementation files absent,no algorithm files changed
++No Common behavior modification,changed_files.md,Common diff empty,Common modification rejected,Task/Common unchanged
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/algebraic_decoder_policy.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/algebraic_decoder_policy.md
+new file mode 100644
+index 0000000..087f3ca
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/algebraic_decoder_policy.md
+@@ -0,0 +1,4 @@
++# Algebraic decoder policy
++
++BM plus Chien is reserved for future whole-block BCH cases. BCH-01 supplies no finite-field implementation, algebraic decoder, performance claim, or test result. It must not be substituted into the segmented baseline.
++
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/bch_parameter_profiles.csv b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/bch_parameter_profiles.csv
+new file mode 100644
+index 0000000..d25513f
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/bch_parameter_profiles.csv
+@@ -0,0 +1,6 @@
++case_id,payload_length,organization,component_or_mother_code,component_k,component_n,block_count,filler_bits,encoded_length,code_rate,decoder_type,parameter_status
++BCH-S200,200,segmented,"BCH(15,11,1)",11,15,19,9,285,0.7017543859649123,syndrome_lookup,FROZEN
++BCH-S300,300,segmented,"BCH(15,11,1)",11,15,28,8,420,0.7142857142857143,syndrome_lookup,FROZEN
++BCH-B200,200,block,"BCH(255,207)",,,,N/A,248,0.8064516129032258,bm_chien,REQUIRES_MATLAB_CONFIRMATION
++BCH-B300,300,block,"BCH(511,421)",,,,N/A,390,0.7692307692307693,bm_chien,REQUIRES_MATLAB_CONFIRMATION
++OPTIONAL_NOT_SCHEDULED,"BCH(511,385); 426-bit extension",excluded,,,,,,,,,OPTIONAL_NOT_SCHEDULED
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/bit_polynomial_convention.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/bit_polynomial_convention.md
+new file mode 100644
+index 0000000..c56d440
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/bit_polynomial_convention.md
+@@ -0,0 +1,6 @@
++# BCH(15,11,1) bit and polynomial convention
++
++The segmented component candidate is `n=15`, `k=11`, `t=1`, with `g(x)=x^4+x+1` and systematic layout `[11 information bits][4 parity bits]`. `message[0]` maps to `x^10`; `message[10]` maps to `x^0`; `codeword[0]` maps to `x^14`; `codeword[14]` maps to `x^0`. Filler is appended to the complete payload before 11-bit segmentation and removed after decoding back to `payloadLength`.
++
++These bit/polynomial choices are `FROZEN_PENDING_REFERENCE_VECTOR_CHECK`. BCH-02 must not treat them as MATLAB-validated until deterministic reference vectors have been checked.
++
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/changed_files.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/changed_files.md
+new file mode 100644
+index 0000000..fc6c537
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/changed_files.md
+@@ -0,0 +1,25 @@
++# Changed files
++
++## Added by original content commit `65ab5d9`
++
++- `Task/BCH/README.md`: BCH work-area description.
++- `Task/BCH/block/.gitkeep`, `Task/BCH/comparison/.gitkeep`: separate whole-block and comparison directory markers.
++- `Task/BCH/segmented/config/.gitkeep`, `current/include/.gitkeep`, `current/src/.gitkeep`, `current/tests/.gitkeep`, `docs/.gitkeep`, `scripts/.gitkeep`: segmented BCH directory skeleton markers.
++- `Task/BCH/segmented/stages/bch01_spec_parameter_freeze/acceptance_matrix.csv`: machine-readable acceptance matrix.
++- `algebraic_decoder_policy.md`, `bit_polynomial_convention.md`, `lookup_decoder_policy.md`, `whole_block_policy.md`: decoder and mathematical policy freezes.
++- `bch_parameter_profiles.csv`, `frozen_config.csv`, `noise_and_rate_policy.md`, `padding_recovery_policy.md`, `segmented_block_policy.md`: case, rate, filler, and segmentation freezes.
++- `common_integration_contract.md`, `common_interface_audit.md`: repository-verified Common contract and audit.
++- `matlab_validation_plan.md`: deferred independent validation plan.
++- `stage_plan.md`, `validation_report.md`, `known_issues.md`, `commands_used.md`, `manifest.json`, `git_commit.txt`, `changes.patch`, `changed_files.md`: Stage audit records.
++
++## Added or modified by repair content commit `e4a348c`
++
++- `Task/BCH/AGENTS.md`: BCH-local rules; force-added because `.gitignore` otherwise ignores it.
++- `noise_and_rate_policy.md`: corrects denominator membership and lists all four frame rates.
++- `lookup_decoder_policy.md`, `acceptance_matrix.csv`, `matlab_validation_plan.md`, `common_integration_contract.md`, `frozen_config.csv`: freeze `syndrome=0 -> NO_ERROR`, nonzero-only lookup, and `entryCount=15`.
++
++## Audit metadata commit
++
++- `changed_files.md`, `git_commit.txt`, `manifest.json`, `validation_report.md`, `commands_used.md`, `changes.patch`, and `known_issues.md`: final reconciliation with actual commits, tests, remote push, and the generated main-to-branch patch.
++
++No existing file is deleted. No `Task/Common`, BCH algorithm source, test implementation, runner, build artifact, or simulation result is added or modified.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/commands_used.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/commands_used.md
+new file mode 100644
+index 0000000..cc8147d
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/commands_used.md
+@@ -0,0 +1,10 @@
++# Commands executed
++
++- `git rev-parse --show-toplevel`; `git branch --show-current`; `git status --short`; `git rev-parse main`; `git rev-parse HEAD`
++- `git merge-base --is-ancestor main HEAD`
++- inspected tracked workflow, BCH plan, Common headers/sources/CMake and Common script inventory
++- directly executed the six existing Common-04 regression executables; all exited 0 (existing binary regression PASS)
++- `cmake -G "MinGW Makefiles" -S Task/Common -B Task/BCH/segmented/build/bch01_common_config_only -DCMAKE_BUILD_TYPE=Release`
++- Python CSV fixed-column and JSON parse check; `git status --porcelain`; `git diff --check`; BCH source scan excluding `build/`
++
++No MATLAB command, BCH build, BCH simulation, or merge command was run. An optional full CMake build attempt exceeded the 60-second limit and is recorded as TIMEOUT / NOT PROVEN. BCH-01 finalization then created the content/fix commit, the audit metadata commit, and pushed the current branch without force.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_integration_contract.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_integration_contract.md
+new file mode 100644
+index 0000000..6503512
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_integration_contract.md
+@@ -0,0 +1,7 @@
++# Repository-verified Common integration contract
++
++All names below are existing `scl::common` APIs. Read a `PayloadFrame` through `PackedFramePoolReader` (`common/frame_pool.hpp`), retain `frameIndex`, and give `payloadBits` to the future BCH adapter. The adapter yields `BitVector` coded bits and frozen `CodeLengths`. Modulate with `bpskModulate` (`common/modulation.hpp`). Read an identically indexed standard-noise prefix from `NoisePoolReader::readFramePrefix` (`common/noise_pool.hpp`), calculate sigma with `computeAwgnSigma`, and form received symbols through `applyAwgn` (`common/awgn_channel.hpp`). Call `hardDecision` (`common/demodulation.hpp`) and pass `HardBitInput` to the future lookup decoder. It returns `DecodeResult` (`common/result_types.hpp`); trim filler before `addFrameResult` and `summarizeMetrics` (`common/simulation_metrics.hpp`).
++
++The common summary target is `SummaryRow` (`common/result_schema.hpp`): use `codeType=BCH`, case name, frozen payload/encoded lengths, rate, SNR, `ErrorMetrics`, stop reason, frame/noise pool IDs, and config hash. BCH-only audit fields belong in `bch_detail.csv`: component parameters, organization, block count, filler bits, decoder type/status, syndrome, corrected position, and recovery/trimming status. For a zero syndrome, record `NO_ERROR` and leave corrected position empty; the 15-entry lookup table is only for nonzero syndromes. The current public `SummaryRow` has no case-id field; include the case identity in `caseName` and the canonical BCH configuration text used to make `configHash`.
++
++Checkpoint uses `SimulationCheckpointRecord` (`common/checkpoint.hpp`) with payload/encoded lengths, pool IDs, SNR, metrics, and `configHash`. The future BCH runner must include case identity, filler, organization, decoder type, and convention version in its canonical configuration before calling `computeConfigHash`, so resume rejects a different BCH case.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_interface_audit.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_interface_audit.md
+new file mode 100644
+index 0000000..fc59a93
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_interface_audit.md
+@@ -0,0 +1,19 @@
++# Common interface audit
++
++Audited headers: `types.hpp`, `frame.hpp`, `interfaces.hpp`, `decoder_input.hpp`, `result_types.hpp`, `common.hpp`, `random_policy.hpp`, `noise_pool.hpp`, `simulation_metrics.hpp`, `simulation_control.hpp`, `checkpoint.hpp`, and `result_schema.hpp`; implementations and CMake were also inspected.
++
++| Need | Actual API / field |
++|---|---|
++| Frame pool | `scl::common::PackedFramePoolReader`, `PayloadFrame` |
++| Encoder contract | `IChannelEncoder::encode(BitVector)` and `CodeLengths` |
++| Decoder contract | `IChannelDecoder::decode(DecoderInput)`, `HardBitInput`, `DecodeResult` |
++| Rate | `computeCodeRate(const CodeLengths&) = payloadLength / encodedLength` |
++| BPSK/AWGN/hard decision | `bpskModulate`, `computeAwgnSigma`, `applyAwgn`, `hardDecision` |
++| Noise | `NoisePoolReader::readFramePrefix(FrameIndex, symbolCount)` |
++| Metrics | `ErrorMetrics{processedFrames,totalPayloadBits,bitErrors,frameErrors,successfulFrames,latency}` |
++| Stop | `StopConfig`, `evaluateStop` |
++| Checkpoint | `SimulationCheckpointRecord`, `validateResumeCompatibility` |
++| Results | `SummaryRow`, `summaryRowToCsv`, `metadataJson` |
++
++No Common API is guessed or reimplemented by BCH-01.
++
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/frozen_config.csv b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/frozen_config.csv
+new file mode 100644
+index 0000000..5daf017
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/frozen_config.csv
+@@ -0,0 +1,14 @@
++key,value,status
++stage,BCH-01,FROZEN
++branch,bch-01-spec-parameter-freeze,FROZEN
++segmented_component_code,"BCH(15,11,1)",FROZEN_PENDING_REFERENCE_VECTOR_CHECK
++segmented_generator_polynomial,"x^4 + x + 1",FROZEN_PENDING_REFERENCE_VECTOR_CHECK
++segmented_decoder,syndrome_lookup,FROZEN
++syndrome_zero_policy,NO_ERROR_SEPARATE_NOT_IN_LOOKUP,FROZEN
++syndrome_lookup_entry_count,15,FROZEN
++block_decoder,bm_chien,FROZEN
++rate_definition,"original payload length / actual encoded channel-input length",FROZEN
++interleaver,none,FROZEN
++noise_source,"Common NoisePoolReader by frameIndex",FROZEN
++metrics_domain,payload_only,FROZEN
++matlab_status,NOT_RUN_IN_BCH01,FROZEN
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/git_commit.txt b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/git_commit.txt
+new file mode 100644
+index 0000000..f5995a9
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/git_commit.txt
+@@ -0,0 +1,14 @@
++stage: bch01_spec_parameter_freeze
++branch: bch-01-spec-parameter-freeze
++base_commit: 80bfe5d61d11aa62fe69e91f24dd1dbad4efb164
++original_content_commit: 65ab5d91dffb8fec9e1090aecdd0db42fa845a9c
++original_content_parent: 80bfe5d61d11aa62fe69e91f24dd1dbad4efb164
++original_content_message: BCH-01:参数初步冻结
++repair_content_commit: e4a348c4b521c5b80d385b5c1c97567593a7099b
++repair_content_parent: 65ab5d91dffb8fec9e1090aecdd0db42fa845a9c
++repair_content_message: BCH/BCH-01：修复码率与零综合策略
++audit_metadata_parent: e4a348c4b521c5b80d385b5c1c97567593a7099b
++audit_metadata_purpose: finalize BCH-01 audit records and real main...branch patch
++commitStatus: COMMITTED
++pushStatus: PUSHED
++mergeStatus: NOT_MERGED
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/known_issues.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/known_issues.md
+new file mode 100644
+index 0000000..e943eca
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/known_issues.md
+@@ -0,0 +1,8 @@
++# Known issues and deliberately deferred work
++
++- The BCH(15,11,1) polynomial/bit convention is frozen pending deterministic reference-vector checks.
++- Whole-block BCH parameters/shortening are marked `REQUIRES_MATLAB_CONFIRMATION`.
++- No BCH algorithm exists in this Stage; all implementation and MATLAB validation belong to later BCH stages.
++- The existing Common audit scripts may have assumptions tailored to Common commits; BCH-01 retains reusable Common binary regression without changing those scripts.
++- The default CMake generator was unavailable in this environment; MinGW configuration passed. The full source build is TIMEOUT / NOT PROVEN and is not a passing result.
++- BCH-01 intentionally contains no BCH algorithm. MATLAB/reference-vector confirmation remains a BCH-02 prerequisite.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/lookup_decoder_policy.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/lookup_decoder_policy.md
+new file mode 100644
+index 0000000..b7381a8
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/lookup_decoder_policy.md
+@@ -0,0 +1,3 @@
++# Syndrome lookup decoder policy
++
++The official segmented decoder is a BCH(15,11,1) syndrome lookup table. It handles `syndrome=0` separately as `NO_ERROR`; syndrome zero never maps to an error position. The error-position lookup table contains exactly 15 nonzero single-bit syndromes (`entryCount=15`), one for each codeword position. BCH-03/04 may use the table only for this segmented case. Double and higher errors are recorded for miscorrrection/uncorrectable auditing; no claim is made that all double errors are reliably detected.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/manifest.json b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/manifest.json
+new file mode 100644
+index 0000000..003b032
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/manifest.json
+@@ -0,0 +1,30 @@
++{
++  "stage": "bch01_spec_parameter_freeze",
++  "branch": "bch-01-spec-parameter-freeze",
++  "baseCommit": "80bfe5d61d11aa62fe69e91f24dd1dbad4efb164",
++  "contentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b",
++  "functionalRanges": [
++    {
++      "name": "originalContent",
++      "baseCommit": "80bfe5d61d11aa62fe69e91f24dd1dbad4efb164",
++      "contentCommit": "65ab5d91dffb8fec9e1090aecdd0db42fa845a9c",
++      "files": ["Task/BCH/README.md", "Task/BCH/block/", "Task/BCH/comparison/", "Task/BCH/segmented/"]
++    },
++    {
++      "name": "repairContent",
++      "baseCommit": "65ab5d91dffb8fec9e1090aecdd0db42fa845a9c",
++      "contentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b",
++      "files": ["Task/BCH/AGENTS.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/acceptance_matrix.csv", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_integration_contract.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/frozen_config.csv", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/lookup_decoder_policy.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/matlab_validation_plan.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/noise_and_rate_policy.md"]
++    }
++  ],
++  "workingTreeOnly": false,
++  "addedScope": ["Task/BCH/AGENTS.md", "Task/BCH/README.md", "Task/BCH/segmented/", "Task/BCH/block/", "Task/BCH/comparison/"],
++  "modified": [],
++  "deleted": [],
++  "commonModified": false,
++  "mergeStatus": "NOT_MERGED",
++  "commitStatus": "COMMITTED",
++  "pushStatus": "PUSHED",
++  "auditMetadata": {"parentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b", "purpose": "finalize audit records and patch"},
++  "gate": "PASS_BCH01_SPEC_PARAMETER_FREEZE_FINALIZED"
++}
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/matlab_validation_plan.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/matlab_validation_plan.md
+new file mode 100644
+index 0000000..3a72713
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/matlab_validation_plan.md
+@@ -0,0 +1,5 @@
++# MATLAB validation plan (future work)
++
++BCH-02/03 will create deterministic message/reference-codeword vectors under the frozen bit order and compare them to MATLAB BCH facilities or an independently reviewed MATLAB polynomial reference. Decoder stages will compare no-noise, `syndrome=0 -> NO_ERROR`, every one of the 15 nonzero single-bit syndromes and their error positions, selected multi-error audit vectors, and recovered payload ordering. Whole-block parameters and shortening will be confirmed separately before BM/Chien implementation.
++
++No MATLAB command was run in BCH-01; this is a plan, not evidence of validation.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/noise_and_rate_policy.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/noise_and_rate_policy.md
+new file mode 100644
+index 0000000..359faa2
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/noise_and_rate_policy.md
+@@ -0,0 +1,9 @@
++# Noise and rate policy
++
++For every BCH case, `R = original payload length / actual encoded length entering Common BPSK`. The four frozen rates are S200 `200/285`, S300 `300/420`, B200 `200/248`, and B300 `300/390`; component `11/15` is never a substitute for a frame rate. `scl::common::computeCodeRate` implements `payloadLength / encodedLength`, so the adapter must set both fields to the frozen whole-frame values. Common `computeAwgnSigma` then uses that `CodeLengths` value.
++
++- Filler is excluded from the numerator.
++- Every coded bit actually passed to Common BPSK and the channel is included in the denominator: systematic bits, parity bits, and transmitted bits created by encoding filler.
++- Only virtual mother-code positions that are not transmitted and are restored solely during shortened decoding are excluded from the denominator.
++
++The baseline uses no interleaver. Obtain standard Gaussian samples from `NoisePoolReader::readFramePrefix(frameIndex, encodedLength)` and pass the ordered vector to `applyAwgn`.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/padding_recovery_policy.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/padding_recovery_policy.md
+new file mode 100644
+index 0000000..792311c
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/padding_recovery_policy.md
+@@ -0,0 +1,4 @@
++# Padding and recovery policy
++
++Segmented filler is zero-valued and appended only after the original 200- or 300-bit payload. It reaches the component encoder and channel but is excluded from the rate numerator. The decoder concatenates recovered 11-bit blocks and removes exactly the tail filler count before producing `DecodeResult.payloadBits` of `payloadLength`. `ErrorMetrics` receives only original and recovered payload vectors, so BER, FER, and success rate exclude filler and parity.
++
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/segmented_block_policy.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/segmented_block_policy.md
+new file mode 100644
+index 0000000..fe0a843
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/segmented_block_policy.md
+@@ -0,0 +1,6 @@
++# Segmented BCH policy
++
++`BCH-S200`: append 9 zero filler bits, split into 19 eleven-bit blocks, encode each to 15 bits, concatenate to exactly 285 bits. `BCH-S300`: append 8 zero filler bits, split into 28 blocks, encode to exactly 420 bits. No interleaver, puncturing, shortening, CRC, or tail bits are part of this baseline.
++
++The future adapter must construct `scl::common::CodeLengths{payloadLength, payloadLength+fillerBits, encodedLength, encodedLength, fillerBits, 0, 0, 0, 0}`. The BPSK input size must equal `encodedLength` exactly.
++
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/stage_plan.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/stage_plan.md
+new file mode 100644
+index 0000000..72488c9
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/stage_plan.md
+@@ -0,0 +1,22 @@
++# BCH-01: specification, cases, Common contract, and mathematical conventions
++
++## Goal
++
++Freeze the four BCH cases, BCH(15,11,1) segmented conventions, whole-block policy, and the repository-verified integration contract with Common.
++
++## Non-goals
++
++No BCH encoder, syndrome table, decoder, GF(2^m), Berlekamp-Massey, Chien search, AWGN runner, or MATLAB reference implementation is created. No Common behavior changes.
++
++## Scope
++
++Allowed: `Task/BCH/AGENTS.md`, `Task/BCH/README.md`, directory skeleton files, and this Stage directory. Forbidden: all `Task/Common`, `Task/CC`, `Task/LDPC`, and BCH algorithm source files.
++
++## Frozen inputs and outputs
++
++Input is `scl::common::PayloadFrame.payloadBits` with 200 or 300 bits. The future segmented adapter will produce `scl::common::BitVector` of 285 or 420 coded bits. A future hard decoder will accept `scl::common::HardBitInput` and return `scl::common::DecodeResult`.
++
++## Gate
++
++`PASS_BCH01_SPEC_PARAMETER_FREEZE` requires the acceptance matrix, CSV/JSON syntax checks, Common regression, CMake configuration, no forbidden-path changes, and no BCH algorithm implementation. This specification is frozen pending user confirmation; no BCH-02 work may begin in this Stage.
++
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/validation_report.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/validation_report.md
+new file mode 100644
+index 0000000..1205e47
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/validation_report.md
+@@ -0,0 +1,24 @@
++# BCH-01 validation report
++
++## Executed evidence
++
++Initial branch identity was `bch-01-spec-parameter-freeze`; its initial working tree was clean and both `HEAD` and `main` resolved to `80bfe5d61d11aa62fe69e91f24dd1dbad4efb164`. The Git workflow, BCH plan files, `Task/Common/CMakeLists.txt`, Common source inventory, and all required Common public headers were inspected. The verified mappings are recorded in `common_interface_audit.md`.
++
++## Actual validation
++
++| Check | Command or method | Result |
++|---|---|---|
++| Existing binary regression | Existing executables `test_common04_random_policy`, `gaussian_noise`, `modulation_awgn`, `metrics_control`, `checkpoint`, and `integration` | PASS (all six exit code 0) |
++| MinGW CMake configure | `cmake -G "MinGW Makefiles" -S Task/Common -B Task/BCH/segmented/build/bch01_common_config_only -DCMAKE_BUILD_TYPE=Release` | PASS |
++| Full source build | Optional `cmake --build Task/BCH/segmented/build/bch01_common_config_mingw` | TIMEOUT / NOT PROVEN; excluded from PASS evidence |
++| CSV syntax | Python `csv.reader`, non-empty records only, fixed-width assertion | PASS |
++| JSON syntax | Python `json.loads(manifest.json)` | PASS |
++| Forbidden scope | `git status --porcelain`, all paths constrained to `Task/BCH/` | PASS |
++| Diff whitespace | `git diff --check` | PASS |
++| No implementation | scan for BCH C/C++ sources excluding generated `build/` | PASS |
++
++The default CMake generator selected unavailable NMake. A subsequent MinGW configure succeeded. The full source build is explicitly `TIMEOUT / NOT PROVEN`, not PASS. No MATLAB command was run by design.
++
++## Gate
++
++`PASS_BCH01_SPEC_PARAMETER_FREEZE_FINALIZED` after the final metadata commit and successful push.
+diff --git a/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/whole_block_policy.md b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/whole_block_policy.md
+new file mode 100644
+index 0000000..3879ad6
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch01_spec_parameter_freeze/whole_block_policy.md
+@@ -0,0 +1,6 @@
++# Whole-block BCH policy
++
++The only planned whole-block cases are BCH-B200, mother `BCH(255,207)`, shortened length 248, and BCH-B300, mother `BCH(511,421)`, shortened length 390. Their decoder strategy is BM plus Chien, never syndrome lookup. Their exact shortening and parameter interpretation require MATLAB confirmation and are not implemented or validated in BCH-01.
++
++`BCH(511,385)`, a 426-bit extension case, and every other unconfirmed whole-block case are `OPTIONAL_NOT_SCHEDULED`.
++
+warning: in the working copy of 'Task/BCH/segmented/stages/bch01_spec_parameter_freeze/changed_files.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Task/BCH/segmented/stages/bch01_spec_parameter_freeze/commands_used.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Task/BCH/segmented/stages/bch01_spec_parameter_freeze/git_commit.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Task/BCH/segmented/stages/bch01_spec_parameter_freeze/known_issues.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Task/BCH/segmented/stages/bch01_spec_parameter_freeze/manifest.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'Task/BCH/segmented/stages/bch01_spec_parameter_freeze/validation_report.md', LF will be replaced by CRLF the next time Git touches it
 

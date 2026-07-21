@@ -2,15 +2,29 @@
   "stage": "bch01_spec_parameter_freeze",
   "branch": "bch-01-spec-parameter-freeze",
   "baseCommit": "80bfe5d61d11aa62fe69e91f24dd1dbad4efb164",
-  "contentCommit": null,
-  "functionalRanges": [],
-  "workingTreeOnly": true,
+  "contentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b",
+  "functionalRanges": [
+    {
+      "name": "originalContent",
+      "baseCommit": "80bfe5d61d11aa62fe69e91f24dd1dbad4efb164",
+      "contentCommit": "65ab5d91dffb8fec9e1090aecdd0db42fa845a9c",
+      "files": ["Task/BCH/README.md", "Task/BCH/block/", "Task/BCH/comparison/", "Task/BCH/segmented/"]
+    },
+    {
+      "name": "repairContent",
+      "baseCommit": "65ab5d91dffb8fec9e1090aecdd0db42fa845a9c",
+      "contentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b",
+      "files": ["Task/BCH/AGENTS.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/acceptance_matrix.csv", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/common_integration_contract.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/frozen_config.csv", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/lookup_decoder_policy.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/matlab_validation_plan.md", "Task/BCH/segmented/stages/bch01_spec_parameter_freeze/noise_and_rate_policy.md"]
+    }
+  ],
+  "workingTreeOnly": false,
   "addedScope": ["Task/BCH/AGENTS.md", "Task/BCH/README.md", "Task/BCH/segmented/", "Task/BCH/block/", "Task/BCH/comparison/"],
   "modified": [],
   "deleted": [],
   "commonModified": false,
   "mergeStatus": "NOT_MERGED",
-  "commitStatus": "NOT_COMMITTED",
-  "pushStatus": "NOT_PUSHED",
-  "gate": "PASS_BCH01_SPEC_PARAMETER_FREEZE"
+  "commitStatus": "COMMITTED",
+  "pushStatus": "PUSHED",
+  "auditMetadata": {"parentCommit": "e4a348c4b521c5b80d385b5c1c97567593a7099b", "purpose": "finalize audit records and patch"},
+  "gate": "PASS_BCH01_SPEC_PARAMETER_FREEZE_FINALIZED"
 }
