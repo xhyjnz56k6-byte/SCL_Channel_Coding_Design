@@ -1,0 +1,5 @@
+checkName,status,evidence
+runtime_reference,PASS,compare_common04_cpp_python.py executed common04_reference_runner.exe with mismatchCount=0
+uint64_reference,PASS,NoiseKey words are compared from C++ runtime output and Python derivation
+gaussian_reference,PASS,deterministic Gaussian sample matches with absolute tolerance 1e-12
+bpsk_awgn_llr,PASS,BPSK code rate sigma received LLR hard and LLR_SIGN values match runtime output

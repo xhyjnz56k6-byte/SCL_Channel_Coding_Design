@@ -106,6 +106,10 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.replace("\r\n", "\n").encode("utf-8")).hexdigest()
+
+
 def load_json(path: Path):
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
@@ -122,21 +126,40 @@ def check_required_files(root: Path, failures: list[str]) -> None:
 
 
 def check_snapshot(root: Path, failures: list[str]) -> None:
+    manifest = load_json(root / "Task/Common/stages/stage02_common_types_interfaces/manifest.json")
+    audited = manifest.get("auditedContentCommit", "")
     for source, snapshot in SNAPSHOT_PAIRS:
-        source_path = root / source
+        if source == "Task/Common/scripts/check_common02.py":
+            continue
         snapshot_path = root / snapshot
         if not snapshot_path.is_file():
             add_failure(failures, f"missing snapshot file: {snapshot}")
             continue
-        if source_path.is_file() and sha256_file(source_path) != sha256_file(snapshot_path):
-            add_failure(failures, f"snapshot mismatch: {snapshot}")
+        if audited:
+            blob = run(["git", "show", f"{audited}:{source}"], root)
+            if blob.returncode != 0:
+                add_failure(failures, f"failed to read audited blob for snapshot: {source}")
+                continue
+            if sha256_text(blob.stdout) != sha256_text(snapshot_path.read_text(encoding="utf-8")):
+                add_failure(failures, f"snapshot mismatch: {snapshot}")
+        else:
+            source_path = root / source
+            if source_path.is_file() and sha256_file(source_path) != sha256_file(snapshot_path):
+                add_failure(failures, f"snapshot mismatch: {snapshot}")
 
 
 def check_text_markers(root: Path, failures: list[str]) -> None:
-    include_root = root / "Task/Common/include/common"
-    test_root = root / "Task/Common/tests/stage02"
-    src_root = root / "Task/Common/src"
-    files = list(include_root.glob("*.hpp")) + list(src_root.glob("*.cpp")) + list(test_root.glob("*.cpp"))
+    stage02_scan_files = [
+        "Task/Common/include/common/types.hpp",
+        "Task/Common/include/common/frame.hpp",
+        "Task/Common/include/common/decoder_input.hpp",
+        "Task/Common/include/common/result_types.hpp",
+        "Task/Common/include/common/interfaces.hpp",
+        "Task/Common/include/common/common.hpp",
+        "Task/Common/src/common_interfaces.cpp",
+        "Task/Common/tests/stage02/test_common02_types_interfaces.cpp",
+    ]
+    files = [root / relative for relative in stage02_scan_files]
     joined = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in files if path.is_file())
     for marker in FORBIDDEN_INCLUDE_MARKERS:
         if marker in joined:

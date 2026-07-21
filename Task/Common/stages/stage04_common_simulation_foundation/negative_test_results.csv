@@ -1,0 +1,14 @@
+gate,testName,status,evidence
+G1,unsupported_noise_policy_version,PASS,C++ random policy rejects version 999
+G1,forbidden_entropy_source_scan,PASS,check_common04 scans Common-04 implementation scope
+G2,bad_noise_pool_overwrite,PASS,generator refuses overwrite without --overwrite
+G2,bad_noise_reader_range,PASS,C++ reader rejects out-of-range frame and prefix
+G3,invalid_bpsk_bit,PASS,C++ modulation rejects non-binary bit
+G3,bad_sigma_or_length,PASS,C++ AWGN/LLR rejects invalid sigma and length mismatch
+G4,empty_metrics_summary,PASS,C++ metrics rejects zero processedFrames
+G4,stop_before_min_frames,PASS,C++ stop controller refuses early target stop
+G5,bad_checkpoint_schema,PASS,C++ checkpoint parser rejects unsupported schema
+G5,bad_resume_identity,PASS,C++ resume validator rejects mismatched noisePoolId
+G6,empty_plot_csv,PASS,plot_common_results.py rejects empty CSV
+G5,python_shard_merge_gap_duplicate_bad_total_missing_latency,PASS,check_common04.py executes Python merge negative suite
+AUD,forbidden_scope_scan,PASS,check_common04 rejects forbidden diff and implementation markers

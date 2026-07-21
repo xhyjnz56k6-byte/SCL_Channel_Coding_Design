@@ -1,0 +1,3 @@
+implementation,processedFrames,totalPayloadBits,bitErrors,frameErrors,successfulFrames,totalTimeNsSum,maxTotalTimeNs,avgTotalTimeUs,status
+CXX_runtime_fixture,100,20000,100,100,0,10000,101,0.1,PASS
+PYTHON_runtime_fixture,100,20000,100,100,0,10000,101,0.1,PASS

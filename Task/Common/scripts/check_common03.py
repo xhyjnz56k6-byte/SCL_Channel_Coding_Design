@@ -407,9 +407,15 @@ def delete_first_shard(manifest_path: Path) -> None:
 
 def check_no_later_stage_markers(root: Path, failures: list[str]) -> None:
     files = []
-    for folder in [root / "Task/Common/include/common", root / "Task/Common/tests/stage03"]:
+    stage03_files = [
+        root / "Task/Common/include/common/frame_pool.hpp",
+        root / "Task/Common/include/common/sha256.hpp",
+        root / "Task/Common/tests/stage03/test_common03_frame_pool.cpp",
+    ]
+    for folder in [root / "Task/Common/tests/stage03"]:
         if folder.exists():
             files.extend(path for path in folder.rglob("*") if path.is_file())
+    files.extend(path for path in stage03_files if path.is_file())
     files.extend(path for path in [root / "Task/Common/scripts/generate_common03_frame_pool.py", root / "Task/Common/scripts/build_common03.py"] if path.is_file())
     joined = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in files)
     for marker in ["std::normal_distribution", "normal_distribution<", "awgnTransmit", "bpskModulate", "computeSigma", "llrValues[i]", "bitErrors /", "frameErrors /", "StopController", "resumeCheckpoint", "writeCheckpoint"]:

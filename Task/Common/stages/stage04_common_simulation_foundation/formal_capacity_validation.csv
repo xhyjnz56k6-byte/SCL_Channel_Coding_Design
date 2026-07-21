@@ -1,0 +1,2 @@
+frames,symbolsPerFrame,framesPerShard,expectedShardCount,lastFrameIndex,lastShardFirstFrame,lastShardFrameCount,bytesPerSample,totalPayloadBytes,status
+50000,1000,1000,50,49999,49000,1000,8,400000000,PLAN_VALIDATED
