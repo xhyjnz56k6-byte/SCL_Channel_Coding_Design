@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import json
 import math
+import re
 import shutil
 import subprocess
 import sys
@@ -95,6 +96,19 @@ def check_manifest(root: Path, failures: list[str]) -> None:
     remote = run(["git", "rev-parse", "--verify", manifest.get("remoteBranch", "")], root)
     require(remote.returncode == 0 and run(["git", "merge-base", "--is-ancestor", functional, remote.stdout.strip()], root).returncode == 0,
             "functional commit not on remote branch", failures)
+    report = (root / STAGE_DIR / "validation_report.md").read_text(encoding="utf-8")
+    functional_match = re.search(r"Functional repair commit:\s*([0-9a-f]{40})", report)
+    audit_match = re.search(r"Audit closure HEAD:\s*([0-9a-f]{40})", report)
+    require(functional_match is not None and functional_match.group(1) == functional,
+            "validation report functional commit disagrees with manifest", failures)
+    reported_audit = audit_match.group(1) if audit_match else ""
+    require(reported_audit == manifest.get("auditClosureCommit"),
+            "validation report audit HEAD disagrees with manifest", failures)
+    current = run(["git", "rev-parse", "HEAD"], root)
+    parent = run(["git", "rev-parse", "HEAD^"], root)
+    valid_heads = {current.stdout.strip(), parent.stdout.strip()}
+    require(current.returncode == 0 and parent.returncode == 0 and reported_audit in valid_heads,
+            "validation report audit HEAD is not current or parent audit commit", failures)
 
 
 def runner(root: Path, frame_manifest: Path, noise_manifest: Path, length: int, frames: int, ebn0: int, snr: int, decision: str,

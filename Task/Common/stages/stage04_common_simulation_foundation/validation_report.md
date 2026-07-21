@@ -40,7 +40,8 @@ Main merge status: NOT_MERGED
 ## Remote Verification
 
 ```text
-Functional repair commit: 22bfde77eddeb1b1cc7009296e41c035aeeab954
+Functional repair commit: d6c1cbed2c901b2f16c299352b8a9d98f0abcbed
+Audit closure HEAD: 4e126d7f268c1a09ee46df448d45263b18c3df63
 Remote branch: origin/stage04-common-simulation-foundation
 Remote verification: VERIFIED
 Main merge status: NOT_MERGED
