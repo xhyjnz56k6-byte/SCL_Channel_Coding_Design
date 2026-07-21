@@ -1,0 +1,13 @@
+key,value,status
+stage,BCH-01,FROZEN
+branch,bch-01-spec-parameter-freeze,FROZEN
+segmented_component_code,"BCH(15,11,1)",FROZEN_PENDING_REFERENCE_VECTOR_CHECK
+segmented_generator_polynomial,"x^4 + x + 1",FROZEN_PENDING_REFERENCE_VECTOR_CHECK
+segmented_decoder,syndrome_lookup,FROZEN
+block_decoder,bm_chien,FROZEN
+rate_definition,"original payload length / actual encoded channel-input length",FROZEN
+interleaver,none,FROZEN
+noise_source,"Common NoisePoolReader by frameIndex",FROZEN
+metrics_domain,payload_only,FROZEN
+matlab_status,NOT_RUN_IN_BCH01,FROZEN
+

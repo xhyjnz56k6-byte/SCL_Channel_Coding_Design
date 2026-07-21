@@ -1,0 +1,16 @@
+{
+  "stage": "bch01_spec_parameter_freeze",
+  "branch": "bch-01-spec-parameter-freeze",
+  "baseCommit": "80bfe5d61d11aa62fe69e91f24dd1dbad4efb164",
+  "contentCommit": null,
+  "functionalRanges": [],
+  "workingTreeOnly": true,
+  "addedScope": ["Task/BCH/AGENTS.md", "Task/BCH/README.md", "Task/BCH/segmented/", "Task/BCH/block/", "Task/BCH/comparison/"],
+  "modified": [],
+  "deleted": [],
+  "commonModified": false,
+  "mergeStatus": "NOT_MERGED",
+  "commitStatus": "NOT_COMMITTED",
+  "pushStatus": "NOT_PUSHED",
+  "gate": "PASS_BCH01_SPEC_PARAMETER_FREEZE"
+}

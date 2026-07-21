@@ -1,0 +1,6 @@
+case_id,payload_length,organization,component_or_mother_code,component_k,component_n,block_count,filler_bits,encoded_length,code_rate,decoder_type,parameter_status
+BCH-S200,200,segmented,"BCH(15,11,1)",11,15,19,9,285,0.7017543859649123,syndrome_lookup,FROZEN
+BCH-S300,300,segmented,"BCH(15,11,1)",11,15,28,8,420,0.7142857142857143,syndrome_lookup,FROZEN
+BCH-B200,200,block,"BCH(255,207)",,,,N/A,248,0.8064516129032258,bm_chien,REQUIRES_MATLAB_CONFIRMATION
+BCH-B300,300,block,"BCH(511,421)",,,,N/A,390,0.7692307692307693,bm_chien,REQUIRES_MATLAB_CONFIRMATION
+OPTIONAL_NOT_SCHEDULED,"BCH(511,385); 426-bit extension",excluded,,,,,,,,,OPTIONAL_NOT_SCHEDULED

@@ -1,0 +1,4 @@
+# This file is intentionally a working-tree audit placeholder for BCH-01.
+# No functional commit exists because the user explicitly requested no commit.
+# The authoritative uncommitted change set is checked with `git diff main -- Task/BCH` during validation.
+

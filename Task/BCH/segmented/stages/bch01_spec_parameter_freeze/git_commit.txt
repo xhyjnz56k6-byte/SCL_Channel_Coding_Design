@@ -1,0 +1,8 @@
+stage: bch01_spec_parameter_freeze
+branch: bch-01-spec-parameter-freeze
+commit: NOT_COMMITTED
+parent: 80bfe5d61d11aa62fe69e91f24dd1dbad4efb164
+commit_message: NONE
+remote: NOT_CONTACTED
+push_status: NOT_PUSHED
+

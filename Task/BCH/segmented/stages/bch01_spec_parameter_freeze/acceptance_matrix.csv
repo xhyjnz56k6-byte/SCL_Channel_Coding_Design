@@ -1,0 +1,15 @@
+requirement,implementation_location,positive_test,negative_test,gate_condition
+Common real interfaces audited,common_interface_audit.md,header-to-contract mapping complete,invented API rejected,all names match scl::common headers
+Four BCH cases frozen,bch_parameter_profiles.csv,exact four profiles present,BCH(511;385) absent,case table exact
+Rate uses payload K over actual encoded N,noise_and_rate_policy.md,200/285 and 300/420 calculated,filler excluded from numerator,computeCodeRate mapping documented
+Segmented decoder is syndrome lookup,lookup_decoder_policy.md,single-error correction policy recorded,BM+Chien not assigned to segmented,policy exact
+Whole-block decoder is BM plus Chien,algebraic_decoder_policy.md,block policy recorded,lookup not assigned to whole block,policy exact
+No interleaver in baseline AWGN,common_integration_contract.md,ordered BPSK chain recorded,interleaving prohibited,contract exact
+Noise is frame-independent Common noise,common_integration_contract.md,NoisePoolReader frame prefix mapped,custom noise generator prohibited,Common reader named
+BER and FER compare payload only,padding_recovery_policy.md,recovery trims filler before metrics,metrics on coded vector prohibited,payload comparison required
+Encoded length matches BPSK input,segmented_block_policy.md,285/420 chain lengths recorded,length mismatch rejected,adapter invariant
+Checkpoint identifies BCH case,common_integration_contract.md,case identity added to canonical BCH config,checkpoint without case identity prohibited,resume compatibility extended by BCH adapter
+MATLAB plan complete,matlab_validation_plan.md,planned vectors and comparisons stated,claim of completed MATLAB validation prohibited,plan marked future
+No formal algorithm implementation,changed_files.md,only documentation and .gitkeep files listed,source implementation files absent,no algorithm files changed
+No Common behavior modification,changed_files.md,Common diff empty,Common modification rejected,Task/Common unchanged
+
