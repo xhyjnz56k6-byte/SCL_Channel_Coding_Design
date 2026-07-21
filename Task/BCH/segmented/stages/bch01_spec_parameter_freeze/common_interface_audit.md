@@ -16,4 +16,3 @@ Audited headers: `types.hpp`, `frame.hpp`, `interfaces.hpp`, `decoder_input.hpp`
 | Results | `SummaryRow`, `summaryRowToCsv`, `metadataJson` |
 
 No Common API is guessed or reimplemented by BCH-01.
-

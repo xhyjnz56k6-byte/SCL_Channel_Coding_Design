@@ -19,4 +19,3 @@ Input is `scl::common::PayloadFrame.payloadBits` with 200 or 300 bits. The futur
 ## Gate
 
 `PASS_BCH01_SPEC_PARAMETER_FREEZE` requires the acceptance matrix, CSV/JSON syntax checks, Common regression, CMake configuration, no forbidden-path changes, and no BCH algorithm implementation. This specification is frozen pending user confirmation; no BCH-02 work may begin in this Stage.
-
