@@ -33,4 +33,11 @@ Common-05: NOT_STARTED
 Main merge status: NOT_MERGED
 ```
 
-Remote verification is recorded in `manifest.json` after the functional commit is pushed.
+## Remote Verification
+
+```text
+Functional commit: 7731461df4c4582bfde74bf363034c9f95085a09
+Remote branch: origin/stage04-common-simulation-foundation
+Remote verification: VERIFIED
+Main merge status: NOT_MERGED
+```

@@ -115,6 +115,57 @@ def check_git_scope(root: Path, failures: list[str]) -> None:
             add_failure(failures, f"artifact path in Stage04 diff: {path}")
 
 
+def check_audit_manifest(root: Path, failures: list[str]) -> None:
+    manifest_path = root / STAGE_DIR / "manifest.json"
+    if not manifest_path.exists():
+        add_failure(failures, "missing Stage04 manifest.json")
+        return
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    base = manifest.get("baseCommit", "")
+    functional = manifest.get("functionalCommit", "")
+    if not base or not functional:
+        add_failure(failures, "manifest must record baseCommit and functionalCommit")
+        return
+    diff = run(["git", "diff", "--name-status", f"{base}...{functional}"], root)
+    if diff.returncode != 0:
+        add_failure(failures, diff.stderr.strip())
+        return
+    added: list[str] = []
+    modified: list[str] = []
+    deleted: list[str] = []
+    for line in diff.stdout.splitlines():
+        status, path = line.split("\t", 1)
+        path = path.replace("\\", "/")
+        if status == "A":
+            added.append(path)
+        elif status == "M":
+            modified.append(path)
+        elif status == "D":
+            deleted.append(path)
+    if sorted(manifest.get("added", [])) != sorted(added):
+        add_failure(failures, "manifest added list mismatch")
+    if sorted(manifest.get("modified", [])) != sorted(modified):
+        add_failure(failures, "manifest modified list mismatch")
+    if sorted(manifest.get("deleted", [])) != sorted(deleted):
+        add_failure(failures, "manifest deleted list mismatch")
+    if manifest.get("remoteVerificationStatus") != "VERIFIED":
+        add_failure(failures, "manifest remoteVerificationStatus must be VERIFIED")
+    if manifest.get("mergeStatus") != "NOT_MERGED":
+        add_failure(failures, "manifest mergeStatus must be NOT_MERGED")
+    remote_branch = manifest.get("remoteBranch", "")
+    remote_ref = run(["git", "rev-parse", "--verify", remote_branch], root)
+    if remote_ref.returncode != 0:
+        add_failure(failures, "manifest remoteBranch is not available")
+    else:
+        ancestor = run(["git", "merge-base", "--is-ancestor", functional, remote_ref.stdout.strip()], root)
+        if ancestor.returncode != 0:
+            add_failure(failures, "functional commit is not contained in remote branch")
+    validation = (root / STAGE_DIR / "validation_report.md").read_text(encoding="utf-8", errors="ignore")
+    for token in ["Pending", "to be run", "NOT_PUSHED", "TO_VERIFY_AFTER_PUSH"]:
+        if token in validation:
+            add_failure(failures, f"validation_report contains stale token: {token}")
+
+
 def check_noise_pool_scripts(root: Path, failures: list[str]) -> None:
     out = root / "Task/Common/build/stage04/python_noise_pool"
     if out.exists():
@@ -188,6 +239,7 @@ def main() -> int:
     check_results_and_plots(root, failures)
     check_source_scope(root, failures)
     check_git_scope(root, failures)
+    check_audit_manifest(root, failures)
     for script, expected in [
         ("Task/Common/scripts/check_common02.py", "COMMON-02 CHECK: PASS"),
         ("Task/Common/scripts/check_common03.py", "COMMON-03 CHECK: PASS"),
