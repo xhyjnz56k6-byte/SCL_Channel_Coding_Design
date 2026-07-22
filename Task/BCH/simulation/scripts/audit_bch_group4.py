@@ -227,9 +227,53 @@ def publish_bch15(results: Path, stage: Path) -> None:
     print(f"PASS_BCH15_ARTIFACT_PUBLISH files={len(hash_rows)} png=15 nonPngPlot=0")
 
 
+def publish_bch16(results: Path, stage: Path) -> None:
+    expected_pngs = ["bch_200bit_rate_performance_comparison.png",
+                     "bch_300bit_rate_performance_comparison.png",
+                     "bch_decode_time_comparison.png", "bch_complexity_comparison.png"]
+    required = ["comparison_summary.csv", "interpolation_audit.csv", "coding_gain_summary.csv",
+                "complexity_comparison.csv", "recommendations.md", "plot_manifest.json",
+                "figure_data_audit.csv"]
+    for name in required + expected_pngs:
+        source = results / name
+        if not source.is_file(): raise SystemExit(f"missing BCH-16 artifact: {source}")
+        shutil.copy2(source, stage / name)
+    for source in sorted(results.glob("figure_data_*.csv")):
+        if source.name != "figure_data_audit.csv": shutil.copy2(source, stage / source.name)
+    forbidden = [path for path in results.rglob("*") if path.suffix.lower() in FORBIDDEN_PLOT_SUFFIXES]
+    if forbidden: raise SystemExit("BLOCKED_BCH16_FIGURE_DATA_MISMATCH")
+    manifest = json.loads((stage / "plot_manifest.json").read_text(encoding="utf-8"))
+    if len(manifest) != 4 or {item["filename"] for item in manifest} != set(expected_pngs):
+        raise SystemExit("BCH-16 plot manifest mismatch")
+    for item in manifest:
+        path = stage / item["filename"]
+        if path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n" or sha256(path) != item["sha256"]:
+            raise SystemExit("BLOCKED_BCH16_FIGURE_DATA_MISMATCH")
+    with (stage / "comparison_summary.csv").open(newline="", encoding="utf-8-sig") as handle:
+        comparisons = list(csv.DictReader(handle))
+    with (stage / "interpolation_audit.csv").open(newline="", encoding="utf-8-sig") as handle:
+        interpolations = list(csv.DictReader(handle))
+    if len(comparisons) != 4 or len(interpolations) != 12:
+        raise SystemExit("BLOCKED_BCH16_COMPARISON_INPUT_INCOMPLETE")
+    invalid = [row for row in interpolations if row["interpolationValid"] == "false"]
+    if len(invalid) != 2 or any(row["interpolatedEbN0"] for row in invalid):
+        raise SystemExit("BLOCKED_BCH16_INVALID_INTERPOLATION")
+    excluded = {"result_file_hashes.csv", "changes.patch", "manifest.json", "git_commit.txt"}
+    hash_rows = []
+    for path in sorted(stage.iterdir()):
+        if path.is_file() and path.name not in excluded:
+            row_count = max(0, len(path.read_text(encoding="utf-8-sig").splitlines()) - 1) if path.suffix.lower() == ".csv" else 0
+            hash_rows.append({"path": path.name, "bytes": path.stat().st_size,
+                              "rowCount": row_count, "sha256": sha256(path)})
+    with (stage / "result_file_hashes.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["path", "bytes", "rowCount", "sha256"])
+        writer.writeheader(); writer.writerows(hash_rows)
+    print(f"PASS_BCH16_ARTIFACT_PUBLISH files={len(hash_rows)} png=4 nonPngPlot=0")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stage", choices=["bch12", "bch13", "bch14", "bch15"], required=True)
+    parser.add_argument("--stage", choices=["bch12", "bch13", "bch14", "bch15", "bch16"], required=True)
     parser.add_argument("--results-dir", type=Path, required=True)
     parser.add_argument("--stage-dir", type=Path, required=True)
     args = parser.parse_args()
@@ -240,8 +284,10 @@ def main() -> int:
         publish_bch13(args.results_dir.resolve(), args.stage_dir.resolve())
     elif args.stage == "bch14":
         publish_bch14(args.results_dir.resolve(), args.stage_dir.resolve())
-    else:
+    elif args.stage == "bch15":
         publish_bch15(args.results_dir.resolve(), args.stage_dir.resolve())
+    else:
+        publish_bch16(args.results_dir.resolve(), args.stage_dir.resolve())
     return 0
 
 

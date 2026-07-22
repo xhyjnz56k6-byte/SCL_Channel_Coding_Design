@@ -100,6 +100,15 @@ def main() -> int:
     save_performance(formal, 200, args.output_dir, manifest); save_performance(formal, 300, args.output_dir, manifest)
     save_timing(formal, args.output_dir, manifest); save_complexity(complexity, args.output_dir, manifest)
     (args.output_dir / "plot_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    audit_rows: list[dict[str, object]] = []
+    for item in manifest:
+        for row in read_rows(args.output_dir / str(item["figureDataCsv"])):
+            metric = str(item["yColumn"]); raw = row[metric]
+            audit_rows.append({"filename": item["filename"], "caseName": row["caseName"],
+                               "ebn0Db": row.get("ebn0Db", ""), "metric": metric,
+                               "rawValue": raw, "plottedValue": raw,
+                               "zeroHandlingPolicy": item["zeroHandlingPolicy"]})
+    write_rows(args.output_dir / "figure_data_audit.csv", audit_rows)
     forbidden = [path for path in args.output_dir.rglob("*") if path.suffix.lower() in {".pdf", ".svg", ".eps", ".ps"}]
     if forbidden: raise SystemExit("BLOCKED_BCH16_FIGURE_DATA_MISMATCH")
     if len(manifest) != 4: raise SystemExit("BCH-16 plot count mismatch")
