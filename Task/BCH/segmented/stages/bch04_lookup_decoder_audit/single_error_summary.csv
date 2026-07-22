@@ -1,6 +1,9 @@
 metric,value
-noErrorPayloadMismatch,0
+singleErrorCaseCount,30720
 singleErrorPayloadMismatch,0
 correctedPositionMismatch,0
 postSyndromeMismatch,0
 lookupMissForSingleError,0
+singleErrorStatusMismatch,0
+singleErrorCodewordMismatch,0
+singleErrorSyndromeBeforeMismatch,0

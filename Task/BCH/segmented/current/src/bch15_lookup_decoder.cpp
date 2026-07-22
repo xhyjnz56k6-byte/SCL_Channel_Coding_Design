@@ -1,3 +1,48 @@
 #include "bch_segmented/bch15_lookup_decoder.hpp"
+
 #include <stdexcept>
-namespace scl::bch::segmented { Bch15DecodeDetail decodeBch15Lookup(const common::BitVector& r,const SyndromeTable&t){if(r.size()!=15)throw std::invalid_argument("BCH15 decode length");common::validateBits(r,"received");Bch15DecodeDetail d;d.correctedCodeword=r;d.syndromeBefore=computeBch15Syndrome(r);int p=lookupErrorPosition(t,syndromeValue(d.syndromeBefore));if(p<0){d.status=syndromeValue(d.syndromeBefore)==0?Bch15DecodeStatus::NO_ERROR:Bch15DecodeStatus::UNRECOGNIZED_SYNDROME;}else{d.lookupHit=true;d.correctedPosition=p;d.correctedCodeword[p]^=1U;d.syndromeAfter=computeBch15Syndrome(d.correctedCodeword);d.status=syndromeValue(d.syndromeAfter)==0?Bch15DecodeStatus::CORRECTED_SINGLE_ERROR:Bch15DecodeStatus::POST_CHECK_FAILED;}if(d.syndromeAfter.empty())d.syndromeAfter=d.syndromeBefore;d.decodedMessage=common::BitVector(d.correctedCodeword.begin(),d.correctedCodeword.begin()+11);return d;}}
+
+namespace scl::bch::segmented {
+
+Bch15DecodeDetail decodeBch15Lookup(const common::BitVector& received,
+                                     const SyndromeTable& table) {
+    if (received.size() != 15U) {
+        throw std::invalid_argument("BCH15 decode input length must be 15");
+    }
+    common::validateBits(received, "received");
+
+    Bch15DecodeDetail detail;
+    detail.correctedCodeword = received;
+    detail.syndromeBefore = computeBch15Syndrome(received);
+
+    const unsigned syndrome = syndromeValue(detail.syndromeBefore);
+    const int position = lookupErrorPosition(table, syndrome);
+
+    if (position < 0) {
+        detail.status = syndrome == 0U ? Bch15DecodeStatus::NO_ERROR
+                                       : Bch15DecodeStatus::UNRECOGNIZED_SYNDROME;
+        detail.syndromeAfter = detail.syndromeBefore;
+    } else {
+        detail.lookupHit = true;
+        detail.correctedPosition = position;
+
+        // A caller may supply an externally corrupted table.  Do not index a
+        // received codeword unless the table position is within BCH(15,11,1).
+        if (position < 15) {
+            detail.correctedCodeword[static_cast<std::size_t>(position)] ^= 1U;
+            detail.syndromeAfter = computeBch15Syndrome(detail.correctedCodeword);
+            detail.status = syndromeValue(detail.syndromeAfter) == 0U
+                                ? Bch15DecodeStatus::CORRECTED_SINGLE_ERROR
+                                : Bch15DecodeStatus::POST_CHECK_FAILED;
+        } else {
+            detail.syndromeAfter = detail.syndromeBefore;
+            detail.status = Bch15DecodeStatus::POST_CHECK_FAILED;
+        }
+    }
+
+    detail.decodedMessage = common::BitVector(detail.correctedCodeword.begin(),
+                                               detail.correctedCodeword.begin() + 11);
+    return detail;
+}
+
+}  // namespace scl::bch::segmented
