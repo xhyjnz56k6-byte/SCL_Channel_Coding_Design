@@ -45,6 +45,6 @@
   "nonPngPlotArtifactCount": 0,
   "artifactHashes": {},
   "gateStatus": "PASS_BCH11_COMMON_INTEGRATION_NOISELESS",
-  "remoteVerification": {"status": "DEFERRED_AFTER_ORDERED_RUNNER_REPAIR"},
+  "remoteVerification": {"status": "PASS", "branch": "origin/bch-group4-awgn-formal-comparison", "verifiedHead": "90a943616a138f0f2956ea01aabf636db4f41bdf"},
   "mergeStatus": "NOT_MERGED"
 }
