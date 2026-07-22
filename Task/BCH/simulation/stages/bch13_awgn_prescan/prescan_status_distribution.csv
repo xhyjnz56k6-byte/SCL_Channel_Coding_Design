@@ -1,0 +1,5 @@
+caseName,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,miscorrectedFrames,decoderFailureFrames
+BCH-S200,10720,31280,0,20064,0
+BCH-B200,13645,12867,15488,27,15488
+BCH-S300,9565,32435,0,21296,0
+BCH-B300,11084,14757,16159,0,16159

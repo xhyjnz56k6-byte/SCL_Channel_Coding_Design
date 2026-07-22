@@ -1,0 +1,38 @@
+{
+  "stage": "bch13_awgn_prescan",
+  "baseCommit": "2bf89bed2fb44c2f4f9c2c3ec54cf061f863b464",
+  "functionalCommit": "d4e7a56f84a78d458f54979bdd97a66d7f4f02d3",
+  "branch": "bch-group4-awgn-formal-comparison",
+  "functionalRanges": [{
+    "name": "content",
+    "baseCommit": "2bf89bed2fb44c2f4f9c2c3ec54cf061f863b464",
+    "contentCommit": "d4e7a56f84a78d458f54979bdd97a66d7f4f02d3",
+    "files": [
+      "Task/BCH/simulation/scripts/plot_bch_prescan.py",
+      "Task/BCH/simulation/scripts/run_bch_group4.py",
+      "Task/BCH/simulation/stages/bch13_awgn_prescan/acceptance_matrix.csv",
+      "Task/BCH/simulation/stages/bch13_awgn_prescan/frozen_config.csv",
+      "Task/BCH/simulation/stages/bch13_awgn_prescan/stage_plan.md"
+    ]
+  }],
+  "commonNoisePolicyVersion": 1,
+  "framePoolVersion": "common03.frame_pool_manifest.v2",
+  "globalSeed": 2026072201,
+  "caseConfigs": ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"],
+  "snrGrid": {"minDb": 0.0, "maxDb": 10.0, "stepDb": 0.5, "pointsPerCase": 21},
+  "stopConfig": {"mode": "FIXED_FRAMES_REACHED", "framesPerPoint": 2000},
+  "testCounts": {"casePoints": 84, "processedFrames": 168000},
+  "formalPointCounts": 0,
+  "processedFrames": 168000,
+  "mismatchCounts": {"pointCompleteness": 0, "accounting": 0, "finite": 0, "plotData": 0},
+  "checkpointAudit": "NOT_APPLICABLE_BCH13",
+  "resumeAudit": "NOT_APPLICABLE_BCH13",
+  "shardAudit": "NOT_APPLICABLE_BCH13",
+  "plotAudit": "PASS",
+  "pngCount": 6,
+  "nonPngPlotArtifactCount": 0,
+  "artifactHashes": {"index": "result_file_hashes.csv", "plotManifest": "plot_manifest.json"},
+  "gateStatus": "PASS_BCH13_AWGN_PRESCAN",
+  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "mergeStatus": "NOT_MERGED"
+}

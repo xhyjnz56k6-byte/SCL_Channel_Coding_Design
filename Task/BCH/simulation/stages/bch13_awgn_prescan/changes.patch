@@ -1,0 +1,301 @@
+diff --git a/Task/BCH/simulation/scripts/plot_bch_prescan.py b/Task/BCH/simulation/scripts/plot_bch_prescan.py
+new file mode 100644
+index 0000000..77650a0
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/plot_bch_prescan.py
+@@ -0,0 +1,109 @@
++#!/usr/bin/env python3
++"""Create the frozen BCH-13 matplotlib-only PNG set."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++import hashlib
++import json
++from pathlib import Path
++
++import matplotlib
++
++matplotlib.use("Agg")
++import matplotlib.pyplot as plt
++
++
++CASES = ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"]
++
++
++def rows(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8") as handle:
++        return list(csv.DictReader(handle))
++
++
++def sha256(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def write_csv(path: Path, values: list[dict[str, object]]) -> None:
++    with path.open("w", newline="", encoding="utf-8") as handle:
++        writer = csv.DictWriter(handle, fieldnames=list(values[0]))
++        writer.writeheader(); writer.writerows(values)
++
++
++def make_plot(all_rows: list[dict[str, str]], cases: list[str], metric: str, filename: str,
++              ylabel: str, log_scale: bool, output: Path, manifest: list[dict[str, object]],
++              audit: list[dict[str, object]]) -> None:
++    if Path(filename).suffix.lower() != ".png":
++        raise ValueError("BCH plot output must end in .png")
++    fig, axis = plt.subplots(figsize=(9.0, 5.4))
++    data: list[dict[str, object]] = []
++    try:
++        for case in cases:
++            selected = sorted((row for row in all_rows if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
++            x_values: list[float] = []
++            y_values: list[float] = []
++            for row in selected:
++                raw = float(row[metric])
++                if log_scale and raw == 0.0:
++                    denominator = float(row["processedPayloadBits"] if metric == "BER" else row["processedFrames"])
++                    shown = 3.0 / denominator
++                    policy = "RULE_OF_THREE_UPPER_BOUND_FOR_ZERO_OBSERVATION"
++                else:
++                    shown = raw
++                    policy = "RAW_POSITIVE" if log_scale else "RAW_LINEAR"
++                item = {"caseName": case, "ebn0Db": row["ebn0Db"], "metric": metric,
++                        "rawValue": raw, "plottedValue": shown, "zeroHandlingPolicy": policy}
++                data.append(item); audit.append({"filename": filename, **item})
++                x_values.append(float(row["ebn0Db"])); y_values.append(shown)
++            axis.plot(x_values, y_values, marker="o", markersize=3, label=case)
++        axis.set_title(f"BCH-13 prescan {ylabel}")
++        axis.set_xlabel("Payload Eb/N0 (dB)")
++        axis.set_ylabel(ylabel)
++        if log_scale: axis.set_yscale("log")
++        axis.grid(True, which="both", alpha=0.3)
++        axis.legend()
++        fig.savefig(output / filename, dpi=220, bbox_inches="tight")
++    finally:
++        plt.close(fig)
++    data_path = output / f"figure_data_{Path(filename).stem}.csv"
++    write_csv(data_path, data)
++    manifest.append({"filename": filename, "sourceCsv": "prescan_summary.csv", "figureDataCsv": data_path.name,
++                     "sha256": sha256(output / filename), "dpi": 220, "xColumn": "ebn0Db", "yColumn": metric,
++                     "logScale": log_scale, "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO" if log_scale else "RAW_LINEAR",
++                     "generatedBy": "plot_bch_prescan.py", "matplotlibVersion": matplotlib.__version__})
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--summary", type=Path, required=True)
++    parser.add_argument("--output-dir", type=Path, required=True)
++    args = parser.parse_args()
++    args.output_dir.mkdir(parents=True, exist_ok=True)
++    values = rows(args.summary)
++    if len(values) != 84:
++        raise SystemExit("BCH-13 summary must contain 84 case-points")
++    manifest: list[dict[str, object]] = []
++    audit: list[dict[str, object]] = []
++    make_plot(values, ["BCH-S200", "BCH-B200"], "BER", "bch13_prescan_200bit_ber.png", "200-bit payload BER", True, args.output_dir, manifest, audit)
++    make_plot(values, ["BCH-S200", "BCH-B200"], "FER", "bch13_prescan_200bit_fer.png", "200-bit payload FER", True, args.output_dir, manifest, audit)
++    make_plot(values, ["BCH-S300", "BCH-B300"], "BER", "bch13_prescan_300bit_ber.png", "300-bit payload BER", True, args.output_dir, manifest, audit)
++    make_plot(values, ["BCH-S300", "BCH-B300"], "FER", "bch13_prescan_300bit_fer.png", "300-bit payload FER", True, args.output_dir, manifest, audit)
++    make_plot(values, CASES, "miscorrectionRate", "bch13_prescan_miscorrection.png", "Miscorrection rate", True, args.output_dir, manifest, audit)
++    make_plot(values, CASES, "avgDecodeTimeUs", "bch13_prescan_decode_time.png", "Average decode time (us)", False, args.output_dir, manifest, audit)
++    (args.output_dir / "plot_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
++    write_csv(args.output_dir / "figure_data_audit.csv", audit)
++    forbidden = [path for path in args.output_dir.rglob("*") if path.suffix.lower() in {".pdf", ".svg", ".eps", ".ps"}]
++    if forbidden: raise SystemExit("BLOCKED_BCH_PLOT_NON_PNG_ARTIFACT")
++    for item in manifest:
++        path = args.output_dir / str(item["filename"])
++        if path.stat().st_size < 1000 or path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
++            raise SystemExit("invalid PNG artifact")
++    print(f"PASS_BCH13_PLOT_AUDIT png={len(manifest)} matplotlib={matplotlib.__version__}")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/run_bch_group4.py b/Task/BCH/simulation/scripts/run_bch_group4.py
+index b008fa5..dd3eb57 100644
+--- a/Task/BCH/simulation/scripts/run_bch_group4.py
++++ b/Task/BCH/simulation/scripts/run_bch_group4.py
+@@ -14,6 +14,7 @@ from pathlib import Path
+ 
+ CASES = ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"]
+ SMOKE_SNR = [0.0, 2.0, 4.0, 6.0, 8.0]
++PRESCAN_SNR = [index * 0.5 for index in range(21)]
+ 
+ 
+ def run(command: list[str], cwd: Path, capture: bool = False) -> subprocess.CompletedProcess[str]:
+@@ -40,11 +41,11 @@ def ensure_pool(repo: Path, output: Path, payload: int, frames: int, seed: int)
+     return manifest
+ 
+ 
+-def execute_point(repo: Path, executable: Path, output: Path, case: str, snr: float, snr_index: int,
++def execute_point(repo: Path, executable: Path, output: Path, stage: str, case: str, snr: float, snr_index: int,
+                   frames: int, seed: int, manifest: Path, progress: bool, refresh: float,
+                   detail: bool) -> None:
+     output.mkdir(parents=True, exist_ok=True)
+-    command = [str(executable), "--stage", "BCH12", "--case", case, "--ebn0-db", str(snr),
++    command = [str(executable), "--stage", stage, "--case", case, "--ebn0-db", str(snr),
+                "--snr-index", str(snr_index), "--frame-start", "0", "--frame-count", str(frames),
+                "--global-seed", str(seed), "--frame-pool-manifest", str(manifest),
+                "--output-dir", str(output), "--progress-refresh-seconds", str(refresh),
+@@ -100,9 +101,9 @@ def run_bch12(args: argparse.Namespace, repo: Path, build: Path, results: Path)
+             name = f"{case.lower().replace('-', '_')}_{snr_index:02d}"
+             point = smoke / "points" / name
+             rerun = smoke / "reproducibility" / name
+-            execute_point(repo, executable, point, case, snr, snr_index, 200, args.global_seed,
++            execute_point(repo, executable, point, "BCH12", case, snr, snr_index, 200, args.global_seed,
+                           manifests[payload], args.progress, args.progress_refresh_seconds, True)
+-            execute_point(repo, executable, rerun, case, snr, snr_index, 200, args.global_seed,
++            execute_point(repo, executable, rerun, "BCH12", case, snr, snr_index, 200, args.global_seed,
+                           manifests[payload], False, args.progress_refresh_seconds, True)
+             points.append(point)
+             reruns.append(rerun)
+@@ -169,6 +170,89 @@ def run_bch12(args: argparse.Namespace, repo: Path, build: Path, results: Path)
+     print(f"PASS_BCH12_AWGN_SMOKE frames=4000 casePoints=20 lowFE={low_errors} highFE={high_errors}")
+ 
+ 
++def nearest_measured(case_rows: list[dict[str, str]], target: float) -> dict[str, str]:
++    def distance(row: dict[str, str]) -> float:
++        fer = float(row["FER"])
++        if fer <= 0.0:
++            fer = 0.5 / float(row["processedFrames"])
++        return abs(math.log10(fer) - math.log10(target))
++    return min(case_rows, key=distance)
++
++
++def run_bch13(args: argparse.Namespace, repo: Path, build: Path, results: Path) -> None:
++    executable = build / "bch_awgn_runner.exe"
++    prescan = results / "prescan"
++    if prescan.exists(): shutil.rmtree(prescan)
++    prescan.mkdir(parents=True)
++    pools = results / "frame_pools"
++    manifests = {200: ensure_pool(repo, pools / "prescan_k200", 200, 2000, args.payload_seed),
++                 300: ensure_pool(repo, pools / "prescan_k300", 300, 2000, args.payload_seed)}
++    print("[3/6] BCH-13 execution plan")
++    print(f"Cases: 4 | SNR points: 21 | case-points: 84 | fixed frames/point: 2000 | maximum frames: 168000")
++    print(f"Progress: {'enabled' if args.progress else 'disabled'} refresh={args.progress_refresh_seconds}s | Output: {prescan}")
++    points: list[Path] = []
++    completed = 0
++    for case in CASES:
++        payload = 200 if case.endswith("200") else 300
++        for snr_index, snr in enumerate(PRESCAN_SNR):
++            point = prescan / "points" / f"{case.lower().replace('-', '_')}_{snr_index:02d}"
++            execute_point(repo, executable, point, "BCH13", case, snr, snr_index, 2000, args.global_seed,
++                          manifests[payload], args.progress, args.progress_refresh_seconds, False)
++            points.append(point); completed += 1
++            print(f"\r[BCH-13] case-points {completed}/84", end="", flush=True)
++    print()
++    combine_files(points, "summary.csv", prescan / "prescan_summary.csv")
++    combine_jsonl(points, "progress.jsonl", prescan / "progress.jsonl")
++    summaries = list(csv.DictReader((prescan / "prescan_summary.csv").open(newline="", encoding="utf-8")))
++    keys = {(row["caseName"], float(row["ebn0Db"])) for row in summaries}
++    if len(summaries) != 84 or len(keys) != 84 or sum(int(row["processedFrames"]) for row in summaries) != 168000:
++        raise SystemExit("BLOCKED_BCH13_RESULT_ACCOUNTING_FAILURE")
++    numeric = ["BER", "FER", "trueSuccessRate", "reportedSuccessRate", "miscorrectionRate", "decoderFailureRate", "avgDecodeTimeUs"]
++    if any(not math.isfinite(float(row[field])) for row in summaries for field in numeric):
++        raise SystemExit("BLOCKED_BCH13_RESULT_ACCOUNTING_FAILURE")
++
++    recommendations: list[dict[str, object]] = []
++    status_rows: list[dict[str, object]] = []
++    timing_rows: list[dict[str, object]] = []
++    for case in CASES:
++        selected = sorted((row for row in summaries if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
++        low = nearest_measured(selected, 0.5)
++        mid = nearest_measured(selected, 0.1)
++        high = nearest_measured(selected, 0.01)
++        near_1e3 = nearest_measured(selected, 0.001)
++        formal_min = min(float(low["ebn0Db"]), float(mid["ebn0Db"]), float(high["ebn0Db"]))
++        formal_max = max(float(high["ebn0Db"]), float(near_1e3["ebn0Db"]))
++        if formal_max <= formal_min:
++            raise SystemExit("BLOCKED_BCH13_INVALID_PRESCAN_RANGE")
++        recommendations.append({"caseName": case, "originalRange": "0.0:10.0:0.5", "actualRange": "0.0:10.0:0.5",
++                                "adjustmentReason": "NO_ADJUSTMENT", "recommendedFormalMinDb": formal_min,
++                                "recommendedFormalMaxDb": formal_max, "recommendedFormalStepDb": 0.2,
++                                "estimatedRuntimeSeconds": round((formal_max - formal_min) / 0.2 + 1) * float(selected[0]["avgDecodeTimeUs"]) * 50000 / 1e6,
++                                "waterfallLowDb": low["ebn0Db"], "waterfallLowFer": low["FER"],
++                                "waterfallMidDb": mid["ebn0Db"], "waterfallMidFer": mid["FER"],
++                                "waterfallHighDb": high["ebn0Db"], "waterfallHighFer": high["FER"],
++                                "nearFer1e3Db": near_1e3["ebn0Db"], "nearFer1e3Observed": near_1e3["FER"],
++                                "interpolationOrExtrapolation": "NONE_MEASURED_POINTS_ONLY"})
++        status_rows.append({"caseName": case, "noErrorStatusFrames": sum(int(row["noErrorStatusFrames"]) for row in selected),
++                            "correctedStatusFrames": sum(int(row["correctedStatusFrames"]) for row in selected),
++                            "failedStatusFrames": sum(int(row["failedStatusFrames"]) for row in selected),
++                            "miscorrectedFrames": sum(int(row["miscorrectedFrames"]) for row in selected),
++                            "decoderFailureFrames": sum(int(row["decoderFailureFrames"]) for row in selected)})
++        timing_rows.append({"caseName": case, "casePoints": 21, "processedFrames": 42000,
++                            "meanOfPointAvgEncodeTimeUs": sum(float(row["avgEncodeTimeUs"]) for row in selected) / 21,
++                            "meanOfPointAvgDecodeTimeUs": sum(float(row["avgDecodeTimeUs"]) for row in selected) / 21,
++                            "maxPointP99DecodeTimeUs": max(float(row["p99DecodeTimeUs"]) for row in selected),
++                            "maxDecodeTimeUs": max(float(row["maxDecodeTimeUs"]) for row in selected)})
++    for path, output_rows in [(prescan / "prescan_case_recommendations.csv", recommendations),
++                              (prescan / "prescan_status_distribution.csv", status_rows),
++                              (prescan / "prescan_timing_summary.csv", timing_rows)]:
++        with path.open("w", newline="", encoding="utf-8") as handle:
++            writer = csv.DictWriter(handle, fieldnames=list(output_rows[0])); writer.writeheader(); writer.writerows(output_rows)
++    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/plot_bch_prescan.py"),
++         "--summary", str(prescan / "prescan_summary.csv"), "--output-dir", str(prescan)], repo)
++    print("PASS_BCH13_AWGN_PRESCAN frames=168000 casePoints=84")
++
++
+ def main() -> int:
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
+@@ -201,6 +285,7 @@ def main() -> int:
+     if args.dry_run:
+         print("BCH Group 4 plan: BCH-11 -> BCH-12 -> BCH-13 -> BCH-14 -> BCH-15 -> BCH-16")
+         print("BCH-12: 4 cases, 5 SNR points, 200 frames/point, 4000 maximum frames")
++        print("BCH-13: 4 cases, 21 SNR points, 2000 frames/point, 168000 maximum frames")
+         print(f"Output: {results}")
+         return 0
+     selected = args.stage or ("bch12" if not args.all else "all")
+@@ -208,9 +293,10 @@ def main() -> int:
+         raise SystemExit("BCH-11 is executed by CTest; use the documented BCH-11 command")
+     if selected in {"bch12", "all"}:
+         run_bch12(args, repo, build, results)
+-    if selected in {"bch13", "bch14", "bch15", "bch16"} or args.all:
+-        if selected != "bch12":
+-            raise SystemExit("requested stage is not implemented in the current ordered functional range")
++    if selected in {"bch13", "all"}:
++        run_bch13(args, repo, build, results)
++    if selected in {"bch14", "bch15", "bch16"}:
++        raise SystemExit("requested stage is not implemented in the current ordered functional range")
+     return 0
+ 
+ 
+diff --git a/Task/BCH/simulation/stages/bch13_awgn_prescan/acceptance_matrix.csv b/Task/BCH/simulation/stages/bch13_awgn_prescan/acceptance_matrix.csv
+new file mode 100644
+index 0000000..d86664b
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch13_awgn_prescan/acceptance_matrix.csv
+@@ -0,0 +1,5 @@
++requirement,implementation,positive_test,negative_test,gate
++84 fixed prescan points,run_bch_group4.py bch13,21 points per four cases,missing/duplicate point rejection,PASS_BCH13_AWGN_PRESCAN
++Measured waterfall recommendations,prescan_case_recommendations.csv,FER target nearest measured rows,no extrapolated target claim,PASS_BCH13_AWGN_PRESCAN
++Self-consistent finite results,prescan summary checker,168000 frames and valid rates,NaN/Inf/accounting rejection,PASS_BCH13_AWGN_PRESCAN
++Six PNG plots,plot_bch_prescan.py,PNG magic/hash and figure data checks,non-PNG artifact rejection,PASS_BCH13_AWGN_PRESCAN
+diff --git a/Task/BCH/simulation/stages/bch13_awgn_prescan/frozen_config.csv b/Task/BCH/simulation/stages/bch13_awgn_prescan/frozen_config.csv
+new file mode 100644
+index 0000000..a36ea9d
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch13_awgn_prescan/frozen_config.csv
+@@ -0,0 +1,2 @@
++stage,cases,originalRangeDb,actualRangeDb,stepDb,framesPerPoint,casePoints,totalFrames,globalSeed,noisePolicyVersion,adjustmentReason
++BCH-13,"BCH-S200;BCH-B200;BCH-S300;BCH-B300",0.0:10.0,0.0:10.0,0.5,2000,84,168000,2026072201,1,NO_ADJUSTMENT
+diff --git a/Task/BCH/simulation/stages/bch13_awgn_prescan/stage_plan.md b/Task/BCH/simulation/stages/bch13_awgn_prescan/stage_plan.md
+new file mode 100644
+index 0000000..a517d1b
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch13_awgn_prescan/stage_plan.md
+@@ -0,0 +1,11 @@
++# BCH-13 frozen specification
++
++Run BCH-S200, BCH-B200, BCH-S300, and BCH-B300 from 0.0 through 10.0 dB in 0.5 dB steps,
++2,000 fixed frames per point, for 84 case-points and 168,000 frames. Reuse the BCH-12 signal chain,
++noise policy, progress reporter, accounting, and timing. Identify measured waterfall LOW/MID/HIGH
++points and freeze a 0.2 dB formal recommendation for each case without extrapolating FER targets.
++
++Generate the six frozen BCH-13 matplotlib PNGs, figure-data audit, status distribution, timing summary,
++and recommendation CSV. No early stop, checkpoint/resume, shard merge, or formal run is in scope.
++
++Gate: `PASS_BCH13_AWGN_PRESCAN`.

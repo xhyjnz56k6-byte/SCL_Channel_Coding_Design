@@ -1,0 +1,8 @@
+test,status,frames,mismatches,evidence
+bch13_fixed_grid,PASS,168000,0,prescan_summary.csv
+bch13_point_completeness,PASS,84,0,unique case/SNR keys
+bch13_progress_completeness,PASS,84,0,progress_summary.csv
+bch13_accounting_finite,PASS,168000,0,prescan summary audit
+bch13_recommendations,PASS,4,0,prescan_case_recommendations.csv
+bch13_plot_audit,PASS,6,0,plot_manifest.json
+bch13_non_png_scan,PASS,0,0,non-PNG artifact count zero
