@@ -1,0 +1,6 @@
+requirement,implementation,positive_test,negative_test,gate
+Rate-derived AWGN sigma,bch_awgn_simulation and Common computeAwgnSigma,test_bch12_awgn multiple cases/SNR,invalid sigma inputs,PASS_BCH12_AWGN_SMOKE
+Unique reproducible paired noise,Common NoiseKey with payload group and SNR index,hash comparison and shared-prefix test,reuse or mismatch checker,PASS_BCH12_AWGN_SMOKE
+Fixed smoke execution,run_bch_group4.py,20 points and 4000 frames,missing/duplicate point rejection,PASS_BCH12_AWGN_SMOKE
+Progress control,bch_awgn_runner,--progress and --no-progress runs,invalid refresh rejection,PASS_BCH12_AWGN_SMOKE
+PNG-only matplotlib plots,plot_bch_smoke.py,4 PNG plus figure-data audit,non-PNG output rejection,PASS_BCH12_AWGN_SMOKE
