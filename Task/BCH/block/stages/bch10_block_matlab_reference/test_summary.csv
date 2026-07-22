@@ -1,3 +1,7 @@
 metric,value
-cppMatlabDetailRows,9416
-cppMatlabMismatch,0
+detailRows,9416
+gfRows,3834
+illegalRows,10
+toolboxSingleErrorRows,5104
+overCapabilityPatternModes,7
+mismatchCount,0

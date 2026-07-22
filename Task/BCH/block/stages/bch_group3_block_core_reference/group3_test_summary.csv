@@ -1,6 +1,10 @@
 metric,value
 detailRows,9416
+gfDetailRows,3834
+poolEncoderRows,200
 singleAllRows,5104
 weight2ToTRows,1400
 uncorrectableRows,1248
+illegalRows,10
+toolboxSingleErrorRows,5104
 mismatchCount,0

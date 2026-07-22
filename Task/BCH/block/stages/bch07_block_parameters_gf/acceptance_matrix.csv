@@ -1,2 +1,3 @@
 requirement_id,requirement,evidence,command,result,verdict
-core,implemented and independently checked,run_bch_group3.py,python Task/BCH/block/scripts/run_bch_group3.py --all,PASS,PASS
+core,"parameters, GF arithmetic, roots, cosets and shortening convention",Stage CSV and one-click log,python Task/BCH/block/scripts/run_bch_group3.py --all,mismatch=0,PASS
+scope,No forbidden module changes,git diff 355963cf05cf839938cd95caff1e68fabae5da89...1c7d6bbe8837b4b98bfed625d43938093b4fc81e,git diff --name-only,PASS,PASS

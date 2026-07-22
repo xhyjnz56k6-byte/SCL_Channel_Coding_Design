@@ -1,15 +1,67 @@
 {
   "stage": "bch09_block_bm_chien_decoder",
   "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
-  "functionalCommit": "2afb216f984ce20eab9c0c03f68d8cd3011f4bdc",
-  "branch": "bch-group3-block-core-reference",
-  "matlabVersion": "R2024b",
-  "toolboxAvailability": "AVAILABLE",
+  "headCommit": "1c7d6bbe8837b4b98bfed625d43938093b4fc81e",
+  "gitBranch": "bch-group3-block-core-reference",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
+      "contentCommit": "1c7d6bbe8837b4b98bfed625d43938093b4fc81e",
+      "files": [
+        "Task/BCH/block/current/CMakeLists.txt",
+        "Task/BCH/block/current/include/bch_block/bch_block.hpp",
+        "Task/BCH/block/current/src/bch_block.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_detail.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_gf_detail.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_illegal.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_pool_encoder.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_reference.cpp",
+        "Task/BCH/block/current/tests/test_bch_block.cpp",
+        "Task/BCH/block/matlab/run_bch_group3_reference.m",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/acceptance_matrix.csv",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/changed_files.md",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/changes.patch",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/commands_used.md",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/frozen_config.csv",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/git_commit.txt",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/known_issues.md",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/manifest.json",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/stage_plan.md",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/test_summary.csv",
+        "Task/BCH/block/stages/bch09_block_bm_chien_decoder/validation_report.md"
+      ]
+    }
+  ],
+  "matlabVersion": "24.2.0.2712019 (R2024b)",
+  "computerArchitecture": "PCWIN64",
+  "toolboxAvailable": true,
+  "communicationsToolboxVersion": "24.2",
   "testCounts": {
-    "detailRows": 9416
+    "noErrorRows": 416,
+    "singleAllRows": 5104,
+    "weight2ToTRows": 1400,
+    "uncorrectableRows": 1248,
+    "overCapabilityPatternModes": 7
   },
   "mismatchCounts": {
     "total": 0
+  },
+  "artifactHashes": {
+    "acceptance_matrix.csv": "7550a5592e417b3a74d07e7ae0d1579e52dce3450b5657a6f7b65cde70d9a237",
+    "changed_files.md": "78c79ce842f164ae562cdb6429f0cdceb800bf272fbd016379fe2c52f404666c",
+    "commands_used.md": "7ad2c28a3bdb3ffecfc3137ee78f1acc5ad2e5a84efdbc846eab15a9422e6b92",
+    "frozen_config.csv": "e6d9ec8b707034f70503ba6cd2a76c7a20910d27cfc625938825f2b403878a0d",
+    "git_commit.txt": "a1d1b89dbcef61db8e7276dfcbb19d70f9aa2982718c5f45c61eb6f617c0ca27",
+    "known_issues.md": "04fb6cc5451e178ebf5b227101b5138e76f8949e0a3fc21fbe7d12c25f82a0e4",
+    "stage_plan.md": "f739d17e95bc8cf4f85aa3d3ba0b9475ec02ad49b104ebafc0511089f37db626",
+    "test_summary.csv": "5370807cd12d9bf2bf36a5240c3cc8c40299314c9eb59531735c9e1a3bb0a681",
+    "validation_report.md": "ab4679e834b5781635f1ed191faf05fbfaf4eb4f83e2008d4f70f64014eb17d0"
+  },
+  "remoteVerification": {
+    "status": "PASS",
+    "remoteBranch": "origin/bch-group3-block-core-reference",
+    "containsFunctionalCommit": true
   },
   "gateStatus": "PASS_BCH09_BLOCK_ALGEBRAIC_DECODER",
   "mergeStatus": "NOT_MERGED"

@@ -1,15 +1,81 @@
 {
   "stage": "bch07_block_parameters_gf",
   "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
-  "functionalCommit": "2afb216f984ce20eab9c0c03f68d8cd3011f4bdc",
-  "branch": "bch-group3-block-core-reference",
-  "matlabVersion": "R2024b",
-  "toolboxAvailability": "AVAILABLE",
+  "headCommit": "1c7d6bbe8837b4b98bfed625d43938093b4fc81e",
+  "gitBranch": "bch-group3-block-core-reference",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
+      "contentCommit": "1c7d6bbe8837b4b98bfed625d43938093b4fc81e",
+      "files": [
+        "Task/BCH/block/current/include/bch_block/bch_block.hpp",
+        "Task/BCH/block/current/src/bch_block.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_gf_detail.cpp",
+        "Task/BCH/block/matlab/run_bch_group3_gf_detail.m",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/acceptance_matrix.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/bit_polynomial_convention.md",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/block_profiles.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/changed_files.md",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/changes.patch",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/commands_used.md",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/cyclotomic_cosets.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/frozen_config.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/generator_degree_audit.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/generator_polynomials.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/generator_roots.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/gf_cpp_matlab_compare_summary.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/gf_cpp_matlab_detail.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/gf_identity_summary.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/git_commit.txt",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/known_issues.md",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/manifest.json",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/primitive_polynomials.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/shortening_policy.md",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/stage_plan.md",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/test_summary.csv",
+        "Task/BCH/block/stages/bch07_block_parameters_gf/validation_report.md"
+      ]
+    }
+  ],
+  "matlabVersion": "24.2.0.2712019 (R2024b)",
+  "computerArchitecture": "PCWIN64",
+  "toolboxAvailable": true,
+  "communicationsToolboxVersion": "24.2",
   "testCounts": {
-    "detailRows": 9416
+    "parameterRows": 2,
+    "gfDetailRows": 3834,
+    "illegalRows": 10
   },
   "mismatchCounts": {
     "total": 0
+  },
+  "artifactHashes": {
+    "acceptance_matrix.csv": "3c85cd8c839307467187bb0ddb3553a0ca1d9770ac5530d92ec33f711a59e788",
+    "bit_polynomial_convention.md": "c1b65058b11f170194effd40b7c377af7f7dbfa27b517d0a7088b878a0429446",
+    "block_profiles.csv": "4f41585019d89be42b207afef27af35a66e3b6a426dbe13e345aea1378d1ac08",
+    "changed_files.md": "78c79ce842f164ae562cdb6429f0cdceb800bf272fbd016379fe2c52f404666c",
+    "commands_used.md": "7ad2c28a3bdb3ffecfc3137ee78f1acc5ad2e5a84efdbc846eab15a9422e6b92",
+    "cyclotomic_cosets.csv": "5f455667ebb8d9e10ffda0be9109f995beeb3e1ef62169e7c403dcdd864e3b8d",
+    "frozen_config.csv": "e6d9ec8b707034f70503ba6cd2a76c7a20910d27cfc625938825f2b403878a0d",
+    "generator_degree_audit.csv": "bad0323e190c9201682a2326d212aa73256f88c95b05194413298c718bcf6268",
+    "generator_polynomials.csv": "50d1f8145d22c59142ac574e70b44d824502c3b7852a0d8384858440c8e4475b",
+    "generator_roots.csv": "dc75099ed2a2e81cce198569fe9cf2ae57408ae1aecfb21be1a98bce1adbd7e8",
+    "gf_cpp_matlab_compare_summary.csv": "a0a454acdf63622c1861cc921ca0180dad3da1f2aeefbe5a034f69a11a8a99b8",
+    "gf_cpp_matlab_detail.csv": "e74da844181f62aac0bcde34e1eaffad164e895b2afd551753f106164f61c68d",
+    "gf_identity_summary.csv": "7e69cc1269f3d7aea7d7a5aca1b5eb540d6c01043792932b1c82a3c4eb5c96c8",
+    "git_commit.txt": "a1d1b89dbcef61db8e7276dfcbb19d70f9aa2982718c5f45c61eb6f617c0ca27",
+    "known_issues.md": "04fb6cc5451e178ebf5b227101b5138e76f8949e0a3fc21fbe7d12c25f82a0e4",
+    "primitive_polynomials.csv": "cde4b6059980803bae7743cf28d9646fa48b7e57236b78d2ee324d78c672ee68",
+    "shortening_policy.md": "7149814014a419e86c96f09d0254edbd1c81c33b4ec5e232d526f87a64c19d33",
+    "stage_plan.md": "c0c96005b81005e645544ec4d9b2164219284a6e332923238df2f081660766a6",
+    "test_summary.csv": "ac9f1279e07d78b40b5559a5fe63a0bdc2b62b7e4e951496d763e1e91b88c290",
+    "validation_report.md": "c9319c9b8c4200e5b4e69151c03f3005e09539e5d9e395dc1a604a1f667d9f97"
+  },
+  "remoteVerification": {
+    "status": "PASS",
+    "remoteBranch": "origin/bch-group3-block-core-reference",
+    "containsFunctionalCommit": true
   },
   "gateStatus": "PASS_BCH07_BLOCK_PARAMETERS_GF",
   "mergeStatus": "NOT_MERGED"

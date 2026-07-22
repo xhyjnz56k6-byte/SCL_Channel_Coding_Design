@@ -1,15 +1,65 @@
 {
   "stage": "bch08_block_shortened_encoder",
   "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
-  "functionalCommit": "2afb216f984ce20eab9c0c03f68d8cd3011f4bdc",
-  "branch": "bch-group3-block-core-reference",
-  "matlabVersion": "R2024b",
-  "toolboxAvailability": "AVAILABLE",
+  "headCommit": "1c7d6bbe8837b4b98bfed625d43938093b4fc81e",
+  "gitBranch": "bch-group3-block-core-reference",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
+      "contentCommit": "1c7d6bbe8837b4b98bfed625d43938093b4fc81e",
+      "files": [
+        "Task/BCH/block/current/CMakeLists.txt",
+        "Task/BCH/block/current/include/bch_block/bch_block.hpp",
+        "Task/BCH/block/current/src/bch_block.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_detail.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_gf_detail.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_illegal.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_pool_encoder.cpp",
+        "Task/BCH/block/current/tests/export_bch_block_reference.cpp",
+        "Task/BCH/block/current/tests/test_bch_block.cpp",
+        "Task/BCH/block/matlab/run_bch_group3_pool_encoder.m",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/acceptance_matrix.csv",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/changed_files.md",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/changes.patch",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/commands_used.md",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/frozen_config.csv",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/git_commit.txt",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/known_issues.md",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/manifest.json",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/stage_plan.md",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/test_summary.csv",
+        "Task/BCH/block/stages/bch08_block_shortened_encoder/validation_report.md"
+      ]
+    }
+  ],
+  "matlabVersion": "24.2.0.2712019 (R2024b)",
+  "computerArchitecture": "PCWIN64",
+  "toolboxAvailable": true,
+  "communicationsToolboxVersion": "24.2",
   "testCounts": {
-    "detailRows": 9416
+    "poolEncoderRows": 200,
+    "divisibilityFailure": 0,
+    "payloadMutationCount": 0
   },
   "mismatchCounts": {
     "total": 0
+  },
+  "artifactHashes": {
+    "acceptance_matrix.csv": "072cd4bc98b5c774822aa6475611fea1fa0abec29ff7cc7508ec7470a2b98803",
+    "changed_files.md": "78c79ce842f164ae562cdb6429f0cdceb800bf272fbd016379fe2c52f404666c",
+    "commands_used.md": "7ad2c28a3bdb3ffecfc3137ee78f1acc5ad2e5a84efdbc846eab15a9422e6b92",
+    "frozen_config.csv": "e6d9ec8b707034f70503ba6cd2a76c7a20910d27cfc625938825f2b403878a0d",
+    "git_commit.txt": "a1d1b89dbcef61db8e7276dfcbb19d70f9aa2982718c5f45c61eb6f617c0ca27",
+    "known_issues.md": "04fb6cc5451e178ebf5b227101b5138e76f8949e0a3fc21fbe7d12c25f82a0e4",
+    "stage_plan.md": "213e99a590ff0ad737cb8c9fb665ae4d9c3ee291e13aaa57d3ab99bdd7362f80",
+    "test_summary.csv": "5df92afa57fd073324620efe5bd2ee285790132fb52fcfb29c489ba1b90b216b",
+    "validation_report.md": "35beb1a20e918697e49cb932d36ba5ddacfea9adbc0ea3636812fab597d3fd61"
+  },
+  "remoteVerification": {
+    "status": "PASS",
+    "remoteBranch": "origin/bch-group3-block-core-reference",
+    "containsFunctionalCommit": true
   },
   "gateStatus": "PASS_BCH08_BLOCK_SHORTENED_ENCODER",
   "mergeStatus": "NOT_MERGED"

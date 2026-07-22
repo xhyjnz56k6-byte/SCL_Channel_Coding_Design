@@ -1,2 +1,5 @@
 requirement_id,requirement,evidence,command,result,verdict
-core,implemented and independently checked,run_bch_group3.py,python Task/BCH/block/scripts/run_bch_group3.py --all,PASS,PASS
+core,"independent MATLAB, Communications Toolbox and exact cross-language comparison",Stage CSV and one-click log,python Task/BCH/block/scripts/run_bch_group3.py --all,mismatch=0,PASS
+scope,No forbidden module changes,git diff 355963cf05cf839938cd95caff1e68fabae5da89...1c7d6bbe8837b4b98bfed625d43938093b4fc81e,git diff --name-only,PASS,PASS
+bm_trace_scope,BM final locator and terminal state are exact; per-iteration discrepancy/degree history is outside exact comparison scope,validation_report.md and detail CSV,check_bch10_detail.py,DISCLOSED,PASS
+over_capability_modes,"t+1, t+2 and high-weight sets cover payload-only, parity-only, mixed, adjacent, boundary, widely-separated and deterministic-random modes",uncorrectable_error_detail.csv and uncorrectable_error_summary.csv,python Task/BCH/block/scripts/run_bch_group3.py --all,1248 rows / 7 modes / mismatch=0,PASS

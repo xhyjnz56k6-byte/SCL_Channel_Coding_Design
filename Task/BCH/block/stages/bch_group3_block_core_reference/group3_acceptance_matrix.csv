@@ -1,2 +1,6 @@
 requirement,evidence,result
-all_stages,run_bch_group3.py,PASS
+BCH07,GF/parameter/Toolbox checks,PASS
+BCH08,200 real frame-pool encoder rows,PASS
+BCH09,5104 single + 1400 correctable multi + 1248 over-capability across 7 structural modes,PASS
+BCH10,9416 exact detail + 10 illegal + 5104 Toolbox single,PASS
+BM trace scope,Final locator and terminal state exact; per-iteration history disclosed as outside comparison scope,PASS

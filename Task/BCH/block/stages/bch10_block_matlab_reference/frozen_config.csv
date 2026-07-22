@@ -1,3 +1,3 @@
-caseName,payloadLength,motherN,motherK,shorteningLength,shortenedN,fieldDegree,primitivePolynomial,correctionCapability,bitOrder,shorteningPosition,seed,matlabVersion,toolboxAvailability
-BCH-B200,200,255,207,7,248,8,0x11D,6,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE
-BCH-B300,300,511,421,121,390,9,0x211,10,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE
+caseName,payloadLength,motherN,motherK,shorteningLength,shortenedN,fieldDegree,primitivePolynomial,generatorPolynomial,correctionCapability,bitOrder,shorteningPosition,seed,matlabVersion,toolboxAvailability
+BCH-B200,200,255,207,7,248,8,0x11D,1110001111110101110000101110111110011110010010111,6,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE_24.2
+BCH-B300,300,511,421,121,390,9,0x211,1011001111111001001110010101010110111010110100110001000011110000110100100111000111101001011,10,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE_24.2

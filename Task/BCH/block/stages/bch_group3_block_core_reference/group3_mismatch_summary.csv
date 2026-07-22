@@ -1,2 +1,7 @@
 category,mismatchCount
-all,0
+parameter,0
+gf,0
+encoder,0
+decoder,0
+illegalInput,0
+toolbox,0

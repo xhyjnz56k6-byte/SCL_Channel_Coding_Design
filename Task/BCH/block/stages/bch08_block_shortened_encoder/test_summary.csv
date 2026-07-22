@@ -1,3 +1,5 @@
 metric,value
-cppMatlabDetailRows,9416
-cppMatlabMismatch,0
+poolEncoderRows,200
+divisibilityFailure,0
+payloadMutationCount,0
+mismatchCount,0

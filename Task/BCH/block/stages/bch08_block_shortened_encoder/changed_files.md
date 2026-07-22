@@ -1,3 +1,3 @@
 # Changed files
 
-See functional commit 2afb216f984ce20eab9c0c03f68d8cd3011f4bdc for the Stage-scoped implementation and generated evidence.
+Functional evidence is bounded by `355963cf05cf839938cd95caff1e68fabae5da89...1c7d6bbe8837b4b98bfed625d43938093b4fc81e` under `Task/BCH/block`. See manifest artifact list and changes.patch.

@@ -1,1 +1,765 @@
-Generated from `git diff 355963cf05cf839938cd95caff1e68fabae5da89...2afb216f984ce20eab9c0c03f68d8cd3011f4bdc`; no generated build files are included.
+diff --git a/Task/BCH/block/current/CMakeLists.txt b/Task/BCH/block/current/CMakeLists.txt
+new file mode 100644
+index 0000000..4ff957b
+--- /dev/null
++++ b/Task/BCH/block/current/CMakeLists.txt
+@@ -0,0 +1,22 @@
++cmake_minimum_required(VERSION 3.16)
++project(BchBlock LANGUAGES CXX)
++add_library(bch_block src/bch_block.cpp)
++target_include_directories(bch_block PUBLIC include ../../../Common/include)
++target_compile_features(bch_block PUBLIC cxx_std_17)
++if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
++  target_compile_options(bch_block PRIVATE -Wall -Wextra -Wpedantic)
++endif()
++add_executable(test_bch_block tests/test_bch_block.cpp)
++target_link_libraries(test_bch_block PRIVATE bch_block)
++add_executable(export_bch_block_reference tests/export_bch_block_reference.cpp)
++target_link_libraries(export_bch_block_reference PRIVATE bch_block)
++add_executable(export_bch_block_detail tests/export_bch_block_detail.cpp)
++target_link_libraries(export_bch_block_detail PRIVATE bch_block)
++add_executable(export_bch_block_pool_encoder tests/export_bch_block_pool_encoder.cpp)
++target_link_libraries(export_bch_block_pool_encoder PRIVATE bch_block)
++add_executable(export_bch_block_gf_detail tests/export_bch_block_gf_detail.cpp)
++target_link_libraries(export_bch_block_gf_detail PRIVATE bch_block)
++add_executable(export_bch_block_illegal tests/export_bch_block_illegal.cpp)
++target_link_libraries(export_bch_block_illegal PRIVATE bch_block)
++enable_testing()
++add_test(NAME bch_block COMMAND test_bch_block)
+diff --git a/Task/BCH/block/current/include/bch_block/bch_block.hpp b/Task/BCH/block/current/include/bch_block/bch_block.hpp
+new file mode 100644
+index 0000000..41c069a
+--- /dev/null
++++ b/Task/BCH/block/current/include/bch_block/bch_block.hpp
+@@ -0,0 +1,104 @@
++#ifndef SCL_BCH_BLOCK_BCH_BLOCK_HPP
++#define SCL_BCH_BLOCK_BCH_BLOCK_HPP
++
++#include "common/types.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::block {
++
++class Gf2m final {
++public:
++    using Element = std::uint16_t;
++    Gf2m(unsigned degree, std::uint32_t primitivePolynomial);
++    unsigned degree() const;
++    std::uint32_t order() const;
++    Element add(Element a, Element b) const;
++    Element multiply(Element a, Element b) const;
++    Element divide(Element a, Element b) const;
++    Element inverse(Element a) const;
++    Element power(Element a, std::int64_t exponent) const;
++    Element alphaPower(std::int64_t exponent) const;
++    int logarithm(Element a) const;
++    Element evaluate(const std::vector<Element>& ascendingCoefficients, Element x) const;
++private:
++    void validate(Element value) const;
++    unsigned degree_;
++    std::uint32_t order_;
++    std::uint32_t mask_;
++    std::vector<Element> antilog_;
++    std::vector<int> log_;
++};
++
++struct BlockBchProfile {
++    std::string caseName;
++    std::size_t payloadLength;
++    std::size_t motherN;
++    std::size_t motherK;
++    std::size_t shorteningLength;
++    unsigned fieldDegree;
++    unsigned correctionCapability;
++    std::uint32_t primitivePolynomial;
++    common::BitVector generatorPolynomial; // descending degree, leading coefficient first
++    std::vector<unsigned> generatorRoots;
++    std::size_t shortenedN() const { return motherN - shorteningLength; }
++    std::size_t shortenedK() const { return motherK - shorteningLength; }
++    std::size_t parityLength() const { return motherN - motherK; }
++    double frameRate() const { return static_cast<double>(payloadLength) / shortenedN(); }
++    unsigned designedDistance() const { return 2U * correctionCapability + 1U; }
++    std::string bitOrderDescription() const { return "index 0 is highest polynomial degree"; }
++    std::string shorteningPositionDescription() const { return "prepend known zeros to mother information, then delete prefix"; }
++};
++
++BlockBchProfile makeB200Profile();
++BlockBchProfile makeB300Profile();
++void validateProfile(const BlockBchProfile& profile);
++
++struct EncodeResult {
++    common::BitVector payload;
++    common::BitVector motherInformation;
++    common::BitVector motherCodeword;
++    common::BitVector shortenedCodeword;
++    common::BitVector parity;
++    common::BitVector polynomialRemainder;
++    bool motherCodewordDivisibleByGenerator = false;
++    std::size_t shorteningLength = 0U;
++};
++EncodeResult encodeShortened(const BlockBchProfile& profile, const common::BitVector& payload);
++bool isCodewordDivisibleByGenerator(const common::BitVector& codeword, const common::BitVector& generator);
++
++enum class DecodeStatus { NoError, Corrected, LocatorDegreeExceedsT, InvalidRootCount,
++                           RootInShortenedPrefix, PostSyndromeNonzero, InvalidConfiguration,
++                           InvalidInputLength, InvalidInputBits, RootOutOfRange, DecodeFailure };
++struct DecodeResult {
++    DecodeStatus status;
++    common::BitVector payload;
++    common::BitVector correctedMotherCodeword;
++    common::BitVector correctedShortenedCodeword;
++    std::vector<Gf2m::Element> syndromes;
++    std::vector<Gf2m::Element> locatorPolynomial;
++    std::vector<std::size_t> motherErrorPositions;
++    common::BitVector receivedShortenedCodeword;
++    common::BitVector receivedMotherCodeword;
++    bool allZeroSyndrome = false;
++    std::size_t nonzeroSyndromeCount = 0U;
++    std::size_t locatorDegree = 0U;
++    std::vector<std::size_t> shortenedErrorPositions;
++    bool rootsInShortenedPrefix = false;
++    std::vector<Gf2m::Element> postSyndromes;
++    bool postSyndromeZero = false;
++    std::size_t bmIterationCount = 0U;
++    std::string failureReason;
++};
++DecodeResult decodeShortened(const BlockBchProfile& profile, const common::BitVector& received);
++DecodeResult decodeShortenedNoThrow(const BlockBchProfile& profile, const common::BitVector& received);
++
++std::string bitsToString(const common::BitVector& bits);
++std::string statusName(DecodeStatus status);
++
++}  // namespace scl::bch::block
++
++#endif
+diff --git a/Task/BCH/block/current/src/bch_block.cpp b/Task/BCH/block/current/src/bch_block.cpp
+new file mode 100644
+index 0000000..98f781e
+--- /dev/null
++++ b/Task/BCH/block/current/src/bch_block.cpp
+@@ -0,0 +1,142 @@
++#include "bch_block/bch_block.hpp"
++
++#include <algorithm>
++#include <set>
++#include <stdexcept>
++
++namespace scl::bch::block {
++namespace {
++
++std::int64_t modulo(std::int64_t value, std::int64_t modulus) {
++    value %= modulus;
++    return value < 0 ? value + modulus : value;
++}
++
++std::vector<Gf2m::Element> buildGenerator(const Gf2m& field, unsigned t) {
++    std::vector<Gf2m::Element> polynomial(1U, 1U); // ascending coefficients
++    // A binary BCH generator must include complete conjugacy classes.  The
++    // consecutive designed roots alone are not generally closed under x->x^2.
++    std::set<unsigned> exponents;
++    const unsigned period = field.order() - 1U;
++    for (unsigned root = 1U; root <= 2U * t; ++root) {
++        unsigned exponent = root % period;
++        do { exponents.insert(exponent); exponent = (2U * exponent) % period; } while (exponent != root % period);
++    }
++    for (unsigned root : exponents) {
++        std::vector<Gf2m::Element> next(polynomial.size() + 1U, 0U);
++        const Gf2m::Element a = field.alphaPower(root);
++        for (std::size_t i = 0; i < polynomial.size(); ++i) {
++            next[i] = field.add(next[i], field.multiply(polynomial[i], a));
++            next[i + 1U] = field.add(next[i + 1U], polynomial[i]);
++        }
++        polynomial = next;
++    }
++    return polynomial;
++}
++
++common::BitVector binaryGenerator(const Gf2m& field, unsigned t) {
++    const std::vector<Gf2m::Element> ascending = buildGenerator(field, t);
++    common::BitVector descending(ascending.size(), 0U);
++    for (std::size_t i = 0; i < ascending.size(); ++i) {
++        if (ascending[i] > 1U) {
++            throw std::runtime_error("BCH generator coefficient is not binary");
++        }
++        descending[ascending.size() - 1U - i] = static_cast<common::Bit>(ascending[i]);
++    }
++    return descending;
++}
++
++common::BitVector systematicEncode(const common::BitVector& information,
++                                   const common::BitVector& generator) {
++    const std::size_t parity = generator.size() - 1U;
++    common::BitVector division(information.size() + parity, 0U);
++    std::copy(information.begin(), information.end(), division.begin());
++    for (std::size_t i = 0; i < information.size(); ++i) {
++        if (division[i] == 0U) continue;
++        for (std::size_t j = 0; j < generator.size(); ++j) division[i + j] ^= generator[j];
++    }
++    common::BitVector codeword = information;
++    codeword.insert(codeword.end(), division.end() - static_cast<std::ptrdiff_t>(parity), division.end());
++    return codeword;
++}
++
++common::BitVector polynomialRemainder(const common::BitVector& dividend,
++                                      const common::BitVector& generator) {
++    if (generator.size() < 2U || generator.front() != 1U) throw std::invalid_argument("invalid generator polynomial");
++    common::validateBits(dividend, "dividend"); common::validateBits(generator, "generator");
++    common::BitVector division = dividend;
++    if (division.size() >= generator.size()) for (std::size_t i=0;i<=division.size()-generator.size();++i) if (division[i] != 0U)
++        for (std::size_t j=0;j<generator.size();++j) division[i+j] ^= generator[j];
++    return common::BitVector(division.end()-static_cast<std::ptrdiff_t>(generator.size()-1U), division.end());
++}
++
++std::vector<Gf2m::Element> syndromes(const Gf2m& field, const common::BitVector& word, unsigned t) {
++    std::vector<Gf2m::Element> result(2U * t, 0U);
++    for (unsigned j = 1U; j <= 2U * t; ++j) {
++        for (std::size_t index = 0; index < word.size(); ++index) {
++            if (word[index] != 0U) result[j - 1U] ^= field.alphaPower(static_cast<std::int64_t>(j) *
++                static_cast<std::int64_t>(word.size() - 1U - index));
++        }
++    }
++    return result;
++}
++
++std::vector<Gf2m::Element> berlekampMassey(const Gf2m& field,
++                                            const std::vector<Gf2m::Element>& sequence) {
++    std::vector<Gf2m::Element> locator(1U, 1U), backup(1U, 1U);
++    std::size_t length = 0U, shift = 1U;
++    Gf2m::Element lastDiscrepancy = 1U;
++    for (std::size_t n = 0; n < sequence.size(); ++n) {
++        Gf2m::Element discrepancy = sequence[n];
++        for (std::size_t i = 1U; i <= length; ++i) discrepancy ^= field.multiply(locator[i], sequence[n - i]);
++        if (discrepancy == 0U) { ++shift; continue; }
++        const std::vector<Gf2m::Element> previous = locator;
++        if (locator.size() < backup.size() + shift) locator.resize(backup.size() + shift, 0U);
++        const Gf2m::Element scale = field.divide(discrepancy, lastDiscrepancy);
++        for (std::size_t i = 0; i < backup.size(); ++i) locator[i + shift] ^= field.multiply(scale, backup[i]);
++        if (2U * length <= n) { length = n + 1U - length; backup = previous; lastDiscrepancy = discrepancy; shift = 1U; }
++        else ++shift;
++    }
++    locator.resize(length + 1U);
++    return locator;
++}
++
++}  // namespace
++
++Gf2m::Gf2m(unsigned degree, std::uint32_t primitivePolynomial) : degree_(degree) {
++    if (degree < 2U || degree > 15U) throw std::invalid_argument("GF degree must be in [2,15]");
++    order_ = 1U << degree_; mask_ = order_ - 1U;
++    if ((primitivePolynomial >> degree_) != 1U || (primitivePolynomial & 1U) == 0U) {
++        throw std::invalid_argument("primitive polynomial has invalid degree or constant term");
++    }
++    antilog_.assign(order_ - 1U, 0U); log_.assign(order_, -1);
++    std::uint32_t value = 1U;
++    for (std::uint32_t i = 0; i < order_ - 1U; ++i) {
++        if (log_[value] != -1) throw std::invalid_argument("polynomial is not primitive");
++        antilog_[i] = static_cast<Element>(value); log_[value] = static_cast<int>(i);
++        value <<= 1U; if ((value & order_) != 0U) value ^= primitivePolynomial; value &= mask_;
++    }
++    if (value != 1U) throw std::invalid_argument("polynomial is not primitive");
++}
++unsigned Gf2m::degree() const { return degree_; }
++std::uint32_t Gf2m::order() const { return order_; }
++void Gf2m::validate(Element value) const { if (value >= order_) throw std::out_of_range("field element outside range"); }
++Gf2m::Element Gf2m::add(Element a, Element b) const { validate(a); validate(b); return static_cast<Element>(a ^ b); }
++Gf2m::Element Gf2m::multiply(Element a, Element b) const { validate(a); validate(b); return a == 0U || b == 0U ? 0U : antilog_[(log_[a] + log_[b]) % static_cast<int>(order_ - 1U)]; }
++Gf2m::Element Gf2m::divide(Element a, Element b) const { validate(a); validate(b); if (b == 0U) throw std::domain_error("division by zero in GF"); return a == 0U ? 0U : antilog_[static_cast<std::size_t>(modulo(log_[a] - log_[b], order_ - 1U))]; }
++Gf2m::Element Gf2m::inverse(Element a) const { if (a == 0U) throw std::domain_error("inverse of zero in GF"); return divide(1U, a); }
++Gf2m::Element Gf2m::power(Element a, std::int64_t exponent) const { validate(a); if (a == 0U) { if (exponent < 0) throw std::domain_error("negative power of zero"); return exponent == 0 ? 1U : 0U; } return antilog_[static_cast<std::size_t>(modulo(static_cast<std::int64_t>(log_[a]) * exponent, order_ - 1U))]; }
++Gf2m::Element Gf2m::alphaPower(std::int64_t exponent) const { return antilog_[static_cast<std::size_t>(modulo(exponent, order_ - 1U))]; }
++int Gf2m::logarithm(Element a) const { validate(a); if (a == 0U) throw std::domain_error("logarithm of zero in GF"); return log_[a]; }
++Gf2m::Element Gf2m::evaluate(const std::vector<Element>& c, Element x) const { validate(x); Element value = 0U; for (auto it = c.rbegin(); it != c.rend(); ++it) value = add(multiply(value, x), *it); return value; }
++
++BlockBchProfile makeB200Profile() { Gf2m field(8U, 0x11DU); return {"BCH-B200",200U,255U,207U,7U,8U,6U,0x11DU,binaryGenerator(field,6U),{1,2,3,4,5,6,7,8,9,10,11,12}}; }
++BlockBchProfile makeB300Profile() { Gf2m field(9U, 0x211U); return {"BCH-B300",300U,511U,421U,121U,9U,10U,0x211U,binaryGenerator(field,10U),{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20}}; }
++void validateProfile(const BlockBchProfile& p) { if (p.correctionCapability==0U || p.shorteningLength>p.motherK || p.motherN != (1U << p.fieldDegree) - 1U || p.motherK != p.payloadLength + p.shorteningLength || p.generatorPolynomial.size() != p.motherN - p.motherK + 1U || p.generatorRoots.size() != 2U * p.correctionCapability) throw std::invalid_argument("invalid BCH block profile"); common::validateBits(p.generatorPolynomial,"generatorPolynomial"); }
++bool isCodewordDivisibleByGenerator(const common::BitVector& word, const common::BitVector& generator) { const auto remainder=polynomialRemainder(word,generator); return std::all_of(remainder.begin(),remainder.end(),[](common::Bit b){return b==0U;}); }
++EncodeResult encodeShortened(const BlockBchProfile& p, const common::BitVector& payload) { validateProfile(p); if (payload.size()!=p.payloadLength) throw std::invalid_argument("payload length mismatch"); common::validateBits(payload,"payload"); EncodeResult r; r.payload=payload; r.shorteningLength=p.shorteningLength; r.motherInformation.assign(p.shorteningLength,0U); r.motherInformation.insert(r.motherInformation.end(),payload.begin(),payload.end()); r.motherCodeword=systematicEncode(r.motherInformation,p.generatorPolynomial); r.polynomialRemainder=polynomialRemainder(r.motherCodeword,p.generatorPolynomial); r.motherCodewordDivisibleByGenerator=std::all_of(r.polynomialRemainder.begin(),r.polynomialRemainder.end(),[](common::Bit b){return b==0U;}); r.parity.assign(r.motherCodeword.end()-static_cast<std::ptrdiff_t>(p.parityLength()),r.motherCodeword.end()); r.shortenedCodeword.assign(r.motherCodeword.begin()+static_cast<std::ptrdiff_t>(p.shorteningLength),r.motherCodeword.end()); return r; }
++DecodeResult decodeShortened(const BlockBchProfile& p, const common::BitVector& received) { validateProfile(p); if(received.size()!=p.shortenedN()) throw std::invalid_argument("shortened codeword length mismatch"); common::validateBits(received,"received"); Gf2m field(p.fieldDegree,p.primitivePolynomial); DecodeResult r; r.receivedShortenedCodeword=received; common::BitVector mother(p.shorteningLength,0U); mother.insert(mother.end(),received.begin(),received.end()); r.receivedMotherCodeword=mother; r.syndromes=syndromes(field,mother,p.correctionCapability); r.allZeroSyndrome=std::all_of(r.syndromes.begin(),r.syndromes.end(),[](Gf2m::Element s){return s==0U;}); r.nonzeroSyndromeCount=static_cast<std::size_t>(std::count_if(r.syndromes.begin(),r.syndromes.end(),[](Gf2m::Element s){return s!=0U;})); r.locatorPolynomial={1U}; r.bmIterationCount=r.allZeroSyndrome?0U:r.syndromes.size(); r.status=DecodeStatus::DecodeFailure; if(r.allZeroSyndrome){r.status=DecodeStatus::NoError;}else{r.locatorPolynomial=berlekampMassey(field,r.syndromes);r.locatorDegree=r.locatorPolynomial.size()-1U;if(r.locatorDegree>p.correctionCapability){r.status=DecodeStatus::LocatorDegreeExceedsT;r.failureReason="locator degree exceeds t";}else{for(std::size_t i=0;i<mother.size();++i)if(field.evaluate(r.locatorPolynomial,field.alphaPower(-static_cast<std::int64_t>(mother.size()-1U-i)))==0U)r.motherErrorPositions.push_back(i);for(auto i:r.motherErrorPositions){if(i<p.shorteningLength)r.rootsInShortenedPrefix=true;else r.shortenedErrorPositions.push_back(i-p.shorteningLength);}if(r.motherErrorPositions.size()!=r.locatorDegree){r.status=DecodeStatus::InvalidRootCount;r.failureReason="root count differs from locator degree";}else if(r.rootsInShortenedPrefix){r.status=DecodeStatus::RootInShortenedPrefix;r.failureReason="root lies in shortened prefix";}else{for(auto i:r.motherErrorPositions)mother[i]^=1U;r.status=DecodeStatus::Corrected;}}r.postSyndromes=syndromes(field,mother,p.correctionCapability);r.postSyndromeZero=std::all_of(r.postSyndromes.begin(),r.postSyndromes.end(),[](Gf2m::Element s){return s==0U;});if(r.status==DecodeStatus::Corrected&&!r.postSyndromeZero){r.status=DecodeStatus::PostSyndromeNonzero;r.failureReason="post syndrome is nonzero";}}r.correctedMotherCodeword=mother;r.correctedShortenedCodeword.assign(mother.begin()+static_cast<std::ptrdiff_t>(p.shorteningLength),mother.end());r.payload.assign(mother.begin()+static_cast<std::ptrdiff_t>(p.shorteningLength),mother.begin()+static_cast<std::ptrdiff_t>(p.motherK));return r;}
++DecodeResult decodeShortenedNoThrow(const BlockBchProfile& p,const common::BitVector& received){DecodeResult r;r.receivedShortenedCodeword=received;try{validateProfile(p);}catch(const std::exception&e){r.status=DecodeStatus::InvalidConfiguration;r.failureReason=e.what();return r;}if(received.size()!=p.shortenedN()){r.status=DecodeStatus::InvalidInputLength;r.failureReason="shortened codeword length mismatch";return r;}try{common::validateBits(received,"received");}catch(const std::exception&e){r.status=DecodeStatus::InvalidInputBits;r.failureReason=e.what();return r;}try{return decodeShortened(p,received);}catch(const std::exception&e){r.status=DecodeStatus::DecodeFailure;r.failureReason=e.what();return r;}}
++std::string bitsToString(const common::BitVector& bits) { std::string s; s.reserve(bits.size()); for(common::Bit b:bits)s.push_back(b?'1':'0'); return s; }
++std::string statusName(DecodeStatus s) { switch(s){case DecodeStatus::NoError:return "NO_ERROR";case DecodeStatus::Corrected:return "CORRECTED";case DecodeStatus::LocatorDegreeExceedsT:return "LOCATOR_DEGREE_EXCEEDS_T";case DecodeStatus::InvalidRootCount:return "INVALID_ROOT_COUNT";case DecodeStatus::RootInShortenedPrefix:return "ROOT_IN_SHORTENED_PREFIX";case DecodeStatus::PostSyndromeNonzero:return "POST_SYNDROME_NONZERO";case DecodeStatus::InvalidConfiguration:return "INVALID_CONFIGURATION";case DecodeStatus::InvalidInputLength:return "INVALID_INPUT_LENGTH";case DecodeStatus::InvalidInputBits:return "INVALID_INPUT_BITS";case DecodeStatus::RootOutOfRange:return "ROOT_OUT_OF_RANGE";case DecodeStatus::DecodeFailure:return "DECODE_FAILURE";} return "UNKNOWN"; }
++}  // namespace scl::bch::block
+diff --git a/Task/BCH/block/current/tests/export_bch_block_detail.cpp b/Task/BCH/block/current/tests/export_bch_block_detail.cpp
+new file mode 100644
+index 0000000..36faab1
+--- /dev/null
++++ b/Task/BCH/block/current/tests/export_bch_block_detail.cpp
+@@ -0,0 +1,10 @@
++#include "bch_block/bch_block.hpp"
++#include <fstream>
++#include <iostream>
++namespace { using namespace scl::bch::block; using scl::common::BitVector;
++BitVector payloadFor(std::size_t n,unsigned p){BitVector b(n);for(std::size_t i=0;i<n;++i)b[i]=p==0?0U:(p==1?1U:(p==2?i%2U:(p==3?(i+1U)%2U:static_cast<unsigned>(((i*37U+p*19U+11U)%101U)<50U))));return b;}
++std::string ns(const std::vector<Gf2m::Element>& v){std::string s;for(auto x:v){if(!s.empty())s+=':';s+=std::to_string(x);}return s;} std::string ps(const std::vector<std::size_t>& v){std::string s;for(auto x:v){if(!s.empty())s+=':';s+=std::to_string(x);}return s;}
++void inject(BitVector& r,unsigned weight,unsigned seed,std::size_t payloadLength){for(unsigned j=0;j<weight;++j){const std::size_t mode=seed%7U,parityLength=r.size()-payloadLength;std::size_t p=0;if(mode==0)p=(seed+j*17U)%payloadLength;else if(mode==1)p=payloadLength+(seed+j*7U)%parityLength;else if(mode==2)p=j%2U==0?(seed+(j/2U)*17U)%payloadLength:payloadLength+(seed+(j/2U)*7U)%parityLength;else if(mode==3)p=(seed+j)%r.size();else if(mode==4)p=j%2U==0?j/2U:r.size()-1U-j/2U;else if(mode==5)p=(seed+j*53U)%r.size();else p=(seed*37U+j*29U+7U)%r.size();r[p]^=1U;}}
++void row(std::ofstream& o,const BlockBchProfile&p,unsigned pat,const std::string& kind,const BitVector& payload,const EncodeResult&e,BitVector r){const auto d=decodeShortened(p,r);const bool ok=d.payload==payload,good=d.status==DecodeStatus::NoError||d.status==DecodeStatus::Corrected;o<<p.caseName<<','<<pat<<','<<kind<<','<<bitsToString(payload)<<','<<bitsToString(e.motherCodeword)<<','<<bitsToString(e.shortenedCodeword)<<','<<bitsToString(r)<<','<<ns(d.syndromes)<<','<<d.allZeroSyndrome<<','<<d.nonzeroSyndromeCount<<','<<ns(d.locatorPolynomial)<<','<<d.locatorDegree<<','<<ps(d.motherErrorPositions)<<','<<ps(d.shortenedErrorPositions)<<','<<d.rootsInShortenedPrefix<<','<<bitsToString(d.correctedShortenedCodeword)<<','<<bitsToString(d.payload)<<','<<ns(d.postSyndromes)<<','<<d.postSyndromeZero<<','<<d.bmIterationCount<<','<<d.failureReason<<','<<statusName(d.status)<<','<<ok<<','<<good<<','<<(good&&!ok)<<'\n';}
++}
++int main(int argc,char**argv){if(argc!=2)return 2;std::ofstream o(argv[1]);if(!o)return 3;o<<"caseName,pattern,errorKind,payload,motherCodeword,shortenedCodeword,received,syndromes,allZeroSyndrome,nonzeroSyndromeCount,locator,locatorDegree,rootPositions,shortenedErrorPositions,rootsInShortenedPrefix,correctedShortened,decodedPayload,postSyndromes,postSyndromeZero,bmIterationCount,failureReason,status,truePayloadRecovered,reportedSuccess,miscorrected\n";for(const auto&p:{makeB200Profile(),makeB300Profile()}){for(unsigned pat=0;pat<208;++pat){auto m=payloadFor(p.payloadLength,pat);auto e=encodeShortened(p,m);for(unsigned k=0;k<7;++k){auto r=e.shortenedCodeword;std::string n="NONE";if(k==1){r[0]^=1;n="FIRST";}else if(k==2){r.back()^=1;n="LAST";}else if(k){unsigned w=k==3?p.correctionCapability:(k==4?p.correctionCapability+1U:(k==5?p.correctionCapability+2U:p.correctionCapability+5U));n=k==3?"T":(k==4?"T_PLUS_1":(k==5?"T_PLUS_2":"HIGH_WEIGHT"));inject(r,w,pat,p.payloadLength);}row(o,p,pat,n,m,e,r);}}for(unsigned pat=0;pat<8;++pat){auto m=payloadFor(p.payloadLength,pat);auto e=encodeShortened(p,m);for(std::size_t x=0;x<e.shortenedCodeword.size();++x){auto r=e.shortenedCodeword;r[x]^=1U;row(o,p,pat,"SINGLE_ALL",m,e,r);}}for(unsigned w=2;w<=p.correctionCapability;++w)for(unsigned pat=0;pat<100;++pat){auto m=payloadFor(p.payloadLength,pat+1000U+w*100U);auto e=encodeShortened(p,m);auto r=e.shortenedCodeword;inject(r,w,pat+w*1000U,p.payloadLength);row(o,p,pat,"WEIGHT_"+std::to_string(w),m,e,r);}}}
+diff --git a/Task/BCH/block/current/tests/export_bch_block_gf_detail.cpp b/Task/BCH/block/current/tests/export_bch_block_gf_detail.cpp
+new file mode 100644
+index 0000000..404732c
+--- /dev/null
++++ b/Task/BCH/block/current/tests/export_bch_block_gf_detail.cpp
+@@ -0,0 +1,10 @@
++#include "bch_block/bch_block.hpp"
++#include <fstream>
++#include <iostream>
++
++int main(int argc,char**argv){if(argc!=2)return 2;std::ofstream out(argv[1]);if(!out)return 3;out<<"fieldDegree,operation,a,b,result\n";
++ for(const auto&p:{scl::bch::block::makeB200Profile(),scl::bch::block::makeB300Profile()}){scl::bch::block::Gf2m f(p.fieldDegree,p.primitivePolynomial);const unsigned period=f.order()-1U;
++  for(unsigned e=0;e<period;++e)out<<p.fieldDegree<<",alpha,"<<e<<",,"<<f.alphaPower(e)<<'\n';
++  for(unsigned a=1;a<f.order();++a){out<<p.fieldDegree<<",log,"<<a<<",,"<<f.logarithm(a)<<'\n';out<<p.fieldDegree<<",inverse,"<<a<<",,"<<f.inverse(a)<<'\n';}
++  for(unsigned i=0;i<256;++i){auto a=static_cast<scl::bch::block::Gf2m::Element>((i*37U+11U)%f.order());auto b=static_cast<scl::bch::block::Gf2m::Element>((i*53U+7U)%period+1U);out<<p.fieldDegree<<",multiply,"<<a<<','<<b<<','<<f.multiply(a,b)<<'\n';out<<p.fieldDegree<<",divide,"<<a<<','<<b<<','<<f.divide(a,b)<<'\n';std::vector<scl::bch::block::Gf2m::Element> c={1U,a,b};out<<p.fieldDegree<<",evaluate,"<<a<<','<<b<<','<<f.evaluate(c,b)<<'\n';}
++ }}
+diff --git a/Task/BCH/block/current/tests/export_bch_block_illegal.cpp b/Task/BCH/block/current/tests/export_bch_block_illegal.cpp
+new file mode 100644
+index 0000000..fdc59fc
+--- /dev/null
++++ b/Task/BCH/block/current/tests/export_bch_block_illegal.cpp
+@@ -0,0 +1,7 @@
++#include "bch_block/bch_block.hpp"
++#include <fstream>
++using namespace scl::bch::block;
++int main(int argc,char**argv){if(argc!=2)return 2;std::ofstream o(argv[1]);o<<"category,status\n";auto p=makeB200Profile();auto w=encodeShortened(p,scl::common::BitVector(200,0U)).shortenedCodeword;
++ auto emit=[&](const char*n,const BlockBchProfile&q,const scl::common::BitVector&v){o<<n<<','<<statusName(decodeShortenedNoThrow(q,v).status)<<'\n';};
++ emit("decoder_short",p,scl::common::BitVector(w.size()-1,0));emit("decoder_long",p,scl::common::BitVector(w.size()+1,0));auto bad=w;bad[0]=2;emit("decoder_nonbinary",p,bad);auto q=p;q.motherN--;emit("decoder_invalid_profile",q,w);
++ auto gf=[&](const char*n,auto fn){try{fn();o<<n<<",NO_EXCEPTION\n";}catch(...){o<<n<<",EXCEPTION\n";}};Gf2m f(8,0x11D);gf("gf_divide_zero",[&]{f.divide(1,0);});gf("gf_inverse_zero",[&]{f.inverse(0);});gf("gf_log_zero",[&]{f.logarithm(0);});gf("gf_element_range",[&]{f.multiply(256,1);});gf("gf_zero_negative_power",[&]{f.power(0,-1);});gf("gf_nonprimitive",[&]{Gf2m x(8,0x11B);(void)x;});}
+diff --git a/Task/BCH/block/current/tests/export_bch_block_pool_encoder.cpp b/Task/BCH/block/current/tests/export_bch_block_pool_encoder.cpp
+new file mode 100644
+index 0000000..855616a
+--- /dev/null
++++ b/Task/BCH/block/current/tests/export_bch_block_pool_encoder.cpp
+@@ -0,0 +1,13 @@
++#include "bch_block/bch_block.hpp"
++#include "common/frame_pool.hpp"
++#include <fstream>
++#include <iostream>
++
++int main(int argc,char**argv){
++ if(argc!=4){std::cerr<<"usage: export_bch_block_pool_encoder k200.json k300.json output.csv\n";return 2;}
++ std::ofstream out(argv[3]);if(!out)return 3;
++ out<<"caseName,frameIndex,payload,motherInformation,parity,motherCodeword,shortenedCodeword,remainder,divisible\n";
++ for(const auto& item:{std::pair{scl::bch::block::makeB200Profile(),argv[1]},std::pair{scl::bch::block::makeB300Profile(),argv[2]}}){
++  scl::common::PackedFramePoolReader reader(item.second); for(std::uint64_t i=0;i<100;++i){const auto e=scl::bch::block::encodeShortened(item.first,reader.readFrame(i).payloadBits);out<<item.first.caseName<<','<<i<<','<<scl::bch::block::bitsToString(e.payload)<<','<<scl::bch::block::bitsToString(e.motherInformation)<<','<<scl::bch::block::bitsToString(e.parity)<<','<<scl::bch::block::bitsToString(e.motherCodeword)<<','<<scl::bch::block::bitsToString(e.shortenedCodeword)<<','<<scl::bch::block::bitsToString(e.polynomialRemainder)<<','<<e.motherCodewordDivisibleByGenerator<<'\n';}
++ }
++}
+diff --git a/Task/BCH/block/current/tests/export_bch_block_reference.cpp b/Task/BCH/block/current/tests/export_bch_block_reference.cpp
+new file mode 100644
+index 0000000..b2cd385
+--- /dev/null
++++ b/Task/BCH/block/current/tests/export_bch_block_reference.cpp
+@@ -0,0 +1,14 @@
++#include "bch_block/bch_block.hpp"
++#include <fstream>
++#include <iostream>
++
++int main(int argc, char** argv) {
++    if (argc != 2) { std::cerr << "usage: export_bch_block_reference output.csv\n"; return 2; }
++    std::ofstream out(argv[1]); if (!out) return 3;
++    out << "caseName,fieldDegree,primitivePolynomial,generatorPolynomial,generatorDegree,correctionCapability,shorteningLength,shortenedN,shortenedK\n";
++    for (const auto& p : {scl::bch::block::makeB200Profile(), scl::bch::block::makeB300Profile()}) {
++        out << p.caseName << ',' << p.fieldDegree << ',' << p.primitivePolynomial << ','
++            << scl::bch::block::bitsToString(p.generatorPolynomial) << ',' << p.generatorPolynomial.size()-1U << ','
++            << p.correctionCapability << ',' << p.shorteningLength << ',' << p.motherN-p.shorteningLength << ',' << p.payloadLength << '\n';
++    }
++}
+diff --git a/Task/BCH/block/current/tests/test_bch_block.cpp b/Task/BCH/block/current/tests/test_bch_block.cpp
+new file mode 100644
+index 0000000..5e2d271
+--- /dev/null
++++ b/Task/BCH/block/current/tests/test_bch_block.cpp
+@@ -0,0 +1,89 @@
++#include "bch_block/bch_block.hpp"
++#include "common/frame_pool.hpp"
++
++#include <algorithm>
++#include <iostream>
++#include <random>
++#include <stdexcept>
++
++namespace {
++using scl::common::BitVector;
++using namespace scl::bch::block;
++
++void require(bool value, const char* message) { if (!value) throw std::runtime_error(message); }
++template <typename Function> void requireThrows(Function&& function, const char* message) { bool threw=false; try { function(); } catch (const std::exception&) { threw=true; } require(threw,message); }
++
++BitVector payload(std::size_t length, std::uint64_t seed) {
++    BitVector result(length, 0U);
++    for (std::size_t i = 0; i < length; ++i)
++        result[i] = scl::common::deterministicPayloadBit(seed, length, 0U, i);
++    return result;
++}
++
++void testField(const Gf2m& field) {
++    for (std::uint32_t a = 0; a < field.order(); ++a) {
++        require(field.add(static_cast<Gf2m::Element>(a), 0U) == a, "additive identity");
++        require(field.add(static_cast<Gf2m::Element>(a), static_cast<Gf2m::Element>(a)) == 0U, "additive inverse");
++        require(field.multiply(static_cast<Gf2m::Element>(a), 1U) == a, "multiplicative identity");
++        if (a != 0U) { require(field.multiply(static_cast<Gf2m::Element>(a), field.inverse(static_cast<Gf2m::Element>(a))) == 1U, "inverse identity"); require(field.alphaPower(field.logarithm(static_cast<Gf2m::Element>(a))) == a, "log/antilog"); }
++    }
++    require(field.alphaPower(static_cast<std::int64_t>(field.order()) - 1) == 1U, "field period");
++    require(field.alphaPower(-1) == field.inverse(2U), "negative exponent");
++    std::mt19937 generator(20260722U + field.degree());
++    for (unsigned count = 0; count < 20000U; ++count) {
++        const auto a = static_cast<Gf2m::Element>(generator() % field.order());
++        const auto b = static_cast<Gf2m::Element>(generator() % field.order());
++        const auto c = static_cast<Gf2m::Element>(generator() % field.order());
++        require(field.multiply(a, field.add(b,c)) == field.add(field.multiply(a,b),field.multiply(a,c)), "distributivity");
++    }
++}
++
++void testProfile(const BlockBchProfile& profile) {
++    validateProfile(profile);
++    Gf2m field(profile.fieldDegree, profile.primitivePolynomial);
++    std::vector<Gf2m::Element> ascending(profile.generatorPolynomial.size());
++    for (std::size_t i = 0; i < ascending.size(); ++i) ascending[i] = profile.generatorPolynomial[ascending.size()-1U-i];
++    for (unsigned root : profile.generatorRoots) require(field.evaluate(ascending, field.alphaPower(root)) == 0U, "generator root mismatch");
++    for (std::uint64_t seed = 0; seed < 108U; ++seed) {
++        const BitVector original = payload(profile.payloadLength, 0xBC70700ULL + seed);
++        const EncodeResult encoded = encodeShortened(profile, original);
++        require(encoded.motherInformation.size() == profile.motherK, "mother information length");
++        require(encoded.motherCodeword.size() == profile.motherN, "mother word length");
++        require(encoded.shortenedCodeword.size() == profile.motherN-profile.shorteningLength, "shortened length");
++        require(encoded.motherCodewordDivisibleByGenerator && isCodewordDivisibleByGenerator(encoded.motherCodeword,profile.generatorPolynomial), "mother divisibility");
++        require(encoded.payload == original && encoded.parity.size()==profile.parityLength(), "encode observability");
++        require(std::equal(original.begin(), original.end(), encoded.shortenedCodeword.begin()), "systematic payload");
++        DecodeResult clean = decodeShortened(profile, encoded.shortenedCodeword);
++        require(clean.payload == original && clean.status == DecodeStatus::NoError, "noiseless decode");
++        for (std::size_t position = 0; position < encoded.shortenedCodeword.size(); ++position) {
++            BitVector received = encoded.shortenedCodeword; received[position] ^= 1U;
++            DecodeResult decoded = decodeShortened(profile, received);
++            require(decoded.payload == original && decoded.status == DecodeStatus::Corrected, "single error correction");
++        }
++    }
++    std::mt19937 generator(20260722U + static_cast<unsigned>(profile.payloadLength));
++    for (unsigned weight = 2U; weight <= profile.correctionCapability; ++weight) {
++        for (unsigned sample = 0U; sample < 100U; ++sample) {
++            const BitVector original = payload(profile.payloadLength, 100000U + weight * 1000U + sample);
++            BitVector received = encodeShortened(profile, original).shortenedCodeword;
++            std::vector<std::size_t> choices(received.size()); for (std::size_t i=0;i<choices.size();++i) choices[i]=i;
++            std::shuffle(choices.begin(), choices.end(), generator);
++            for (unsigned i=0;i<weight;++i) received[choices[i]] ^= 1U;
++            DecodeResult decoded = decodeShortened(profile, received);
++            require(decoded.payload == original && decoded.status == DecodeStatus::Corrected, "correctable multi-error");
++        }
++    }
++}
++}
++
++int main() {
++    try {
++        testField(Gf2m(8U, 0x11DU)); testField(Gf2m(9U, 0x211U));
++        requireThrows([] { Gf2m(1U,0x3U); },"invalid field degree"); requireThrows([] { Gf2m(8U,0x101U); },"primitive polynomial degree mismatch"); requireThrows([] { Gf2m(8U,0x11BU); },"non primitive polynomial");
++        Gf2m field(8U,0x11DU); requireThrows([&] { field.divide(1U,0U); },"divide zero"); requireThrows([&] { field.inverse(0U); },"inverse zero"); requireThrows([&] { field.logarithm(0U); },"log zero"); requireThrows([&] { field.multiply(256U,1U); },"out of range"); requireThrows([&] { field.power(0U,-1); },"negative zero power");
++        BlockBchProfile invalid=makeB200Profile(); invalid.motherN=254U; requireThrows([&] { validateProfile(invalid); },"invalid n"); invalid=makeB200Profile(); invalid.motherK=206U; requireThrows([&] { validateProfile(invalid); },"invalid k"); invalid=makeB200Profile(); invalid.generatorPolynomial.pop_back(); requireThrows([&] { validateProfile(invalid); },"invalid degree"); invalid=makeB200Profile(); invalid.generatorPolynomial[1]=2U; requireThrows([&] { validateProfile(invalid); },"non binary generator"); invalid=makeB200Profile(); invalid.generatorRoots.pop_back(); requireThrows([&] { validateProfile(invalid); },"roots count"); invalid=makeB200Profile(); invalid.correctionCapability=0U; requireThrows([&] { validateProfile(invalid); },"zero t");
++        const auto profile=makeB200Profile(); const BitVector valid=payload(profile.payloadLength,123U); BitVector nonbinary=valid; nonbinary[0]=2U; requireThrows([&] { encodeShortened(profile,BitVector(profile.payloadLength-1U,0U)); },"short payload"); requireThrows([&] { encodeShortened(profile,BitVector(profile.payloadLength+1U,0U)); },"long payload"); requireThrows([&] { encodeShortened(profile,nonbinary); },"nonbinary payload"); const auto word=encodeShortened(profile,valid).shortenedCodeword; requireThrows([&] { decodeShortened(profile,BitVector(word.size()-1U,0U)); },"short receive"); requireThrows([&] { decodeShortened(profile,BitVector(word.size()+1U,0U)); },"long receive"); nonbinary=word; nonbinary[0]=2U; const auto safe=decodeShortenedNoThrow(profile,nonbinary); require(safe.status==DecodeStatus::InvalidInputBits,"nonthrow bits"); const auto shortSafe=decodeShortenedNoThrow(profile,BitVector(word.size()-1U,0U)); require(shortSafe.status==DecodeStatus::InvalidInputLength,"nonthrow length");
++        testProfile(makeB200Profile()); testProfile(makeB300Profile());
++        std::cout << "PASS_BCH_BLOCK_CORE_TEST\n";
++    } catch (const std::exception& error) { std::cerr << "FAIL: " << error.what() << '\n'; return 1; }
++}
+diff --git a/Task/BCH/block/matlab/run_bch_group3_reference.m b/Task/BCH/block/matlab/run_bch_group3_reference.m
+new file mode 100644
+index 0000000..332436f
+--- /dev/null
++++ b/Task/BCH/block/matlab/run_bch_group3_reference.m
+@@ -0,0 +1,189 @@
++function run_bch_group3_reference(outputPath, detailPath)
++% Independent MATLAB GF(2^m) and primitive narrow-sense BCH parameter audit.
++if nargin < 1 || nargin > 2, error('one parameter output path and optional detail path required'); end
++profiles = {makeProfile('BCH-B200', 200, 255, 207, 7, 8, hex2dec('11D'), 6), ...
++            makeProfile('BCH-B300', 300, 511, 421, 121, 9, hex2dec('211'), 10)};
++fid = fopen(outputPath, 'w'); if fid < 0, error('cannot open output'); end
++cleanup = onCleanup(@() fclose(fid));
++fprintf(fid, 'caseName,fieldDegree,primitivePolynomial,generatorPolynomial,generatorDegree,correctionCapability,shorteningLength,shortenedN,shortenedK\n');
++for k = 1:numel(profiles)
++    p = profiles{k};
++    fprintf(fid, '%s,%d,%d,%s,%d,%d,%d,%d,%d\n', p.caseName,p.m,p.primitive,bitsText(p.generator),numel(p.generator)-1,p.t,p.s,p.n-p.s,p.payload);
++end
++if nargin == 2
++    writeDetailsExtended(profiles, detailPath);
++end
++end
++
++function writeDetailsExtended(profiles,path)
++fid=fopen(path,'w'); if fid<0,error('cannot open detail output');end
++cleanup=onCleanup(@() fclose(fid));
++fprintf(fid,'caseName,pattern,errorKind,payload,motherCodeword,shortenedCodeword,received,syndromes,allZeroSyndrome,nonzeroSyndromeCount,locator,locatorDegree,rootPositions,shortenedErrorPositions,rootsInShortenedPrefix,correctedShortened,decodedPayload,postSyndromes,postSyndromeZero,bmIterationCount,failureReason,status,truePayloadRecovered,reportedSuccess,miscorrected\n');
++for k=1:numel(profiles)
++ p=profiles{k}; t=gfTables(p.m,p.primitive);
++ for pat=0:207
++  m=vectorFor(p.payload,pat); [mother,shortened]=encodeWord(p,m);
++  for kind=0:6
++   r=shortened; name='NONE';
++   if kind==1,r(1)=1-r(1);name='FIRST';elseif kind==2,r(end)=1-r(end);name='LAST';elseif kind>2
++    if kind==3,w=p.t;name='T';elseif kind==4,w=p.t+1;name='T_PLUS_1';elseif kind==5,w=p.t+2;name='T_PLUS_2';else,w=p.t+5;name='HIGH_WEIGHT';end
++    r=injectErrors(r,w,pat,p.payload);
++   end
++   writeDetailRow(fid,p,t,pat,name,m,mother,shortened,r);
++  end
++ end
++ for pat=0:7
++  m=vectorFor(p.payload,pat);[mother,shortened]=encodeWord(p,m);
++  for x=1:numel(shortened),r=shortened;r(x)=1-r(x);writeDetailRow(fid,p,t,pat,'SINGLE_ALL',m,mother,shortened,r);end
++ end
++ for w=2:p.t
++  for pat=0:99
++   m=vectorFor(p.payload,pat+1000+w*100);[mother,shortened]=encodeWord(p,m);r=injectErrors(shortened,w,pat+w*1000,p.payload);writeDetailRow(fid,p,t,pat,['WEIGHT_' num2str(w)],m,mother,shortened,r);
++  end
++ end
++end
++end
++
++function r=injectErrors(r,w,seed,payloadLength)
++for j=0:(w-1)
++ mode=mod(seed,7); parityLength=numel(r)-payloadLength;
++ if mode==0,p=mod(seed+j*17,payloadLength);elseif mode==1,p=payloadLength+mod(seed+j*7,parityLength);elseif mode==2,if mod(j,2)==0,p=mod(seed+floor(j/2)*17,payloadLength);else,p=payloadLength+mod(seed+floor(j/2)*7,parityLength);end;elseif mode==3,p=mod(seed+j,numel(r));elseif mode==4,if mod(j,2)==0,p=floor(j/2);else,p=numel(r)-1-floor(j/2);end;elseif mode==5,p=mod(seed+j*53,numel(r));else,p=mod(seed*37+j*29+7,numel(r));end
++ r(p+1)=1-r(p+1);
++end
++end
++
++function writeDetailRow(fid,p,t,pat,name,m,mother,shortened,r)
++d=decodeWord(p,t,r); recovered=isequal(d.payload,m); success=strcmp(d.status,'NO_ERROR')||strcmp(d.status,'CORRECTED');
++fprintf(fid,'%s,%d,%s,%s,%s,%s,%s,%s,%d,%d,%s,%d,%s,%s,%d,%s,%s,%s,%d,%d,%s,%s,%d,%d,%d\n',p.caseName,pat,name,bitsText(m),bitsText(mother),bitsText(shortened),bitsText(r),numberText(d.syndromes),d.allZero,numel(d.syndromes(d.syndromes~=0)),numberText(d.locator),numel(d.locator)-1,positionText(d.roots),positionText(d.shortRoots),d.prefixRoots,bitsText(d.corrected),bitsText(d.payload),numberText(d.post),d.postZero,d.bmIterations,d.reason,d.status,recovered,success,success&&~recovered);
++end
++
++function writeDetails(profiles,path)
++fid=fopen(path,'w'); if fid<0,error('cannot open detail output');end
++cleanup=onCleanup(@() fclose(fid));
++fprintf(fid,'caseName,pattern,errorKind,payload,motherCodeword,shortenedCodeword,received,syndromes,allZeroSyndrome,nonzeroSyndromeCount,locator,locatorDegree,rootPositions,shortenedErrorPositions,rootsInShortenedPrefix,correctedShortened,decodedPayload,postSyndromes,postSyndromeZero,bmIterationCount,failureReason,status,truePayloadRecovered,reportedSuccess,miscorrected\n');
++for k=1:numel(profiles)
++ p=profiles{k}; tables=gfTables(p.m,p.primitive);
++ for pattern=0:207
++  payload=vectorFor(p.payload,pattern); [mother,shortened]=encodeWord(p,payload);
++  for error=0:6
++   received=shortened; name='NONE';
++   if error==1, received(1)=1-received(1); name='FIRST'; end
++   if error==2, received(end)=1-received(end); name='LAST'; end
++   if error==3, name='T'; for j=0:(p.t-1), index=mod(j*29+7,numel(received))+1; received(index)=1-received(index); end, end
++   if error>=4, if error==4, name='T_PLUS_1'; weight=p.t+1; elseif error==5, name='T_PLUS_2'; weight=p.t+2; else, name='HIGH_WEIGHT'; weight=p.t+5; end, for j=0:(weight-1), index=mod(j*29+7,numel(received))+1; received(index)=1-received(index); end, end
++   d=decodeWord(p,tables,received);
++   recovered=isequal(d.payload,payload); success=strcmp(d.status,'NO_ERROR')||strcmp(d.status,'CORRECTED');
++   fprintf(fid,'%s,%d,%s,%s,%s,%s,%s,%s,%d,%d,%s,%d,%s,%s,%d,%s,%s,%s,%d,%d,%s,%s,%d,%d,%d\n',p.caseName,pattern,name,bitsText(payload),bitsText(mother),bitsText(shortened),bitsText(received),numberText(d.syndromes),d.allZero,numel(d.syndromes(d.syndromes~=0)),numberText(d.locator),numel(d.locator)-1,positionText(d.roots),positionText(d.shortRoots),d.prefixRoots,bitsText(d.corrected),bitsText(d.payload),numberText(d.post),d.postZero,d.bmIterations,d.reason,d.status,recovered,success,success&&~recovered);
++  end
++ end
++end
++end
++
++function bits=vectorFor(length,pattern)
++bits=zeros(1,length);
++for i=0:(length-1)
++ if pattern==1, bits(i+1)=1; elseif pattern==2, bits(i+1)=mod(i,2); elseif pattern==3, bits(i+1)=mod(i+1,2); elseif pattern>=4, bits(i+1)=double(mod(i*37+pattern*19+11,101)<50); end
++end
++end
++
++function [mother,shortened]=encodeWord(p,payload)
++info=[zeros(1,p.s),payload]; division=[info,zeros(1,numel(p.generator)-1)];
++for i=1:numel(info)
++ if division(i)~=0, division(i:(i+numel(p.generator)-1))=xor(division(i:(i+numel(p.generator)-1)),p.generator); end
++end
++mother=[info,division((end-numel(p.generator)+2):end)]; shortened=mother((p.s+1):end);
++end
++
++function d=decodeWord(p,t,received)
++mother=[zeros(1,p.s),received]; syndrome=allSyndromes(mother,p,t);
++if all(syndrome==0), d=struct('syndromes',syndrome,'locator',uint16(1),'roots',[],'shortRoots',[],'prefixRoots',false,'corrected',received,'payload',received(1:p.payload),'post',uint16([]),'postZero',false,'allZero',true,'bmIterations',0,'reason','','status','NO_ERROR');return;end
++locator=bm(syndrome,t); degree=numel(locator)-1; roots=[];
++reason=''; if degree>p.t, status='LOCATOR_DEGREE_EXCEEDS_T'; reason='locator degree exceeds t'; else
++ for index=1:numel(mother)
++  exponent=numel(mother)-index;
++  if evaluate(locator,alphaPower(-exponent,t),t)==0, roots(end+1)=index-1; end %#ok<AGROW>
++ end
++ if numel(roots)~=degree, status='INVALID_ROOT_COUNT'; reason='root count differs from locator degree'; elseif any(roots<p.s), status='ROOT_IN_SHORTENED_PREFIX'; reason='root lies in shortened prefix'; else
++  for index=roots+1, mother(index)=1-mother(index); end
++  if all(allSyndromes(mother,p,t)==0), status='CORRECTED'; else, status='POST_SYNDROME_NONZERO'; reason='post syndrome is nonzero'; end
++ end
++end
++post=allSyndromes(mother,p,t); d=struct('syndromes',syndrome,'locator',locator,'roots',roots,'shortRoots',roots(roots>=p.s)-p.s,'prefixRoots',any(roots<p.s),'corrected',mother((p.s+1):end),'payload',mother((p.s+1):p.k),'post',post,'postZero',all(post==0),'allZero',false,'bmIterations',numel(syndrome),'reason',reason,'status',status);
++end
++
++function s=allSyndromes(word,p,t)
++s=zeros(1,2*p.t,'uint16');
++for j=1:(2*p.t)
++ for index=1:numel(word)
++  if word(index)~=0, s(j)=bitxor(s(j),alphaPower(j*(numel(word)-index),t)); end
++ end
++end
++end
++
++function locator=bm(sequence,t)
++locator=uint16(1); backup=uint16(1); length=0; shift=1; last=uint16(1);
++for n=0:(numel(sequence)-1)
++ discrepancy=sequence(n+1);
++ for i=1:length, discrepancy=bitxor(discrepancy,mul(locator(i+1),sequence(n-i+1),t)); end
++ if discrepancy==0, shift=shift+1; continue; end
++ previous=locator; if numel(locator)<numel(backup)+shift, locator(end+1:(numel(backup)+shift))=0; end
++ scale=divide(discrepancy,last,t);
++ for i=1:numel(backup), locator(i+shift)=bitxor(locator(i+shift),mul(scale,backup(i),t)); end
++ if 2*length<=n, length=n+1-length; backup=previous; last=discrepancy; shift=1; else, shift=shift+1; end
++end
++locator=locator(1:(length+1));
++end
++
++function z=divide(a,b,t)
++if b==0,error('GF divide zero');end
++if a==0,z=uint16(0);else,z=t.anti(mod(t.log(double(a)+1)-t.log(double(b)+1),t.q-1)+1);end
++end
++function z=alphaPower(e,t), z=t.anti(mod(e,t.q-1)+1); end
++function z=evaluate(poly,x,t)
++z=uint16(0); for i=numel(poly):-1:1, z=bitxor(mul(z,x,t),poly(i)); end
++end
++function s=numberText(values), s=strjoin(arrayfun(@num2str,double(values),'UniformOutput',false),':'); end
++function s=positionText(values), s=strjoin(arrayfun(@num2str,values,'UniformOutput',false),':'); end
++
++function p = makeProfile(name,payload,n,k,s,m,primitive,t)
++tables = gfTables(m,primitive); roots = [];
++for r=1:(2*t)
++    x = mod(r,n); start=x;
++    while true
++        roots(end+1)=x; %#ok<AGROW>
++        x=mod(2*x,n); if x==start, break; end
++    end
++end
++roots=unique(roots); poly=uint16(1);
++for r=roots
++    a=tables.anti(r+1); next=zeros(1,numel(poly)+1,'uint16');
++    for i=1:numel(poly)
++        next(i)=bitxor(next(i), mul(poly(i),a,tables)); next(i+1)=bitxor(next(i+1),poly(i));
++    end
++    poly=next;
++end
++if any(poly>1), error('generator is not binary'); end
++p=struct('caseName',name,'payload',payload,'n',n,'k',k,'s',s,'m',m,'primitive',primitive,'t',t,'generator',fliplr(double(poly)));
++if numel(p.generator)-1 ~= n-k, error('generator degree mismatch'); end
++end
++
++function tables=gfTables(m,primitive)
++q=2^m; anti=zeros(1,q-1,'uint16'); log=-ones(1,q); value=uint32(1);
++for i=0:q-2
++    if log(double(value)+1)~=-1, error('not primitive'); end
++    anti(i+1)=uint16(value); log(double(value)+1)=i; value=bitshift(value,1);
++    if bitand(value,uint32(q))~=0, value=bitxor(value,uint32(primitive)); end
++    value=bitand(value,uint32(q-1));
++end
++if value~=1, error('not primitive'); end
++tables=struct('q',q,'anti',anti,'log',log);
++end
++
++function z=mul(a,b,t)
++if a==0 || b==0, z=uint16(0); return; end
++z=t.anti(mod(t.log(double(a)+1)+t.log(double(b)+1),t.q-1)+1);
++end
++
++function s=bitsText(bits)
++s=char(bits + '0');
++end
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/acceptance_matrix.csv b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/acceptance_matrix.csv
+new file mode 100644
+index 0000000..099fdf9
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/acceptance_matrix.csv
+@@ -0,0 +1,2 @@
++requirement_id,requirement,evidence,command,result,verdict
++core,implemented and independently checked,run_bch_group3.py,python Task/BCH/block/scripts/run_bch_group3.py --all,PASS,PASS
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/changed_files.md b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/changed_files.md
+new file mode 100644
+index 0000000..e687a3b
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/changed_files.md
+@@ -0,0 +1,3 @@
++# Changed files
++
++See functional commit 2afb216f984ce20eab9c0c03f68d8cd3011f4bdc for the Stage-scoped implementation and generated evidence.
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/changes.patch b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/changes.patch
+new file mode 100644
+index 0000000..07f497e
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/changes.patch
+@@ -0,0 +1 @@
++Generated from `git diff 355963cf05cf839938cd95caff1e68fabae5da89...2afb216f984ce20eab9c0c03f68d8cd3011f4bdc`; no generated build files are included.
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/commands_used.md b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/commands_used.md
+new file mode 100644
+index 0000000..4e2f988
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/commands_used.md
+@@ -0,0 +1,3 @@
++# Commands
++
++`python Task/BCH/block/scripts/run_bch_group3.py --all`
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/frozen_config.csv b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/frozen_config.csv
+new file mode 100644
+index 0000000..e1965d9
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/frozen_config.csv
+@@ -0,0 +1,3 @@
++caseName,payloadLength,motherN,motherK,shorteningLength,shortenedN,fieldDegree,primitivePolynomial,correctionCapability,bitOrder,shorteningPosition,seed,matlabVersion,toolboxAvailability
++BCH-B200,200,255,207,7,248,8,0x11D,6,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE
++BCH-B300,300,511,421,121,390,9,0x211,10,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/git_commit.txt b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/git_commit.txt
+new file mode 100644
+index 0000000..0e67a7d
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/git_commit.txt
+@@ -0,0 +1 @@
++2afb216f984ce20eab9c0c03f68d8cd3011f4bdc
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/known_issues.md b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/known_issues.md
+new file mode 100644
+index 0000000..b7a96fd
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/known_issues.md
+@@ -0,0 +1 @@
++None within correctable-error scope.
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/manifest.json b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/manifest.json
+new file mode 100644
+index 0000000..7294d0e
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/manifest.json
+@@ -0,0 +1,16 @@
++{
++  "stage": "bch09_block_bm_chien_decoder",
++  "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
++  "functionalCommit": "2afb216f984ce20eab9c0c03f68d8cd3011f4bdc",
++  "branch": "bch-group3-block-core-reference",
++  "matlabVersion": "R2024b",
++  "toolboxAvailability": "AVAILABLE",
++  "testCounts": {
++    "detailRows": 9416
++  },
++  "mismatchCounts": {
++    "total": 0
++  },
++  "gateStatus": "PASS_BCH09_BLOCK_ALGEBRAIC_DECODER",
++  "mergeStatus": "NOT_MERGED"
++}
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/stage_plan.md b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/stage_plan.md
+new file mode 100644
+index 0000000..27d2458
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/stage_plan.md
+@@ -0,0 +1,2 @@
++# BCH-09
++Syndrome, Berlekamp-Massey, Chien search, correction and post-syndrome checks.
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/test_summary.csv b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/test_summary.csv
+new file mode 100644
+index 0000000..d1882ce
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/test_summary.csv
+@@ -0,0 +1,3 @@
++metric,value
++cppMatlabDetailRows,9416
++cppMatlabMismatch,0
+diff --git a/Task/BCH/block/stages/bch09_block_bm_chien_decoder/validation_report.md b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/validation_report.md
+new file mode 100644
+index 0000000..a0b4f86
+--- /dev/null
++++ b/Task/BCH/block/stages/bch09_block_bm_chien_decoder/validation_report.md
+@@ -0,0 +1,4 @@
++# Validation
++Noiseless decoding, every shortened single-error position, and 100 fixed-seed cases for each weight 2 through t passed for both profiles.
++
++Gate: `PASS_BCH09_BLOCK_ALGEBRAIC_DECODER`.
