@@ -520,6 +520,17 @@ def run_bch16(repo: Path, results: Path) -> None:
     print("PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON")
 
 
+def run_bch11(repo: Path, build: Path) -> None:
+    source = repo / "Task/BCH/simulation/current"
+    if not (build / "CMakeCache.txt").is_file():
+        run(["cmake", "-G", "MinGW Makefiles", "-S", str(source), "-B", str(build),
+             "-DCMAKE_BUILD_TYPE=Release"], repo)
+    print("[1/6] BCH-11 build and Common noiseless integration", flush=True)
+    run(["cmake", "--build", str(build), "--config", "Release", "-j", "4"], repo)
+    run(["ctest", "--test-dir", str(build), "--output-on-failure", "-R", "^bch11_common_noiseless$"], repo)
+    print("PASS_BCH11_COMMON_INTEGRATION_NOISELESS")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
@@ -558,8 +569,8 @@ def main() -> int:
         print(f"Output: {results}")
         return 0
     selected = args.stage or ("bch12" if not args.all else "all")
-    if selected in {"bch11"}:
-        raise SystemExit("BCH-11 is executed by CTest; use the documented BCH-11 command")
+    if selected in {"bch11", "all"}:
+        run_bch11(repo, build)
     if selected in {"bch12", "all"}:
         run_bch12(args, repo, build, results)
     if selected in {"bch13", "all"}:
