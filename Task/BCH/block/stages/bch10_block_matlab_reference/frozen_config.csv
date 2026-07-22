@@ -1,0 +1,3 @@
+caseName,payloadLength,motherN,motherK,shorteningLength,shortenedN,fieldDegree,primitivePolynomial,correctionCapability,bitOrder,shorteningPosition,seed,matlabVersion,toolboxAvailability
+BCH-B200,200,255,207,7,248,8,0x11D,6,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE
+BCH-B300,300,511,421,121,390,9,0x211,10,leftmost_highest_degree,prefix_zero,2026072001,R2024b,AVAILABLE

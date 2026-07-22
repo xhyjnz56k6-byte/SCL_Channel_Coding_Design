@@ -1,0 +1,3 @@
+# Changed files
+
+See functional commit 2afb216f984ce20eab9c0c03f68d8cd3011f4bdc for the Stage-scoped implementation and generated evidence.

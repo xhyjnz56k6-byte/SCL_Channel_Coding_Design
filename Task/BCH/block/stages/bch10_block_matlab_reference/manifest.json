@@ -1,1 +1,16 @@
-{"stage":"bch10_block_matlab_reference","baseCommit":"355963cf05cf839938cd95caff1e68fabae5da89","functionalCommit":"c71e34b7243de31457692c89af31faac566a1d38","branch":"bch-group3-block-core-reference","matlabVersion":"R2024b","toolboxAvailability":"AVAILABLE","rowCounts":{"detail":9416,"singleAll":5104,"weight2ToT":1400,"uncorrectable":1248},"mismatchCounts":{"detail":0},"gateStatus":"PASS_BCH10_BLOCK_MATLAB_REFERENCE","mergeStatus":"NOT_MERGED"}
+{
+  "stage": "bch10_block_matlab_reference",
+  "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
+  "functionalCommit": "2afb216f984ce20eab9c0c03f68d8cd3011f4bdc",
+  "branch": "bch-group3-block-core-reference",
+  "matlabVersion": "R2024b",
+  "toolboxAvailability": "AVAILABLE",
+  "testCounts": {
+    "detailRows": 9416
+  },
+  "mismatchCounts": {
+    "total": 0
+  },
+  "gateStatus": "PASS_BCH10_BLOCK_MATLAB_REFERENCE",
+  "mergeStatus": "NOT_MERGED"
+}

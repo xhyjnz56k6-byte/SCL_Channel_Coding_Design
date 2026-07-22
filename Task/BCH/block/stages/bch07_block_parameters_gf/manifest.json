@@ -1,1 +1,16 @@
-{"stage":"bch07_block_parameters_gf","baseCommit":"355963cf05cf839938cd95caff1e68fabae5da89","functionalCommit":"c71e34b7243de31457692c89af31faac566a1d38","branch":"bch-group3-block-core-reference","testCounts":{"parameterRows":2,"negativeTests":18},"mismatchCounts":{"parameter":0,"gf":0},"gateStatus":"PASS_BCH07_BLOCK_PARAMETERS_GF","mergeStatus":"NOT_MERGED"}
+{
+  "stage": "bch07_block_parameters_gf",
+  "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
+  "functionalCommit": "2afb216f984ce20eab9c0c03f68d8cd3011f4bdc",
+  "branch": "bch-group3-block-core-reference",
+  "matlabVersion": "R2024b",
+  "toolboxAvailability": "AVAILABLE",
+  "testCounts": {
+    "detailRows": 9416
+  },
+  "mismatchCounts": {
+    "total": 0
+  },
+  "gateStatus": "PASS_BCH07_BLOCK_PARAMETERS_GF",
+  "mergeStatus": "NOT_MERGED"
+}

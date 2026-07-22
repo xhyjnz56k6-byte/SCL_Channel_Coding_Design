@@ -1,1 +1,16 @@
-{"stage":"bch08_block_shortened_encoder","baseCommit":"355963cf05cf839938cd95caff1e68fabae5da89","functionalCommit":"c71e34b7243de31457692c89af31faac566a1d38","testCounts":{"encodedFrames":216,"divisibilityFailures":0},"gateStatus":"PASS_BCH08_BLOCK_SHORTENED_ENCODER","mergeStatus":"NOT_MERGED"}
+{
+  "stage": "bch08_block_shortened_encoder",
+  "baseCommit": "355963cf05cf839938cd95caff1e68fabae5da89",
+  "functionalCommit": "2afb216f984ce20eab9c0c03f68d8cd3011f4bdc",
+  "branch": "bch-group3-block-core-reference",
+  "matlabVersion": "R2024b",
+  "toolboxAvailability": "AVAILABLE",
+  "testCounts": {
+    "detailRows": 9416
+  },
+  "mismatchCounts": {
+    "total": 0
+  },
+  "gateStatus": "PASS_BCH08_BLOCK_SHORTENED_ENCODER",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,2 @@
+requirement_id,requirement,evidence,command,result,verdict
+core,implemented and independently checked,run_bch_group3.py,python Task/BCH/block/scripts/run_bch_group3.py --all,PASS,PASS
