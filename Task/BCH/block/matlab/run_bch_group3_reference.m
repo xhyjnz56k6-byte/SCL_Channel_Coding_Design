@@ -27,7 +27,7 @@ for k=1:numel(profiles)
    r=shortened; name='NONE';
    if kind==1,r(1)=1-r(1);name='FIRST';elseif kind==2,r(end)=1-r(end);name='LAST';elseif kind>2
     if kind==3,w=p.t;name='T';elseif kind==4,w=p.t+1;name='T_PLUS_1';elseif kind==5,w=p.t+2;name='T_PLUS_2';else,w=p.t+5;name='HIGH_WEIGHT';end
-    r=injectErrors(r,w,pat);
+    r=injectErrors(r,w,pat,p.payload);
    end
    writeDetailRow(fid,p,t,pat,name,m,mother,shortened,r);
   end
@@ -38,15 +38,16 @@ for k=1:numel(profiles)
  end
  for w=2:p.t
   for pat=0:99
-   m=vectorFor(p.payload,pat+1000+w*100);[mother,shortened]=encodeWord(p,m);r=injectErrors(shortened,w,pat+w*1000);writeDetailRow(fid,p,t,pat,['WEIGHT_' num2str(w)],m,mother,shortened,r);
+   m=vectorFor(p.payload,pat+1000+w*100);[mother,shortened]=encodeWord(p,m);r=injectErrors(shortened,w,pat+w*1000,p.payload);writeDetailRow(fid,p,t,pat,['WEIGHT_' num2str(w)],m,mother,shortened,r);
   end
  end
 end
 end
 
-function r=injectErrors(r,w,seed)
+function r=injectErrors(r,w,seed,payloadLength)
 for j=0:(w-1)
- mode=mod(seed,5); if mode==0,p=mod(j*29+7+seed,numel(r));elseif mode==1,p=mod(seed+j,numel(r));elseif mode==2,if j<floor(w/2),p=numel(r)-1-j;else,p=j;end;elseif mode==3,p=mod(seed*37+j*53,numel(r));else,p=numel(r)/2+j;end
+ mode=mod(seed,7); parityLength=numel(r)-payloadLength;
+ if mode==0,p=mod(seed+j*17,payloadLength);elseif mode==1,p=payloadLength+mod(seed+j*7,parityLength);elseif mode==2,if mod(j,2)==0,p=mod(seed+floor(j/2)*17,payloadLength);else,p=payloadLength+mod(seed+floor(j/2)*7,parityLength);end;elseif mode==3,p=mod(seed+j,numel(r));elseif mode==4,if mod(j,2)==0,p=floor(j/2);else,p=numel(r)-1-floor(j/2);end;elseif mode==5,p=mod(seed+j*53,numel(r));else,p=mod(seed*37+j*29+7,numel(r));end
  r(p+1)=1-r(p+1);
 end
 end

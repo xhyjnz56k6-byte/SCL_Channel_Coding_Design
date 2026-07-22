@@ -27,10 +27,10 @@ def summary(path,data):
  counts={}
  for r in data: counts[(r['caseName'],r['errorKind'],r['status'])]=counts.get((r['caseName'],r['errorKind'],r['status']),0)+1
  write(path,['caseName','errorKind','status','count'],[[*k,v] for k,v in sorted(counts.items())])
-modes=['widely_separated','adjacent','first_last_boundary','deterministic_random','payload_parity_mixed']
+modes=['payload_only','parity_only','payload_parity_mixed','adjacent','first_last_boundary','widely_separated','deterministic_random']
 counts={}
 for r in unc:
- key=(r['caseName'],r['errorKind'],modes[int(r['pattern'])%5],r['status'])
+ key=(r['caseName'],r['errorKind'],modes[int(r['pattern'])%7],r['status'])
  item=counts.setdefault(key,[0,0,0,0]);item[0]+=1;item[1]+=int(r['truePayloadRecovered']);item[2]+=int(r['reportedSuccess']);item[3]+=int(r['miscorrected'])
 write(b10/'uncorrectable_error_summary.csv',['caseName','errorKind','patternMode','status','totalCases','truePayloadRecovered','reportedSuccess','miscorrected'],[[*k,*v] for k,v in sorted(counts.items())])
 write(b10/'block_single_error_compare_summary.csv',['rows','mismatchCount'],[[len(single),0]])
