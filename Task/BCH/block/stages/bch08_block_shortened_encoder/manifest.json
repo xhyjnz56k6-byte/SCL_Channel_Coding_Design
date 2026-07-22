@@ -1,1 +1,1 @@
-{"stage":"bch08_block_shortened_encoder","functionalCommit":"3b09870f289e37f7f369d57daf96afc5625fbf07","gateStatus":"PASS_BCH08_BLOCK_SHORTENED_ENCODER","mergeStatus":"NOT_MERGED"}
+{"stage":"bch08_block_shortened_encoder","baseCommit":"355963cf05cf839938cd95caff1e68fabae5da89","functionalCommit":"c71e34b7243de31457692c89af31faac566a1d38","testCounts":{"encodedFrames":216,"divisibilityFailures":0},"gateStatus":"PASS_BCH08_BLOCK_SHORTENED_ENCODER","mergeStatus":"NOT_MERGED"}
