@@ -1,0 +1,2 @@
+stage,casePoints,minFrames,targetFrameErrors,maxFrames,resumeFixedFrames,resumeInterruptFrames,shardFixedFrames,shardCount,checkpointInterval,globalSeed
+BCH-14,12,5000,100,20000,6000,2500,6000,3,1000,2026072201

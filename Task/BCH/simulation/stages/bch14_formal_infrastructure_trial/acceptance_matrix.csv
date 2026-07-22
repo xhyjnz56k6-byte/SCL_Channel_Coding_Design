@@ -1,0 +1,5 @@
+requirement,implementation,positive_test,negative_test,gate
+Adaptive stop,Common simulation_control plus BCH runner,12 LOW/MID/HIGH points,stop before minimum rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
+Atomic checkpoint,Common checkpoint temp flush replace,checkpoint roundtrip and no temp residue,truncated/wrong path rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
+Resume equality,BCH runner checkpoint restore,continuous equals interrupted/resumed raw counts,config hash mismatch rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
+Three-shard merge,merge_bch_shards.py,continuous equals summed raw counts,duplicate overlap gap identity mismatch rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL

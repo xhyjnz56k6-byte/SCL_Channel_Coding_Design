@@ -2,12 +2,15 @@ cmake_minimum_required(VERSION 3.16)
 
 project(CommonFoundation LANGUAGES CXX)
 
+enable_testing()
+
 add_library(common_foundation INTERFACE)
 target_include_directories(common_foundation INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(common_foundation INTERFACE cxx_std_17)
 
 add_executable(common02_types_interfaces_tests tests/stage02/test_common02_types_interfaces.cpp)
 target_link_libraries(common02_types_interfaces_tests PRIVATE common_foundation)
+add_test(NAME common02_types_interfaces COMMAND common02_types_interfaces_tests)
 
 set(COMMON04_SOURCES
     src/random_policy.cpp
@@ -32,4 +35,5 @@ foreach(test_name
         test_common04_integration)
     add_executable(${test_name} tests/stage04/${test_name}.cpp ${COMMON04_SOURCES})
     target_link_libraries(${test_name} PRIVATE common_foundation)
+    add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()

@@ -20,12 +20,23 @@ struct AwgnPointConfig {
     std::size_t snrIndex = 0U;
     std::uint64_t frameStart = 0U;
     std::uint64_t frameCount = 0U;
+    std::uint64_t logicalFrameCount = 0U;
     std::uint64_t globalSeed = 0U;
     bool progress = true;
     double progressRefreshSeconds = 0.2;
     bool writeFrameDetail = false;
     std::string framePoolManifest;
     std::string outputDirectory;
+    bool adaptiveStop = false;
+    std::uint64_t minFrames = 0U;
+    std::uint64_t targetFrameErrors = 0U;
+    std::uint64_t maxFrames = 0U;
+    std::string checkpointPath;
+    std::uint64_t checkpointInterval = 0U;
+    bool resume = false;
+    std::uint64_t interruptAfterFrames = 0U;
+    std::uint64_t shardIndex = 0U;
+    std::uint64_t shardCount = 1U;
 };
 
 struct AwgnPointResult {
@@ -50,6 +61,10 @@ struct AwgnPointResult {
     std::vector<double> decodeTimesUs;
     std::string firstNoiseHash;
     std::string lastNoiseHash;
+    std::string stopReason = "CONTINUE";
+    std::string configHash;
+    std::uint64_t checkpointCount = 0U;
+    std::uint64_t resumeCount = 0U;
 };
 
 std::uint64_t pairedNoiseGroupId(common::Length payloadLength, std::size_t snrIndex);

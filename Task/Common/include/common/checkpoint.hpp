@@ -24,6 +24,20 @@ struct SimulationCheckpointRecord {
     double ebN0_dB = 0.0;
     FrameIndex nextFrameIndex = 0;
     ErrorMetrics metrics;
+    std::uint64_t channelHardBitErrors = 0;
+    std::uint64_t channelHardFrameErrors = 0;
+    std::uint64_t reportedSuccessFrames = 0;
+    std::uint64_t miscorrectedFrames = 0;
+    std::uint64_t decoderFailureFrames = 0;
+    std::uint64_t noErrorStatusFrames = 0;
+    std::uint64_t correctedStatusFrames = 0;
+    std::uint64_t failedStatusFrames = 0;
+    std::uint64_t noisePolicyVersion = 0;
+    std::uint64_t globalSeed = 0;
+    std::uint64_t shardIndex = 0;
+    std::uint64_t shardCount = 1;
+    std::uint64_t checkpointCount = 0;
+    std::string timestamp;
     std::string stopReason = "CONTINUE";
 };
 

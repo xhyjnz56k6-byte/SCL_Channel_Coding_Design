@@ -8,7 +8,9 @@ add_library(common_bch_simulation STATIC
     ${COMMON_ROOT}/src/modulation.cpp
     ${COMMON_ROOT}/src/awgn_channel.cpp
     ${COMMON_ROOT}/src/demodulation.cpp
-    ${COMMON_ROOT}/src/simulation_metrics.cpp)
+    ${COMMON_ROOT}/src/simulation_metrics.cpp
+    ${COMMON_ROOT}/src/simulation_control.cpp
+    ${COMMON_ROOT}/src/checkpoint.cpp)
 target_include_directories(common_bch_simulation PUBLIC ${COMMON_ROOT}/include)
 target_compile_features(common_bch_simulation PUBLIC cxx_std_17)
 

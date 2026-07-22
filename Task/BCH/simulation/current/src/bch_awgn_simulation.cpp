@@ -1,11 +1,13 @@
 #include "bch_simulation/bch_awgn_simulation.hpp"
 
 #include "common/awgn_channel.hpp"
+#include "common/checkpoint.hpp"
 #include "common/demodulation.hpp"
 #include "common/gaussian_noise.hpp"
 #include "common/modulation.hpp"
 #include "common/sha256.hpp"
 #include "common/simulation_metrics.hpp"
+#include "common/simulation_control.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -106,6 +108,64 @@ void validateResult(const AwgnPointResult& value, const BchSimulationCase& simul
     }
 }
 
+common::SimulationCheckpointRecord checkpointRecord(const AwgnPointResult& result,
+                                                     const BchSimulationCase& simulationCase,
+                                                     const common::PackedFramePoolReader& pool) {
+    common::SimulationCheckpointRecord record;
+    record.experimentId = result.config.stage + ":" + simulationCase.caseName + ":" + std::to_string(result.config.snrIndex);
+    record.configHash = result.configHash;
+    record.framePoolId = pool.framePoolId();
+    record.noisePoolId = "paired-standard-gaussian:" + std::to_string(pairedNoiseGroupId(simulationCase.payloadLength, result.config.snrIndex));
+    record.payloadLength = simulationCase.payloadLength;
+    record.encodedLength = simulationCase.encodedLength;
+    record.snrIndex = result.config.snrIndex;
+    record.ebN0_dB = result.config.ebN0Db;
+    record.nextFrameIndex = result.config.frameStart + result.processedFrames;
+    record.metrics.processedFrames = result.processedFrames;
+    record.metrics.totalPayloadBits = result.processedPayloadBits;
+    record.metrics.bitErrors = result.decodedBitErrors;
+    record.metrics.frameErrors = result.decodedFrameErrors;
+    record.metrics.successfulFrames = result.trueSuccessFrames;
+    record.metrics.latency.encodeTimeNsSum = static_cast<std::uint64_t>(result.encodeTimeUsSum * 1000.0);
+    record.metrics.latency.decodeTimeNsSum = static_cast<std::uint64_t>(result.decodeTimeUsSum * 1000.0);
+    record.channelHardBitErrors = result.channelHardBitErrors;
+    record.channelHardFrameErrors = result.channelHardFrameErrors;
+    record.reportedSuccessFrames = result.reportedSuccessFrames;
+    record.miscorrectedFrames = result.miscorrectedFrames;
+    record.decoderFailureFrames = result.decoderFailureFrames;
+    record.noErrorStatusFrames = result.noErrorStatusFrames;
+    record.correctedStatusFrames = result.correctedStatusFrames;
+    record.failedStatusFrames = result.failedStatusFrames;
+    record.noisePolicyVersion = kBchNoisePolicyVersion;
+    record.globalSeed = result.config.globalSeed;
+    record.shardIndex = result.config.shardIndex;
+    record.shardCount = result.config.shardCount;
+    record.checkpointCount = result.checkpointCount;
+    record.timestamp = timestampUtc();
+    record.stopReason = result.stopReason;
+    return record;
+}
+
+void restoreCheckpoint(AwgnPointResult& result, const common::SimulationCheckpointRecord& record) {
+    result.processedFrames = record.metrics.processedFrames;
+    result.processedPayloadBits = record.metrics.totalPayloadBits;
+    result.decodedBitErrors = record.metrics.bitErrors;
+    result.decodedFrameErrors = record.metrics.frameErrors;
+    result.trueSuccessFrames = record.metrics.successfulFrames;
+    result.encodeTimeUsSum = static_cast<double>(record.metrics.latency.encodeTimeNsSum) / 1000.0;
+    result.decodeTimeUsSum = static_cast<double>(record.metrics.latency.decodeTimeNsSum) / 1000.0;
+    result.channelHardBitErrors = record.channelHardBitErrors;
+    result.channelHardFrameErrors = record.channelHardFrameErrors;
+    result.reportedSuccessFrames = record.reportedSuccessFrames;
+    result.miscorrectedFrames = record.miscorrectedFrames;
+    result.decoderFailureFrames = record.decoderFailureFrames;
+    result.noErrorStatusFrames = record.noErrorStatusFrames;
+    result.correctedStatusFrames = record.correctedStatusFrames;
+    result.failedStatusFrames = record.failedStatusFrames;
+    result.checkpointCount = record.checkpointCount;
+    result.resumeCount = 1U;
+}
+
 }  // namespace
 
 std::uint64_t pairedNoiseGroupId(common::Length payloadLength, std::size_t snrIndex) {
@@ -162,12 +222,46 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
     lengths.shortenedLength = simulationCase.shorteningLength;
     AwgnPointResult result;
     result.config = config;
+    if (result.config.logicalFrameCount == 0U) result.config.logicalFrameCount = result.config.frameCount;
+    if (result.config.shardCount == 0U || result.config.shardIndex >= result.config.shardCount) {
+        throw std::invalid_argument("invalid shard configuration");
+    }
+    if (result.config.adaptiveStop) {
+        common::validateStopConfig({result.config.minFrames, result.config.maxFrames,
+                                    result.config.targetFrameErrors, true});
+        if (result.config.maxFrames != result.config.frameCount) {
+            throw std::invalid_argument("adaptive maxFrames must equal requested frameCount");
+        }
+    }
+    const std::string stopText = "min=" + std::to_string(result.config.minFrames) +
+        ";target=" + std::to_string(result.config.targetFrameErrors) +
+        ";max=" + std::to_string(result.config.maxFrames) +
+        ";logicalFrames=" + std::to_string(result.config.logicalFrameCount);
+    const std::string noiseId = "seed=" + std::to_string(result.config.globalSeed) +
+        ";policy=" + std::to_string(kBchNoisePolicyVersion) +
+        ";group=" + std::to_string(pairedNoiseGroupId(simulationCase.payloadLength, result.config.snrIndex));
+    result.configHash = common::computeConfigHash(common::canonicalConfigText(
+        simulationCase.caseName, simulationCase.payloadLength, simulationCase.encodedLength,
+        std::to_string(result.config.ebN0Db), pool.framePoolId(), noiseId, stopText,
+        decoderTypeName(simulationCase.decoderType) + ";schema=bch.group4.result.v1;configVersion=bch14.v1"));
     result.noiseSigma = common::computeAwgnSigma(lengths, config.ebN0Db);
     result.noiseVariance = result.noiseSigma * result.noiseSigma;
     result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
     const std::uint64_t noiseGroup = pairedNoiseGroupId(simulationCase.payloadLength, config.snrIndex);
 
-    for (std::uint64_t offset = 0U; offset < config.frameCount; ++offset) {
+    if (config.resume) {
+        if (config.checkpointPath.empty()) throw std::invalid_argument("resume requires checkpoint path");
+        const auto actual = common::readCheckpointFile(config.checkpointPath);
+        auto expected = checkpointRecord(result, simulationCase, pool);
+        expected.configHash = result.configHash;
+        expected.shardIndex = config.shardIndex;
+        expected.shardCount = config.shardCount;
+        common::validateResumeCompatibility(expected, actual);
+        common::validateCheckpointState(actual, config.frameStart, config.frameCount);
+        restoreCheckpoint(result, actual);
+    }
+
+    for (std::uint64_t offset = result.processedFrames; offset < config.frameCount; ++offset) {
         const common::FrameIndex frameIndex = config.frameStart + offset;
         const auto payload = pool.readFrame(frameIndex).payloadBits;
         const auto encodeStart = std::chrono::steady_clock::now();
@@ -211,7 +305,41 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
                    << decoded.decoderFailure << ',' << decoded.frameStatus << '\n';
         }
         reporter.update(result, offset + 1U == config.frameCount);
+        bool periodicCheckpoint = !config.checkpointPath.empty() && config.checkpointInterval > 0U &&
+                                  result.processedFrames % config.checkpointInterval == 0U;
+        if (periodicCheckpoint) {
+            ++result.checkpointCount;
+            common::writeCheckpointFile(config.checkpointPath, checkpointRecord(result, simulationCase, pool));
+        }
+        if (config.interruptAfterFrames > 0U && result.processedFrames >= config.interruptAfterFrames) {
+            result.stopReason = "INTERRUPTED_CHECKPOINT";
+            if (!config.checkpointPath.empty() && !periodicCheckpoint) {
+                ++result.checkpointCount;
+                common::writeCheckpointFile(config.checkpointPath, checkpointRecord(result, simulationCase, pool));
+            }
+            break;
+        }
+        if (config.adaptiveStop) {
+            common::ErrorMetrics metrics;
+            metrics.processedFrames = result.processedFrames;
+            metrics.frameErrors = result.decodedFrameErrors;
+            const auto decision = common::evaluateStop(
+                {config.minFrames, config.maxFrames, config.targetFrameErrors, true}, metrics);
+            if (decision.shouldStop) {
+                result.stopReason = decision.reason == "TARGET_FRAME_ERRORS" ?
+                    "TARGET_FRAME_ERRORS_REACHED" : "MAX_FRAMES_REACHED";
+                break;
+            }
+        }
     }
+    if (result.stopReason == "CONTINUE") {
+        result.stopReason = config.adaptiveStop ? "MAX_FRAMES_REACHED" : "FIXED_FRAMES_REACHED";
+    }
+    if (!config.checkpointPath.empty() && result.stopReason != "INTERRUPTED_CHECKPOINT") {
+        ++result.checkpointCount;
+        common::writeCheckpointFile(config.checkpointPath, checkpointRecord(result, simulationCase, pool));
+    }
+    reporter.update(result, true);
     validateResult(result, simulationCase);
     return result;
 }
@@ -225,13 +353,14 @@ void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& pat
     const double maxDecode = result.decodeTimesUs.empty() ? 0.0 : *std::max_element(result.decodeTimesUs.begin(), result.decodeTimesUs.end());
     std::ofstream out(path);
     if (!out) throw std::runtime_error("failed to open summary output");
-    out << "schemaVersion,stage,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,ebn0Db,ebn0Linear,noiseSigma,noiseVariance,globalSeed,noisePolicyVersion,snrIndex,processedFrames,processedPayloadBits,channelHardBitErrors,channelHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,avgEncodeTimeUs,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,firstNoiseHash,lastNoiseHash,stopReason\n";
+    out << "schemaVersion,stage,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,ebn0Db,ebn0Linear,noiseSigma,noiseVariance,globalSeed,noisePolicyVersion,snrIndex,frameStart,requestedFrameCount,logicalFrameCount,processedFrames,processedPayloadBits,channelHardBitErrors,channelHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,avgEncodeTimeUs,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,firstNoiseHash,lastNoiseHash,stopReason,targetFrameErrors,minFrames,maxFrames,checkpointCount,resumeCount,shardIndex,shardCount,configHash\n";
     out << "bch.group4.result.v1," << result.config.stage << ',' << value.caseName << ','
         << organizationName(value.organization) << ',' << decoderTypeName(value.decoderType) << ','
         << value.payloadLength << ',' << value.encodedLength << ',' << std::setprecision(17) << value.frameRate << ','
         << result.config.ebN0Db << ',' << common::ebN0Linear(result.config.ebN0Db) << ','
         << result.noiseSigma << ',' << result.noiseVariance << ',' << result.config.globalSeed << ','
-        << kBchNoisePolicyVersion << ',' << result.config.snrIndex << ',' << result.processedFrames << ','
+        << kBchNoisePolicyVersion << ',' << result.config.snrIndex << ',' << result.config.frameStart << ','
+        << result.config.frameCount << ',' << result.config.logicalFrameCount << ',' << result.processedFrames << ','
         << result.processedPayloadBits << ',' << result.channelHardBitErrors << ',' << result.channelHardFrameErrors << ','
         << result.decodedBitErrors << ',' << result.decodedFrameErrors << ',' << ber << ',' << fer << ','
         << result.trueSuccessFrames << ',' << result.trueSuccessFrames / frames << ','
@@ -242,7 +371,10 @@ void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& pat
         << result.encodeTimeUsSum / frames << ',' << result.decodeTimeUsSum / frames << ','
         << percentile(result.decodeTimesUs, 0.50) << ',' << percentile(result.decodeTimesUs, 0.95) << ','
         << percentile(result.decodeTimesUs, 0.99) << ',' << maxDecode << ',' << result.firstNoiseHash << ','
-        << result.lastNoiseHash << ",FIXED_FRAMES_REACHED\n";
+        << result.lastNoiseHash << ',' << result.stopReason << ',' << result.config.targetFrameErrors << ','
+        << result.config.minFrames << ',' << result.config.maxFrames << ',' << result.checkpointCount << ','
+        << result.resumeCount << ',' << result.config.shardIndex << ',' << result.config.shardCount << ','
+        << result.configHash << '\n';
 }
 
 }  // namespace scl::bch::simulation

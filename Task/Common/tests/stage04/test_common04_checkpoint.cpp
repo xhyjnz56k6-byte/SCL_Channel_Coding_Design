@@ -44,6 +44,7 @@ int main() {
     firstOptions.checkpointIntervalFrames = 37;
     const auto partial = scl::common::runIdentitySimulation(firstPart, firstOptions);
     require(partial.finalCheckpoint.nextFrameIndex == 37U, "partial nextFrameIndex mismatch");
+    require(!std::filesystem::exists(checkpointPath.string() + ".tmp"), "atomic checkpoint temporary file remained");
 
     scl::common::IdentitySimulationRunOptions resumedOptions;
     resumedOptions.resumeCheckpoint = scl::common::readCheckpointFile(checkpointPath.string());
@@ -73,6 +74,14 @@ int main() {
     requireThrows("snr mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
     bad = partial.finalCheckpoint; bad.ebN0_dB = 3.0;
     requireThrows("Eb/N0 mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
+    bad = partial.finalCheckpoint; bad.noisePolicyVersion += 1U;
+    requireThrows("noise policy mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
+    bad = partial.finalCheckpoint; bad.globalSeed += 1U;
+    requireThrows("global seed mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
+    bad = partial.finalCheckpoint; bad.shardIndex += 1U;
+    requireThrows("shard index mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
+    bad = partial.finalCheckpoint; bad.shardCount += 1U;
+    requireThrows("shard count mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
     bad = partial.finalCheckpoint; bad.nextFrameIndex = 101;
     requireThrows("range mismatch", [&] { scl::common::validateCheckpointState(bad, 0, 100); });
     bad = partial.finalCheckpoint; bad.metrics.processedFrames = 36;

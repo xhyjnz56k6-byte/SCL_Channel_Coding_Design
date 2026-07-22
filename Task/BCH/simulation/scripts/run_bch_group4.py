@@ -43,15 +43,17 @@ def ensure_pool(repo: Path, output: Path, payload: int, frames: int, seed: int) 
 
 def execute_point(repo: Path, executable: Path, output: Path, stage: str, case: str, snr: float, snr_index: int,
                   frames: int, seed: int, manifest: Path, progress: bool, refresh: float,
-                  detail: bool) -> None:
+                  detail: bool, frame_start: int = 0, extra_args: list[str] | None = None) -> None:
     output.mkdir(parents=True, exist_ok=True)
     command = [str(executable), "--stage", stage, "--case", case, "--ebn0-db", str(snr),
-               "--snr-index", str(snr_index), "--frame-start", "0", "--frame-count", str(frames),
+               "--snr-index", str(snr_index), "--frame-start", str(frame_start), "--frame-count", str(frames),
                "--global-seed", str(seed), "--frame-pool-manifest", str(manifest),
                "--output-dir", str(output), "--progress-refresh-seconds", str(refresh),
                "--progress" if progress else "--no-progress"]
     if detail:
         command.append("--detail")
+    if extra_args:
+        command.extend(extra_args)
     run(command, repo)
 
 
@@ -253,6 +255,171 @@ def run_bch13(args: argparse.Namespace, repo: Path, build: Path, results: Path) 
     print("PASS_BCH13_AWGN_PRESCAN frames=168000 casePoints=84")
 
 
+RAW_COUNTERS = ["processedFrames", "processedPayloadBits", "channelHardBitErrors", "channelHardFrameErrors",
+                "decodedBitErrors", "decodedFrameErrors", "trueSuccessFrames", "reportedSuccessFrames",
+                "miscorrectedFrames", "decoderFailureFrames", "noErrorStatusFrames", "correctedStatusFrames",
+                "failedStatusFrames"]
+
+
+def one_row(path: Path) -> dict[str, str]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        values = list(csv.DictReader(handle))
+    if len(values) != 1: raise RuntimeError(f"expected one summary row: {path}")
+    return values[0]
+
+
+def write_dict_rows(path: Path, values: list[dict[str, object]]) -> None:
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(values[0])); writer.writeheader(); writer.writerows(values)
+
+
+def expect_failure(command: list[str], repo: Path, label: str) -> dict[str, object]:
+    completed = subprocess.run(command, cwd=repo, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if completed.returncode == 0:
+        raise SystemExit(f"negative test unexpectedly passed: {label}")
+    return {"test": label, "status": "PASS_EXPECTED_REJECTION", "returnCode": completed.returncode,
+            "message": completed.stderr.strip().replace("\n", " | ")[:300]}
+
+
+def run_bch14(args: argparse.Namespace, repo: Path, build: Path, results: Path) -> None:
+    executable = build / "bch_awgn_runner.exe"
+    merge_script = repo / "Task/BCH/simulation/scripts/merge_bch_shards.py"
+    trial = results / "formal_trial"
+    if trial.exists(): shutil.rmtree(trial)
+    trial.mkdir(parents=True)
+    recommendations_path = repo / "Task/BCH/simulation/stages/bch13_awgn_prescan/prescan_case_recommendations.csv"
+    recommendations = {row["caseName"]: row for row in csv.DictReader(recommendations_path.open(newline="", encoding="utf-8"))}
+    pools = results / "frame_pools"
+    manifests = {200: ensure_pool(repo, pools / "formal_trial_k200", 200, 20000, args.payload_seed),
+                 300: ensure_pool(repo, pools / "formal_trial_k300", 300, 20000, args.payload_seed)}
+    print("[4/6] BCH-14 execution plan")
+    print("Cases: 4 | LOW/MID/HIGH points: 12 | minFrames: 5000 | target FE: 100 | maxFrames: 20000")
+    print(f"Resume checks: 4 x 6000 frames | shard checks: 4 x 3 shards | Output: {trial}")
+
+    trial_points: list[Path] = []
+    for case in CASES:
+        payload = 200 if case.endswith("200") else 300
+        rec = recommendations[case]
+        for label, field in [("LOW", "waterfallLowDb"), ("MID", "waterfallMidDb"), ("HIGH", "waterfallHighDb")]:
+            snr = float(rec[field]); snr_index = int(round(snr * 10.0))
+            point = trial / "points" / f"{case.lower().replace('-', '_')}_{label.lower()}"
+            checkpoint = trial / "checkpoints" / f"{case.lower().replace('-', '_')}_{label.lower()}.json"
+            execute_point(repo, executable, point, "BCH14", case, snr, snr_index, 20000, args.global_seed,
+                          manifests[payload], args.progress, args.progress_refresh_seconds, False,
+                          extra_args=["--logical-frame-count", "20000", "--min-frames", "5000",
+                                      "--target-frame-errors", "100", "--max-frames", "20000",
+                                      "--checkpoint", str(checkpoint), "--checkpoint-interval", "1000"])
+            row = one_row(point / "summary.csv")
+            if row["stopReason"] not in {"TARGET_FRAME_ERRORS_REACHED", "MAX_FRAMES_REACHED"}:
+                raise SystemExit("BLOCKED_BCH14_INVALID_STOP_REASON")
+            if int(row["processedFrames"]) < 5000:
+                raise SystemExit("BCH-14 stopped before minimum frames")
+            trial_points.append(point)
+    combine_files(trial_points, "summary.csv", trial / "formal_trial_summary.csv")
+
+    resume_rows: list[dict[str, object]] = []
+    shard_rows: list[dict[str, object]] = []
+    checkpoint_rows: list[dict[str, object]] = []
+    negative_rows: list[dict[str, object]] = []
+    extra_progress: list[Path] = []
+    for case in CASES:
+        payload = 200 if case.endswith("200") else 300
+        snr = float(recommendations[case]["waterfallMidDb"]); snr_index = int(round(snr * 10.0))
+        prefix = case.lower().replace('-', '_')
+        continuous = trial / "resume" / prefix / "continuous"
+        partial = trial / "resume" / prefix / "partial"
+        resumed = trial / "resume" / prefix / "resumed"
+        checkpoint = trial / "resume" / prefix / "state.json"
+        common_extra = ["--logical-frame-count", "6000"]
+        execute_point(repo, executable, continuous, "BCH14_RESUME", case, snr, snr_index, 6000, args.global_seed,
+                      manifests[payload], False, args.progress_refresh_seconds, True, extra_args=common_extra)
+        execute_point(repo, executable, partial, "BCH14_RESUME", case, snr, snr_index, 6000, args.global_seed,
+                      manifests[payload], False, args.progress_refresh_seconds, True,
+                      extra_args=common_extra + ["--checkpoint", str(checkpoint), "--checkpoint-interval", "1000",
+                                                 "--interrupt-after-frames", "2500"])
+        execute_point(repo, executable, resumed, "BCH14_RESUME", case, snr, snr_index, 6000, args.global_seed,
+                      manifests[payload], False, args.progress_refresh_seconds, True,
+                      extra_args=common_extra + ["--checkpoint", str(checkpoint), "--checkpoint-interval", "1000", "--resume"])
+        continuous_row = one_row(continuous / "summary.csv"); resumed_row = one_row(resumed / "summary.csv")
+        counter_mismatches = sum(continuous_row[field] != resumed_row[field] for field in RAW_COUNTERS)
+        continuous_detail = {row["frameIndex"]: row for row in csv.DictReader((continuous / "frame_detail.csv").open(newline="", encoding="utf-8"))}
+        resumed_detail = list(csv.DictReader((partial / "frame_detail.csv").open(newline="", encoding="utf-8"))) + list(csv.DictReader((resumed / "frame_detail.csv").open(newline="", encoding="utf-8")))
+        noise_mismatches = sum(continuous_detail[row["frameIndex"]]["noiseHash"] != row["noiseHash"] for row in resumed_detail)
+        if counter_mismatches or noise_mismatches or len(resumed_detail) != 6000:
+            raise SystemExit("BLOCKED_BCH14_CHECKPOINT_RESUME_MISMATCH")
+        resume_rows.append({"caseName": case, "ebn0Db": snr, "continuousFrames": continuous_row["processedFrames"],
+                            "resumedFrames": resumed_row["processedFrames"], "counterMismatches": counter_mismatches,
+                            "noiseHashMismatches": noise_mismatches, "checkpointCount": resumed_row["checkpointCount"], "status": "PASS"})
+        state = __import__("json").loads(checkpoint.read_text(encoding="utf-8"))
+        required_fields = ["schemaVersion", "configHash", "nextFrameIndex", "bitErrors", "frameErrors",
+                           "reportedSuccessFrames", "miscorrectedFrames", "decoderFailureFrames", "noisePolicyVersion",
+                           "globalSeed", "shardIndex", "shardCount", "checkpointCount", "timestamp"]
+        missing = [field for field in required_fields if field not in state]
+        checkpoint_rows.append({"caseName": case, "checkpointPath": str(checkpoint.relative_to(trial)),
+                                "nextFrameIndex": state["nextFrameIndex"], "missingRequiredFields": ";".join(missing),
+                                "temporaryFileExists": checkpoint.with_suffix(checkpoint.suffix + ".tmp").exists(),
+                                "status": "PASS" if not missing and not checkpoint.with_suffix(checkpoint.suffix + ".tmp").exists() else "FAIL"})
+        bad_seed_command = [str(executable), "--stage", "BCH14_RESUME", "--case", case, "--ebn0-db", str(snr),
+                            "--snr-index", str(snr_index), "--frame-start", "0", "--frame-count", "6000",
+                            "--logical-frame-count", "6000", "--global-seed", str(args.global_seed + 1),
+                            "--frame-pool-manifest", str(manifests[payload]), "--output-dir", str(trial / "negative" / prefix / "bad_seed"),
+                            "--checkpoint", str(checkpoint), "--checkpoint-interval", "1000", "--resume", "--no-progress"]
+        negative_rows.append(expect_failure(bad_seed_command, repo, f"{case}_resume_config_hash_seed_mismatch"))
+        extra_progress.extend([continuous, partial, resumed])
+
+        shard_summaries: list[Path] = []
+        for shard_index in range(3):
+            shard = trial / "shards" / prefix / f"shard{shard_index}"
+            execute_point(repo, executable, shard, "BCH14_SHARD", case, snr, snr_index, 2000, args.global_seed,
+                          manifests[payload], False, args.progress_refresh_seconds, False, frame_start=shard_index * 2000,
+                          extra_args=["--logical-frame-count", "6000", "--shard-index", str(shard_index), "--shard-count", "3"])
+            shard_summaries.append(shard / "summary.csv"); extra_progress.append(shard)
+        merged = trial / "shards" / prefix / "merged.csv"
+        merge_command = [sys.executable, str(merge_script), "--inputs", *map(str, shard_summaries), "--output", str(merged),
+                         "--expected-frame-count", "6000", "--expected-shard-count", "3"]
+        run(merge_command, repo)
+        merged_row = one_row(merged)
+        shard_mismatches = sum(continuous_row[field] != merged_row[field] for field in RAW_COUNTERS)
+        if shard_mismatches: raise SystemExit("BLOCKED_BCH14_SHARD_MERGE_MISMATCH")
+        shard_rows.append({"caseName": case, "ebn0Db": snr, "continuousFrames": continuous_row["processedFrames"],
+                           "mergedFrames": merged_row["processedFrames"], "loadedShards": merged_row["loadedShards"],
+                           "counterMismatches": shard_mismatches, "duplicateFrames": 0, "missingFrames": 0, "status": "PASS"})
+
+        if case == CASES[0]:
+            duplicate = merge_command.copy(); duplicate[duplicate.index(str(shard_summaries[1]))] = str(shard_summaries[0])
+            negative_rows.append(expect_failure(duplicate, repo, "duplicate_shard_rejection"))
+            missing = [sys.executable, str(merge_script), "--inputs", str(shard_summaries[0]), str(shard_summaries[2]),
+                       "--output", str(trial / "negative/missing.csv"), "--expected-frame-count", "6000", "--expected-shard-count", "3"]
+            negative_rows.append(expect_failure(missing, repo, "missing_shard_rejection"))
+            mutated_dir = trial / "negative"; mutated_dir.mkdir(exist_ok=True)
+            mutated = mutated_dir / "overlap_summary.csv"; row = one_row(shard_summaries[1]); row["frameStart"] = "1999"
+            with mutated.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=list(row)); writer.writeheader(); writer.writerow(row)
+            overlap = [sys.executable, str(merge_script), "--inputs", str(shard_summaries[0]), str(mutated), str(shard_summaries[2]),
+                       "--output", str(trial / "negative/overlap.csv"), "--expected-frame-count", "6000", "--expected-shard-count", "3"]
+            negative_rows.append(expect_failure(overlap, repo, "overlap_rejection"))
+            mutations = {"caseName": "BCH-B200", "ebn0Db": str(snr + 0.1),
+                         "globalSeed": str(args.global_seed + 1), "noisePolicyVersion": "2",
+                         "configHash": "0" * 64}
+            for field, replacement in mutations.items():
+                identity_mutated = mutated_dir / f"{field}_summary.csv"
+                row = one_row(shard_summaries[1]); row[field] = replacement
+                with identity_mutated.open("w", newline="", encoding="utf-8") as handle:
+                    writer = csv.DictWriter(handle, fieldnames=list(row)); writer.writeheader(); writer.writerow(row)
+                command = [sys.executable, str(merge_script), "--inputs", str(shard_summaries[0]), str(identity_mutated), str(shard_summaries[2]),
+                           "--output", str(trial / "negative" / f"{field}.csv"), "--expected-frame-count", "6000", "--expected-shard-count", "3"]
+                negative_rows.append(expect_failure(command, repo, f"{field}_mismatch_rejection"))
+
+    write_dict_rows(trial / "resume_audit.csv", resume_rows)
+    write_dict_rows(trial / "shard_merge_audit.csv", shard_rows)
+    write_dict_rows(trial / "checkpoint_audit.csv", checkpoint_rows)
+    write_dict_rows(trial / "negative_test_results.csv", negative_rows)
+    combine_jsonl(trial_points + extra_progress, "progress.jsonl", trial / "progress.jsonl")
+    if any(row["status"] != "PASS" for row in checkpoint_rows):
+        raise SystemExit("BLOCKED_BCH14_CHECKPOINT_RESUME_MISMATCH")
+    print("PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL casePoints=12 resumeCases=4 shardCases=4")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
@@ -286,6 +453,7 @@ def main() -> int:
         print("BCH Group 4 plan: BCH-11 -> BCH-12 -> BCH-13 -> BCH-14 -> BCH-15 -> BCH-16")
         print("BCH-12: 4 cases, 5 SNR points, 200 frames/point, 4000 maximum frames")
         print("BCH-13: 4 cases, 21 SNR points, 2000 frames/point, 168000 maximum frames")
+        print("BCH-14: 12 adaptive trial points plus 4 resume and 4 three-shard equivalence checks")
         print(f"Output: {results}")
         return 0
     selected = args.stage or ("bch12" if not args.all else "all")
@@ -295,7 +463,9 @@ def main() -> int:
         run_bch12(args, repo, build, results)
     if selected in {"bch13", "all"}:
         run_bch13(args, repo, build, results)
-    if selected in {"bch14", "bch15", "bch16"}:
+    if selected in {"bch14", "all"}:
+        run_bch14(args, repo, build, results)
+    if selected in {"bch15", "bch16"}:
         raise SystemExit("requested stage is not implemented in the current ordered functional range")
     return 0
 
