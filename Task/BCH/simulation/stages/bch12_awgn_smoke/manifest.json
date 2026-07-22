@@ -1,0 +1,51 @@
+{
+  "stage": "bch12_awgn_smoke",
+  "baseCommit": "609f4531a82305c484894599ffbbaa32d8299458",
+  "functionalCommit": "205f82c84811472ace5ca5c45f7ff0d124887b2c",
+  "branch": "bch-group4-awgn-formal-comparison",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "609f4531a82305c484894599ffbbaa32d8299458",
+      "contentCommit": "a3674ba7397450b881bb3bcd4a54c7a16a30476a",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp",
+        "Task/BCH/simulation/current/src/bch_awgn_runner.cpp",
+        "Task/BCH/simulation/current/src/bch_awgn_simulation.cpp",
+        "Task/BCH/simulation/current/tests/test_bch12_awgn.cpp",
+        "Task/BCH/simulation/scripts/plot_bch_smoke.py",
+        "Task/BCH/simulation/scripts/run_bch_group4.py",
+        "Task/BCH/simulation/stages/bch12_awgn_smoke/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/bch12_awgn_smoke/frozen_config.csv",
+        "Task/BCH/simulation/stages/bch12_awgn_smoke/stage_plan.md"
+      ]
+    },
+    {
+      "name": "progressLogRepair",
+      "baseCommit": "a3674ba7397450b881bb3bcd4a54c7a16a30476a",
+      "contentCommit": "205f82c84811472ace5ca5c45f7ff0d124887b2c",
+      "files": ["Task/BCH/simulation/scripts/run_bch_group4.py"]
+    }
+  ],
+  "commonNoisePolicyVersion": 1,
+  "framePoolVersion": "common03.frame_pool_manifest.v2",
+  "globalSeed": 2026072201,
+  "caseConfigs": ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"],
+  "snrGrid": [0, 2, 4, 6, 8],
+  "stopConfig": {"mode": "FIXED_FRAMES_REACHED", "framesPerPoint": 200},
+  "testCounts": {"primaryFrames": 4000, "reproducibilityFrames": 4000, "casePoints": 20},
+  "formalPointCounts": 0,
+  "processedFrames": 4000,
+  "mismatchCounts": {"reproducibility": 0, "sigma": 0, "accounting": 0, "plotData": 0},
+  "checkpointAudit": "NOT_APPLICABLE_BCH12",
+  "resumeAudit": "NOT_APPLICABLE_BCH12",
+  "shardAudit": "NOT_APPLICABLE_BCH12",
+  "plotAudit": "PASS",
+  "pngCount": 4,
+  "nonPngPlotArtifactCount": 0,
+  "artifactHashes": {"index": "result_file_hashes.csv", "plotManifest": "plot_manifest.json"},
+  "gateStatus": "PASS_BCH12_AWGN_SMOKE",
+  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "mergeStatus": "NOT_MERGED"
+}

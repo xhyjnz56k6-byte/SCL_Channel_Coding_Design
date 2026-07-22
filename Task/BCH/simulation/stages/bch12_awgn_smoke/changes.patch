@@ -1,0 +1,913 @@
+diff --git a/Task/BCH/simulation/current/CMakeLists.txt b/Task/BCH/simulation/current/CMakeLists.txt
+index 89d8ff8..a312aa9 100644
+--- a/Task/BCH/simulation/current/CMakeLists.txt
++++ b/Task/BCH/simulation/current/CMakeLists.txt
+@@ -3,7 +3,10 @@ project(BchGroup4Simulation LANGUAGES CXX)
+ 
+ set(COMMON_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../Common")
+ add_library(common_bch_simulation STATIC
++    ${COMMON_ROOT}/src/random_policy.cpp
++    ${COMMON_ROOT}/src/gaussian_noise.cpp
+     ${COMMON_ROOT}/src/modulation.cpp
++    ${COMMON_ROOT}/src/awgn_channel.cpp
+     ${COMMON_ROOT}/src/demodulation.cpp
+     ${COMMON_ROOT}/src/simulation_metrics.cpp)
+ target_include_directories(common_bch_simulation PUBLIC ${COMMON_ROOT}/include)
+@@ -12,16 +15,21 @@ target_compile_features(common_bch_simulation PUBLIC cxx_std_17)
+ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../segmented/current" segmented_core)
+ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../block/current" block_core)
+ 
+-add_library(bch_case_adapter src/bch_case_adapter.cpp)
++add_library(bch_case_adapter src/bch_case_adapter.cpp src/bch_awgn_simulation.cpp)
+ target_include_directories(bch_case_adapter PUBLIC include)
+ target_link_libraries(bch_case_adapter PUBLIC bch15_encoder bch_block common_bch_simulation)
+ target_compile_features(bch_case_adapter PUBLIC cxx_std_17)
+ 
+ add_executable(test_bch11_noiseless tests/test_bch11_noiseless.cpp)
+ target_link_libraries(test_bch11_noiseless PRIVATE bch_case_adapter)
++add_executable(test_bch12_awgn tests/test_bch12_awgn.cpp)
++target_link_libraries(test_bch12_awgn PRIVATE bch_case_adapter)
++add_executable(bch_awgn_runner src/bch_awgn_runner.cpp)
++target_link_libraries(bch_awgn_runner PRIVATE bch_case_adapter)
+ 
+ enable_testing()
+ if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
+     add_test(NAME bch11_common_noiseless COMMAND test_bch11_noiseless
+         ${BCH_K200_MANIFEST} ${BCH_K300_MANIFEST} ${CMAKE_CURRENT_BINARY_DIR}/bch11_outputs)
+ endif()
++add_test(NAME bch12_awgn_unit COMMAND test_bch12_awgn)
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp
+new file mode 100644
+index 0000000..9485e3a
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp
+@@ -0,0 +1,63 @@
++#ifndef SCL_BCH_SIMULATION_BCH_AWGN_SIMULATION_HPP
++#define SCL_BCH_SIMULATION_BCH_AWGN_SIMULATION_HPP
++
++#include "bch_simulation/bch_case_adapter.hpp"
++
++#include "common/frame_pool.hpp"
++
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++constexpr std::uint64_t kBchNoisePolicyVersion = 1U;
++
++struct AwgnPointConfig {
++    std::string stage;
++    BchCaseId caseId = BchCaseId::S200;
++    double ebN0Db = 0.0;
++    std::size_t snrIndex = 0U;
++    std::uint64_t frameStart = 0U;
++    std::uint64_t frameCount = 0U;
++    std::uint64_t globalSeed = 0U;
++    bool progress = true;
++    double progressRefreshSeconds = 0.2;
++    bool writeFrameDetail = false;
++    std::string framePoolManifest;
++    std::string outputDirectory;
++};
++
++struct AwgnPointResult {
++    AwgnPointConfig config;
++    std::uint64_t processedFrames = 0U;
++    std::uint64_t processedPayloadBits = 0U;
++    std::uint64_t channelHardBitErrors = 0U;
++    std::uint64_t channelHardFrameErrors = 0U;
++    std::uint64_t decodedBitErrors = 0U;
++    std::uint64_t decodedFrameErrors = 0U;
++    std::uint64_t trueSuccessFrames = 0U;
++    std::uint64_t reportedSuccessFrames = 0U;
++    std::uint64_t miscorrectedFrames = 0U;
++    std::uint64_t decoderFailureFrames = 0U;
++    std::uint64_t noErrorStatusFrames = 0U;
++    std::uint64_t correctedStatusFrames = 0U;
++    std::uint64_t failedStatusFrames = 0U;
++    double noiseSigma = 0.0;
++    double noiseVariance = 0.0;
++    double encodeTimeUsSum = 0.0;
++    double decodeTimeUsSum = 0.0;
++    std::vector<double> decodeTimesUs;
++    std::string firstNoiseHash;
++    std::string lastNoiseHash;
++};
++
++std::uint64_t pairedNoiseGroupId(common::Length payloadLength, std::size_t snrIndex);
++double independentSigmaReference(const BchSimulationCase& simulationCase, double ebN0Db);
++std::string standardNoiseHash(const common::RealVector& standardNoise);
++AwgnPointResult runAwgnPoint(const AwgnPointConfig& config);
++void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& path);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/src/bch_awgn_runner.cpp b/Task/BCH/simulation/current/src/bch_awgn_runner.cpp
+new file mode 100644
+index 0000000..43646f9
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_awgn_runner.cpp
+@@ -0,0 +1,63 @@
++#include "bch_simulation/bch_awgn_simulation.hpp"
++
++#include <filesystem>
++#include <iostream>
++#include <map>
++#include <stdexcept>
++#include <string>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++std::map<std::string, std::string> parse(int argc, char** argv) {
++    std::map<std::string, std::string> values;
++    for (int i = 1; i < argc; ++i) {
++        const std::string key(argv[i]);
++        if (key == "--progress" || key == "--no-progress" || key == "--detail") {
++            values[key] = "1";
++        } else {
++            if (key.rfind("--", 0U) != 0U || i + 1 >= argc) throw std::invalid_argument("invalid runner arguments");
++            values[key] = argv[++i];
++        }
++    }
++    return values;
++}
++
++std::string required(const std::map<std::string, std::string>& values, const std::string& key) {
++    const auto found = values.find(key);
++    if (found == values.end()) throw std::invalid_argument("missing argument " + key);
++    return found->second;
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        const auto args = parse(argc, argv);
++        scl::bch::simulation::AwgnPointConfig config;
++        config.stage = required(args, "--stage");
++        config.caseId = scl::bch::simulation::bchSimulationCase(required(args, "--case")).id;
++        config.ebN0Db = std::stod(required(args, "--ebn0-db"));
++        config.snrIndex = static_cast<std::size_t>(std::stoull(required(args, "--snr-index")));
++        config.frameStart = static_cast<std::uint64_t>(std::stoull(required(args, "--frame-start")));
++        config.frameCount = static_cast<std::uint64_t>(std::stoull(required(args, "--frame-count")));
++        config.globalSeed = static_cast<std::uint64_t>(std::stoull(required(args, "--global-seed")));
++        config.framePoolManifest = required(args, "--frame-pool-manifest");
++        config.outputDirectory = required(args, "--output-dir");
++        config.progress = args.count("--no-progress") == 0U;
++        if (args.count("--progress") != 0U) config.progress = true;
++        if (args.count("--progress-refresh-seconds") != 0U) {
++            config.progressRefreshSeconds = std::stod(args.at("--progress-refresh-seconds"));
++        }
++        config.writeFrameDetail = args.count("--detail") != 0U;
++        const auto result = scl::bch::simulation::runAwgnPoint(config);
++        scl::bch::simulation::writeAwgnPointSummary(result, (fs::path(config.outputDirectory) / "summary.csv").string());
++        std::cout << "PASS_" << config.stage << '_' << scl::bch::simulation::bchSimulationCase(config.caseId).caseName << '_'
++                  << config.snrIndex << '\n';
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_AWGN_RUNNER: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/current/src/bch_awgn_simulation.cpp b/Task/BCH/simulation/current/src/bch_awgn_simulation.cpp
+new file mode 100644
+index 0000000..7092c5f
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_awgn_simulation.cpp
+@@ -0,0 +1,248 @@
++#include "bch_simulation/bch_awgn_simulation.hpp"
++
++#include "common/awgn_channel.hpp"
++#include "common/demodulation.hpp"
++#include "common/gaussian_noise.hpp"
++#include "common/modulation.hpp"
++#include "common/sha256.hpp"
++#include "common/simulation_metrics.hpp"
++
++#include <algorithm>
++#include <chrono>
++#include <cmath>
++#include <cstring>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <limits>
++#include <sstream>
++#include <stdexcept>
++
++namespace fs = std::filesystem;
++
++namespace scl::bch::simulation {
++namespace {
++
++double percentile(std::vector<double> values, double fraction) {
++    if (values.empty()) return 0.0;
++    std::sort(values.begin(), values.end());
++    const double position = fraction * static_cast<double>(values.size() - 1U);
++    const std::size_t lower = static_cast<std::size_t>(position);
++    const std::size_t upper = std::min(lower + 1U, values.size() - 1U);
++    const double weight = position - static_cast<double>(lower);
++    return values[lower] * (1.0 - weight) + values[upper] * weight;
++}
++
++std::string timestampUtc() {
++    const auto now = std::chrono::system_clock::now();
++    const std::time_t value = std::chrono::system_clock::to_time_t(now);
++    std::tm tm{};
++#ifdef _WIN32
++    gmtime_s(&tm, &value);
++#else
++    gmtime_r(&value, &tm);
++#endif
++    std::ostringstream out;
++    out << std::put_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
++    return out.str();
++}
++
++class ProgressReporter {
++public:
++    ProgressReporter(const AwgnPointConfig& config, const std::string& caseName, std::ofstream& jsonl)
++        : config_(config), caseName_(caseName), jsonl_(jsonl), started_(Clock::now()), last_(started_) {}
++
++    void update(const AwgnPointResult& result, bool force) {
++        const auto now = Clock::now();
++        const double since = std::chrono::duration<double>(now - last_).count();
++        if (!force && since < config_.progressRefreshSeconds) return;
++        last_ = now;
++        const double elapsed = std::max(1e-9, std::chrono::duration<double>(now - started_).count());
++        const double rate = static_cast<double>(result.processedFrames) / elapsed;
++        const double remaining = static_cast<double>(config_.frameCount - result.processedFrames);
++        const double eta = rate > 0.0 ? remaining / rate : 0.0;
++        const double ber = result.processedPayloadBits == 0U ? 0.0 :
++            static_cast<double>(result.decodedBitErrors) / result.processedPayloadBits;
++        const double fer = result.processedFrames == 0U ? 0.0 :
++            static_cast<double>(result.decodedFrameErrors) / result.processedFrames;
++        if (config_.progress) {
++            std::cerr << '[' << config_.stage << "][" << caseName_ << "][" << config_.ebN0Db << " dB] "
++                      << "frames " << result.processedFrames << '/' << config_.frameCount
++                      << " FE " << result.decodedFrameErrors << " BER " << std::scientific << ber
++                      << " FER " << fer << std::fixed << " speed " << static_cast<std::uint64_t>(rate)
++                      << " frame/s elapsed " << std::setprecision(1) << elapsed << "s ETA " << eta
++                      << "s checkpoint 0 shard 1/1" << (force ? '\n' : '\r');
++        }
++        if (jsonl_) {
++            jsonl_ << "{\"timestamp\":\"" << timestampUtc() << "\",\"stage\":\"" << config_.stage
++                   << "\",\"caseName\":\"" << caseName_ << "\",\"ebn0Db\":" << config_.ebN0Db
++                   << ",\"processedFrames\":" << result.processedFrames
++                   << ",\"frameErrors\":" << result.decodedFrameErrors
++                   << ",\"bitErrors\":" << result.decodedBitErrors
++                   << ",\"elapsedSeconds\":" << elapsed << ",\"framesPerSecond\":" << rate
++                   << ",\"etaSeconds\":" << eta << ",\"checkpointCount\":0,\"shardIndex\":0,\"status\":\""
++                   << (force ? "COMPLETE" : "RUNNING") << "\"}\n";
++        }
++    }
++
++private:
++    using Clock = std::chrono::steady_clock;
++    const AwgnPointConfig& config_;
++    std::string caseName_;
++    std::ofstream& jsonl_;
++    Clock::time_point started_;
++    Clock::time_point last_;
++};
++
++void validateResult(const AwgnPointResult& value, const BchSimulationCase& simulationCase) {
++    if (value.processedFrames != value.trueSuccessFrames + value.decodedFrameErrors ||
++        value.processedFrames != value.reportedSuccessFrames + value.decoderFailureFrames ||
++        value.miscorrectedFrames > value.reportedSuccessFrames ||
++        value.processedPayloadBits != value.processedFrames * simulationCase.payloadLength ||
++        value.decodedBitErrors > value.processedPayloadBits ||
++        value.noErrorStatusFrames + value.correctedStatusFrames + value.failedStatusFrames != value.processedFrames) {
++        throw std::logic_error("AWGN result accounting mismatch");
++    }
++}
++
++}  // namespace
++
++std::uint64_t pairedNoiseGroupId(common::Length payloadLength, std::size_t snrIndex) {
++    if (payloadLength != 200U && payloadLength != 300U) throw std::invalid_argument("unsupported paired payload group");
++    return static_cast<std::uint64_t>(payloadLength) * 1000000ULL + static_cast<std::uint64_t>(snrIndex);
++}
++
++double independentSigmaReference(const BchSimulationCase& simulationCase, double ebN0Db) {
++    const double rate = static_cast<double>(simulationCase.payloadLength) / simulationCase.encodedLength;
++    return std::sqrt(1.0 / (2.0 * rate * std::pow(10.0, ebN0Db / 10.0)));
++}
++
++std::string standardNoiseHash(const common::RealVector& standardNoise) {
++    common::Sha256 sha;
++    for (double value : standardNoise) {
++        std::uint64_t bits = 0U;
++        static_assert(sizeof(bits) == sizeof(value), "double hash representation mismatch");
++        std::memcpy(&bits, &value, sizeof(bits));
++        std::uint8_t bytes[8];
++        for (unsigned i = 0; i < 8U; ++i) bytes[i] = static_cast<std::uint8_t>((bits >> (8U * i)) & 0xffU);
++        sha.update(bytes, 8U);
++    }
++    return sha.finalHex();
++}
++
++AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
++    if (config.frameCount == 0U || config.framePoolManifest.empty() || config.outputDirectory.empty() ||
++        !std::isfinite(config.progressRefreshSeconds) || config.progressRefreshSeconds <= 0.0) {
++        throw std::invalid_argument("invalid AWGN point configuration");
++    }
++    const BchSimulationCase& simulationCase = bchSimulationCase(config.caseId);
++    common::PackedFramePoolReader pool(config.framePoolManifest);
++    if (pool.payloadLength() != simulationCase.payloadLength ||
++        config.frameStart + config.frameCount > pool.frameCount()) {
++        throw std::invalid_argument("frame pool does not cover AWGN point");
++    }
++    fs::create_directories(config.outputDirectory);
++    std::ofstream detail;
++    if (config.writeFrameDetail) {
++        detail.open(fs::path(config.outputDirectory) / "frame_detail.csv");
++        if (!detail) throw std::runtime_error("failed to open frame detail output");
++        detail << "caseName,ebn0Db,snrIndex,frameIndex,noiseHash,channelHardBitErrors,decodedBitErrors,trueSuccess,reportedSuccess,miscorrected,decoderFailure,frameStatus\n";
++    }
++    std::ofstream progress(fs::path(config.outputDirectory) / "progress.jsonl");
++    if (!progress) throw std::runtime_error("failed to open progress output");
++    ProgressReporter reporter(config, simulationCase.caseName, progress);
++
++    common::CodeLengths lengths;
++    lengths.payloadLength = simulationCase.payloadLength;
++    lengths.codecInputLength = simulationCase.payloadLength + simulationCase.fillerLength + simulationCase.shorteningLength;
++    lengths.encodedLength = simulationCase.encodedLength;
++    lengths.transmittedLength = simulationCase.encodedLength;
++    lengths.fillerLength = simulationCase.fillerLength;
++    lengths.shortenedLength = simulationCase.shorteningLength;
++    AwgnPointResult result;
++    result.config = config;
++    result.noiseSigma = common::computeAwgnSigma(lengths, config.ebN0Db);
++    result.noiseVariance = result.noiseSigma * result.noiseSigma;
++    result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    const std::uint64_t noiseGroup = pairedNoiseGroupId(simulationCase.payloadLength, config.snrIndex);
++
++    for (std::uint64_t offset = 0U; offset < config.frameCount; ++offset) {
++        const common::FrameIndex frameIndex = config.frameStart + offset;
++        const auto payload = pool.readFrame(frameIndex).payloadBits;
++        const auto encodeStart = std::chrono::steady_clock::now();
++        const auto encoded = encodeBchFrame(simulationCase, payload);
++        const auto encodeEnd = std::chrono::steady_clock::now();
++        const auto standardNoise = common::generateStandardGaussianFrame(
++            config.globalSeed, noiseGroup, frameIndex, simulationCase.encodedLength, kBchNoisePolicyVersion);
++        const std::string noiseHash = standardNoiseHash(standardNoise);
++        if (offset == 0U) result.firstNoiseHash = noiseHash;
++        result.lastNoiseHash = noiseHash;
++        const auto received = common::applyAwgn(common::bpskModulate(encoded.codeword), standardNoise, result.noiseSigma);
++        const auto hard = common::hardDecision(received);
++        const std::uint64_t channelErrors = common::countBitErrors(encoded.codeword, hard);
++        const auto decodeStart = std::chrono::steady_clock::now();
++        auto decoded = decodeBchFrame(simulationCase, hard);
++        const auto decodeEnd = std::chrono::steady_clock::now();
++        auditDecodedBchFrame(payload, decoded);
++        const std::uint64_t decodedErrors = common::countBitErrors(payload, decoded.payload);
++        const double encodeUs = std::chrono::duration<double, std::micro>(encodeEnd - encodeStart).count();
++        const double decodeUs = std::chrono::duration<double, std::micro>(decodeEnd - decodeStart).count();
++        ++result.processedFrames;
++        result.processedPayloadBits += simulationCase.payloadLength;
++        result.channelHardBitErrors += channelErrors;
++        result.channelHardFrameErrors += channelErrors != 0U;
++        result.decodedBitErrors += decodedErrors;
++        result.decodedFrameErrors += decodedErrors != 0U;
++        result.trueSuccessFrames += decoded.trueSuccess;
++        result.reportedSuccessFrames += decoded.reportedSuccess;
++        result.miscorrectedFrames += decoded.miscorrected;
++        result.decoderFailureFrames += decoded.decoderFailure;
++        result.noErrorStatusFrames += decoded.frameStatus == "NO_ERROR";
++        result.correctedStatusFrames += decoded.frameStatus == "CORRECTED";
++        result.failedStatusFrames += decoded.frameStatus == "DECODER_FAILURE" || decoded.decoderFailure;
++        result.encodeTimeUsSum += encodeUs;
++        result.decodeTimeUsSum += decodeUs;
++        result.decodeTimesUs.push_back(decodeUs);
++        if (detail) {
++            detail << simulationCase.caseName << ',' << config.ebN0Db << ',' << config.snrIndex << ','
++                   << frameIndex << ',' << noiseHash << ',' << channelErrors << ',' << decodedErrors << ','
++                   << decoded.trueSuccess << ',' << decoded.reportedSuccess << ',' << decoded.miscorrected << ','
++                   << decoded.decoderFailure << ',' << decoded.frameStatus << '\n';
++        }
++        reporter.update(result, offset + 1U == config.frameCount);
++    }
++    validateResult(result, simulationCase);
++    return result;
++}
++
++void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& path) {
++    const auto& value = bchSimulationCase(result.config.caseId);
++    const double frames = static_cast<double>(result.processedFrames);
++    const double bits = static_cast<double>(result.processedPayloadBits);
++    const double ber = result.decodedBitErrors / bits;
++    const double fer = result.decodedFrameErrors / frames;
++    const double maxDecode = result.decodeTimesUs.empty() ? 0.0 : *std::max_element(result.decodeTimesUs.begin(), result.decodeTimesUs.end());
++    std::ofstream out(path);
++    if (!out) throw std::runtime_error("failed to open summary output");
++    out << "schemaVersion,stage,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,ebn0Db,ebn0Linear,noiseSigma,noiseVariance,globalSeed,noisePolicyVersion,snrIndex,processedFrames,processedPayloadBits,channelHardBitErrors,channelHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,avgEncodeTimeUs,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,firstNoiseHash,lastNoiseHash,stopReason\n";
++    out << "bch.group4.result.v1," << result.config.stage << ',' << value.caseName << ','
++        << organizationName(value.organization) << ',' << decoderTypeName(value.decoderType) << ','
++        << value.payloadLength << ',' << value.encodedLength << ',' << std::setprecision(17) << value.frameRate << ','
++        << result.config.ebN0Db << ',' << common::ebN0Linear(result.config.ebN0Db) << ','
++        << result.noiseSigma << ',' << result.noiseVariance << ',' << result.config.globalSeed << ','
++        << kBchNoisePolicyVersion << ',' << result.config.snrIndex << ',' << result.processedFrames << ','
++        << result.processedPayloadBits << ',' << result.channelHardBitErrors << ',' << result.channelHardFrameErrors << ','
++        << result.decodedBitErrors << ',' << result.decodedFrameErrors << ',' << ber << ',' << fer << ','
++        << result.trueSuccessFrames << ',' << result.trueSuccessFrames / frames << ','
++        << result.reportedSuccessFrames << ',' << result.reportedSuccessFrames / frames << ','
++        << result.miscorrectedFrames << ',' << result.miscorrectedFrames / frames << ','
++        << result.decoderFailureFrames << ',' << result.decoderFailureFrames / frames << ','
++        << result.noErrorStatusFrames << ',' << result.correctedStatusFrames << ',' << result.failedStatusFrames << ','
++        << result.encodeTimeUsSum / frames << ',' << result.decodeTimeUsSum / frames << ','
++        << percentile(result.decodeTimesUs, 0.50) << ',' << percentile(result.decodeTimesUs, 0.95) << ','
++        << percentile(result.decodeTimesUs, 0.99) << ',' << maxDecode << ',' << result.firstNoiseHash << ','
++        << result.lastNoiseHash << ",FIXED_FRAMES_REACHED\n";
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/tests/test_bch12_awgn.cpp b/Task/BCH/simulation/current/tests/test_bch12_awgn.cpp
+new file mode 100644
+index 0000000..3a1b415
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/test_bch12_awgn.cpp
+@@ -0,0 +1,47 @@
++#include "bch_simulation/bch_awgn_simulation.hpp"
++
++#include "common/awgn_channel.hpp"
++#include "common/gaussian_noise.hpp"
++
++#include <cmath>
++#include <iostream>
++#include <stdexcept>
++
++namespace {
++void require(bool value, const char* message) { if (!value) throw std::runtime_error(message); }
++}
++
++int main() {
++    try {
++        using namespace scl::bch::simulation;
++        for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300}) {
++            const auto& value = bchSimulationCase(id);
++            for (double snr : {0.0, 3.5, 8.0}) {
++                scl::common::CodeLengths lengths;
++                lengths.payloadLength = value.payloadLength;
++                lengths.codecInputLength = value.payloadLength + value.fillerLength + value.shorteningLength;
++                lengths.encodedLength = value.encodedLength;
++                lengths.transmittedLength = value.encodedLength;
++                const double computed = scl::common::computeAwgnSigma(lengths, snr);
++                const double reference = independentSigmaReference(value, snr);
++                require(std::abs(computed - reference) <= 1e-15 * std::max(1.0, reference), "sigma scaling mismatch");
++            }
++        }
++        const std::uint64_t seed = 2026072201U;
++        for (std::size_t snrIndex = 0; snrIndex < 5U; ++snrIndex) {
++            const auto zS200 = scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(200U, snrIndex), 7U, 285U, kBchNoisePolicyVersion);
++            const auto zB200 = scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(200U, snrIndex), 7U, 248U, kBchNoisePolicyVersion);
++            require(std::equal(zB200.begin(), zB200.end(), zS200.begin()), "paired 200-bit mother noise mismatch");
++            const auto zS300 = scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(300U, snrIndex), 7U, 420U, kBchNoisePolicyVersion);
++            const auto zB300 = scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(300U, snrIndex), 7U, 390U, kBchNoisePolicyVersion);
++            require(std::equal(zB300.begin(), zB300.end(), zS300.begin()), "paired 300-bit mother noise mismatch");
++            require(standardNoiseHash(zS200) == standardNoiseHash(scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(200U, snrIndex), 7U, 285U, kBchNoisePolicyVersion)), "noise reproducibility mismatch");
++            require(standardNoiseHash(zS200) != standardNoiseHash(scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(200U, snrIndex), 8U, 285U, kBchNoisePolicyVersion)), "noise reused across frames");
++        }
++        std::cout << "PASS_BCH12_AWGN_UNIT\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH12_SIGMA_RATE_SCALING_ERROR: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/scripts/plot_bch_smoke.py b/Task/BCH/simulation/scripts/plot_bch_smoke.py
+new file mode 100644
+index 0000000..9ee9c22
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/plot_bch_smoke.py
+@@ -0,0 +1,155 @@
++#!/usr/bin/env python3
++"""Create the frozen BCH-12 matplotlib PNG set and auditable figure data."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++import hashlib
++import json
++from pathlib import Path
++
++import matplotlib
++
++matplotlib.use("Agg")
++import matplotlib.pyplot as plt
++
++
++CASES = ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"]
++
++
++def read_rows(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8") as handle:
++        return list(csv.DictReader(handle))
++
++
++def write_rows(path: Path, fields: list[str], rows: list[dict[str, object]]) -> None:
++    with path.open("w", newline="", encoding="utf-8") as handle:
++        writer = csv.DictWriter(handle, fieldnames=fields)
++        writer.writeheader()
++        writer.writerows(rows)
++
++
++def sha256(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def plotted_value(row: dict[str, str], metric: str) -> tuple[float, str]:
++    raw = float(row[metric])
++    if raw > 0.0:
++        return raw, "RAW_POSITIVE"
++    denominator = float(row["processedPayloadBits"] if metric == "BER" else row["processedFrames"])
++    return 3.0 / denominator, "RULE_OF_THREE_UPPER_BOUND_FOR_ZERO_OBSERVATION"
++
++
++def line_plot(rows: list[dict[str, str]], metric: str, filename: str, output: Path,
++              ylabel: str, log_scale: bool, manifest: list[dict[str, object]],
++              audit: list[dict[str, object]]) -> None:
++    if Path(filename).suffix.lower() != ".png":
++        raise ValueError("BCH plot output must end in .png")
++    figure_rows: list[dict[str, object]] = []
++    fig, axis = plt.subplots(figsize=(10.0, 5.5))
++    try:
++        for case in CASES:
++            selected = sorted((row for row in rows if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
++            x_values: list[float] = []
++            y_values: list[float] = []
++            for row in selected:
++                raw = float(row[metric])
++                if log_scale:
++                    shown, policy = plotted_value(row, metric)
++                else:
++                    shown, policy = raw, "RAW_LINEAR"
++                x_values.append(float(row["ebn0Db"]))
++                y_values.append(shown)
++                figure_rows.append({"caseName": case, "ebn0Db": row["ebn0Db"], "metric": metric,
++                                    "rawValue": raw, "plottedValue": shown, "zeroHandlingPolicy": policy})
++                audit.append({"filename": filename, "caseName": case, "ebn0Db": row["ebn0Db"],
++                              "metric": metric, "rawValue": raw, "plottedValue": shown,
++                              "zeroHandlingPolicy": policy})
++            axis.plot(x_values, y_values, marker="o", label=case)
++        axis.set_title(f"BCH-12 smoke {ylabel}")
++        axis.set_xlabel("Payload Eb/N0 (dB)")
++        axis.set_ylabel(ylabel)
++        if log_scale:
++            axis.set_yscale("log")
++        axis.grid(True, which="both", alpha=0.3)
++        axis.legend()
++        target = output / filename
++        fig.savefig(target, dpi=220, bbox_inches="tight")
++    finally:
++        plt.close(fig)
++    data_path = output / f"figure_data_{Path(filename).stem}.csv"
++    write_rows(data_path, ["caseName", "ebn0Db", "metric", "rawValue", "plottedValue", "zeroHandlingPolicy"], figure_rows)
++    manifest.append({"filename": filename, "sourceCsv": "awgn_smoke_summary.csv", "figureDataCsv": data_path.name,
++                     "sha256": sha256(output / filename), "dpi": 220, "xColumn": "ebn0Db", "yColumn": metric,
++                     "logScale": log_scale, "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO" if log_scale else "RAW_LINEAR",
++                     "generatedBy": "plot_bch_smoke.py", "matplotlibVersion": matplotlib.__version__})
++
++
++def status_plot(rows: list[dict[str, str]], output: Path, manifest: list[dict[str, object]],
++                audit: list[dict[str, object]]) -> None:
++    filename = "bch12_smoke_status.png"
++    metrics = ["reportedSuccessRate", "miscorrectionRate", "decoderFailureRate"]
++    figure_rows: list[dict[str, object]] = []
++    fig, axis = plt.subplots(figsize=(8.0, 5.2))
++    try:
++        for metric in metrics:
++            for case in CASES:
++                selected = sorted((row for row in rows if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
++                x_values = [float(row["ebn0Db"]) for row in selected]
++                y_values = [float(row[metric]) for row in selected]
++                axis.plot(x_values, y_values, marker="o", label=f"{case} {metric}")
++                for row, shown in zip(selected, y_values):
++                    item = {"caseName": case, "ebn0Db": row["ebn0Db"], "metric": metric,
++                            "rawValue": shown, "plottedValue": shown, "zeroHandlingPolicy": "RAW_LINEAR"}
++                    figure_rows.append(item)
++                    audit.append({"filename": filename, **item})
++        axis.set_title("BCH-12 decoder status rates")
++        axis.set_xlabel("Payload Eb/N0 (dB)")
++        axis.set_ylabel("Rate")
++        axis.set_ylim(-0.02, 1.02)
++        axis.grid(True, alpha=0.3)
++        axis.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), fontsize=7)
++        fig.savefig(output / filename, dpi=220, bbox_inches="tight")
++    finally:
++        plt.close(fig)
++    data_path = output / "figure_data_bch12_smoke_status.csv"
++    write_rows(data_path, ["caseName", "ebn0Db", "metric", "rawValue", "plottedValue", "zeroHandlingPolicy"], figure_rows)
++    manifest.append({"filename": filename, "sourceCsv": "awgn_smoke_summary.csv", "figureDataCsv": data_path.name,
++                     "sha256": sha256(output / filename), "dpi": 220, "xColumn": "ebn0Db",
++                     "yColumn": ";".join(metrics), "logScale": False, "zeroHandlingPolicy": "RAW_LINEAR",
++                     "generatedBy": "plot_bch_smoke.py", "matplotlibVersion": matplotlib.__version__})
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--summary", type=Path, required=True)
++    parser.add_argument("--output-dir", type=Path, required=True)
++    args = parser.parse_args()
++    args.output_dir.mkdir(parents=True, exist_ok=True)
++    rows = read_rows(args.summary)
++    if len(rows) != 20:
++        raise SystemExit("BCH-12 summary must contain 20 case-points")
++    manifest: list[dict[str, object]] = []
++    audit: list[dict[str, object]] = []
++    line_plot(rows, "BER", "bch12_smoke_ber.png", args.output_dir, "Payload BER", True, manifest, audit)
++    line_plot(rows, "FER", "bch12_smoke_fer.png", args.output_dir, "Payload FER", True, manifest, audit)
++    line_plot(rows, "trueSuccessRate", "bch12_smoke_true_success.png", args.output_dir, "True success rate", False, manifest, audit)
++    status_plot(rows, args.output_dir, manifest, audit)
++    (args.output_dir / "plot_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
++    write_rows(args.output_dir / "figure_data_audit.csv",
++               ["filename", "caseName", "ebn0Db", "metric", "rawValue", "plottedValue", "zeroHandlingPolicy"], audit)
++    forbidden = [path for path in args.output_dir.rglob("*") if path.suffix.lower() in {".pdf", ".svg", ".eps", ".ps"}]
++    if forbidden:
++        raise SystemExit("BLOCKED_BCH_PLOT_NON_PNG_ARTIFACT")
++    for item in manifest:
++        path = args.output_dir / str(item["filename"])
++        if path.stat().st_size < 1000 or path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
++            raise SystemExit("invalid PNG artifact")
++    print(f"PASS_BCH12_PLOT_AUDIT png={len(manifest)} matplotlib={matplotlib.__version__}")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/run_bch_group4.py b/Task/BCH/simulation/scripts/run_bch_group4.py
+new file mode 100644
+index 0000000..b008fa5
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/run_bch_group4.py
+@@ -0,0 +1,218 @@
++#!/usr/bin/env python3
++"""Ordered BCH Group 4 build and experiment driver."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++import math
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++
++CASES = ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"]
++SMOKE_SNR = [0.0, 2.0, 4.0, 6.0, 8.0]
++
++
++def run(command: list[str], cwd: Path, capture: bool = False) -> subprocess.CompletedProcess[str]:
++    return subprocess.run(command, cwd=cwd, check=True, text=True,
++                          stdout=subprocess.PIPE if capture else None,
++                          stderr=subprocess.PIPE if capture else None)
++
++
++def append_csv(source: Path, writer: csv.DictWriter[str], include_header: bool = False) -> None:
++    with source.open(newline="", encoding="utf-8") as handle:
++        reader = csv.DictReader(handle)
++        if include_header:
++            writer.writeheader()
++        for row in reader:
++            writer.writerow(row)
++
++
++def ensure_pool(repo: Path, output: Path, payload: int, frames: int, seed: int) -> Path:
++    manifest = output / f"k{payload}" / "manifest.json"
++    if not manifest.exists():
++        run([sys.executable, str(repo / "Task/Common/scripts/generate_common03_frame_pool.py"),
++             "--output-dir", str(output), "--payload-length", str(payload), "--frame-count", str(frames),
++             "--shard-size", str(min(1000, frames)), "--master-seed", str(seed), "--overwrite"], repo)
++    return manifest
++
++
++def execute_point(repo: Path, executable: Path, output: Path, case: str, snr: float, snr_index: int,
++                  frames: int, seed: int, manifest: Path, progress: bool, refresh: float,
++                  detail: bool) -> None:
++    output.mkdir(parents=True, exist_ok=True)
++    command = [str(executable), "--stage", "BCH12", "--case", case, "--ebn0-db", str(snr),
++               "--snr-index", str(snr_index), "--frame-start", "0", "--frame-count", str(frames),
++               "--global-seed", str(seed), "--frame-pool-manifest", str(manifest),
++               "--output-dir", str(output), "--progress-refresh-seconds", str(refresh),
++               "--progress" if progress else "--no-progress"]
++    if detail:
++        command.append("--detail")
++    run(command, repo)
++
++
++def combine_files(points: list[Path], filename: str, target: Path) -> None:
++    first = True
++    with target.open("w", encoding="utf-8", newline="") as output:
++        for point in points:
++            lines = (point / filename).read_text(encoding="utf-8").splitlines()
++            if not lines:
++                continue
++            if first:
++                output.write(lines[0] + "\n")
++                first = False
++            for line in lines[1:]:
++                output.write(line + "\n")
++
++
++def combine_jsonl(points: list[Path], filename: str, target: Path) -> None:
++    with target.open("w", encoding="utf-8", newline="") as output:
++        for point in points:
++            text = (point / filename).read_text(encoding="utf-8")
++            output.write(text)
++            if text and not text.endswith("\n"):
++                output.write("\n")
++
++
++def run_bch12(args: argparse.Namespace, repo: Path, build: Path, results: Path) -> None:
++    executable = build / "bch_awgn_runner.exe"
++    if not executable.exists():
++        raise SystemExit("bch_awgn_runner.exe is missing; build the simulation first")
++    smoke = results / "smoke"
++    if smoke.exists():
++        shutil.rmtree(smoke)
++    smoke.mkdir(parents=True)
++    pools = results / "frame_pools"
++    manifests = {200: ensure_pool(repo, pools / "smoke_k200", 200, 200, args.payload_seed),
++                 300: ensure_pool(repo, pools / "smoke_k300", 300, 200, args.payload_seed)}
++    print("[2/6] BCH-12 execution plan")
++    print(f"Cases: 4 | SNR points: 5 | case-points: 20 | fixed frames/point: 200 | maximum frames: 4000")
++    print(f"Progress: {'enabled' if args.progress else 'disabled'} refresh={args.progress_refresh_seconds}s | Output: {smoke}")
++    points: list[Path] = []
++    reruns: list[Path] = []
++    completed = 0
++    for case in CASES:
++        payload = 200 if case.endswith("200") else 300
++        for snr_index, snr in enumerate(SMOKE_SNR):
++            name = f"{case.lower().replace('-', '_')}_{snr_index:02d}"
++            point = smoke / "points" / name
++            rerun = smoke / "reproducibility" / name
++            execute_point(repo, executable, point, case, snr, snr_index, 200, args.global_seed,
++                          manifests[payload], args.progress, args.progress_refresh_seconds, True)
++            execute_point(repo, executable, rerun, case, snr, snr_index, 200, args.global_seed,
++                          manifests[payload], False, args.progress_refresh_seconds, True)
++            points.append(point)
++            reruns.append(rerun)
++            completed += 1
++            print(f"\r[BCH-12] case-points {completed}/20", end="", flush=True)
++    print()
++    combine_files(points, "summary.csv", smoke / "awgn_smoke_summary.csv")
++    combine_files(points, "frame_detail.csv", smoke / "awgn_smoke_frame_detail.csv")
++    combine_jsonl(points, "progress.jsonl", smoke / "progress.jsonl")
++
++    summaries = list(csv.DictReader((smoke / "awgn_smoke_summary.csv").open(newline="", encoding="utf-8")))
++    details = list(csv.DictReader((smoke / "awgn_smoke_frame_detail.csv").open(newline="", encoding="utf-8")))
++    if len(summaries) != 20 or len(details) != 4000:
++        raise SystemExit("BLOCKED_BCH12_RESULT_ACCOUNTING_FAILURE")
++    key_rows = {(row["caseName"], row["ebn0Db"]): row for row in summaries}
++    if len(key_rows) != 20 or any(not math.isfinite(float(row[field])) for row in summaries
++                                  for field in ["BER", "FER", "noiseSigma", "noiseVariance"]):
++        raise SystemExit("BLOCKED_BCH12_RESULT_ACCOUNTING_FAILURE")
++
++    uniqueness_rows: list[dict[str, object]] = []
++    reproducibility_rows: list[dict[str, object]] = []
++    scaling_rows: list[dict[str, object]] = []
++    for point, rerun in zip(points, reruns):
++        primary = list(csv.DictReader((point / "frame_detail.csv").open(newline="", encoding="utf-8")))
++        repeated = list(csv.DictReader((rerun / "frame_detail.csv").open(newline="", encoding="utf-8")))
++        hashes = [row["noiseHash"] for row in primary]
++        uniqueness_rows.append({"caseName": primary[0]["caseName"], "ebn0Db": primary[0]["ebn0Db"],
++                                "frames": len(hashes), "uniqueNoiseHashes": len(set(hashes)),
++                                "duplicateNoiseHashes": len(hashes) - len(set(hashes)), "status": "PASS" if len(set(hashes)) == len(hashes) else "FAIL"})
++        hash_mismatch = sum(a["noiseHash"] != b["noiseHash"] for a, b in zip(primary, repeated))
++        count_fields = ["channelHardBitErrors", "decodedBitErrors", "trueSuccess", "reportedSuccess", "miscorrected", "decoderFailure", "frameStatus"]
++        count_mismatch = sum(any(a[field] != b[field] for field in count_fields) for a, b in zip(primary, repeated))
++        reproducibility_rows.append({"caseName": primary[0]["caseName"], "ebn0Db": primary[0]["ebn0Db"],
++                                     "frames": len(primary), "noiseHashMismatches": hash_mismatch,
++                                     "resultMismatches": count_mismatch, "status": "PASS" if hash_mismatch + count_mismatch == 0 else "FAIL"})
++        summary = next(csv.DictReader((point / "summary.csv").open(newline="", encoding="utf-8")))
++        rate = float(summary["frameRate"])
++        reference = math.sqrt(1.0 / (2.0 * rate * 10.0 ** (float(summary["ebn0Db"]) / 10.0)))
++        computed = float(summary["noiseSigma"])
++        difference = abs(computed - reference)
++        scaling_rows.append({"caseName": summary["caseName"], "ebn0Db": summary["ebn0Db"],
++                             "computedSigma": f"{computed:.17g}", "independentReferenceSigma": f"{reference:.17g}",
++                             "absoluteDifference": f"{difference:.17g}",
++                             "relativeDifference": f"{difference / reference:.17g}",
++                             "status": "PASS" if difference <= 1e-15 * max(1.0, reference) else "FAIL"})
++    for path, rows in [(smoke / "noise_uniqueness.csv", uniqueness_rows),
++                       (smoke / "noise_reproducibility.csv", reproducibility_rows),
++                       (smoke / "noise_scaling_audit.csv", scaling_rows)]:
++        with path.open("w", newline="", encoding="utf-8") as handle:
++            writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
++            writer.writeheader(); writer.writerows(rows)
++    if any(row["status"] != "PASS" for row in uniqueness_rows):
++        raise SystemExit("BLOCKED_BCH12_NOISE_REUSED_ACROSS_FRAMES")
++    if any(row["status"] != "PASS" for row in reproducibility_rows):
++        raise SystemExit("BLOCKED_BCH12_NOISE_NOT_REPRODUCIBLE")
++    if any(row["status"] != "PASS" for row in scaling_rows):
++        raise SystemExit("BLOCKED_BCH12_SIGMA_RATE_SCALING_ERROR")
++    low_errors = sum(int(row["decodedFrameErrors"]) for row in summaries if float(row["ebn0Db"]) == 0.0)
++    high_errors = sum(int(row["decodedFrameErrors"]) for row in summaries if float(row["ebn0Db"]) == 8.0)
++    if low_errors <= high_errors:
++        raise SystemExit("BCH-12 aggregate 0 dB performance is not worse than 8 dB")
++    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/plot_bch_smoke.py"),
++         "--summary", str(smoke / "awgn_smoke_summary.csv"), "--output-dir", str(smoke)], repo)
++    print(f"PASS_BCH12_AWGN_SMOKE frames=4000 casePoints=20 lowFE={low_errors} highFE={high_errors}")
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
++    parser.add_argument("--all", action="store_true")
++    parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[4])
++    parser.add_argument("--build-dir", type=Path)
++    parser.add_argument("--results-dir", type=Path)
++    parser.add_argument("--config", type=Path)
++    parser.add_argument("--global-seed", type=int, default=2026072201)
++    parser.add_argument("--payload-seed", type=int, default=2026072001)
++    parser.add_argument("--progress", dest="progress", action="store_true", default=True)
++    parser.add_argument("--no-progress", dest="progress", action="store_false")
++    parser.add_argument("--progress-refresh-seconds", type=float, default=0.2)
++    parser.add_argument("--resume", action="store_true")
++    parser.add_argument("--checkpoint-dir", type=Path)
++    parser.add_argument("--checkpoint-interval", type=int, default=2000)
++    parser.add_argument("--shard-index", type=int, default=0)
++    parser.add_argument("--shard-count", type=int, default=1)
++    parser.add_argument("--matlab-command", default="matlab")
++    parser.add_argument("--skip-matlab", action="store_true")
++    parser.add_argument("--plot-only", action="store_true")
++    parser.add_argument("--audit-only", action="store_true")
++    parser.add_argument("--dry-run", action="store_true")
++    args = parser.parse_args()
++    repo = args.repo_root.resolve()
++    build = (args.build_dir or repo / "Task/BCH/simulation/build/current").resolve()
++    results = (args.results_dir or repo / "Task/BCH/simulation/results").resolve()
++    if args.progress_refresh_seconds <= 0.0:
++        raise SystemExit("progress refresh must be positive")
++    if args.dry_run:
++        print("BCH Group 4 plan: BCH-11 -> BCH-12 -> BCH-13 -> BCH-14 -> BCH-15 -> BCH-16")
++        print("BCH-12: 4 cases, 5 SNR points, 200 frames/point, 4000 maximum frames")
++        print(f"Output: {results}")
++        return 0
++    selected = args.stage or ("bch12" if not args.all else "all")
++    if selected in {"bch11"}:
++        raise SystemExit("BCH-11 is executed by CTest; use the documented BCH-11 command")
++    if selected in {"bch12", "all"}:
++        run_bch12(args, repo, build, results)
++    if selected in {"bch13", "bch14", "bch15", "bch16"} or args.all:
++        if selected != "bch12":
++            raise SystemExit("requested stage is not implemented in the current ordered functional range")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/stages/bch12_awgn_smoke/acceptance_matrix.csv b/Task/BCH/simulation/stages/bch12_awgn_smoke/acceptance_matrix.csv
+new file mode 100644
+index 0000000..e11016a
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch12_awgn_smoke/acceptance_matrix.csv
+@@ -0,0 +1,6 @@
++requirement,implementation,positive_test,negative_test,gate
++Rate-derived AWGN sigma,bch_awgn_simulation and Common computeAwgnSigma,test_bch12_awgn multiple cases/SNR,invalid sigma inputs,PASS_BCH12_AWGN_SMOKE
++Unique reproducible paired noise,Common NoiseKey with payload group and SNR index,hash comparison and shared-prefix test,reuse or mismatch checker,PASS_BCH12_AWGN_SMOKE
++Fixed smoke execution,run_bch_group4.py,20 points and 4000 frames,missing/duplicate point rejection,PASS_BCH12_AWGN_SMOKE
++Progress control,bch_awgn_runner,--progress and --no-progress runs,invalid refresh rejection,PASS_BCH12_AWGN_SMOKE
++PNG-only matplotlib plots,plot_bch_smoke.py,4 PNG plus figure-data audit,non-PNG output rejection,PASS_BCH12_AWGN_SMOKE
+diff --git a/Task/BCH/simulation/stages/bch12_awgn_smoke/frozen_config.csv b/Task/BCH/simulation/stages/bch12_awgn_smoke/frozen_config.csv
+new file mode 100644
+index 0000000..7788391
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch12_awgn_smoke/frozen_config.csv
+@@ -0,0 +1,2 @@
++stage,cases,ebn0Db,framesPerPoint,casePoints,totalFrames,globalSeed,noisePolicyVersion,progressRefreshSeconds
++BCH-12,"BCH-S200;BCH-B200;BCH-S300;BCH-B300","0;2;4;6;8",200,20,4000,2026072201,1,0.2
+diff --git a/Task/BCH/simulation/stages/bch12_awgn_smoke/stage_plan.md b/Task/BCH/simulation/stages/bch12_awgn_smoke/stage_plan.md
+new file mode 100644
+index 0000000..f5a683b
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch12_awgn_smoke/stage_plan.md
+@@ -0,0 +1,19 @@
++# BCH-12 frozen specification
++
++## Goal
++
++Run the four BCH cases over the Common BPSK/AWGN/hard-decision chain at 0, 2, 4, 6, and 8 dB,
++using 200 fixed frames per point (4,000 total frames), paired reproducible standard Gaussian noise,
++rate-derived sigma, detailed optional progress, and matplotlib-only PNG plots.
++
++## Non-goals
++
++No early stop, checkpoint/resume, shard merge, formal range selection, interleaving, burst channel,
++complex channel, or soft decoding.
++
++## Gate
++
++Noise is unique across frames and reproducible across identical reruns. Cases of equal payload length
++share standard mother-noise prefixes but apply different sigma. Counters are finite and self-consistent,
++0 dB aggregate performance is worse than 8 dB, progress can be shown or disabled, all expected PNGs
++and figure-data records exist, and no PDF/SVG/EPS/PS artifact is generated.

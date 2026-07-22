@@ -1,0 +1,11 @@
+test,status,frames,mismatches,evidence
+bch11_regression,PASS,828,0,CTest bch11_common_noiseless
+bch12_awgn_unit,PASS,10,0,sigma paired noise reproducibility uniqueness
+bch12_primary_smoke,PASS,4000,0,awgn_smoke_summary.csv
+bch12_full_reproducibility,PASS,4000,0,noise_reproducibility.csv
+bch12_noise_uniqueness,PASS,4000,0,noise_uniqueness.csv
+bch12_sigma_scaling,PASS,20,0,noise_scaling_audit.csv
+bch12_progress_enabled,PASS,20,0,initial smoke run
+bch12_no_progress,PASS,20,0,final smoke rerun
+bch12_plot_audit,PASS,4,0,plot_manifest.json
+bch12_non_png_scan,PASS,0,0,non-PNG artifact count zero
