@@ -1,3 +1,2 @@
-metric,value
-fixedMultiErrorCases,12
-fixedMultiErrorMismatch,0
+name,cppRows,matlabRows,rowMismatchCount,fieldMismatchCount,firstMismatchRow,firstMismatchField,cppValue,matlabValue,cppSha256,matlabSha256,cppBytes,matlabBytes
+fixed_multi_error,96,96,0,0,,,,,b82a58b81587cb5f8c5d27a8cb28f1ff0570dd3ee2530e1b81aa48078aab11a8,456334c97a93a936d5eccff5f54e0a74bb8d9cf9b82b68fff0bf067c7c1999a5,14805,14708

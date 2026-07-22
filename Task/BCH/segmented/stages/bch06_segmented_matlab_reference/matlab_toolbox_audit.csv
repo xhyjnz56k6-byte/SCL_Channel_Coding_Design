@@ -1,5 +1,5 @@
 matlabVersion,toolboxName,functionName,available,used,bitOrderConversion,result,notes
-24.2.0.2712019 (R2024b),Communications Toolbox,bchenc,true,false,none,AVAILABLE,auxiliary_only
-24.2.0.2712019 (R2024b),Communications Toolbox,bchdec,true,false,none,AVAILABLE,auxiliary_only
-24.2.0.2712019 (R2024b),Communications Toolbox,bchgenpoly,true,false,none,AVAILABLE,auxiliary_only
-24.2.0.2712019 (R2024b),Communications Toolbox,gf,true,false,none,AVAILABLE,auxiliary_only
+24.2.0.2712019 (R2024b),Communications Toolbox,bchenc,true,false,none,AVAILABLE_NOT_USED,primary_gate_uses_independent_reference
+24.2.0.2712019 (R2024b),Communications Toolbox,bchdec,true,false,none,AVAILABLE_NOT_USED,primary_gate_uses_independent_reference
+24.2.0.2712019 (R2024b),Communications Toolbox,bchgenpoly,true,false,none,AVAILABLE_NOT_USED,primary_gate_uses_independent_reference
+24.2.0.2712019 (R2024b),Communications Toolbox,gf,true,false,none,AVAILABLE_NOT_USED,primary_gate_uses_independent_reference

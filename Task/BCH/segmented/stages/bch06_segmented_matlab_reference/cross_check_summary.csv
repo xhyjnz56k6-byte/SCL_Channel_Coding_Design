@@ -1,0 +1,13 @@
+name,cppRows,matlabRows,rowMismatchCount,fieldMismatchCount,firstMismatchRow,firstMismatchField,cppValue,matlabValue
+encoder,2048,2048,0,0,,,,
+syndrome,15,15,0,0,,,,
+no_error_decode,2048,2048,0,0,,,,
+single_error_decode,30720,30720,0,0,,,,
+segmented_noiseless,208,208,0,0,,,,
+segmented_single_error,705,705,0,0,,,,
+multi_block_single_error,8,8,0,0,,,,
+same_block_double_error,12,12,0,0,,,,
+filler_boundary,30,30,0,0,,,,
+failure_status_retention,4,4,0,0,,,,
+frame_pool,200,200,0,0,,,,
+fixed_multi_error,96,96,0,0,,,,

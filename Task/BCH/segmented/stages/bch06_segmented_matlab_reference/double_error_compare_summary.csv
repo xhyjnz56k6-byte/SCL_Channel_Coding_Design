@@ -1,6 +1,2 @@
-metric,value
-sameBlockDoubleErrorCases,12
-doubleErrorClassificationMismatch,0
-reportedSuccessWrongBlockInformation,12
-reportedSuccessWrongOriginalPayload,9
-fillerOnlyInformationMismatch,3
+name,cppRows,matlabRows,rowMismatchCount,fieldMismatchCount,firstMismatchRow,firstMismatchField,cppValue,matlabValue,cppSha256,matlabSha256,cppBytes,matlabBytes
+same_block_double_error,12,12,0,0,,,,,42574195b81d6bdce0ac1690f1915bb04e01ffdc9a5e317bd330a32d4538b213,a98f946428991f0b6590a400cc501161720c943989e0ca56b16c8d845227e6b8,5254,5241

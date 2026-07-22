@@ -1,3 +1,2 @@
-metric,value
-failureStatusRetentionCases,4
-failureStatusRetentionMismatch,0
+name,cppRows,matlabRows,rowMismatchCount,fieldMismatchCount,firstMismatchRow,firstMismatchField,cppValue,matlabValue,cppSha256,matlabSha256,cppBytes,matlabBytes
+failure_status_retention,4,4,0,0,,,,,433e22e53bf16945f1cc31ad2512dd86559160b678e78148303ba906c21f9289,337773554c675de9d328ce48b22004086a8509b62fe39fa00cd2b825c8539b9d,3604,3599

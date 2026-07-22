@@ -1,12 +1,11 @@
-# BCH-06 commands
+# BCH-06 commands used
 
-- `matlab -batch "disp(version); ... exist('bchenc','file')"`
-- `cmake -G "MinGW Makefiles" -S Task/BCH/segmented/current -B Task/BCH/segmented/build/bch06_segmented_matlab_reference/cmake -DCMAKE_BUILD_TYPE=Release`
-- `cmake --build ...`
-- `ctest --test-dir ... --output-on-failure`
-- `export_bch06_cpp_reference <build>/cpp_outputs`
-- `matlab -batch "addpath(...); run_bch06_segmented_matlab_reference(...);"`
-- `python Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py ...`
-- `python Task/BCH/segmented/scripts/generate_bch06_audit.py`
-- Common stage04 six regression binaries
-- `git diff --check`; isolated `git worktree add --detach ... 13df393` and `git apply --check --reverse changes.patch`
+python Task/BCH/segmented/scripts/run_bch06_segmented_matlab_reference.py --repo-root . --build-dir Task/BCH/segmented/build/bch06_segmented_matlab_reference --matlab-command D:/Apps/Matlab/bin/matlab.exe
+python Task/BCH/segmented/scripts/generate_bch06_audit.py
+git diff --check
+Task/Common/build/stage04/test_common04_random_policy.exe
+Task/Common/build/stage04/test_common04_gaussian_noise.exe
+Task/Common/build/stage04/test_common04_modulation_awgn.exe
+Task/Common/build/stage04/test_common04_metrics_control.exe
+Task/Common/build/stage04/test_common04_checkpoint.exe
+Task/Common/build/stage04/test_common04_integration.exe

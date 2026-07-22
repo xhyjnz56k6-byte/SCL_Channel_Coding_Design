@@ -1,8 +1,6 @@
-stage=BCH-06
 branch=bch-06-segmented-matlab-reference
 baseCommit=94ff7eaff3bbe7569f18fa1df35a15367f666b8f
-contentCommit=13df393e2466d61fa73ecad98dc044846d596f87
-commitStatus=COMMITTED
-auditCommit=effbaa5d1305831f0469eae0c6bcd437f75ed01c
-pushStatus=PUSHED
+currentHeadAtAuditGeneration=22bd2906ec1d44fe4640f0d5dd359a8e92b6fe8b
+commitStatus=PENDING_COMMIT
+pushStatus=PENDING_PUSH
 mergeStatus=NOT_MERGED

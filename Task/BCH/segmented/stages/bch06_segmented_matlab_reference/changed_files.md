@@ -1,5 +1,53 @@
 # BCH-06 changed files
 
-Functional range: `94ff7eaff3bbe7569f18fa1df35a15367f666b8f..13df393e2466d61fa73ecad98dc044846d596f87`.
-
-It adds the MATLAB independent reference functions, C++ read-only exporter, CMake exporter target, Python driver/checker/audit generator, BCH-06 config, and this stage's contracts. It does not modify `Task/Common` or BCH-02–05 algorithms.
+- A	Task/BCH/segmented/config/bch06/bch06_reference_config.json
+- M	Task/BCH/segmented/current/CMakeLists.txt
+- A	Task/BCH/segmented/current/tests/export_bch06_cpp_reference.cpp
+- A	Task/BCH/segmented/matlab/README_BCH06_REFERENCE.md
+- A	Task/BCH/segmented/matlab/bch15_bits_to_string.m
+- A	Task/BCH/segmented/matlab/bch15_build_lookup_reference.m
+- A	Task/BCH/segmented/matlab/bch15_encode_reference.m
+- A	Task/BCH/segmented/matlab/bch15_gf2_divide_reference.m
+- A	Task/BCH/segmented/matlab/bch15_lookup_decode_reference.m
+- A	Task/BCH/segmented/matlab/bch15_message_from_decimal.m
+- A	Task/BCH/segmented/matlab/bch15_segmented_audit_recovery.m
+- A	Task/BCH/segmented/matlab/bch15_segmented_config_reference.m
+- A	Task/BCH/segmented/matlab/bch15_segmented_decode_reference.m
+- A	Task/BCH/segmented/matlab/bch15_segmented_encode_reference.m
+- A	Task/BCH/segmented/matlab/bch15_status_name.m
+- A	Task/BCH/segmented/matlab/bch15_syndrome_reference.m
+- A	Task/BCH/segmented/matlab/bch15_syndrome_value.m
+- A	Task/BCH/segmented/matlab/bch15_validate_bits.m
+- A	Task/BCH/segmented/matlab/run_bch06_segmented_matlab_reference.m
+- A	Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py
+- A	Task/BCH/segmented/scripts/generate_bch06_audit.py
+- A	Task/BCH/segmented/scripts/run_bch06_segmented_matlab_reference.py
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/changed_files.md
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/changes.patch
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/commands_used.md
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/double_error_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/encoder_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/failure_status_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/filler_boundary_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/fixed_multi_error_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/frozen_config.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/git_commit.txt
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/known_issues.md
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/lookup_decoder_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/manifest.json
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_environment.json
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_io_schema.md
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_reference_contract.md
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_toolbox_audit.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/no_error_decode_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/plots/bch06_double_error_classification.png
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/plots/bch06_mismatch_summary.png
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/plots/bch06_reference_coverage.png
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/plots/bch06_syndrome_position_compare.png
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/segmented_recovery_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/single_error_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/single_error_decode_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/stage_plan.md
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/syndrome_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/test_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/validation_report.md
