@@ -13,8 +13,9 @@ def main():
     exe=build/'cmake'/'export_bch06_cpp_reference.exe'
     k200=root/'Task/Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json'
     k300=root/'Task/Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json'
+    config=root/'Task/BCH/segmented/config/bch06_matlab_reference_config.csv'
     run([str(exe),str(cpp),str(k200),str(k300)],root)
-    mdir=root/'Task/BCH/segmented/matlab'; command=f"addpath('{mdir.as_posix()}'); run_bch06_segmented_matlab_reference('', '{mat.as_posix()}');"
+    mdir=root/'Task/BCH/segmented/matlab'; command=f"addpath('{mdir.as_posix()}'); run_bch06_segmented_matlab_reference('{config.as_posix()}', '{mat.as_posix()}');"
     run([a.matlab_command,'-batch',command],root)
-    run([sys.executable,str(root/'Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py'),'--cpp-dir',str(cpp),'--matlab-dir',str(mat),'--output-dir',str(check)],root)
+    run([sys.executable,str(root/'Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py'),'--cpp-dir',str(cpp),'--matlab-dir',str(mat),'--output-dir',str(check),'--config-path',str(config)],root)
 if __name__ == '__main__': main()

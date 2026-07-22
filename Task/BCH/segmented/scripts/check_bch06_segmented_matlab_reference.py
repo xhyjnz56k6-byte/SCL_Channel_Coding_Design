@@ -19,7 +19,7 @@ FILES = [
     ("filler_boundary", "cpp_filler_boundary_detail.csv", "matlab_filler_boundary_detail.csv", 30, "filler_boundary_compare_summary.csv"),
     ("failure_status_retention", "cpp_failure_status_retention_detail.csv", "matlab_failure_status_retention_detail.csv", 4, "failure_status_compare_summary.csv"),
     ("frame_pool", "cpp_frame_pool_audit.csv", "matlab_frame_pool_audit.csv", 200, "frame_pool_compare_summary.csv"),
-    ("fixed_multi_error", "cpp_fixed_multi_error_detail.csv", "matlab_fixed_multi_error_detail.csv", None, "fixed_multi_error_compare_summary.csv"),
+    ("fixed_multi_error", "cpp_fixed_multi_error_detail.csv", "matlab_fixed_multi_error_detail.csv", 96, "fixed_multi_error_compare_summary.csv"),
 ]
 
 BOOL_FIELDS = {"lookupHit", "payloadRecovered", "pass", "codewordRecovered", "blockInformationWrong",
@@ -47,7 +47,41 @@ def read_csv(path: pathlib.Path):
         raise ValueError(f"empty CSV: {path}")
     return rows, hashlib.sha256(raw).hexdigest(), len(raw)
 
-def validate_scalar_fields(rows):
+def expected_case_lengths(row):
+    case_name = row.get("caseName", "")
+    if case_name == "BCH-S200":
+        return {"payload": 200, "padded": 209, "encoded": 285}
+    if case_name == "BCH-S300":
+        return {"payload": 300, "padded": 308, "encoded": 420}
+    return None
+
+def validate_bit_length(label, row, key, value, index):
+    if not value:
+        return
+    fixed_lengths = {
+        "messageBits": 11, "parityBits": 4, "codewordBits": 15,
+        "syndromeBits": 4, "syndromeBefore": 4, "syndromeAfter": 4,
+        "originalCodeword": 15, "receivedCodeword": 15,
+        "correctedCodeword": 15, "decodedMessage": 11,
+        "decodedBlockMessage": 11,
+    }
+    expected = fixed_lengths.get(key)
+    if label in {"no_error_decode", "single_error_decode", "fixed_multi_error"} and key == "receivedBits":
+        expected = 15
+    lengths = expected_case_lengths(row)
+    if lengths:
+        if key in {"payloadBits", "recoveredPayload"}:
+            expected = lengths["payload"]
+        elif key in {"paddedMessageBits", "recoveredPaddedMessage", "expectedPaddedMessage"}:
+            expected = lengths["padded"]
+        elif key in {"encodedBits", "originalEncodedBits", "receivedBits"}:
+            expected = lengths["encoded"]
+    if expected is not None and len(value) != expected:
+        raise ValueError(
+            f"bad bit length field {key} row {index}: expected {expected}, got {len(value)}"
+        )
+
+def validate_scalar_fields(label, rows):
     statuses = {"NO_ERROR", "CORRECTED_SINGLE_ERROR", "POST_CHECK_FAILED", "UNRECOGNIZED_SYNDROME"}
     for index, row in enumerate(rows):
         for key, value in row.items():
@@ -59,6 +93,7 @@ def validate_scalar_fields(rows):
                                                "paddedMessageBits", "encodedBits", "originalEncodedBits"}:
                 if value and any(ch not in "01" for ch in value):
                     raise ValueError(f"bad bit string field {key} row {index}")
+                validate_bit_length(label, row, key, value, index)
             if key in BOOL_FIELDS and value not in {"true", "false"}:
                 raise ValueError(f"bad bool field {key} row {index}: {value}")
             if key in STATUS_FIELDS and value not in statuses:
@@ -124,6 +159,23 @@ def load_metrics(path):
         raise ValueError("bad MATLAB summary header")
     return {k: int(v) for k, v in rows[1:]}
 
+def validate_config(path):
+    expected = {
+        "code": "BCH(15,11,1)",
+        "generatorPolynomial": "10011",
+        "bitOrder": "leftmost_highest_degree",
+        "S200": "200/19/9/285",
+        "S300": "300/28/8/420",
+        "fixedMultiErrorExpectedCount": "96",
+    }
+    rows = list(csv.reader(path.open(encoding="ascii")))
+    if not rows or rows[0] != ["key", "value"]:
+        raise ValueError(f"bad config header: {path}")
+    values = {key: value for key, value in rows[1:]}
+    if values != expected:
+        raise ValueError(f"BCH-06 config mismatch: {path}")
+    return values
+
 def write_summary_csv(path, item):
     with path.open("w", newline="", encoding="ascii") as f:
         writer = csv.writer(f)
@@ -140,17 +192,19 @@ def main():
     ap.add_argument("--cpp-dir", required=True)
     ap.add_argument("--matlab-dir", required=True)
     ap.add_argument("--output-dir", required=True)
+    ap.add_argument("--config-path", required=True)
     args = ap.parse_args()
     cpp = pathlib.Path(args.cpp_dir)
     mat = pathlib.Path(args.matlab_dir)
     out = pathlib.Path(args.output_dir)
+    config = validate_config(pathlib.Path(args.config_path))
     out.mkdir(parents=True, exist_ok=True)
     result = {"files": [], "singleBlockMismatchTotal": 0, "segmentedMismatchTotal": 0, "allMismatchTotal": 0}
     for label, cpp_name, matlab_name, count, summary_name in FILES:
         cpp_rows, cpp_sha, cpp_size = read_csv(cpp / cpp_name)
         matlab_rows, matlab_sha, matlab_size = read_csv(mat / matlab_name)
-        validate_scalar_fields(cpp_rows)
-        validate_scalar_fields(matlab_rows)
+        validate_scalar_fields(label, cpp_rows)
+        validate_scalar_fields(label, matlab_rows)
         comparison = compare_rows(label, cpp_rows, matlab_rows, count)
         comparison.update({"cppRows": len(cpp_rows), "matlabRows": len(matlab_rows), "expectedRows": count if count is not None else len(cpp_rows),
                            "cppSha256": cpp_sha, "matlabSha256": matlab_sha, "cppBytes": cpp_size, "matlabBytes": matlab_size})
@@ -189,6 +243,7 @@ def main():
         "cppMatlabFramePoolMismatch": by_name["frame_pool"]["fieldMismatchCount"],
         "cppMatlabFixedMultiErrorMismatch": by_name["fixed_multi_error"]["fieldMismatchCount"],
         "fixedMultiErrorCases": by_name["fixed_multi_error"]["cppRows"],
+        "fixedMultiErrorExpectedCount": int(config["fixedMultiErrorExpectedCount"]),
         "framePoolAuditCases": by_name["frame_pool"]["cppRows"],
         "singleBlockCrossCheckMismatchTotal": result["singleBlockMismatchTotal"],
         "segmentedCrossCheckMismatchTotal": result["segmentedMismatchTotal"],

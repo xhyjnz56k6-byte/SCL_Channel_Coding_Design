@@ -1,0 +1,7 @@
+key,value
+code,"BCH(15,11,1)"
+generatorPolynomial,10011
+bitOrder,leftmost_highest_degree
+S200,200/19/9/285
+S300,300/28/8/420
+fixedMultiErrorExpectedCount,96

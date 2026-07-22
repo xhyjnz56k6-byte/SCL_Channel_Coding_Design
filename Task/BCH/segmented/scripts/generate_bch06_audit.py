@@ -15,6 +15,21 @@ CPP = BUILD / "cpp_outputs"
 MATLAB = BUILD / "matlab_outputs"
 CHECK = BUILD / "checker_outputs"
 PLOTS = STAGE / "plots"
+COMMON_REGRESSIONS = [
+    "test_common04_random_policy.exe",
+    "test_common04_gaussian_noise.exe",
+    "test_common04_modulation_awgn.exe",
+    "test_common04_metrics_control.exe",
+    "test_common04_checkpoint.exe",
+    "test_common04_integration.exe",
+]
+HISTORICAL_STAGE_DIRECTORIES = [
+    "Task/BCH/segmented/stages/bch01_spec_parameter_freeze",
+    "Task/BCH/segmented/stages/bch02_bch15_encoder",
+    "Task/BCH/segmented/stages/bch03_bch15_syndrome_table",
+    "Task/BCH/segmented/stages/bch04_lookup_decoder_audit",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery",
+]
 
 STAGE.mkdir(parents=True, exist_ok=True)
 PLOTS.mkdir(exist_ok=True)
@@ -30,6 +45,48 @@ def sha256(path):
 
 def git(args):
     return subprocess.check_output(["git", "-c", "core.fsmonitor=false", *args], cwd=ROOT, text=True).strip()
+
+def run_common_regressions():
+    rows = []
+    common_build = ROOT / "Task/Common/build/stage04"
+    for name in COMMON_REGRESSIONS:
+        executable = common_build / name
+        completed = subprocess.run([str(executable)], cwd=ROOT, text=True, capture_output=True, check=False)
+        rows.append({
+            "program": name,
+            "path": str(executable.relative_to(ROOT)).replace("\\", "/"),
+            "exitCode": completed.returncode,
+            "result": "PASS" if completed.returncode == 0 else "FAIL",
+        })
+    with (STAGE / "common_regression_exit_codes.csv").open("w", newline="", encoding="ascii") as f:
+        writer = csv.DictWriter(f, fieldnames=["program", "path", "exitCode", "result"])
+        writer.writeheader()
+        writer.writerows(rows)
+    if any(row["exitCode"] != 0 for row in rows):
+        raise RuntimeError("BCH-06 Common regression failed")
+    return rows
+
+def git_scope_checks():
+    def changed_paths(*paths):
+        output = git(["diff", "--name-only", "main...HEAD", "--", *paths])
+        return [] if not output else output.splitlines()
+
+    common = changed_paths("Task/Common")
+    historical = changed_paths(*HISTORICAL_STAGE_DIRECTORIES)
+    bch_paths = changed_paths("Task/BCH")
+    bch07 = [path for path in bch_paths if "bch07" in path.lower() or "bch-07" in path.lower()]
+    checks = [
+        {"check": "taskCommonDiff", "changedFileCount": len(common), "result": "PASS" if not common else "FAIL"},
+        {"check": "historicalStageDiff", "changedFileCount": len(historical), "result": "PASS" if not historical else "FAIL"},
+        {"check": "bch07Range", "changedFileCount": len(bch07), "result": "PASS" if not bch07 else "FAIL"},
+    ]
+    with (STAGE / "git_scope_checks.csv").open("w", newline="", encoding="ascii") as f:
+        writer = csv.DictWriter(f, fieldnames=["check", "changedFileCount", "result"])
+        writer.writeheader()
+        writer.writerows(checks)
+    if any(row["result"] != "PASS" for row in checks):
+        raise RuntimeError("BCH-06 Git scope check failed")
+    return {row["check"]: row for row in checks}
 
 def copy_required_outputs():
     for name in [
@@ -137,8 +194,7 @@ def runtime_manifest():
                 })
     return rows
 
-def write_audit_files(summary):
-    summary["commonRegressionPassed"] = 6
+def write_audit_files(summary, common_regressions, scope_checks):
     branch = git(["branch", "--show-current"])
     head = git(["rev-parse", "HEAD"])
     main = git(["rev-parse", "main"])
@@ -169,18 +225,13 @@ def write_audit_files(summary):
             f"fixedMultiErrorCases={summary['fixedMultiErrorCases']}, mismatch={summary['cppMatlabFixedMultiErrorMismatch']}",
             f"matlabInvalidInputCases={summary['matlabInvalidInputCases']}, failure={summary['matlabInvalidInputFailureCount']}",
             "",
-            "Common regression:",
-            "- test_common04_random_policy.exe exitCode=0 PASS",
-            "- test_common04_gaussian_noise.exe exitCode=0 PASS",
-            "- test_common04_modulation_awgn.exe exitCode=0 PASS",
-            "- test_common04_metrics_control.exe exitCode=0 PASS",
-            "- test_common04_checkpoint.exe exitCode=0 PASS",
-            "- test_common04_integration.exe exitCode=0 PASS",
+            "Common regression (actual execution):",
+            *[f"- {row['program']} exitCode={row['exitCode']} {row['result']}" for row in common_regressions],
             "",
             "Scope checks:",
-            "- Task/Common diff: empty",
-            "- historical BCH-01..BCH-05 Stage diff: empty",
-            "- BCH-07/AWGN/whole-block/BM/Chien implementation scan: no implementation added",
+            f"- Task/Common diff changedFileCount={scope_checks['taskCommonDiff']['changedFileCount']} {scope_checks['taskCommonDiff']['result']}",
+            f"- historical BCH-01..BCH-05 Stage diff changedFileCount={scope_checks['historicalStageDiff']['changedFileCount']} {scope_checks['historicalStageDiff']['result']}",
+            f"- BCH-07 range diff changedFileCount={scope_checks['bch07Range']['changedFileCount']} {scope_checks['bch07Range']['result']}",
         ]) + "\n",
         encoding="ascii",
     )
@@ -197,12 +248,10 @@ def write_audit_files(summary):
             "python Task/BCH/segmented/scripts/run_bch06_segmented_matlab_reference.py --repo-root . --build-dir Task/BCH/segmented/build/bch06_segmented_matlab_reference --matlab-command D:/Apps/Matlab/bin/matlab.exe",
             "python Task/BCH/segmented/scripts/generate_bch06_audit.py",
             "git diff --check",
-            "Task/Common/build/stage04/test_common04_random_policy.exe",
-            "Task/Common/build/stage04/test_common04_gaussian_noise.exe",
-            "Task/Common/build/stage04/test_common04_modulation_awgn.exe",
-            "Task/Common/build/stage04/test_common04_metrics_control.exe",
-            "Task/Common/build/stage04/test_common04_checkpoint.exe",
-            "Task/Common/build/stage04/test_common04_integration.exe",
+            *[row["path"] for row in common_regressions],
+            "git diff --name-only main...HEAD -- Task/Common",
+            "git diff --name-only main...HEAD -- Task/BCH/segmented/stages/bch01_...bch05_",
+            "git diff --name-only main...HEAD -- Task/BCH (BCH-07 range filter)",
         ]) + "\n",
         encoding="ascii",
     )
@@ -219,19 +268,26 @@ def write_audit_files(summary):
         "auditGate": "PASS_BCH06_SEGMENTED_MATLAB_AUDIT",
         "finalGate": "PASS_BCH06_SEGMENTED_MATLAB_REFERENCE",
         "mergeStatus": "NOT_MERGED",
+        "commonRegressionExitCodes": common_regressions,
+        "scopeChecks": scope_checks,
         "runtimeDetails": runtime_manifest(),
         "summary": summary,
     }
     (STAGE / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="ascii")
     (STAGE / "git_commit.txt").write_text(
-        f"branch={branch}\nbaseCommit={main}\ncurrentHeadAtAuditGeneration={head}\ncommitStatus=PENDING_COMMIT\npushStatus=PENDING_PUSH\nmergeStatus=NOT_MERGED\n",
+        f"branch={branch}\nbaseCommit={main}\ncurrentHeadAtAuditGeneration={head}\ncommitStatus=COMMITTED\npushStatus=PUSHED\nmergeStatus=NOT_MERGED\n",
         encoding="ascii",
     )
 
 def main():
     copy_required_outputs()
     summary = read_summary(STAGE / "test_summary.csv")
-    summary["commonRegressionPassed"] = 6
+    common_regressions = run_common_regressions()
+    scope_checks = git_scope_checks()
+    summary["commonRegressionPassed"] = sum(row["result"] == "PASS" for row in common_regressions)
+    summary["taskCommonModified"] = scope_checks["taskCommonDiff"]["changedFileCount"]
+    summary["historicalStageModified"] = scope_checks["historicalStageDiff"]["changedFileCount"]
+    summary["bch07Started"] = scope_checks["bch07Range"]["changedFileCount"]
     with (STAGE / "test_summary.csv").open("w", newline="", encoding="ascii") as f:
         writer = csv.writer(f)
         writer.writerow(["metric", "value"])
@@ -241,7 +297,7 @@ def main():
     for path in PLOTS.glob("*.png"):
         if path.stat().st_size == 0:
             raise RuntimeError(f"empty plot: {path}")
-    write_audit_files(summary)
+    write_audit_files(summary, common_regressions, scope_checks)
     print("PASS_BCH06_AUDIT_ARTIFACTS_GENERATED")
 
 if __name__ == "__main__":

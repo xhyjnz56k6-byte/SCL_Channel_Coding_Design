@@ -2,8 +2,9 @@ function run_bch06_segmented_matlab_reference(configPath, outputDirectory)
 % Independent BCH-06 reference: MATLAB never consumes C++ outputs as truth.
 if nargin < 2, error('BCH06:Usage','configPath and outputDirectory are required.'); end
 if ~exist(outputDirectory,'dir'), mkdir(outputDirectory); end
+config = validate_config_path(configPath);
 table = bch15_build_lookup_reference();
-write_environment(outputDirectory);
+write_environment(outputDirectory, config);
 write_single_block_reference(outputDirectory, table);
 write_frame_pool_audit(outputDirectory);
 write_segmented_noiseless_detail(outputDirectory, table);
@@ -14,7 +15,7 @@ write_filler_boundary_detail(outputDirectory, table);
 write_failure_status_retention_detail(outputDirectory, table);
 write_fixed_multi_error_detail(outputDirectory, table);
 invalid = write_invalid_input_audit(outputDirectory, table);
-write_summary(outputDirectory, table, invalid);
+write_summary(outputDirectory, table, invalid, config);
 end
 
 function write_single_block_reference(outputDirectory, table)
@@ -201,11 +202,15 @@ checked_close(fid);
 invalid.cases=numel(tests); invalid.failures=failed;
 end
 
-function write_summary(outputDirectory,table,invalid)
+function write_summary(outputDirectory,table,invalid,config)
 metrics=segmented_metrics(table);
+single=single_block_metrics(table);
+if metrics.fixedMultiErrorCases~=config.fixedMultiErrorExpectedCount
+    error('BCH06:Config','fixed multi-error count does not match configPath');
+end
 fid=checked_open(fullfile(outputDirectory,'matlab_test_summary.csv'));
 fprintf(fid,'metric,value\n');
-base={'fixedVectorCases',6;'matlabFixedVectorMismatch',0;'encoderCases',2048;'matlabEncodedMismatch',0;'matlabParityMismatch',0;'legalSyndromeCases',2048;'matlabLegalSyndromeMismatch',0;'singleErrorSyndromeCases',15;'matlabSingleErrorSyndromeMismatch',0;'matlabLookupPositionMismatch',0;'noErrorDecodeCases',2048;'matlabNoErrorDecodeMismatch',0;'singleErrorDecodeCases',30720;'matlabSingleErrorDecodeMismatch',0;'matlabInvalidInputCases',invalid.cases;'matlabInvalidInputFailureCount',invalid.failures};
+base={'fixedVectorCases',single.fixedVectorCases;'matlabFixedVectorMismatch',single.matlabFixedVectorMismatch;'encoderCases',single.encoderCases;'matlabEncodedMismatch',single.matlabEncodedMismatch;'matlabParityMismatch',single.matlabParityMismatch;'legalSyndromeCases',single.legalSyndromeCases;'matlabLegalSyndromeMismatch',single.matlabLegalSyndromeMismatch;'singleErrorSyndromeCases',single.singleErrorSyndromeCases;'matlabSingleErrorSyndromeMismatch',single.matlabSingleErrorSyndromeMismatch;'matlabLookupPositionMismatch',single.matlabLookupPositionMismatch;'noErrorDecodeCases',single.noErrorDecodeCases;'matlabNoErrorDecodeMismatch',single.matlabNoErrorDecodeMismatch;'singleErrorDecodeCases',single.singleErrorDecodeCases;'matlabSingleErrorDecodeMismatch',single.matlabSingleErrorDecodeMismatch;'matlabInvalidInputCases',invalid.cases;'matlabInvalidInputFailureCount',invalid.failures;'fixedMultiErrorExpectedCount',config.fixedMultiErrorExpectedCount};
 for i=1:size(base,1), fprintf(fid,'%s,%d\n',base{i,1},base{i,2}); end
 names=fieldnames(metrics); for i=1:numel(names), fprintf(fid,'%s,%d\n',names{i},metrics.(names{i})); end
 checked_close(fid);
@@ -227,7 +232,46 @@ for caseName={'BCH-S200','BCH-S300'}
     bad=table; for j=1:15,bad(j).syndrome=0;end; d=bch15_segmented_decode_reference(caseName{1},r,bad); m.failureStatusRetentionCases=m.failureStatusRetentionCases+1; m.failureStatusRetentionMismatch=m.failureStatusRetentionMismatch+~(strcmp(d.blockDetails{1}.status,'UNRECOGNIZED_SYNDROME')&&d.frameDetail.unrecognizedSyndromeBlocks==1&&d.frameDetail.lookupMissBlocks==1);
 end
 m.doubleErrorClassificationMismatch=(m.reportedSuccessWrongBlockInformation~=12)||(m.reportedSuccessWrongOriginalPayload~=9)||(m.fillerOnlyInformationMismatch~=3);
-seeds=fixed_seeds(); m.fixedMultiErrorCases=numel(seeds)*4; m.fixedMultiErrorMismatch=0;
+fixed=fixed_multi_metrics(table); m.fixedMultiErrorCases=fixed.cases; m.fixedMultiErrorMismatch=fixed.mismatches;
+end
+
+function m=single_block_metrics(table)
+m=struct('fixedVectorCases',0,'matlabFixedVectorMismatch',0,'encoderCases',0,'matlabEncodedMismatch',0,'matlabParityMismatch',0,'legalSyndromeCases',0,'matlabLegalSyndromeMismatch',0,'singleErrorSyndromeCases',0,'matlabSingleErrorSyndromeMismatch',0,'matlabLookupPositionMismatch',0,'noErrorDecodeCases',0,'matlabNoErrorDecodeMismatch',0,'singleErrorDecodeCases',0,'matlabSingleErrorDecodeMismatch',0);
+fixedMessages={'00000000000','10000000000','00000000001','11111111111','10101010101','01010101010'};
+fixedCodewords={'000000000000000','100000000001001','000000000010011','111111111111111','101010101011011','010101010100100'};
+for i=1:numel(fixedMessages)
+    message=binary_vector(fixedMessages{i}); codeword=bch15_encode_reference(message);
+    m.fixedVectorCases=m.fixedVectorCases+1;
+    m.matlabFixedVectorMismatch=m.matlabFixedVectorMismatch+~isequal(codeword,binary_vector(fixedCodewords{i}));
+end
+for index=0:2047
+    message=bch15_message_from_decimal(index); codeword=bch15_encode_reference(message); syndrome=bch15_syndrome_reference(codeword);
+    m.encoderCases=m.encoderCases+1;
+    m.matlabEncodedMismatch=m.matlabEncodedMismatch+~(numel(codeword)==15&&isequal(codeword(1:11),message));
+    [~,remainder]=bch15_gf2_divide_reference([message zeros(1,4)],[1 0 0 1 1]);
+    m.matlabParityMismatch=m.matlabParityMismatch+~isequal(codeword(12:15),remainder);
+    m.legalSyndromeCases=m.legalSyndromeCases+1; m.matlabLegalSyndromeMismatch=m.matlabLegalSyndromeMismatch+~isequal(syndrome,zeros(1,4));
+    d=bch15_lookup_decode_reference(codeword,table); m.noErrorDecodeCases=m.noErrorDecodeCases+1; m.matlabNoErrorDecodeMismatch=m.matlabNoErrorDecodeMismatch+~(strcmp(d.status,'NO_ERROR')&&isequal(d.decodedMessage,message));
+    for position=0:14
+        errorBits=zeros(1,15); errorBits(position+1)=1; singleSyndrome=bch15_syndrome_reference(errorBits); d=bch15_lookup_decode_reference(xor(codeword,errorBits),table);
+        m.singleErrorSyndromeCases=m.singleErrorSyndromeCases+1;
+        m.matlabSingleErrorSyndromeMismatch=m.matlabSingleErrorSyndromeMismatch+~any(singleSyndrome);
+        m.matlabLookupPositionMismatch=m.matlabLookupPositionMismatch+~(d.lookupHit&&d.correctedPosition==position);
+        m.singleErrorDecodeCases=m.singleErrorDecodeCases+1; m.matlabSingleErrorDecodeMismatch=m.matlabSingleErrorDecodeMismatch+~(strcmp(d.status,'CORRECTED_SINGLE_ERROR')&&isequal(d.decodedMessage,message));
+    end
+end
+end
+
+function m=fixed_multi_metrics(table)
+m=struct('cases',0,'mismatches',0); seeds=fixed_seeds(); messages={zeros(1,11),ones(1,11),[1 0 1 0 1 0 1 0 1 0 1],[0 1 0 1 0 1 0 1 0 1 0]};
+for s=1:numel(seeds)
+    for i=1:numel(messages)
+        codeword=bch15_encode_reference(messages{i}); received=codeword;
+        for j=1:numel(seeds{s}.positions), received(seeds{s}.positions(j)+1)=xor(received(seeds{s}.positions(j)+1),1); end
+        decoded=bch15_lookup_decode_reference(received,table); m.cases=m.cases+1;
+        m.mismatches=m.mismatches+~(numel(decoded.correctedCodeword)==15&&numel(decoded.decodedMessage)==11&&isequal(decoded.syndromeAfter,zeros(1,4)));
+    end
+end
 end
 
 function stats=frame_stats(payload,result)
@@ -341,9 +385,9 @@ for i=1:numel(text)
 end
 end
 
-function write_environment(outputDirectory)
+function write_environment(outputDirectory,config)
 v=version; fid=checked_open(fullfile(outputDirectory,'matlab_environment.json'));
-fprintf(fid,'{"matlabVersion":"%s","platform":"%s","reference":"independent_gf2_long_division"}\n',v,computer); checked_close(fid);
+fprintf(fid,'{"matlabVersion":"%s","platform":"%s","reference":"independent_gf2_long_division","configValidated":true,"fixedMultiErrorExpectedCount":%d}\n',v,computer,config.fixedMultiErrorExpectedCount); checked_close(fid);
 fid=checked_open(fullfile(outputDirectory,'matlab_toolbox_audit.csv'));
 fprintf(fid,'matlabVersion,toolboxName,functionName,available,used,bitOrderConversion,result,notes\n');
 names={'bchenc','bchdec','bchgenpoly','gf'};
@@ -352,6 +396,23 @@ for i=1:numel(names)
     fprintf(fid,'%s,Communications Toolbox,%s,%s,false,none,%s,primary_gate_uses_independent_reference\n',v,names{i},tf(available),result);
 end
 checked_close(fid);
+end
+
+function config=validate_config_path(configPath)
+if ~(ischar(configPath)||isstring(configPath)) || ~exist(configPath,'file')
+    error('BCH06:Config','configPath must name an existing BCH-06 configuration file');
+end
+lines=regexp(strtrim(fileread(configPath)),'\r?\n','split');
+expected={'key,value';'code,"BCH(15,11,1)"';'generatorPolynomial,10011';'bitOrder,leftmost_highest_degree';'S200,200/19/9/285';'S300,300/28/8/420';'fixedMultiErrorExpectedCount,96'};
+if numel(lines)~=numel(expected) || ~all(strcmp(lines(:),expected(:)))
+    error('BCH06:Config','configPath contents do not match the frozen BCH-06 configuration');
+end
+config=struct('fixedMultiErrorExpectedCount',96);
+end
+
+function bits=binary_vector(text)
+if any(text~='0' & text~='1'), error('BCH06:InvalidBitString','bit string must contain only 0/1'); end
+bits=double(text)-double('0');
 end
 
 function fid=checked_open(path)
