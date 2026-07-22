@@ -8,7 +8,7 @@ def read(path):
 if len(sys.argv) != 3:
     raise SystemExit('usage: check_bch10_detail.py cpp.csv matlab.csv')
 cpp, matlab = read(sys.argv[1]), read(sys.argv[2])
-if len(cpp) != 2912 or len(matlab) != 2912:
+if len(cpp) != 9416 or len(matlab) != 9416:
     raise SystemExit('BLOCKED_BCH10_REFERENCE_ROW_COUNT')
 for index, (left, right) in enumerate(zip(cpp, matlab)):
     if left != right:

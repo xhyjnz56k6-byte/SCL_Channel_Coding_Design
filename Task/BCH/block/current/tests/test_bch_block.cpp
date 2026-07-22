@@ -11,6 +11,7 @@ using scl::common::BitVector;
 using namespace scl::bch::block;
 
 void require(bool value, const char* message) { if (!value) throw std::runtime_error(message); }
+template <typename Function> void requireThrows(Function&& function, const char* message) { bool threw=false; try { function(); } catch (const std::exception&) { threw=true; } require(threw,message); }
 
 BitVector payload(std::size_t length, std::uint64_t seed) {
     BitVector result(length, 0U);
@@ -49,6 +50,8 @@ void testProfile(const BlockBchProfile& profile) {
         require(encoded.motherInformation.size() == profile.motherK, "mother information length");
         require(encoded.motherCodeword.size() == profile.motherN, "mother word length");
         require(encoded.shortenedCodeword.size() == profile.motherN-profile.shorteningLength, "shortened length");
+        require(encoded.motherCodewordDivisibleByGenerator && isCodewordDivisibleByGenerator(encoded.motherCodeword,profile.generatorPolynomial), "mother divisibility");
+        require(encoded.payload == original && encoded.parity.size()==profile.parityLength(), "encode observability");
         require(std::equal(original.begin(), original.end(), encoded.shortenedCodeword.begin()), "systematic payload");
         DecodeResult clean = decodeShortened(profile, encoded.shortenedCodeword);
         require(clean.payload == original && clean.status == DecodeStatus::NoError, "noiseless decode");
@@ -76,8 +79,10 @@ void testProfile(const BlockBchProfile& profile) {
 int main() {
     try {
         testField(Gf2m(8U, 0x11DU)); testField(Gf2m(9U, 0x211U));
-        bool threw = false; try { Gf2m(8U,0x101U); } catch (const std::invalid_argument&) { threw=true; } require(threw,"invalid polynomial rejection");
-        threw=false; try { Gf2m(8U,0x11DU).inverse(0U); } catch (const std::domain_error&) { threw=true; } require(threw,"zero inverse rejection");
+        requireThrows([] { Gf2m(1U,0x3U); },"invalid field degree"); requireThrows([] { Gf2m(8U,0x101U); },"primitive polynomial degree mismatch"); requireThrows([] { Gf2m(8U,0x11BU); },"non primitive polynomial");
+        Gf2m field(8U,0x11DU); requireThrows([&] { field.divide(1U,0U); },"divide zero"); requireThrows([&] { field.inverse(0U); },"inverse zero"); requireThrows([&] { field.logarithm(0U); },"log zero"); requireThrows([&] { field.multiply(256U,1U); },"out of range"); requireThrows([&] { field.power(0U,-1); },"negative zero power");
+        BlockBchProfile invalid=makeB200Profile(); invalid.motherN=254U; requireThrows([&] { validateProfile(invalid); },"invalid n"); invalid=makeB200Profile(); invalid.motherK=206U; requireThrows([&] { validateProfile(invalid); },"invalid k"); invalid=makeB200Profile(); invalid.generatorPolynomial.pop_back(); requireThrows([&] { validateProfile(invalid); },"invalid degree"); invalid=makeB200Profile(); invalid.generatorPolynomial[1]=2U; requireThrows([&] { validateProfile(invalid); },"non binary generator"); invalid=makeB200Profile(); invalid.generatorRoots.pop_back(); requireThrows([&] { validateProfile(invalid); },"roots count"); invalid=makeB200Profile(); invalid.correctionCapability=0U; requireThrows([&] { validateProfile(invalid); },"zero t");
+        const auto profile=makeB200Profile(); const BitVector valid=payload(profile.payloadLength,123U); BitVector nonbinary=valid; nonbinary[0]=2U; requireThrows([&] { encodeShortened(profile,BitVector(profile.payloadLength-1U,0U)); },"short payload"); requireThrows([&] { encodeShortened(profile,BitVector(profile.payloadLength+1U,0U)); },"long payload"); requireThrows([&] { encodeShortened(profile,nonbinary); },"nonbinary payload"); const auto word=encodeShortened(profile,valid).shortenedCodeword; requireThrows([&] { decodeShortened(profile,BitVector(word.size()-1U,0U)); },"short receive"); requireThrows([&] { decodeShortened(profile,BitVector(word.size()+1U,0U)); },"long receive"); nonbinary=word; nonbinary[0]=2U; const auto safe=decodeShortenedNoThrow(profile,nonbinary); require(safe.status==DecodeStatus::InvalidInputBits,"nonthrow bits"); const auto shortSafe=decodeShortenedNoThrow(profile,BitVector(word.size()-1U,0U)); require(shortSafe.status==DecodeStatus::InvalidInputLength,"nonthrow length");
         testProfile(makeB200Profile()); testProfile(makeB300Profile());
         std::cout << "PASS_BCH_BLOCK_CORE_TEST\n";
     } catch (const std::exception& error) { std::cerr << "FAIL: " << error.what() << '\n'; return 1; }

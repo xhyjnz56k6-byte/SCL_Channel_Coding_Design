@@ -1,31 +1,10 @@
 #include "bch_block/bch_block.hpp"
 #include <fstream>
 #include <iostream>
-
-namespace {
-scl::common::BitVector vectorFor(std::size_t length, unsigned pattern) {
-    scl::common::BitVector bits(length, 0U);
-    for (std::size_t i=0;i<length;++i) {
-        if (pattern==1U) bits[i]=1U;
-        else if (pattern==2U) bits[i]=static_cast<scl::common::Bit>(i%2U);
-        else if (pattern==3U) bits[i]=static_cast<scl::common::Bit>((i+1U)%2U);
-        else if (pattern>=4U) bits[i]=static_cast<scl::common::Bit>(((i*37U+pattern*19U+11U)%101U)<50U);
-    }
-    return bits;
+namespace { using namespace scl::bch::block; using scl::common::BitVector;
+BitVector payloadFor(std::size_t n,unsigned p){BitVector b(n);for(std::size_t i=0;i<n;++i)b[i]=p==0?0U:(p==1?1U:(p==2?i%2U:(p==3?(i+1U)%2U:static_cast<unsigned>(((i*37U+p*19U+11U)%101U)<50U))));return b;}
+std::string ns(const std::vector<Gf2m::Element>& v){std::string s;for(auto x:v){if(!s.empty())s+=':';s+=std::to_string(x);}return s;} std::string ps(const std::vector<std::size_t>& v){std::string s;for(auto x:v){if(!s.empty())s+=':';s+=std::to_string(x);}return s;}
+void inject(BitVector& r,unsigned weight,unsigned seed){for(unsigned j=0;j<weight;++j){const std::size_t mode=seed%5U;std::size_t p=0;if(mode==0)p=(j*29U+7U+seed)%r.size();else if(mode==1)p=(seed+j)%r.size();else if(mode==2)p=j<weight/2U?r.size()-1U-j:j;else if(mode==3)p=(seed*37U+j*53U)%r.size();else p=j<weight?r.size()/2U+j:r.size()-1U-j;r[p]^=1U;}}
+void row(std::ofstream& o,const BlockBchProfile&p,unsigned pat,const std::string& kind,const BitVector& payload,const EncodeResult&e,BitVector r){const auto d=decodeShortened(p,r);const bool ok=d.payload==payload,good=d.status==DecodeStatus::NoError||d.status==DecodeStatus::Corrected;o<<p.caseName<<','<<pat<<','<<kind<<','<<bitsToString(payload)<<','<<bitsToString(e.motherCodeword)<<','<<bitsToString(e.shortenedCodeword)<<','<<bitsToString(r)<<','<<ns(d.syndromes)<<','<<d.allZeroSyndrome<<','<<d.nonzeroSyndromeCount<<','<<ns(d.locatorPolynomial)<<','<<d.locatorDegree<<','<<ps(d.motherErrorPositions)<<','<<ps(d.shortenedErrorPositions)<<','<<d.rootsInShortenedPrefix<<','<<bitsToString(d.correctedShortenedCodeword)<<','<<bitsToString(d.payload)<<','<<ns(d.postSyndromes)<<','<<d.postSyndromeZero<<','<<d.bmIterationCount<<','<<d.failureReason<<','<<statusName(d.status)<<','<<ok<<','<<good<<','<<(good&&!ok)<<'\n';}
 }
-std::string numbers(const std::vector<scl::bch::block::Gf2m::Element>& values) { std::string text; for(auto v:values){if(!text.empty())text+=':';text+=std::to_string(v);}return text; }
-std::string positions(const std::vector<std::size_t>& values) { std::string text; for(auto v:values){if(!text.empty())text+=':';text+=std::to_string(v);}return text; }
-}
-int main(int argc, char** argv) {
-    if(argc!=2) return 2; std::ofstream out(argv[1]); if(!out)return 3;
-    out << "caseName,pattern,errorKind,payload,motherCodeword,shortenedCodeword,received,syndromes,locator,rootPositions,correctedShortened,decodedPayload,status\n";
-    for(const auto& p:{scl::bch::block::makeB200Profile(),scl::bch::block::makeB300Profile()}) for(unsigned pattern=0;pattern<208;++pattern) {
-        const auto payload=vectorFor(p.payloadLength,pattern); const auto encoded=scl::bch::block::encodeShortened(p,payload);
-        for(unsigned error=0;error<7;++error) { auto received=encoded.shortenedCodeword;
-            std::string name="NONE"; if(error==1){received[0]^=1U;name="FIRST";} if(error==2){received.back()^=1U;name="LAST";} if(error==3){name="T";for(unsigned j=0;j<p.correctionCapability;++j)received[(j*29U+7U)%received.size()]^=1U;}
-            if(error>=4){ name=error==4?"T_PLUS_1":(error==5?"T_PLUS_2":"HIGH_WEIGHT"); unsigned weight=error==4?p.correctionCapability+1U:(error==5?p.correctionCapability+2U:p.correctionCapability+5U); for(unsigned j=0;j<weight;++j)received[(j*29U+7U)%received.size()]^=1U; }
-            const auto decoded=scl::bch::block::decodeShortened(p,received);
-            out<<p.caseName<<','<<pattern<<','<<name<<','<<scl::bch::block::bitsToString(payload)<<','<<scl::bch::block::bitsToString(encoded.motherCodeword)<<','<<scl::bch::block::bitsToString(encoded.shortenedCodeword)<<','<<scl::bch::block::bitsToString(received)<<','<<numbers(decoded.syndromes)<<','<<numbers(decoded.locatorPolynomial)<<','<<positions(decoded.motherErrorPositions)<<','<<scl::bch::block::bitsToString(decoded.correctedShortenedCodeword)<<','<<scl::bch::block::bitsToString(decoded.payload)<<','<<scl::bch::block::statusName(decoded.status)<<'\n';
-        }
-    }
-}
+int main(int argc,char**argv){if(argc!=2)return 2;std::ofstream o(argv[1]);if(!o)return 3;o<<"caseName,pattern,errorKind,payload,motherCodeword,shortenedCodeword,received,syndromes,allZeroSyndrome,nonzeroSyndromeCount,locator,locatorDegree,rootPositions,shortenedErrorPositions,rootsInShortenedPrefix,correctedShortened,decodedPayload,postSyndromes,postSyndromeZero,bmIterationCount,failureReason,status,truePayloadRecovered,reportedSuccess,miscorrected\n";for(const auto&p:{makeB200Profile(),makeB300Profile()}){for(unsigned pat=0;pat<208;++pat){auto m=payloadFor(p.payloadLength,pat);auto e=encodeShortened(p,m);for(unsigned k=0;k<7;++k){auto r=e.shortenedCodeword;std::string n="NONE";if(k==1){r[0]^=1;n="FIRST";}else if(k==2){r.back()^=1;n="LAST";}else if(k){unsigned w=k==3?p.correctionCapability:(k==4?p.correctionCapability+1U:(k==5?p.correctionCapability+2U:p.correctionCapability+5U));n=k==3?"T":(k==4?"T_PLUS_1":(k==5?"T_PLUS_2":"HIGH_WEIGHT"));inject(r,w,pat);}row(o,p,pat,n,m,e,r);}}for(unsigned pat=0;pat<8;++pat){auto m=payloadFor(p.payloadLength,pat);auto e=encodeShortened(p,m);for(std::size_t x=0;x<e.shortenedCodeword.size();++x){auto r=e.shortenedCodeword;r[x]^=1U;row(o,p,pat,"SINGLE_ALL",m,e,r);}}for(unsigned w=2;w<=p.correctionCapability;++w)for(unsigned pat=0;pat<100;++pat){auto m=payloadFor(p.payloadLength,pat+1000U+w*100U);auto e=encodeShortened(p,m);auto r=e.shortenedCodeword;inject(r,w,pat+w*1000U);row(o,p,pat,"WEIGHT_"+std::to_string(w),m,e,r);}}}
