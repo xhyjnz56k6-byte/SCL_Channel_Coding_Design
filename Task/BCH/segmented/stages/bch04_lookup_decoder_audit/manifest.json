@@ -1,0 +1,32 @@
+{
+  "stage": "bch04_lookup_decoder_audit",
+  "branch": "bch-04-lookup-decoder-audit",
+  "baseCommit": "ea43bc146b1b263164377ad8dfcb38f73d7fb591",
+  "functionalRanges": [
+    {
+      "name": "originalContent",
+      "baseCommit": "ea43bc146b1b263164377ad8dfcb38f73d7fb591",
+      "contentCommit": "0cefdf7895dd68316161f625f73bb49866292431",
+      "purpose": "Initial BCH-04 lookup decoder and audit pipeline"
+    },
+    {
+      "name": "repairContent",
+      "baseCommit": "0cefdf7895dd68316161f625f73bb49866292431",
+      "contentCommit": "eb877654067c15f1b95bd1a1c53d56914df7118d",
+      "purpose": "Readable decoder, bounds defence, exhaustive evidence and CSV checker"
+    }
+  ],
+  "functionalCommit": "eb877654067c15f1b95bd1a1c53d56914df7118d",
+  "mergeStatus": "NOT_MERGED",
+  "pushStatus": "PUSHED",
+  "workingTreeOnly": false,
+  "functionalGate": "PASS",
+  "auditGate": "PASS",
+  "finalGate": "PASS_BCH04_LOOKUP_DECODER_MISCORRECTION_AUDIT",
+  "scope": [
+    "Task/BCH/segmented/current",
+    "Task/BCH/segmented/config/bch15_multi_error_seeds.csv",
+    "Task/BCH/segmented/scripts/check_bch04_lookup_decoder.py",
+    "Task/BCH/segmented/stages/bch04_lookup_decoder_audit"
+  ]
+}

@@ -1,0 +1,10 @@
+key,value
+codeName,"BCH(15,11,1)"
+n,15
+k,11
+t,1
+generatorPolynomial,x^4+x+1
+bitOrderVersion,BCH01_x14_to_x0_v1
+tableVersion,bch15_syndrome_v1
+zeroSyndromePolicy,NO_ERROR_NOT_IN_TABLE
+multiErrorSeedFixture,Task/BCH/segmented/config/bch15_multi_error_seeds.csv

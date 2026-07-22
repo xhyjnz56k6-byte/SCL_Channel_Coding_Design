@@ -1,0 +1,741 @@
+diff --git a/Task/BCH/segmented/config/bch15_multi_error_seeds.csv b/Task/BCH/segmented/config/bch15_multi_error_seeds.csv
+new file mode 100644
+index 0000000..069ee7a
+--- /dev/null
++++ b/Task/BCH/segmented/config/bch15_multi_error_seeds.csv
+@@ -0,0 +1,13 @@
++seedId,errorWeight,errorPositions
++T3_01,3,"0;1;2"
++T3_02,3,"0;10;14"
++T3_03,3,"1;11;14"
++T3_04,3,"4;5;6"
++T3_05,3,"2;8;13"
++T3_06,3,"10;11;12"
++T4_01,4,"0;1;2;3"
++T4_02,4,"0;10;11;14"
++T4_03,4,"1;5;9;13"
++T4_04,4,"11;12;13;14"
++T4_05,4,"2;3;10;14"
++T4_06,4,"4;7;11;13"
+diff --git a/Task/BCH/segmented/current/CMakeLists.txt b/Task/BCH/segmented/current/CMakeLists.txt
+index 336b287..ec52239 100644
+--- a/Task/BCH/segmented/current/CMakeLists.txt
++++ b/Task/BCH/segmented/current/CMakeLists.txt
+@@ -1,6 +1,6 @@
+ cmake_minimum_required(VERSION 3.16)
+ project(Bch15Encoder LANGUAGES CXX)
+-add_library(bch15_encoder src/bch15_encoder.cpp src/bch15_syndrome.cpp src/bch15_lookup_table.cpp)
++add_library(bch15_encoder src/bch15_encoder.cpp src/bch15_syndrome.cpp src/bch15_lookup_table.cpp src/bch15_lookup_decoder.cpp)
+ target_include_directories(bch15_encoder PUBLIC include ../../../Common/include)
+ target_compile_features(bch15_encoder PUBLIC cxx_std_17)
+ add_executable(test_bch15_encoder tests/test_bch15_encoder.cpp)
+@@ -10,3 +10,6 @@ add_test(NAME bch15_encoder COMMAND test_bch15_encoder ${CMAKE_CURRENT_SOURCE_DI
+ add_executable(test_bch15_syndrome_table tests/test_bch15_syndrome_table.cpp)
+ target_link_libraries(test_bch15_syndrome_table PRIVATE bch15_encoder)
+ add_test(NAME bch15_syndrome_table COMMAND test_bch15_syndrome_table ${CMAKE_CURRENT_SOURCE_DIR}/../stages/bch03_bch15_syndrome_table)
++add_executable(test_bch15_lookup_decoder tests/test_bch15_lookup_decoder.cpp)
++target_link_libraries(test_bch15_lookup_decoder PRIVATE bch15_encoder)
++add_test(NAME bch15_lookup_decoder COMMAND test_bch15_lookup_decoder ${CMAKE_CURRENT_SOURCE_DIR}/../stages/bch04_lookup_decoder_audit ${CMAKE_CURRENT_SOURCE_DIR}/../config/bch15_multi_error_seeds.csv)
+diff --git a/Task/BCH/segmented/current/include/bch_segmented/bch15_lookup_decoder.hpp b/Task/BCH/segmented/current/include/bch_segmented/bch15_lookup_decoder.hpp
+new file mode 100644
+index 0000000..5bd9bbc
+--- /dev/null
++++ b/Task/BCH/segmented/current/include/bch_segmented/bch15_lookup_decoder.hpp
+@@ -0,0 +1,30 @@
++#ifndef SCL_BCH_SEGMENTED_BCH15_LOOKUP_DECODER_HPP
++#define SCL_BCH_SEGMENTED_BCH15_LOOKUP_DECODER_HPP
++
++#include "bch_segmented/bch15_lookup_table.hpp"
++
++namespace scl::bch::segmented {
++
++enum class Bch15DecodeStatus {
++    NO_ERROR,
++    CORRECTED_SINGLE_ERROR,
++    POST_CHECK_FAILED,
++    UNRECOGNIZED_SYNDROME
++};
++
++struct Bch15DecodeDetail {
++    common::BitVector decodedMessage;
++    common::BitVector correctedCodeword;
++    common::BitVector syndromeBefore;
++    common::BitVector syndromeAfter;
++    int correctedPosition = -1;
++    bool lookupHit = false;
++    Bch15DecodeStatus status = Bch15DecodeStatus::NO_ERROR;
++};
++
++Bch15DecodeDetail decodeBch15Lookup(const common::BitVector& received,
++                                     const SyndromeTable& table);
++
++}  // namespace scl::bch::segmented
++
++#endif
+diff --git a/Task/BCH/segmented/current/src/bch15_lookup_decoder.cpp b/Task/BCH/segmented/current/src/bch15_lookup_decoder.cpp
+new file mode 100644
+index 0000000..d5d9c4d
+--- /dev/null
++++ b/Task/BCH/segmented/current/src/bch15_lookup_decoder.cpp
+@@ -0,0 +1,48 @@
++#include "bch_segmented/bch15_lookup_decoder.hpp"
++
++#include <stdexcept>
++
++namespace scl::bch::segmented {
++
++Bch15DecodeDetail decodeBch15Lookup(const common::BitVector& received,
++                                     const SyndromeTable& table) {
++    if (received.size() != 15U) {
++        throw std::invalid_argument("BCH15 decode input length must be 15");
++    }
++    common::validateBits(received, "received");
++
++    Bch15DecodeDetail detail;
++    detail.correctedCodeword = received;
++    detail.syndromeBefore = computeBch15Syndrome(received);
++
++    const unsigned syndrome = syndromeValue(detail.syndromeBefore);
++    const int position = lookupErrorPosition(table, syndrome);
++
++    if (position < 0) {
++        detail.status = syndrome == 0U ? Bch15DecodeStatus::NO_ERROR
++                                       : Bch15DecodeStatus::UNRECOGNIZED_SYNDROME;
++        detail.syndromeAfter = detail.syndromeBefore;
++    } else {
++        detail.lookupHit = true;
++        detail.correctedPosition = position;
++
++        // A caller may supply an externally corrupted table.  Do not index a
++        // received codeword unless the table position is within BCH(15,11,1).
++        if (position < 15) {
++            detail.correctedCodeword[static_cast<std::size_t>(position)] ^= 1U;
++            detail.syndromeAfter = computeBch15Syndrome(detail.correctedCodeword);
++            detail.status = syndromeValue(detail.syndromeAfter) == 0U
++                                ? Bch15DecodeStatus::CORRECTED_SINGLE_ERROR
++                                : Bch15DecodeStatus::POST_CHECK_FAILED;
++        } else {
++            detail.syndromeAfter = detail.syndromeBefore;
++            detail.status = Bch15DecodeStatus::POST_CHECK_FAILED;
++        }
++    }
++
++    detail.decodedMessage = common::BitVector(detail.correctedCodeword.begin(),
++                                               detail.correctedCodeword.begin() + 11);
++    return detail;
++}
++
++}  // namespace scl::bch::segmented
+diff --git a/Task/BCH/segmented/current/tests/test_bch15_lookup_decoder.cpp b/Task/BCH/segmented/current/tests/test_bch15_lookup_decoder.cpp
+new file mode 100644
+index 0000000..4f15df0
+--- /dev/null
++++ b/Task/BCH/segmented/current/tests/test_bch15_lookup_decoder.cpp
+@@ -0,0 +1,394 @@
++#include "bch_segmented/bch15_encoder.hpp"
++#include "bch_segmented/bch15_lookup_decoder.hpp"
++
++#include <array>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <sstream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++using namespace scl::bch::segmented;
++
++namespace {
++
++struct AuditCounters {
++    unsigned noErrorCaseCount = 0U;
++    unsigned noErrorPayloadMismatch = 0U;
++    unsigned noErrorCodewordMismatch = 0U;
++    unsigned noErrorStatusMismatch = 0U;
++    unsigned noErrorLookupHitMismatch = 0U;
++    unsigned noErrorSyndromeMismatch = 0U;
++    unsigned singleErrorCaseCount = 0U;
++    unsigned singleErrorPayloadMismatch = 0U;
++    unsigned correctedPositionMismatch = 0U;
++    unsigned postSyndromeMismatch = 0U;
++    unsigned lookupMissForSingleError = 0U;
++    unsigned singleErrorStatusMismatch = 0U;
++    unsigned singleErrorCodewordMismatch = 0U;
++    unsigned singleErrorSyndromeBeforeMismatch = 0U;
++    unsigned doubleErrorCaseCount = 0U;
++    unsigned doubleErrorCorrectedStatusCount = 0U;
++    unsigned doubleErrorNoErrorStatusCount = 0U;
++    unsigned doubleErrorPostCheckFailedCount = 0U;
++    unsigned doubleErrorUnrecognizedCount = 0U;
++    unsigned doubleErrorLookupHitCount = 0U;
++    unsigned doubleErrorPostSyndromeZeroCount = 0U;
++    unsigned decodedToOriginalCodeword = 0U;
++    unsigned decodedToOriginalPayload = 0U;
++    unsigned miscorrectedToAnotherValidCodeword = 0U;
++    unsigned reportedCorrectedButPayloadWrong = 0U;
++    unsigned fixedSeedCaseCount = 0U;
++    unsigned fixedSeedParseError = 0U;
++    unsigned invalidInputMismatch = 0U;
++    unsigned unrecognizedSyndromeStatusMismatch = 0U;
++    unsigned postCheckFailedStatusMismatch = 0U;
++    unsigned invalidTablePositionMismatch = 0U;
++};
++
++struct Seed {
++    std::string id;
++    unsigned weight = 0U;
++    std::vector<unsigned> positions;
++};
++
++std::string bitString(const scl::common::BitVector& bits) {
++    std::string text;
++    text.reserve(bits.size());
++    for (const auto bit : bits) {
++        text.push_back(bit == 0U ? '0' : '1');
++    }
++    return text;
++}
++
++scl::common::BitVector messageFromDecimal(unsigned value) {
++    scl::common::BitVector message(11U, 0U);
++    for (unsigned index = 0U; index < 11U; ++index) {
++        message[index] = static_cast<std::uint8_t>((value >> (10U - index)) & 1U);
++    }
++    return message;
++}
++
++scl::common::BitVector messageFromString(const std::string& text) {
++    if (text.size() != 11U) {
++        throw std::runtime_error("fixed message length is not 11");
++    }
++    scl::common::BitVector message(11U, 0U);
++    for (std::size_t index = 0U; index < text.size(); ++index) {
++        if (text[index] != '0' && text[index] != '1') {
++            throw std::runtime_error("fixed message contains non-bit value");
++        }
++        message[index] = static_cast<std::uint8_t>(text[index] - '0');
++    }
++    return message;
++}
++
++std::string statusName(Bch15DecodeStatus status) {
++    switch (status) {
++    case Bch15DecodeStatus::NO_ERROR:
++        return "NO_ERROR";
++    case Bch15DecodeStatus::CORRECTED_SINGLE_ERROR:
++        return "CORRECTED_SINGLE_ERROR";
++    case Bch15DecodeStatus::POST_CHECK_FAILED:
++        return "POST_CHECK_FAILED";
++    case Bch15DecodeStatus::UNRECOGNIZED_SYNDROME:
++        return "UNRECOGNIZED_SYNDROME";
++    }
++    return "UNKNOWN";
++}
++
++bool isCodeword(const scl::common::BitVector& word) {
++    return syndromeValue(computeBch15Syndrome(word)) == 0U;
++}
++
++void requireStream(std::ofstream& stream, const std::string& path) {
++    stream.flush();
++    if (!stream) {
++        throw std::runtime_error("write or flush failed: " + path);
++    }
++}
++
++void writeTextFile(const std::filesystem::path& path, const std::string& body) {
++    std::ofstream stream(path, std::ios::binary);
++    if (!stream) {
++        throw std::runtime_error("cannot open output: " + path.string());
++    }
++    stream << body;
++    requireStream(stream, path.string());
++}
++
++std::vector<Seed> readSeeds(const std::filesystem::path& path) {
++    std::ifstream input(path);
++    if (!input) {
++        throw std::runtime_error("cannot open seed fixture: " + path.string());
++    }
++
++    std::string line;
++    std::getline(input, line);
++    if (line != "seedId,errorWeight,errorPositions") {
++        throw std::runtime_error("seed fixture header mismatch");
++    }
++
++    std::vector<Seed> seeds;
++    while (std::getline(input, line)) {
++        if (line.empty()) {
++            continue;
++        }
++        const std::size_t first = line.find(',');
++        const std::size_t second = line.find(',', first + 1U);
++        if (first == std::string::npos || second == std::string::npos) {
++            throw std::runtime_error("seed fixture row malformed");
++        }
++        Seed seed;
++        seed.id = line.substr(0U, first);
++        seed.weight = static_cast<unsigned>(std::stoul(line.substr(first + 1U, second - first - 1U)));
++        std::string positions = line.substr(second + 1U);
++        if (positions.size() >= 2U && positions.front() == '"' && positions.back() == '"') {
++            positions = positions.substr(1U, positions.size() - 2U);
++        }
++        std::stringstream parser(positions);
++        std::string position;
++        while (std::getline(parser, position, ';')) {
++            seed.positions.push_back(static_cast<unsigned>(std::stoul(position)));
++        }
++        if (seed.positions.size() != seed.weight || (seed.weight != 3U && seed.weight != 4U)) {
++            throw std::runtime_error("seed fixture weight mismatch");
++        }
++        for (const unsigned value : seed.positions) {
++            if (value >= 15U) {
++                throw std::runtime_error("seed fixture position out of range");
++            }
++        }
++        seeds.push_back(seed);
++    }
++    if (seeds.size() != 12U) {
++        throw std::runtime_error("seed fixture must contain 12 rows");
++    }
++    return seeds;
++}
++
++void verifyNoErrorCases(const SyndromeTable& table, AuditCounters& counters) {
++    for (unsigned value = 0U; value < 2048U; ++value) {
++        const auto message = messageFromDecimal(value);
++        const auto codeword = encodeBch15Systematic(message);
++        const auto decoded = decodeBch15Lookup(codeword, table);
++        ++counters.noErrorCaseCount;
++        if (decoded.decodedMessage != message) ++counters.noErrorPayloadMismatch;
++        if (decoded.correctedCodeword != codeword) ++counters.noErrorCodewordMismatch;
++        if (decoded.status != Bch15DecodeStatus::NO_ERROR) ++counters.noErrorStatusMismatch;
++        if (decoded.lookupHit || decoded.correctedPosition != -1) ++counters.noErrorLookupHitMismatch;
++        if (syndromeValue(decoded.syndromeBefore) != 0U || syndromeValue(decoded.syndromeAfter) != 0U) ++counters.noErrorSyndromeMismatch;
++    }
++}
++
++void verifySingleErrorCases(const SyndromeTable& table, AuditCounters& counters) {
++    for (unsigned value = 0U; value < 2048U; ++value) {
++        const auto message = messageFromDecimal(value);
++        const auto codeword = encodeBch15Systematic(message);
++        for (unsigned position = 0U; position < 15U; ++position) {
++            auto received = codeword;
++            received[position] ^= 1U;
++            const auto decoded = decodeBch15Lookup(received, table);
++            const auto expectedSyndrome = syndromeValue(computeBch15Syndrome(received));
++            ++counters.singleErrorCaseCount;
++            if (decoded.decodedMessage != message) ++counters.singleErrorPayloadMismatch;
++            if (decoded.correctedCodeword != codeword) ++counters.singleErrorCodewordMismatch;
++            if (decoded.correctedPosition != static_cast<int>(position)) ++counters.correctedPositionMismatch;
++            if (syndromeValue(decoded.syndromeAfter) != 0U) ++counters.postSyndromeMismatch;
++            if (!decoded.lookupHit) ++counters.lookupMissForSingleError;
++            if (decoded.status != Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++counters.singleErrorStatusMismatch;
++            if (syndromeValue(decoded.syndromeBefore) != expectedSyndrome) ++counters.singleErrorSyndromeBeforeMismatch;
++        }
++    }
++}
++
++void verifyDoubleErrorCases(const SyndromeTable& table, AuditCounters& counters) {
++    for (unsigned value = 0U; value < 2048U; ++value) {
++        const auto message = messageFromDecimal(value);
++        const auto codeword = encodeBch15Systematic(message);
++        for (unsigned first = 0U; first < 15U; ++first) {
++            for (unsigned second = first + 1U; second < 15U; ++second) {
++                auto received = codeword;
++                received[first] ^= 1U;
++                received[second] ^= 1U;
++                const auto decoded = decodeBch15Lookup(received, table);
++                ++counters.doubleErrorCaseCount;
++                if (decoded.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++counters.doubleErrorCorrectedStatusCount;
++                if (decoded.status == Bch15DecodeStatus::NO_ERROR) ++counters.doubleErrorNoErrorStatusCount;
++                if (decoded.status == Bch15DecodeStatus::POST_CHECK_FAILED) ++counters.doubleErrorPostCheckFailedCount;
++                if (decoded.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME) ++counters.doubleErrorUnrecognizedCount;
++                if (decoded.lookupHit) ++counters.doubleErrorLookupHitCount;
++                if (syndromeValue(decoded.syndromeAfter) == 0U) ++counters.doubleErrorPostSyndromeZeroCount;
++                if (decoded.correctedCodeword == codeword) ++counters.decodedToOriginalCodeword;
++                if (decoded.decodedMessage == message) ++counters.decodedToOriginalPayload;
++                if (decoded.correctedCodeword != codeword && isCodeword(decoded.correctedCodeword)) ++counters.miscorrectedToAnotherValidCodeword;
++                if (decoded.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR && decoded.decodedMessage != message) ++counters.reportedCorrectedButPayloadWrong;
++            }
++        }
++    }
++}
++
++void verifyInvalidInputs(const SyndromeTable& table, AuditCounters& counters) {
++    const std::array<scl::common::BitVector, 3> invalid = {
++        scl::common::BitVector(14U, 0U), scl::common::BitVector(16U, 0U), scl::common::BitVector(15U, 0U)};
++    auto nonBit = invalid[2];
++    nonBit[4] = 2U;
++    for (const auto& value : {invalid[0], invalid[1], nonBit}) {
++        try {
++            static_cast<void>(decodeBch15Lookup(value, table));
++            ++counters.invalidInputMismatch;
++        } catch (const std::invalid_argument&) {
++        }
++    }
++    try {
++        static_cast<void>(decodeBch15Lookup(encodeBch15Systematic(messageFromDecimal(0U)), table));
++    } catch (const std::exception&) {
++        ++counters.invalidInputMismatch;
++    }
++}
++
++void verifyCorruptedTableStatuses(const SyndromeTable& original, AuditCounters& counters) {
++    const auto codeword = encodeBch15Systematic(messageFromDecimal(0U));
++    auto received = codeword;
++    received[14U] ^= 1U;
++
++    SyndromeTable missing = original;
++    for (auto& entry : missing.entries) {
++        if (entry.syndrome == 1U) entry.syndrome = 2U;
++    }
++    const auto unknown = decodeBch15Lookup(received, missing);
++    if (unknown.status != Bch15DecodeStatus::UNRECOGNIZED_SYNDROME || unknown.lookupHit ||
++        unknown.correctedPosition != -1 || unknown.correctedCodeword != received ||
++        unknown.syndromeAfter != unknown.syndromeBefore || unknown.decodedMessage != scl::common::BitVector(received.begin(), received.begin() + 11)) {
++        ++counters.unrecognizedSyndromeStatusMismatch;
++    }
++
++    SyndromeTable wrong = original;
++    for (auto& entry : wrong.entries) {
++        if (entry.syndrome == 1U) entry.errorPosition = 0U;
++    }
++    const auto post = decodeBch15Lookup(received, wrong);
++    if (post.status != Bch15DecodeStatus::POST_CHECK_FAILED || !post.lookupHit || post.correctedPosition != 0 ||
++        syndromeValue(post.syndromeAfter) == 0U || post.correctedCodeword == received) {
++        ++counters.postCheckFailedStatusMismatch;
++    }
++
++    for (const unsigned invalidPosition : {15U, 100U}) {
++        SyndromeTable invalid = original;
++        for (auto& entry : invalid.entries) {
++            if (entry.syndrome == 1U) entry.errorPosition = invalidPosition;
++        }
++        const auto result = decodeBch15Lookup(received, invalid);
++        if (result.status != Bch15DecodeStatus::POST_CHECK_FAILED || !result.lookupHit ||
++            result.correctedPosition != static_cast<int>(invalidPosition) || result.correctedCodeword != received ||
++            result.syndromeAfter != result.syndromeBefore) {
++            ++counters.invalidTablePositionMismatch;
++        }
++    }
++}
++
++void verifyFixedMultiErrorSeeds(const SyndromeTable& table, const std::vector<Seed>& seeds,
++                                AuditCounters& counters, std::ofstream& output) {
++    const std::array<std::string, 4> messages = {"00000000000", "11111111111", "10101010101", "01010101010"};
++    output << "seedId,messageBits,originalCodeword,errorWeight,errorPositions,receivedCodeword,syndromeBefore,lookupHit,correctedPosition,syndromeAfter,status,correctedCodeword,decodedMessage,payloadRecovered,codewordRecovered,miscorrection\n";
++    for (const auto& seed : seeds) {
++        std::string positions;
++        for (std::size_t index = 0U; index < seed.positions.size(); ++index) {
++            if (index != 0U) positions += ';';
++            positions += std::to_string(seed.positions[index]);
++        }
++        for (const auto& messageText : messages) {
++            const auto message = messageFromString(messageText);
++            const auto codeword = encodeBch15Systematic(message);
++            auto received = codeword;
++            for (const unsigned position : seed.positions) received[position] ^= 1U;
++            const auto decoded = decodeBch15Lookup(received, table);
++            const bool payloadRecovered = decoded.decodedMessage == message;
++            const bool codewordRecovered = decoded.correctedCodeword == codeword;
++            const bool miscorrection = decoded.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR && !payloadRecovered;
++            output << seed.id << ',' << messageText << ',' << bitString(codeword) << ',' << seed.weight << ','
++                   << '"' << positions << '"' << ',' << bitString(received) << ',' << bitString(decoded.syndromeBefore) << ','
++                   << (decoded.lookupHit ? "true" : "false") << ',' << decoded.correctedPosition << ','
++                   << bitString(decoded.syndromeAfter) << ',' << statusName(decoded.status) << ','
++                   << bitString(decoded.correctedCodeword) << ',' << bitString(decoded.decodedMessage) << ','
++                   << (payloadRecovered ? "true" : "false") << ',' << (codewordRecovered ? "true" : "false") << ','
++                   << (miscorrection ? "true" : "false") << '\n';
++            ++counters.fixedSeedCaseCount;
++        }
++    }
++}
++
++void writeSummaryFiles(const std::filesystem::path& outputDirectory, const AuditCounters& c) {
++    writeTextFile(outputDirectory / "no_error_summary.csv", "metric,value\nnoErrorCaseCount," + std::to_string(c.noErrorCaseCount) +
++        "\nnoErrorPayloadMismatch," + std::to_string(c.noErrorPayloadMismatch) + "\nnoErrorCodewordMismatch," + std::to_string(c.noErrorCodewordMismatch) +
++        "\nnoErrorStatusMismatch," + std::to_string(c.noErrorStatusMismatch) + "\nnoErrorLookupHitMismatch," + std::to_string(c.noErrorLookupHitMismatch) +
++        "\nnoErrorSyndromeMismatch," + std::to_string(c.noErrorSyndromeMismatch) + "\n");
++    writeTextFile(outputDirectory / "single_error_summary.csv", "metric,value\nsingleErrorCaseCount," + std::to_string(c.singleErrorCaseCount) +
++        "\nsingleErrorPayloadMismatch," + std::to_string(c.singleErrorPayloadMismatch) + "\ncorrectedPositionMismatch," + std::to_string(c.correctedPositionMismatch) +
++        "\npostSyndromeMismatch," + std::to_string(c.postSyndromeMismatch) + "\nlookupMissForSingleError," + std::to_string(c.lookupMissForSingleError) +
++        "\nsingleErrorStatusMismatch," + std::to_string(c.singleErrorStatusMismatch) + "\nsingleErrorCodewordMismatch," + std::to_string(c.singleErrorCodewordMismatch) +
++        "\nsingleErrorSyndromeBeforeMismatch," + std::to_string(c.singleErrorSyndromeBeforeMismatch) + "\n");
++    writeTextFile(outputDirectory / "double_error_audit.csv", "metric,value\ndoubleErrorCaseCount," + std::to_string(c.doubleErrorCaseCount) +
++        "\ndoubleErrorCorrectedStatusCount," + std::to_string(c.doubleErrorCorrectedStatusCount) + "\ndoubleErrorNoErrorStatusCount," + std::to_string(c.doubleErrorNoErrorStatusCount) +
++        "\ndoubleErrorPostCheckFailedCount," + std::to_string(c.doubleErrorPostCheckFailedCount) + "\ndoubleErrorUnrecognizedCount," + std::to_string(c.doubleErrorUnrecognizedCount) +
++        "\ndoubleErrorLookupHitCount," + std::to_string(c.doubleErrorLookupHitCount) + "\ndoubleErrorPostSyndromeZeroCount," + std::to_string(c.doubleErrorPostSyndromeZeroCount) +
++        "\ndecodedToOriginalCodeword," + std::to_string(c.decodedToOriginalCodeword) + "\ndecodedToOriginalPayload," + std::to_string(c.decodedToOriginalPayload) +
++        "\nmiscorrectedToAnotherValidCodeword," + std::to_string(c.miscorrectedToAnotherValidCodeword) + "\nreportedCorrectedButPayloadWrong," + std::to_string(c.reportedCorrectedButPayloadWrong) + "\n");
++    writeTextFile(outputDirectory / "status_summary.csv", "status,count\nNO_ERROR," + std::to_string(c.doubleErrorNoErrorStatusCount) +
++        "\nCORRECTED_SINGLE_ERROR," + std::to_string(c.doubleErrorCorrectedStatusCount) + "\nPOST_CHECK_FAILED," + std::to_string(c.doubleErrorPostCheckFailedCount) +
++        "\nUNRECOGNIZED_SYNDROME," + std::to_string(c.doubleErrorUnrecognizedCount) + "\n");
++    writeTextFile(outputDirectory / "test_summary.csv", "metric,value\nnoErrorCaseCount," + std::to_string(c.noErrorCaseCount) +
++        "\nsingleErrorCaseCount," + std::to_string(c.singleErrorCaseCount) + "\ndoubleErrorCaseCount," + std::to_string(c.doubleErrorCaseCount) +
++        "\nfixedSeedCaseCount," + std::to_string(c.fixedSeedCaseCount) + "\nnoErrorPayloadMismatch," + std::to_string(c.noErrorPayloadMismatch) +
++        "\nsingleErrorPayloadMismatch," + std::to_string(c.singleErrorPayloadMismatch) + "\ncorrectedPositionMismatch," + std::to_string(c.correctedPositionMismatch) +
++        "\npostSyndromeMismatch," + std::to_string(c.postSyndromeMismatch) + "\nlookupMissForSingleError," + std::to_string(c.lookupMissForSingleError) +
++        "\ndecodedToOriginalCodeword," + std::to_string(c.decodedToOriginalCodeword) + "\ndecodedToOriginalPayload," + std::to_string(c.decodedToOriginalPayload) +
++        "\nmiscorrectedToAnotherValidCodeword," + std::to_string(c.miscorrectedToAnotherValidCodeword) + "\nreportedCorrectedButPayloadWrong," + std::to_string(c.reportedCorrectedButPayloadWrong) +
++        "\nunrecognizedSyndromeStatusMismatch," + std::to_string(c.unrecognizedSyndromeStatusMismatch) + "\npostCheckFailedStatusMismatch," + std::to_string(c.postCheckFailedStatusMismatch) +
++        "\ninvalidTablePositionMismatch," + std::to_string(c.invalidTablePositionMismatch) + "\ninvalidInputMismatch," + std::to_string(c.invalidInputMismatch) + "\n");
++}
++
++bool allPassed(const AuditCounters& c) {
++    return c.noErrorCaseCount == 2048U && c.singleErrorCaseCount == 30720U && c.doubleErrorCaseCount == 215040U &&
++        c.doubleErrorCorrectedStatusCount == 215040U && c.doubleErrorLookupHitCount == 215040U && c.doubleErrorPostSyndromeZeroCount == 215040U &&
++        c.miscorrectedToAnotherValidCodeword == 215040U && c.reportedCorrectedButPayloadWrong == 215040U && c.fixedSeedCaseCount == 48U &&
++        c.noErrorPayloadMismatch == 0U && c.noErrorCodewordMismatch == 0U && c.noErrorStatusMismatch == 0U && c.noErrorLookupHitMismatch == 0U &&
++        c.noErrorSyndromeMismatch == 0U && c.singleErrorPayloadMismatch == 0U && c.singleErrorCodewordMismatch == 0U &&
++        c.correctedPositionMismatch == 0U && c.postSyndromeMismatch == 0U && c.lookupMissForSingleError == 0U &&
++        c.singleErrorStatusMismatch == 0U && c.singleErrorSyndromeBeforeMismatch == 0U && c.decodedToOriginalCodeword == 0U &&
++        c.decodedToOriginalPayload == 0U && c.doubleErrorNoErrorStatusCount == 0U && c.doubleErrorPostCheckFailedCount == 0U &&
++        c.doubleErrorUnrecognizedCount == 0U && c.unrecognizedSyndromeStatusMismatch == 0U && c.postCheckFailedStatusMismatch == 0U &&
++        c.invalidTablePositionMismatch == 0U && c.invalidInputMismatch == 0U;
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 3) {
++            throw std::runtime_error("usage: test_bch15_lookup_decoder <output-directory> <seed-fixture>");
++        }
++        const std::filesystem::path outputDirectory(argv[1]);
++        const std::filesystem::path seedFixture(argv[2]);
++        const auto table = buildBch15SyndromeTable();
++        AuditCounters counters;
++        const auto seeds = readSeeds(seedFixture);
++        verifyNoErrorCases(table, counters);
++        verifySingleErrorCases(table, counters);
++        verifyDoubleErrorCases(table, counters);
++        verifyInvalidInputs(table, counters);
++        verifyCorruptedTableStatuses(table, counters);
++        std::ofstream multiOutput(outputDirectory / "multi_error_seed_audit.csv", std::ios::binary);
++        if (!multiOutput) throw std::runtime_error("cannot open multi_error_seed_audit.csv");
++        verifyFixedMultiErrorSeeds(table, seeds, counters, multiOutput);
++        requireStream(multiOutput, (outputDirectory / "multi_error_seed_audit.csv").string());
++        writeSummaryFiles(outputDirectory, counters);
++        if (!allPassed(counters)) throw std::runtime_error("audit counters did not meet BCH-04 gate");
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BCH15 lookup decoder FAIL: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/segmented/scripts/check_bch04_lookup_decoder.py b/Task/BCH/segmented/scripts/check_bch04_lookup_decoder.py
+new file mode 100644
+index 0000000..6afaada
+--- /dev/null
++++ b/Task/BCH/segmented/scripts/check_bch04_lookup_decoder.py
+@@ -0,0 +1,71 @@
++#!/usr/bin/env python3
++"""Validate the committed BCH-04 decoder audit CSV summaries."""
++
++import csv
++import pathlib
++import sys
++
++
++def read_metric_csv(path: pathlib.Path) -> dict[str, int]:
++    text = path.read_text(encoding="ascii")
++    if any(ord(char) < 32 and char not in "\n\r\t" for char in text):
++        raise ValueError(f"control character in {path.name}")
++    rows = list(csv.reader(text.splitlines()))
++    if not rows or rows[0] != ["metric", "value"]:
++        raise ValueError(f"metric header mismatch: {path.name}")
++    return {row[0]: int(row[1]) for row in rows[1:]}
++
++
++def expect(metrics: dict[str, int], key: str, value: int) -> None:
++    if metrics.get(key) != value:
++        raise ValueError(f"{key} expected {value}, got {metrics.get(key)}")
++
++
++def main() -> int:
++    if len(sys.argv) != 2:
++        print("usage: check_bch04_lookup_decoder.py <stage-directory>", file=sys.stderr)
++        return 2
++    stage = pathlib.Path(sys.argv[1])
++    no_error = read_metric_csv(stage / "no_error_summary.csv")
++    single = read_metric_csv(stage / "single_error_summary.csv")
++    double = read_metric_csv(stage / "double_error_audit.csv")
++    summary = read_metric_csv(stage / "test_summary.csv")
++    expect(no_error, "noErrorCaseCount", 2048)
++    for key in ("noErrorPayloadMismatch", "noErrorCodewordMismatch", "noErrorStatusMismatch", "noErrorLookupHitMismatch", "noErrorSyndromeMismatch"):
++        expect(no_error, key, 0)
++    expect(single, "singleErrorCaseCount", 30720)
++    for key in ("singleErrorPayloadMismatch", "singleErrorCodewordMismatch", "correctedPositionMismatch", "postSyndromeMismatch", "lookupMissForSingleError", "singleErrorStatusMismatch", "singleErrorSyndromeBeforeMismatch"):
++        expect(single, key, 0)
++    expected_double = {
++        "doubleErrorCaseCount": 215040,
++        "doubleErrorCorrectedStatusCount": 215040,
++        "doubleErrorNoErrorStatusCount": 0,
++        "doubleErrorPostCheckFailedCount": 0,
++        "doubleErrorUnrecognizedCount": 0,
++        "doubleErrorLookupHitCount": 215040,
++        "doubleErrorPostSyndromeZeroCount": 215040,
++        "decodedToOriginalCodeword": 0,
++        "decodedToOriginalPayload": 0,
++        "miscorrectedToAnotherValidCodeword": 215040,
++        "reportedCorrectedButPayloadWrong": 215040,
++    }
++    for key, value in expected_double.items():
++        expect(double, key, value)
++    expect(summary, "fixedSeedCaseCount", 48)
++    for key in ("unrecognizedSyndromeStatusMismatch", "postCheckFailedStatusMismatch", "invalidTablePositionMismatch", "invalidInputMismatch"):
++        expect(summary, key, 0)
++    multi = list(csv.DictReader((stage / "multi_error_seed_audit.csv").open(encoding="ascii", newline="")))
++    if len(multi) != 48:
++        raise ValueError(f"multi-error row count expected 48, got {len(multi)}")
++    if {row["seedId"] for row in multi} != {f"T3_{i:02d}" for i in range(1, 7)} | {f"T4_{i:02d}" for i in range(1, 7)}:
++        raise ValueError("multi-error seed IDs mismatch")
++    print("PASS_BCH04_LOOKUP_DECODER_AUDIT_CSV")
++    return 0
++
++
++if __name__ == "__main__":
++    try:
++        raise SystemExit(main())
++    except (OSError, ValueError, csv.Error) as error:
++        print(f"FAIL_BCH04_LOOKUP_DECODER_AUDIT_CSV: {error}", file=sys.stderr)
++        raise SystemExit(1)
+diff --git a/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/double_error_audit.csv b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/double_error_audit.csv
+new file mode 100644
+index 0000000..c12bae2
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/double_error_audit.csv
+@@ -0,0 +1,12 @@
++metric,value
++doubleErrorCaseCount,215040
++doubleErrorCorrectedStatusCount,215040
++doubleErrorNoErrorStatusCount,0
++doubleErrorPostCheckFailedCount,0
++doubleErrorUnrecognizedCount,0
++doubleErrorLookupHitCount,215040
++doubleErrorPostSyndromeZeroCount,215040
++decodedToOriginalCodeword,0
++decodedToOriginalPayload,0
++miscorrectedToAnotherValidCodeword,215040
++reportedCorrectedButPayloadWrong,215040
+diff --git a/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/multi_error_seed_audit.csv b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/multi_error_seed_audit.csv
+new file mode 100644
+index 0000000..fe25498
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/multi_error_seed_audit.csv
+@@ -0,0 +1,49 @@
++seedId,messageBits,originalCodeword,errorWeight,errorPositions,receivedCodeword,syndromeBefore,lookupHit,correctedPosition,syndromeAfter,status,correctedCodeword,decodedMessage,payloadRecovered,codewordRecovered,miscorrection
++T3_01,00000000000,000000000000000,3,"0;1;2",111000000000000,1011,true,7,0000,CORRECTED_SINGLE_ERROR,111000010000000,11100001000,false,false,true
++T3_01,11111111111,111111111111111,3,"0;1;2",000111111111111,1011,true,7,0000,CORRECTED_SINGLE_ERROR,000111101111111,00011110111,false,false,true
++T3_01,10101010101,101010101011011,3,"0;1;2",010010101011011,1011,true,7,0000,CORRECTED_SINGLE_ERROR,010010111011011,01001011101,false,false,true
++T3_01,01010101010,010101010100100,3,"0;1;2",101101010100100,1011,true,7,0000,CORRECTED_SINGLE_ERROR,101101000100100,10110100010,false,false,true
++T3_02,00000000000,000000000000000,3,"0;10;14",100000000010001,1011,true,7,0000,CORRECTED_SINGLE_ERROR,100000010010001,10000001001,false,false,true
++T3_02,11111111111,111111111111111,3,"0;10;14",011111111101110,1011,true,7,0000,CORRECTED_SINGLE_ERROR,011111101101110,01111110110,false,false,true
++T3_02,10101010101,101010101011011,3,"0;10;14",001010101001010,1011,true,7,0000,CORRECTED_SINGLE_ERROR,001010111001010,00101011100,false,false,true
++T3_02,01010101010,010101010100100,3,"0;10;14",110101010110101,1011,true,7,0000,CORRECTED_SINGLE_ERROR,110101000110101,11010100011,false,false,true
++T3_03,00000000000,000000000000000,3,"1;11;14",010000000001001,0100,true,12,0000,CORRECTED_SINGLE_ERROR,010000000001101,01000000000,false,false,true
++T3_03,11111111111,111111111111111,3,"1;11;14",101111111110110,0100,true,12,0000,CORRECTED_SINGLE_ERROR,101111111110010,10111111111,false,false,true
++T3_03,10101010101,101010101011011,3,"1;11;14",111010101010010,0100,true,12,0000,CORRECTED_SINGLE_ERROR,111010101010110,11101010101,false,false,true
++T3_03,01010101010,010101010100100,3,"1;11;14",000101010101101,0100,true,12,0000,CORRECTED_SINGLE_ERROR,000101010101001,00010101010,false,false,true
++T3_04,00000000000,000000000000000,3,"4;5;6",000011100000000,1000,true,11,0000,CORRECTED_SINGLE_ERROR,000011100001000,00001110000,false,false,true
++T3_04,11111111111,111111111111111,3,"4;5;6",111100011111111,1000,true,11,0000,CORRECTED_SINGLE_ERROR,111100011110111,11110001111,false,false,true
++T3_04,10101010101,101010101011011,3,"4;5;6",101001001011011,1000,true,11,0000,CORRECTED_SINGLE_ERROR,101001001010011,10100100101,false,false,true
++T3_04,01010101010,010101010100100,3,"4;5;6",010110110100100,1000,true,11,0000,CORRECTED_SINGLE_ERROR,010110110101100,01011011010,false,false,true
++T3_05,00000000000,000000000000000,3,"2;8;13",001000001000010,0001,true,14,0000,CORRECTED_SINGLE_ERROR,001000001000011,00100000100,false,false,true
++T3_05,11111111111,111111111111111,3,"2;8;13",110111110111101,0001,true,14,0000,CORRECTED_SINGLE_ERROR,110111110111100,11011111011,false,false,true
++T3_05,10101010101,101010101011011,3,"2;8;13",100010100011001,0001,true,14,0000,CORRECTED_SINGLE_ERROR,100010100011000,10001010001,false,false,true
++T3_05,01010101010,010101010100100,3,"2;8;13",011101011100110,0001,true,14,0000,CORRECTED_SINGLE_ERROR,011101011100111,01110101110,false,false,true
++T3_06,00000000000,000000000000000,3,"10;11;12",000000000011100,1111,true,2,0000,CORRECTED_SINGLE_ERROR,001000000011100,00100000001,false,false,true
++T3_06,11111111111,111111111111111,3,"10;11;12",111111111100011,1111,true,2,0000,CORRECTED_SINGLE_ERROR,110111111100011,11011111110,false,false,true
++T3_06,10101010101,101010101011011,3,"10;11;12",101010101000111,1111,true,2,0000,CORRECTED_SINGLE_ERROR,100010101000111,10001010100,false,false,true
++T3_06,01010101010,010101010100100,3,"10;11;12",010101010111000,1111,true,2,0000,CORRECTED_SINGLE_ERROR,011101010111000,01110101011,false,false,true
++T4_01,00000000000,000000000000000,4,"0;1;2;3",111100000000000,0101,true,6,0000,CORRECTED_SINGLE_ERROR,111100100000000,11110010000,false,false,true
++T4_01,11111111111,111111111111111,4,"0;1;2;3",000011111111111,0101,true,6,0000,CORRECTED_SINGLE_ERROR,000011011111111,00001101111,false,false,true
++T4_01,10101010101,101010101011011,4,"0;1;2;3",010110101011011,0101,true,6,0000,CORRECTED_SINGLE_ERROR,010110001011011,01011000101,false,false,true
++T4_01,01010101010,010101010100100,4,"0;1;2;3",101001010100100,0101,true,6,0000,CORRECTED_SINGLE_ERROR,101001110100100,10100111010,false,false,true
++T4_02,00000000000,000000000000000,4,"0;10;11;14",100000000011001,0011,true,10,0000,CORRECTED_SINGLE_ERROR,100000000001001,10000000000,false,false,true
++T4_02,11111111111,111111111111111,4,"0;10;11;14",011111111100110,0011,true,10,0000,CORRECTED_SINGLE_ERROR,011111111110110,01111111111,false,false,true
++T4_02,10101010101,101010101011011,4,"0;10;11;14",001010101000010,0011,true,10,0000,CORRECTED_SINGLE_ERROR,001010101010010,00101010101,false,false,true
++T4_02,01010101010,010101010100100,4,"0;10;11;14",110101010111101,0011,true,10,0000,CORRECTED_SINGLE_ERROR,110101010101101,11010101010,false,false,true
++T4_03,00000000000,000000000000000,4,"1;5;9;13",010001000100010,0011,true,10,0000,CORRECTED_SINGLE_ERROR,010001000110010,01000100011,false,false,true
++T4_03,11111111111,111111111111111,4,"1;5;9;13",101110111011101,0011,true,10,0000,CORRECTED_SINGLE_ERROR,101110111001101,10111011100,false,false,true
++T4_03,10101010101,101010101011011,4,"1;5;9;13",111011101111001,0011,true,10,0000,CORRECTED_SINGLE_ERROR,111011101101001,11101110110,false,false,true
++T4_03,01010101010,010101010100100,4,"1;5;9;13",000100010000110,0011,true,10,0000,CORRECTED_SINGLE_ERROR,000100010010110,00010001001,false,false,true
++T4_04,00000000000,000000000000000,4,"11;12;13;14",000000000001111,1111,true,2,0000,CORRECTED_SINGLE_ERROR,001000000001111,00100000000,false,false,true
++T4_04,11111111111,111111111111111,4,"11;12;13;14",111111111110000,1111,true,2,0000,CORRECTED_SINGLE_ERROR,110111111110000,11011111111,false,false,true
++T4_04,10101010101,101010101011011,4,"11;12;13;14",101010101010100,1111,true,2,0000,CORRECTED_SINGLE_ERROR,100010101010100,10001010101,false,false,true
++T4_04,01010101010,010101010100100,4,"11;12;13;14",010101010101011,1111,true,2,0000,CORRECTED_SINGLE_ERROR,011101010101011,01110101010,false,false,true
++T4_05,00000000000,000000000000000,4,"2;3;10;14",001100000010001,0011,true,10,0000,CORRECTED_SINGLE_ERROR,001100000000001,00110000000,false,false,true
++T4_05,11111111111,111111111111111,4,"2;3;10;14",110011111101110,0011,true,10,0000,CORRECTED_SINGLE_ERROR,110011111111110,11001111111,false,false,true
++T4_05,10101010101,101010101011011,4,"2;3;10;14",100110101001010,0011,true,10,0000,CORRECTED_SINGLE_ERROR,100110101011010,10011010101,false,false,true
++T4_05,01010101010,010101010100100,4,"2;3;10;14",011001010110101,0011,true,10,0000,CORRECTED_SINGLE_ERROR,011001010100101,01100101010,false,false,true
++T4_06,00000000000,000000000000000,4,"4;7;11;13",000010010001010,0110,true,9,0000,CORRECTED_SINGLE_ERROR,000010010101010,00001001010,false,false,true
++T4_06,11111111111,111111111111111,4,"4;7;11;13",111101101110101,0110,true,9,0000,CORRECTED_SINGLE_ERROR,111101101010101,11110110101,false,false,true
++T4_06,10101010101,101010101011011,4,"4;7;11;13",101000111010001,0110,true,9,0000,CORRECTED_SINGLE_ERROR,101000111110001,10100011111,false,false,true
++T4_06,01010101010,010101010100100,4,"4;7;11;13",010111000101110,0110,true,9,0000,CORRECTED_SINGLE_ERROR,010111000001110,01011100000,false,false,true
+diff --git a/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/no_error_summary.csv b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/no_error_summary.csv
+new file mode 100644
+index 0000000..e6ebc9d
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/no_error_summary.csv
+@@ -0,0 +1,7 @@
++metric,value
++noErrorCaseCount,2048
++noErrorPayloadMismatch,0
++noErrorCodewordMismatch,0
++noErrorStatusMismatch,0
++noErrorLookupHitMismatch,0
++noErrorSyndromeMismatch,0
+diff --git a/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/single_error_summary.csv b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/single_error_summary.csv
+new file mode 100644
+index 0000000..bd3bf09
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/single_error_summary.csv
+@@ -0,0 +1,9 @@
++metric,value
++singleErrorCaseCount,30720
++singleErrorPayloadMismatch,0
++correctedPositionMismatch,0
++postSyndromeMismatch,0
++lookupMissForSingleError,0
++singleErrorStatusMismatch,0
++singleErrorCodewordMismatch,0
++singleErrorSyndromeBeforeMismatch,0
+diff --git a/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/status_summary.csv b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/status_summary.csv
+new file mode 100644
+index 0000000..1c5f1ea
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/status_summary.csv
+@@ -0,0 +1,5 @@
++status,count
++NO_ERROR,0
++CORRECTED_SINGLE_ERROR,215040
++POST_CHECK_FAILED,0
++UNRECOGNIZED_SYNDROME,0
+diff --git a/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/test_summary.csv b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/test_summary.csv
+new file mode 100644
+index 0000000..dcb28f8
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch04_lookup_decoder_audit/test_summary.csv
+@@ -0,0 +1,18 @@
++metric,value
++noErrorCaseCount,2048
++singleErrorCaseCount,30720
++doubleErrorCaseCount,215040
++fixedSeedCaseCount,48
++noErrorPayloadMismatch,0
++singleErrorPayloadMismatch,0
++correctedPositionMismatch,0
++postSyndromeMismatch,0
++lookupMissForSingleError,0
++decodedToOriginalCodeword,0
++decodedToOriginalPayload,0
++miscorrectedToAnotherValidCodeword,215040
++reportedCorrectedButPayloadWrong,215040
++unrecognizedSyndromeStatusMismatch,0
++postCheckFailedStatusMismatch,0
++invalidTablePositionMismatch,0
++invalidInputMismatch,0
