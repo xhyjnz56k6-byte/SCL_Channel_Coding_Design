@@ -1,0 +1,59 @@
+{
+  "stage": "bch16_segmented_vs_block_comparison",
+  "baseCommit": "0dba246dffbd1f3b13223a862cef3087d3a1c02b",
+  "functionalCommit": "fd3dd8d9070698854745d3be5b4e2b2f4609da0e",
+  "resultCommit": "03c8d7616ee4006da6f020accc872964585c4113",
+  "branch": "bch-group4-awgn-formal-comparison",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "0dba246dffbd1f3b13223a862cef3087d3a1c02b",
+      "contentCommit": "3ac4936a274f40082864c505f50d7a5f36b27b75",
+      "files": [
+        "Task/BCH/simulation/scripts/compare_bch_cases.py",
+        "Task/BCH/simulation/scripts/plot_bch_comparison.py",
+        "Task/BCH/simulation/scripts/run_bch_group4.py",
+        "Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/frozen_config.csv",
+        "Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/stage_plan.md"
+      ]
+    },
+    {
+      "name": "conclusionRepair",
+      "baseCommit": "3ac4936a274f40082864c505f50d7a5f36b27b75",
+      "contentCommit": "f4bf02f15e9fdaf821470fda21fbc44145c1165a",
+      "files": ["Task/BCH/simulation/scripts/compare_bch_cases.py"]
+    },
+    {
+      "name": "plotAndPublisherAudit",
+      "baseCommit": "f4bf02f15e9fdaf821470fda21fbc44145c1165a",
+      "contentCommit": "fd3dd8d9070698854745d3be5b4e2b2f4609da0e",
+      "files": [
+        "Task/BCH/simulation/scripts/audit_bch_group4.py",
+        "Task/BCH/simulation/scripts/plot_bch_comparison.py"
+      ]
+    }
+  ],
+  "commonNoisePolicyVersion": 1,
+  "framePoolVersion": "common03.frame_pool_manifest.v2",
+  "globalSeed": 2026072201,
+  "caseConfigs": ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"],
+  "snrGrid": "COMMITTED_BCH15_FORMAL_65_POINTS",
+  "stopConfig": "NOT_APPLICABLE_POST_PROCESSING",
+  "testCounts": {"inputPoints": 65, "interpolationRows": 12, "gainRows": 6, "comparisonRows": 4},
+  "formalPointCounts": 65,
+  "processedFrames": 1134718,
+  "mismatchCounts": {"interpolation": 0, "gain": 0, "figureData": 0},
+  "checkpointAudit": "INHERITED_PASS_BCH15",
+  "resumeAudit": "INHERITED_PASS_BCH14",
+  "shardAudit": "INHERITED_PASS_BCH14",
+  "plotAudit": "PASS_4_MATPLOTLIB_PNG",
+  "pngCount": 4,
+  "nonPngPlotArtifactCount": 0,
+  "matplotlibVersion": "3.10.7",
+  "interpolationAudit": {"valid": 10, "invalidNoExtrapolation": 2},
+  "artifactHashes": {"index": "result_file_hashes.csv", "plotManifest": "plot_manifest.json"},
+  "gateStatus": "PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON",
+  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "mergeStatus": "NOT_MERGED"
+}

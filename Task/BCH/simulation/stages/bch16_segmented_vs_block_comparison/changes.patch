@@ -1,0 +1,445 @@
+﻿diff --git a/Task/BCH/simulation/scripts/audit_bch_group4.py b/Task/BCH/simulation/scripts/audit_bch_group4.py
+index 550bf91..c4116a0 100644
+--- a/Task/BCH/simulation/scripts/audit_bch_group4.py
++++ b/Task/BCH/simulation/scripts/audit_bch_group4.py
+@@ -227,9 +227,53 @@ def publish_bch15(results: Path, stage: Path) -> None:
+     print(f"PASS_BCH15_ARTIFACT_PUBLISH files={len(hash_rows)} png=15 nonPngPlot=0")
+ 
+ 
++def publish_bch16(results: Path, stage: Path) -> None:
++    expected_pngs = ["bch_200bit_rate_performance_comparison.png",
++                     "bch_300bit_rate_performance_comparison.png",
++                     "bch_decode_time_comparison.png", "bch_complexity_comparison.png"]
++    required = ["comparison_summary.csv", "interpolation_audit.csv", "coding_gain_summary.csv",
++                "complexity_comparison.csv", "recommendations.md", "plot_manifest.json",
++                "figure_data_audit.csv"]
++    for name in required + expected_pngs:
++        source = results / name
++        if not source.is_file(): raise SystemExit(f"missing BCH-16 artifact: {source}")
++        shutil.copy2(source, stage / name)
++    for source in sorted(results.glob("figure_data_*.csv")):
++        if source.name != "figure_data_audit.csv": shutil.copy2(source, stage / source.name)
++    forbidden = [path for path in results.rglob("*") if path.suffix.lower() in FORBIDDEN_PLOT_SUFFIXES]
++    if forbidden: raise SystemExit("BLOCKED_BCH16_FIGURE_DATA_MISMATCH")
++    manifest = json.loads((stage / "plot_manifest.json").read_text(encoding="utf-8"))
++    if len(manifest) != 4 or {item["filename"] for item in manifest} != set(expected_pngs):
++        raise SystemExit("BCH-16 plot manifest mismatch")
++    for item in manifest:
++        path = stage / item["filename"]
++        if path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n" or sha256(path) != item["sha256"]:
++            raise SystemExit("BLOCKED_BCH16_FIGURE_DATA_MISMATCH")
++    with (stage / "comparison_summary.csv").open(newline="", encoding="utf-8-sig") as handle:
++        comparisons = list(csv.DictReader(handle))
++    with (stage / "interpolation_audit.csv").open(newline="", encoding="utf-8-sig") as handle:
++        interpolations = list(csv.DictReader(handle))
++    if len(comparisons) != 4 or len(interpolations) != 12:
++        raise SystemExit("BLOCKED_BCH16_COMPARISON_INPUT_INCOMPLETE")
++    invalid = [row for row in interpolations if row["interpolationValid"] == "false"]
++    if len(invalid) != 2 or any(row["interpolatedEbN0"] for row in invalid):
++        raise SystemExit("BLOCKED_BCH16_INVALID_INTERPOLATION")
++    excluded = {"result_file_hashes.csv", "changes.patch", "manifest.json", "git_commit.txt"}
++    hash_rows = []
++    for path in sorted(stage.iterdir()):
++        if path.is_file() and path.name not in excluded:
++            row_count = max(0, len(path.read_text(encoding="utf-8-sig").splitlines()) - 1) if path.suffix.lower() == ".csv" else 0
++            hash_rows.append({"path": path.name, "bytes": path.stat().st_size,
++                              "rowCount": row_count, "sha256": sha256(path)})
++    with (stage / "result_file_hashes.csv").open("w", newline="", encoding="utf-8") as handle:
++        writer = csv.DictWriter(handle, fieldnames=["path", "bytes", "rowCount", "sha256"])
++        writer.writeheader(); writer.writerows(hash_rows)
++    print(f"PASS_BCH16_ARTIFACT_PUBLISH files={len(hash_rows)} png=4 nonPngPlot=0")
++
++
+ def main() -> int:
+     parser = argparse.ArgumentParser()
+-    parser.add_argument("--stage", choices=["bch12", "bch13", "bch14", "bch15"], required=True)
++    parser.add_argument("--stage", choices=["bch12", "bch13", "bch14", "bch15", "bch16"], required=True)
+     parser.add_argument("--results-dir", type=Path, required=True)
+     parser.add_argument("--stage-dir", type=Path, required=True)
+     args = parser.parse_args()
+@@ -240,8 +284,10 @@ def main() -> int:
+         publish_bch13(args.results_dir.resolve(), args.stage_dir.resolve())
+     elif args.stage == "bch14":
+         publish_bch14(args.results_dir.resolve(), args.stage_dir.resolve())
+-    else:
++    elif args.stage == "bch15":
+         publish_bch15(args.results_dir.resolve(), args.stage_dir.resolve())
++    else:
++        publish_bch16(args.results_dir.resolve(), args.stage_dir.resolve())
+     return 0
+ 
+ 
+diff --git a/Task/BCH/simulation/scripts/compare_bch_cases.py b/Task/BCH/simulation/scripts/compare_bch_cases.py
+new file mode 100644
+index 0000000..5c3f940
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/compare_bch_cases.py
+@@ -0,0 +1,162 @@
++#!/usr/bin/env python3
++"""Build the BCH-16 segmented-versus-block comparison without extrapolation."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++import math
++from pathlib import Path
++
++
++TARGETS = [1e-1, 1e-2, 1e-3]
++PAIRS = {200: ("BCH-S200", "BCH-B200"), 300: ("BCH-S300", "BCH-B300")}
++CASE_CONFIG = {
++    "BCH-S200": (200, 285, "SYNDROME_LOOKUP", "19 shortened BCH(15,11) segments"),
++    "BCH-B200": (200, 248, "BERLEKAMP_MASSEY_CHIEN", "shortened BCH(255,207), t=6"),
++    "BCH-S300": (300, 420, "SYNDROME_LOOKUP", "28 shortened BCH(15,11) segments"),
++    "BCH-B300": (300, 390, "BERLEKAMP_MASSEY_CHIEN", "shortened BCH(511,421), t=10"),
++}
++
++
++def read_rows(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8-sig") as handle:
++        return list(csv.DictReader(handle))
++
++
++def write_rows(path: Path, rows: list[dict[str, object]]) -> None:
++    with path.open("w", newline="", encoding="utf-8") as handle:
++        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
++        writer.writeheader(); writer.writerows(rows)
++
++
++def interpolate(rows: list[dict[str, str]], target: float) -> tuple[float | None, dict[str, object]]:
++    ordered = sorted(rows, key=lambda row: float(row["ebn0Db"]))
++    exact = [row for row in ordered if math.isclose(float(row["FER"]), target, rel_tol=0.0, abs_tol=1e-15)]
++    if exact:
++        value = float(exact[0]["ebn0Db"])
++        point = f"EbN0={value:.6g};FER={target:.12g}"
++        return value, {"lowerPoint": point, "upperPoint": point, "interpolatedEbN0": value,
++                       "interpolationValid": "true", "reason": "EXACT_OBSERVATION"}
++    for left, right in zip(ordered, ordered[1:]):
++        left_fer, right_fer = float(left["FER"]), float(right["FER"])
++        if left_fer <= 0.0 or right_fer <= 0.0:
++            continue
++        if (left_fer - target) * (right_fer - target) < 0.0:
++            left_x, right_x = float(left["ebn0Db"]), float(right["ebn0Db"])
++            fraction = (math.log10(target) - math.log10(left_fer)) / (math.log10(right_fer) - math.log10(left_fer))
++            value = left_x + fraction * (right_x - left_x)
++            return value, {
++                "lowerPoint": f"EbN0={left_x:.6g};FER={left_fer:.12g}",
++                "upperPoint": f"EbN0={right_x:.6g};FER={right_fer:.12g}",
++                "interpolatedEbN0": value, "interpolationValid": "true",
++                "reason": "LOG10_FER_LINEAR_INTERPOLATION",
++            }
++    return None, {"lowerPoint": "", "upperPoint": "", "interpolatedEbN0": "",
++                  "interpolationValid": "false", "reason": "TARGET_NOT_BRACKETED_NO_EXTRAPOLATION"}
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--formal-summary", type=Path, required=True)
++    parser.add_argument("--output-dir", type=Path, required=True)
++    args = parser.parse_args(); args.output_dir.mkdir(parents=True, exist_ok=True)
++    rows = read_rows(args.formal_summary)
++    expected = {(case, float(row["ebn0Db"])) for case in CASE_CONFIG for row in rows if row["caseName"] == case}
++    if len(rows) != 65 or len(expected) != 65 or {row["caseName"] for row in rows} != set(CASE_CONFIG):
++        raise SystemExit("BLOCKED_BCH16_COMPARISON_INPUT_INCOMPLETE")
++
++    interpolation_rows: list[dict[str, object]] = []
++    interpolated: dict[tuple[str, float], float | None] = {}
++    for case in CASE_CONFIG:
++        case_rows = [row for row in rows if row["caseName"] == case]
++        for target in TARGETS:
++            value, audit = interpolate(case_rows, target); interpolated[(case, target)] = value
++            interpolation_rows.append({"caseName": case, "targetFer": target, **audit})
++    write_rows(args.output_dir / "interpolation_audit.csv", interpolation_rows)
++
++    gain_rows: list[dict[str, object]] = []
++    for payload, (segmented, block) in PAIRS.items():
++        for target in TARGETS:
++            seg_value, block_value = interpolated[(segmented, target)], interpolated[(block, target)]
++            valid = seg_value is not None and block_value is not None
++            gain_rows.append({"payloadLength": payload, "targetFer": target,
++                              "segmentedEbN0": "" if seg_value is None else seg_value,
++                              "blockEbN0": "" if block_value is None else block_value,
++                              "gainBlockVsSegmented": "" if not valid else seg_value - block_value,
++                              "gainValid": str(valid).lower(),
++                              "reason": "BOTH_CASES_BRACKET_TARGET" if valid else "AT_LEAST_ONE_CASE_NOT_BRACKETED"})
++    write_rows(args.output_dir / "coding_gain_summary.csv", gain_rows)
++
++    comparison_rows: list[dict[str, object]] = []
++    for case, (payload, encoded, decoder, structure) in CASE_CONFIG.items():
++        case_rows = [row for row in rows if row["caseName"] == case]
++        total_frames = sum(int(row["processedFrames"]) for row in case_rows)
++        representative = min(case_rows, key=lambda row: abs(math.log10(float(row["FER"])) - math.log10(1e-2)))
++        recommendation = ("Prefer for AWGN performance, rate, and compact codeword" if case.startswith("BCH-B") else
++                          "Prefer when tiny fixed lookup blocks and regular parallel structure dominate")
++        comparison_rows.append({
++            "payloadLength": payload, "caseName": case, "encodedLength": encoded,
++            "frameRate": payload / encoded, "redundancyBits": encoded - payload,
++            "decoderType": decoder, "correctionStructure": structure,
++            "EbN0AtFer1e1": "" if interpolated[(case, 1e-1)] is None else interpolated[(case, 1e-1)],
++            "EbN0AtFer1e2": "" if interpolated[(case, 1e-2)] is None else interpolated[(case, 1e-2)],
++            "EbN0AtFer1e3": "" if interpolated[(case, 1e-3)] is None else interpolated[(case, 1e-3)],
++            "avgDecodeTimeUs": sum(float(row["avgDecodeTimeUs"]) * int(row["processedFrames"]) for row in case_rows) / total_frames,
++            "p95DecodeTimeUs": max(float(row["p95DecodeTimeUs"]) for row in case_rows),
++            "p99DecodeTimeUs": max(float(row["p99DecodeTimeUs"]) for row in case_rows),
++            "maxDecodeTimeUs": max(float(row["maxDecodeTimeUs"]) for row in case_rows),
++            "miscorrectionRateAtRepresentativePoint": representative["miscorrectionRate"],
++            "decoderFailureRateAtRepresentativePoint": representative["decoderFailureRate"],
++            "representativePointEbN0Db": representative["ebn0Db"],
++            "representativePointFer": representative["FER"],
++            "complexitySummary": structure, "recommendation": recommendation,
++        })
++    write_rows(args.output_dir / "comparison_summary.csv", comparison_rows)
++
++    complexity_rows = [
++        {"caseName": "BCH-S200", "segmentCount": 19, "syndromeLookupCount": 19, "maxLookupTableSize": 15,
++         "perFrameBlockLoops": 19, "syndromeCount": "", "bmIterationCount": "", "chienSearchLength": "", "gfOperationProfile": "table lookup per segment"},
++        {"caseName": "BCH-B200", "segmentCount": "", "syndromeLookupCount": "", "maxLookupTableSize": "",
++         "perFrameBlockLoops": "", "syndromeCount": 12, "bmIterationCount": 12, "chienSearchLength": 255, "gfOperationProfile": "GF(2^8) BM and Chien"},
++        {"caseName": "BCH-S300", "segmentCount": 28, "syndromeLookupCount": 28, "maxLookupTableSize": 15,
++         "perFrameBlockLoops": 28, "syndromeCount": "", "bmIterationCount": "", "chienSearchLength": "", "gfOperationProfile": "table lookup per segment"},
++        {"caseName": "BCH-B300", "segmentCount": "", "syndromeLookupCount": "", "maxLookupTableSize": "",
++         "perFrameBlockLoops": "", "syndromeCount": 20, "bmIterationCount": 20, "chienSearchLength": 511, "gfOperationProfile": "GF(2^9) BM and Chien"},
++    ]
++    write_rows(args.output_dir / "complexity_comparison.csv", complexity_rows)
++    summary_by_case = {str(row["caseName"]): row for row in comparison_rows}
++    gain_by_key = {(int(row["payloadLength"]), float(row["targetFer"])): row for row in gain_rows}
++    gain_200_1e1 = float(gain_by_key[(200, 1e-1)]["gainBlockVsSegmented"])
++    gain_200_1e2 = float(gain_by_key[(200, 1e-2)]["gainBlockVsSegmented"])
++    gain_300_1e1 = float(gain_by_key[(300, 1e-1)]["gainBlockVsSegmented"])
++    gain_300_1e2 = float(gain_by_key[(300, 1e-2)]["gainBlockVsSegmented"])
++    (args.output_dir / "recommendations.md").write_text(
++        "# BCH-16 recommendations\n\n"
++        f"For 200-bit payloads, BCH-B200 uses 248 transmitted bits at rate 0.8065 versus BCH-S200's 285 bits at "
++        f"rate 0.7018. It needs {gain_200_1e1:.3f} dB less Eb/N0 at FER=1e-1 and {gain_200_1e2:.3f} dB less at "
++        f"FER=1e-2. BCH-S200 did not bracket 1e-3, so no paired 1e-3 gain is claimed. BCH-S200's frame-weighted "
++        f"average software decode time is {float(summary_by_case['BCH-S200']['avgDecodeTimeUs']):.3f} us versus "
++        f"{float(summary_by_case['BCH-B200']['avgDecodeTimeUs']):.3f} us for BCH-B200. Choose BCH-B200 for AWGN "
++        "BER/FER, rate, and fewer transmitted/stored codeword bits; choose BCH-S200 for tiny fixed lookup tables, "
++        "independent-block parallel hardware, and lower measured software latency.\n\n"
++        f"For 300-bit payloads, BCH-B300 uses 390 transmitted bits at rate 0.7692 versus BCH-S300's 420 bits at "
++        f"rate 0.7143. It needs {gain_300_1e1:.3f} dB less Eb/N0 at FER=1e-1 and {gain_300_1e2:.3f} dB less at "
++        f"FER=1e-2. BCH-B300 did not bracket 1e-3, so no paired 1e-3 gain is claimed. BCH-S300's frame-weighted "
++        f"average software decode time is {float(summary_by_case['BCH-S300']['avgDecodeTimeUs']):.3f} us versus "
++        f"{float(summary_by_case['BCH-B300']['avgDecodeTimeUs']):.3f} us for BCH-B300. Choose BCH-B300 for AWGN "
++        "BER/FER, rate, and fewer transmitted/stored codeword bits; choose BCH-S300 for regular segment parallelism, "
++        "small lookup tables, and lower measured software latency.\n\n"
++        "True success is exactly one minus payload FER. Reported-success semantics differ: segmented miscorrections "
++        "remain reported successes, while whole-block bounded-distance failures are explicit decoder failures. Therefore "
++        "true success, reported success, miscorrection, and decoder failure must be interpreted together. Tail timing "
++        "uses the worst per-point P95/P99/max rather than claiming an unavailable pooled quantile. Structural counts are "
++        "not operation-equivalent: segmented lookup loops favor simple parallel control, whereas BM/Chien decoding uses "
++        "more GF arithmetic but avoids many independent segment decisions.\n\n"
++        "突发错误和交织影响留待 BCH-17。\n", encoding="utf-8")
++    print("PASS_BCH16_COMPARISON_TABLES cases=4 interpolationRows=12 gains=6")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/plot_bch_comparison.py b/Task/BCH/simulation/scripts/plot_bch_comparison.py
+new file mode 100644
+index 0000000..2a22037
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/plot_bch_comparison.py
+@@ -0,0 +1,122 @@
++#!/usr/bin/env python3
++"""Generate and audit the four BCH-16 comparison PNG figures."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++import hashlib
++import json
++from pathlib import Path
++
++import matplotlib
++
++matplotlib.use("Agg")
++import matplotlib.pyplot as plt
++
++
++def read_rows(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8-sig") as handle: return list(csv.DictReader(handle))
++
++
++def write_rows(path: Path, rows: list[dict[str, object]]) -> None:
++    with path.open("w", newline="", encoding="utf-8") as handle:
++        writer = csv.DictWriter(handle, fieldnames=list(rows[0])); writer.writeheader(); writer.writerows(rows)
++
++
++def sha(path: Path) -> str: return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def save_performance(formal: list[dict[str, str]], payload: int, output: Path, manifest: list[dict[str, object]]) -> None:
++    filename = f"bch_{payload}bit_rate_performance_comparison.png"
++    cases = [f"BCH-S{payload}", f"BCH-B{payload}"]; figure_data: list[dict[str, object]] = []
++    fig, axis = plt.subplots(figsize=(9.0, 5.4))
++    try:
++        for case in cases:
++            rows = sorted((row for row in formal if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
++            x = [float(row["ebn0Db"]) for row in rows]; y = [float(row["FER"]) for row in rows]
++            axis.plot(x, y, marker="o", markersize=3, label=f"{case} (R={float(rows[0]['frameRate']):.4f})")
++            figure_data.extend({"caseName": case, "ebn0Db": a, "FER": b, "frameRate": rows[0]["frameRate"]} for a, b in zip(x, y))
++        axis.set_title(f"BCH-16 {payload}-bit segmented vs block AWGN performance")
++        axis.set_xlabel("Payload Eb/N0 (dB)"); axis.set_ylabel("Payload FER"); axis.set_yscale("log")
++        axis.grid(True, which="both", alpha=0.3); axis.legend(); fig.savefig(output / filename, dpi=240, bbox_inches="tight")
++    finally: plt.close(fig)
++    data_name = f"figure_data_{Path(filename).stem}.csv"; write_rows(output / data_name, figure_data)
++    manifest.append({"filename": filename, "sourceCsv": "formal_summary.csv", "figureDataCsv": data_name,
++                     "sha256": sha(output / filename), "dpi": 240, "xColumn": "ebn0Db", "yColumn": "FER",
++                     "logScale": True, "zeroHandlingPolicy": "NO_ZERO_OBSERVATIONS",
++                     "generatedBy": "plot_bch_comparison.py", "matplotlibVersion": matplotlib.__version__})
++
++
++def save_timing(formal: list[dict[str, str]], output: Path, manifest: list[dict[str, object]]) -> None:
++    filename = "bch_decode_time_comparison.png"; data: list[dict[str, object]] = []
++    fig, axis = plt.subplots(figsize=(9.0, 5.4))
++    try:
++        for case in ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"]:
++            rows = sorted((row for row in formal if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
++            x = [float(row["ebn0Db"]) for row in rows]; y = [float(row["avgDecodeTimeUs"]) for row in rows]
++            axis.plot(x, y, marker="o", markersize=3, label=case)
++            data.extend({"caseName": case, "ebn0Db": a, "avgDecodeTimeUs": b} for a, b in zip(x, y))
++        axis.set_title("BCH-16 average software decode time"); axis.set_xlabel("Payload Eb/N0 (dB)")
++        axis.set_ylabel("Average decode time (us)"); axis.grid(True, alpha=0.3); axis.legend()
++        fig.savefig(output / filename, dpi=240, bbox_inches="tight")
++    finally: plt.close(fig)
++    data_name = f"figure_data_{Path(filename).stem}.csv"; write_rows(output / data_name, data)
++    manifest.append({"filename": filename, "sourceCsv": "formal_summary.csv", "figureDataCsv": data_name,
++                     "sha256": sha(output / filename), "dpi": 240, "xColumn": "ebn0Db", "yColumn": "avgDecodeTimeUs",
++                     "logScale": False, "zeroHandlingPolicy": "RAW_LINEAR", "generatedBy": "plot_bch_comparison.py",
++                     "matplotlibVersion": matplotlib.__version__})
++
++
++def save_complexity(complexity: list[dict[str, str]], output: Path, manifest: list[dict[str, object]]) -> None:
++    filename = "bch_complexity_comparison.png"; metrics = ["segmentCount", "syndromeCount", "bmIterationCount", "chienSearchLength"]
++    data: list[dict[str, object]] = []
++    fig, axis = plt.subplots(figsize=(9.0, 5.4))
++    try:
++        x = list(range(len(complexity))); width = 0.8 / len(metrics)
++        for index, metric in enumerate(metrics):
++            values = [float(row[metric]) if row[metric] else 0.0 for row in complexity]
++            axis.bar([value + index * width for value in x], values, width=width, label=metric)
++            data.extend({"caseName": row["caseName"], "metric": metric, "value": value} for row, value in zip(complexity, values))
++        axis.set_xticks([value + width * 1.5 for value in x], [row["caseName"] for row in complexity])
++        axis.set_title("BCH-16 theoretical decoder structure counts"); axis.set_ylabel("Structural count (not operation-equivalent)")
++        axis.grid(True, axis="y", alpha=0.3); axis.legend(); fig.savefig(output / filename, dpi=240, bbox_inches="tight")
++    finally: plt.close(fig)
++    data_name = f"figure_data_{Path(filename).stem}.csv"; write_rows(output / data_name, data)
++    manifest.append({"filename": filename, "sourceCsv": "complexity_comparison.csv", "figureDataCsv": data_name,
++                     "sha256": sha(output / filename), "dpi": 240, "xColumn": "caseName", "yColumn": "value",
++                     "logScale": False, "zeroHandlingPolicy": "MISSING_DIMENSION_SHOWN_AS_ZERO",
++                     "generatedBy": "plot_bch_comparison.py", "matplotlibVersion": matplotlib.__version__})
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--formal-summary", type=Path, required=True)
++    parser.add_argument("--complexity", type=Path, required=True)
++    parser.add_argument("--output-dir", type=Path, required=True)
++    args = parser.parse_args(); args.output_dir.mkdir(parents=True, exist_ok=True)
++    formal, complexity = read_rows(args.formal_summary), read_rows(args.complexity)
++    manifest: list[dict[str, object]] = []
++    save_performance(formal, 200, args.output_dir, manifest); save_performance(formal, 300, args.output_dir, manifest)
++    save_timing(formal, args.output_dir, manifest); save_complexity(complexity, args.output_dir, manifest)
++    (args.output_dir / "plot_manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
++    audit_rows: list[dict[str, object]] = []
++    for item in manifest:
++        for row in read_rows(args.output_dir / str(item["figureDataCsv"])):
++            metric = str(item["yColumn"]); raw = row[metric]
++            audit_rows.append({"filename": item["filename"], "caseName": row["caseName"],
++                               "ebn0Db": row.get("ebn0Db", ""), "metric": metric,
++                               "rawValue": raw, "plottedValue": raw,
++                               "zeroHandlingPolicy": item["zeroHandlingPolicy"]})
++    write_rows(args.output_dir / "figure_data_audit.csv", audit_rows)
++    forbidden = [path for path in args.output_dir.rglob("*") if path.suffix.lower() in {".pdf", ".svg", ".eps", ".ps"}]
++    if forbidden: raise SystemExit("BLOCKED_BCH16_FIGURE_DATA_MISMATCH")
++    if len(manifest) != 4: raise SystemExit("BCH-16 plot count mismatch")
++    for item in manifest:
++        path = args.output_dir / str(item["filename"])
++        if path.stat().st_size < 1000 or path.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n": raise SystemExit("invalid BCH-16 PNG")
++    print(f"PASS_BCH16_PLOT_AUDIT png=4 matplotlib={matplotlib.__version__}")
++    return 0
++
++
++if __name__ == "__main__": raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/run_bch_group4.py b/Task/BCH/simulation/scripts/run_bch_group4.py
+index 77aec7a..9ea9b0c 100644
+--- a/Task/BCH/simulation/scripts/run_bch_group4.py
++++ b/Task/BCH/simulation/scripts/run_bch_group4.py
+@@ -501,6 +501,25 @@ def run_bch15(args: argparse.Namespace, repo: Path, build: Path, results: Path)
+     print(f"PASS_BCH15_AWGN_FORMAL casePoints={case_points} frames={sum(int(row['processedFrames']) for row in output_rows)}")
+ 
+ 
++def run_bch16(repo: Path, results: Path) -> None:
++    comparison = results / "comparison"
++    if comparison.exists(): shutil.rmtree(comparison)
++    comparison.mkdir(parents=True)
++    formal = repo / "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv"
++    if not formal.is_file(): raise SystemExit("BLOCKED_BCH16_COMPARISON_INPUT_INCOMPLETE")
++    print("[6/6] BCH-16 execution plan")
++    print("Pairs: BCH-S200/BCH-B200 and BCH-S300/BCH-B300 | target FER: 1e-1, 1e-2, 1e-3")
++    print(f"Interpolation: adjacent log10(FER), no extrapolation | PNG: 4 | Output: {comparison}")
++    print("[BCH-16] step 1/2 comparison tables", flush=True)
++    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/compare_bch_cases.py"),
++         "--formal-summary", str(formal), "--output-dir", str(comparison)], repo)
++    print("[BCH-16] step 2/2 matplotlib figures", flush=True)
++    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/plot_bch_comparison.py"),
++         "--formal-summary", str(formal), "--complexity", str(comparison / "complexity_comparison.csv"),
++         "--output-dir", str(comparison)], repo)
++    print("PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON")
++
++
+ def main() -> int:
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
+@@ -549,8 +568,8 @@ def main() -> int:
+         run_bch14(args, repo, build, results)
+     if selected in {"bch15", "all"}:
+         run_bch15(args, repo, build, results)
+-    if selected in {"bch16"}:
+-        raise SystemExit("requested stage is not implemented in the current ordered functional range")
++    if selected in {"bch16", "all"}:
++        run_bch16(repo, results)
+     return 0
+ 
+ 
+diff --git a/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/acceptance_matrix.csv b/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/acceptance_matrix.csv
+new file mode 100644
+index 0000000..baa51da
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/acceptance_matrix.csv
+@@ -0,0 +1,6 @@
++requirement,implementation,positiveTest,negativeTest,gate
++paired_comparison,compare_bch_cases.py,only matched payload pairs,input completeness rejection,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
++target_interpolation,compare_bch_cases.py,adjacent log-FER interpolation,unbracketed target remains blank,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
++complexity,complexity_comparison.csv,required theoretical counts,no operation-equivalence claim,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
++plots,plot_bch_comparison.py,four PNG and figure-data files,forbidden extension scan,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
++recommendations,recommendations.md,200/300 multidimensional conclusion,no burst/interleaver inference,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
+diff --git a/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/frozen_config.csv b/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/frozen_config.csv
+new file mode 100644
+index 0000000..76bcd8e
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/frozen_config.csv
+@@ -0,0 +1,2 @@
++stage,input,targetFerLevels,interpolation,extrapolation,plotCount
++BCH-16,Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv,1e-1;1e-2;1e-3,linear_in_log10_FER_vs_EbN0,forbidden,4
+diff --git a/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/stage_plan.md b/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/stage_plan.md
+new file mode 100644
+index 0000000..c8cef4e
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch16_segmented_vs_block_comparison/stage_plan.md
+@@ -0,0 +1,11 @@
++# BCH-16 specification freeze
++
++Goal: compare only BCH-S200 with BCH-B200 and BCH-S300 with BCH-B300 using committed BCH-15
++formal AWGN data. Produce target-FER interpolation audits, coding gains, theoretical structure
++counts, latency summaries, recommendations, and four matplotlib PNG files.
++
++Non-goals: no new channel simulation, no extrapolation, no interleaving, burst-error, fading, soft
++decoding, CC, or LDPC work. Interpolation is linear only between bracketing adjacent formal points
++in log10(FER) versus Eb/N0.
++
++Gate: `PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON`.
