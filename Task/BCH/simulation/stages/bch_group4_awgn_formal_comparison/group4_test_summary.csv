@@ -13,6 +13,7 @@ block_matlab_decode_detail,PASS,1,0,PASS_BCH10_CPP_MATLAB_DETAIL_REFERENCE
 block_matlab_illegal_input,PASS,10,0,PASS_BCH10_ILLEGAL_INPUT_REFERENCE
 block_matlab_toolbox_codec,PASS,5104,0,PASS_BCH10_TOOLBOX_CODEC_REFERENCE
 bch11_noiseless,PASS,828,0,bch11 validation report
+bch11_ordered_runner_entry,PASS,1,0,--stage bch11 rebuild and dedicated CTest
 bch12_smoke,PASS,4000,0,bch12 validation report
 bch13_prescan,PASS,168000,0,bch13 validation report
 bch14_infrastructure,PASS,78650,0,bch14 validation report

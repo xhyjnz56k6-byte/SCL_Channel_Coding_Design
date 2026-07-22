@@ -21,6 +21,9 @@ block and segmented references and BCH-07--10 parameter, toolbox, GF-detail (3,8
 frame-pool, decode-detail, illegal-input (10 rows), and toolbox-codec (5,104 single-error cases)
 references.
 
+The ordered runner's BCH-11 entry was executed after repair and passed its rebuild plus dedicated
+CTest, so `--all` now begins at BCH-11 before continuing through BCH-12--16.
+
 Across BCH-12, BCH-13, BCH-15, and BCH-16, 29 committed plots are PNG files generated only by
 matplotlib 3.10.7; the non-PNG plot artifact count is zero. Progress can be enabled/disabled, uses
 bounded refresh, records JSONL for simulation stages, includes checkpoint/shard state, and provides

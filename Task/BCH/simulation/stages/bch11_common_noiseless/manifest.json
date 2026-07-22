@@ -1,7 +1,7 @@
 {
   "stage": "bch11_common_noiseless",
   "baseCommit": "8c6f6593fa6c8999bdea600d72abe0e08099a2a3",
-  "functionalCommit": "7761d423b6cc7b1d5c7af0cb4621800561bc4bbf",
+  "functionalCommit": "d94fcbe24c630fb76fc64f9d5e105f8a871b17d4",
   "branch": "bch-group4-awgn-formal-comparison",
   "functionalRanges": [
     {
@@ -19,6 +19,12 @@
         "Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_acceptance_matrix.csv",
         "Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_plan.md"
       ]
+    },
+    {
+      "name": "orderedRunnerRepair",
+      "baseCommit": "1681d125a415fa9b53a1ace709205f8abb1f94f9",
+      "contentCommit": "d94fcbe24c630fb76fc64f9d5e105f8a871b17d4",
+      "files": ["Task/BCH/simulation/scripts/run_bch_group4.py"]
     }
   ],
   "commonNoisePolicyVersion": 1,
@@ -39,6 +45,6 @@
   "nonPngPlotArtifactCount": 0,
   "artifactHashes": {},
   "gateStatus": "PASS_BCH11_COMMON_INTEGRATION_NOISELESS",
-  "remoteVerification": {"status": "PASS", "branch": "origin/bch-group4-awgn-formal-comparison", "verifiedHead": "d264b743f84c7b6c4ceb2d9367a39b7b40fc8e3b"},
+  "remoteVerification": {"status": "DEFERRED_AFTER_ORDERED_RUNNER_REPAIR"},
   "mergeStatus": "NOT_MERGED"
 }

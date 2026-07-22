@@ -7,4 +7,5 @@ cmake -S Task/BCH/simulation/current -B Task/BCH/simulation/build/current -G "Mi
 cmake --build Task/BCH/simulation/build/current --config Release -j 4
 ctest --test-dir Task/BCH/simulation/build/current --output-on-failure -R bch11_common_noiseless
 Task/BCH/simulation/build/current/test_bch11_noiseless.exe .../k200/manifest.json .../k300/manifest.json Task/BCH/simulation/stages/bch11_common_noiseless
+python Task/BCH/simulation/scripts/run_bch_group4.py --stage bch11 --no-progress
 ```
