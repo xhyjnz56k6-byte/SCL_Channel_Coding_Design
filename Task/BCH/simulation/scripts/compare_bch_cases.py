@@ -125,16 +125,34 @@ def main() -> int:
          "perFrameBlockLoops": "", "syndromeCount": 20, "bmIterationCount": 20, "chienSearchLength": 511, "gfOperationProfile": "GF(2^9) BM and Chien"},
     ]
     write_rows(args.output_dir / "complexity_comparison.csv", complexity_rows)
+    summary_by_case = {str(row["caseName"]): row for row in comparison_rows}
+    gain_by_key = {(int(row["payloadLength"]), float(row["targetFer"])): row for row in gain_rows}
+    gain_200_1e1 = float(gain_by_key[(200, 1e-1)]["gainBlockVsSegmented"])
+    gain_200_1e2 = float(gain_by_key[(200, 1e-2)]["gainBlockVsSegmented"])
+    gain_300_1e1 = float(gain_by_key[(300, 1e-1)]["gainBlockVsSegmented"])
+    gain_300_1e2 = float(gain_by_key[(300, 1e-2)]["gainBlockVsSegmented"])
     (args.output_dir / "recommendations.md").write_text(
         "# BCH-16 recommendations\n\n"
-        "For 200-bit payloads, BCH-B200 is recommended when AWGN FER, shorter encoded length, higher rate, and memory "
-        "efficiency dominate; BCH-S200 is recommended when small fixed tables, simple independent blocks, regular "
-        "parallel hardware, and substantially lower software decode latency dominate.\n\n"
-        "For 300-bit payloads, BCH-B300 is recommended when AWGN FER, shorter encoded length, higher rate, and memory "
-        "efficiency dominate; BCH-S300 is recommended when regular segment parallelism, small lookup tables, and lower "
-        "software decode latency dominate. Reported-success semantics differ: segmented miscorrrections are visible "
-        "while whole-block bounded-distance failures are explicitly reported, so both true success and status metrics "
-        "must accompany FER.\n\n"
+        f"For 200-bit payloads, BCH-B200 uses 248 transmitted bits at rate 0.8065 versus BCH-S200's 285 bits at "
+        f"rate 0.7018. It needs {gain_200_1e1:.3f} dB less Eb/N0 at FER=1e-1 and {gain_200_1e2:.3f} dB less at "
+        f"FER=1e-2. BCH-S200 did not bracket 1e-3, so no paired 1e-3 gain is claimed. BCH-S200's frame-weighted "
+        f"average software decode time is {float(summary_by_case['BCH-S200']['avgDecodeTimeUs']):.3f} us versus "
+        f"{float(summary_by_case['BCH-B200']['avgDecodeTimeUs']):.3f} us for BCH-B200. Choose BCH-B200 for AWGN "
+        "BER/FER, rate, and fewer transmitted/stored codeword bits; choose BCH-S200 for tiny fixed lookup tables, "
+        "independent-block parallel hardware, and lower measured software latency.\n\n"
+        f"For 300-bit payloads, BCH-B300 uses 390 transmitted bits at rate 0.7692 versus BCH-S300's 420 bits at "
+        f"rate 0.7143. It needs {gain_300_1e1:.3f} dB less Eb/N0 at FER=1e-1 and {gain_300_1e2:.3f} dB less at "
+        f"FER=1e-2. BCH-B300 did not bracket 1e-3, so no paired 1e-3 gain is claimed. BCH-S300's frame-weighted "
+        f"average software decode time is {float(summary_by_case['BCH-S300']['avgDecodeTimeUs']):.3f} us versus "
+        f"{float(summary_by_case['BCH-B300']['avgDecodeTimeUs']):.3f} us for BCH-B300. Choose BCH-B300 for AWGN "
+        "BER/FER, rate, and fewer transmitted/stored codeword bits; choose BCH-S300 for regular segment parallelism, "
+        "small lookup tables, and lower measured software latency.\n\n"
+        "True success is exactly one minus payload FER. Reported-success semantics differ: segmented miscorrections "
+        "remain reported successes, while whole-block bounded-distance failures are explicit decoder failures. Therefore "
+        "true success, reported success, miscorrection, and decoder failure must be interpreted together. Tail timing "
+        "uses the worst per-point P95/P99/max rather than claiming an unavailable pooled quantile. Structural counts are "
+        "not operation-equivalent: segmented lookup loops favor simple parallel control, whereas BM/Chien decoding uses "
+        "more GF arithmetic but avoids many independent segment decisions.\n\n"
         "突发错误和交织影响留待 BCH-17。\n", encoding="utf-8")
     print("PASS_BCH16_COMPARISON_TABLES cases=4 interpolationRows=12 gains=6")
     return 0
