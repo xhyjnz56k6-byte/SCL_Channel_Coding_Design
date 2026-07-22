@@ -2,6 +2,7 @@
 
 #include "bch_segmented/bch15_encoder.hpp"
 
+#include <algorithm>
 #include <stdexcept>
 
 namespace scl::bch::segmented {
@@ -32,8 +33,14 @@ void addBlockStatistics(Bch15SegmentedFrameDetail& frame, const Bch15DecodeDetai
     ++frame.totalBlocks;
     if (detail.status == Bch15DecodeStatus::NO_ERROR) ++frame.noErrorBlocks;
     if (detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++frame.correctedBlocks;
-    if (detail.lookupHit) ++frame.lookupHitBlocks; else ++frame.lookupMissBlocks;
+    if (detail.lookupHit) {
+        ++frame.lookupHitBlocks;
+    } else if (detail.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME) {
+        // syndrome=0 follows the NO_ERROR path and is not a lookup miss.
+        ++frame.lookupMissBlocks;
+    }
     if (detail.status == Bch15DecodeStatus::POST_CHECK_FAILED) ++frame.postCheckFailedBlocks;
+    if (detail.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME) ++frame.unrecognizedSyndromeBlocks;
     if (detail.status == Bch15DecodeStatus::NO_ERROR || detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++frame.reportedSuccessBlocks;
     // True miscorrection requires the original block as an oracle.  The
     // adapter preserves decoder facts; the test audit compares them to truth.
@@ -109,20 +116,47 @@ void auditBch15SegmentedRecovery(const common::BitVector& originalPayload,
 
     common::BitVector padded = originalPayload;
     padded.insert(padded.end(), result.config.fillerBits, 0U);
-    result.frameDetail.payloadCorrectBlocks = 0U;
-    result.frameDetail.payloadWrongBlocks = 0U;
+    result.frameDetail.paddedInformationCorrectBlocks = 0U;
+    result.frameDetail.paddedInformationWrongBlocks = 0U;
+    result.frameDetail.originalPayloadCorrectBlocks = 0U;
+    result.frameDetail.originalPayloadWrongBlocks = 0U;
+    result.frameDetail.fillerOnlyInformationMismatchBlocks = 0U;
+    result.frameDetail.reportedSuccessWrongBlockInformation = 0U;
+    result.frameDetail.reportedSuccessWrongOriginalPayload = 0U;
     result.frameDetail.miscorrectedBlocks = 0U;
     for (common::Length block = 0U; block < result.config.blockCount; ++block) {
         const auto begin = padded.begin() + static_cast<std::ptrdiff_t>(block * result.config.blockPayloadLength);
         const common::BitVector expected(begin, begin + static_cast<std::ptrdiff_t>(result.config.blockPayloadLength));
         const auto& detail = result.blockDetails[block].decoder;
-        if (detail.decodedMessage == expected) {
-            ++result.frameDetail.payloadCorrectBlocks;
+        const bool paddedInformationCorrect = detail.decodedMessage == expected;
+        const bool reportedSuccess = detail.status == Bch15DecodeStatus::NO_ERROR ||
+                                     detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR;
+        if (paddedInformationCorrect) {
+            ++result.frameDetail.paddedInformationCorrectBlocks;
         } else {
-            ++result.frameDetail.payloadWrongBlocks;
+            ++result.frameDetail.paddedInformationWrongBlocks;
+            if (reportedSuccess) ++result.frameDetail.reportedSuccessWrongBlockInformation;
             if (detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) {
                 ++result.frameDetail.miscorrectedBlocks;
             }
+        }
+
+        const common::Length payloadBitsInBlock =
+            block + 1U == result.config.blockCount
+                ? result.config.blockPayloadLength - result.config.fillerBits
+                : result.config.blockPayloadLength;
+        const bool originalPayloadCorrect = std::equal(
+            detail.decodedMessage.begin(),
+            detail.decodedMessage.begin() + static_cast<std::ptrdiff_t>(payloadBitsInBlock),
+            expected.begin());
+        if (originalPayloadCorrect) {
+            ++result.frameDetail.originalPayloadCorrectBlocks;
+            if (!paddedInformationCorrect) {
+                ++result.frameDetail.fillerOnlyInformationMismatchBlocks;
+            }
+        } else {
+            ++result.frameDetail.originalPayloadWrongBlocks;
+            if (reportedSuccess) ++result.frameDetail.reportedSuccessWrongOriginalPayload;
         }
     }
 }

@@ -27,7 +27,13 @@ struct Counters {
     unsigned multiBlockSingleErrorMismatch = 0U;
     unsigned sameBlockDoubleErrorCases = 0U;
     unsigned sameBlockDoubleRecoveredPayload = 0U;
-    unsigned sameBlockDoubleReportedSuccessWrongPayload = 0U;
+    unsigned reportedSuccessWrongBlockInformation = 0U;
+    unsigned reportedSuccessWrongOriginalPayload = 0U;
+    unsigned fillerOnlyInformationMismatch = 0U;
+    unsigned postCheckFailedStateRetentionCases = 0U;
+    unsigned postCheckFailedStateRetentionMismatch = 0U;
+    unsigned unrecognizedSyndromeStateRetentionCases = 0U;
+    unsigned unrecognizedSyndromeStateRetentionMismatch = 0U;
     unsigned fillerBoundaryCases = 0U;
     unsigned fillerBoundaryMismatch = 0U;
 };
@@ -142,7 +148,9 @@ Bch15SegmentedDecodeResult verifyNoiselessFrame(Bch15SegmentedCase caseId,
     require(decoded.recoveredPaddedMessage.size() == config.payloadLength + config.fillerBits, "recovered padded length");
     require(decoded.recoveredPaddedMessage == encoded.paddedMessageBits, "recovered padded message");
     require(decoded.frameDetail.noErrorBlocks == config.blockCount, "noiseless NO_ERROR count");
-    require(decoded.frameDetail.payloadCorrectBlocks == config.blockCount, "noiseless true block count");
+    require(decoded.frameDetail.paddedInformationCorrectBlocks == config.blockCount, "noiseless padded information count");
+    require(decoded.frameDetail.originalPayloadCorrectBlocks == config.blockCount, "noiseless original payload block count");
+    require(decoded.frameDetail.lookupMissBlocks == 0U, "NO_ERROR must not count as lookup miss");
     return decoded;
 }
 
@@ -197,8 +205,7 @@ void auditSingleBlockSingleErrors(Bch15SegmentedCase caseId,
     const auto& config = bch15SegmentedConfig(caseId);
     const auto payload = pattern(config.payloadLength, 2U);
     const auto encoded = encodeBch15Segmented(caseId, payload);
-    const scl::common::Length coveredBlocks = caseId == Bch15SegmentedCase::S200 ? 9U : 8U;
-    for (scl::common::Length block = 0U; block < coveredBlocks; ++block) {
+    for (scl::common::Length block = 0U; block < config.blockCount; ++block) {
         for (scl::common::Length local = 0U; local < config.encodedBlockLength; ++local) {
             auto received = encoded.encodedBits;
             const scl::common::Length global = block * config.encodedBlockLength + local;
@@ -240,7 +247,7 @@ void runMultiBlockCase(Bch15SegmentedCase caseId,
     ++counters.multiBlockSingleErrorCases;
     if (!pass) ++counters.multiBlockSingleErrorMismatch;
     output << caseName(caseId) << ',' << name << ',' << flips.size() << ','
-           << decoded.frameDetail.correctedBlocks << ',' << decoded.frameDetail.payloadWrongBlocks << ','
+           << decoded.frameDetail.correctedBlocks << ',' << decoded.frameDetail.paddedInformationWrongBlocks << ','
            << (decoded.recoveredPayload == payload ? "true" : "false") << ',' << (pass ? "true" : "false") << '\n';
 }
 
@@ -276,20 +283,30 @@ void runDoubleErrorCase(Bch15SegmentedCase caseId,
     auto decoded = decodeBch15Segmented(caseId, received, table);
     auditBch15SegmentedRecovery(payload, decoded);
     const bool payloadRecovered = decoded.recoveredPayload == payload;
-    const bool reportedSuccessWrong = decoded.blockDetails[block].decoder.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR &&
-                                      decoded.frameDetail.payloadWrongBlocks > 0U;
+    const auto& detail = decoded.blockDetails[block].decoder;
+    const bool blockInformationWrong = decoded.frameDetail.paddedInformationWrongBlocks > 0U;
+    const bool originalPayloadWrong = decoded.recoveredPayload != payload;
+    const bool fillerOnlyInformationWrong = blockInformationWrong && !originalPayloadWrong;
+    const bool reportedSuccessWrongBlockInformation = decoded.frameDetail.reportedSuccessWrongBlockInformation > 0U;
+    const bool reportedSuccessWrongOriginalPayload = decoded.frameDetail.reportedSuccessWrongOriginalPayload > 0U;
     ++counters.sameBlockDoubleErrorCases;
     if (payloadRecovered) ++counters.sameBlockDoubleRecoveredPayload;
-    if (reportedSuccessWrong) ++counters.sameBlockDoubleReportedSuccessWrongPayload;
+    if (reportedSuccessWrongBlockInformation) ++counters.reportedSuccessWrongBlockInformation;
+    if (reportedSuccessWrongOriginalPayload) ++counters.reportedSuccessWrongOriginalPayload;
+    if (fillerOnlyInformationWrong) ++counters.fillerOnlyInformationMismatch;
     output << caseName(caseId) << ',' << name << ',' << block << ',' << firstLocal << ';' << secondLocal << ','
-           << statusName(decoded.blockDetails[block].decoder.status) << ','
-           << (decoded.blockDetails[block].decoder.correctedCodeword ==
+           << statusName(detail.status) << ','
+           << (detail.correctedCodeword ==
                scl::common::BitVector(encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U),
                                       encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U + 15U))
                    ? "true"
                    : "false")
            << ',' << (payloadRecovered ? "true" : "false") << ','
-           << (reportedSuccessWrong ? "true" : "false") << '\n';
+           << (blockInformationWrong ? "true" : "false") << ','
+           << (originalPayloadWrong ? "true" : "false") << ','
+           << (fillerOnlyInformationWrong ? "true" : "false") << ','
+           << (reportedSuccessWrongBlockInformation ? "true" : "false") << ','
+           << (reportedSuccessWrongOriginalPayload ? "true" : "false") << '\n';
 }
 
 void auditSameBlockDoubleErrors(Bch15SegmentedCase caseId,
@@ -332,6 +349,64 @@ void auditFillerBoundary(Bch15SegmentedCase caseId,
                << (decoded.recoveredPayload == payload ? "true" : "false") << ','
                << (pass ? "true" : "false") << '\n';
     }
+}
+
+void auditFailureStatusRetention(Bch15SegmentedCase caseId,
+                                 const SyndromeTable& frozenTable,
+                                 Counters& counters,
+                                 std::ofstream& output) {
+    const auto& config = bch15SegmentedConfig(caseId);
+    const auto payload = pattern(config.payloadLength, 2U);
+    const auto encoded = encodeBch15Segmented(caseId, payload);
+    const unsigned errorPosition = frozenTable.entries[0].errorPosition;
+    require(errorPosition < config.encodedBlockLength, "frozen syndrome table position");
+
+    auto received = encoded.encodedBits;
+    received[errorPosition] ^= 1U;
+    scl::common::BitVector expectedPadded = encoded.paddedMessageBits;
+    if (errorPosition < config.blockPayloadLength) expectedPadded[errorPosition] ^= 1U;
+
+    SyndromeTable postCheckTable = frozenTable;
+    postCheckTable.entries[0].errorPosition = config.encodedBlockLength;
+    auto postCheck = decodeBch15Segmented(caseId, received, postCheckTable);
+    auditBch15SegmentedRecovery(payload, postCheck);
+    const bool postPass = postCheck.blockDetails[0].decoder.status == Bch15DecodeStatus::POST_CHECK_FAILED &&
+                          postCheck.recoveredPaddedMessage == expectedPadded &&
+                          postCheck.frameDetail.postCheckFailedBlocks == 1U &&
+                          postCheck.frameDetail.unrecognizedSyndromeBlocks == 0U &&
+                          postCheck.frameDetail.lookupHitBlocks == 1U &&
+                          postCheck.frameDetail.lookupMissBlocks == 0U &&
+                          postCheck.frameDetail.noErrorBlocks == config.blockCount - 1U;
+    ++counters.postCheckFailedStateRetentionCases;
+    if (!postPass) ++counters.postCheckFailedStateRetentionMismatch;
+    output << caseName(caseId) << ",POST_CHECK_FAILED,"
+           << statusName(postCheck.blockDetails[0].decoder.status) << ','
+           << postCheck.frameDetail.postCheckFailedBlocks << ','
+           << postCheck.frameDetail.unrecognizedSyndromeBlocks << ','
+           << postCheck.frameDetail.lookupHitBlocks << ',' << postCheck.frameDetail.lookupMissBlocks << ','
+           << (postCheck.recoveredPaddedMessage == expectedPadded ? "true" : "false") << ','
+           << (postPass ? "true" : "false") << '\n';
+
+    SyndromeTable unrecognizedTable = frozenTable;
+    for (auto& entry : unrecognizedTable.entries) entry.syndrome = 0U;
+    auto unrecognized = decodeBch15Segmented(caseId, received, unrecognizedTable);
+    auditBch15SegmentedRecovery(payload, unrecognized);
+    const bool unrecognizedPass = unrecognized.blockDetails[0].decoder.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME &&
+                                  unrecognized.recoveredPaddedMessage == expectedPadded &&
+                                  unrecognized.frameDetail.postCheckFailedBlocks == 0U &&
+                                  unrecognized.frameDetail.unrecognizedSyndromeBlocks == 1U &&
+                                  unrecognized.frameDetail.lookupHitBlocks == 0U &&
+                                  unrecognized.frameDetail.lookupMissBlocks == 1U &&
+                                  unrecognized.frameDetail.noErrorBlocks == config.blockCount - 1U;
+    ++counters.unrecognizedSyndromeStateRetentionCases;
+    if (!unrecognizedPass) ++counters.unrecognizedSyndromeStateRetentionMismatch;
+    output << caseName(caseId) << ",UNRECOGNIZED_SYNDROME,"
+           << statusName(unrecognized.blockDetails[0].decoder.status) << ','
+           << unrecognized.frameDetail.postCheckFailedBlocks << ','
+           << unrecognized.frameDetail.unrecognizedSyndromeBlocks << ','
+           << unrecognized.frameDetail.lookupHitBlocks << ',' << unrecognized.frameDetail.lookupMissBlocks << ','
+           << (unrecognized.recoveredPaddedMessage == expectedPadded ? "true" : "false") << ','
+           << (unrecognizedPass ? "true" : "false") << '\n';
 }
 
 void verifyPool(Bch15SegmentedCase caseId,
@@ -377,11 +452,14 @@ void writeConfigCsv(const std::filesystem::path& path) {
 bool allPassed(const Counters& c) {
     return c.syntheticNoiselessFrames == 8U && c.poolFrames == 200U && c.noiselessPayloadMismatch == 0U &&
            c.encodedLengthMismatch == 0U && c.fillerMismatch == 0U && c.invalidInputFailures == 0U &&
-           c.singleBlockSingleErrorCases == 255U && c.singleBlockSingleErrorMismatch == 0U &&
+           c.singleBlockSingleErrorCases == 705U && c.singleBlockSingleErrorMismatch == 0U &&
            c.multiBlockSingleErrorCases == 8U && c.multiBlockSingleErrorMismatch == 0U &&
            c.sameBlockDoubleErrorCases == 12U && c.sameBlockDoubleRecoveredPayload <= c.sameBlockDoubleErrorCases &&
-           c.sameBlockDoubleReportedSuccessWrongPayload == 12U && c.fillerBoundaryCases == 30U &&
-           c.fillerBoundaryMismatch == 0U;
+           c.reportedSuccessWrongBlockInformation == 12U && c.reportedSuccessWrongOriginalPayload == 9U &&
+           c.fillerOnlyInformationMismatch == 3U && c.fillerBoundaryCases == 30U &&
+           c.fillerBoundaryMismatch == 0U && c.postCheckFailedStateRetentionCases == 2U &&
+           c.postCheckFailedStateRetentionMismatch == 0U && c.unrecognizedSyndromeStateRetentionCases == 2U &&
+           c.unrecognizedSyndromeStateRetentionMismatch == 0U;
 }
 
 }  // namespace
@@ -407,12 +485,16 @@ int main(int argc, char** argv) {
         std::ofstream multiCsv(outputDirectory / "multi_block_single_error_audit.csv", std::ios::binary);
         std::ofstream doubleCsv(outputDirectory / "double_error_block_audit.csv", std::ios::binary);
         std::ofstream fillerCsv(outputDirectory / "filler_boundary_audit.csv", std::ios::binary);
-        if (!poolCsv || !singleCsv || !multiCsv || !doubleCsv || !fillerCsv) throw std::runtime_error("cannot open audit csv");
+        std::ofstream failureStatusCsv(outputDirectory / "failure_status_retention_audit.csv", std::ios::binary);
+        if (!poolCsv || !singleCsv || !multiCsv || !doubleCsv || !fillerCsv || !failureStatusCsv) {
+            throw std::runtime_error("cannot open audit csv");
+        }
         poolCsv << "caseName,poolId,frameIndex,payloadLength,payloadRecovered\n";
         singleCsv << "caseName,blockIndex,localPosition,globalPosition,status,correctedPosition,payloadRecovered,pass\n";
         multiCsv << "caseName,caseId,errorCount,correctedBlocks,payloadWrongBlocks,payloadRecovered,pass\n";
-        doubleCsv << "caseName,doubleCase,blockIndex,localPositions,status,codewordRecovered,payloadRecovered,reportedSuccessWrongPayload\n";
+        doubleCsv << "caseName,doubleCase,blockIndex,localPositions,status,codewordRecovered,payloadRecovered,blockInformationWrong,originalPayloadWrong,fillerOnlyInformationMismatch,reportedSuccessWrongBlockInformation,reportedSuccessWrongOriginalPayload\n";
         fillerCsv << "caseName,lastBlock,localPosition,bitClass,status,payloadRecovered,pass\n";
+        failureStatusCsv << "caseName,injectedFailure,reportedStatus,postCheckFailedBlocks,unrecognizedSyndromeBlocks,lookupHitBlocks,lookupMissBlocks,recoveredPaddedMessagePreserved,pass\n";
 
         verifyPool(Bch15SegmentedCase::S200, argv[2], "payload_k200_seed2026072001_policy1_frames100", table, counters, poolCsv);
         verifyPool(Bch15SegmentedCase::S300, argv[3], "payload_k300_seed2026072001_policy1_frames100", table, counters, poolCsv);
@@ -422,12 +504,14 @@ int main(int argc, char** argv) {
             auditMultiBlockSingleErrors(caseId, table, counters, multiCsv);
             auditSameBlockDoubleErrors(caseId, table, counters, doubleCsv);
             auditFillerBoundary(caseId, table, counters, fillerCsv);
+            auditFailureStatusRetention(caseId, table, counters, failureStatusCsv);
         }
         requireStream(poolCsv, (outputDirectory / "frame_pool_audit.csv").string());
         requireStream(singleCsv, (outputDirectory / "single_error_block_audit.csv").string());
         requireStream(multiCsv, (outputDirectory / "multi_block_single_error_audit.csv").string());
         requireStream(doubleCsv, (outputDirectory / "double_error_block_audit.csv").string());
         requireStream(fillerCsv, (outputDirectory / "filler_boundary_audit.csv").string());
+        requireStream(failureStatusCsv, (outputDirectory / "failure_status_retention_audit.csv").string());
 
         writeConfigCsv(outputDirectory / "adapter_config.csv");
         writeTextFile(outputDirectory / "noiseless_recovery_summary.csv",
@@ -446,7 +530,13 @@ int main(int argc, char** argv) {
                           "\nmultiBlockSingleErrorMismatch," + std::to_string(counters.multiBlockSingleErrorMismatch) +
                           "\nsameBlockDoubleErrorCases," + std::to_string(counters.sameBlockDoubleErrorCases) +
                           "\nsameBlockDoubleRecoveredPayload," + std::to_string(counters.sameBlockDoubleRecoveredPayload) +
-                          "\nsameBlockDoubleReportedSuccessWrongPayload," + std::to_string(counters.sameBlockDoubleReportedSuccessWrongPayload) +
+                          "\nreportedSuccessWrongBlockInformation," + std::to_string(counters.reportedSuccessWrongBlockInformation) +
+                          "\nreportedSuccessWrongOriginalPayload," + std::to_string(counters.reportedSuccessWrongOriginalPayload) +
+                          "\nfillerOnlyInformationMismatch," + std::to_string(counters.fillerOnlyInformationMismatch) +
+                          "\npostCheckFailedStateRetentionCases," + std::to_string(counters.postCheckFailedStateRetentionCases) +
+                          "\npostCheckFailedStateRetentionMismatch," + std::to_string(counters.postCheckFailedStateRetentionMismatch) +
+                          "\nunrecognizedSyndromeStateRetentionCases," + std::to_string(counters.unrecognizedSyndromeStateRetentionCases) +
+                          "\nunrecognizedSyndromeStateRetentionMismatch," + std::to_string(counters.unrecognizedSyndromeStateRetentionMismatch) +
                           "\nfillerBoundaryCases," + std::to_string(counters.fillerBoundaryCases) +
                           "\nfillerBoundaryMismatch," + std::to_string(counters.fillerBoundaryMismatch) + "\n");
         if (!allPassed(counters)) throw std::runtime_error("BCH-05 segmented adapter gate counters mismatch");

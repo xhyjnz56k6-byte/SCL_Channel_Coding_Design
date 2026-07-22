@@ -39,17 +39,20 @@ The adapter API is in `Task/BCH/segmented/current/include/bch_segmented/bch15_se
 - BCH-S300 block 27 has local message positions `0..2` from `payload[297..299]`, and `3..10` filler.
 - Recovery concatenates all BCH-04 decoded 11 bit messages and returns only `[0, payloadLength)`.
 
-If BCH-04 reports `POST_CHECK_FAILED` or `UNRECOGNIZED_SYNDROME`, BCH-05 still concatenates the returned BCH-04 information bits and preserves the failure status in block detail. Reported decoder success is not treated as truth recovery.
+If BCH-04 reports `POST_CHECK_FAILED` or `UNRECOGNIZED_SYNDROME`, BCH-05 still concatenates the returned BCH-04 information bits and preserves the failure status in block detail. Frame aggregation records `postCheckFailedBlocks` and `unrecognizedSyndromeBlocks` separately. `lookupMissBlocks` counts only nonzero syndromes that are not found; `NO_ERROR` (syndrome zero) is never a lookup miss.
+
+Truth is intentionally split into two layers. `paddedInformation*` compares every recovered 11-bit block with the padded encoder input, including last-block filler. `originalPayload*` compares only positions retained after payload recovery. Consequently, an error confined to terminal filler may be a padded-information mismatch while the original payload remains correct. A reported decoder success is audited separately against both truths.
 
 ## Test matrix
 
 | class | coverage | required truth check |
 |---|---|---|
 | No error | zero, one, alternating, last-bit-one synthetic frames for S200/S300; Common pool frameIndex 0..99 for both pools | payload mismatch = 0 and all blocks NO_ERROR |
-| Single block single error | S200 first 9 blocks x 15 positions; S300 first 8 blocks x 15 positions | corrected block, local/global position, corrected codeword, recovered payload |
+| Single block single error | every S200 block (19 x 15) and every S300 block (28 x 15), total 705 | corrected block, local/global position, corrected codeword, recovered payload |
 | Multiple blocks, one error each | first+last, adjacent blocks, three spread blocks, and every block one error | recovered frame payload and corrected block count |
 | Same block double error | two payload bits, payload+parity, two parity bits, payload+filler, two filler bits, filler+parity | status, codeword truth, block message truth, frame payload truth |
 | Filler boundary | every local position of the last block for both cases | payload/filler/parity classification and recovered payload |
+| Failure status retention | one test-only corrupted table for `POST_CHECK_FAILED` and one for `UNRECOGNIZED_SYNDROME`, for each case | returned 11-bit information is concatenated, failure status is retained, and frame aggregation is exact |
 | Negative inputs | wrong payload length, non-bit payload, wrong encoded length, non-bit received bits | explicit rejection |
 
 Error injection exists only in tests.

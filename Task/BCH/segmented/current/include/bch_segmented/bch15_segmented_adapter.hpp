@@ -33,9 +33,19 @@ struct Bch15SegmentedFrameDetail {
     common::Length lookupHitBlocks = 0U;
     common::Length lookupMissBlocks = 0U;
     common::Length postCheckFailedBlocks = 0U;
+    common::Length unrecognizedSyndromeBlocks = 0U;
     common::Length reportedSuccessBlocks = 0U;
-    common::Length payloadCorrectBlocks = 0U;
-    common::Length payloadWrongBlocks = 0U;
+    // These compare each recovered 11-bit block with the padded encoder
+    // input.  They intentionally include the terminal filler positions.
+    common::Length paddedInformationCorrectBlocks = 0U;
+    common::Length paddedInformationWrongBlocks = 0U;
+    // These compare only the information positions that belong to the
+    // original payload.  The terminal filler positions are excluded.
+    common::Length originalPayloadCorrectBlocks = 0U;
+    common::Length originalPayloadWrongBlocks = 0U;
+    common::Length fillerOnlyInformationMismatchBlocks = 0U;
+    common::Length reportedSuccessWrongBlockInformation = 0U;
+    common::Length reportedSuccessWrongOriginalPayload = 0U;
     common::Length miscorrectedBlocks = 0U;
     common::Length paddingBits = 0U;
     common::Length blockCount = 0U;
