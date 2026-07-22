@@ -1,0 +1,5 @@
+requirement,implementation,positive_test,negative_test,gate
+Frozen case parameters,bch_case_adapter,test all four cases,invalid case rejection,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
+Common real frame pool,test_bch11_noiseless,200 frames for K200 and K300,out-of-range and wrong-payload rejection,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
+Noiseless signal chain,Common BPSK and hard decision,encoded bits survive identity channel,y=0 boundary assertion,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
+Payload and status metrics,bch_case_adapter and test accounting,all counters self-consistent,payload mismatch causes true failure,PASS_BCH11_COMMON_INTEGRATION_NOISELESS

@@ -1,0 +1,7 @@
+requirement,implementation,positive_test,negative_test,gate
+Four unified BCH cases,simulation/current/bch_case_adapter,test_bch11_noiseless case configuration,invalid case and length rejection,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
+Common AWGN and paired noise,simulation/current and Common APIs,BCH-12 reproducibility/scaling checks,reused or mismatched noise detection,PASS_BCH12_AWGN_SMOKE
+Prescan waterfall,simulation scripts and frozen recommendation CSV,BCH-13 fixed-frame scan,invalid/no-waterfall range rejection,PASS_BCH13_AWGN_PRESCAN
+Checkpoint resume shard,simulation runner and merge checker,BCH-14 continuous/resume/shard equality,overlap/gap/config mismatch rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
+Formal AWGN,formal config read from BCH-13,BCH-15 completeness and accounting checks,missing/duplicate/NaN/non-PNG rejection,PASS_BCH15_AWGN_FORMAL
+Segmented versus block comparison,comparison script and audited figure data,BCH-16 interpolation and recommendation checks,extrapolation/incomplete input rejection,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
