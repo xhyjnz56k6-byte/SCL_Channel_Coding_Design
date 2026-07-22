@@ -1,0 +1,54 @@
+[
+  {
+    "filename": "bch_200bit_rate_performance_comparison.png",
+    "sourceCsv": "formal_summary.csv",
+    "figureDataCsv": "figure_data_bch_200bit_rate_performance_comparison.csv",
+    "sha256": "7f6988f6e6fead9cb3c2e5120cb5fab0376a3417e003186380745a27845a81da",
+    "dpi": 240,
+    "xColumn": "ebn0Db",
+    "yColumn": "FER",
+    "logScale": true,
+    "zeroHandlingPolicy": "NO_ZERO_OBSERVATIONS",
+    "generatedBy": "plot_bch_comparison.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_300bit_rate_performance_comparison.png",
+    "sourceCsv": "formal_summary.csv",
+    "figureDataCsv": "figure_data_bch_300bit_rate_performance_comparison.csv",
+    "sha256": "f5b1a512c798530b2a404dc3ba142466c525dcd5d7f7bc7b90bf2ff7e08a95d5",
+    "dpi": 240,
+    "xColumn": "ebn0Db",
+    "yColumn": "FER",
+    "logScale": true,
+    "zeroHandlingPolicy": "NO_ZERO_OBSERVATIONS",
+    "generatedBy": "plot_bch_comparison.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_decode_time_comparison.png",
+    "sourceCsv": "formal_summary.csv",
+    "figureDataCsv": "figure_data_bch_decode_time_comparison.csv",
+    "sha256": "35015049bc70ae3d724634b457831a18dc85e2ccdc0daaeccd508c4b607a092e",
+    "dpi": 240,
+    "xColumn": "ebn0Db",
+    "yColumn": "avgDecodeTimeUs",
+    "logScale": false,
+    "zeroHandlingPolicy": "RAW_LINEAR",
+    "generatedBy": "plot_bch_comparison.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_complexity_comparison.png",
+    "sourceCsv": "complexity_comparison.csv",
+    "figureDataCsv": "figure_data_bch_complexity_comparison.csv",
+    "sha256": "bdd292a5295daf8fefd47a3b77d2aa275b23baaa746c61bab006d516d126de3f",
+    "dpi": 240,
+    "xColumn": "caseName",
+    "yColumn": "value",
+    "logScale": false,
+    "zeroHandlingPolicy": "MISSING_DIMENSION_SHOWN_AS_ZERO",
+    "generatedBy": "plot_bch_comparison.py",
+    "matplotlibVersion": "3.10.7"
+  }
+]

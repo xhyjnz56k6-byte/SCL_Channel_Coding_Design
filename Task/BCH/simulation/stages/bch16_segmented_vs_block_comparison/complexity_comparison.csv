@@ -1,0 +1,5 @@
+caseName,segmentCount,syndromeLookupCount,maxLookupTableSize,perFrameBlockLoops,syndromeCount,bmIterationCount,chienSearchLength,gfOperationProfile
+BCH-S200,19,19,15,19,,,,table lookup per segment
+BCH-B200,,,,,12,12,255,GF(2^8) BM and Chien
+BCH-S300,28,28,15,28,,,,table lookup per segment
+BCH-B300,,,,,20,20,511,GF(2^9) BM and Chien
