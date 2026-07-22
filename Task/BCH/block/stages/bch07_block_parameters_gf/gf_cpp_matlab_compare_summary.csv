@@ -1,3 +1,2 @@
-field,parameterMismatch,arithmeticMismatch,result
-GF(256),0,0,PASS
-GF(512),0,0,PASS
+rowsCompared,mismatchCount,result
+3834,0,PASS

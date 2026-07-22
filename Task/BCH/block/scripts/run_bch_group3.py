@@ -19,12 +19,16 @@ def main():
     run([str(build/'export_bch_block_reference.exe'),str(ref/'cpp_bch07.csv')],root)
     run([str(build/'export_bch_block_detail.exe'),str(ref/'cpp_detail.csv')],root)
     run([str(build/'export_bch_block_pool_encoder.exe'),'Task/Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json','Task/Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json',str(ref/'cpp_pool_encoder.csv')],root)
+    run([str(build/'export_bch_block_gf_detail.exe'),str(ref/'cpp_gf_detail.csv')],root)
+    run([str(build/'export_bch_block_illegal.exe'),str(ref/'cpp_illegal.csv')],root)
     if args.skip_matlab: return
     mdir='Task/BCH/block/matlab'
     command=(f"addpath('{mdir}'); run_bch_group3_reference('{ref.as_posix()}/matlab_bch07.csv','{ref.as_posix()}/matlab_detail.csv'); "
              f"run_bch_group3_toolbox_reference('{ref.as_posix()}/matlab_toolbox_bch07.csv'); "
-             f"run_bch_group3_pool_encoder('Task/Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json','Task/Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json','{ref.as_posix()}/matlab_pool_encoder.csv');")
+             f"run_bch_group3_pool_encoder('Task/Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json','Task/Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json','{ref.as_posix()}/matlab_pool_encoder.csv'); "
+             f"run_bch_group3_gf_detail('{ref.as_posix()}/matlab_gf_detail.csv'); run_bch_group3_illegal_reference('{ref.as_posix()}/matlab_illegal.csv'); "
+             f"run_bch_group3_toolbox_codec('Task/Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json','Task/Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json','{ref.as_posix()}/matlab_toolbox_codec.csv');")
     run([args.matlab_command,'-batch',command],root)
-    for script,files in [('check_bch07_reference.py',['cpp_bch07.csv','matlab_bch07.csv']),('check_bch07_toolbox.py',['cpp_bch07.csv','matlab_toolbox_bch07.csv']),('check_bch08_pool_encoder.py',['cpp_pool_encoder.csv','matlab_pool_encoder.csv']),('check_bch10_detail.py',['cpp_detail.csv','matlab_detail.csv'])]:
+    for script,files in [('check_bch07_reference.py',['cpp_bch07.csv','matlab_bch07.csv']),('check_bch07_toolbox.py',['cpp_bch07.csv','matlab_toolbox_bch07.csv']),('check_bch07_gf_detail.py',['cpp_gf_detail.csv','matlab_gf_detail.csv']),('check_bch08_pool_encoder.py',['cpp_pool_encoder.csv','matlab_pool_encoder.csv']),('check_bch10_detail.py',['cpp_detail.csv','matlab_detail.csv']),('check_bch10_illegal.py',['cpp_illegal.csv','matlab_illegal.csv']),('check_bch10_toolbox_codec.py',['matlab_toolbox_codec.csv'])]:
         run([sys.executable,'Task/BCH/block/scripts/'+script,*[str(ref/x) for x in files]],root)
 if __name__=='__main__': main()
