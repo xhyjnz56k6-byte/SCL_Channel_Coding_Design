@@ -1,0 +1,7 @@
+program,path,exitCode,result
+test_common04_random_policy.exe,Task/Common/build/stage04/test_common04_random_policy.exe,0,PASS
+test_common04_gaussian_noise.exe,Task/Common/build/stage04/test_common04_gaussian_noise.exe,0,PASS
+test_common04_modulation_awgn.exe,Task/Common/build/stage04/test_common04_modulation_awgn.exe,0,PASS
+test_common04_metrics_control.exe,Task/Common/build/stage04/test_common04_metrics_control.exe,0,PASS
+test_common04_checkpoint.exe,Task/Common/build/stage04/test_common04_checkpoint.exe,0,PASS
+test_common04_integration.exe,Task/Common/build/stage04/test_common04_integration.exe,0,PASS

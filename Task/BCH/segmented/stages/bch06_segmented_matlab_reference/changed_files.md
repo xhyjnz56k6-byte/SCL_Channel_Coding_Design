@@ -1,6 +1,7 @@
 # BCH-06 changed files
 
 - A	Task/BCH/segmented/config/bch06/bch06_reference_config.json
+- A	Task/BCH/segmented/config/bch06_matlab_reference_config.csv
 - M	Task/BCH/segmented/current/CMakeLists.txt
 - A	Task/BCH/segmented/current/tests/export_bch06_cpp_reference.cpp
 - A	Task/BCH/segmented/matlab/README_BCH06_REFERENCE.md
@@ -25,13 +26,17 @@
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/changed_files.md
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/changes.patch
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/commands_used.md
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/cross_check_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/cross_check_summary.json
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/double_error_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/encoder_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/failure_status_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/filler_boundary_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/fixed_multi_error_compare_summary.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/frame_pool_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/frozen_config.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/git_commit.txt
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/invalid_input_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/known_issues.md
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/lookup_decoder_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/manifest.json
@@ -39,6 +44,7 @@
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_io_schema.md
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_reference_contract.md
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_toolbox_audit.csv
+- A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/multi_block_single_error_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/no_error_decode_compare_summary.csv
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/plots/bch06_double_error_classification.png
 - A	Task/BCH/segmented/stages/bch06_segmented_matlab_reference/plots/bch06_mismatch_summary.png

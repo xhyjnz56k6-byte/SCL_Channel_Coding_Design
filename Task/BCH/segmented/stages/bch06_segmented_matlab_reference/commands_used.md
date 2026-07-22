@@ -9,3 +9,6 @@ Task/Common/build/stage04/test_common04_modulation_awgn.exe
 Task/Common/build/stage04/test_common04_metrics_control.exe
 Task/Common/build/stage04/test_common04_checkpoint.exe
 Task/Common/build/stage04/test_common04_integration.exe
+git diff --name-only main...HEAD -- Task/Common
+git diff --name-only main...HEAD -- Task/BCH/segmented/stages/bch01_...bch05_
+git diff --name-only main...HEAD -- Task/BCH (BCH-07 range filter)

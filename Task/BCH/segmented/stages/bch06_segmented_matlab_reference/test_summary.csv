@@ -24,6 +24,7 @@ fillerBoundaryCases,30
 fillerBoundaryMismatch,0
 fillerOnlyInformationMismatch,3
 fixedMultiErrorCases,96
+fixedMultiErrorExpectedCount,96
 fixedMultiErrorMismatch,0
 fixedVectorCases,6
 framePoolAuditCases,200

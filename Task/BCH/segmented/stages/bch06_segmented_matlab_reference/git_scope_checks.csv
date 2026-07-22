@@ -1,0 +1,4 @@
+check,changedFileCount,result
+taskCommonDiff,0,PASS
+historicalStageDiff,0,PASS
+bch07Range,0,PASS

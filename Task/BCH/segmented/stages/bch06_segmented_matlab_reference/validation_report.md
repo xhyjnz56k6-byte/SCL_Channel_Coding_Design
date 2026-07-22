@@ -23,7 +23,7 @@ framePoolAuditCases=200, mismatch=0
 fixedMultiErrorCases=96, mismatch=0
 matlabInvalidInputCases=20, failure=0
 
-Common regression:
+Common regression (actual execution):
 - test_common04_random_policy.exe exitCode=0 PASS
 - test_common04_gaussian_noise.exe exitCode=0 PASS
 - test_common04_modulation_awgn.exe exitCode=0 PASS
@@ -32,12 +32,6 @@ Common regression:
 - test_common04_integration.exe exitCode=0 PASS
 
 Scope checks:
-- Task/Common diff: empty
-- historical BCH-01..BCH-05 Stage diff: empty
-- BCH-07/AWGN/whole-block/BM/Chien implementation scan: no implementation added
-
-Push verification:
-- auditCommit=0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7
-- remoteHeadAfterAuditPush=0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7
-- pushStatus=PUSHED
-- mergeStatus=NOT_MERGED
+- Task/Common diff changedFileCount=0 PASS
+- historical BCH-01..BCH-05 Stage diff changedFileCount=0 PASS
+- BCH-07 range diff changedFileCount=0 PASS
