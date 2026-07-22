@@ -1,0 +1,853 @@
+diff --git a/Task/BCH/simulation/current/CMakeLists.txt b/Task/BCH/simulation/current/CMakeLists.txt
+index a312aa9..2b4ab44 100644
+--- a/Task/BCH/simulation/current/CMakeLists.txt
++++ b/Task/BCH/simulation/current/CMakeLists.txt
+@@ -8,7 +8,9 @@ add_library(common_bch_simulation STATIC
+     ${COMMON_ROOT}/src/modulation.cpp
+     ${COMMON_ROOT}/src/awgn_channel.cpp
+     ${COMMON_ROOT}/src/demodulation.cpp
+-    ${COMMON_ROOT}/src/simulation_metrics.cpp)
++    ${COMMON_ROOT}/src/simulation_metrics.cpp
++    ${COMMON_ROOT}/src/simulation_control.cpp
++    ${COMMON_ROOT}/src/checkpoint.cpp)
+ target_include_directories(common_bch_simulation PUBLIC ${COMMON_ROOT}/include)
+ target_compile_features(common_bch_simulation PUBLIC cxx_std_17)
+ 
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp
+index 9485e3a..e8e34c8 100644
+--- a/Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp
+@@ -20,12 +20,23 @@ struct AwgnPointConfig {
+     std::size_t snrIndex = 0U;
+     std::uint64_t frameStart = 0U;
+     std::uint64_t frameCount = 0U;
++    std::uint64_t logicalFrameCount = 0U;
+     std::uint64_t globalSeed = 0U;
+     bool progress = true;
+     double progressRefreshSeconds = 0.2;
+     bool writeFrameDetail = false;
+     std::string framePoolManifest;
+     std::string outputDirectory;
++    bool adaptiveStop = false;
++    std::uint64_t minFrames = 0U;
++    std::uint64_t targetFrameErrors = 0U;
++    std::uint64_t maxFrames = 0U;
++    std::string checkpointPath;
++    std::uint64_t checkpointInterval = 0U;
++    bool resume = false;
++    std::uint64_t interruptAfterFrames = 0U;
++    std::uint64_t shardIndex = 0U;
++    std::uint64_t shardCount = 1U;
+ };
+ 
+ struct AwgnPointResult {
+@@ -50,6 +61,10 @@ struct AwgnPointResult {
+     std::vector<double> decodeTimesUs;
+     std::string firstNoiseHash;
+     std::string lastNoiseHash;
++    std::string stopReason = "CONTINUE";
++    std::string configHash;
++    std::uint64_t checkpointCount = 0U;
++    std::uint64_t resumeCount = 0U;
+ };
+ 
+ std::uint64_t pairedNoiseGroupId(common::Length payloadLength, std::size_t snrIndex);
+diff --git a/Task/BCH/simulation/current/src/bch_awgn_runner.cpp b/Task/BCH/simulation/current/src/bch_awgn_runner.cpp
+index 43646f9..d63deae 100644
+--- a/Task/BCH/simulation/current/src/bch_awgn_runner.cpp
++++ b/Task/BCH/simulation/current/src/bch_awgn_runner.cpp
+@@ -14,7 +14,7 @@ std::map<std::string, std::string> parse(int argc, char** argv) {
+     std::map<std::string, std::string> values;
+     for (int i = 1; i < argc; ++i) {
+         const std::string key(argv[i]);
+-        if (key == "--progress" || key == "--no-progress" || key == "--detail") {
++        if (key == "--progress" || key == "--no-progress" || key == "--detail" || key == "--resume") {
+             values[key] = "1";
+         } else {
+             if (key.rfind("--", 0U) != 0U || i + 1 >= argc) throw std::invalid_argument("invalid runner arguments");
+@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
+         config.snrIndex = static_cast<std::size_t>(std::stoull(required(args, "--snr-index")));
+         config.frameStart = static_cast<std::uint64_t>(std::stoull(required(args, "--frame-start")));
+         config.frameCount = static_cast<std::uint64_t>(std::stoull(required(args, "--frame-count")));
++        config.logicalFrameCount = args.count("--logical-frame-count") ? static_cast<std::uint64_t>(std::stoull(args.at("--logical-frame-count"))) : config.frameCount;
+         config.globalSeed = static_cast<std::uint64_t>(std::stoull(required(args, "--global-seed")));
+         config.framePoolManifest = required(args, "--frame-pool-manifest");
+         config.outputDirectory = required(args, "--output-dir");
+@@ -51,6 +52,18 @@ int main(int argc, char** argv) {
+             config.progressRefreshSeconds = std::stod(args.at("--progress-refresh-seconds"));
+         }
+         config.writeFrameDetail = args.count("--detail") != 0U;
++        if (args.count("--min-frames") != 0U || args.count("--target-frame-errors") != 0U || args.count("--max-frames") != 0U) {
++            config.adaptiveStop = true;
++            config.minFrames = static_cast<std::uint64_t>(std::stoull(required(args, "--min-frames")));
++            config.targetFrameErrors = static_cast<std::uint64_t>(std::stoull(required(args, "--target-frame-errors")));
++            config.maxFrames = static_cast<std::uint64_t>(std::stoull(required(args, "--max-frames")));
++        }
++        if (args.count("--checkpoint") != 0U) config.checkpointPath = args.at("--checkpoint");
++        if (args.count("--checkpoint-interval") != 0U) config.checkpointInterval = static_cast<std::uint64_t>(std::stoull(args.at("--checkpoint-interval")));
++        config.resume = args.count("--resume") != 0U;
++        if (args.count("--interrupt-after-frames") != 0U) config.interruptAfterFrames = static_cast<std::uint64_t>(std::stoull(args.at("--interrupt-after-frames")));
++        if (args.count("--shard-index") != 0U) config.shardIndex = static_cast<std::uint64_t>(std::stoull(args.at("--shard-index")));
++        if (args.count("--shard-count") != 0U) config.shardCount = static_cast<std::uint64_t>(std::stoull(args.at("--shard-count")));
+         const auto result = scl::bch::simulation::runAwgnPoint(config);
+         scl::bch::simulation::writeAwgnPointSummary(result, (fs::path(config.outputDirectory) / "summary.csv").string());
+         std::cout << "PASS_" << config.stage << '_' << scl::bch::simulation::bchSimulationCase(config.caseId).caseName << '_'
+diff --git a/Task/BCH/simulation/current/src/bch_awgn_simulation.cpp b/Task/BCH/simulation/current/src/bch_awgn_simulation.cpp
+index 7092c5f..2b4ba14 100644
+--- a/Task/BCH/simulation/current/src/bch_awgn_simulation.cpp
++++ b/Task/BCH/simulation/current/src/bch_awgn_simulation.cpp
+@@ -1,11 +1,13 @@
+ #include "bch_simulation/bch_awgn_simulation.hpp"
+ 
+ #include "common/awgn_channel.hpp"
++#include "common/checkpoint.hpp"
+ #include "common/demodulation.hpp"
+ #include "common/gaussian_noise.hpp"
+ #include "common/modulation.hpp"
+ #include "common/sha256.hpp"
+ #include "common/simulation_metrics.hpp"
++#include "common/simulation_control.hpp"
+ 
+ #include <algorithm>
+ #include <chrono>
+@@ -72,7 +74,8 @@ public:
+                       << " FE " << result.decodedFrameErrors << " BER " << std::scientific << ber
+                       << " FER " << fer << std::fixed << " speed " << static_cast<std::uint64_t>(rate)
+                       << " frame/s elapsed " << std::setprecision(1) << elapsed << "s ETA " << eta
+-                      << "s checkpoint 0 shard 1/1" << (force ? '\n' : '\r');
++                      << "s checkpoint " << result.checkpointCount << " shard "
++                      << (config_.shardIndex + 1U) << '/' << config_.shardCount << (force ? '\n' : '\r');
+         }
+         if (jsonl_) {
+             jsonl_ << "{\"timestamp\":\"" << timestampUtc() << "\",\"stage\":\"" << config_.stage
+@@ -81,7 +84,9 @@ public:
+                    << ",\"frameErrors\":" << result.decodedFrameErrors
+                    << ",\"bitErrors\":" << result.decodedBitErrors
+                    << ",\"elapsedSeconds\":" << elapsed << ",\"framesPerSecond\":" << rate
+-                   << ",\"etaSeconds\":" << eta << ",\"checkpointCount\":0,\"shardIndex\":0,\"status\":\""
++                   << ",\"etaSeconds\":" << eta << ",\"checkpointCount\":" << result.checkpointCount
++                   << ",\"shardIndex\":" << config_.shardIndex << ",\"shardCount\":" << config_.shardCount
++                   << ",\"status\":\""
+                    << (force ? "COMPLETE" : "RUNNING") << "\"}\n";
+         }
+     }
+@@ -106,6 +111,64 @@ void validateResult(const AwgnPointResult& value, const BchSimulationCase& simul
+     }
+ }
+ 
++common::SimulationCheckpointRecord checkpointRecord(const AwgnPointResult& result,
++                                                     const BchSimulationCase& simulationCase,
++                                                     const common::PackedFramePoolReader& pool) {
++    common::SimulationCheckpointRecord record;
++    record.experimentId = result.config.stage + ":" + simulationCase.caseName + ":" + std::to_string(result.config.snrIndex);
++    record.configHash = result.configHash;
++    record.framePoolId = pool.framePoolId();
++    record.noisePoolId = "paired-standard-gaussian:" + std::to_string(pairedNoiseGroupId(simulationCase.payloadLength, result.config.snrIndex));
++    record.payloadLength = simulationCase.payloadLength;
++    record.encodedLength = simulationCase.encodedLength;
++    record.snrIndex = result.config.snrIndex;
++    record.ebN0_dB = result.config.ebN0Db;
++    record.nextFrameIndex = result.config.frameStart + result.processedFrames;
++    record.metrics.processedFrames = result.processedFrames;
++    record.metrics.totalPayloadBits = result.processedPayloadBits;
++    record.metrics.bitErrors = result.decodedBitErrors;
++    record.metrics.frameErrors = result.decodedFrameErrors;
++    record.metrics.successfulFrames = result.trueSuccessFrames;
++    record.metrics.latency.encodeTimeNsSum = static_cast<std::uint64_t>(result.encodeTimeUsSum * 1000.0);
++    record.metrics.latency.decodeTimeNsSum = static_cast<std::uint64_t>(result.decodeTimeUsSum * 1000.0);
++    record.channelHardBitErrors = result.channelHardBitErrors;
++    record.channelHardFrameErrors = result.channelHardFrameErrors;
++    record.reportedSuccessFrames = result.reportedSuccessFrames;
++    record.miscorrectedFrames = result.miscorrectedFrames;
++    record.decoderFailureFrames = result.decoderFailureFrames;
++    record.noErrorStatusFrames = result.noErrorStatusFrames;
++    record.correctedStatusFrames = result.correctedStatusFrames;
++    record.failedStatusFrames = result.failedStatusFrames;
++    record.noisePolicyVersion = kBchNoisePolicyVersion;
++    record.globalSeed = result.config.globalSeed;
++    record.shardIndex = result.config.shardIndex;
++    record.shardCount = result.config.shardCount;
++    record.checkpointCount = result.checkpointCount;
++    record.timestamp = timestampUtc();
++    record.stopReason = result.stopReason;
++    return record;
++}
++
++void restoreCheckpoint(AwgnPointResult& result, const common::SimulationCheckpointRecord& record) {
++    result.processedFrames = record.metrics.processedFrames;
++    result.processedPayloadBits = record.metrics.totalPayloadBits;
++    result.decodedBitErrors = record.metrics.bitErrors;
++    result.decodedFrameErrors = record.metrics.frameErrors;
++    result.trueSuccessFrames = record.metrics.successfulFrames;
++    result.encodeTimeUsSum = static_cast<double>(record.metrics.latency.encodeTimeNsSum) / 1000.0;
++    result.decodeTimeUsSum = static_cast<double>(record.metrics.latency.decodeTimeNsSum) / 1000.0;
++    result.channelHardBitErrors = record.channelHardBitErrors;
++    result.channelHardFrameErrors = record.channelHardFrameErrors;
++    result.reportedSuccessFrames = record.reportedSuccessFrames;
++    result.miscorrectedFrames = record.miscorrectedFrames;
++    result.decoderFailureFrames = record.decoderFailureFrames;
++    result.noErrorStatusFrames = record.noErrorStatusFrames;
++    result.correctedStatusFrames = record.correctedStatusFrames;
++    result.failedStatusFrames = record.failedStatusFrames;
++    result.checkpointCount = record.checkpointCount;
++    result.resumeCount = 1U;
++}
++
+ }  // namespace
+ 
+ std::uint64_t pairedNoiseGroupId(common::Length payloadLength, std::size_t snrIndex) {
+@@ -162,12 +225,46 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
+     lengths.shortenedLength = simulationCase.shorteningLength;
+     AwgnPointResult result;
+     result.config = config;
++    if (result.config.logicalFrameCount == 0U) result.config.logicalFrameCount = result.config.frameCount;
++    if (result.config.shardCount == 0U || result.config.shardIndex >= result.config.shardCount) {
++        throw std::invalid_argument("invalid shard configuration");
++    }
++    if (result.config.adaptiveStop) {
++        common::validateStopConfig({result.config.minFrames, result.config.maxFrames,
++                                    result.config.targetFrameErrors, true});
++        if (result.config.maxFrames != result.config.frameCount) {
++            throw std::invalid_argument("adaptive maxFrames must equal requested frameCount");
++        }
++    }
++    const std::string stopText = "min=" + std::to_string(result.config.minFrames) +
++        ";target=" + std::to_string(result.config.targetFrameErrors) +
++        ";max=" + std::to_string(result.config.maxFrames) +
++        ";logicalFrames=" + std::to_string(result.config.logicalFrameCount);
++    const std::string noiseId = "seed=" + std::to_string(result.config.globalSeed) +
++        ";policy=" + std::to_string(kBchNoisePolicyVersion) +
++        ";group=" + std::to_string(pairedNoiseGroupId(simulationCase.payloadLength, result.config.snrIndex));
++    result.configHash = common::computeConfigHash(common::canonicalConfigText(
++        simulationCase.caseName, simulationCase.payloadLength, simulationCase.encodedLength,
++        std::to_string(result.config.ebN0Db), pool.framePoolId(), noiseId, stopText,
++        decoderTypeName(simulationCase.decoderType) + ";schema=bch.group4.result.v1;configVersion=bch14.v1"));
+     result.noiseSigma = common::computeAwgnSigma(lengths, config.ebN0Db);
+     result.noiseVariance = result.noiseSigma * result.noiseSigma;
+     result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
+     const std::uint64_t noiseGroup = pairedNoiseGroupId(simulationCase.payloadLength, config.snrIndex);
+ 
+-    for (std::uint64_t offset = 0U; offset < config.frameCount; ++offset) {
++    if (config.resume) {
++        if (config.checkpointPath.empty()) throw std::invalid_argument("resume requires checkpoint path");
++        const auto actual = common::readCheckpointFile(config.checkpointPath);
++        auto expected = checkpointRecord(result, simulationCase, pool);
++        expected.configHash = result.configHash;
++        expected.shardIndex = config.shardIndex;
++        expected.shardCount = config.shardCount;
++        common::validateResumeCompatibility(expected, actual);
++        common::validateCheckpointState(actual, config.frameStart, config.frameCount);
++        restoreCheckpoint(result, actual);
++    }
++
++    for (std::uint64_t offset = result.processedFrames; offset < config.frameCount; ++offset) {
+         const common::FrameIndex frameIndex = config.frameStart + offset;
+         const auto payload = pool.readFrame(frameIndex).payloadBits;
+         const auto encodeStart = std::chrono::steady_clock::now();
+@@ -211,7 +308,41 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
+                    << decoded.decoderFailure << ',' << decoded.frameStatus << '\n';
+         }
+         reporter.update(result, offset + 1U == config.frameCount);
++        bool periodicCheckpoint = !config.checkpointPath.empty() && config.checkpointInterval > 0U &&
++                                  result.processedFrames % config.checkpointInterval == 0U;
++        if (periodicCheckpoint) {
++            ++result.checkpointCount;
++            common::writeCheckpointFile(config.checkpointPath, checkpointRecord(result, simulationCase, pool));
++        }
++        if (config.interruptAfterFrames > 0U && result.processedFrames >= config.interruptAfterFrames) {
++            result.stopReason = "INTERRUPTED_CHECKPOINT";
++            if (!config.checkpointPath.empty() && !periodicCheckpoint) {
++                ++result.checkpointCount;
++                common::writeCheckpointFile(config.checkpointPath, checkpointRecord(result, simulationCase, pool));
++            }
++            break;
++        }
++        if (config.adaptiveStop) {
++            common::ErrorMetrics metrics;
++            metrics.processedFrames = result.processedFrames;
++            metrics.frameErrors = result.decodedFrameErrors;
++            const auto decision = common::evaluateStop(
++                {config.minFrames, config.maxFrames, config.targetFrameErrors, true}, metrics);
++            if (decision.shouldStop) {
++                result.stopReason = decision.reason == "TARGET_FRAME_ERRORS" ?
++                    "TARGET_FRAME_ERRORS_REACHED" : "MAX_FRAMES_REACHED";
++                break;
++            }
++        }
++    }
++    if (result.stopReason == "CONTINUE") {
++        result.stopReason = config.adaptiveStop ? "MAX_FRAMES_REACHED" : "FIXED_FRAMES_REACHED";
++    }
++    if (!config.checkpointPath.empty() && result.stopReason != "INTERRUPTED_CHECKPOINT") {
++        ++result.checkpointCount;
++        common::writeCheckpointFile(config.checkpointPath, checkpointRecord(result, simulationCase, pool));
+     }
++    reporter.update(result, true);
+     validateResult(result, simulationCase);
+     return result;
+ }
+@@ -225,13 +356,14 @@ void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& pat
+     const double maxDecode = result.decodeTimesUs.empty() ? 0.0 : *std::max_element(result.decodeTimesUs.begin(), result.decodeTimesUs.end());
+     std::ofstream out(path);
+     if (!out) throw std::runtime_error("failed to open summary output");
+-    out << "schemaVersion,stage,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,ebn0Db,ebn0Linear,noiseSigma,noiseVariance,globalSeed,noisePolicyVersion,snrIndex,processedFrames,processedPayloadBits,channelHardBitErrors,channelHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,avgEncodeTimeUs,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,firstNoiseHash,lastNoiseHash,stopReason\n";
++    out << "schemaVersion,stage,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,ebn0Db,ebn0Linear,noiseSigma,noiseVariance,globalSeed,noisePolicyVersion,snrIndex,frameStart,requestedFrameCount,logicalFrameCount,processedFrames,processedPayloadBits,channelHardBitErrors,channelHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,avgEncodeTimeUs,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,firstNoiseHash,lastNoiseHash,stopReason,targetFrameErrors,minFrames,maxFrames,checkpointCount,resumeCount,shardIndex,shardCount,configHash\n";
+     out << "bch.group4.result.v1," << result.config.stage << ',' << value.caseName << ','
+         << organizationName(value.organization) << ',' << decoderTypeName(value.decoderType) << ','
+         << value.payloadLength << ',' << value.encodedLength << ',' << std::setprecision(17) << value.frameRate << ','
+         << result.config.ebN0Db << ',' << common::ebN0Linear(result.config.ebN0Db) << ','
+         << result.noiseSigma << ',' << result.noiseVariance << ',' << result.config.globalSeed << ','
+-        << kBchNoisePolicyVersion << ',' << result.config.snrIndex << ',' << result.processedFrames << ','
++        << kBchNoisePolicyVersion << ',' << result.config.snrIndex << ',' << result.config.frameStart << ','
++        << result.config.frameCount << ',' << result.config.logicalFrameCount << ',' << result.processedFrames << ','
+         << result.processedPayloadBits << ',' << result.channelHardBitErrors << ',' << result.channelHardFrameErrors << ','
+         << result.decodedBitErrors << ',' << result.decodedFrameErrors << ',' << ber << ',' << fer << ','
+         << result.trueSuccessFrames << ',' << result.trueSuccessFrames / frames << ','
+@@ -242,7 +374,10 @@ void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& pat
+         << result.encodeTimeUsSum / frames << ',' << result.decodeTimeUsSum / frames << ','
+         << percentile(result.decodeTimesUs, 0.50) << ',' << percentile(result.decodeTimesUs, 0.95) << ','
+         << percentile(result.decodeTimesUs, 0.99) << ',' << maxDecode << ',' << result.firstNoiseHash << ','
+-        << result.lastNoiseHash << ",FIXED_FRAMES_REACHED\n";
++        << result.lastNoiseHash << ',' << result.stopReason << ',' << result.config.targetFrameErrors << ','
++        << result.config.minFrames << ',' << result.config.maxFrames << ',' << result.checkpointCount << ','
++        << result.resumeCount << ',' << result.config.shardIndex << ',' << result.config.shardCount << ','
++        << result.configHash << '\n';
+ }
+ 
+ }  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/scripts/merge_bch_shards.py b/Task/BCH/simulation/scripts/merge_bch_shards.py
+new file mode 100644
+index 0000000..65f8c34
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/merge_bch_shards.py
+@@ -0,0 +1,77 @@
++#!/usr/bin/env python3
++"""Merge BCH shard raw counts after strict identity and range validation."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++from pathlib import Path
++
++
++IDENTITY = ["caseName", "ebn0Db", "payloadLength", "encodedLength", "frameRate", "globalSeed",
++            "noisePolicyVersion", "snrIndex", "logicalFrameCount", "shardCount", "configHash"]
++COUNTERS = ["processedFrames", "processedPayloadBits", "channelHardBitErrors", "channelHardFrameErrors",
++            "decodedBitErrors", "decodedFrameErrors", "trueSuccessFrames", "reportedSuccessFrames",
++            "miscorrectedFrames", "decoderFailureFrames", "noErrorStatusFrames", "correctedStatusFrames",
++            "failedStatusFrames"]
++
++
++def read_one(path: Path) -> dict[str, str]:
++    with path.open(newline="", encoding="utf-8") as handle:
++        values = list(csv.DictReader(handle))
++    if len(values) != 1: raise ValueError("each shard summary must have exactly one row")
++    return values[0]
++
++
++def merge(inputs: list[Path], expected_start: int, expected_count: int, expected_shards: int) -> dict[str, object]:
++    if len(inputs) != expected_shards: raise ValueError("missing shard input")
++    values = [read_one(path) for path in inputs]
++    first = values[0]
++    if any(any(row[field] != first[field] for field in IDENTITY) for row in values[1:]):
++        raise ValueError("shard identity or config mismatch")
++    indices = [int(row["shardIndex"]) for row in values]
++    if len(set(indices)) != len(indices) or sorted(indices) != list(range(expected_shards)):
++        raise ValueError("duplicate or missing shard index")
++    ranges = sorted((int(row["frameStart"]), int(row["requestedFrameCount"]), row) for row in values)
++    cursor = expected_start
++    for start, count, row in ranges:
++        if start != cursor: raise ValueError("shard frame ranges contain gap or overlap")
++        if int(row["processedFrames"]) != count: raise ValueError("shard did not process its fixed range")
++        cursor += count
++    if cursor != expected_start + expected_count: raise ValueError("shard range does not cover expected frame count")
++    merged: dict[str, object] = {field: first[field] for field in IDENTITY}
++    merged.update({field: sum(int(row[field]) for row in values) for field in COUNTERS})
++    frames = int(merged["processedFrames"]); bits = int(merged["processedPayloadBits"])
++    merged.update({"frameStart": expected_start, "requestedFrameCount": expected_count,
++                   "BER": int(merged["decodedBitErrors"]) / bits,
++                   "FER": int(merged["decodedFrameErrors"]) / frames,
++                   "trueSuccessRate": int(merged["trueSuccessFrames"]) / frames,
++                   "reportedSuccessRate": int(merged["reportedSuccessFrames"]) / frames,
++                   "miscorrectionRate": int(merged["miscorrectedFrames"]) / frames,
++                   "decoderFailureRate": int(merged["decoderFailureFrames"]) / frames,
++                   "loadedShards": len(values), "duplicateFrames": 0, "missingFrames": 0,
++                   "configHashStatus": "PASS", "stopReason": "SHARD_RAW_COUNTS_MERGED"})
++    return merged
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--inputs", nargs="+", type=Path, required=True)
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--expected-frame-start", type=int, default=0)
++    parser.add_argument("--expected-frame-count", type=int, required=True)
++    parser.add_argument("--expected-shard-count", type=int, required=True)
++    args = parser.parse_args()
++    try:
++        row = merge(args.inputs, args.expected_frame_start, args.expected_frame_count, args.expected_shard_count)
++    except ValueError as error:
++        raise SystemExit(f"BLOCKED_BCH14_SHARD_MERGE_MISMATCH: {error}") from error
++    args.output.parent.mkdir(parents=True, exist_ok=True)
++    with args.output.open("w", newline="", encoding="utf-8") as handle:
++        writer = csv.DictWriter(handle, fieldnames=list(row)); writer.writeheader(); writer.writerow(row)
++    print(f"PASS_BCH14_SHARD_MERGE loadedShards={row['loadedShards']} mergedFrames={row['processedFrames']}")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/run_bch_group4.py b/Task/BCH/simulation/scripts/run_bch_group4.py
+index dd3eb57..68ab987 100644
+--- a/Task/BCH/simulation/scripts/run_bch_group4.py
++++ b/Task/BCH/simulation/scripts/run_bch_group4.py
+@@ -43,15 +43,17 @@ def ensure_pool(repo: Path, output: Path, payload: int, frames: int, seed: int)
+ 
+ def execute_point(repo: Path, executable: Path, output: Path, stage: str, case: str, snr: float, snr_index: int,
+                   frames: int, seed: int, manifest: Path, progress: bool, refresh: float,
+-                  detail: bool) -> None:
++                  detail: bool, frame_start: int = 0, extra_args: list[str] | None = None) -> None:
+     output.mkdir(parents=True, exist_ok=True)
+     command = [str(executable), "--stage", stage, "--case", case, "--ebn0-db", str(snr),
+-               "--snr-index", str(snr_index), "--frame-start", "0", "--frame-count", str(frames),
++               "--snr-index", str(snr_index), "--frame-start", str(frame_start), "--frame-count", str(frames),
+                "--global-seed", str(seed), "--frame-pool-manifest", str(manifest),
+                "--output-dir", str(output), "--progress-refresh-seconds", str(refresh),
+                "--progress" if progress else "--no-progress"]
+     if detail:
+         command.append("--detail")
++    if extra_args:
++        command.extend(extra_args)
+     run(command, repo)
+ 
+ 
+@@ -253,6 +255,171 @@ def run_bch13(args: argparse.Namespace, repo: Path, build: Path, results: Path)
+     print("PASS_BCH13_AWGN_PRESCAN frames=168000 casePoints=84")
+ 
+ 
++RAW_COUNTERS = ["processedFrames", "processedPayloadBits", "channelHardBitErrors", "channelHardFrameErrors",
++                "decodedBitErrors", "decodedFrameErrors", "trueSuccessFrames", "reportedSuccessFrames",
++                "miscorrectedFrames", "decoderFailureFrames", "noErrorStatusFrames", "correctedStatusFrames",
++                "failedStatusFrames"]
++
++
++def one_row(path: Path) -> dict[str, str]:
++    with path.open(newline="", encoding="utf-8") as handle:
++        values = list(csv.DictReader(handle))
++    if len(values) != 1: raise RuntimeError(f"expected one summary row: {path}")
++    return values[0]
++
++
++def write_dict_rows(path: Path, values: list[dict[str, object]]) -> None:
++    with path.open("w", newline="", encoding="utf-8") as handle:
++        writer = csv.DictWriter(handle, fieldnames=list(values[0])); writer.writeheader(); writer.writerows(values)
++
++
++def expect_failure(command: list[str], repo: Path, label: str) -> dict[str, object]:
++    completed = subprocess.run(command, cwd=repo, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++    if completed.returncode == 0:
++        raise SystemExit(f"negative test unexpectedly passed: {label}")
++    return {"test": label, "status": "PASS_EXPECTED_REJECTION", "returnCode": completed.returncode,
++            "message": completed.stderr.strip().replace("\n", " | ")[:300]}
++
++
++def run_bch14(args: argparse.Namespace, repo: Path, build: Path, results: Path) -> None:
++    executable = build / "bch_awgn_runner.exe"
++    merge_script = repo / "Task/BCH/simulation/scripts/merge_bch_shards.py"
++    trial = results / "formal_trial"
++    if trial.exists(): shutil.rmtree(trial)
++    trial.mkdir(parents=True)
++    recommendations_path = repo / "Task/BCH/simulation/stages/bch13_awgn_prescan/prescan_case_recommendations.csv"
++    recommendations = {row["caseName"]: row for row in csv.DictReader(recommendations_path.open(newline="", encoding="utf-8"))}
++    pools = results / "frame_pools"
++    manifests = {200: ensure_pool(repo, pools / "formal_trial_k200", 200, 20000, args.payload_seed),
++                 300: ensure_pool(repo, pools / "formal_trial_k300", 300, 20000, args.payload_seed)}
++    print("[4/6] BCH-14 execution plan")
++    print("Cases: 4 | LOW/MID/HIGH points: 12 | minFrames: 5000 | target FE: 100 | maxFrames: 20000")
++    print(f"Resume checks: 4 x 6000 frames | shard checks: 4 x 3 shards | Output: {trial}")
++
++    trial_points: list[Path] = []
++    for case in CASES:
++        payload = 200 if case.endswith("200") else 300
++        rec = recommendations[case]
++        for label, field in [("LOW", "waterfallLowDb"), ("MID", "waterfallMidDb"), ("HIGH", "waterfallHighDb")]:
++            snr = float(rec[field]); snr_index = int(round(snr * 10.0))
++            point = trial / "points" / f"{case.lower().replace('-', '_')}_{label.lower()}"
++            checkpoint = trial / "checkpoints" / f"{case.lower().replace('-', '_')}_{label.lower()}.json"
++            execute_point(repo, executable, point, "BCH14", case, snr, snr_index, 20000, args.global_seed,
++                          manifests[payload], args.progress, args.progress_refresh_seconds, False,
++                          extra_args=["--logical-frame-count", "20000", "--min-frames", "5000",
++                                      "--target-frame-errors", "100", "--max-frames", "20000",
++                                      "--checkpoint", str(checkpoint), "--checkpoint-interval", "1000"])
++            row = one_row(point / "summary.csv")
++            if row["stopReason"] not in {"TARGET_FRAME_ERRORS_REACHED", "MAX_FRAMES_REACHED"}:
++                raise SystemExit("BLOCKED_BCH14_INVALID_STOP_REASON")
++            if int(row["processedFrames"]) < 5000:
++                raise SystemExit("BCH-14 stopped before minimum frames")
++            trial_points.append(point)
++    combine_files(trial_points, "summary.csv", trial / "formal_trial_summary.csv")
++
++    resume_rows: list[dict[str, object]] = []
++    shard_rows: list[dict[str, object]] = []
++    checkpoint_rows: list[dict[str, object]] = []
++    negative_rows: list[dict[str, object]] = []
++    extra_progress: list[Path] = []
++    for case in CASES:
++        payload = 200 if case.endswith("200") else 300
++        snr = float(recommendations[case]["waterfallMidDb"]); snr_index = int(round(snr * 10.0))
++        prefix = case.lower().replace('-', '_')
++        continuous = trial / "resume" / prefix / "continuous"
++        partial = trial / "resume" / prefix / "partial"
++        resumed = trial / "resume" / prefix / "resumed"
++        checkpoint = trial / "resume" / prefix / "state.json"
++        common_extra = ["--logical-frame-count", "6000"]
++        execute_point(repo, executable, continuous, "BCH14_RESUME", case, snr, snr_index, 6000, args.global_seed,
++                      manifests[payload], False, args.progress_refresh_seconds, True, extra_args=common_extra)
++        execute_point(repo, executable, partial, "BCH14_RESUME", case, snr, snr_index, 6000, args.global_seed,
++                      manifests[payload], False, args.progress_refresh_seconds, True,
++                      extra_args=common_extra + ["--checkpoint", str(checkpoint), "--checkpoint-interval", "1000",
++                                                 "--interrupt-after-frames", "2500"])
++        execute_point(repo, executable, resumed, "BCH14_RESUME", case, snr, snr_index, 6000, args.global_seed,
++                      manifests[payload], False, args.progress_refresh_seconds, True,
++                      extra_args=common_extra + ["--checkpoint", str(checkpoint), "--checkpoint-interval", "1000", "--resume"])
++        continuous_row = one_row(continuous / "summary.csv"); resumed_row = one_row(resumed / "summary.csv")
++        counter_mismatches = sum(continuous_row[field] != resumed_row[field] for field in RAW_COUNTERS)
++        continuous_detail = {row["frameIndex"]: row for row in csv.DictReader((continuous / "frame_detail.csv").open(newline="", encoding="utf-8"))}
++        resumed_detail = list(csv.DictReader((partial / "frame_detail.csv").open(newline="", encoding="utf-8"))) + list(csv.DictReader((resumed / "frame_detail.csv").open(newline="", encoding="utf-8")))
++        noise_mismatches = sum(continuous_detail[row["frameIndex"]]["noiseHash"] != row["noiseHash"] for row in resumed_detail)
++        if counter_mismatches or noise_mismatches or len(resumed_detail) != 6000:
++            raise SystemExit("BLOCKED_BCH14_CHECKPOINT_RESUME_MISMATCH")
++        resume_rows.append({"caseName": case, "ebn0Db": snr, "continuousFrames": continuous_row["processedFrames"],
++                            "resumedFrames": resumed_row["processedFrames"], "counterMismatches": counter_mismatches,
++                            "noiseHashMismatches": noise_mismatches, "checkpointCount": resumed_row["checkpointCount"], "status": "PASS"})
++        state = __import__("json").loads(checkpoint.read_text(encoding="utf-8"))
++        required_fields = ["schemaVersion", "configHash", "nextFrameIndex", "bitErrors", "frameErrors",
++                           "reportedSuccessFrames", "miscorrectedFrames", "decoderFailureFrames", "noisePolicyVersion",
++                           "globalSeed", "shardIndex", "shardCount", "checkpointCount", "timestamp"]
++        missing = [field for field in required_fields if field not in state]
++        checkpoint_rows.append({"caseName": case, "checkpointPath": str(checkpoint.relative_to(trial)),
++                                "nextFrameIndex": state["nextFrameIndex"], "missingRequiredFields": ";".join(missing),
++                                "temporaryFileExists": checkpoint.with_suffix(checkpoint.suffix + ".tmp").exists(),
++                                "status": "PASS" if not missing and not checkpoint.with_suffix(checkpoint.suffix + ".tmp").exists() else "FAIL"})
++        bad_seed_command = [str(executable), "--stage", "BCH14_RESUME", "--case", case, "--ebn0-db", str(snr),
++                            "--snr-index", str(snr_index), "--frame-start", "0", "--frame-count", "6000",
++                            "--logical-frame-count", "6000", "--global-seed", str(args.global_seed + 1),
++                            "--frame-pool-manifest", str(manifests[payload]), "--output-dir", str(trial / "negative" / prefix / "bad_seed"),
++                            "--checkpoint", str(checkpoint), "--checkpoint-interval", "1000", "--resume", "--no-progress"]
++        negative_rows.append(expect_failure(bad_seed_command, repo, f"{case}_resume_config_hash_seed_mismatch"))
++        extra_progress.extend([continuous, partial, resumed])
++
++        shard_summaries: list[Path] = []
++        for shard_index in range(3):
++            shard = trial / "shards" / prefix / f"shard{shard_index}"
++            execute_point(repo, executable, shard, "BCH14_SHARD", case, snr, snr_index, 2000, args.global_seed,
++                          manifests[payload], False, args.progress_refresh_seconds, False, frame_start=shard_index * 2000,
++                          extra_args=["--logical-frame-count", "6000", "--shard-index", str(shard_index), "--shard-count", "3"])
++            shard_summaries.append(shard / "summary.csv"); extra_progress.append(shard)
++        merged = trial / "shards" / prefix / "merged.csv"
++        merge_command = [sys.executable, str(merge_script), "--inputs", *map(str, shard_summaries), "--output", str(merged),
++                         "--expected-frame-count", "6000", "--expected-shard-count", "3"]
++        run(merge_command, repo)
++        merged_row = one_row(merged)
++        shard_mismatches = sum(continuous_row[field] != merged_row[field] for field in RAW_COUNTERS)
++        if shard_mismatches: raise SystemExit("BLOCKED_BCH14_SHARD_MERGE_MISMATCH")
++        shard_rows.append({"caseName": case, "ebn0Db": snr, "continuousFrames": continuous_row["processedFrames"],
++                           "mergedFrames": merged_row["processedFrames"], "loadedShards": merged_row["loadedShards"],
++                           "counterMismatches": shard_mismatches, "duplicateFrames": 0, "missingFrames": 0, "status": "PASS"})
++
++        if case == CASES[0]:
++            duplicate = merge_command.copy(); duplicate[duplicate.index(str(shard_summaries[1]))] = str(shard_summaries[0])
++            negative_rows.append(expect_failure(duplicate, repo, "duplicate_shard_rejection"))
++            missing = [sys.executable, str(merge_script), "--inputs", str(shard_summaries[0]), str(shard_summaries[2]),
++                       "--output", str(trial / "negative/missing.csv"), "--expected-frame-count", "6000", "--expected-shard-count", "3"]
++            negative_rows.append(expect_failure(missing, repo, "missing_shard_rejection"))
++            mutated_dir = trial / "negative"; mutated_dir.mkdir(exist_ok=True)
++            mutated = mutated_dir / "overlap_summary.csv"; row = one_row(shard_summaries[1]); row["frameStart"] = "1999"
++            with mutated.open("w", newline="", encoding="utf-8") as handle:
++                writer = csv.DictWriter(handle, fieldnames=list(row)); writer.writeheader(); writer.writerow(row)
++            overlap = [sys.executable, str(merge_script), "--inputs", str(shard_summaries[0]), str(mutated), str(shard_summaries[2]),
++                       "--output", str(trial / "negative/overlap.csv"), "--expected-frame-count", "6000", "--expected-shard-count", "3"]
++            negative_rows.append(expect_failure(overlap, repo, "overlap_rejection"))
++            mutations = {"caseName": "BCH-B200", "ebn0Db": str(snr + 0.1),
++                         "globalSeed": str(args.global_seed + 1), "noisePolicyVersion": "2",
++                         "configHash": "0" * 64}
++            for field, replacement in mutations.items():
++                identity_mutated = mutated_dir / f"{field}_summary.csv"
++                row = one_row(shard_summaries[1]); row[field] = replacement
++                with identity_mutated.open("w", newline="", encoding="utf-8") as handle:
++                    writer = csv.DictWriter(handle, fieldnames=list(row)); writer.writeheader(); writer.writerow(row)
++                command = [sys.executable, str(merge_script), "--inputs", str(shard_summaries[0]), str(identity_mutated), str(shard_summaries[2]),
++                           "--output", str(trial / "negative" / f"{field}.csv"), "--expected-frame-count", "6000", "--expected-shard-count", "3"]
++                negative_rows.append(expect_failure(command, repo, f"{field}_mismatch_rejection"))
++
++    write_dict_rows(trial / "resume_audit.csv", resume_rows)
++    write_dict_rows(trial / "shard_merge_audit.csv", shard_rows)
++    write_dict_rows(trial / "checkpoint_audit.csv", checkpoint_rows)
++    write_dict_rows(trial / "negative_test_results.csv", negative_rows)
++    combine_jsonl(trial_points + extra_progress, "progress.jsonl", trial / "progress.jsonl")
++    if any(row["status"] != "PASS" for row in checkpoint_rows):
++        raise SystemExit("BLOCKED_BCH14_CHECKPOINT_RESUME_MISMATCH")
++    print("PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL casePoints=12 resumeCases=4 shardCases=4")
++
++
+ def main() -> int:
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
+@@ -286,6 +453,7 @@ def main() -> int:
+         print("BCH Group 4 plan: BCH-11 -> BCH-12 -> BCH-13 -> BCH-14 -> BCH-15 -> BCH-16")
+         print("BCH-12: 4 cases, 5 SNR points, 200 frames/point, 4000 maximum frames")
+         print("BCH-13: 4 cases, 21 SNR points, 2000 frames/point, 168000 maximum frames")
++        print("BCH-14: 12 adaptive trial points plus 4 resume and 4 three-shard equivalence checks")
+         print(f"Output: {results}")
+         return 0
+     selected = args.stage or ("bch12" if not args.all else "all")
+@@ -295,7 +463,9 @@ def main() -> int:
+         run_bch12(args, repo, build, results)
+     if selected in {"bch13", "all"}:
+         run_bch13(args, repo, build, results)
+-    if selected in {"bch14", "bch15", "bch16"}:
++    if selected in {"bch14", "all"}:
++        run_bch14(args, repo, build, results)
++    if selected in {"bch15", "bch16"}:
+         raise SystemExit("requested stage is not implemented in the current ordered functional range")
+     return 0
+ 
+diff --git a/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/acceptance_matrix.csv b/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/acceptance_matrix.csv
+new file mode 100644
+index 0000000..37c3856
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/acceptance_matrix.csv
+@@ -0,0 +1,5 @@
++requirement,implementation,positive_test,negative_test,gate
++Adaptive stop,Common simulation_control plus BCH runner,12 LOW/MID/HIGH points,stop before minimum rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
++Atomic checkpoint,Common checkpoint temp flush replace,checkpoint roundtrip and no temp residue,truncated/wrong path rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
++Resume equality,BCH runner checkpoint restore,continuous equals interrupted/resumed raw counts,config hash mismatch rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
++Three-shard merge,merge_bch_shards.py,continuous equals summed raw counts,duplicate overlap gap identity mismatch rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
+diff --git a/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/frozen_config.csv b/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/frozen_config.csv
+new file mode 100644
+index 0000000..5501fe4
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/frozen_config.csv
+@@ -0,0 +1,2 @@
++stage,casePoints,minFrames,targetFrameErrors,maxFrames,resumeFixedFrames,resumeInterruptFrames,shardFixedFrames,shardCount,checkpointInterval,globalSeed
++BCH-14,12,5000,100,20000,6000,2500,6000,3,1000,2026072201
+diff --git a/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/stage_plan.md b/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/stage_plan.md
+new file mode 100644
+index 0000000..2d265b9
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/stage_plan.md
+@@ -0,0 +1,12 @@
++# BCH-14 frozen specification
++
++Use LOW/MID/HIGH measured points from BCH-13 for 12 infrastructure-trial case-points. Apply
++`minFrames=5000`, `targetFrameErrors=100`, `maxFrames=20000`. Extend the existing Common checkpoint
++record backward-compatibly, write atomically through temp/flush/replace, protect all simulation
++identity and stop fields with a canonical config hash, and preserve BCH raw counters.
++
++For each case, compare a fixed continuous run with partial+resume to the same frame count. Compare a
++fixed continuous run with the sum of three contiguous shards. Reject duplicate, overlap, missing
++range, config/case/SNR/seed/noise-policy mismatches. Rates are recomputed only after raw-count merge.
++
++Gate: `PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL`.
+diff --git a/Task/Common/CMakeLists.txt b/Task/Common/CMakeLists.txt
+index 572d863..d144b50 100644
+--- a/Task/Common/CMakeLists.txt
++++ b/Task/Common/CMakeLists.txt
+@@ -2,12 +2,15 @@ cmake_minimum_required(VERSION 3.16)
+ 
+ project(CommonFoundation LANGUAGES CXX)
+ 
++enable_testing()
++
+ add_library(common_foundation INTERFACE)
+ target_include_directories(common_foundation INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+ target_compile_features(common_foundation INTERFACE cxx_std_17)
+ 
+ add_executable(common02_types_interfaces_tests tests/stage02/test_common02_types_interfaces.cpp)
+ target_link_libraries(common02_types_interfaces_tests PRIVATE common_foundation)
++add_test(NAME common02_types_interfaces COMMAND common02_types_interfaces_tests)
+ 
+ set(COMMON04_SOURCES
+     src/random_policy.cpp
+@@ -32,4 +35,5 @@ foreach(test_name
+         test_common04_integration)
+     add_executable(${test_name} tests/stage04/${test_name}.cpp ${COMMON04_SOURCES})
+     target_link_libraries(${test_name} PRIVATE common_foundation)
++    add_test(NAME ${test_name} COMMAND ${test_name})
+ endforeach()
+diff --git a/Task/Common/include/common/checkpoint.hpp b/Task/Common/include/common/checkpoint.hpp
+index c144d66..710686e 100644
+--- a/Task/Common/include/common/checkpoint.hpp
++++ b/Task/Common/include/common/checkpoint.hpp
+@@ -24,6 +24,20 @@ struct SimulationCheckpointRecord {
+     double ebN0_dB = 0.0;
+     FrameIndex nextFrameIndex = 0;
+     ErrorMetrics metrics;
++    std::uint64_t channelHardBitErrors = 0;
++    std::uint64_t channelHardFrameErrors = 0;
++    std::uint64_t reportedSuccessFrames = 0;
++    std::uint64_t miscorrectedFrames = 0;
++    std::uint64_t decoderFailureFrames = 0;
++    std::uint64_t noErrorStatusFrames = 0;
++    std::uint64_t correctedStatusFrames = 0;
++    std::uint64_t failedStatusFrames = 0;
++    std::uint64_t noisePolicyVersion = 0;
++    std::uint64_t globalSeed = 0;
++    std::uint64_t shardIndex = 0;
++    std::uint64_t shardCount = 1;
++    std::uint64_t checkpointCount = 0;
++    std::string timestamp;
+     std::string stopReason = "CONTINUE";
+ };
+ 
+diff --git a/Task/Common/src/checkpoint.cpp b/Task/Common/src/checkpoint.cpp
+index e17cc5c..eef01b8 100644
+--- a/Task/Common/src/checkpoint.cpp
++++ b/Task/Common/src/checkpoint.cpp
+@@ -4,11 +4,15 @@
+ #include "common/sha256.hpp"
+ 
+ #include <cmath>
++#include <filesystem>
+ #include <fstream>
+ #include <limits>
+ #include <regex>
+ #include <sstream>
+ #include <stdexcept>
++#ifdef _WIN32
++#include <windows.h>
++#endif
+ 
+ namespace scl::common {
+ 
+@@ -24,6 +28,18 @@ std::string jsonString(const std::string& value) {
+     out.push_back('"');
+     return out;
+ }
++
++std::uint64_t optionalUInt64(const std::string& text, const std::string& key, std::uint64_t fallback = 0U) {
++    const std::regex pattern("\"" + key + "\"\\s*:\\s*([0-9]+)");
++    std::smatch match;
++    return std::regex_search(text, match, pattern) ? static_cast<std::uint64_t>(std::stoull(match[1].str())) : fallback;
++}
++
++std::string optionalString(const std::string& text, const std::string& key) {
++    const std::regex pattern("\"" + key + "\"\\s*:\\s*\"([^\"]*)\"");
++    std::smatch match;
++    return std::regex_search(text, match, pattern) ? match[1].str() : std::string{};
++}
+ }
+ 
+ std::string canonicalConfigText(const std::string& caseName,
+@@ -75,6 +91,20 @@ std::string checkpointToJson(const SimulationCheckpointRecord& record) {
+     out << "\"totalTimeNsSum\":" << record.metrics.latency.totalTimeNsSum << ",\n";
+     out << "\"maxDecodeTimeNs\":" << record.metrics.latency.maxDecodeTimeNs << ",\n";
+     out << "\"maxTotalTimeNs\":" << record.metrics.latency.maxTotalTimeNs << ",\n";
++    out << "\"channelHardBitErrors\":" << record.channelHardBitErrors << ",\n";
++    out << "\"channelHardFrameErrors\":" << record.channelHardFrameErrors << ",\n";
++    out << "\"reportedSuccessFrames\":" << record.reportedSuccessFrames << ",\n";
++    out << "\"miscorrectedFrames\":" << record.miscorrectedFrames << ",\n";
++    out << "\"decoderFailureFrames\":" << record.decoderFailureFrames << ",\n";
++    out << "\"noErrorStatusFrames\":" << record.noErrorStatusFrames << ",\n";
++    out << "\"correctedStatusFrames\":" << record.correctedStatusFrames << ",\n";
++    out << "\"failedStatusFrames\":" << record.failedStatusFrames << ",\n";
++    out << "\"noisePolicyVersion\":" << record.noisePolicyVersion << ",\n";
++    out << "\"globalSeed\":" << record.globalSeed << ",\n";
++    out << "\"shardIndex\":" << record.shardIndex << ",\n";
++    out << "\"shardCount\":" << record.shardCount << ",\n";
++    out << "\"checkpointCount\":" << record.checkpointCount << ",\n";
++    out << "\"timestamp\":" << jsonString(record.timestamp) << ",\n";
+     out << "\"stopReason\":" << jsonString(record.stopReason) << "\n";
+     out << "}\n";
+     return out.str();
+@@ -113,6 +143,20 @@ SimulationCheckpointRecord checkpointFromJson(const std::string& text) {
+     record.metrics.latency.totalTimeNsSum = extractJsonUInt64(text, "totalTimeNsSum");
+     record.metrics.latency.maxDecodeTimeNs = extractJsonUInt64(text, "maxDecodeTimeNs");
+     record.metrics.latency.maxTotalTimeNs = extractJsonUInt64(text, "maxTotalTimeNs");
++    record.channelHardBitErrors = optionalUInt64(text, "channelHardBitErrors");
++    record.channelHardFrameErrors = optionalUInt64(text, "channelHardFrameErrors");
++    record.reportedSuccessFrames = optionalUInt64(text, "reportedSuccessFrames");
++    record.miscorrectedFrames = optionalUInt64(text, "miscorrectedFrames");
++    record.decoderFailureFrames = optionalUInt64(text, "decoderFailureFrames");
++    record.noErrorStatusFrames = optionalUInt64(text, "noErrorStatusFrames");
++    record.correctedStatusFrames = optionalUInt64(text, "correctedStatusFrames");
++    record.failedStatusFrames = optionalUInt64(text, "failedStatusFrames");
++    record.noisePolicyVersion = optionalUInt64(text, "noisePolicyVersion");
++    record.globalSeed = optionalUInt64(text, "globalSeed");
++    record.shardIndex = optionalUInt64(text, "shardIndex");
++    record.shardCount = optionalUInt64(text, "shardCount", 1U);
++    record.checkpointCount = optionalUInt64(text, "checkpointCount");
++    record.timestamp = optionalString(text, "timestamp");
+     record.stopReason = extractJsonString(text, "stopReason");
+     return record;
+ }
+@@ -122,7 +166,9 @@ void validateResumeCompatibility(const SimulationCheckpointRecord& expected, con
+         expected.configHash != actual.configHash || expected.framePoolId != actual.framePoolId ||
+         expected.noisePoolId != actual.noisePoolId || expected.payloadLength != actual.payloadLength ||
+         expected.encodedLength != actual.encodedLength || expected.snrIndex != actual.snrIndex ||
+-        expected.ebN0_dB != actual.ebN0_dB) {
++        expected.ebN0_dB != actual.ebN0_dB || expected.noisePolicyVersion != actual.noisePolicyVersion ||
++        expected.globalSeed != actual.globalSeed || expected.shardIndex != actual.shardIndex ||
++        expected.shardCount != actual.shardCount) {
+         throw std::invalid_argument("checkpoint resume compatibility mismatch");
+     }
+ }
+@@ -145,14 +191,24 @@ void validateCheckpointState(const SimulationCheckpointRecord& record, FrameInde
+ }
+ 
+ void writeCheckpointFile(const std::string& path, const SimulationCheckpointRecord& record) {
+-    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+-    if (!output) {
+-        throw std::runtime_error("failed to open checkpoint output path");
++    const std::filesystem::path target(path);
++    if (!target.parent_path().empty()) std::filesystem::create_directories(target.parent_path());
++    const std::filesystem::path temporary = target.string() + ".tmp";
++    {
++        std::ofstream output(temporary, std::ios::binary | std::ios::trunc);
++        if (!output) throw std::runtime_error("failed to open checkpoint temporary output path");
++        output << checkpointToJson(record);
++        output.flush();
++        if (!output) throw std::runtime_error("failed to flush checkpoint temporary output");
+     }
+-    output << checkpointToJson(record);
+-    if (!output) {
+-        throw std::runtime_error("failed to write checkpoint");
++#ifdef _WIN32
++    if (!MoveFileExW(temporary.wstring().c_str(), target.wstring().c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
++        std::filesystem::remove(temporary);
++        throw std::runtime_error("failed to atomically replace checkpoint output");
+     }
++#else
++    std::filesystem::rename(temporary, target);
++#endif
+ }
+ 
+ SimulationCheckpointRecord readCheckpointFile(const std::string& path) {
+diff --git a/Task/Common/tests/stage04/test_common04_checkpoint.cpp b/Task/Common/tests/stage04/test_common04_checkpoint.cpp
+index 42d0503..a19264a 100644
+--- a/Task/Common/tests/stage04/test_common04_checkpoint.cpp
++++ b/Task/Common/tests/stage04/test_common04_checkpoint.cpp
+@@ -44,6 +44,7 @@ int main() {
+     firstOptions.checkpointIntervalFrames = 37;
+     const auto partial = scl::common::runIdentitySimulation(firstPart, firstOptions);
+     require(partial.finalCheckpoint.nextFrameIndex == 37U, "partial nextFrameIndex mismatch");
++    require(!std::filesystem::exists(checkpointPath.string() + ".tmp"), "atomic checkpoint temporary file remained");
+ 
+     scl::common::IdentitySimulationRunOptions resumedOptions;
+     resumedOptions.resumeCheckpoint = scl::common::readCheckpointFile(checkpointPath.string());
+@@ -73,6 +74,14 @@ int main() {
+     requireThrows("snr mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
+     bad = partial.finalCheckpoint; bad.ebN0_dB = 3.0;
+     requireThrows("Eb/N0 mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
++    bad = partial.finalCheckpoint; bad.noisePolicyVersion += 1U;
++    requireThrows("noise policy mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
++    bad = partial.finalCheckpoint; bad.globalSeed += 1U;
++    requireThrows("global seed mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
++    bad = partial.finalCheckpoint; bad.shardIndex += 1U;
++    requireThrows("shard index mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
++    bad = partial.finalCheckpoint; bad.shardCount += 1U;
++    requireThrows("shard count mismatch", [&] { scl::common::validateResumeCompatibility(partial.finalCheckpoint, bad); });
+     bad = partial.finalCheckpoint; bad.nextFrameIndex = 101;
+     requireThrows("range mismatch", [&] { scl::common::validateCheckpointState(bad, 0, 100); });
+     bad = partial.finalCheckpoint; bad.metrics.processedFrames = 36;

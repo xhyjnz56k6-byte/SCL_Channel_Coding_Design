@@ -1,0 +1,54 @@
+{
+  "stage": "bch14_formal_infrastructure_trial",
+  "baseCommit": "04b6c4c54273c3294405628cba3e3d5501c6961e",
+  "functionalCommit": "8d406c50b4e365ff24e0214ae93ee0529c79f09e",
+  "branch": "bch-group4-awgn-formal-comparison",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "04b6c4c54273c3294405628cba3e3d5501c6961e",
+      "contentCommit": "6db579349b9088d4be8cb7dc2d2bdca5e476b0d7",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/include/bch_simulation/bch_awgn_simulation.hpp",
+        "Task/BCH/simulation/current/src/bch_awgn_runner.cpp",
+        "Task/BCH/simulation/current/src/bch_awgn_simulation.cpp",
+        "Task/BCH/simulation/scripts/merge_bch_shards.py",
+        "Task/BCH/simulation/scripts/run_bch_group4.py",
+        "Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/frozen_config.csv",
+        "Task/BCH/simulation/stages/bch14_formal_infrastructure_trial/stage_plan.md",
+        "Task/Common/CMakeLists.txt",
+        "Task/Common/include/common/checkpoint.hpp",
+        "Task/Common/src/checkpoint.cpp",
+        "Task/Common/tests/stage04/test_common04_checkpoint.cpp"
+      ]
+    },
+    {
+      "name": "progressStateRepair",
+      "baseCommit": "6db579349b9088d4be8cb7dc2d2bdca5e476b0d7",
+      "contentCommit": "8d406c50b4e365ff24e0214ae93ee0529c79f09e",
+      "files": ["Task/BCH/simulation/current/src/bch_awgn_simulation.cpp"]
+    }
+  ],
+  "commonNoisePolicyVersion": 1,
+  "framePoolVersion": "common03.frame_pool_manifest.v2",
+  "globalSeed": 2026072201,
+  "caseConfigs": ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"],
+  "snrGrid": "LOW_MID_HIGH_FROM_BCH13",
+  "stopConfig": {"minFrames": 5000, "targetFrameErrors": 100, "maxFrames": 20000},
+  "testCounts": {"trialCasePoints": 12, "trialFrames": 78650, "resumeCases": 4, "shardCases": 4, "negativeRejections": 12},
+  "formalPointCounts": 12,
+  "processedFrames": 78650,
+  "mismatchCounts": {"resumeCounters": 0, "resumeNoiseHashes": 0, "shardCounters": 0, "negativeUnexpectedPass": 0},
+  "checkpointAudit": "PASS_16_FILES",
+  "resumeAudit": "PASS_4_CASES",
+  "shardAudit": "PASS_4_CASES_3_SHARDS",
+  "plotAudit": "NOT_APPLICABLE_EMPTY_MANIFEST",
+  "pngCount": 0,
+  "nonPngPlotArtifactCount": 0,
+  "artifactHashes": {"index": "result_file_hashes.csv", "checkpointIndex": "checkpoint_file_hashes.csv"},
+  "gateStatus": "PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL",
+  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "mergeStatus": "NOT_MERGED"
+}

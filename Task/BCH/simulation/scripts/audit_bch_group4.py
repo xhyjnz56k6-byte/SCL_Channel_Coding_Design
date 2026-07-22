@@ -113,17 +113,56 @@ def publish_bch13(results: Path, stage: Path) -> None:
     print(f"PASS_BCH13_ARTIFACT_PUBLISH files={len(hash_rows)} png=6 nonPngPlot=0")
 
 
+def publish_bch14(results: Path, stage: Path) -> None:
+    required = ["formal_trial_summary.csv", "resume_audit.csv", "shard_merge_audit.csv",
+                "checkpoint_audit.csv", "negative_test_results.csv", "progress.jsonl"]
+    for name in required:
+        source = results / name
+        if not source.is_file(): raise SystemExit(f"missing BCH-14 artifact: {source}")
+        shutil.copy2(source, stage / name)
+    latest: dict[tuple[str, str, float, int], dict[str, object]] = {}
+    for line in (stage / "progress.jsonl").read_text(encoding="utf-8").splitlines():
+        row = json.loads(line)
+        latest[(row["stage"], row["caseName"], float(row["ebn0Db"]), int(row["shardIndex"]))] = row
+    if len(latest) < 28 or any(row["status"] != "COMPLETE" for row in latest.values()):
+        raise SystemExit("BCH-14 progress completion mismatch")
+    progress_rows = [{"stage": row["stage"], "caseName": row["caseName"], "ebn0Db": row["ebn0Db"],
+                      "shardIndex": row["shardIndex"], "shardCount": row["shardCount"],
+                      "processedFrames": row["processedFrames"], "checkpointCount": row["checkpointCount"],
+                      "status": row["status"]} for _, row in sorted(latest.items())]
+    with (stage / "progress_summary.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(progress_rows[0])); writer.writeheader(); writer.writerows(progress_rows)
+    checkpoint_hash_rows = []
+    for path in sorted(results.rglob("*.json")):
+        if "checkpoints" in path.parts or path.name == "state.json":
+            checkpoint_hash_rows.append({"path": str(path.relative_to(results)).replace("\\", "/"),
+                                         "bytes": path.stat().st_size, "sha256": sha256(path)})
+    with (stage / "checkpoint_file_hashes.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["path", "bytes", "sha256"]); writer.writeheader(); writer.writerows(checkpoint_hash_rows)
+    excluded = {"result_file_hashes.csv", "changes.patch", "manifest.json", "git_commit.txt"}
+    hash_rows = []
+    for path in sorted(stage.iterdir()):
+        if path.is_file() and path.name not in excluded:
+            row_count = max(0, len(path.read_text(encoding="utf-8").splitlines()) - 1) if path.suffix.lower() == ".csv" else 0
+            hash_rows.append({"path": path.name, "bytes": path.stat().st_size, "rowCount": row_count, "sha256": sha256(path)})
+    with (stage / "result_file_hashes.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["path", "bytes", "rowCount", "sha256"]); writer.writeheader(); writer.writerows(hash_rows)
+    print(f"PASS_BCH14_ARTIFACT_PUBLISH files={len(hash_rows)} checkpoints={len(checkpoint_hash_rows)}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stage", choices=["bch12", "bch13"], required=True)
+    parser.add_argument("--stage", choices=["bch12", "bch13", "bch14"], required=True)
     parser.add_argument("--results-dir", type=Path, required=True)
     parser.add_argument("--stage-dir", type=Path, required=True)
     args = parser.parse_args()
     args.stage_dir.mkdir(parents=True, exist_ok=True)
     if args.stage == "bch12":
         publish_bch12(args.results_dir.resolve(), args.stage_dir.resolve())
-    else:
+    elif args.stage == "bch13":
         publish_bch13(args.results_dir.resolve(), args.stage_dir.resolve())
+    else:
+        publish_bch14(args.results_dir.resolve(), args.stage_dir.resolve())
     return 0
 
 
