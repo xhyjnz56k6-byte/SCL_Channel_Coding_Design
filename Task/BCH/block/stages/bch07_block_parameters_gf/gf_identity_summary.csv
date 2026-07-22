@@ -1,0 +1,3 @@
+field,identityCases,illegalInputCases,result
+GF(256),full-domain plus 20000 distributivity samples,7,PASS
+GF(512),all elements plus 20000 distributivity samples,7,PASS
