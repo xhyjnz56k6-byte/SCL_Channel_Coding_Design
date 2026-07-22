@@ -1,0 +1,6 @@
+metric,value
+noErrorPayloadMismatch,0
+singleErrorPayloadMismatch,0
+correctedPositionMismatch,0
+postSyndromeMismatch,0
+lookupMissForSingleError,0
