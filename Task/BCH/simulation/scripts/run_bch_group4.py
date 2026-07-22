@@ -14,6 +14,7 @@ from pathlib import Path
 
 CASES = ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"]
 SMOKE_SNR = [0.0, 2.0, 4.0, 6.0, 8.0]
+PRESCAN_SNR = [index * 0.5 for index in range(21)]
 
 
 def run(command: list[str], cwd: Path, capture: bool = False) -> subprocess.CompletedProcess[str]:
@@ -40,11 +41,11 @@ def ensure_pool(repo: Path, output: Path, payload: int, frames: int, seed: int) 
     return manifest
 
 
-def execute_point(repo: Path, executable: Path, output: Path, case: str, snr: float, snr_index: int,
+def execute_point(repo: Path, executable: Path, output: Path, stage: str, case: str, snr: float, snr_index: int,
                   frames: int, seed: int, manifest: Path, progress: bool, refresh: float,
                   detail: bool) -> None:
     output.mkdir(parents=True, exist_ok=True)
-    command = [str(executable), "--stage", "BCH12", "--case", case, "--ebn0-db", str(snr),
+    command = [str(executable), "--stage", stage, "--case", case, "--ebn0-db", str(snr),
                "--snr-index", str(snr_index), "--frame-start", "0", "--frame-count", str(frames),
                "--global-seed", str(seed), "--frame-pool-manifest", str(manifest),
                "--output-dir", str(output), "--progress-refresh-seconds", str(refresh),
@@ -100,9 +101,9 @@ def run_bch12(args: argparse.Namespace, repo: Path, build: Path, results: Path) 
             name = f"{case.lower().replace('-', '_')}_{snr_index:02d}"
             point = smoke / "points" / name
             rerun = smoke / "reproducibility" / name
-            execute_point(repo, executable, point, case, snr, snr_index, 200, args.global_seed,
+            execute_point(repo, executable, point, "BCH12", case, snr, snr_index, 200, args.global_seed,
                           manifests[payload], args.progress, args.progress_refresh_seconds, True)
-            execute_point(repo, executable, rerun, case, snr, snr_index, 200, args.global_seed,
+            execute_point(repo, executable, rerun, "BCH12", case, snr, snr_index, 200, args.global_seed,
                           manifests[payload], False, args.progress_refresh_seconds, True)
             points.append(point)
             reruns.append(rerun)
@@ -169,6 +170,89 @@ def run_bch12(args: argparse.Namespace, repo: Path, build: Path, results: Path) 
     print(f"PASS_BCH12_AWGN_SMOKE frames=4000 casePoints=20 lowFE={low_errors} highFE={high_errors}")
 
 
+def nearest_measured(case_rows: list[dict[str, str]], target: float) -> dict[str, str]:
+    def distance(row: dict[str, str]) -> float:
+        fer = float(row["FER"])
+        if fer <= 0.0:
+            fer = 0.5 / float(row["processedFrames"])
+        return abs(math.log10(fer) - math.log10(target))
+    return min(case_rows, key=distance)
+
+
+def run_bch13(args: argparse.Namespace, repo: Path, build: Path, results: Path) -> None:
+    executable = build / "bch_awgn_runner.exe"
+    prescan = results / "prescan"
+    if prescan.exists(): shutil.rmtree(prescan)
+    prescan.mkdir(parents=True)
+    pools = results / "frame_pools"
+    manifests = {200: ensure_pool(repo, pools / "prescan_k200", 200, 2000, args.payload_seed),
+                 300: ensure_pool(repo, pools / "prescan_k300", 300, 2000, args.payload_seed)}
+    print("[3/6] BCH-13 execution plan")
+    print(f"Cases: 4 | SNR points: 21 | case-points: 84 | fixed frames/point: 2000 | maximum frames: 168000")
+    print(f"Progress: {'enabled' if args.progress else 'disabled'} refresh={args.progress_refresh_seconds}s | Output: {prescan}")
+    points: list[Path] = []
+    completed = 0
+    for case in CASES:
+        payload = 200 if case.endswith("200") else 300
+        for snr_index, snr in enumerate(PRESCAN_SNR):
+            point = prescan / "points" / f"{case.lower().replace('-', '_')}_{snr_index:02d}"
+            execute_point(repo, executable, point, "BCH13", case, snr, snr_index, 2000, args.global_seed,
+                          manifests[payload], args.progress, args.progress_refresh_seconds, False)
+            points.append(point); completed += 1
+            print(f"\r[BCH-13] case-points {completed}/84", end="", flush=True)
+    print()
+    combine_files(points, "summary.csv", prescan / "prescan_summary.csv")
+    combine_jsonl(points, "progress.jsonl", prescan / "progress.jsonl")
+    summaries = list(csv.DictReader((prescan / "prescan_summary.csv").open(newline="", encoding="utf-8")))
+    keys = {(row["caseName"], float(row["ebn0Db"])) for row in summaries}
+    if len(summaries) != 84 or len(keys) != 84 or sum(int(row["processedFrames"]) for row in summaries) != 168000:
+        raise SystemExit("BLOCKED_BCH13_RESULT_ACCOUNTING_FAILURE")
+    numeric = ["BER", "FER", "trueSuccessRate", "reportedSuccessRate", "miscorrectionRate", "decoderFailureRate", "avgDecodeTimeUs"]
+    if any(not math.isfinite(float(row[field])) for row in summaries for field in numeric):
+        raise SystemExit("BLOCKED_BCH13_RESULT_ACCOUNTING_FAILURE")
+
+    recommendations: list[dict[str, object]] = []
+    status_rows: list[dict[str, object]] = []
+    timing_rows: list[dict[str, object]] = []
+    for case in CASES:
+        selected = sorted((row for row in summaries if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
+        low = nearest_measured(selected, 0.5)
+        mid = nearest_measured(selected, 0.1)
+        high = nearest_measured(selected, 0.01)
+        near_1e3 = nearest_measured(selected, 0.001)
+        formal_min = min(float(low["ebn0Db"]), float(mid["ebn0Db"]), float(high["ebn0Db"]))
+        formal_max = max(float(high["ebn0Db"]), float(near_1e3["ebn0Db"]))
+        if formal_max <= formal_min:
+            raise SystemExit("BLOCKED_BCH13_INVALID_PRESCAN_RANGE")
+        recommendations.append({"caseName": case, "originalRange": "0.0:10.0:0.5", "actualRange": "0.0:10.0:0.5",
+                                "adjustmentReason": "NO_ADJUSTMENT", "recommendedFormalMinDb": formal_min,
+                                "recommendedFormalMaxDb": formal_max, "recommendedFormalStepDb": 0.2,
+                                "estimatedRuntimeSeconds": round((formal_max - formal_min) / 0.2 + 1) * float(selected[0]["avgDecodeTimeUs"]) * 50000 / 1e6,
+                                "waterfallLowDb": low["ebn0Db"], "waterfallLowFer": low["FER"],
+                                "waterfallMidDb": mid["ebn0Db"], "waterfallMidFer": mid["FER"],
+                                "waterfallHighDb": high["ebn0Db"], "waterfallHighFer": high["FER"],
+                                "nearFer1e3Db": near_1e3["ebn0Db"], "nearFer1e3Observed": near_1e3["FER"],
+                                "interpolationOrExtrapolation": "NONE_MEASURED_POINTS_ONLY"})
+        status_rows.append({"caseName": case, "noErrorStatusFrames": sum(int(row["noErrorStatusFrames"]) for row in selected),
+                            "correctedStatusFrames": sum(int(row["correctedStatusFrames"]) for row in selected),
+                            "failedStatusFrames": sum(int(row["failedStatusFrames"]) for row in selected),
+                            "miscorrectedFrames": sum(int(row["miscorrectedFrames"]) for row in selected),
+                            "decoderFailureFrames": sum(int(row["decoderFailureFrames"]) for row in selected)})
+        timing_rows.append({"caseName": case, "casePoints": 21, "processedFrames": 42000,
+                            "meanOfPointAvgEncodeTimeUs": sum(float(row["avgEncodeTimeUs"]) for row in selected) / 21,
+                            "meanOfPointAvgDecodeTimeUs": sum(float(row["avgDecodeTimeUs"]) for row in selected) / 21,
+                            "maxPointP99DecodeTimeUs": max(float(row["p99DecodeTimeUs"]) for row in selected),
+                            "maxDecodeTimeUs": max(float(row["maxDecodeTimeUs"]) for row in selected)})
+    for path, output_rows in [(prescan / "prescan_case_recommendations.csv", recommendations),
+                              (prescan / "prescan_status_distribution.csv", status_rows),
+                              (prescan / "prescan_timing_summary.csv", timing_rows)]:
+        with path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(output_rows[0])); writer.writeheader(); writer.writerows(output_rows)
+    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/plot_bch_prescan.py"),
+         "--summary", str(prescan / "prescan_summary.csv"), "--output-dir", str(prescan)], repo)
+    print("PASS_BCH13_AWGN_PRESCAN frames=168000 casePoints=84")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
@@ -201,6 +285,7 @@ def main() -> int:
     if args.dry_run:
         print("BCH Group 4 plan: BCH-11 -> BCH-12 -> BCH-13 -> BCH-14 -> BCH-15 -> BCH-16")
         print("BCH-12: 4 cases, 5 SNR points, 200 frames/point, 4000 maximum frames")
+        print("BCH-13: 4 cases, 21 SNR points, 2000 frames/point, 168000 maximum frames")
         print(f"Output: {results}")
         return 0
     selected = args.stage or ("bch12" if not args.all else "all")
@@ -208,9 +293,10 @@ def main() -> int:
         raise SystemExit("BCH-11 is executed by CTest; use the documented BCH-11 command")
     if selected in {"bch12", "all"}:
         run_bch12(args, repo, build, results)
-    if selected in {"bch13", "bch14", "bch15", "bch16"} or args.all:
-        if selected != "bch12":
-            raise SystemExit("requested stage is not implemented in the current ordered functional range")
+    if selected in {"bch13", "all"}:
+        run_bch13(args, repo, build, results)
+    if selected in {"bch14", "bch15", "bch16"}:
+        raise SystemExit("requested stage is not implemented in the current ordered functional range")
     return 0
 
 

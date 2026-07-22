@@ -1,0 +1,5 @@
+requirement,implementation,positive_test,negative_test,gate
+84 fixed prescan points,run_bch_group4.py bch13,21 points per four cases,missing/duplicate point rejection,PASS_BCH13_AWGN_PRESCAN
+Measured waterfall recommendations,prescan_case_recommendations.csv,FER target nearest measured rows,no extrapolated target claim,PASS_BCH13_AWGN_PRESCAN
+Self-consistent finite results,prescan summary checker,168000 frames and valid rates,NaN/Inf/accounting rejection,PASS_BCH13_AWGN_PRESCAN
+Six PNG plots,plot_bch_prescan.py,PNG magic/hash and figure data checks,non-PNG artifact rejection,PASS_BCH13_AWGN_PRESCAN

@@ -1,0 +1,2 @@
+stage,cases,originalRangeDb,actualRangeDb,stepDb,framesPerPoint,casePoints,totalFrames,globalSeed,noisePolicyVersion,adjustmentReason
+BCH-13,"BCH-S200;BCH-B200;BCH-S300;BCH-B300",0.0:10.0,0.0:10.0,0.5,2000,84,168000,2026072201,1,NO_ADJUSTMENT
