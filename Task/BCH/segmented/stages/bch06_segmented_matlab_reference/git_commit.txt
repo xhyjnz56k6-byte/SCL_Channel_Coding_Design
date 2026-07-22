@@ -6,4 +6,4 @@ remoteHeadAfterAuditPush=0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7
 commitStatus=COMMITTED
 pushStatus=PUSHED
 mergeStatus=NOT_MERGED
-pushStatusClosureCommit=PENDING_THIS_COMMIT
+pushStatusClosureCommit=ab3ac1bf1a1d5832b8e8be04703347076c72ac90

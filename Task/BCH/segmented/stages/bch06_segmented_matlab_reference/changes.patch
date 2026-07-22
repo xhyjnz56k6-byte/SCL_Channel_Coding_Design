@@ -1951,7 +1951,7 @@ index 0000000..24d8555
 +S300,300/28/8/420
 diff --git a/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/git_commit.txt b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/git_commit.txt
 new file mode 100644
-index 0000000..587ce6d
+index 0000000..dbacb0f
 --- /dev/null
 +++ b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/git_commit.txt
 @@ -0,0 +1,9 @@
@@ -1963,7 +1963,7 @@ index 0000000..587ce6d
 +commitStatus=COMMITTED
 +pushStatus=PUSHED
 +mergeStatus=NOT_MERGED
-+pushStatusClosureCommit=PENDING_THIS_COMMIT
++pushStatusClosureCommit=ab3ac1bf1a1d5832b8e8be04703347076c72ac90
 diff --git a/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/invalid_input_summary.csv b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/invalid_input_summary.csv
 new file mode 100644
 index 0000000..46f83b0
@@ -1994,10 +1994,10 @@ index 0000000..9b3d652
 +singleErrorDecodeMismatch,0
 diff --git a/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/manifest.json b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/manifest.json
 new file mode 100644
-index 0000000..a810046
+index 0000000..a4fe137
 --- /dev/null
 +++ b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/manifest.json
-@@ -0,0 +1,348 @@
+@@ -0,0 +1,349 @@
 +{
 +    "stage":  "bch06_segmented_matlab_reference",
 +    "branch":  "bch-06-segmented-matlab-reference",
@@ -2344,7 +2344,8 @@ index 0000000..a810046
 +    "auditCommit":  "0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7",
 +    "remoteHeadAfterAuditPush":  "0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7",
 +    "commitStatus":  "COMMITTED",
-+    "pushStatus":  "PUSHED"
++    "pushStatus":  "PUSHED",
++    "pushStatusClosureCommit":  "ab3ac1bf1a1d5832b8e8be04703347076c72ac90"
 +}
 diff --git a/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_environment.json b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_environment.json
 new file mode 100644
