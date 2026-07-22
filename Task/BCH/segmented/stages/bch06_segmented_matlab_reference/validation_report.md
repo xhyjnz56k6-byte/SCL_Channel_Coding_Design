@@ -35,3 +35,9 @@ Scope checks:
 - Task/Common diff: empty
 - historical BCH-01..BCH-05 Stage diff: empty
 - BCH-07/AWGN/whole-block/BM/Chien implementation scan: no implementation added
+
+Push verification:
+- auditCommit=0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7
+- remoteHeadAfterAuditPush=0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7
+- pushStatus=PUSHED
+- mergeStatus=NOT_MERGED

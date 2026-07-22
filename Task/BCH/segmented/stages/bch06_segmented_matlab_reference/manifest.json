@@ -1,343 +1,348 @@
 {
-  "stage": "bch06_segmented_matlab_reference",
-  "branch": "bch-06-segmented-matlab-reference",
-  "baseCommit": "94ff7eaff3bbe7569f18fa1df35a15367f666b8f",
-  "currentHeadAtAuditGeneration": "22bd2906ec1d44fe4640f0d5dd359a8e92b6fe8b",
-  "functionalGate": "PASS_BCH06_SEGMENTED_MATLAB_FUNCTIONAL",
-  "singleBlockCrossCheckGate": "PASS_BCH06_CPP_MATLAB_SINGLE_BLOCK_CROSS_CHECK",
-  "segmentedCrossCheckGate": "PASS_BCH06_CPP_MATLAB_SEGMENTED_CROSS_CHECK",
-  "invalidInputAuditGate": "PASS_BCH06_MATLAB_INVALID_INPUT_AUDIT",
-  "fixedMultiErrorGate": "PASS_BCH06_FIXED_MULTI_ERROR_CROSSCHECK",
-  "auditGate": "PASS_BCH06_SEGMENTED_MATLAB_AUDIT",
-  "finalGate": "PASS_BCH06_SEGMENTED_MATLAB_REFERENCE",
-  "mergeStatus": "NOT_MERGED",
-  "runtimeDetails": [
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_encoder_reference.csv",
-      "rows": 2048,
-      "bytes": 93175,
-      "sha256": "2a43a213edff00f5c09e413ce923937939473b769e031337a3157074931a8d75"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_failure_status_retention_detail.csv",
-      "rows": 4,
-      "bytes": 3604,
-      "sha256": "433e22e53bf16945f1cc31ad2512dd86559160b678e78148303ba906c21f9289"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_filler_boundary_detail.csv",
-      "rows": 30,
-      "bytes": 1965,
-      "sha256": "0f6a516312201d0c6292819802e72a59ace2b99a1699072c60a6b2fe0508cc1d"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_fixed_multi_error_detail.csv",
-      "rows": 96,
-      "bytes": 14805,
-      "sha256": "b82a58b81587cb5f8c5d27a8cb28f1ff0570dd3ee2530e1b81aa48078aab11a8"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_frame_pool_audit.csv",
-      "rows": 200,
-      "bytes": 63839,
-      "sha256": "6a6c88c996a0ccd0e37b1256d13035ec3ed05f7ee58577fa58ed2855a2bce528"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_invalid_input_audit.csv",
-      "rows": 1,
-      "bytes": 188,
-      "sha256": "5f60c4783cbdc7e991b20e72d5fa29970937cbc3c8d61922538db8023172953e"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_multi_block_single_error_detail.csv",
-      "rows": 8,
-      "bytes": 5276,
-      "sha256": "d0f3eca5bab0270dc56c5be647f6affd774f467a7601ff7f161152992460ede1"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_no_error_decode.csv",
-      "rows": 2048,
-      "bytes": 183346,
-      "sha256": "41cf939d045af05bef3000aca33664860b52aca9a5989c48e10862f6ab5d8174"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_same_block_double_error_detail.csv",
-      "rows": 12,
-      "bytes": 5254,
-      "sha256": "42574195b81d6bdce0ac1690f1915bb04e01ffdc9a5e317bd330a32d4538b213"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_segmented_noiseless_detail.csv",
-      "rows": 208,
-      "bytes": 351978,
-      "sha256": "42ea63501d3d7a7e71e9455c506f3b04040bc33a6d9a7e3a22084ccf55811d09"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_segmented_single_error_detail.csv",
-      "rows": 705,
-      "bytes": 951310,
-      "sha256": "c77e877d6841689a827b46ada77a925322fe8f16650a8a7a5b371b258cd7dc2e"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_single_error_decode.csv",
-      "rows": 30720,
-      "bytes": 2830208,
-      "sha256": "c65221e7eb91452edd2b8a020ba94b1919294bc552fe6ec47aadf646b5232b4c"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_syndrome_reference.csv",
-      "rows": 15,
-      "bytes": 203,
-      "sha256": "3f046e7c981420644c9e3f527e867fcd3bee50223dfe94defb89667fb0e70c3a"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_encoder_reference.csv",
-      "rows": 2048,
-      "bytes": 91126,
-      "sha256": "e446dba1ab535ed2409f5704fd62a6546128be9e7909a28045097a80cc18abbb"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_environment.json",
-      "rows": 1,
-      "bytes": 109,
-      "sha256": "590bbf49ce7f1555bb3073ec10794d5b100b1d3f8a47c9b21cf0ce30215f4cac"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_failure_status_retention_detail.csv",
-      "rows": 4,
-      "bytes": 3599,
-      "sha256": "337773554c675de9d328ce48b22004086a8509b62fe39fa00cd2b825c8539b9d"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_filler_boundary_detail.csv",
-      "rows": 30,
-      "bytes": 1934,
-      "sha256": "1b361700e380af466586bb2576c21fe095045fc40c073a1f8e0045bc9f879e86"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_fixed_multi_error_detail.csv",
-      "rows": 96,
-      "bytes": 14708,
-      "sha256": "456334c97a93a936d5eccff5f54e0a74bb8d9cf9b82b68fff0bf067c7c1999a5"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_frame_pool_audit.csv",
-      "rows": 200,
-      "bytes": 63638,
-      "sha256": "12144d45cdc47c858dcb15e0ee4ffab9ceb480ba3dc9261fc2000ead6f623b01"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_invalid_input_audit.csv",
-      "rows": 20,
-      "bytes": 2640,
-      "sha256": "372c0811730046e313b340db2c3b00bbd6369d8e444e8ac4aeae8d7abd1a9abe"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_multi_block_single_error_detail.csv",
-      "rows": 8,
-      "bytes": 5267,
-      "sha256": "c92911119f1a7c7eb4f6b3fc438853b88cefda0ad010cbe398ba67e11199bee8"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_no_error_decode.csv",
-      "rows": 2048,
-      "bytes": 181297,
-      "sha256": "2458ebedd99e39a7ce457c72552c6d8c7d903613388dfea5569cd529659c9227"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_same_block_double_error_detail.csv",
-      "rows": 12,
-      "bytes": 5241,
-      "sha256": "a98f946428991f0b6590a400cc501161720c943989e0ca56b16c8d845227e6b8"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_segmented_noiseless_detail.csv",
-      "rows": 208,
-      "bytes": 351769,
-      "sha256": "13be15d30618ad9f0c24a33ead117f5635ecbbbfae11d446fa46914001efe336"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_segmented_single_error_detail.csv",
-      "rows": 705,
-      "bytes": 950604,
-      "sha256": "43cdc44f53c970e7a3f141202728c10d7ad63274b929a315c9d04108e90de3bf"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_single_error_decode.csv",
-      "rows": 30720,
-      "bytes": 2799487,
-      "sha256": "e899f6a4d9fd322c0455919f91270415d19a0cbc1e2d5dde830f10a0b4a31b69"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_syndrome_reference.csv",
-      "rows": 15,
-      "bytes": 187,
-      "sha256": "84d7426761199483de0236c11e186508d30394c9796c97480caf8cc1fe2b704a"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_test_summary.csv",
-      "rows": 33,
-      "bytes": 967,
-      "sha256": "ce77253d81f2d3e54432d500a481f73f3c4452c6df467add8f1bb0dee1d9673e"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_toolbox_audit.csv",
-      "rows": 4,
-      "bytes": 602,
-      "sha256": "3eef006d039f762ee96dc63da807b5365002f43050af3449311f6fc678bc6cef"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/cross_check_summary.csv",
-      "rows": 12,
-      "bytes": 529,
-      "sha256": "a2e9deb531a05f907af9caddb5c3354ef570e93af103567e1a8c46cb24494e74"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/cross_check_summary.json",
-      "rows": 211,
-      "bytes": 6891,
-      "sha256": "2377cb0f5a9b2649a611b001d47b3fe839262f81a2aaa0d4440b0174decaea7c"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/double_error_compare_summary.csv",
-      "rows": 1,
-      "bytes": 341,
-      "sha256": "eb31ed2db5d5dae1c7edfe16da57cb2f8d7bda0e4605c84a10417622937a8e6a"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/encoder_compare_summary.csv",
-      "rows": 1,
-      "bytes": 331,
-      "sha256": "f8af22446d9d3ec28f570e4644c96d5132cf6eb948c2a89f6353d6942d256edb"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/failure_status_compare_summary.csv",
-      "rows": 1,
-      "bytes": 340,
-      "sha256": "f01ccbffa2449d604639fe569b2f0732fee9a3408c53ed1bd41389b3efd2ff7a"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/filler_boundary_compare_summary.csv",
-      "rows": 1,
-      "bytes": 333,
-      "sha256": "efbdc9c9bd139156a9bc6908cff24655f5ea05fc1512605a8506f308cf1bb325"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/fixed_multi_error_compare_summary.csv",
-      "rows": 1,
-      "bytes": 337,
-      "sha256": "b12d6dbe80508360d5ce2f46f7f12b4c1f092ab4ecaa13b1edec40a0e52499f2"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/frame_pool_compare_summary.csv",
-      "rows": 1,
-      "bytes": 332,
-      "sha256": "b4fa86372d1c5a2717cd3638c330c03f89c13a80d8f500461e7d30e7f5c264fe"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/invalid_input_summary.csv",
-      "rows": 1,
-      "bytes": 140,
-      "sha256": "6a7c2ff736294f006351a4ce4153d5607b6fdad083aa9a30acb3173f962954ee"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/multi_block_single_error_compare_summary.csv",
-      "rows": 1,
-      "bytes": 340,
-      "sha256": "bb37c8c6c744c06eebea48a4fb8a57abf7eed3ad09a4e5c0e80cd809069e5da0"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/no_error_decode_compare_summary.csv",
-      "rows": 1,
-      "bytes": 341,
-      "sha256": "fccde8b2e73ddf68314ac35b323af03f3710fffb14d9e97c459eb23522e5a853"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/segmented_recovery_compare_summary.csv",
-      "rows": 1,
-      "bytes": 343,
-      "sha256": "232c97b92d2b24b3c3c0b0285de31bbbd91e0257f7ab3bdeaf4f168900f8febf"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/single_error_compare_summary.csv",
-      "rows": 1,
-      "bytes": 346,
-      "sha256": "6e4d3c92e9637591eb1025c1e4d8a227024c0dbc9aea27ecd298d0e5b9aff1d2"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/single_error_decode_compare_summary.csv",
-      "rows": 1,
-      "bytes": 349,
-      "sha256": "4e73616868f3a59e54cec14cafb54aa08d506d8c980de65f2d2d44e176cb9c63"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/syndrome_compare_summary.csv",
-      "rows": 1,
-      "bytes": 324,
-      "sha256": "b8db6bed71ce36f4a5a1e8c708abe7c683da786b716d5073c277f82ff8017aec"
-    },
-    {
-      "path": "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/test_summary.csv",
-      "rows": 55,
-      "bytes": 1735,
-      "sha256": "ccc4e83c89e7e199f2b01246066f14ef1c8d94378b80024844d404b4af63bac1"
-    }
-  ],
-  "summary": {
-    "allCrossCheckMismatchTotal": 0,
-    "bch07Started": 0,
-    "commonRegressionPassed": 6,
-    "cppMatlabDoubleErrorClassificationMismatch": 0,
-    "cppMatlabEncodedMismatch": 0,
-    "cppMatlabFailureStatusRetentionMismatch": 0,
-    "cppMatlabFillerBoundaryMismatch": 0,
-    "cppMatlabFixedMultiErrorMismatch": 0,
-    "cppMatlabFramePoolMismatch": 0,
-    "cppMatlabLookupPositionMismatch": 0,
-    "cppMatlabMultiBlockSingleErrorMismatch": 0,
-    "cppMatlabNoErrorDecodeMismatch": 0,
-    "cppMatlabParityMismatch": 0,
-    "cppMatlabSegmentedNoiselessMismatch": 0,
-    "cppMatlabSegmentedSingleErrorMismatch": 0,
-    "cppMatlabSingleErrorDecodeMismatch": 0,
-    "cppMatlabSingleErrorSyndromeMismatch": 0,
-    "doubleErrorClassificationMismatch": 0,
-    "encoderCases": 2048,
-    "failureStatusRetentionCases": 4,
-    "failureStatusRetentionMismatch": 0,
-    "fillerBoundaryCases": 30,
-    "fillerBoundaryMismatch": 0,
-    "fillerOnlyInformationMismatch": 3,
-    "fixedMultiErrorCases": 96,
-    "fixedMultiErrorMismatch": 0,
-    "fixedVectorCases": 6,
-    "framePoolAuditCases": 200,
-    "historicalStageModified": 0,
-    "legalSyndromeCases": 2048,
-    "matlabEncodedMismatch": 0,
-    "matlabFixedVectorMismatch": 0,
-    "matlabInvalidInputCases": 20,
-    "matlabInvalidInputFailureCount": 0,
-    "matlabLegalSyndromeMismatch": 0,
-    "matlabLookupPositionMismatch": 0,
-    "matlabNoErrorDecodeMismatch": 0,
-    "matlabParityMismatch": 0,
-    "matlabSingleErrorDecodeMismatch": 0,
-    "matlabSingleErrorSyndromeMismatch": 0,
-    "multiBlockSingleErrorCases": 8,
-    "multiBlockSingleErrorMismatch": 0,
-    "noErrorDecodeCases": 2048,
-    "reportedSuccessWrongBlockInformation": 12,
-    "reportedSuccessWrongOriginalPayload": 9,
-    "sameBlockDoubleErrorCases": 12,
-    "segmentedCrossCheckMismatchTotal": 0,
-    "segmentedNoiselessFrames": 208,
-    "segmentedNoiselessMismatch": 0,
-    "segmentedSingleErrorCases": 705,
-    "segmentedSingleErrorMismatch": 0,
-    "singleBlockCrossCheckMismatchTotal": 0,
-    "singleErrorDecodeCases": 30720,
-    "singleErrorSyndromeCases": 15,
-    "taskCommonModified": 0
-  }
+    "stage":  "bch06_segmented_matlab_reference",
+    "branch":  "bch-06-segmented-matlab-reference",
+    "baseCommit":  "94ff7eaff3bbe7569f18fa1df35a15367f666b8f",
+    "currentHeadAtAuditGeneration":  "22bd2906ec1d44fe4640f0d5dd359a8e92b6fe8b",
+    "functionalGate":  "PASS_BCH06_SEGMENTED_MATLAB_FUNCTIONAL",
+    "singleBlockCrossCheckGate":  "PASS_BCH06_CPP_MATLAB_SINGLE_BLOCK_CROSS_CHECK",
+    "segmentedCrossCheckGate":  "PASS_BCH06_CPP_MATLAB_SEGMENTED_CROSS_CHECK",
+    "invalidInputAuditGate":  "PASS_BCH06_MATLAB_INVALID_INPUT_AUDIT",
+    "fixedMultiErrorGate":  "PASS_BCH06_FIXED_MULTI_ERROR_CROSSCHECK",
+    "auditGate":  "PASS_BCH06_SEGMENTED_MATLAB_AUDIT",
+    "finalGate":  "PASS_BCH06_SEGMENTED_MATLAB_REFERENCE",
+    "mergeStatus":  "NOT_MERGED",
+    "runtimeDetails":  [
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_encoder_reference.csv",
+                               "rows":  2048,
+                               "bytes":  93175,
+                               "sha256":  "2a43a213edff00f5c09e413ce923937939473b769e031337a3157074931a8d75"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_failure_status_retention_detail.csv",
+                               "rows":  4,
+                               "bytes":  3604,
+                               "sha256":  "433e22e53bf16945f1cc31ad2512dd86559160b678e78148303ba906c21f9289"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_filler_boundary_detail.csv",
+                               "rows":  30,
+                               "bytes":  1965,
+                               "sha256":  "0f6a516312201d0c6292819802e72a59ace2b99a1699072c60a6b2fe0508cc1d"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_fixed_multi_error_detail.csv",
+                               "rows":  96,
+                               "bytes":  14805,
+                               "sha256":  "b82a58b81587cb5f8c5d27a8cb28f1ff0570dd3ee2530e1b81aa48078aab11a8"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_frame_pool_audit.csv",
+                               "rows":  200,
+                               "bytes":  63839,
+                               "sha256":  "6a6c88c996a0ccd0e37b1256d13035ec3ed05f7ee58577fa58ed2855a2bce528"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_invalid_input_audit.csv",
+                               "rows":  1,
+                               "bytes":  188,
+                               "sha256":  "5f60c4783cbdc7e991b20e72d5fa29970937cbc3c8d61922538db8023172953e"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_multi_block_single_error_detail.csv",
+                               "rows":  8,
+                               "bytes":  5276,
+                               "sha256":  "d0f3eca5bab0270dc56c5be647f6affd774f467a7601ff7f161152992460ede1"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_no_error_decode.csv",
+                               "rows":  2048,
+                               "bytes":  183346,
+                               "sha256":  "41cf939d045af05bef3000aca33664860b52aca9a5989c48e10862f6ab5d8174"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_same_block_double_error_detail.csv",
+                               "rows":  12,
+                               "bytes":  5254,
+                               "sha256":  "42574195b81d6bdce0ac1690f1915bb04e01ffdc9a5e317bd330a32d4538b213"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_segmented_noiseless_detail.csv",
+                               "rows":  208,
+                               "bytes":  351978,
+                               "sha256":  "42ea63501d3d7a7e71e9455c506f3b04040bc33a6d9a7e3a22084ccf55811d09"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_segmented_single_error_detail.csv",
+                               "rows":  705,
+                               "bytes":  951310,
+                               "sha256":  "c77e877d6841689a827b46ada77a925322fe8f16650a8a7a5b371b258cd7dc2e"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_single_error_decode.csv",
+                               "rows":  30720,
+                               "bytes":  2830208,
+                               "sha256":  "c65221e7eb91452edd2b8a020ba94b1919294bc552fe6ec47aadf646b5232b4c"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/cpp_outputs/cpp_syndrome_reference.csv",
+                               "rows":  15,
+                               "bytes":  203,
+                               "sha256":  "3f046e7c981420644c9e3f527e867fcd3bee50223dfe94defb89667fb0e70c3a"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_encoder_reference.csv",
+                               "rows":  2048,
+                               "bytes":  91126,
+                               "sha256":  "e446dba1ab535ed2409f5704fd62a6546128be9e7909a28045097a80cc18abbb"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_environment.json",
+                               "rows":  1,
+                               "bytes":  109,
+                               "sha256":  "590bbf49ce7f1555bb3073ec10794d5b100b1d3f8a47c9b21cf0ce30215f4cac"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_failure_status_retention_detail.csv",
+                               "rows":  4,
+                               "bytes":  3599,
+                               "sha256":  "337773554c675de9d328ce48b22004086a8509b62fe39fa00cd2b825c8539b9d"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_filler_boundary_detail.csv",
+                               "rows":  30,
+                               "bytes":  1934,
+                               "sha256":  "1b361700e380af466586bb2576c21fe095045fc40c073a1f8e0045bc9f879e86"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_fixed_multi_error_detail.csv",
+                               "rows":  96,
+                               "bytes":  14708,
+                               "sha256":  "456334c97a93a936d5eccff5f54e0a74bb8d9cf9b82b68fff0bf067c7c1999a5"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_frame_pool_audit.csv",
+                               "rows":  200,
+                               "bytes":  63638,
+                               "sha256":  "12144d45cdc47c858dcb15e0ee4ffab9ceb480ba3dc9261fc2000ead6f623b01"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_invalid_input_audit.csv",
+                               "rows":  20,
+                               "bytes":  2640,
+                               "sha256":  "372c0811730046e313b340db2c3b00bbd6369d8e444e8ac4aeae8d7abd1a9abe"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_multi_block_single_error_detail.csv",
+                               "rows":  8,
+                               "bytes":  5267,
+                               "sha256":  "c92911119f1a7c7eb4f6b3fc438853b88cefda0ad010cbe398ba67e11199bee8"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_no_error_decode.csv",
+                               "rows":  2048,
+                               "bytes":  181297,
+                               "sha256":  "2458ebedd99e39a7ce457c72552c6d8c7d903613388dfea5569cd529659c9227"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_same_block_double_error_detail.csv",
+                               "rows":  12,
+                               "bytes":  5241,
+                               "sha256":  "a98f946428991f0b6590a400cc501161720c943989e0ca56b16c8d845227e6b8"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_segmented_noiseless_detail.csv",
+                               "rows":  208,
+                               "bytes":  351769,
+                               "sha256":  "13be15d30618ad9f0c24a33ead117f5635ecbbbfae11d446fa46914001efe336"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_segmented_single_error_detail.csv",
+                               "rows":  705,
+                               "bytes":  950604,
+                               "sha256":  "43cdc44f53c970e7a3f141202728c10d7ad63274b929a315c9d04108e90de3bf"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_single_error_decode.csv",
+                               "rows":  30720,
+                               "bytes":  2799487,
+                               "sha256":  "e899f6a4d9fd322c0455919f91270415d19a0cbc1e2d5dde830f10a0b4a31b69"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_syndrome_reference.csv",
+                               "rows":  15,
+                               "bytes":  187,
+                               "sha256":  "84d7426761199483de0236c11e186508d30394c9796c97480caf8cc1fe2b704a"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_test_summary.csv",
+                               "rows":  33,
+                               "bytes":  967,
+                               "sha256":  "ce77253d81f2d3e54432d500a481f73f3c4452c6df467add8f1bb0dee1d9673e"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/matlab_outputs/matlab_toolbox_audit.csv",
+                               "rows":  4,
+                               "bytes":  602,
+                               "sha256":  "3eef006d039f762ee96dc63da807b5365002f43050af3449311f6fc678bc6cef"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/cross_check_summary.csv",
+                               "rows":  12,
+                               "bytes":  529,
+                               "sha256":  "a2e9deb531a05f907af9caddb5c3354ef570e93af103567e1a8c46cb24494e74"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/cross_check_summary.json",
+                               "rows":  211,
+                               "bytes":  6891,
+                               "sha256":  "2377cb0f5a9b2649a611b001d47b3fe839262f81a2aaa0d4440b0174decaea7c"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/double_error_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  341,
+                               "sha256":  "eb31ed2db5d5dae1c7edfe16da57cb2f8d7bda0e4605c84a10417622937a8e6a"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/encoder_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  331,
+                               "sha256":  "f8af22446d9d3ec28f570e4644c96d5132cf6eb948c2a89f6353d6942d256edb"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/failure_status_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  340,
+                               "sha256":  "f01ccbffa2449d604639fe569b2f0732fee9a3408c53ed1bd41389b3efd2ff7a"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/filler_boundary_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  333,
+                               "sha256":  "efbdc9c9bd139156a9bc6908cff24655f5ea05fc1512605a8506f308cf1bb325"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/fixed_multi_error_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  337,
+                               "sha256":  "b12d6dbe80508360d5ce2f46f7f12b4c1f092ab4ecaa13b1edec40a0e52499f2"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/frame_pool_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  332,
+                               "sha256":  "b4fa86372d1c5a2717cd3638c330c03f89c13a80d8f500461e7d30e7f5c264fe"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/invalid_input_summary.csv",
+                               "rows":  1,
+                               "bytes":  140,
+                               "sha256":  "6a7c2ff736294f006351a4ce4153d5607b6fdad083aa9a30acb3173f962954ee"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/multi_block_single_error_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  340,
+                               "sha256":  "bb37c8c6c744c06eebea48a4fb8a57abf7eed3ad09a4e5c0e80cd809069e5da0"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/no_error_decode_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  341,
+                               "sha256":  "fccde8b2e73ddf68314ac35b323af03f3710fffb14d9e97c459eb23522e5a853"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/segmented_recovery_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  343,
+                               "sha256":  "232c97b92d2b24b3c3c0b0285de31bbbd91e0257f7ab3bdeaf4f168900f8febf"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/single_error_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  346,
+                               "sha256":  "6e4d3c92e9637591eb1025c1e4d8a227024c0dbc9aea27ecd298d0e5b9aff1d2"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/single_error_decode_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  349,
+                               "sha256":  "4e73616868f3a59e54cec14cafb54aa08d506d8c980de65f2d2d44e176cb9c63"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/syndrome_compare_summary.csv",
+                               "rows":  1,
+                               "bytes":  324,
+                               "sha256":  "b8db6bed71ce36f4a5a1e8c708abe7c683da786b716d5073c277f82ff8017aec"
+                           },
+                           {
+                               "path":  "Task/BCH/segmented/build/bch06_segmented_matlab_reference/checker_outputs/test_summary.csv",
+                               "rows":  55,
+                               "bytes":  1735,
+                               "sha256":  "ccc4e83c89e7e199f2b01246066f14ef1c8d94378b80024844d404b4af63bac1"
+                           }
+                       ],
+    "summary":  {
+                    "allCrossCheckMismatchTotal":  0,
+                    "bch07Started":  0,
+                    "commonRegressionPassed":  6,
+                    "cppMatlabDoubleErrorClassificationMismatch":  0,
+                    "cppMatlabEncodedMismatch":  0,
+                    "cppMatlabFailureStatusRetentionMismatch":  0,
+                    "cppMatlabFillerBoundaryMismatch":  0,
+                    "cppMatlabFixedMultiErrorMismatch":  0,
+                    "cppMatlabFramePoolMismatch":  0,
+                    "cppMatlabLookupPositionMismatch":  0,
+                    "cppMatlabMultiBlockSingleErrorMismatch":  0,
+                    "cppMatlabNoErrorDecodeMismatch":  0,
+                    "cppMatlabParityMismatch":  0,
+                    "cppMatlabSegmentedNoiselessMismatch":  0,
+                    "cppMatlabSegmentedSingleErrorMismatch":  0,
+                    "cppMatlabSingleErrorDecodeMismatch":  0,
+                    "cppMatlabSingleErrorSyndromeMismatch":  0,
+                    "doubleErrorClassificationMismatch":  0,
+                    "encoderCases":  2048,
+                    "failureStatusRetentionCases":  4,
+                    "failureStatusRetentionMismatch":  0,
+                    "fillerBoundaryCases":  30,
+                    "fillerBoundaryMismatch":  0,
+                    "fillerOnlyInformationMismatch":  3,
+                    "fixedMultiErrorCases":  96,
+                    "fixedMultiErrorMismatch":  0,
+                    "fixedVectorCases":  6,
+                    "framePoolAuditCases":  200,
+                    "historicalStageModified":  0,
+                    "legalSyndromeCases":  2048,
+                    "matlabEncodedMismatch":  0,
+                    "matlabFixedVectorMismatch":  0,
+                    "matlabInvalidInputCases":  20,
+                    "matlabInvalidInputFailureCount":  0,
+                    "matlabLegalSyndromeMismatch":  0,
+                    "matlabLookupPositionMismatch":  0,
+                    "matlabNoErrorDecodeMismatch":  0,
+                    "matlabParityMismatch":  0,
+                    "matlabSingleErrorDecodeMismatch":  0,
+                    "matlabSingleErrorSyndromeMismatch":  0,
+                    "multiBlockSingleErrorCases":  8,
+                    "multiBlockSingleErrorMismatch":  0,
+                    "noErrorDecodeCases":  2048,
+                    "reportedSuccessWrongBlockInformation":  12,
+                    "reportedSuccessWrongOriginalPayload":  9,
+                    "sameBlockDoubleErrorCases":  12,
+                    "segmentedCrossCheckMismatchTotal":  0,
+                    "segmentedNoiselessFrames":  208,
+                    "segmentedNoiselessMismatch":  0,
+                    "segmentedSingleErrorCases":  705,
+                    "segmentedSingleErrorMismatch":  0,
+                    "singleBlockCrossCheckMismatchTotal":  0,
+                    "singleErrorDecodeCases":  30720,
+                    "singleErrorSyndromeCases":  15,
+                    "taskCommonModified":  0
+                },
+    "repairFunctionalCommit":  "22bd2906ec1d44fe4640f0d5dd359a8e92b6fe8b",
+    "auditCommit":  "0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7",
+    "remoteHeadAfterAuditPush":  "0c431e2e4b7d34c49592c7e2a28fd80e22dd7ce7",
+    "commitStatus":  "COMMITTED",
+    "pushStatus":  "PUSHED"
 }
