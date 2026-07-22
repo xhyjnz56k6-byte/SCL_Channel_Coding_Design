@@ -11,9 +11,9 @@
   "matlabVersion": "R2024b 24.2.0.2712019",
   "toolboxStatus": "AVAILABLE_AUXILIARY_ONLY",
   "functionalGate": "PASS_BCH06_SEGMENTED_MATLAB_FUNCTIONAL",
-  "crossCheckGate": "PASS_BCH06_CPP_MATLAB_CROSS_CHECK",
-  "auditGate": "PASS_BCH06_SEGMENTED_MATLAB_AUDIT",
-  "finalGate": "PASS_BCH06_SEGMENTED_MATLAB_REFERENCE",
+  "crossCheckGate": "PARTIAL_SINGLE_BLOCK_ONLY",
+  "auditGate": "BLOCKED_BCH06_SEGMENTED_DETAIL_CROSSCHECK_MISSING",
+  "finalGate": "BLOCKED_BCH06_SEGMENTED_DETAIL_CROSSCHECK_MISSING",
   "functionalRanges": [{"name":"content","baseCommit":"94ff7eaff3bbe7569f18fa1df35a15367f666b8f","contentCommit":"13df393e2466d61fa73ecad98dc044846d596f87"}],
   "testResults": {"encoderCases":2048,"singleErrorDecodeCases":30720,"segmentedNoiselessFrames":208,"segmentedSingleErrorCases":705,"crossCheckMismatchTotal":0,"commonRegressionPassed":6},
   "forbiddenScope": {"taskCommonModified":false,"bch07Started":false,"mainMerged":false}

@@ -10,4 +10,6 @@
 - `Task/Common` diff: empty. Historical BCH-01–05 stage output diff: empty.
 - Real patch: base `94ff7eaff3bbe7569f18fa1df35a15367f666b8f` to final functional commit `13df393e2466d61fa73ecad98dc044846d596f87`; isolated worktree reverse-apply check PASS.
 
-Gates: `PASS_BCH06_SEGMENTED_MATLAB_FUNCTIONAL`, `PASS_BCH06_CPP_MATLAB_CROSS_CHECK`, `PASS_BCH06_SEGMENTED_MATLAB_AUDIT`, `PASS_BCH06_SEGMENTED_MATLAB_REFERENCE`.
+The detailed C++/MATLAB checker covers encoder, syndrome, no-error decoder, and single-error decoder. It does not yet export and compare the segmented 208/705/8/12/30/4 detail fields. Therefore the final stage Gate is blocked pending that required segmented-detail cross-check.
+
+Gates: `PASS_BCH06_SEGMENTED_MATLAB_FUNCTIONAL`; partial `PASS_BCH06_CPP_MATLAB_CROSS_CHECK` for the four exported single-block datasets; `BLOCKED_BCH06_SEGMENTED_DETAIL_CROSSCHECK_MISSING` for the final Gate.
