@@ -1,0 +1,6 @@
+requirement,implementation,positive_test,negative_test,gate
+Grid consumed from BCH-13,run_bch_group4.py bch15,frozen formal grid matches recommendations,missing/inconsistent recommendation rejection,PASS_BCH15_AWGN_FORMAL
+Adaptive formal run,BCH runner with 5000/200/50000,all planned unique points,illegal stop or missing point rejection,PASS_BCH15_AWGN_FORMAL
+Confidence reporting,Python Wilson and rule-of-three audit,finite interval and zero-error bound,NaN/invalid bound rejection,PASS_BCH15_AWGN_FORMAL
+Formal checkpoint/config identity,Common atomic checkpoint and hash,checkpoint per point and hash summary,config mismatch rejection from BCH-14,PASS_BCH15_AWGN_FORMAL
+15 PNG plots,plot_bch_formal.py,figure data/hash/magic audit,non-PNG and data mismatch rejection,PASS_BCH15_AWGN_FORMAL

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import math
+import json
 import shutil
 import subprocess
 import sys
@@ -420,6 +421,86 @@ def run_bch14(args: argparse.Namespace, repo: Path, build: Path, results: Path) 
     print("PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL casePoints=12 resumeCases=4 shardCases=4")
 
 
+def inclusive_grid(minimum: float, maximum: float, step: float) -> list[float]:
+    values: list[float] = []; current = minimum
+    while current <= maximum + 1e-9:
+        values.append(round(current, 10)); current += step
+    if abs(values[-1] - maximum) > 1e-9: values.append(round(maximum, 10))
+    return values
+
+
+def wilson_interval(errors: int, frames: int) -> tuple[float, float]:
+    z = 1.959963984540054; p = errors / frames; denominator = 1.0 + z * z / frames
+    center = (p + z * z / (2.0 * frames)) / denominator
+    margin = z * math.sqrt(p * (1.0 - p) / frames + z * z / (4.0 * frames * frames)) / denominator
+    return max(0.0, center - margin), min(1.0, center + margin)
+
+
+def run_bch15(args: argparse.Namespace, repo: Path, build: Path, results: Path) -> None:
+    executable = build / "bch_awgn_runner.exe"; formal = results / "formal"
+    if formal.exists(): shutil.rmtree(formal)
+    formal.mkdir(parents=True)
+    recommendation_path = repo / "Task/BCH/simulation/stages/bch13_awgn_prescan/prescan_case_recommendations.csv"
+    recommendations = {row["caseName"]: row for row in csv.DictReader(recommendation_path.open(newline="", encoding="utf-8"))}
+    grids = {case: inclusive_grid(float(recommendations[case]["recommendedFormalMinDb"]),
+                                  float(recommendations[case]["recommendedFormalMaxDb"]),
+                                  float(recommendations[case]["recommendedFormalStepDb"])) for case in CASES}
+    grid_rows = [{"caseName": case, "ebn0Db": snr, "gridIndex": index,
+                  "sourceMinDb": recommendations[case]["recommendedFormalMinDb"],
+                  "sourceMaxDb": recommendations[case]["recommendedFormalMaxDb"],
+                  "sourceStepDb": recommendations[case]["recommendedFormalStepDb"]}
+                 for case in CASES for index, snr in enumerate(grids[case])]
+    write_dict_rows(formal / "frozen_formal_grid.csv", grid_rows)
+    case_points = sum(len(values) for values in grids.values())
+    print("[5/6] BCH-15 execution plan")
+    print(f"Cases: 4 | case-points: {case_points} | minFrames: 5000 | target FE: 200 | maxFrames: 50000")
+    print(f"Minimum frames: {case_points * 5000} | maximum frames: {case_points * 50000} | checkpoint every: 2000")
+    print(f"Progress: {'enabled' if args.progress else 'disabled'} refresh={args.progress_refresh_seconds}s | Output: {formal}")
+    pools = results / "frame_pools"
+    manifests = {200: ensure_pool(repo, pools / "formal_k200", 200, 50000, args.payload_seed),
+                 300: ensure_pool(repo, pools / "formal_k300", 300, 50000, args.payload_seed)}
+    points: list[Path] = []; completed = 0
+    for case in CASES:
+        payload = 200 if case.endswith("200") else 300
+        for grid_index, snr in enumerate(grids[case]):
+            snr_index = int(round(snr * 10.0)); point = formal / "points" / f"{case.lower().replace('-', '_')}_{grid_index:02d}"
+            checkpoint = formal / "checkpoints" / f"{case.lower().replace('-', '_')}_{grid_index:02d}.json"
+            execute_point(repo, executable, point, "BCH15", case, snr, snr_index, 50000, args.global_seed,
+                          manifests[payload], args.progress, args.progress_refresh_seconds, False,
+                          extra_args=["--logical-frame-count", "50000", "--min-frames", "5000",
+                                      "--target-frame-errors", "200", "--max-frames", "50000",
+                                      "--checkpoint", str(checkpoint), "--checkpoint-interval", "2000"])
+            points.append(point); completed += 1; print(f"\r[BCH-15] case-points {completed}/{case_points}", end="", flush=True)
+    print(); combine_files(points, "summary.csv", formal / "formal_summary_raw.csv"); combine_jsonl(points, "progress.jsonl", formal / "progress.jsonl")
+    raw_rows = list(csv.DictReader((formal / "formal_summary_raw.csv").open(newline="", encoding="utf-8")))
+    git_commit = run(["git", "rev-parse", "HEAD"], repo, capture=True).stdout.strip(); output_rows: list[dict[str, object]] = []
+    for row in raw_rows:
+        errors = int(row["decodedFrameErrors"]); frames = int(row["processedFrames"]); lower, upper = wilson_interval(errors, frames)
+        enriched: dict[str, object] = dict(row); enriched.update({"runId": f"bch15-seed{args.global_seed}",
+            "ferCiLower95": f"{lower:.17g}", "ferCiUpper95": f"{upper:.17g}",
+            "ferUpper95RuleOfThree": f"{3.0 / frames:.17g}" if errors == 0 else "",
+            "gitCommit": git_commit})
+        output_rows.append(enriched)
+    write_dict_rows(formal / "formal_summary.csv", output_rows)
+    expected = {(row["caseName"], float(row["ebn0Db"])) for row in grid_rows}; actual = {(row["caseName"], float(row["ebn0Db"])) for row in output_rows}
+    if expected != actual or len(output_rows) != case_points: raise SystemExit("BLOCKED_BCH15_FORMAL_POINT_INCOMPLETE")
+    numeric = ["BER", "FER", "trueSuccessRate", "reportedSuccessRate", "miscorrectionRate", "decoderFailureRate",
+               "avgEncodeTimeUs", "avgDecodeTimeUs", "p50DecodeTimeUs", "p95DecodeTimeUs", "p99DecodeTimeUs", "maxDecodeTimeUs",
+               "ferCiLower95", "ferCiUpper95"]
+    for row in output_rows:
+        if row["stopReason"] not in {"TARGET_FRAME_ERRORS_REACHED", "MAX_FRAMES_REACHED"}: raise SystemExit("BLOCKED_BCH15_INVALID_STOP_REASON")
+        if any(not math.isfinite(float(row[field])) for field in numeric): raise SystemExit("BLOCKED_BCH15_METRIC_INCONSISTENCY")
+        frames = int(row["processedFrames"])
+        if int(row["trueSuccessFrames"]) + int(row["decodedFrameErrors"]) != frames: raise SystemExit("BLOCKED_BCH15_METRIC_INCONSISTENCY")
+        if int(row["reportedSuccessFrames"]) + int(row["decoderFailureFrames"]) != frames: raise SystemExit("BLOCKED_BCH15_METRIC_INCONSISTENCY")
+    checkpoint_rows = [{"path": str(path.relative_to(formal)).replace("\\", "/"), "bytes": path.stat().st_size,
+                        "sha256": __import__("hashlib").sha256(path.read_bytes()).hexdigest()} for path in sorted((formal / "checkpoints").glob("*.json"))]
+    write_dict_rows(formal / "checkpoint_summary.csv", checkpoint_rows)
+    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/plot_bch_formal.py"),
+         "--summary", str(formal / "formal_summary.csv"), "--output-dir", str(formal)], repo)
+    print(f"PASS_BCH15_AWGN_FORMAL casePoints={case_points} frames={sum(int(row['processedFrames']) for row in output_rows)}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
@@ -454,6 +535,7 @@ def main() -> int:
         print("BCH-12: 4 cases, 5 SNR points, 200 frames/point, 4000 maximum frames")
         print("BCH-13: 4 cases, 21 SNR points, 2000 frames/point, 168000 maximum frames")
         print("BCH-14: 12 adaptive trial points plus 4 resume and 4 three-shard equivalence checks")
+        print("BCH-15: formal grids read from BCH-13 recommendations, 5000/200/50000 stop rule")
         print(f"Output: {results}")
         return 0
     selected = args.stage or ("bch12" if not args.all else "all")
@@ -465,7 +547,9 @@ def main() -> int:
         run_bch13(args, repo, build, results)
     if selected in {"bch14", "all"}:
         run_bch14(args, repo, build, results)
-    if selected in {"bch15", "bch16"}:
+    if selected in {"bch15", "all"}:
+        run_bch15(args, repo, build, results)
+    if selected in {"bch16"}:
         raise SystemExit("requested stage is not implemented in the current ordered functional range")
     return 0
 
