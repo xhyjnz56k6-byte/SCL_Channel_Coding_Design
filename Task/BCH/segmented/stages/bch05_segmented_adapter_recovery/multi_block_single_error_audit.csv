@@ -1,0 +1,9 @@
+caseName,caseId,errorCount,correctedBlocks,payloadWrongBlocks,payloadRecovered,pass
+BCH-S200,first_last,2,2,0,true,true
+BCH-S200,adjacent,2,2,0,true,true
+BCH-S200,three_spread,3,3,0,true,true
+BCH-S200,every_block_one,19,19,0,true,true
+BCH-S300,first_last,2,2,0,true,true
+BCH-S300,adjacent,2,2,0,true,true
+BCH-S300,three_spread,3,3,0,true,true
+BCH-S300,every_block_one,28,28,0,true,true

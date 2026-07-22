@@ -1,0 +1,89 @@
+{
+  "stage": "bch05_segmented_adapter_recovery",
+  "module": "Task/BCH/segmented",
+  "branch": "bch-05-segmented-adapter-recovery",
+  "baseCommit": "185f4bb704e7d582b0be86f560e8c3fcb98822c9",
+  "contentCommit": "196438a84fb6608adcd182c0bfdfe67c64b6ccc2",
+  "commitStatus": "COMMITTED",
+  "pushStatus": "PUSHED_AFTER_AUDIT_COMMIT",
+  "workingTreeOnly": false,
+  "mergeStatus": "NOT_MERGED",
+  "functionalGate": "PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY_FUNCTIONAL",
+  "auditGate": "PASS_BCH05_AUDIT_FINALIZED",
+  "finalGate": "PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "185f4bb704e7d582b0be86f560e8c3fcb98822c9",
+      "contentCommit": "196438a84fb6608adcd182c0bfdfe67c64b6ccc2",
+      "files": [
+        "Task/BCH/segmented/current/CMakeLists.txt",
+        "Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp",
+        "Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp",
+        "Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "caseName": "BCH-S200",
+      "payloadLength": 200,
+      "blockPayloadLength": 11,
+      "blockCount": 19,
+      "fillerBits": 9,
+      "encodedBlockLength": 15,
+      "encodedLength": 285,
+      "codeRate": "200/285",
+      "lastBlock": "2 payload + 9 filler"
+    },
+    {
+      "caseName": "BCH-S300",
+      "payloadLength": 300,
+      "blockPayloadLength": 11,
+      "blockCount": 28,
+      "fillerBits": 8,
+      "encodedBlockLength": 15,
+      "encodedLength": 420,
+      "codeRate": "300/420",
+      "lastBlock": "3 payload + 8 filler"
+    }
+  ],
+  "testResults": {
+    "cmakeConfigure": "PASS",
+    "build": "PASS",
+    "ctest": "PASS_4_OF_4",
+    "historicalStageOutputIsolation": "PASS_BCH05_TEST_OUTPUT_ISOLATION",
+    "syntheticNoiselessFrames": 8,
+    "poolFrames": 200,
+    "singleBlockSingleErrorCases": 255,
+    "singleBlockSingleErrorMismatch": 0,
+    "multiBlockSingleErrorCases": 8,
+    "multiBlockSingleErrorMismatch": 0,
+    "sameBlockDoubleErrorCases": 12,
+    "sameBlockDoubleRecoveredPayload": 3,
+    "sameBlockDoubleReportedSuccessWrongPayload": 12,
+    "fillerBoundaryCases": 30,
+    "fillerBoundaryMismatch": 0,
+    "commonRegression": "PASS_6_OF_6",
+    "taskCommonDiff": "EMPTY"
+  },
+  "auditOutputs": [
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/adapter_config.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frozen_config.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/noiseless_recovery_summary.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frame_pool_audit.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/multi_block_single_error_audit.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch"
+  ],
+  "forbiddenScope": {
+    "taskCommonModified": false,
+    "bch06Started": false,
+    "mainMerged": false
+  }
+}

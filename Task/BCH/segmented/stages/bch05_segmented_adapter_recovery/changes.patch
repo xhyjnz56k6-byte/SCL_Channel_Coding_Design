@@ -1,0 +1,825 @@
+diff --git a/Task/BCH/segmented/current/CMakeLists.txt b/Task/BCH/segmented/current/CMakeLists.txt
+index ec52239..28a6f75 100644
+--- a/Task/BCH/segmented/current/CMakeLists.txt
++++ b/Task/BCH/segmented/current/CMakeLists.txt
+@@ -1,15 +1,25 @@
+ cmake_minimum_required(VERSION 3.16)
+ project(Bch15Encoder LANGUAGES CXX)
+-add_library(bch15_encoder src/bch15_encoder.cpp src/bch15_syndrome.cpp src/bch15_lookup_table.cpp src/bch15_lookup_decoder.cpp)
++add_library(bch15_encoder src/bch15_encoder.cpp src/bch15_syndrome.cpp src/bch15_lookup_table.cpp src/bch15_lookup_decoder.cpp src/bch15_segmented_adapter.cpp)
+ target_include_directories(bch15_encoder PUBLIC include ../../../Common/include)
+ target_compile_features(bch15_encoder PUBLIC cxx_std_17)
++set(BCH_TEST_OUTPUT_ROOT ${CMAKE_CURRENT_BINARY_DIR}/test_outputs)
++file(MAKE_DIRECTORY
++    ${BCH_TEST_OUTPUT_ROOT}/bch02_encoder
++    ${BCH_TEST_OUTPUT_ROOT}/bch03_syndrome_table
++    ${BCH_TEST_OUTPUT_ROOT}/bch04_lookup_decoder
++    ${BCH_TEST_OUTPUT_ROOT}/bch05_segmented_adapter
++)
+ add_executable(test_bch15_encoder tests/test_bch15_encoder.cpp)
+ target_link_libraries(test_bch15_encoder PRIVATE bch15_encoder)
+ enable_testing()
+-add_test(NAME bch15_encoder COMMAND test_bch15_encoder ${CMAKE_CURRENT_SOURCE_DIR}/../stages/bch02_bch15_encoder ${CMAKE_CURRENT_SOURCE_DIR}/../config/bch15_reference_vectors.csv)
++add_test(NAME bch15_encoder COMMAND test_bch15_encoder ${BCH_TEST_OUTPUT_ROOT}/bch02_encoder ${CMAKE_CURRENT_SOURCE_DIR}/../config/bch15_reference_vectors.csv)
+ add_executable(test_bch15_syndrome_table tests/test_bch15_syndrome_table.cpp)
+ target_link_libraries(test_bch15_syndrome_table PRIVATE bch15_encoder)
+-add_test(NAME bch15_syndrome_table COMMAND test_bch15_syndrome_table ${CMAKE_CURRENT_SOURCE_DIR}/../stages/bch03_bch15_syndrome_table)
++add_test(NAME bch15_syndrome_table COMMAND test_bch15_syndrome_table ${BCH_TEST_OUTPUT_ROOT}/bch03_syndrome_table)
+ add_executable(test_bch15_lookup_decoder tests/test_bch15_lookup_decoder.cpp)
+ target_link_libraries(test_bch15_lookup_decoder PRIVATE bch15_encoder)
+-add_test(NAME bch15_lookup_decoder COMMAND test_bch15_lookup_decoder ${CMAKE_CURRENT_SOURCE_DIR}/../stages/bch04_lookup_decoder_audit ${CMAKE_CURRENT_SOURCE_DIR}/../config/bch15_multi_error_seeds.csv)
++add_test(NAME bch15_lookup_decoder COMMAND test_bch15_lookup_decoder ${BCH_TEST_OUTPUT_ROOT}/bch04_lookup_decoder ${CMAKE_CURRENT_SOURCE_DIR}/../config/bch15_multi_error_seeds.csv)
++add_executable(test_bch15_segmented_adapter tests/test_bch15_segmented_adapter.cpp)
++target_link_libraries(test_bch15_segmented_adapter PRIVATE bch15_encoder)
++add_test(NAME bch15_segmented_adapter COMMAND test_bch15_segmented_adapter ${BCH_TEST_OUTPUT_ROOT}/bch05_segmented_adapter ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json)
+diff --git a/Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp b/Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp
+new file mode 100644
+index 0000000..947ff31
+--- /dev/null
++++ b/Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp
+@@ -0,0 +1,70 @@
++#ifndef SCL_BCH_SEGMENTED_BCH15_SEGMENTED_ADAPTER_HPP
++#define SCL_BCH_SEGMENTED_BCH15_SEGMENTED_ADAPTER_HPP
++
++#include "bch_segmented/bch15_lookup_decoder.hpp"
++
++#include <string>
++#include <vector>
++
++namespace scl::bch::segmented {
++
++enum class Bch15SegmentedCase { S200, S300 };
++
++struct Bch15SegmentedConfig {
++    Bch15SegmentedCase caseId;
++    const char* name;
++    common::Length payloadLength;
++    common::Length blockPayloadLength;
++    common::Length encodedBlockLength;
++    common::Length blockCount;
++    common::Length fillerBits;
++    common::Length encodedLength;
++};
++
++struct Bch15SegmentedBlockDetail {
++    common::Length blockIndex = 0U;
++    Bch15DecodeDetail decoder;
++};
++
++struct Bch15SegmentedFrameDetail {
++    common::Length totalBlocks = 0U;
++    common::Length noErrorBlocks = 0U;
++    common::Length correctedBlocks = 0U;
++    common::Length lookupHitBlocks = 0U;
++    common::Length lookupMissBlocks = 0U;
++    common::Length postCheckFailedBlocks = 0U;
++    common::Length reportedSuccessBlocks = 0U;
++    common::Length payloadCorrectBlocks = 0U;
++    common::Length payloadWrongBlocks = 0U;
++    common::Length miscorrectedBlocks = 0U;
++    common::Length paddingBits = 0U;
++    common::Length blockCount = 0U;
++};
++
++struct Bch15SegmentedEncodeResult {
++    Bch15SegmentedConfig config;
++    common::CodeLengths lengths;
++    common::BitVector paddedMessageBits;
++    common::BitVector encodedBits;
++};
++
++struct Bch15SegmentedDecodeResult {
++    Bch15SegmentedConfig config;
++    common::BitVector recoveredPayload;
++    common::BitVector recoveredPaddedMessage;
++    std::vector<Bch15SegmentedBlockDetail> blockDetails;
++    Bch15SegmentedFrameDetail frameDetail;
++};
++
++const Bch15SegmentedConfig& bch15SegmentedConfig(Bch15SegmentedCase caseId);
++Bch15SegmentedEncodeResult encodeBch15Segmented(Bch15SegmentedCase caseId,
++                                                  const common::BitVector& payloadBits);
++Bch15SegmentedDecodeResult decodeBch15Segmented(Bch15SegmentedCase caseId,
++                                                  const common::BitVector& receivedBits,
++                                                  const SyndromeTable& table);
++void auditBch15SegmentedRecovery(const common::BitVector& originalPayload,
++                                  Bch15SegmentedDecodeResult& result);
++
++}  // namespace scl::bch::segmented
++
++#endif
+diff --git a/Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp b/Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp
+new file mode 100644
+index 0000000..091dbaf
+--- /dev/null
++++ b/Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp
+@@ -0,0 +1,130 @@
++#include "bch_segmented/bch15_segmented_adapter.hpp"
++
++#include "bch_segmented/bch15_encoder.hpp"
++
++#include <stdexcept>
++
++namespace scl::bch::segmented {
++namespace {
++
++const Bch15SegmentedConfig kS200{Bch15SegmentedCase::S200, "BCH-S200", 200U, 11U, 15U, 19U, 9U, 285U};
++const Bch15SegmentedConfig kS300{Bch15SegmentedCase::S300, "BCH-S300", 300U, 11U, 15U, 28U, 8U, 420U};
++
++void validateConfig(const Bch15SegmentedConfig& config) {
++    if (config.blockPayloadLength != 11U || config.encodedBlockLength != 15U ||
++        config.blockCount * config.blockPayloadLength != config.payloadLength + config.fillerBits ||
++        config.blockCount * config.encodedBlockLength != config.encodedLength) {
++        throw std::logic_error("BCH segmented frozen configuration mismatch");
++    }
++}
++
++common::CodeLengths makeLengths(const Bch15SegmentedConfig& config) {
++    common::CodeLengths lengths;
++    lengths.payloadLength = config.payloadLength;
++    lengths.codecInputLength = config.payloadLength + config.fillerBits;
++    lengths.encodedLength = config.encodedLength;
++    lengths.transmittedLength = config.encodedLength;
++    lengths.fillerLength = config.fillerBits;
++    return lengths;
++}
++
++void addBlockStatistics(Bch15SegmentedFrameDetail& frame, const Bch15DecodeDetail& detail) {
++    ++frame.totalBlocks;
++    if (detail.status == Bch15DecodeStatus::NO_ERROR) ++frame.noErrorBlocks;
++    if (detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++frame.correctedBlocks;
++    if (detail.lookupHit) ++frame.lookupHitBlocks; else ++frame.lookupMissBlocks;
++    if (detail.status == Bch15DecodeStatus::POST_CHECK_FAILED) ++frame.postCheckFailedBlocks;
++    if (detail.status == Bch15DecodeStatus::NO_ERROR || detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++frame.reportedSuccessBlocks;
++    // True miscorrection requires the original block as an oracle.  The
++    // adapter preserves decoder facts; the test audit compares them to truth.
++}
++
++}  // namespace
++
++const Bch15SegmentedConfig& bch15SegmentedConfig(Bch15SegmentedCase caseId) {
++    if (caseId == Bch15SegmentedCase::S200) return kS200;
++    if (caseId == Bch15SegmentedCase::S300) return kS300;
++    throw std::invalid_argument("unsupported BCH segmented case");
++}
++
++Bch15SegmentedEncodeResult encodeBch15Segmented(Bch15SegmentedCase caseId,
++                                                  const common::BitVector& payloadBits) {
++    const Bch15SegmentedConfig& config = bch15SegmentedConfig(caseId);
++    validateConfig(config);
++    if (payloadBits.size() != config.payloadLength) throw std::invalid_argument("payload length does not match BCH case");
++    common::validateBits(payloadBits, "BCH segmented payload");
++
++    Bch15SegmentedEncodeResult result{config, makeLengths(config), payloadBits, {}};
++    result.paddedMessageBits.insert(result.paddedMessageBits.end(), config.fillerBits, 0U);
++    result.encodedBits.reserve(config.encodedLength);
++    for (common::Length block = 0U; block < config.blockCount; ++block) {
++        const auto begin = result.paddedMessageBits.begin() + static_cast<std::ptrdiff_t>(block * config.blockPayloadLength);
++        const common::BitVector message(begin, begin + static_cast<std::ptrdiff_t>(config.blockPayloadLength));
++        const common::BitVector codeword = encodeBch15Systematic(message);
++        result.encodedBits.insert(result.encodedBits.end(), codeword.begin(), codeword.end());
++    }
++    if (result.encodedBits.size() != config.encodedLength) throw std::logic_error("encoded length mismatch");
++    static_cast<void>(common::computeCodeRate(result.lengths));
++    return result;
++}
++
++Bch15SegmentedDecodeResult decodeBch15Segmented(Bch15SegmentedCase caseId,
++                                                  const common::BitVector& receivedBits,
++                                                  const SyndromeTable& table) {
++    const Bch15SegmentedConfig& config = bch15SegmentedConfig(caseId);
++    validateConfig(config);
++    if (receivedBits.size() != config.encodedLength) throw std::invalid_argument("encoded length does not match BCH case");
++    common::validateBits(receivedBits, "BCH segmented received bits");
++
++    Bch15SegmentedDecodeResult result;
++    result.config = config;
++    result.frameDetail.paddingBits = config.fillerBits;
++    result.frameDetail.blockCount = config.blockCount;
++    result.blockDetails.reserve(config.blockCount);
++    result.recoveredPaddedMessage.reserve(config.payloadLength + config.fillerBits);
++    for (common::Length block = 0U; block < config.blockCount; ++block) {
++        const auto begin = receivedBits.begin() + static_cast<std::ptrdiff_t>(block * config.encodedBlockLength);
++        const common::BitVector received(begin, begin + static_cast<std::ptrdiff_t>(config.encodedBlockLength));
++        Bch15DecodeDetail detail = decodeBch15Lookup(received, table);
++        result.recoveredPaddedMessage.insert(result.recoveredPaddedMessage.end(), detail.decodedMessage.begin(), detail.decodedMessage.end());
++        addBlockStatistics(result.frameDetail, detail);
++        result.blockDetails.push_back({block, std::move(detail)});
++    }
++    result.recoveredPayload.assign(result.recoveredPaddedMessage.begin(), result.recoveredPaddedMessage.begin() + static_cast<std::ptrdiff_t>(config.payloadLength));
++    return result;
++}
++
++void auditBch15SegmentedRecovery(const common::BitVector& originalPayload,
++                                  Bch15SegmentedDecodeResult& result) {
++    validateConfig(result.config);
++    if (originalPayload.size() != result.config.payloadLength) {
++        throw std::invalid_argument("original payload length does not match BCH decoded case");
++    }
++    common::validateBits(originalPayload, "BCH segmented original payload");
++    if (result.blockDetails.size() != result.config.blockCount ||
++        result.recoveredPaddedMessage.size() != result.config.payloadLength + result.config.fillerBits ||
++        result.recoveredPayload.size() != result.config.payloadLength) {
++        throw std::invalid_argument("decoded result shape does not match BCH case");
++    }
++
++    common::BitVector padded = originalPayload;
++    padded.insert(padded.end(), result.config.fillerBits, 0U);
++    result.frameDetail.payloadCorrectBlocks = 0U;
++    result.frameDetail.payloadWrongBlocks = 0U;
++    result.frameDetail.miscorrectedBlocks = 0U;
++    for (common::Length block = 0U; block < result.config.blockCount; ++block) {
++        const auto begin = padded.begin() + static_cast<std::ptrdiff_t>(block * result.config.blockPayloadLength);
++        const common::BitVector expected(begin, begin + static_cast<std::ptrdiff_t>(result.config.blockPayloadLength));
++        const auto& detail = result.blockDetails[block].decoder;
++        if (detail.decodedMessage == expected) {
++            ++result.frameDetail.payloadCorrectBlocks;
++        } else {
++            ++result.frameDetail.payloadWrongBlocks;
++            if (detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) {
++                ++result.frameDetail.miscorrectedBlocks;
++            }
++        }
++    }
++}
++
++}  // namespace scl::bch::segmented
+diff --git a/Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp b/Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp
+new file mode 100644
+index 0000000..8f1b77d
+--- /dev/null
++++ b/Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp
+@@ -0,0 +1,459 @@
++#include "bch_segmented/bch15_encoder.hpp"
++#include "bch_segmented/bch15_segmented_adapter.hpp"
++#include "common/frame_pool.hpp"
++
++#include <array>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++using namespace scl::bch::segmented;
++
++namespace {
++
++struct Counters {
++    unsigned syntheticNoiselessFrames = 0U;
++    unsigned poolFrames = 0U;
++    unsigned noiselessPayloadMismatch = 0U;
++    unsigned encodedLengthMismatch = 0U;
++    unsigned fillerMismatch = 0U;
++    unsigned invalidInputFailures = 0U;
++    unsigned singleBlockSingleErrorCases = 0U;
++    unsigned singleBlockSingleErrorMismatch = 0U;
++    unsigned multiBlockSingleErrorCases = 0U;
++    unsigned multiBlockSingleErrorMismatch = 0U;
++    unsigned sameBlockDoubleErrorCases = 0U;
++    unsigned sameBlockDoubleRecoveredPayload = 0U;
++    unsigned sameBlockDoubleReportedSuccessWrongPayload = 0U;
++    unsigned fillerBoundaryCases = 0U;
++    unsigned fillerBoundaryMismatch = 0U;
++};
++
++std::string statusName(Bch15DecodeStatus status) {
++    switch (status) {
++    case Bch15DecodeStatus::NO_ERROR:
++        return "NO_ERROR";
++    case Bch15DecodeStatus::CORRECTED_SINGLE_ERROR:
++        return "CORRECTED_SINGLE_ERROR";
++    case Bch15DecodeStatus::POST_CHECK_FAILED:
++        return "POST_CHECK_FAILED";
++    case Bch15DecodeStatus::UNRECOGNIZED_SYNDROME:
++        return "UNRECOGNIZED_SYNDROME";
++    }
++    return "UNKNOWN";
++}
++
++std::string caseName(Bch15SegmentedCase caseId) {
++    return bch15SegmentedConfig(caseId).name;
++}
++
++scl::common::BitVector pattern(scl::common::Length length, unsigned mode) {
++    scl::common::BitVector bits(length, 0U);
++    for (scl::common::Length index = 0U; index < length; ++index) {
++        if (mode == 1U) bits[index] = 1U;
++        if (mode == 2U) bits[index] = static_cast<scl::common::Bit>(index % 2U);
++    }
++    if (mode == 3U) bits[length - 1U] = 1U;
++    return bits;
++}
++
++void require(bool condition, const std::string& message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++void requireStream(std::ofstream& stream, const std::string& path) {
++    stream.flush();
++    if (!stream) throw std::runtime_error("write or flush failed: " + path);
++}
++
++void writeTextFile(const std::filesystem::path& path, const std::string& body) {
++    std::ofstream output(path, std::ios::binary);
++    if (!output) throw std::runtime_error("cannot open output: " + path.string());
++    output << body;
++    requireStream(output, path.string());
++}
++
++scl::common::BitVector expectedPadded(const scl::common::BitVector& payload, const Bch15SegmentedConfig& config) {
++    scl::common::BitVector padded = payload;
++    padded.insert(padded.end(), config.fillerBits, 0U);
++    return padded;
++}
++
++void verifyCaseConfig(Bch15SegmentedCase caseId) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    require(config.blockPayloadLength == 11U, "block payload length");
++    require(config.encodedBlockLength == 15U, "encoded block length");
++    require(config.blockCount * config.blockPayloadLength == config.payloadLength + config.fillerBits, "padded length");
++    require(config.blockCount * config.encodedBlockLength == config.encodedLength, "encoded length");
++    if (caseId == Bch15SegmentedCase::S200) {
++        require(config.payloadLength == 200U && config.blockCount == 19U && config.fillerBits == 9U &&
++                    config.encodedLength == 285U,
++                "S200 config");
++    }
++    if (caseId == Bch15SegmentedCase::S300) {
++        require(config.payloadLength == 300U && config.blockCount == 28U && config.fillerBits == 8U &&
++                    config.encodedLength == 420U,
++                "S300 config");
++    }
++}
++
++Bch15SegmentedEncodeResult verifyEncode(Bch15SegmentedCase caseId,
++                                         const scl::common::BitVector& payload,
++                                         const SyndromeTable& table,
++                                         Counters& counters) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto encoded = encodeBch15Segmented(caseId, payload);
++    if (encoded.encodedBits.size() != config.encodedLength) ++counters.encodedLengthMismatch;
++    require(encoded.paddedMessageBits.size() == config.payloadLength + config.fillerBits, "padded message length");
++    require(encoded.lengths.payloadLength == config.payloadLength, "length payload");
++    require(encoded.lengths.fillerLength == config.fillerBits, "length filler");
++    require(encoded.lengths.encodedLength == config.encodedLength, "length encoded");
++    require(scl::common::computeCodeRate(encoded.lengths) ==
++                static_cast<double>(config.payloadLength) / static_cast<double>(config.encodedLength),
++            "common code rate");
++    const auto padded = expectedPadded(payload, config);
++    if (encoded.paddedMessageBits != padded) ++counters.fillerMismatch;
++    for (scl::common::Length block = 0U; block < config.blockCount; ++block) {
++        const auto messageBegin = encoded.paddedMessageBits.begin() +
++                                  static_cast<std::ptrdiff_t>(block * config.blockPayloadLength);
++        const scl::common::BitVector message(messageBegin, messageBegin + static_cast<std::ptrdiff_t>(config.blockPayloadLength));
++        const auto codeBegin = encoded.encodedBits.begin() +
++                               static_cast<std::ptrdiff_t>(block * config.encodedBlockLength);
++        const scl::common::BitVector codeword(codeBegin, codeBegin + static_cast<std::ptrdiff_t>(config.encodedBlockLength));
++        require(codeword == encodeBch15Systematic(message), "block order or codeword mismatch");
++        require(syndromeValue(computeBch15Syndrome(codeword)) == 0U, "encoded block is not a legal BCH codeword");
++    }
++    return encoded;
++}
++
++Bch15SegmentedDecodeResult verifyNoiselessFrame(Bch15SegmentedCase caseId,
++                                                 const scl::common::BitVector& payload,
++                                                 const SyndromeTable& table,
++                                                 Counters& counters) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto encoded = verifyEncode(caseId, payload, table, counters);
++    auto decoded = decodeBch15Segmented(caseId, encoded.encodedBits, table);
++    auditBch15SegmentedRecovery(payload, decoded);
++    if (decoded.recoveredPayload != payload) ++counters.noiselessPayloadMismatch;
++    require(decoded.recoveredPayload.size() == config.payloadLength, "recovered payload length");
++    require(decoded.recoveredPaddedMessage.size() == config.payloadLength + config.fillerBits, "recovered padded length");
++    require(decoded.recoveredPaddedMessage == encoded.paddedMessageBits, "recovered padded message");
++    require(decoded.frameDetail.noErrorBlocks == config.blockCount, "noiseless NO_ERROR count");
++    require(decoded.frameDetail.payloadCorrectBlocks == config.blockCount, "noiseless true block count");
++    return decoded;
++}
++
++void verifyLastBlockMapping(Bch15SegmentedCase caseId, const scl::common::BitVector& payload) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto encoded = encodeBch15Segmented(caseId, payload);
++    const scl::common::Length lastBlock = config.blockCount - 1U;
++    const scl::common::Length payloadInLastBlock = config.blockPayloadLength - config.fillerBits;
++    for (scl::common::Length local = 0U; local < config.blockPayloadLength; ++local) {
++        const scl::common::Length paddedIndex = lastBlock * config.blockPayloadLength + local;
++        if (local < payloadInLastBlock) {
++            require(encoded.paddedMessageBits[paddedIndex] == payload[paddedIndex], "last block payload mapping");
++        } else {
++            require(encoded.paddedMessageBits[paddedIndex] == 0U, "last block filler mapping");
++        }
++    }
++    if (caseId == Bch15SegmentedCase::S200) require(payloadInLastBlock == 2U, "S200 last block payload count");
++    if (caseId == Bch15SegmentedCase::S300) require(payloadInLastBlock == 3U, "S300 last block payload count");
++}
++
++void verifyInvalidInputs(const SyndromeTable& table, Counters& counters) {
++    try {
++        static_cast<void>(encodeBch15Segmented(Bch15SegmentedCase::S200, pattern(300U, 0U)));
++        ++counters.invalidInputFailures;
++    } catch (const std::invalid_argument&) {
++    }
++    try {
++        auto bad = pattern(200U, 0U);
++        bad[7U] = 2U;
++        static_cast<void>(encodeBch15Segmented(Bch15SegmentedCase::S200, bad));
++        ++counters.invalidInputFailures;
++    } catch (const std::invalid_argument&) {
++    }
++    try {
++        static_cast<void>(decodeBch15Segmented(Bch15SegmentedCase::S300, scl::common::BitVector(285U, 0U), table));
++        ++counters.invalidInputFailures;
++    } catch (const std::invalid_argument&) {
++    }
++    try {
++        auto bad = scl::common::BitVector(420U, 0U);
++        bad[11U] = 2U;
++        static_cast<void>(decodeBch15Segmented(Bch15SegmentedCase::S300, bad, table));
++        ++counters.invalidInputFailures;
++    } catch (const std::invalid_argument&) {
++    }
++}
++
++void auditSingleBlockSingleErrors(Bch15SegmentedCase caseId,
++                                  const SyndromeTable& table,
++                                  Counters& counters,
++                                  std::ofstream& output) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto payload = pattern(config.payloadLength, 2U);
++    const auto encoded = encodeBch15Segmented(caseId, payload);
++    const scl::common::Length coveredBlocks = caseId == Bch15SegmentedCase::S200 ? 9U : 8U;
++    for (scl::common::Length block = 0U; block < coveredBlocks; ++block) {
++        for (scl::common::Length local = 0U; local < config.encodedBlockLength; ++local) {
++            auto received = encoded.encodedBits;
++            const scl::common::Length global = block * config.encodedBlockLength + local;
++            received[global] ^= 1U;
++            auto decoded = decodeBch15Segmented(caseId, received, table);
++            auditBch15SegmentedRecovery(payload, decoded);
++            const auto& detail = decoded.blockDetails[block].decoder;
++            const bool pass = decoded.recoveredPayload == payload &&
++                              detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR &&
++                              detail.correctedPosition == static_cast<int>(local) &&
++                              detail.correctedCodeword == scl::common::BitVector(encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U),
++                                                                                 encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U + 15U));
++            ++counters.singleBlockSingleErrorCases;
++            if (!pass) ++counters.singleBlockSingleErrorMismatch;
++            output << caseName(caseId) << ',' << block << ',' << local << ',' << global << ','
++                   << statusName(detail.status) << ',' << detail.correctedPosition << ','
++                   << (decoded.recoveredPayload == payload ? "true" : "false") << ','
++                   << (pass ? "true" : "false") << '\n';
++        }
++    }
++}
++
++void runMultiBlockCase(Bch15SegmentedCase caseId,
++                       const std::string& name,
++                       const std::vector<std::pair<scl::common::Length, scl::common::Length>>& flips,
++                       const SyndromeTable& table,
++                       Counters& counters,
++                       std::ofstream& output) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto payload = pattern(config.payloadLength, 3U);
++    const auto encoded = encodeBch15Segmented(caseId, payload);
++    auto received = encoded.encodedBits;
++    for (const auto& flip : flips) {
++        received[flip.first * config.encodedBlockLength + flip.second] ^= 1U;
++    }
++    auto decoded = decodeBch15Segmented(caseId, received, table);
++    auditBch15SegmentedRecovery(payload, decoded);
++    const bool pass = decoded.recoveredPayload == payload && decoded.frameDetail.correctedBlocks == flips.size();
++    ++counters.multiBlockSingleErrorCases;
++    if (!pass) ++counters.multiBlockSingleErrorMismatch;
++    output << caseName(caseId) << ',' << name << ',' << flips.size() << ','
++           << decoded.frameDetail.correctedBlocks << ',' << decoded.frameDetail.payloadWrongBlocks << ','
++           << (decoded.recoveredPayload == payload ? "true" : "false") << ',' << (pass ? "true" : "false") << '\n';
++}
++
++void auditMultiBlockSingleErrors(Bch15SegmentedCase caseId,
++                                 const SyndromeTable& table,
++                                 Counters& counters,
++                                 std::ofstream& output) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    runMultiBlockCase(caseId, "first_last", {{0U, 0U}, {config.blockCount - 1U, 14U}}, table, counters, output);
++    runMultiBlockCase(caseId, "adjacent", {{1U, 3U}, {2U, 9U}}, table, counters, output);
++    runMultiBlockCase(caseId, "three_spread", {{0U, 1U}, {config.blockCount / 2U, 7U}, {config.blockCount - 1U, 13U}}, table, counters, output);
++    std::vector<std::pair<scl::common::Length, scl::common::Length>> everyBlock;
++    for (scl::common::Length block = 0U; block < config.blockCount; ++block) {
++        everyBlock.push_back({block, block % 15U});
++    }
++    runMultiBlockCase(caseId, "every_block_one", everyBlock, table, counters, output);
++}
++
++void runDoubleErrorCase(Bch15SegmentedCase caseId,
++                        const std::string& name,
++                        scl::common::Length block,
++                        scl::common::Length firstLocal,
++                        scl::common::Length secondLocal,
++                        const SyndromeTable& table,
++                        Counters& counters,
++                        std::ofstream& output) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto payload = pattern(config.payloadLength, 2U);
++    const auto encoded = encodeBch15Segmented(caseId, payload);
++    auto received = encoded.encodedBits;
++    received[block * config.encodedBlockLength + firstLocal] ^= 1U;
++    received[block * config.encodedBlockLength + secondLocal] ^= 1U;
++    auto decoded = decodeBch15Segmented(caseId, received, table);
++    auditBch15SegmentedRecovery(payload, decoded);
++    const bool payloadRecovered = decoded.recoveredPayload == payload;
++    const bool reportedSuccessWrong = decoded.blockDetails[block].decoder.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR &&
++                                      decoded.frameDetail.payloadWrongBlocks > 0U;
++    ++counters.sameBlockDoubleErrorCases;
++    if (payloadRecovered) ++counters.sameBlockDoubleRecoveredPayload;
++    if (reportedSuccessWrong) ++counters.sameBlockDoubleReportedSuccessWrongPayload;
++    output << caseName(caseId) << ',' << name << ',' << block << ',' << firstLocal << ';' << secondLocal << ','
++           << statusName(decoded.blockDetails[block].decoder.status) << ','
++           << (decoded.blockDetails[block].decoder.correctedCodeword ==
++               scl::common::BitVector(encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U),
++                                      encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U + 15U))
++                   ? "true"
++                   : "false")
++           << ',' << (payloadRecovered ? "true" : "false") << ','
++           << (reportedSuccessWrong ? "true" : "false") << '\n';
++}
++
++void auditSameBlockDoubleErrors(Bch15SegmentedCase caseId,
++                                const SyndromeTable& table,
++                                Counters& counters,
++                                std::ofstream& output) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const scl::common::Length lastBlock = config.blockCount - 1U;
++    const scl::common::Length firstFiller = config.blockPayloadLength - config.fillerBits;
++    runDoubleErrorCase(caseId, "two_payload", 0U, 0U, 1U, table, counters, output);
++    runDoubleErrorCase(caseId, "payload_parity", 0U, 0U, 11U, table, counters, output);
++    runDoubleErrorCase(caseId, "two_parity", 0U, 11U, 12U, table, counters, output);
++    runDoubleErrorCase(caseId, "payload_filler", lastBlock, 0U, firstFiller, table, counters, output);
++    runDoubleErrorCase(caseId, "two_filler", lastBlock, firstFiller, firstFiller + 1U, table, counters, output);
++    runDoubleErrorCase(caseId, "filler_parity", lastBlock, firstFiller, 11U, table, counters, output);
++}
++
++void auditFillerBoundary(Bch15SegmentedCase caseId,
++                         const SyndromeTable& table,
++                         Counters& counters,
++                         std::ofstream& output) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto payload = pattern(config.payloadLength, 3U);
++    verifyLastBlockMapping(caseId, payload);
++    const auto encoded = encodeBch15Segmented(caseId, payload);
++    const scl::common::Length lastBlock = config.blockCount - 1U;
++    const scl::common::Length payloadInLastBlock = config.blockPayloadLength - config.fillerBits;
++    for (scl::common::Length local = 0U; local < config.encodedBlockLength; ++local) {
++        auto received = encoded.encodedBits;
++        received[lastBlock * config.encodedBlockLength + local] ^= 1U;
++        auto decoded = decodeBch15Segmented(caseId, received, table);
++        auditBch15SegmentedRecovery(payload, decoded);
++        const bool pass = decoded.recoveredPayload == payload &&
++                          decoded.blockDetails[lastBlock].decoder.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR;
++        ++counters.fillerBoundaryCases;
++        if (!pass) ++counters.fillerBoundaryMismatch;
++        const char* kind = local < payloadInLastBlock ? "payload" : (local < 11U ? "filler" : "parity");
++        output << caseName(caseId) << ',' << lastBlock << ',' << local << ',' << kind << ','
++               << statusName(decoded.blockDetails[lastBlock].decoder.status) << ','
++               << (decoded.recoveredPayload == payload ? "true" : "false") << ','
++               << (pass ? "true" : "false") << '\n';
++    }
++}
++
++void verifyPool(Bch15SegmentedCase caseId,
++                const std::string& manifestPath,
++                const std::string& expectedId,
++                const SyndromeTable& table,
++                Counters& counters,
++                std::ofstream& output) {
++    const scl::common::PackedFramePoolReader reader(manifestPath);
++    require(reader.framePoolId() == expectedId, "pool id mismatch");
++    require(reader.frameCount() >= 100U, "pool count");
++    for (scl::common::FrameIndex index = 0U; index < 100U; ++index) {
++        const auto frame = reader.readFrame(index);
++        require(frame.frameIndex == index, "frame index mismatch");
++        require(frame.payloadLength == bch15SegmentedConfig(caseId).payloadLength, "pool payload length");
++        verifyNoiselessFrame(caseId, frame.payloadBits, table, counters);
++        ++counters.poolFrames;
++        output << caseName(caseId) << ',' << expectedId << ',' << index << ','
++               << frame.payloadBits.size() << ",true\n";
++    }
++}
++
++void writeConfigCsv(const std::filesystem::path& path) {
++    std::ofstream output(path, std::ios::binary);
++    if (!output) throw std::runtime_error("cannot open adapter_config.csv");
++    output << "caseName,payloadLength,blockPayloadLength,blockCount,fillerBits,encodedBlockLength,encodedLength,codeRate,lastBlockPayload,lastBlockFiller\n";
++    for (const auto caseId : {Bch15SegmentedCase::S200, Bch15SegmentedCase::S300}) {
++        const auto& config = bch15SegmentedConfig(caseId);
++        scl::common::CodeLengths lengths;
++        lengths.payloadLength = config.payloadLength;
++        lengths.codecInputLength = config.payloadLength + config.fillerBits;
++        lengths.encodedLength = config.encodedLength;
++        lengths.transmittedLength = config.encodedLength;
++        lengths.fillerLength = config.fillerBits;
++        output << config.name << ',' << config.payloadLength << ',' << config.blockPayloadLength << ','
++               << config.blockCount << ',' << config.fillerBits << ',' << config.encodedBlockLength << ','
++               << config.encodedLength << ',' << scl::common::computeCodeRate(lengths) << ','
++               << (config.blockPayloadLength - config.fillerBits) << ',' << config.fillerBits << '\n';
++    }
++    requireStream(output, path.string());
++}
++
++bool allPassed(const Counters& c) {
++    return c.syntheticNoiselessFrames == 8U && c.poolFrames == 200U && c.noiselessPayloadMismatch == 0U &&
++           c.encodedLengthMismatch == 0U && c.fillerMismatch == 0U && c.invalidInputFailures == 0U &&
++           c.singleBlockSingleErrorCases == 255U && c.singleBlockSingleErrorMismatch == 0U &&
++           c.multiBlockSingleErrorCases == 8U && c.multiBlockSingleErrorMismatch == 0U &&
++           c.sameBlockDoubleErrorCases == 12U && c.sameBlockDoubleRecoveredPayload <= c.sameBlockDoubleErrorCases &&
++           c.sameBlockDoubleReportedSuccessWrongPayload == 12U && c.fillerBoundaryCases == 30U &&
++           c.fillerBoundaryMismatch == 0U;
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 4) throw std::runtime_error("usage: <output-dir> <k200-manifest> <k300-manifest>");
++        const std::filesystem::path outputDirectory(argv[1]);
++        std::filesystem::create_directories(outputDirectory);
++        Counters counters;
++        const SyndromeTable table = buildBch15SyndromeTable();
++
++        for (const auto caseId : {Bch15SegmentedCase::S200, Bch15SegmentedCase::S300}) {
++            verifyCaseConfig(caseId);
++            for (const unsigned mode : {0U, 1U, 2U, 3U}) {
++                verifyNoiselessFrame(caseId, pattern(bch15SegmentedConfig(caseId).payloadLength, mode), table, counters);
++                ++counters.syntheticNoiselessFrames;
++            }
++        }
++
++        std::ofstream poolCsv(outputDirectory / "frame_pool_audit.csv", std::ios::binary);
++        std::ofstream singleCsv(outputDirectory / "single_error_block_audit.csv", std::ios::binary);
++        std::ofstream multiCsv(outputDirectory / "multi_block_single_error_audit.csv", std::ios::binary);
++        std::ofstream doubleCsv(outputDirectory / "double_error_block_audit.csv", std::ios::binary);
++        std::ofstream fillerCsv(outputDirectory / "filler_boundary_audit.csv", std::ios::binary);
++        if (!poolCsv || !singleCsv || !multiCsv || !doubleCsv || !fillerCsv) throw std::runtime_error("cannot open audit csv");
++        poolCsv << "caseName,poolId,frameIndex,payloadLength,payloadRecovered\n";
++        singleCsv << "caseName,blockIndex,localPosition,globalPosition,status,correctedPosition,payloadRecovered,pass\n";
++        multiCsv << "caseName,caseId,errorCount,correctedBlocks,payloadWrongBlocks,payloadRecovered,pass\n";
++        doubleCsv << "caseName,doubleCase,blockIndex,localPositions,status,codewordRecovered,payloadRecovered,reportedSuccessWrongPayload\n";
++        fillerCsv << "caseName,lastBlock,localPosition,bitClass,status,payloadRecovered,pass\n";
++
++        verifyPool(Bch15SegmentedCase::S200, argv[2], "payload_k200_seed2026072001_policy1_frames100", table, counters, poolCsv);
++        verifyPool(Bch15SegmentedCase::S300, argv[3], "payload_k300_seed2026072001_policy1_frames100", table, counters, poolCsv);
++        verifyInvalidInputs(table, counters);
++        for (const auto caseId : {Bch15SegmentedCase::S200, Bch15SegmentedCase::S300}) {
++            auditSingleBlockSingleErrors(caseId, table, counters, singleCsv);
++            auditMultiBlockSingleErrors(caseId, table, counters, multiCsv);
++            auditSameBlockDoubleErrors(caseId, table, counters, doubleCsv);
++            auditFillerBoundary(caseId, table, counters, fillerCsv);
++        }
++        requireStream(poolCsv, (outputDirectory / "frame_pool_audit.csv").string());
++        requireStream(singleCsv, (outputDirectory / "single_error_block_audit.csv").string());
++        requireStream(multiCsv, (outputDirectory / "multi_block_single_error_audit.csv").string());
++        requireStream(doubleCsv, (outputDirectory / "double_error_block_audit.csv").string());
++        requireStream(fillerCsv, (outputDirectory / "filler_boundary_audit.csv").string());
++
++        writeConfigCsv(outputDirectory / "adapter_config.csv");
++        writeTextFile(outputDirectory / "noiseless_recovery_summary.csv",
++                      "metric,value\nsyntheticNoiselessFrames," + std::to_string(counters.syntheticNoiselessFrames) +
++                          "\npoolFrames," + std::to_string(counters.poolFrames) +
++                          "\nnoiselessPayloadMismatch," + std::to_string(counters.noiselessPayloadMismatch) +
++                          "\nencodedLengthMismatch," + std::to_string(counters.encodedLengthMismatch) +
++                          "\nfillerMismatch," + std::to_string(counters.fillerMismatch) + "\n");
++        writeTextFile(outputDirectory / "test_summary.csv",
++                      "metric,value\nsyntheticNoiselessFrames," + std::to_string(counters.syntheticNoiselessFrames) +
++                          "\npoolFrames," + std::to_string(counters.poolFrames) +
++                          "\ninvalidInputFailures," + std::to_string(counters.invalidInputFailures) +
++                          "\nsingleBlockSingleErrorCases," + std::to_string(counters.singleBlockSingleErrorCases) +
++                          "\nsingleBlockSingleErrorMismatch," + std::to_string(counters.singleBlockSingleErrorMismatch) +
++                          "\nmultiBlockSingleErrorCases," + std::to_string(counters.multiBlockSingleErrorCases) +
++                          "\nmultiBlockSingleErrorMismatch," + std::to_string(counters.multiBlockSingleErrorMismatch) +
++                          "\nsameBlockDoubleErrorCases," + std::to_string(counters.sameBlockDoubleErrorCases) +
++                          "\nsameBlockDoubleRecoveredPayload," + std::to_string(counters.sameBlockDoubleRecoveredPayload) +
++                          "\nsameBlockDoubleReportedSuccessWrongPayload," + std::to_string(counters.sameBlockDoubleReportedSuccessWrongPayload) +
++                          "\nfillerBoundaryCases," + std::to_string(counters.fillerBoundaryCases) +
++                          "\nfillerBoundaryMismatch," + std::to_string(counters.fillerBoundaryMismatch) + "\n");
++        if (!allPassed(counters)) throw std::runtime_error("BCH-05 segmented adapter gate counters mismatch");
++        std::cout << "BCH15 segmented adapter PASS\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BCH15 segmented adapter FAIL: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv
+new file mode 100644
+index 0000000..2ccfcfd
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv
+@@ -0,0 +1,11 @@
++requirement,implementation_location,positive_test,negative_test,gate_condition
++explicit_case_and_lengths,current/include/bch_segmented/bch15_segmented_adapter.hpp;current/src/bch15_segmented_adapter.cpp,S200_and_S300_profiles,case_payload_or_encoded_length_mismatch,rejected_mismatch
++filler_index_mapping,current/src/bch15_segmented_adapter.cpp;current/tests/test_bch15_segmented_adapter.cpp,S200_last_block_2_payload_9_filler_and_S300_last_block_3_payload_8_filler,last_block_boundary_checks,exact_tail_trim
++status_preservation,current/src/bch15_segmented_adapter.cpp,POST_CHECK_FAILED_and_UNRECOGNIZED_SYNDROME_keep_returned_information_bits,failed_status_not_reported_as_truth_success,status_retained
++pool_reproducibility,current/tests/test_bch15_segmented_adapter.cpp,frameIndex_0_to_99_for_both_Common_pools,wrong_pool_id_or_payload_length,pool_100_plus_100_recovered
++common_rate_reuse,current/src/bch15_segmented_adapter.cpp;current/tests/test_bch15_segmented_adapter.cpp,computeCodeRate_200_285_and_300_420,wrong_rate_or_lengths,reuses_Common_computeCodeRate
++single_error_recovery,current/tests/test_bch15_segmented_adapter.cpp,S200_9_blocks_x_15_and_S300_8_blocks_x_15,wrong_position_or_payload,single_error_mismatch_0
++multi_block_single_error,current/tests/test_bch15_segmented_adapter.cpp,first_last_adjacent_spread_and_every_block_one_error,payload_or_corrected_count_wrong,multi_block_single_error_mismatch_0
++same_block_double_error_audit,current/tests/test_bch15_segmented_adapter.cpp,payload_parity_filler_double_error_classes,status_vs_truth_confusion,double_error_classified
++filler_boundary_audit,current/tests/test_bch15_segmented_adapter.cpp,every_last_block_position_for_S200_and_S300,wrong_payload_filler_parity_class,filler_boundary_mismatch_0
++output_isolation,current/CMakeLists.txt,CTest_outputs_under_build_test_outputs,historical_stage_directory_as_output,no_historical_stage_diff
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md
+new file mode 100644
+index 0000000..247c991
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md
+@@ -0,0 +1,91 @@
++# BCH-05 segmented adapter and recovery stage plan
++
++## Goal
++
++Implement the BCH(15,11,1) segmented adapter for the frozen 200 bit and 300 bit payload cases. The stage converts Common payload bits into 11 bit BCH message blocks, appends tail filler zeros, encodes each block with the BCH-02 encoder, concatenates 15 bit codewords, decodes hard bits with the BCH-04 lookup decoder, removes filler, and recovers the original payload.
++
++## Non-goals
++
++This stage does not implement BPSK, AWGN, noise, BER/FER runners, MATLAB validation, whole-frame BCH, BM, Chien search, interleaving, or BCH-06 work.
++
++## Formal API
++
++The adapter API is in `Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp`.
++
++- `Bch15SegmentedCase`: explicit case selector, `S200` or `S300`.
++- `Bch15SegmentedConfig`: frozen case profile with payload length, block size, block count, filler bits, encoded length, and code rate inputs.
++- `Bch15SegmentedEncodeResult`: frozen config, Common `CodeLengths`, padded message bits, and encoded bits.
++- `Bch15SegmentedDecodeResult`: frozen config, recovered payload, recovered padded message, per-block BCH-04 detail, and BCH-specific frame detail.
++- `encodeBch15Segmented(caseId, payloadBits)`: validates explicit case and payload length.
++- `decodeBch15Segmented(caseId, receivedBits, table)`: validates explicit case and encoded length, and reuses one caller-built `const SyndromeTable&`.
++- `auditBch15SegmentedRecovery(originalPayload, result)`: test/audit helper that compares decoder output to truth without polluting Common metrics.
++
++## Frozen cases
++
++| case | payloadLength | blockPayloadLength | blockCount | fillerBits | encodedBlockLength | encodedLength | codeRate | last block |
++|---|---:|---:|---:|---:|---:|---:|---|---|
++| BCH-S200 | 200 | 11 | 19 | 9 | 15 | 285 | 200/285 | 2 payload + 9 filler |
++| BCH-S300 | 300 | 11 | 28 | 8 | 15 | 420 | 300/420 | 3 payload + 8 filler |
++
++`computeCodeRate` from Common is called and checked for both cases.
++
++## Index mapping
++
++- `payload[i]` maps to `paddedMessage[i]` for `0 <= i < payloadLength`.
++- Tail filler zeros occupy `paddedMessage[payloadLength, payloadLength + fillerBits)`.
++- Block `b` uses message indices `[11*b, 11*b+11)` and encoded-frame indices `[15*b, 15*b+15)`.
++- BCH systematic bits keep the block-local order: local codeword positions `0..10` are message bits, `11..14` are parity bits.
++- BCH-S200 block 18 has local message positions `0..1` from `payload[198..199]`, and `2..10` filler.
++- BCH-S300 block 27 has local message positions `0..2` from `payload[297..299]`, and `3..10` filler.
++- Recovery concatenates all BCH-04 decoded 11 bit messages and returns only `[0, payloadLength)`.
++
++If BCH-04 reports `POST_CHECK_FAILED` or `UNRECOGNIZED_SYNDROME`, BCH-05 still concatenates the returned BCH-04 information bits and preserves the failure status in block detail. Reported decoder success is not treated as truth recovery.
++
++## Test matrix
++
++| class | coverage | required truth check |
++|---|---|---|
++| No error | zero, one, alternating, last-bit-one synthetic frames for S200/S300; Common pool frameIndex 0..99 for both pools | payload mismatch = 0 and all blocks NO_ERROR |
++| Single block single error | S200 first 9 blocks x 15 positions; S300 first 8 blocks x 15 positions | corrected block, local/global position, corrected codeword, recovered payload |
++| Multiple blocks, one error each | first+last, adjacent blocks, three spread blocks, and every block one error | recovered frame payload and corrected block count |
++| Same block double error | two payload bits, payload+parity, two parity bits, payload+filler, two filler bits, filler+parity | status, codeword truth, block message truth, frame payload truth |
++| Filler boundary | every local position of the last block for both cases | payload/filler/parity classification and recovered payload |
++| Negative inputs | wrong payload length, non-bit payload, wrong encoded length, non-bit received bits | explicit rejection |
++
++Error injection exists only in tests.
++
++## Common frame pools
++
++- S200 manifest: `Task/Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json`
++- S200 pool ID: `payload_k200_seed2026072001_policy1_frames100`
++- S300 manifest: `Task/Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json`
++- S300 pool ID: `payload_k300_seed2026072001_policy1_frames100`
++- Frame range: `frameIndex=0..99`.
++
++The pool manifests are read-only inputs and are not copied or modified.
++
++## Output isolation
++
++Normal CTest output is written only under:
++
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch02_encoder`
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch03_syndrome_table`
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch04_lookup_decoder`
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch05_segmented_adapter`
++
++Historical `Task/BCH/segmented/stages/bch02_*`, `bch03_*`, and `bch04_*` directories are frozen evidence and must not be runtime output targets.
++
++## Gate
++
++`PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY` requires:
++
++- S200/S300 frozen parameters match the stage profile.
++- encoded length, filler mapping, and block order are correct.
++- no-noise payload mismatch is zero for synthetic frames and Common pool 100+100 frames.
++- all tested encoded blocks are legal BCH(15,11,1) codewords.
++- single block single errors recover and report the correct position.
++- multiple blocks with one error each recover the frame payload.
++- same block double errors are classified with decoder status and truth separated.
++- Common six binary regressions pass.
++- `Task/Common` is not modified.
++- no BCH-06, AWGN, BPSK, BM, Chien, interleaver, or BER/FER runner content is introduced.

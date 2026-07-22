@@ -1,0 +1,13 @@
+metric,value
+syntheticNoiselessFrames,8
+poolFrames,200
+invalidInputFailures,0
+singleBlockSingleErrorCases,255
+singleBlockSingleErrorMismatch,0
+multiBlockSingleErrorCases,8
+multiBlockSingleErrorMismatch,0
+sameBlockDoubleErrorCases,12
+sameBlockDoubleRecoveredPayload,3
+sameBlockDoubleReportedSuccessWrongPayload,12
+fillerBoundaryCases,30
+fillerBoundaryMismatch,0

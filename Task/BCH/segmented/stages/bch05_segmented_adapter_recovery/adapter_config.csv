@@ -1,0 +1,3 @@
+caseName,payloadLength,blockPayloadLength,blockCount,fillerBits,encodedBlockLength,encodedLength,codeRate,lastBlockPayload,lastBlockFiller
+BCH-S200,200,11,19,9,15,285,0.701754,2,9
+BCH-S300,300,11,28,8,15,420,0.714286,3,8
