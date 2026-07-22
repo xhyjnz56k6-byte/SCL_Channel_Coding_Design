@@ -21,13 +21,14 @@ cleanup=onCleanup(@() fclose(fid));
 fprintf(fid,'caseName,pattern,errorKind,payload,motherCodeword,shortenedCodeword,received,syndromes,locator,rootPositions,correctedShortened,decodedPayload,status\n');
 for k=1:numel(profiles)
  p=profiles{k}; tables=gfTables(p.m,p.primitive);
- for pattern=0:107
+ for pattern=0:207
   payload=vectorFor(p.payload,pattern); [mother,shortened]=encodeWord(p,payload);
-  for error=0:3
+  for error=0:6
    received=shortened; name='NONE';
    if error==1, received(1)=1-received(1); name='FIRST'; end
    if error==2, received(end)=1-received(end); name='LAST'; end
    if error==3, name='T'; for j=0:(p.t-1), index=mod(j*29+7,numel(received))+1; received(index)=1-received(index); end, end
+   if error>=4, if error==4, name='T_PLUS_1'; weight=p.t+1; elseif error==5, name='T_PLUS_2'; weight=p.t+2; else, name='HIGH_WEIGHT'; weight=p.t+5; end, for j=0:(weight-1), index=mod(j*29+7,numel(received))+1; received(index)=1-received(index); end, end
    d=decodeWord(p,tables,received);
    fprintf(fid,'%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n',p.caseName,pattern,name,bitsText(payload),bitsText(mother),bitsText(shortened),bitsText(received),numberText(d.syndromes),numberText(d.locator),positionText(d.roots),bitsText(d.corrected),bitsText(d.payload),d.status);
   end
