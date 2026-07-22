@@ -23,3 +23,5 @@ add_test(NAME bch15_lookup_decoder COMMAND test_bch15_lookup_decoder ${BCH_TEST_
 add_executable(test_bch15_segmented_adapter tests/test_bch15_segmented_adapter.cpp)
 target_link_libraries(test_bch15_segmented_adapter PRIVATE bch15_encoder)
 add_test(NAME bch15_segmented_adapter COMMAND test_bch15_segmented_adapter ${BCH_TEST_OUTPUT_ROOT}/bch05_segmented_adapter ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json)
+add_executable(export_bch06_cpp_reference tests/export_bch06_cpp_reference.cpp)
+target_link_libraries(export_bch06_cpp_reference PRIVATE bch15_encoder)

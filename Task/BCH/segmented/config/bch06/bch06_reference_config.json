@@ -1,0 +1,8 @@
+{
+  "stage": "BCH-06",
+  "code": "BCH(15,11,1)",
+  "generator": [1, 0, 0, 1, 1],
+  "bitOrder": "leftmost_highest_degree",
+  "syndromeOrder": "x3_x2_x1_x0",
+  "cases": {"BCH-S200": {"payloadLength": 200, "blockCount": 19, "fillerBits": 9, "encodedLength": 285}, "BCH-S300": {"payloadLength": 300, "blockCount": 28, "fillerBits": 8, "encodedLength": 420}}
+}
