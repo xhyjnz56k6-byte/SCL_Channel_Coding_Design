@@ -49,6 +49,6 @@
   "matplotlibVersion": "3.10.7",
   "artifactHashes": {"index": "result_file_hashes.csv", "plotManifest": "plot_manifest.json"},
   "gateStatus": "PASS_BCH15_AWGN_FORMAL",
-  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "remoteVerification": {"status": "PASS", "branch": "origin/bch-group4-awgn-formal-comparison", "verifiedHead": "d264b743f84c7b6c4ceb2d9367a39b7b40fc8e3b"},
   "mergeStatus": "NOT_MERGED"
 }

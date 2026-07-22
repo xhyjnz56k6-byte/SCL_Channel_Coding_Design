@@ -40,6 +40,6 @@
   "plotAudit": {"matplotlibVersion": "3.10.7", "pngCount": 29, "nonPngPlotArtifactCount": 0},
   "mismatchCount": 0,
   "gateStatus": "PASS_BCH_GROUP4_AWGN_FORMAL_COMPARISON",
-  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "remoteVerification": {"status": "PASS", "branch": "origin/bch-group4-awgn-formal-comparison", "verifiedHead": "d264b743f84c7b6c4ceb2d9367a39b7b40fc8e3b", "functionalRangesVerified": 11},
   "mergeStatus": "NOT_MERGED"
 }
