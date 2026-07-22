@@ -1,0 +1,6 @@
+requirement,implementation,positiveTest,negativeTest,gate
+paired_comparison,compare_bch_cases.py,only matched payload pairs,input completeness rejection,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
+target_interpolation,compare_bch_cases.py,adjacent log-FER interpolation,unbracketed target remains blank,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
+complexity,complexity_comparison.csv,required theoretical counts,no operation-equivalence claim,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
+plots,plot_bch_comparison.py,four PNG and figure-data files,forbidden extension scan,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
+recommendations,recommendations.md,200/300 multidimensional conclusion,no burst/interleaver inference,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON

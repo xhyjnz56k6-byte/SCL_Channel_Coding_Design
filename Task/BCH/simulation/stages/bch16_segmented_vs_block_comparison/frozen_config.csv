@@ -1,0 +1,2 @@
+stage,input,targetFerLevels,interpolation,extrapolation,plotCount
+BCH-16,Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv,1e-1;1e-2;1e-3,linear_in_log10_FER_vs_EbN0,forbidden,4

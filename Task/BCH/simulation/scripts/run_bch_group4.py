@@ -501,6 +501,25 @@ def run_bch15(args: argparse.Namespace, repo: Path, build: Path, results: Path) 
     print(f"PASS_BCH15_AWGN_FORMAL casePoints={case_points} frames={sum(int(row['processedFrames']) for row in output_rows)}")
 
 
+def run_bch16(repo: Path, results: Path) -> None:
+    comparison = results / "comparison"
+    if comparison.exists(): shutil.rmtree(comparison)
+    comparison.mkdir(parents=True)
+    formal = repo / "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv"
+    if not formal.is_file(): raise SystemExit("BLOCKED_BCH16_COMPARISON_INPUT_INCOMPLETE")
+    print("[6/6] BCH-16 execution plan")
+    print("Pairs: BCH-S200/BCH-B200 and BCH-S300/BCH-B300 | target FER: 1e-1, 1e-2, 1e-3")
+    print(f"Interpolation: adjacent log10(FER), no extrapolation | PNG: 4 | Output: {comparison}")
+    print("[BCH-16] step 1/2 comparison tables", flush=True)
+    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/compare_bch_cases.py"),
+         "--formal-summary", str(formal), "--output-dir", str(comparison)], repo)
+    print("[BCH-16] step 2/2 matplotlib figures", flush=True)
+    run([sys.executable, str(repo / "Task/BCH/simulation/scripts/plot_bch_comparison.py"),
+         "--formal-summary", str(formal), "--complexity", str(comparison / "complexity_comparison.csv"),
+         "--output-dir", str(comparison)], repo)
+    print("PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", choices=["bch11", "bch12", "bch13", "bch14", "bch15", "bch16"])
@@ -549,8 +568,8 @@ def main() -> int:
         run_bch14(args, repo, build, results)
     if selected in {"bch15", "all"}:
         run_bch15(args, repo, build, results)
-    if selected in {"bch16"}:
-        raise SystemExit("requested stage is not implemented in the current ordered functional range")
+    if selected in {"bch16", "all"}:
+        run_bch16(repo, results)
     return 0
 
 
