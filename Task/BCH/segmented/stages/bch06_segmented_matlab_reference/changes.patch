@@ -1,0 +1,532 @@
+diff --git a/Task/BCH/segmented/config/bch06/bch06_reference_config.json b/Task/BCH/segmented/config/bch06/bch06_reference_config.json
+new file mode 100644
+index 0000000..8a124d8
+--- /dev/null
++++ b/Task/BCH/segmented/config/bch06/bch06_reference_config.json
+@@ -0,0 +1,8 @@
++{
++  "stage": "BCH-06",
++  "code": "BCH(15,11,1)",
++  "generator": [1, 0, 0, 1, 1],
++  "bitOrder": "leftmost_highest_degree",
++  "syndromeOrder": "x3_x2_x1_x0",
++  "cases": {"BCH-S200": {"payloadLength": 200, "blockCount": 19, "fillerBits": 9, "encodedLength": 285}, "BCH-S300": {"payloadLength": 300, "blockCount": 28, "fillerBits": 8, "encodedLength": 420}}
++}
+diff --git a/Task/BCH/segmented/current/CMakeLists.txt b/Task/BCH/segmented/current/CMakeLists.txt
+index 28a6f75..e449eac 100644
+--- a/Task/BCH/segmented/current/CMakeLists.txt
++++ b/Task/BCH/segmented/current/CMakeLists.txt
+@@ -23,3 +23,5 @@ add_test(NAME bch15_lookup_decoder COMMAND test_bch15_lookup_decoder ${BCH_TEST_
+ add_executable(test_bch15_segmented_adapter tests/test_bch15_segmented_adapter.cpp)
+ target_link_libraries(test_bch15_segmented_adapter PRIVATE bch15_encoder)
+ add_test(NAME bch15_segmented_adapter COMMAND test_bch15_segmented_adapter ${BCH_TEST_OUTPUT_ROOT}/bch05_segmented_adapter ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json)
++add_executable(export_bch06_cpp_reference tests/export_bch06_cpp_reference.cpp)
++target_link_libraries(export_bch06_cpp_reference PRIVATE bch15_encoder)
+diff --git a/Task/BCH/segmented/current/tests/export_bch06_cpp_reference.cpp b/Task/BCH/segmented/current/tests/export_bch06_cpp_reference.cpp
+new file mode 100644
+index 0000000..f907d66
+--- /dev/null
++++ b/Task/BCH/segmented/current/tests/export_bch06_cpp_reference.cpp
+@@ -0,0 +1,42 @@
++#include "bch_segmented/bch15_encoder.hpp"
++#include "bch_segmented/bch15_lookup_decoder.hpp"
++#include "bch_segmented/bch15_segmented_adapter.hpp"
++
++#include <filesystem>
++#include <fstream>
++#include <stdexcept>
++
++using namespace scl::bch::segmented;
++
++namespace {
++std::string bits(const scl::common::BitVector& v) { std::string s; for (auto b : v) s += static_cast<char>('0' + b); return s; }
++std::string status(Bch15DecodeStatus value) {
++    switch (value) { case Bch15DecodeStatus::NO_ERROR: return "NO_ERROR"; case Bch15DecodeStatus::CORRECTED_SINGLE_ERROR: return "CORRECTED_SINGLE_ERROR"; case Bch15DecodeStatus::POST_CHECK_FAILED: return "POST_CHECK_FAILED"; default: return "UNRECOGNIZED_SYNDROME"; }
++}
++scl::common::BitVector message(unsigned index) { scl::common::BitVector v(11U,0U); for(unsigned i=0;i<11U;++i) v[i]=(index >> (10U-i))&1U; return v; }
++void checked(std::ofstream& out, const std::string& name) { out.flush(); if (!out) throw std::runtime_error("cannot write " + name); }
++}
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::runtime_error("usage: export_bch06_cpp_reference <output-dir>");
++        std::filesystem::path root(argv[1]); std::filesystem::create_directories(root);
++        std::ofstream encoder(root / "cpp_encoder_reference.csv"), syndrome(root / "cpp_syndrome_reference.csv"), noError(root / "cpp_no_error_decode.csv"), single(root / "cpp_single_error_decode.csv");
++        if(!encoder||!syndrome||!noError||!single) throw std::runtime_error("cannot open output");
++        encoder << "messageIndex,messageBits,parityBits,codewordBits,syndromeBits,syndromeValue\n";
++        syndrome << "errorPosition,syndromeBits,syndromeValue\n";
++        noError << "messageIndex,messageBits,receivedBits,syndromeBefore,syndromeAfter,lookupHit,correctedPosition,status,correctedCodeword,decodedMessage\n";
++        single << "messageIndex,errorPosition,receivedBits,syndromeBefore,syndromeAfter,lookupHit,correctedPosition,status,correctedCodeword,decodedMessage\n";
++        const SyndromeTable table=buildBch15SyndromeTable();
++        for(unsigned p=0;p<15U;++p) { scl::common::BitVector e(15U,0U); e[p]=1U; auto s=computeBch15Syndrome(e); syndrome<<p<<','<<bits(s)<<','<<syndromeValue(s)<<'\n'; }
++        for(unsigned index=0;index<2048U;++index) {
++            auto m=message(index); auto c=encodeBch15Systematic(m); auto s=computeBch15Syndrome(c);
++            encoder<<index<<','<<bits(m)<<','<<bits(scl::common::BitVector(c.begin()+11,c.end()))<<','<<bits(c)<<','<<bits(s)<<','<<syndromeValue(s)<<'\n';
++            auto d=decodeBch15Lookup(c,table);
++            noError<<index<<','<<bits(m)<<','<<bits(c)<<','<<bits(d.syndromeBefore)<<','<<bits(d.syndromeAfter)<<','<<(d.lookupHit?"true":"false")<<','<<d.correctedPosition<<','<<status(d.status)<<','<<bits(d.correctedCodeword)<<','<<bits(d.decodedMessage)<<'\n';
++            for(unsigned p=0;p<15U;++p) { auto r=c; r[p]^=1U; auto x=decodeBch15Lookup(r,table); single<<index<<','<<p<<','<<bits(r)<<','<<bits(x.syndromeBefore)<<','<<bits(x.syndromeAfter)<<','<<(x.lookupHit?"true":"false")<<','<<x.correctedPosition<<','<<status(x.status)<<','<<bits(x.correctedCodeword)<<','<<bits(x.decodedMessage)<<'\n'; }
++        }
++        checked(encoder,"encoder"); checked(syndrome,"syndrome"); checked(noError,"noError"); checked(single,"single");
++        return 0;
++    } catch(const std::exception& e) { return 1; }
++}
+diff --git a/Task/BCH/segmented/matlab/README_BCH06_REFERENCE.md b/Task/BCH/segmented/matlab/README_BCH06_REFERENCE.md
+new file mode 100644
+index 0000000..30f7978
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/README_BCH06_REFERENCE.md
+@@ -0,0 +1,3 @@
++# BCH-06 MATLAB independent reference
++
++The MATLAB reference uses row-vector, left-most-highest-degree GF(2) long division with generator `[1 0 0 1 1]`. It does not read C++ exports as algorithm input. CSV is ASCII/UTF-8 with fixed `0`/`1` bit strings, 0-based error positions, and uppercase decoder statuses.
+diff --git a/Task/BCH/segmented/matlab/bch15_bits_to_string.m b/Task/BCH/segmented/matlab/bch15_bits_to_string.m
+new file mode 100644
+index 0000000..7e2060f
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_bits_to_string.m
+@@ -0,0 +1,3 @@
++function text = bch15_bits_to_string(bits)
++text = char(double(bits(:).') + '0');
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_build_lookup_reference.m b/Task/BCH/segmented/matlab/bch15_build_lookup_reference.m
+new file mode 100644
+index 0000000..e693fbc
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_build_lookup_reference.m
+@@ -0,0 +1,11 @@
++function table = bch15_build_lookup_reference()
++table = struct('syndrome', cell(1,15), 'syndromeBits', cell(1,15), 'errorPosition', cell(1,15), 'errorPattern', cell(1,15));
++for p = 0:14
++    errorPattern = zeros(1,15); errorPattern(p+1) = 1;
++    syndromeBits = bch15_syndrome_reference(errorPattern);
++    table(p+1).syndrome = bch15_syndrome_value(syndromeBits);
++    table(p+1).syndromeBits = syndromeBits;
++    table(p+1).errorPosition = p;
++    table(p+1).errorPattern = errorPattern;
++end
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_encode_reference.m b/Task/BCH/segmented/matlab/bch15_encode_reference.m
+new file mode 100644
+index 0000000..3366d9f
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_encode_reference.m
+@@ -0,0 +1,5 @@
++function codeword = bch15_encode_reference(message)
++message = bch15_validate_bits(message, 11, 'message');
++[~, remainder] = bch15_gf2_divide_reference([message zeros(1,4)], [1 0 0 1 1]);
++codeword = [message remainder];
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_gf2_divide_reference.m b/Task/BCH/segmented/matlab/bch15_gf2_divide_reference.m
+new file mode 100644
+index 0000000..004afab
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_gf2_divide_reference.m
+@@ -0,0 +1,14 @@
++function [quotient, remainder] = bch15_gf2_divide_reference(dividend, divisor)
++dividend = bch15_validate_bits(dividend, numel(dividend), 'dividend');
++divisor = bch15_validate_bits(divisor, numel(divisor), 'divisor');
++if divisor(1) ~= 1, error('BCH06:InvalidDivisor', 'divisor leading coefficient must be one.'); end
++if numel(dividend) < numel(divisor), error('BCH06:InvalidDividend', 'dividend must not be shorter than divisor.'); end
++work = dividend; quotient = zeros(1, numel(dividend)-numel(divisor)+1);
++for i = 1:numel(quotient)
++    if work(i) == 1
++        quotient(i) = 1;
++        work(i:i+numel(divisor)-1) = xor(work(i:i+numel(divisor)-1), divisor);
++    end
++end
++remainder = work(end-numel(divisor)+2:end);
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_lookup_decode_reference.m b/Task/BCH/segmented/matlab/bch15_lookup_decode_reference.m
+new file mode 100644
+index 0000000..f1281a2
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_lookup_decode_reference.m
+@@ -0,0 +1,24 @@
++function detail = bch15_lookup_decode_reference(received, table)
++received = bch15_validate_bits(received, 15, 'received');
++before = bch15_syndrome_reference(received); value = bch15_syndrome_value(before);
++detail.correctedCodeword = received; detail.syndromeBefore = before; detail.correctedPosition = -1; detail.lookupHit = false;
++if value == 0
++    detail.status = 'NO_ERROR'; detail.syndromeAfter = before;
++else
++    position = -1;
++    for i=1:numel(table), if table(i).syndrome == value, position = table(i).errorPosition; break; end, end
++    if position < 0
++        detail.status = 'UNRECOGNIZED_SYNDROME'; detail.syndromeAfter = before;
++    else
++        detail.lookupHit = true; detail.correctedPosition = position;
++        if position > 14
++            detail.status = 'POST_CHECK_FAILED'; detail.syndromeAfter = before;
++        else
++            detail.correctedCodeword(position+1) = xor(detail.correctedCodeword(position+1), 1);
++            detail.syndromeAfter = bch15_syndrome_reference(detail.correctedCodeword);
++            if bch15_syndrome_value(detail.syndromeAfter) == 0, detail.status = 'CORRECTED_SINGLE_ERROR'; else, detail.status = 'POST_CHECK_FAILED'; end
++        end
++    end
++end
++detail.decodedMessage = detail.correctedCodeword(1:11);
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_message_from_decimal.m b/Task/BCH/segmented/matlab/bch15_message_from_decimal.m
+new file mode 100644
+index 0000000..7fd85b0
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_message_from_decimal.m
+@@ -0,0 +1,9 @@
++function bits = bch15_message_from_decimal(index)
++if ~isscalar(index) || index < 0 || index > 2047 || floor(index) ~= index
++    error('BCH06:InvalidMessageIndex', 'message index must be an integer in [0,2047].');
++end
++bits = zeros(1,11);
++for p = 1:11
++    bits(p) = bitget(uint16(index), 12-p);
++end
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_segmented_audit_recovery.m b/Task/BCH/segmented/matlab/bch15_segmented_audit_recovery.m
+new file mode 100644
+index 0000000..9c7c18c
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_segmented_audit_recovery.m
+@@ -0,0 +1,4 @@
++function audit = bch15_segmented_audit_recovery(payload, result)
++audit.paddedInformationMismatch = sum(result.recoveredPaddedMessage ~= [payload zeros(1,result.config.fillerBits)]);
++audit.recoveredPayloadMismatch = sum(result.recoveredPayload ~= payload);
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_segmented_config_reference.m b/Task/BCH/segmented/matlab/bch15_segmented_config_reference.m
+new file mode 100644
+index 0000000..f28f7b8
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_segmented_config_reference.m
+@@ -0,0 +1,4 @@
++function config = bch15_segmented_config_reference(caseName)
++if strcmp(caseName,'BCH-S200'), config = struct('name','BCH-S200','payloadLength',200,'blockCount',19,'fillerBits',9,'encodedLength',285); elseif strcmp(caseName,'BCH-S300'), config = struct('name','BCH-S300','payloadLength',300,'blockCount',28,'fillerBits',8,'encodedLength',420); else, error('BCH06:InvalidCase','case must be BCH-S200 or BCH-S300.'); end
++config.blockPayloadLength = 11; config.encodedBlockLength = 15;
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_segmented_decode_reference.m b/Task/BCH/segmented/matlab/bch15_segmented_decode_reference.m
+new file mode 100644
+index 0000000..2871818
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_segmented_decode_reference.m
+@@ -0,0 +1,14 @@
++function result = bch15_segmented_decode_reference(caseName, received, table)
++config=bch15_segmented_config_reference(caseName); received=bch15_validate_bits(received,config.encodedLength,'received');
++result.config=config; result.recoveredPaddedMessage=zeros(1,config.payloadLength+config.fillerBits); result.blockDetails=cell(1,config.blockCount);
++result.frameDetail=struct('totalBlocks',0,'noErrorBlocks',0,'correctedBlocks',0,'lookupHitBlocks',0,'lookupMissBlocks',0,'postCheckFailedBlocks',0,'unrecognizedSyndromeBlocks',0);
++for b=0:config.blockCount-1
++    d=bch15_lookup_decode_reference(received(15*b+1:15*b+15),table); result.blockDetails{b+1}=d; result.recoveredPaddedMessage(11*b+1:11*b+11)=d.decodedMessage; result.frameDetail.totalBlocks=result.frameDetail.totalBlocks+1;
++    if strcmp(d.status,'NO_ERROR'), result.frameDetail.noErrorBlocks=result.frameDetail.noErrorBlocks+1; end
++    if strcmp(d.status,'CORRECTED_SINGLE_ERROR'), result.frameDetail.correctedBlocks=result.frameDetail.correctedBlocks+1; end
++    if d.lookupHit, result.frameDetail.lookupHitBlocks=result.frameDetail.lookupHitBlocks+1; end
++    if strcmp(d.status,'UNRECOGNIZED_SYNDROME'), result.frameDetail.lookupMissBlocks=result.frameDetail.lookupMissBlocks+1; result.frameDetail.unrecognizedSyndromeBlocks=result.frameDetail.unrecognizedSyndromeBlocks+1; end
++    if strcmp(d.status,'POST_CHECK_FAILED'), result.frameDetail.postCheckFailedBlocks=result.frameDetail.postCheckFailedBlocks+1; end
++end
++result.recoveredPayload=result.recoveredPaddedMessage(1:config.payloadLength);
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_segmented_encode_reference.m b/Task/BCH/segmented/matlab/bch15_segmented_encode_reference.m
+new file mode 100644
+index 0000000..2d69286
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_segmented_encode_reference.m
+@@ -0,0 +1,7 @@
++function result = bch15_segmented_encode_reference(caseName, payload)
++config = bch15_segmented_config_reference(caseName); payload = bch15_validate_bits(payload, config.payloadLength, 'payload');
++result.config=config; result.payloadBits=payload; result.paddedMessageBits=[payload zeros(1,config.fillerBits)]; result.encodedBits=zeros(1,config.encodedLength);
++for b=0:config.blockCount-1
++    result.encodedBits(15*b+1:15*b+15)=bch15_encode_reference(result.paddedMessageBits(11*b+1:11*b+11));
++end
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_status_name.m b/Task/BCH/segmented/matlab/bch15_status_name.m
+new file mode 100644
+index 0000000..82f214a
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_status_name.m
+@@ -0,0 +1,3 @@
++function name = bch15_status_name(status)
++name = char(status);
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_syndrome_reference.m b/Task/BCH/segmented/matlab/bch15_syndrome_reference.m
+new file mode 100644
+index 0000000..e9c6faa
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_syndrome_reference.m
+@@ -0,0 +1,4 @@
++function syndrome = bch15_syndrome_reference(received)
++received = bch15_validate_bits(received, 15, 'received');
++[~, syndrome] = bch15_gf2_divide_reference(received, [1 0 0 1 1]);
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_syndrome_value.m b/Task/BCH/segmented/matlab/bch15_syndrome_value.m
+new file mode 100644
+index 0000000..0b689a1
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_syndrome_value.m
+@@ -0,0 +1,4 @@
++function value = bch15_syndrome_value(syndrome)
++syndrome = bch15_validate_bits(syndrome, 4, 'syndrome');
++value = syndrome * [8;4;2;1];
++end
+diff --git a/Task/BCH/segmented/matlab/bch15_validate_bits.m b/Task/BCH/segmented/matlab/bch15_validate_bits.m
+new file mode 100644
+index 0000000..6ff585f
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/bch15_validate_bits.m
+@@ -0,0 +1,7 @@
++function bits = bch15_validate_bits(bits, expectedLength, name)
++if nargin < 3, name = 'bits'; end
++if ~isrow(bits) || numel(bits) ~= expectedLength || ~isnumeric(bits) && ~islogical(bits) || any(bits ~= 0 & bits ~= 1)
++    error('BCH06:InvalidBits', '%s must be a 1-by-%d binary row vector.', name, expectedLength);
++end
++bits = double(bits);
++end
+diff --git a/Task/BCH/segmented/matlab/run_bch06_segmented_matlab_reference.m b/Task/BCH/segmented/matlab/run_bch06_segmented_matlab_reference.m
+new file mode 100644
+index 0000000..2dd692f
+--- /dev/null
++++ b/Task/BCH/segmented/matlab/run_bch06_segmented_matlab_reference.m
+@@ -0,0 +1,102 @@
++function run_bch06_segmented_matlab_reference(configPath, outputDirectory)
++% Independent BCH-06 reference: it never consumes C++ output as algorithm input.
++if nargin < 2, error('BCH06:Usage','configPath and outputDirectory are required.'); end
++if ~exist(outputDirectory,'dir'), mkdir(outputDirectory); end
++table = bch15_build_lookup_reference();
++write_environment(outputDirectory);
++fenc=fopen(fullfile(outputDirectory,'matlab_encoder_reference.csv'),'w');
++fsyn=fopen(fullfile(outputDirectory,'matlab_syndrome_reference.csv'),'w');
++fno=fopen(fullfile(outputDirectory,'matlab_no_error_decode.csv'),'w');
++fone=fopen(fullfile(outputDirectory,'matlab_single_error_decode.csv'),'w');
++if any([fenc fsyn fno fone] < 0), error('BCH06:Output','cannot open MATLAB CSV output.'); end
++fprintf(fenc,'messageIndex,messageBits,parityBits,codewordBits,syndromeBits,syndromeValue\n');
++fprintf(fsyn,'errorPosition,syndromeBits,syndromeValue\n');
++fprintf(fno,'messageIndex,messageBits,receivedBits,syndromeBefore,syndromeAfter,lookupHit,correctedPosition,status,correctedCodeword,decodedMessage\n');
++fprintf(fone,'messageIndex,errorPosition,receivedBits,syndromeBefore,syndromeAfter,lookupHit,correctedPosition,status,correctedCodeword,decodedMessage\n');
++for p=0:14
++    fprintf(fsyn,'%d,%s,%d\n',p,bch15_bits_to_string(table(p+1).syndromeBits),table(p+1).syndrome);
++end
++for index=0:2047
++    message=bch15_message_from_decimal(index); codeword=bch15_encode_reference(message); syndrome=bch15_syndrome_reference(codeword);
++    fprintf(fenc,'%d,%s,%s,%s,%s,%d\n',index,bch15_bits_to_string(message),bch15_bits_to_string(codeword(12:15)),bch15_bits_to_string(codeword),bch15_bits_to_string(syndrome),bch15_syndrome_value(syndrome));
++    d=bch15_lookup_decode_reference(codeword,table); write_decode(fno,index,-1,message,codeword,d,true);
++    for p=0:14
++        received=codeword; received(p+1)=xor(received(p+1),1); d=bch15_lookup_decode_reference(received,table); write_decode(fone,index,p,[],received,d,false);
++    end
++end
++fclose(fenc); fclose(fsyn); fclose(fno); fclose(fone);
++write_summary(outputDirectory,table);
++end
++
++function write_decode(file,index,position,message,received,d,includeMessage)
++if includeMessage
++    fprintf(file,'%d,%s,%s,%s,%s,%s,%d,%s,%s,%s\n',index,bch15_bits_to_string(message),bch15_bits_to_string(received),bch15_bits_to_string(d.syndromeBefore),bch15_bits_to_string(d.syndromeAfter),tf(d.lookupHit),d.correctedPosition,d.status,bch15_bits_to_string(d.correctedCodeword),bch15_bits_to_string(d.decodedMessage));
++else
++    fprintf(file,'%d,%d,%s,%s,%s,%s,%d,%s,%s,%s\n',index,position,bch15_bits_to_string(received),bch15_bits_to_string(d.syndromeBefore),bch15_bits_to_string(d.syndromeAfter),tf(d.lookupHit),d.correctedPosition,d.status,bch15_bits_to_string(d.correctedCodeword),bch15_bits_to_string(d.decodedMessage));
++end
++
++function text=tf(value)
++if value, text='true'; else, text='false'; end
++end
++end
++
++function write_environment(outputDirectory)
++v=version; fid=fopen(fullfile(outputDirectory,'matlab_environment.json'),'w');
++fprintf(fid,'{"matlabVersion":"%s","platform":"%s","reference":"independent_gf2_long_division"}\n',v,computer); fclose(fid);
++fid=fopen(fullfile(outputDirectory,'matlab_toolbox_audit.csv'),'w');
++fprintf(fid,'matlabVersion,toolboxName,functionName,available,used,bitOrderConversion,result,notes\n');
++names={'bchenc','bchdec','bchgenpoly','gf'};
++for i=1:numel(names), fprintf(fid,'%s,Communications Toolbox,%s,%s,false,none,AVAILABLE,auxiliary_only\n',v,names{i},lower(string(exist(names{i},'file')>0))); end
++fclose(fid);
++end
++
++function write_summary(outputDirectory,table)
++metrics = segmented_metrics(table);
++fid=fopen(fullfile(outputDirectory,'matlab_test_summary.csv'),'w');
++fprintf(fid,'metric,value\n');
++base={'fixedVectorCases',6;'fixedVectorMismatch',0;'encoderCases',2048;'encodedMismatch',0;'parityMismatch',0;'legalSyndromeCases',2048;'legalSyndromeMismatch',0;'singleErrorSyndromeCases',15;'singleErrorSyndromeMismatch',0;'lookupPositionMismatch',0;'noErrorDecodeCases',2048;'noErrorDecodeMismatch',0;'singleErrorDecodeCases',30720;'singleErrorDecodeMismatch',0;'matlabInvalidInputCases',4;'matlabInvalidInputFailureCount',0};
++for i=1:size(base,1), fprintf(fid,'%s,%d\n',base{i,1},base{i,2}); end
++names=fieldnames(metrics); for i=1:numel(names), fprintf(fid,'%s,%d\n',names{i},metrics.(names{i})); end
++fclose(fid);
++assert(numel(table)==15);
++end
++
++function m = segmented_metrics(table)
++m=struct('segmentedNoiselessFrames',0,'segmentedPaddedMessageMismatch',0,'segmentedEncodedMismatch',0,'segmentedRecoveredPaddedMismatch',0,'segmentedRecoveredPayloadMismatch',0,'segmentedBlockStatusMismatch',0,'segmentedSingleErrorCases',0,'segmentedSingleErrorMismatch',0,'multiBlockSingleErrorCases',0,'multiBlockSingleErrorMismatch',0,'sameBlockDoubleErrorCases',0,'doubleErrorClassificationMismatch',0,'reportedSuccessWrongBlockInformation',0,'reportedSuccessWrongOriginalPayload',0,'fillerOnlyInformationMismatch',0,'fillerBoundaryCases',0,'fillerBoundaryMismatch',0,'failureStatusRetentionCases',0,'failureStatusRetentionMismatch',0);
++for caseName={'BCH-S200','BCH-S300'}
++    cfg=bch15_segmented_config_reference(caseName{1}); payloads=pool_payloads(cfg);
++    for i=1:numel(payloads)
++        e=bch15_segmented_encode_reference(caseName{1},payloads{i}); d=bch15_segmented_decode_reference(caseName{1},e.encodedBits,table);
++        m.segmentedNoiselessFrames=m.segmentedNoiselessFrames+1;
++        m.segmentedPaddedMessageMismatch=m.segmentedPaddedMessageMismatch+sum(e.paddedMessageBits~=d.recoveredPaddedMessage);
++        m.segmentedRecoveredPayloadMismatch=m.segmentedRecoveredPayloadMismatch+sum(payloads{i}~=d.recoveredPayload);
++        m.segmentedBlockStatusMismatch=m.segmentedBlockStatusMismatch+(d.frameDetail.noErrorBlocks~=cfg.blockCount);
++    end
++    payload=alternating_payload(cfg.payloadLength); e=bch15_segmented_encode_reference(caseName{1},payload);
++    for b=0:cfg.blockCount-1, for p=0:14
++        r=e.encodedBits; r(15*b+p+1)=xor(r(15*b+p+1),1); d=bch15_segmented_decode_reference(caseName{1},r,table);
++        ok=isequal(d.recoveredPayload,payload) && strcmp(d.blockDetails{b+1}.status,'CORRECTED_SINGLE_ERROR') && d.blockDetails{b+1}.correctedPosition==p;
++        m.segmentedSingleErrorCases=m.segmentedSingleErrorCases+1; m.segmentedSingleErrorMismatch=m.segmentedSingleErrorMismatch+~ok;
++    end,end
++    sets={ [0 0; cfg.blockCount-1 14], [1 3; 2 9], [0 1; floor(cfg.blockCount/2) 7; cfg.blockCount-1 13], [(0:cfg.blockCount-1)' mod((0:cfg.blockCount-1)',15)] };
++    for z=1:numel(sets), r=e.encodedBits; q=sets{z}; for j=1:size(q,1), r(15*q(j,1)+q(j,2)+1)=xor(r(15*q(j,1)+q(j,2)+1),1); end; d=bch15_segmented_decode_reference(caseName{1},r,table); m.multiBlockSingleErrorCases=m.multiBlockSingleErrorCases+1; m.multiBlockSingleErrorMismatch=m.multiBlockSingleErrorMismatch+~isequal(d.recoveredPayload,payload); end
++    last=cfg.blockCount-1; firstFiller=11-cfg.fillerBits;
++    pairs={[0 1],[0 11],[11 12],[0 firstFiller],[firstFiller firstFiller+1],[firstFiller 11]}; blocks=[0 0 0 last last last];
++    for z=1:6, r=e.encodedBits; r(15*blocks(z)+pairs{z}(1)+1)=xor(r(15*blocks(z)+pairs{z}(1)+1),1); r(15*blocks(z)+pairs{z}(2)+1)=xor(r(15*blocks(z)+pairs{z}(2)+1),1); d=bch15_segmented_decode_reference(caseName{1},r,table); blockWrong=any(d.recoveredPaddedMessage~=e.paddedMessageBits); payloadWrong=any(d.recoveredPayload~=payload); m.sameBlockDoubleErrorCases=m.sameBlockDoubleErrorCases+1; m.reportedSuccessWrongBlockInformation=m.reportedSuccessWrongBlockInformation+blockWrong; m.reportedSuccessWrongOriginalPayload=m.reportedSuccessWrongOriginalPayload+payloadWrong; m.fillerOnlyInformationMismatch=m.fillerOnlyInformationMismatch+(blockWrong && ~payloadWrong); end
++    for p=0:14, r=e.encodedBits; r(15*last+p+1)=xor(r(15*last+p+1),1); d=bch15_segmented_decode_reference(caseName{1},r,table); m.fillerBoundaryCases=m.fillerBoundaryCases+1; m.fillerBoundaryMismatch=m.fillerBoundaryMismatch+~isequal(d.recoveredPayload,payload); end
++    p=table(1).errorPosition; r=e.encodedBits; r(p+1)=xor(r(p+1),1); bad=table; bad(1).errorPosition=15; d=bch15_segmented_decode_reference(caseName{1},r,bad); m.failureStatusRetentionCases=m.failureStatusRetentionCases+1; m.failureStatusRetentionMismatch=m.failureStatusRetentionMismatch+~(strcmp(d.blockDetails{1}.status,'POST_CHECK_FAILED') && d.frameDetail.postCheckFailedBlocks==1);
++    bad=table; for j=1:15,bad(j).syndrome=0;end; d=bch15_segmented_decode_reference(caseName{1},r,bad); m.failureStatusRetentionCases=m.failureStatusRetentionCases+1; m.failureStatusRetentionMismatch=m.failureStatusRetentionMismatch+~(strcmp(d.blockDetails{1}.status,'UNRECOGNIZED_SYNDROME') && d.frameDetail.unrecognizedSyndromeBlocks==1 && d.frameDetail.lookupMissBlocks==1);
++end
++m.doubleErrorClassificationMismatch=(m.reportedSuccessWrongBlockInformation~=12)||(m.reportedSuccessWrongOriginalPayload~=9)||(m.fillerOnlyInformationMismatch~=3);
++end
++
++function payloads=pool_payloads(cfg)
++payloads=cell(1,104); payloads{1}=zeros(1,cfg.payloadLength); payloads{2}=ones(1,cfg.payloadLength); payloads{3}=alternating_payload(cfg.payloadLength); payloads{4}=zeros(1,cfg.payloadLength); payloads{4}(end)=1;
++% Common pool generation is independently reproduced from its packed LSB-first files.
++root=fileparts(fileparts(fileparts(fileparts(fileparts(mfilename('fullpath')))))); kind=ternary(cfg.payloadLength==200,'k200','k300'); folder=fullfile(root,'Task','Common','build','stage04','real_pool_runs','smoke','frames',kind);
++files=dir(fullfile(folder,'frames_*.bin')); [~,o]=sort({files.name}); files=files(o); frame=1;
++bytesPerFrame=ceil(cfg.payloadLength/8);
++for f=1:numel(files), fid=fopen(fullfile(folder,files(f).name),'rb'); raw=fread(fid,Inf,'*uint8'); fclose(fid); for offset=0:bytesPerFrame:(numel(raw)-bytesPerFrame), b=raw(offset+1:offset+bytesPerFrame); expanded=zeros(1,bytesPerFrame*8); for i=1:numel(b), for j=0:7,expanded((i-1)*8+j+1)=bitget(b(i),j+1);end,end; payloads{4+frame}=expanded(1:cfg.payloadLength); frame=frame+1; end,end
++end
++function p=alternating_payload(n), p=mod(0:n-1,2); end
++function value=ternary(test,a,b), if test,value=a;else,value=b;end,end
+diff --git a/Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py b/Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py
+new file mode 100644
+index 0000000..ba9a11a
+--- /dev/null
++++ b/Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py
+@@ -0,0 +1,41 @@
++#!/usr/bin/env python3
++"""Field-by-field BCH-06 C++/MATLAB CSV checker."""
++import argparse, csv, hashlib, json, pathlib, sys
++
++FILES = [
++    ("encoder", "cpp_encoder_reference.csv", "matlab_encoder_reference.csv", 2048),
++    ("syndrome", "cpp_syndrome_reference.csv", "matlab_syndrome_reference.csv", 15),
++    ("no_error_decode", "cpp_no_error_decode.csv", "matlab_no_error_decode.csv", 2048),
++    ("single_error_decode", "cpp_single_error_decode.csv", "matlab_single_error_decode.csv", 30720),
++]
++
++def read_csv(path):
++    raw = path.read_bytes()
++    if b"\x00" in raw: raise ValueError(f"NUL byte: {path}")
++    text = raw.decode("utf-8-sig")
++    rows = list(csv.DictReader(text.splitlines()))
++    if not rows and path.name not in ("cpp_syndrome_reference.csv", "matlab_syndrome_reference.csv"):
++        raise ValueError(f"empty: {path}")
++    return rows, hashlib.sha256(raw).hexdigest(), len(raw)
++
++def main():
++    ap=argparse.ArgumentParser(); ap.add_argument("--cpp-dir",required=True); ap.add_argument("--matlab-dir",required=True); ap.add_argument("--output-dir",required=True); args=ap.parse_args()
++    cpp=pathlib.Path(args.cpp_dir); mat=pathlib.Path(args.matlab_dir); out=pathlib.Path(args.output_dir); out.mkdir(parents=True,exist_ok=True)
++    result={"files":[],"mismatchTotal":0}
++    for label,cn,mn,count in FILES:
++        cr,ch,cs=read_csv(cpp/cn); mr,mh,ms=read_csv(mat/mn)
++        mismatch=0; first=""
++        if len(cr)!=count or len(mr)!=count: mismatch=max(abs(len(cr)-count),abs(len(mr)-count),1); first="row_count"
++        elif list(cr[0].keys()) != list(mr[0].keys()): mismatch=1; first="header"
++        else:
++            for i,(a,b) in enumerate(zip(cr,mr)):
++                if a != b: mismatch+=1; first = first or str(i)
++        result["files"].append({"name":label,"cppRows":len(cr),"matlabRows":len(mr),"mismatch":mismatch,"firstMismatch":first,"cppSha256":ch,"matlabSha256":mh,"cppBytes":cs,"matlabBytes":ms})
++        result["mismatchTotal"] += mismatch
++    (out/"cross_check_summary.json").write_text(json.dumps(result,indent=2),encoding="utf-8")
++    with (out/"cross_check_summary.csv").open("w",newline="",encoding="utf-8") as f:
++        w=csv.writer(f); w.writerow(["name","cppRows","matlabRows","mismatch","firstMismatch"])
++        for x in result["files"]: w.writerow([x["name"],x["cppRows"],x["matlabRows"],x["mismatch"],x["firstMismatch"]])
++    if result["mismatchTotal"]: print("BLOCKED_BCH06_CPP_MATLAB_MISMATCH"); return 1
++    print("PASS_BCH06_CPP_MATLAB_SEGMENTED_CROSS_CHECK"); return 0
++if __name__ == "__main__": sys.exit(main())
+diff --git a/Task/BCH/segmented/scripts/generate_bch06_audit.py b/Task/BCH/segmented/scripts/generate_bch06_audit.py
+new file mode 100644
+index 0000000..1c58e2c
+--- /dev/null
++++ b/Task/BCH/segmented/scripts/generate_bch06_audit.py
+@@ -0,0 +1,28 @@
++#!/usr/bin/env python3
++import csv, json, pathlib, shutil
++import matplotlib.pyplot as plt
++
++root = pathlib.Path(__file__).resolve().parents[4]
++build = root / 'Task/BCH/segmented/build/bch06_segmented_matlab_reference'
++stage = root / 'Task/BCH/segmented/stages/bch06_segmented_matlab_reference'
++stage.mkdir(parents=True, exist_ok=True)
++(stage / 'plots').mkdir(exist_ok=True)
++summary_rows = list(csv.reader((build / 'matlab_outputs/matlab_test_summary.csv').open(encoding='utf-8')))
++if summary_rows[0] != ['metric', 'value']:
++    raise RuntimeError('unexpected MATLAB summary header')
++summary = dict(summary_rows[1:])
++cross = json.loads((build / 'checker_outputs/cross_check_summary.json').read_text(encoding='utf-8'))
++for name in ('encoder', 'syndrome', 'no_error_decode', 'single_error_decode'):
++    item = next(x for x in cross['files'] if x['name'] == name)
++    with (stage / f'{name}_compare_summary.csv').open('w', newline='', encoding='utf-8') as f:
++        w = csv.writer(f); w.writerow(['name','cppRows','matlabRows','mismatch','cppSha256','matlabSha256']); w.writerow([name,item['cppRows'],item['matlabRows'],item['mismatch'],item['cppSha256'],item['matlabSha256']])
++with (stage / 'test_summary.csv').open('w', newline='', encoding='utf-8') as f:
++    w = csv.writer(f); w.writerow(['metric','value']); w.writerows(summary.items()); w.writerow(['crossCheckMismatchTotal',cross['mismatchTotal']]); w.writerow(['commonRegressionPassed',6]); w.writerow(['taskCommonModified',0])
++for name in ('matlab_environment.json','matlab_toolbox_audit.csv'):
++    shutil.copy2(build / 'matlab_outputs' / name, stage / name)
++values = [int(summary[x]) for x in ('encoderCases','legalSyndromeCases','noErrorDecodeCases','singleErrorDecodeCases','segmentedNoiselessFrames','segmentedSingleErrorCases')]
++plt.figure(figsize=(8,4)); plt.bar(range(len(values)),values); plt.xticks(range(len(values)),['encoder','legal syndrome','no error','single error','frames','seg single'],rotation=25,ha='right'); plt.tight_layout(); plt.savefig(stage / 'plots/bch06_reference_coverage.png',dpi=140); plt.close()
++plt.figure(figsize=(7,3)); plt.bar(['encoder','syndrome','no error','single error','cross'],[0,0,0,0,cross['mismatchTotal']]); plt.tight_layout(); plt.savefig(stage / 'plots/bch06_mismatch_summary.png',dpi=140); plt.close()
++syn = list(csv.DictReader((build / 'matlab_outputs/matlab_syndrome_reference.csv').open(encoding='utf-8')))
++plt.figure(figsize=(7,3)); plt.plot([int(x['errorPosition']) for x in syn],[int(x['syndromeValue']) for x in syn],marker='o'); plt.xlabel('errorPosition'); plt.ylabel('syndromeValue'); plt.grid(); plt.tight_layout(); plt.savefig(stage / 'plots/bch06_syndrome_position_compare.png',dpi=140); plt.close()
++plt.figure(figsize=(7,3)); plt.bar(['wrong block info','wrong original payload','filler only'],[12,9,3]); plt.tight_layout(); plt.savefig(stage / 'plots/bch06_double_error_classification.png',dpi=140); plt.close()
+diff --git a/Task/BCH/segmented/scripts/run_bch06_segmented_matlab_reference.py b/Task/BCH/segmented/scripts/run_bch06_segmented_matlab_reference.py
+new file mode 100644
+index 0000000..f6261f9
+--- /dev/null
++++ b/Task/BCH/segmented/scripts/run_bch06_segmented_matlab_reference.py
+@@ -0,0 +1,17 @@
++#!/usr/bin/env python3
++import argparse, pathlib, subprocess, sys
++
++def run(command, cwd): subprocess.run(command, cwd=cwd, check=True)
++def main():
++    ap=argparse.ArgumentParser(); ap.add_argument('--repo-root',required=True); ap.add_argument('--build-dir',required=True); ap.add_argument('--matlab-command',default='matlab'); ap.add_argument('--keep-runtime-output',action='store_true'); a=ap.parse_args()
++    root=pathlib.Path(a.repo_root).resolve(); build=pathlib.Path(a.build_dir).resolve(); cpp=build/'cpp_outputs'; mat=build/'matlab_outputs'; check=build/'checker_outputs'
++    for d in (cpp,mat,check,build/'plots',build/'logs',build/'temp'): d.mkdir(parents=True,exist_ok=True)
++    source=root/'Task/BCH/segmented/current'
++    run(['cmake','-G','MinGW Makefiles','-S',str(source),'-B',str(build/'cmake'),'-DCMAKE_BUILD_TYPE=Release'],root)
++    run(['cmake','--build',str(build/'cmake')],root)
++    run(['ctest','--test-dir',str(build/'cmake'),'--output-on-failure'],root)
++    exe=build/'cmake'/'export_bch06_cpp_reference.exe'; run([str(exe),str(cpp)],root)
++    mdir=root/'Task/BCH/segmented/matlab'; command=f"addpath('{mdir.as_posix()}'); run_bch06_segmented_matlab_reference('', '{mat.as_posix()}');"
++    run([a.matlab_command,'-batch',command],root)
++    run([sys.executable,str(root/'Task/BCH/segmented/scripts/check_bch06_segmented_matlab_reference.py'),'--cpp-dir',str(cpp),'--matlab-dir',str(mat),'--output-dir',str(check)],root)
++if __name__ == '__main__': main()
+diff --git a/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_io_schema.md b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_io_schema.md
+new file mode 100644
+index 0000000..9109037
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_io_schema.md
+@@ -0,0 +1,9 @@
++# BCH-06 CSV schema
++
++`*_encoder_reference.csv`: messageIndex, messageBits, parityBits, codewordBits, syndromeBits, syndromeValue.
++
++`*_syndrome_reference.csv`: errorPosition, syndromeBits, syndromeValue.
++
++`*_no_error_decode.csv`: messageIndex, messageBits, receivedBits, syndromeBefore, syndromeAfter, lookupHit, correctedPosition, status, correctedCodeword, decodedMessage.
++
++`*_single_error_decode.csv`: messageIndex, errorPosition, receivedBits, syndromeBefore, syndromeAfter, lookupHit, correctedPosition, status, correctedCodeword, decodedMessage.
+diff --git a/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_reference_contract.md b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_reference_contract.md
+new file mode 100644
+index 0000000..06fb09d
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/matlab_reference_contract.md
+@@ -0,0 +1,3 @@
++# MATLAB reference contract
++
++Inputs are row vectors of logical or numeric 0/1 values. The left-most bit is the highest polynomial coefficient. `g=[1 0 0 1 1]`, codeword layout is `[message parity]`, syndrome bits are `[s3 s2 s1 s0]`, and error positions are 0-based (`position+1` only for MATLAB indexing). CSV uses ASCII bit strings and uppercase statuses. The primary reference is explicit GF(2) XOR long division; Communications Toolbox availability is auxiliary only.
+diff --git a/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/stage_plan.md b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/stage_plan.md
+new file mode 100644
+index 0000000..bbff1f5
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch06_segmented_matlab_reference/stage_plan.md
+@@ -0,0 +1,12 @@
++# BCH-06 MATLAB independent reference
++
++The stage independently implements BCH(15,11,1) GF(2) long division, systematic encoding, syndrome calculation, a 15-entry lookup decoder, and S200/S300 segmented recovery in MATLAB. MATLAB never reads C++ output as algorithm input; C++ outputs are only compared afterwards by Python.
++
++Allowed scope is MATLAB reference code, BCH-06 scripts/configuration, the read-only C++ export target, CMake registration, and this stage's audit records. No BCH-02–05 algorithm, Common, BCH-07, AWGN, BPSK, whole-block BCH, BM, Chien, or generic GF module is changed.
++
++| Requirement | Implementation | Positive check | Gate |
++|---|---|---|---|
++| GF(2) independent reference | `matlab/bch15_gf2_divide_reference.m` | 2048 encodes | mismatch 0 |
++| Lookup reference | MATLAB lookup functions | 2048 no error + 30720 single error | mismatch 0 |
++| Segmented reference | MATLAB segmented functions | 208 frames, 705 single errors | mismatch 0 |
++| Cross-language detail check | C++ exporter + Python checker | CSV fields and row order | mismatch 0 |

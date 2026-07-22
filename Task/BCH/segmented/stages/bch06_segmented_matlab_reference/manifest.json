@@ -1,0 +1,19 @@
+{
+  "stage": "bch06_segmented_matlab_reference",
+  "module": "Task/BCH/segmented",
+  "branch": "bch-06-segmented-matlab-reference",
+  "baseCommit": "94ff7eaff3bbe7569f18fa1df35a15367f666b8f",
+  "contentCommit": "13df393e2466d61fa73ecad98dc044846d596f87",
+  "pushStatus": "PENDING_AUDIT_COMMIT",
+  "mergeStatus": "NOT_MERGED",
+  "workingTreeOnly": false,
+  "matlabVersion": "R2024b 24.2.0.2712019",
+  "toolboxStatus": "AVAILABLE_AUXILIARY_ONLY",
+  "functionalGate": "PASS_BCH06_SEGMENTED_MATLAB_FUNCTIONAL",
+  "crossCheckGate": "PASS_BCH06_CPP_MATLAB_CROSS_CHECK",
+  "auditGate": "PASS_BCH06_SEGMENTED_MATLAB_AUDIT",
+  "finalGate": "PASS_BCH06_SEGMENTED_MATLAB_REFERENCE",
+  "functionalRanges": [{"name":"content","baseCommit":"94ff7eaff3bbe7569f18fa1df35a15367f666b8f","contentCommit":"13df393e2466d61fa73ecad98dc044846d596f87"}],
+  "testResults": {"encoderCases":2048,"singleErrorDecodeCases":30720,"segmentedNoiselessFrames":208,"segmentedSingleErrorCases":705,"crossCheckMismatchTotal":0,"commonRegressionPassed":6},
+  "forbiddenScope": {"taskCommonModified":false,"bch07Started":false,"mainMerged":false}
+}

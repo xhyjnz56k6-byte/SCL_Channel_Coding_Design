@@ -1,0 +1,5 @@
+metric,value
+noErrorDecodeCases,2048
+noErrorDecodeMismatch,0
+singleErrorDecodeCases,30720
+singleErrorDecodeMismatch,0
