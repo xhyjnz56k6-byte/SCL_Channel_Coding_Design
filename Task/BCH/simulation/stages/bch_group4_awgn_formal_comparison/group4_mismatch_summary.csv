@@ -1,0 +1,10 @@
+scope,metric,mismatchCount,status
+BCH-11,noiseless_payload_status_metrics,0,PASS
+BCH-12,noise_reproducibility_uniqueness_sigma_accounting_plot,0,PASS
+BCH-13,point_completeness_accounting_finite_plot,0,PASS
+BCH-14,resume_shard_checkpoint_negative,0,PASS
+BCH-15,point_metric_confidence_progress_plot,0,PASS
+BCH-16,interpolation_gain_figure_data,0,PASS
+historical_cpp_ctest,failed_tests,0,PASS
+historical_matlab_reference,cpp_matlab_mismatch,0,PASS
+plot_scan,non_png_plot_artifact,0,PASS

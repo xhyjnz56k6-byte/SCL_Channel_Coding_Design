@@ -1,0 +1,45 @@
+{
+  "group": "bch_group4_awgn_formal_comparison",
+  "baseCommit": "8c6f6593fa6c8999bdea600d72abe0e08099a2a3",
+  "functionalCommit": "fd3dd8d9070698854745d3be5b4e2b2f4609da0e",
+  "latestResultCommit": "03c8d7616ee4006da6f020accc872964585c4113",
+  "stageAuditCommit": "d42f0d5916218fd21241177315780599185b726a",
+  "branch": "bch-group4-awgn-formal-comparison",
+  "stageManifests": [
+    "../bch11_common_noiseless/manifest.json",
+    "../bch12_awgn_smoke/manifest.json",
+    "../bch13_awgn_prescan/manifest.json",
+    "../bch14_formal_infrastructure_trial/manifest.json",
+    "../bch15_awgn_formal/manifest.json",
+    "../bch16_segmented_vs_block_comparison/manifest.json"
+  ],
+  "stageGates": [
+    "PASS_BCH11_COMMON_INTEGRATION_NOISELESS",
+    "PASS_BCH12_AWGN_SMOKE",
+    "PASS_BCH13_AWGN_PRESCAN",
+    "PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL",
+    "PASS_BCH15_AWGN_FORMAL",
+    "PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON"
+  ],
+  "caseConfigs": {
+    "BCH-S200": {"payloadLength": 200, "encodedLength": 285, "frameRate": 0.7017543859649122, "organization": "SEGMENTED"},
+    "BCH-B200": {"payloadLength": 200, "encodedLength": 248, "frameRate": 0.8064516129032258, "organization": "WHOLE_BLOCK_SHORTENED"},
+    "BCH-S300": {"payloadLength": 300, "encodedLength": 420, "frameRate": 0.7142857142857143, "organization": "SEGMENTED"},
+    "BCH-B300": {"payloadLength": 300, "encodedLength": 390, "frameRate": 0.7692307692307693, "organization": "WHOLE_BLOCK_SHORTENED"}
+  },
+  "frameCounts": {"noiseless": 828, "smokePrimary": 4000, "smokeReproducibility": 4000,
+                    "prescan": 168000, "formalTrialPrimary": 78650, "formal": 1134718},
+  "formalPointCounts": {"BCH-S200": 21, "BCH-B200": 14, "BCH-S300": 21, "BCH-B300": 9, "total": 65},
+  "formalStopReasons": {"TARGET_FRAME_ERRORS_REACHED": 52, "MAX_FRAMES_REACHED": 13},
+  "checkpointAudit": "PASS_BCH14_AND_BCH15",
+  "resumeAudit": "PASS_4_CASES",
+  "shardAudit": "PASS_4_CASES_3_SHARDS",
+  "noiseAudit": "PASS_UNIQUE_REPRODUCIBLE_PAIRED_SCALED",
+  "historicalRegression": {"commonCTest": "7/7", "segmentedCTest": "4/4", "blockCTest": "1/1",
+                             "combinedCTest": "7/7", "segmentedMatlab": "PASS", "blockMatlab": "PASS"},
+  "plotAudit": {"matplotlibVersion": "3.10.7", "pngCount": 29, "nonPngPlotArtifactCount": 0},
+  "mismatchCount": 0,
+  "gateStatus": "PASS_BCH_GROUP4_AWGN_FORMAL_COMPARISON",
+  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "mergeStatus": "NOT_MERGED"
+}
