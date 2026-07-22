@@ -1,0 +1,528 @@
+diff --git a/Task/BCH/simulation/current/CMakeLists.txt b/Task/BCH/simulation/current/CMakeLists.txt
+new file mode 100644
+index 0000000..89d8ff8
+--- /dev/null
++++ b/Task/BCH/simulation/current/CMakeLists.txt
+@@ -0,0 +1,27 @@
++cmake_minimum_required(VERSION 3.16)
++project(BchGroup4Simulation LANGUAGES CXX)
++
++set(COMMON_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../Common")
++add_library(common_bch_simulation STATIC
++    ${COMMON_ROOT}/src/modulation.cpp
++    ${COMMON_ROOT}/src/demodulation.cpp
++    ${COMMON_ROOT}/src/simulation_metrics.cpp)
++target_include_directories(common_bch_simulation PUBLIC ${COMMON_ROOT}/include)
++target_compile_features(common_bch_simulation PUBLIC cxx_std_17)
++
++add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../segmented/current" segmented_core)
++add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../block/current" block_core)
++
++add_library(bch_case_adapter src/bch_case_adapter.cpp)
++target_include_directories(bch_case_adapter PUBLIC include)
++target_link_libraries(bch_case_adapter PUBLIC bch15_encoder bch_block common_bch_simulation)
++target_compile_features(bch_case_adapter PUBLIC cxx_std_17)
++
++add_executable(test_bch11_noiseless tests/test_bch11_noiseless.cpp)
++target_link_libraries(test_bch11_noiseless PRIVATE bch_case_adapter)
++
++enable_testing()
++if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
++    add_test(NAME bch11_common_noiseless COMMAND test_bch11_noiseless
++        ${BCH_K200_MANIFEST} ${BCH_K300_MANIFEST} ${CMAKE_CURRENT_BINARY_DIR}/bch11_outputs)
++endif()
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_case_adapter.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_case_adapter.hpp
+new file mode 100644
+index 0000000..b3238aa
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_case_adapter.hpp
+@@ -0,0 +1,62 @@
++#ifndef SCL_BCH_SIMULATION_BCH_CASE_ADAPTER_HPP
++#define SCL_BCH_SIMULATION_BCH_CASE_ADAPTER_HPP
++
++#include "common/types.hpp"
++
++#include <cstddef>
++#include <string>
++
++namespace scl::bch::simulation {
++
++enum class BchCaseId { S200, B200, S300, B300 };
++enum class BchOrganization { Segmented, WholeBlockShortened };
++enum class BchDecoderType { SyndromeLookup, BerlekampMasseyChien };
++
++struct BchSimulationCase {
++    BchCaseId id;
++    std::string caseName;
++    common::Length payloadLength;
++    common::Length encodedLength;
++    double frameRate;
++    BchOrganization organization;
++    BchDecoderType decoderType;
++    common::Length segmentCount = 0U;
++    common::Length fillerLength = 0U;
++    common::Length motherN = 0U;
++    common::Length motherK = 0U;
++    common::Length shorteningLength = 0U;
++    unsigned correctionCapability = 0U;
++};
++
++struct EncodedBchFrame {
++    BchSimulationCase simulationCase;
++    common::BitVector codeword;
++};
++
++struct DecodedBchFrame {
++    common::BitVector payload;
++    bool reportedSuccess = false;
++    bool trueSuccess = false;
++    bool miscorrected = false;
++    bool decoderFailure = true;
++    std::string frameStatus;
++    common::Length failedBlockCount = 0U;
++    common::Length correctedBlockCount = 0U;
++    common::Length noErrorBlockCount = 0U;
++    std::string wholeBlockStatus = "NOT_APPLICABLE";
++    std::string decodeDiagnostics;
++};
++
++const BchSimulationCase& bchSimulationCase(BchCaseId id);
++const BchSimulationCase& bchSimulationCase(const std::string& caseName);
++EncodedBchFrame encodeBchFrame(const BchSimulationCase& simulationCase,
++                               const common::BitVector& payload);
++DecodedBchFrame decodeBchFrame(const BchSimulationCase& simulationCase,
++                               const common::BitVector& receivedCodeword);
++void auditDecodedBchFrame(const common::BitVector& originalPayload, DecodedBchFrame& decoded);
++std::string organizationName(BchOrganization organization);
++std::string decoderTypeName(BchDecoderType decoderType);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/src/bch_case_adapter.cpp b/Task/BCH/simulation/current/src/bch_case_adapter.cpp
+new file mode 100644
+index 0000000..9f14269
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_case_adapter.cpp
+@@ -0,0 +1,148 @@
++#include "bch_simulation/bch_case_adapter.hpp"
++
++#include "bch_block/bch_block.hpp"
++#include "bch_segmented/bch15_lookup_table.hpp"
++#include "bch_segmented/bch15_segmented_adapter.hpp"
++
++#include <sstream>
++#include <stdexcept>
++
++namespace scl::bch::simulation {
++namespace {
++
++const BchSimulationCase kS200{BchCaseId::S200, "BCH-S200", 200U, 285U, 200.0 / 285.0,
++                              BchOrganization::Segmented, BchDecoderType::SyndromeLookup,
++                              19U, 9U, 0U, 0U, 0U, 1U};
++const BchSimulationCase kB200{BchCaseId::B200, "BCH-B200", 200U, 248U, 200.0 / 248.0,
++                              BchOrganization::WholeBlockShortened, BchDecoderType::BerlekampMasseyChien,
++                              0U, 0U, 255U, 207U, 7U, 6U};
++const BchSimulationCase kS300{BchCaseId::S300, "BCH-S300", 300U, 420U, 300.0 / 420.0,
++                              BchOrganization::Segmented, BchDecoderType::SyndromeLookup,
++                              28U, 8U, 0U, 0U, 0U, 1U};
++const BchSimulationCase kB300{BchCaseId::B300, "BCH-B300", 300U, 390U, 300.0 / 390.0,
++                              BchOrganization::WholeBlockShortened, BchDecoderType::BerlekampMasseyChien,
++                              0U, 0U, 511U, 421U, 121U, 10U};
++
++void validateCase(const BchSimulationCase& value) {
++    const BchSimulationCase& frozen = bchSimulationCase(value.id);
++    if (value.caseName != frozen.caseName || value.payloadLength != frozen.payloadLength ||
++        value.encodedLength != frozen.encodedLength || value.frameRate != frozen.frameRate ||
++        value.organization != frozen.organization || value.decoderType != frozen.decoderType) {
++        throw std::invalid_argument("BCH simulation case differs from frozen configuration");
++    }
++}
++
++block::BlockBchProfile blockProfile(BchCaseId id) {
++    if (id == BchCaseId::B200) return block::makeB200Profile();
++    if (id == BchCaseId::B300) return block::makeB300Profile();
++    throw std::invalid_argument("segmented case has no whole-block profile");
++}
++
++segmented::Bch15SegmentedCase segmentedCase(BchCaseId id) {
++    if (id == BchCaseId::S200) return segmented::Bch15SegmentedCase::S200;
++    if (id == BchCaseId::S300) return segmented::Bch15SegmentedCase::S300;
++    throw std::invalid_argument("whole-block case has no segmented profile");
++}
++
++bool blockStatusIsSuccess(block::DecodeStatus status) {
++    return status == block::DecodeStatus::NoError || status == block::DecodeStatus::Corrected;
++}
++
++}  // namespace
++
++const BchSimulationCase& bchSimulationCase(BchCaseId id) {
++    switch (id) {
++        case BchCaseId::S200: return kS200;
++        case BchCaseId::B200: return kB200;
++        case BchCaseId::S300: return kS300;
++        case BchCaseId::B300: return kB300;
++    }
++    throw std::invalid_argument("unsupported BCH case id");
++}
++
++const BchSimulationCase& bchSimulationCase(const std::string& name) {
++    for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300}) {
++        const auto& value = bchSimulationCase(id);
++        if (value.caseName == name) return value;
++    }
++    throw std::invalid_argument("unsupported BCH case name");
++}
++
++EncodedBchFrame encodeBchFrame(const BchSimulationCase& simulationCase,
++                               const common::BitVector& payload) {
++    validateCase(simulationCase);
++    if (payload.size() != simulationCase.payloadLength) {
++        throw std::invalid_argument("payload length does not match BCH simulation case");
++    }
++    common::validateBits(payload, "BCH simulation payload");
++    EncodedBchFrame result;
++    result.simulationCase = simulationCase;
++    if (simulationCase.organization == BchOrganization::Segmented) {
++        result.codeword = segmented::encodeBch15Segmented(segmentedCase(simulationCase.id), payload).encodedBits;
++    } else {
++        result.codeword = block::encodeShortened(blockProfile(simulationCase.id), payload).shortenedCodeword;
++    }
++    if (result.codeword.size() != simulationCase.encodedLength) {
++        throw std::logic_error("BCH adapter encoded length mismatch");
++    }
++    return result;
++}
++
++DecodedBchFrame decodeBchFrame(const BchSimulationCase& simulationCase,
++                               const common::BitVector& receivedCodeword) {
++    validateCase(simulationCase);
++    if (receivedCodeword.size() != simulationCase.encodedLength) {
++        throw std::invalid_argument("received length does not match BCH simulation case");
++    }
++    common::validateBits(receivedCodeword, "BCH simulation received codeword");
++    DecodedBchFrame result;
++    if (simulationCase.organization == BchOrganization::Segmented) {
++        static const segmented::SyndromeTable table = segmented::buildBch15SyndromeTable();
++        const auto decoded = segmented::decodeBch15Segmented(segmentedCase(simulationCase.id), receivedCodeword, table);
++        result.payload = decoded.recoveredPayload;
++        result.correctedBlockCount = decoded.frameDetail.correctedBlocks;
++        result.noErrorBlockCount = decoded.frameDetail.noErrorBlocks;
++        result.failedBlockCount = decoded.frameDetail.totalBlocks - decoded.frameDetail.reportedSuccessBlocks;
++        result.reportedSuccess = result.failedBlockCount == 0U;
++        result.decoderFailure = !result.reportedSuccess;
++        result.frameStatus = result.decoderFailure ? "DECODER_FAILURE" :
++                             (result.correctedBlockCount == 0U ? "NO_ERROR" : "CORRECTED");
++        std::ostringstream detail;
++        detail << "blocks=" << decoded.frameDetail.totalBlocks
++               << ";noError=" << result.noErrorBlockCount
++               << ";corrected=" << result.correctedBlockCount
++               << ";failed=" << result.failedBlockCount;
++        result.decodeDiagnostics = detail.str();
++    } else {
++        const auto decoded = block::decodeShortenedNoThrow(blockProfile(simulationCase.id), receivedCodeword);
++        result.payload = decoded.payload;
++        result.wholeBlockStatus = block::statusName(decoded.status);
++        result.reportedSuccess = blockStatusIsSuccess(decoded.status);
++        result.decoderFailure = !result.reportedSuccess;
++        result.noErrorBlockCount = decoded.status == block::DecodeStatus::NoError ? 1U : 0U;
++        result.correctedBlockCount = decoded.status == block::DecodeStatus::Corrected ? 1U : 0U;
++        result.failedBlockCount = result.reportedSuccess ? 0U : 1U;
++        result.frameStatus = result.wholeBlockStatus;
++        std::ostringstream detail;
++        detail << "nonzeroSyndromes=" << decoded.nonzeroSyndromeCount
++               << ";locatorDegree=" << decoded.locatorDegree
++               << ";roots=" << decoded.motherErrorPositions.size();
++        result.decodeDiagnostics = detail.str();
++    }
++    return result;
++}
++
++void auditDecodedBchFrame(const common::BitVector& originalPayload, DecodedBchFrame& decoded) {
++    decoded.trueSuccess = decoded.payload == originalPayload;
++    decoded.miscorrected = decoded.reportedSuccess && !decoded.trueSuccess;
++}
++
++std::string organizationName(BchOrganization value) {
++    return value == BchOrganization::Segmented ? "SEGMENTED" : "WHOLE_BLOCK_SHORTENED";
++}
++
++std::string decoderTypeName(BchDecoderType value) {
++    return value == BchDecoderType::SyndromeLookup ? "SYNDROME_LOOKUP" : "BERLEKAMP_MASSEY_CHIEN";
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/tests/test_bch11_noiseless.cpp b/Task/BCH/simulation/current/tests/test_bch11_noiseless.cpp
+new file mode 100644
+index 0000000..49a2d8e
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/test_bch11_noiseless.cpp
+@@ -0,0 +1,150 @@
++#include "bch_simulation/bch_case_adapter.hpp"
++
++#include "common/demodulation.hpp"
++#include "common/frame_pool.hpp"
++#include "common/modulation.hpp"
++#include "common/simulation_metrics.hpp"
++
++#include <cmath>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace fs = std::filesystem;
++using scl::bch::simulation::BchCaseId;
++
++namespace {
++
++void require(bool condition, const std::string& message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++scl::common::BitVector alternating(std::size_t size, scl::common::Bit first) {
++    scl::common::BitVector bits(size);
++    for (std::size_t i = 0; i < size; ++i) bits[i] = static_cast<scl::common::Bit>((first + i) & 1U);
++    return bits;
++}
++
++std::vector<scl::common::BitVector> boundaryPayloads(std::size_t size) {
++    std::vector<scl::common::BitVector> values;
++    values.emplace_back(size, 0U);
++    values.emplace_back(size, 1U);
++    values.emplace_back(size, 0U); values.back().front() = 1U;
++    values.emplace_back(size, 0U); values.back().back() = 1U;
++    values.push_back(alternating(size, 0U));
++    values.push_back(alternating(size, 1U));
++    scl::common::BitVector middle(size, 0U); middle[size / 2U] = 1U; values.push_back(middle);
++    return values;
++}
++
++struct Counts {
++    std::uint64_t frames = 0U;
++    std::uint64_t bitErrors = 0U;
++    std::uint64_t frameErrors = 0U;
++    std::uint64_t trueSuccess = 0U;
++    std::uint64_t reportedSuccess = 0U;
++    std::uint64_t miscorrected = 0U;
++    std::uint64_t decoderFailure = 0U;
++    std::uint64_t channelHardBitErrors = 0U;
++};
++
++void exercise(const scl::bch::simulation::BchSimulationCase& simulationCase,
++              const scl::common::BitVector& payload,
++              const std::string& source,
++              std::uint64_t frameIndex,
++              Counts& counts,
++              std::ofstream& detail) {
++    const auto encoded = scl::bch::simulation::encodeBchFrame(simulationCase, payload);
++    const auto symbols = scl::common::bpskModulate(encoded.codeword);
++    const auto hard = scl::common::hardDecision(symbols);
++    const std::uint64_t hardErrors = scl::common::countBitErrors(encoded.codeword, hard);
++    auto decoded = scl::bch::simulation::decodeBchFrame(simulationCase, hard);
++    scl::bch::simulation::auditDecodedBchFrame(payload, decoded);
++    const std::uint64_t payloadErrors = scl::common::countBitErrors(payload, decoded.payload);
++    ++counts.frames;
++    counts.bitErrors += payloadErrors;
++    counts.frameErrors += payloadErrors != 0U;
++    counts.trueSuccess += decoded.trueSuccess;
++    counts.reportedSuccess += decoded.reportedSuccess;
++    counts.miscorrected += decoded.miscorrected;
++    counts.decoderFailure += decoded.decoderFailure;
++    counts.channelHardBitErrors += hardErrors;
++    detail << simulationCase.caseName << ',' << source << ',' << frameIndex << ','
++           << payloadErrors << ',' << hardErrors << ',' << decoded.trueSuccess << ','
++           << decoded.reportedSuccess << ',' << decoded.miscorrected << ','
++           << decoded.decoderFailure << ',' << decoded.frameStatus << '\n';
++    require(encoded.codeword.size() == simulationCase.encodedLength, "encoded length mismatch");
++    require(symbols.size() == simulationCase.encodedLength, "BPSK length mismatch");
++    require(hard == encoded.codeword, "identity hard decision changed codeword");
++    require(payloadErrors == 0U && decoded.trueSuccess, "noiseless payload mismatch");
++    require(decoded.reportedSuccess && !decoded.miscorrected && !decoded.decoderFailure,
++            "noiseless decoder status mismatch");
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 4) throw std::invalid_argument("usage: test_bch11_noiseless K200_MANIFEST K300_MANIFEST OUTPUT_DIR");
++        const fs::path output(argv[3]);
++        fs::create_directories(output);
++        scl::common::PackedFramePoolReader pool200(argv[1]);
++        scl::common::PackedFramePoolReader pool300(argv[2]);
++        require(pool200.payloadLength() == 200U && pool200.frameCount() >= 200U, "K200 pool mismatch");
++        require(pool300.payloadLength() == 300U && pool300.frameCount() >= 200U, "K300 pool mismatch");
++        require(scl::common::hardDecisionBit(0.0) == 0U, "hard decision y=0 boundary mismatch");
++
++        std::ofstream detail(output / "noiseless_frame_detail.csv");
++        std::ofstream summary(output / "noiseless_summary.csv");
++        std::ofstream config(output / "case_config.csv");
++        require(detail && summary && config, "failed to open BCH-11 CSV output");
++        detail << "caseName,source,frameIndex,decodedBitErrors,channelHardBitErrors,trueSuccess,reportedSuccess,miscorrected,decoderFailure,frameStatus\n";
++        summary << "caseName,processedFrames,decodedBitErrors,frameErrors,BER,FER,trueSuccessRate,reportedSuccessRate,miscorrectionRate,decoderFailureRate,channelHardBitErrors\n";
++        config << "caseName,payloadLength,encodedLength,frameRate,organization,decoderType\n";
++
++        for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300}) {
++            const auto& value = scl::bch::simulation::bchSimulationCase(id);
++            require(std::abs(value.frameRate - static_cast<double>(value.payloadLength) / value.encodedLength) < 1e-15,
++                    "frame rate mismatch");
++            Counts counts;
++            auto& pool = value.payloadLength == 200U ? pool200 : pool300;
++            for (std::uint64_t frame = 0U; frame < 200U; ++frame) {
++                exercise(value, pool.readFrame(frame).payloadBits, "COMMON_POOL", frame, counts, detail);
++            }
++            const auto boundaries = boundaryPayloads(value.payloadLength);
++            for (std::size_t i = 0; i < boundaries.size(); ++i) {
++                exercise(value, boundaries[i], "BOUNDARY", i, counts, detail);
++            }
++            require(counts.frames == 207U, "BCH-11 frame count mismatch");
++            require(counts.bitErrors == 0U && counts.frameErrors == 0U && counts.channelHardBitErrors == 0U,
++                    "BCH-11 noiseless error counter mismatch");
++            require(counts.trueSuccess == counts.frames && counts.reportedSuccess == counts.frames &&
++                    counts.miscorrected == 0U && counts.decoderFailure == 0U,
++                    "BCH-11 status counter mismatch");
++            summary << value.caseName << ',' << counts.frames << ',' << counts.bitErrors << ','
++                    << counts.frameErrors << ",0,0,1,1,0,0," << counts.channelHardBitErrors << '\n';
++            config << value.caseName << ',' << value.payloadLength << ',' << value.encodedLength << ','
++                   << value.frameRate << ',' << scl::bch::simulation::organizationName(value.organization) << ','
++                   << scl::bch::simulation::decoderTypeName(value.decoderType) << '\n';
++        }
++
++        bool rejected = false;
++        try { static_cast<void>(scl::bch::simulation::bchSimulationCase("BCH-INVALID")); }
++        catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "invalid case name was not rejected");
++        rejected = false;
++        try {
++            const auto& value = scl::bch::simulation::bchSimulationCase(BchCaseId::S200);
++            static_cast<void>(scl::bch::simulation::encodeBchFrame(value, scl::common::BitVector(199U, 0U)));
++        } catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "invalid payload length was not rejected");
++        std::cout << "PASS_BCH11_COMMON_INTEGRATION_NOISELESS\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH11_NOISELESS_PAYLOAD_MISMATCH: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/bch11_common_noiseless/acceptance_matrix.csv b/Task/BCH/simulation/stages/bch11_common_noiseless/acceptance_matrix.csv
+new file mode 100644
+index 0000000..69615f9
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch11_common_noiseless/acceptance_matrix.csv
+@@ -0,0 +1,5 @@
++requirement,implementation,positive_test,negative_test,gate
++Frozen case parameters,bch_case_adapter,test all four cases,invalid case rejection,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
++Common real frame pool,test_bch11_noiseless,200 frames for K200 and K300,out-of-range and wrong-payload rejection,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
++Noiseless signal chain,Common BPSK and hard decision,encoded bits survive identity channel,y=0 boundary assertion,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
++Payload and status metrics,bch_case_adapter and test accounting,all counters self-consistent,payload mismatch causes true failure,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
+diff --git a/Task/BCH/simulation/stages/bch11_common_noiseless/frozen_config.csv b/Task/BCH/simulation/stages/bch11_common_noiseless/frozen_config.csv
+new file mode 100644
+index 0000000..f0715d7
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch11_common_noiseless/frozen_config.csv
+@@ -0,0 +1,5 @@
++caseName,payloadLength,encodedLength,frameRate,organization,decoderType,segmentCount,fillerLength,motherN,motherK,shorteningLength,correctionCapability,realPoolFrames,boundaryFrames
++BCH-S200,200,285,0.7017543859649122,SEGMENTED,SYNDROME_LOOKUP,19,9,,,,1,200,7
++BCH-B200,200,248,0.8064516129032258,WHOLE_BLOCK_SHORTENED,BERLEKAMP_MASSEY_CHIEN,,,255,207,7,6,200,7
++BCH-S300,300,420,0.7142857142857143,SEGMENTED,SYNDROME_LOOKUP,28,8,,,,1,200,7
++BCH-B300,300,390,0.7692307692307693,WHOLE_BLOCK_SHORTENED,BERLEKAMP_MASSEY_CHIEN,,,511,421,121,10,200,7
+diff --git a/Task/BCH/simulation/stages/bch11_common_noiseless/stage_plan.md b/Task/BCH/simulation/stages/bch11_common_noiseless/stage_plan.md
+new file mode 100644
+index 0000000..c1674d2
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch11_common_noiseless/stage_plan.md
+@@ -0,0 +1,29 @@
++# BCH-11 frozen specification
++
++## Goal
++
++Prove all four BCH cases traverse the real Common frame pool, encode, BPSK, identity channel,
++hard decision, decode, payload recovery, and metric accounting without error.
++
++## Allowed scope
++
++`Task/BCH/simulation/` plus build-time use of existing Common, segmented BCH, and whole-block BCH APIs.
++
++## Forbidden scope
++
++No AWGN implementation, formal infrastructure, CC/LDPC changes, interleaving, or complex channel.
++
++## Contract
++
++- BCH-S200: K=200, N=285, 19 BCH(15,11,1) segments, 9 filler bits.
++- BCH-B200: K=200, N=248, shortened BCH(255,207,6), shortening 7.
++- BCH-S300: K=300, N=420, 28 BCH(15,11,1) segments, 8 filler bits.
++- BCH-B300: K=300, N=390, shortened BCH(511,421,10), shortening 121.
++- `reportedSuccess` means all segmented blocks or the whole-block decoder report NO_ERROR/CORRECTED.
++- `trueSuccess` is assigned by comparing recovered and original payloads.
++
++## Gate
++
++All 200 real-pool frames and seven deterministic boundary patterns per case must have zero payload
++errors, zero hard-decision codeword errors, true/report success rate one, and no miscorrection or
++decoder failure. The exact `y=0 -> 0` boundary is tested.
+diff --git a/Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_acceptance_matrix.csv b/Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_acceptance_matrix.csv
+new file mode 100644
+index 0000000..11c5194
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_acceptance_matrix.csv
+@@ -0,0 +1,7 @@
++requirement,implementation,positive_test,negative_test,gate
++Four unified BCH cases,simulation/current/bch_case_adapter,test_bch11_noiseless case configuration,invalid case and length rejection,PASS_BCH11_COMMON_INTEGRATION_NOISELESS
++Common AWGN and paired noise,simulation/current and Common APIs,BCH-12 reproducibility/scaling checks,reused or mismatched noise detection,PASS_BCH12_AWGN_SMOKE
++Prescan waterfall,simulation scripts and frozen recommendation CSV,BCH-13 fixed-frame scan,invalid/no-waterfall range rejection,PASS_BCH13_AWGN_PRESCAN
++Checkpoint resume shard,simulation runner and merge checker,BCH-14 continuous/resume/shard equality,overlap/gap/config mismatch rejection,PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL
++Formal AWGN,formal config read from BCH-13,BCH-15 completeness and accounting checks,missing/duplicate/NaN/non-PNG rejection,PASS_BCH15_AWGN_FORMAL
++Segmented versus block comparison,comparison script and audited figure data,BCH-16 interpolation and recommendation checks,extrapolation/incomplete input rejection,PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON
+diff --git a/Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_plan.md b/Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_plan.md
+new file mode 100644
+index 0000000..637cd9e
+--- /dev/null
++++ b/Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_plan.md
+@@ -0,0 +1,41 @@
++# BCH Group 4 frozen plan
++
++## Objective
++
++Complete BCH-11 through BCH-16 on branch `bch-group4-awgn-formal-comparison`, ending at
++`PASS_BCH_GROUP4_AWGN_FORMAL_COMPARISON`.
++
++## Functional scope
++
++- Add a unified simulation adapter for BCH-S200, BCH-B200, BCH-S300, and BCH-B300.
++- Reuse the Common frame pool, deterministic Gaussian noise, BPSK, AWGN, hard decision,
++  metrics, stop control, checkpoint primitives, hashing, CSV conventions, and matplotlib style.
++- Run noiseless, smoke, prescan, infrastructure trial, formal AWGN, and segmented-versus-block comparison in order.
++- Produce only PNG plots with Python matplotlib.
++
++## Non-goals
++
++- No interleaving, burst-error channel, fading, multipath, frequency offset, Doppler, or soft BCH decoding.
++- No modification of CC or LDPC implementation.
++- No automatic merge to `main`.
++
++## Frozen interfaces and data rules
++
++- Rate is `payloadLength / encodedLength` using the transmitted BCH codeword length.
++- BER and FER compare recovered payload with original payload only.
++- Paired standard Gaussian samples share `(payloadGroup, snrIndex, frameIndex, encodedBitIndex)`;
++  each case then applies its own rate-derived sigma.
++- Stages stop immediately when their Gate fails. BCH-15 reads the SNR grid frozen by BCH-13.
++- Result plots are individual figures, Agg backend, explicit PNG save, and closed after saving.
++
++## Stage order and Gates
++
++1. BCH-11: `PASS_BCH11_COMMON_INTEGRATION_NOISELESS`
++2. BCH-12: `PASS_BCH12_AWGN_SMOKE`
++3. BCH-13: `PASS_BCH13_AWGN_PRESCAN`
++4. BCH-14: `PASS_BCH14_FORMAL_INFRASTRUCTURE_TRIAL`
++5. BCH-15: `PASS_BCH15_AWGN_FORMAL`
++6. BCH-16: `PASS_BCH16_SEGMENTED_VS_BLOCK_COMPARISON`
++
++The user request explicitly authorizes continuous execution, normal commits, and a normal push,
++so no additional confirmation pause is required between these frozen stages.

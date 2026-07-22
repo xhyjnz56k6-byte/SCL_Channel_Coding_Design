@@ -1,0 +1,44 @@
+{
+  "stage": "bch11_common_noiseless",
+  "baseCommit": "8c6f6593fa6c8999bdea600d72abe0e08099a2a3",
+  "functionalCommit": "7761d423b6cc7b1d5c7af0cb4621800561bc4bbf",
+  "branch": "bch-group4-awgn-formal-comparison",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "8c6f6593fa6c8999bdea600d72abe0e08099a2a3",
+      "contentCommit": "7761d423b6cc7b1d5c7af0cb4621800561bc4bbf",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/include/bch_simulation/bch_case_adapter.hpp",
+        "Task/BCH/simulation/current/src/bch_case_adapter.cpp",
+        "Task/BCH/simulation/current/tests/test_bch11_noiseless.cpp",
+        "Task/BCH/simulation/stages/bch11_common_noiseless/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/bch11_common_noiseless/frozen_config.csv",
+        "Task/BCH/simulation/stages/bch11_common_noiseless/stage_plan.md",
+        "Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/bch_group4_awgn_formal_comparison/group4_plan.md"
+      ]
+    }
+  ],
+  "commonNoisePolicyVersion": 1,
+  "framePoolVersion": "common03.frame_pool_manifest.v2",
+  "globalSeed": 2026072001,
+  "caseConfigs": ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"],
+  "snrGrid": [],
+  "stopConfig": {"mode": "fixed", "realPoolFramesPerCase": 200, "boundaryFramesPerCase": 7},
+  "testCounts": {"processedFrames": 828, "realPoolFrames": 800, "boundaryFrames": 28},
+  "formalPointCounts": 0,
+  "processedFrames": 828,
+  "mismatchCounts": {"decodedBits": 0, "frames": 0, "hardBits": 0, "status": 0},
+  "checkpointAudit": "NOT_APPLICABLE_BCH11",
+  "resumeAudit": "NOT_APPLICABLE_BCH11",
+  "shardAudit": "NOT_APPLICABLE_BCH11",
+  "plotAudit": "NOT_APPLICABLE_BCH11",
+  "pngCount": 0,
+  "nonPngPlotArtifactCount": 0,
+  "artifactHashes": {},
+  "gateStatus": "PASS_BCH11_COMMON_INTEGRATION_NOISELESS",
+  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "mergeStatus": "NOT_MERGED"
+}

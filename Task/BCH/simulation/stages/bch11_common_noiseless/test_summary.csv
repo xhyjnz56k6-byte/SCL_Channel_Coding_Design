@@ -1,0 +1,6 @@
+test,status,frames,mismatches,evidence
+release_build,PASS,0,0,cmake build completed
+bch11_common_noiseless_ctest,PASS,828,0,noiseless_summary.csv
+hard_decision_zero_boundary,PASS,1,0,test_bch11_noiseless
+invalid_case_name,PASS,1,0,test_bch11_noiseless
+invalid_payload_length,PASS,1,0,test_bch11_noiseless

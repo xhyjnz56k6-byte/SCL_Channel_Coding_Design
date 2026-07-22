@@ -1,0 +1,5 @@
+caseName,processedFrames,decodedBitErrors,frameErrors,BER,FER,trueSuccessRate,reportedSuccessRate,miscorrectionRate,decoderFailureRate,channelHardBitErrors
+BCH-S200,207,0,0,0,0,1,1,0,0,0
+BCH-B200,207,0,0,0,0,1,1,0,0,0
+BCH-S300,207,0,0,0,0,1,1,0,0,0
+BCH-B300,207,0,0,0,0,1,1,0,0,0
