@@ -7,7 +7,10 @@ build = root / 'Task/BCH/segmented/build/bch06_segmented_matlab_reference'
 stage = root / 'Task/BCH/segmented/stages/bch06_segmented_matlab_reference'
 stage.mkdir(parents=True, exist_ok=True)
 (stage / 'plots').mkdir(exist_ok=True)
-summary = dict(csv.reader((build / 'matlab_outputs/matlab_test_summary.csv').open(encoding='utf-8')))
+summary_rows = list(csv.reader((build / 'matlab_outputs/matlab_test_summary.csv').open(encoding='utf-8')))
+if summary_rows[0] != ['metric', 'value']:
+    raise RuntimeError('unexpected MATLAB summary header')
+summary = dict(summary_rows[1:])
 cross = json.loads((build / 'checker_outputs/cross_check_summary.json').read_text(encoding='utf-8'))
 for name in ('encoder', 'syndrome', 'no_error_decode', 'single_error_decode'):
     item = next(x for x in cross['files'] if x['name'] == name)
