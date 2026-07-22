@@ -68,6 +68,15 @@ def combine_files(points: list[Path], filename: str, target: Path) -> None:
                 output.write(line + "\n")
 
 
+def combine_jsonl(points: list[Path], filename: str, target: Path) -> None:
+    with target.open("w", encoding="utf-8", newline="") as output:
+        for point in points:
+            text = (point / filename).read_text(encoding="utf-8")
+            output.write(text)
+            if text and not text.endswith("\n"):
+                output.write("\n")
+
+
 def run_bch12(args: argparse.Namespace, repo: Path, build: Path, results: Path) -> None:
     executable = build / "bch_awgn_runner.exe"
     if not executable.exists():
@@ -102,7 +111,7 @@ def run_bch12(args: argparse.Namespace, repo: Path, build: Path, results: Path) 
     print()
     combine_files(points, "summary.csv", smoke / "awgn_smoke_summary.csv")
     combine_files(points, "frame_detail.csv", smoke / "awgn_smoke_frame_detail.csv")
-    combine_files(points, "progress.jsonl", smoke / "progress.jsonl")
+    combine_jsonl(points, "progress.jsonl", smoke / "progress.jsonl")
 
     summaries = list(csv.DictReader((smoke / "awgn_smoke_summary.csv").open(newline="", encoding="utf-8")))
     details = list(csv.DictReader((smoke / "awgn_smoke_frame_detail.csv").open(newline="", encoding="utf-8")))
