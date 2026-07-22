@@ -1,0 +1,54 @@
+{
+  "stage": "bch15_awgn_formal",
+  "baseCommit": "8e822a1b90e3816d4a3ef0d47c4524ecc07a1246",
+  "functionalCommit": "bce2c240c062359651ffdb77d090adb646eeff5d",
+  "resultCommit": "9a2d3145566c32670310cefebd771f05cc705d09",
+  "branch": "bch-group4-awgn-formal-comparison",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "8e822a1b90e3816d4a3ef0d47c4524ecc07a1246",
+      "contentCommit": "ad57f9cac5946e842160d085e8ddbc19acafbf15",
+      "files": [
+        "Task/BCH/simulation/scripts/plot_bch_formal.py",
+        "Task/BCH/simulation/scripts/run_bch_group4.py",
+        "Task/BCH/simulation/stages/bch15_awgn_formal/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/bch15_awgn_formal/frozen_config.csv",
+        "Task/BCH/simulation/stages/bch15_awgn_formal/stage_plan.md"
+      ]
+    },
+    {
+      "name": "artifactPublisher",
+      "baseCommit": "ad57f9cac5946e842160d085e8ddbc19acafbf15",
+      "contentCommit": "bce2c240c062359651ffdb77d090adb646eeff5d",
+      "files": ["Task/BCH/simulation/scripts/audit_bch_group4.py"]
+    }
+  ],
+  "commonNoisePolicyVersion": 1,
+  "framePoolVersion": "common03.frame_pool_manifest.v2",
+  "globalSeed": 2026072201,
+  "caseConfigs": ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300"],
+  "snrGrid": {
+    "BCH-S200": "4.5:0.2:8.5",
+    "BCH-B200": "3.5:0.2:5.9 plus 6.0",
+    "BCH-S300": "5.0:0.2:9.0",
+    "BCH-B300": "4.0:0.2:5.4 plus 5.5"
+  },
+  "stopConfig": {"minFrames": 5000, "targetFrameErrors": 200, "maxFrames": 50000},
+  "testCounts": {"formalCasePoints": 65, "progressComplete": 65, "checkpointSummaries": 65},
+  "formalPointCounts": {"BCH-S200": 21, "BCH-B200": 14, "BCH-S300": 21, "BCH-B300": 9},
+  "processedFrames": 1134718,
+  "stopReasonCounts": {"TARGET_FRAME_ERRORS_REACHED": 52, "MAX_FRAMES_REACHED": 13},
+  "mismatchCounts": {"metric": 0, "confidenceInterval": 0, "point": 0, "progress": 0, "plot": 0},
+  "checkpointAudit": "PASS_65_SUMMARIES_606_WRITES",
+  "resumeAudit": "PASS_INFRASTRUCTURE_FROM_BCH14_FORMAL_STARTED_CLEAN",
+  "shardAudit": "PASS_INFRASTRUCTURE_FROM_BCH14_SINGLE_SHARD_FORMAL",
+  "plotAudit": "PASS_15_MATPLOTLIB_PNG",
+  "pngCount": 15,
+  "nonPngPlotArtifactCount": 0,
+  "matplotlibVersion": "3.10.7",
+  "artifactHashes": {"index": "result_file_hashes.csv", "plotManifest": "plot_manifest.json"},
+  "gateStatus": "PASS_BCH15_AWGN_FORMAL",
+  "remoteVerification": {"status": "DEFERRED_TO_GROUP_PUSH"},
+  "mergeStatus": "NOT_MERGED"
+}

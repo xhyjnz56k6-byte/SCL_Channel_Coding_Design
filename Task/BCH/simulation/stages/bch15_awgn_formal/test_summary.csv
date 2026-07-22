@@ -1,0 +1,9 @@
+test,status,points,frames,mismatches,evidence
+formal_planned_points,PASS,65,1134718,0,formal_summary.csv and frozen_formal_grid.csv
+metric_accounting,PASS,65,1134718,0,independent recomputation
+stop_reason_audit,PASS,65,1134718,0,52 target and 13 maximum stops
+wilson_interval_audit,PASS,65,1134718,0,independent Wilson recomputation
+checkpoint_summary_audit,PASS,65,1134718,0,checkpoint_summary.csv
+progress_completion_audit,PASS,65,1134718,0,progress_summary.csv
+plot_manifest_audit,PASS,15,0,0,plot_manifest.json and figure_data_audit.csv
+non_png_plot_scan,PASS,0,0,0,no PDF SVG EPS or PS
