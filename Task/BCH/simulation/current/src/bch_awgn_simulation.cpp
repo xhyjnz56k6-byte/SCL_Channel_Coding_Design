@@ -74,7 +74,8 @@ public:
                       << " FE " << result.decodedFrameErrors << " BER " << std::scientific << ber
                       << " FER " << fer << std::fixed << " speed " << static_cast<std::uint64_t>(rate)
                       << " frame/s elapsed " << std::setprecision(1) << elapsed << "s ETA " << eta
-                      << "s checkpoint 0 shard 1/1" << (force ? '\n' : '\r');
+                      << "s checkpoint " << result.checkpointCount << " shard "
+                      << (config_.shardIndex + 1U) << '/' << config_.shardCount << (force ? '\n' : '\r');
         }
         if (jsonl_) {
             jsonl_ << "{\"timestamp\":\"" << timestampUtc() << "\",\"stage\":\"" << config_.stage
@@ -83,7 +84,9 @@ public:
                    << ",\"frameErrors\":" << result.decodedFrameErrors
                    << ",\"bitErrors\":" << result.decodedBitErrors
                    << ",\"elapsedSeconds\":" << elapsed << ",\"framesPerSecond\":" << rate
-                   << ",\"etaSeconds\":" << eta << ",\"checkpointCount\":0,\"shardIndex\":0,\"status\":\""
+                   << ",\"etaSeconds\":" << eta << ",\"checkpointCount\":" << result.checkpointCount
+                   << ",\"shardIndex\":" << config_.shardIndex << ",\"shardCount\":" << config_.shardCount
+                   << ",\"status\":\""
                    << (force ? "COMPLETE" : "RUNNING") << "\"}\n";
         }
     }
