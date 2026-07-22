@@ -21,6 +21,8 @@ Working directory: `C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design`
 - `cmake -G "MinGW Makefiles" -S Task/BCH/segmented/current -B Task/BCH/segmented/build/bch05_adapter_recovery -DCMAKE_BUILD_TYPE=Release`
 - `cmake --build Task/BCH/segmented/build/bch05_adapter_recovery`
 - `ctest --test-dir Task/BCH/segmented/build/bch05_adapter_recovery --output-on-failure`
+- `cmake --build Task/BCH/segmented/build/bch05_adapter_recovery` (repair rerun)
+- `ctest --test-dir Task/BCH/segmented/build/bch05_adapter_recovery --output-on-failure` (repair rerun)
 
 CTest registered runtime output directories:
 
@@ -38,10 +40,12 @@ CTest registered runtime output directories:
 - `Task/Common/build/stage04/test_common04_checkpoint.exe`
 - `Task/Common/build/stage04/test_common04_integration.exe`
 
+All six Common programs exited with code 0.
+
 ## Scope and audit checks
 
 - `git diff --check`
 - `git diff --name-only main...HEAD -- Task/Common`
-- `git diff --name-status 185f4bb704e7d582b0be86f560e8c3fcb98822c9...196438a84fb6608adcd182c0bfdfe67c64b6ccc2`
+- `git diff --name-status 185f4bb704e7d582b0be86f560e8c3fcb98822c9..a6dcc72e4abf1d018ae8c19b67d30fa87e1a9cf8`
 - `git diff --binary --output=Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch 185f4bb704e7d582b0be86f560e8c3fcb98822c9...196438a84fb6608adcd182c0bfdfe67c64b6ccc2 -- <BCH-05 functional files>`
 - `git apply --check --reverse Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch`

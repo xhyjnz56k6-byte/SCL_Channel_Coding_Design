@@ -3,13 +3,13 @@
   "module": "Task/BCH/segmented",
   "branch": "bch-05-segmented-adapter-recovery",
   "baseCommit": "185f4bb704e7d582b0be86f560e8c3fcb98822c9",
-  "contentCommit": "196438a84fb6608adcd182c0bfdfe67c64b6ccc2",
+  "contentCommit": "a6dcc72e4abf1d018ae8c19b67d30fa87e1a9cf8",
   "commitStatus": "COMMITTED",
-  "pushStatus": "PUSHED_AFTER_AUDIT_COMMIT",
+  "pushStatus": "PENDING_AUDIT_COMMIT",
   "workingTreeOnly": false,
   "mergeStatus": "NOT_MERGED",
-  "functionalGate": "PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY_FUNCTIONAL",
-  "auditGate": "PASS_BCH05_AUDIT_FINALIZED",
+  "functionalGate": "PASS_BCH05_REPAIR",
+  "auditGate": "PASS_BCH05_AUDIT_REPAIR_EVIDENCE",
   "finalGate": "PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY",
   "functionalRanges": [
     {
@@ -23,6 +23,22 @@
         "Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp",
         "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv",
         "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md"
+      ]
+    },
+    {
+      "name": "repairContent",
+      "baseCommit": "196438a84fb6608adcd182c0bfdfe67c64b6ccc2",
+      "contentCommit": "a6dcc72e4abf1d018ae8c19b67d30fa87e1a9cf8",
+      "files": [
+        "Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp",
+        "Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp",
+        "Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/failure_status_retention_audit.csv",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md",
+        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv"
       ]
     }
   ],
@@ -57,13 +73,17 @@
     "historicalStageOutputIsolation": "PASS_BCH05_TEST_OUTPUT_ISOLATION",
     "syntheticNoiselessFrames": 8,
     "poolFrames": 200,
-    "singleBlockSingleErrorCases": 255,
+    "singleBlockSingleErrorCases": 705,
     "singleBlockSingleErrorMismatch": 0,
     "multiBlockSingleErrorCases": 8,
     "multiBlockSingleErrorMismatch": 0,
     "sameBlockDoubleErrorCases": 12,
     "sameBlockDoubleRecoveredPayload": 3,
-    "sameBlockDoubleReportedSuccessWrongPayload": 12,
+    "reportedSuccessWrongBlockInformation": 12,
+    "reportedSuccessWrongOriginalPayload": 9,
+    "fillerOnlyInformationMismatch": 3,
+    "postCheckFailedStateRetentionMismatch": 0,
+    "unrecognizedSyndromeStateRetentionMismatch": 0,
     "fillerBoundaryCases": 30,
     "fillerBoundaryMismatch": 0,
     "commonRegression": "PASS_6_OF_6",
@@ -77,6 +97,7 @@
     "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv",
     "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/multi_block_single_error_audit.csv",
     "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv",
+    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/failure_status_retention_audit.csv",
     "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv",
     "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv",
     "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch"

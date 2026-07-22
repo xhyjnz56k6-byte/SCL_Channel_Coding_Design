@@ -34,10 +34,10 @@ index ec52239..28a6f75 100644
 +add_test(NAME bch15_segmented_adapter COMMAND test_bch15_segmented_adapter ${BCH_TEST_OUTPUT_ROOT}/bch05_segmented_adapter ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json ${CMAKE_CURRENT_SOURCE_DIR}/../../../Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json)
 diff --git a/Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp b/Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp
 new file mode 100644
-index 0000000..947ff31
+index 0000000..8f60cf1
 --- /dev/null
 +++ b/Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,80 @@
 +#ifndef SCL_BCH_SEGMENTED_BCH15_SEGMENTED_ADAPTER_HPP
 +#define SCL_BCH_SEGMENTED_BCH15_SEGMENTED_ADAPTER_HPP
 +
@@ -73,9 +73,19 @@ index 0000000..947ff31
 +    common::Length lookupHitBlocks = 0U;
 +    common::Length lookupMissBlocks = 0U;
 +    common::Length postCheckFailedBlocks = 0U;
++    common::Length unrecognizedSyndromeBlocks = 0U;
 +    common::Length reportedSuccessBlocks = 0U;
-+    common::Length payloadCorrectBlocks = 0U;
-+    common::Length payloadWrongBlocks = 0U;
++    // These compare each recovered 11-bit block with the padded encoder
++    // input.  They intentionally include the terminal filler positions.
++    common::Length paddedInformationCorrectBlocks = 0U;
++    common::Length paddedInformationWrongBlocks = 0U;
++    // These compare only the information positions that belong to the
++    // original payload.  The terminal filler positions are excluded.
++    common::Length originalPayloadCorrectBlocks = 0U;
++    common::Length originalPayloadWrongBlocks = 0U;
++    common::Length fillerOnlyInformationMismatchBlocks = 0U;
++    common::Length reportedSuccessWrongBlockInformation = 0U;
++    common::Length reportedSuccessWrongOriginalPayload = 0U;
 +    common::Length miscorrectedBlocks = 0U;
 +    common::Length paddingBits = 0U;
 +    common::Length blockCount = 0U;
@@ -110,14 +120,15 @@ index 0000000..947ff31
 +#endif
 diff --git a/Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp b/Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp
 new file mode 100644
-index 0000000..091dbaf
+index 0000000..ede71bb
 --- /dev/null
 +++ b/Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp
-@@ -0,0 +1,130 @@
+@@ -0,0 +1,164 @@
 +#include "bch_segmented/bch15_segmented_adapter.hpp"
 +
 +#include "bch_segmented/bch15_encoder.hpp"
 +
++#include <algorithm>
 +#include <stdexcept>
 +
 +namespace scl::bch::segmented {
@@ -148,8 +159,14 @@ index 0000000..091dbaf
 +    ++frame.totalBlocks;
 +    if (detail.status == Bch15DecodeStatus::NO_ERROR) ++frame.noErrorBlocks;
 +    if (detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++frame.correctedBlocks;
-+    if (detail.lookupHit) ++frame.lookupHitBlocks; else ++frame.lookupMissBlocks;
++    if (detail.lookupHit) {
++        ++frame.lookupHitBlocks;
++    } else if (detail.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME) {
++        // syndrome=0 follows the NO_ERROR path and is not a lookup miss.
++        ++frame.lookupMissBlocks;
++    }
 +    if (detail.status == Bch15DecodeStatus::POST_CHECK_FAILED) ++frame.postCheckFailedBlocks;
++    if (detail.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME) ++frame.unrecognizedSyndromeBlocks;
 +    if (detail.status == Bch15DecodeStatus::NO_ERROR || detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++frame.reportedSuccessBlocks;
 +    // True miscorrection requires the original block as an oracle.  The
 +    // adapter preserves decoder facts; the test audit compares them to truth.
@@ -225,20 +242,47 @@ index 0000000..091dbaf
 +
 +    common::BitVector padded = originalPayload;
 +    padded.insert(padded.end(), result.config.fillerBits, 0U);
-+    result.frameDetail.payloadCorrectBlocks = 0U;
-+    result.frameDetail.payloadWrongBlocks = 0U;
++    result.frameDetail.paddedInformationCorrectBlocks = 0U;
++    result.frameDetail.paddedInformationWrongBlocks = 0U;
++    result.frameDetail.originalPayloadCorrectBlocks = 0U;
++    result.frameDetail.originalPayloadWrongBlocks = 0U;
++    result.frameDetail.fillerOnlyInformationMismatchBlocks = 0U;
++    result.frameDetail.reportedSuccessWrongBlockInformation = 0U;
++    result.frameDetail.reportedSuccessWrongOriginalPayload = 0U;
 +    result.frameDetail.miscorrectedBlocks = 0U;
 +    for (common::Length block = 0U; block < result.config.blockCount; ++block) {
 +        const auto begin = padded.begin() + static_cast<std::ptrdiff_t>(block * result.config.blockPayloadLength);
 +        const common::BitVector expected(begin, begin + static_cast<std::ptrdiff_t>(result.config.blockPayloadLength));
 +        const auto& detail = result.blockDetails[block].decoder;
-+        if (detail.decodedMessage == expected) {
-+            ++result.frameDetail.payloadCorrectBlocks;
++        const bool paddedInformationCorrect = detail.decodedMessage == expected;
++        const bool reportedSuccess = detail.status == Bch15DecodeStatus::NO_ERROR ||
++                                     detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR;
++        if (paddedInformationCorrect) {
++            ++result.frameDetail.paddedInformationCorrectBlocks;
 +        } else {
-+            ++result.frameDetail.payloadWrongBlocks;
++            ++result.frameDetail.paddedInformationWrongBlocks;
++            if (reportedSuccess) ++result.frameDetail.reportedSuccessWrongBlockInformation;
 +            if (detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) {
 +                ++result.frameDetail.miscorrectedBlocks;
 +            }
++        }
++
++        const common::Length payloadBitsInBlock =
++            block + 1U == result.config.blockCount
++                ? result.config.blockPayloadLength - result.config.fillerBits
++                : result.config.blockPayloadLength;
++        const bool originalPayloadCorrect = std::equal(
++            detail.decodedMessage.begin(),
++            detail.decodedMessage.begin() + static_cast<std::ptrdiff_t>(payloadBitsInBlock),
++            expected.begin());
++        if (originalPayloadCorrect) {
++            ++result.frameDetail.originalPayloadCorrectBlocks;
++            if (!paddedInformationCorrect) {
++                ++result.frameDetail.fillerOnlyInformationMismatchBlocks;
++            }
++        } else {
++            ++result.frameDetail.originalPayloadWrongBlocks;
++            if (reportedSuccess) ++result.frameDetail.reportedSuccessWrongOriginalPayload;
 +        }
 +    }
 +}
@@ -246,10 +290,10 @@ index 0000000..091dbaf
 +}  // namespace scl::bch::segmented
 diff --git a/Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp b/Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp
 new file mode 100644
-index 0000000..8f1b77d
+index 0000000..7e9ada9
 --- /dev/null
 +++ b/Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp
-@@ -0,0 +1,459 @@
+@@ -0,0 +1,549 @@
 +#include "bch_segmented/bch15_encoder.hpp"
 +#include "bch_segmented/bch15_segmented_adapter.hpp"
 +#include "common/frame_pool.hpp"
@@ -279,7 +323,13 @@ index 0000000..8f1b77d
 +    unsigned multiBlockSingleErrorMismatch = 0U;
 +    unsigned sameBlockDoubleErrorCases = 0U;
 +    unsigned sameBlockDoubleRecoveredPayload = 0U;
-+    unsigned sameBlockDoubleReportedSuccessWrongPayload = 0U;
++    unsigned reportedSuccessWrongBlockInformation = 0U;
++    unsigned reportedSuccessWrongOriginalPayload = 0U;
++    unsigned fillerOnlyInformationMismatch = 0U;
++    unsigned postCheckFailedStateRetentionCases = 0U;
++    unsigned postCheckFailedStateRetentionMismatch = 0U;
++    unsigned unrecognizedSyndromeStateRetentionCases = 0U;
++    unsigned unrecognizedSyndromeStateRetentionMismatch = 0U;
 +    unsigned fillerBoundaryCases = 0U;
 +    unsigned fillerBoundaryMismatch = 0U;
 +};
@@ -394,7 +444,9 @@ index 0000000..8f1b77d
 +    require(decoded.recoveredPaddedMessage.size() == config.payloadLength + config.fillerBits, "recovered padded length");
 +    require(decoded.recoveredPaddedMessage == encoded.paddedMessageBits, "recovered padded message");
 +    require(decoded.frameDetail.noErrorBlocks == config.blockCount, "noiseless NO_ERROR count");
-+    require(decoded.frameDetail.payloadCorrectBlocks == config.blockCount, "noiseless true block count");
++    require(decoded.frameDetail.paddedInformationCorrectBlocks == config.blockCount, "noiseless padded information count");
++    require(decoded.frameDetail.originalPayloadCorrectBlocks == config.blockCount, "noiseless original payload block count");
++    require(decoded.frameDetail.lookupMissBlocks == 0U, "NO_ERROR must not count as lookup miss");
 +    return decoded;
 +}
 +
@@ -449,8 +501,7 @@ index 0000000..8f1b77d
 +    const auto& config = bch15SegmentedConfig(caseId);
 +    const auto payload = pattern(config.payloadLength, 2U);
 +    const auto encoded = encodeBch15Segmented(caseId, payload);
-+    const scl::common::Length coveredBlocks = caseId == Bch15SegmentedCase::S200 ? 9U : 8U;
-+    for (scl::common::Length block = 0U; block < coveredBlocks; ++block) {
++    for (scl::common::Length block = 0U; block < config.blockCount; ++block) {
 +        for (scl::common::Length local = 0U; local < config.encodedBlockLength; ++local) {
 +            auto received = encoded.encodedBits;
 +            const scl::common::Length global = block * config.encodedBlockLength + local;
@@ -492,7 +543,7 @@ index 0000000..8f1b77d
 +    ++counters.multiBlockSingleErrorCases;
 +    if (!pass) ++counters.multiBlockSingleErrorMismatch;
 +    output << caseName(caseId) << ',' << name << ',' << flips.size() << ','
-+           << decoded.frameDetail.correctedBlocks << ',' << decoded.frameDetail.payloadWrongBlocks << ','
++           << decoded.frameDetail.correctedBlocks << ',' << decoded.frameDetail.paddedInformationWrongBlocks << ','
 +           << (decoded.recoveredPayload == payload ? "true" : "false") << ',' << (pass ? "true" : "false") << '\n';
 +}
 +
@@ -528,20 +579,30 @@ index 0000000..8f1b77d
 +    auto decoded = decodeBch15Segmented(caseId, received, table);
 +    auditBch15SegmentedRecovery(payload, decoded);
 +    const bool payloadRecovered = decoded.recoveredPayload == payload;
-+    const bool reportedSuccessWrong = decoded.blockDetails[block].decoder.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR &&
-+                                      decoded.frameDetail.payloadWrongBlocks > 0U;
++    const auto& detail = decoded.blockDetails[block].decoder;
++    const bool blockInformationWrong = decoded.frameDetail.paddedInformationWrongBlocks > 0U;
++    const bool originalPayloadWrong = decoded.recoveredPayload != payload;
++    const bool fillerOnlyInformationWrong = blockInformationWrong && !originalPayloadWrong;
++    const bool reportedSuccessWrongBlockInformation = decoded.frameDetail.reportedSuccessWrongBlockInformation > 0U;
++    const bool reportedSuccessWrongOriginalPayload = decoded.frameDetail.reportedSuccessWrongOriginalPayload > 0U;
 +    ++counters.sameBlockDoubleErrorCases;
 +    if (payloadRecovered) ++counters.sameBlockDoubleRecoveredPayload;
-+    if (reportedSuccessWrong) ++counters.sameBlockDoubleReportedSuccessWrongPayload;
++    if (reportedSuccessWrongBlockInformation) ++counters.reportedSuccessWrongBlockInformation;
++    if (reportedSuccessWrongOriginalPayload) ++counters.reportedSuccessWrongOriginalPayload;
++    if (fillerOnlyInformationWrong) ++counters.fillerOnlyInformationMismatch;
 +    output << caseName(caseId) << ',' << name << ',' << block << ',' << firstLocal << ';' << secondLocal << ','
-+           << statusName(decoded.blockDetails[block].decoder.status) << ','
-+           << (decoded.blockDetails[block].decoder.correctedCodeword ==
++           << statusName(detail.status) << ','
++           << (detail.correctedCodeword ==
 +               scl::common::BitVector(encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U),
 +                                      encoded.encodedBits.begin() + static_cast<std::ptrdiff_t>(block * 15U + 15U))
 +                   ? "true"
 +                   : "false")
 +           << ',' << (payloadRecovered ? "true" : "false") << ','
-+           << (reportedSuccessWrong ? "true" : "false") << '\n';
++           << (blockInformationWrong ? "true" : "false") << ','
++           << (originalPayloadWrong ? "true" : "false") << ','
++           << (fillerOnlyInformationWrong ? "true" : "false") << ','
++           << (reportedSuccessWrongBlockInformation ? "true" : "false") << ','
++           << (reportedSuccessWrongOriginalPayload ? "true" : "false") << '\n';
 +}
 +
 +void auditSameBlockDoubleErrors(Bch15SegmentedCase caseId,
@@ -584,6 +645,64 @@ index 0000000..8f1b77d
 +               << (decoded.recoveredPayload == payload ? "true" : "false") << ','
 +               << (pass ? "true" : "false") << '\n';
 +    }
++}
++
++void auditFailureStatusRetention(Bch15SegmentedCase caseId,
++                                 const SyndromeTable& frozenTable,
++                                 Counters& counters,
++                                 std::ofstream& output) {
++    const auto& config = bch15SegmentedConfig(caseId);
++    const auto payload = pattern(config.payloadLength, 2U);
++    const auto encoded = encodeBch15Segmented(caseId, payload);
++    const unsigned errorPosition = frozenTable.entries[0].errorPosition;
++    require(errorPosition < config.encodedBlockLength, "frozen syndrome table position");
++
++    auto received = encoded.encodedBits;
++    received[errorPosition] ^= 1U;
++    scl::common::BitVector expectedPadded = encoded.paddedMessageBits;
++    if (errorPosition < config.blockPayloadLength) expectedPadded[errorPosition] ^= 1U;
++
++    SyndromeTable postCheckTable = frozenTable;
++    postCheckTable.entries[0].errorPosition = config.encodedBlockLength;
++    auto postCheck = decodeBch15Segmented(caseId, received, postCheckTable);
++    auditBch15SegmentedRecovery(payload, postCheck);
++    const bool postPass = postCheck.blockDetails[0].decoder.status == Bch15DecodeStatus::POST_CHECK_FAILED &&
++                          postCheck.recoveredPaddedMessage == expectedPadded &&
++                          postCheck.frameDetail.postCheckFailedBlocks == 1U &&
++                          postCheck.frameDetail.unrecognizedSyndromeBlocks == 0U &&
++                          postCheck.frameDetail.lookupHitBlocks == 1U &&
++                          postCheck.frameDetail.lookupMissBlocks == 0U &&
++                          postCheck.frameDetail.noErrorBlocks == config.blockCount - 1U;
++    ++counters.postCheckFailedStateRetentionCases;
++    if (!postPass) ++counters.postCheckFailedStateRetentionMismatch;
++    output << caseName(caseId) << ",POST_CHECK_FAILED,"
++           << statusName(postCheck.blockDetails[0].decoder.status) << ','
++           << postCheck.frameDetail.postCheckFailedBlocks << ','
++           << postCheck.frameDetail.unrecognizedSyndromeBlocks << ','
++           << postCheck.frameDetail.lookupHitBlocks << ',' << postCheck.frameDetail.lookupMissBlocks << ','
++           << (postCheck.recoveredPaddedMessage == expectedPadded ? "true" : "false") << ','
++           << (postPass ? "true" : "false") << '\n';
++
++    SyndromeTable unrecognizedTable = frozenTable;
++    for (auto& entry : unrecognizedTable.entries) entry.syndrome = 0U;
++    auto unrecognized = decodeBch15Segmented(caseId, received, unrecognizedTable);
++    auditBch15SegmentedRecovery(payload, unrecognized);
++    const bool unrecognizedPass = unrecognized.blockDetails[0].decoder.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME &&
++                                  unrecognized.recoveredPaddedMessage == expectedPadded &&
++                                  unrecognized.frameDetail.postCheckFailedBlocks == 0U &&
++                                  unrecognized.frameDetail.unrecognizedSyndromeBlocks == 1U &&
++                                  unrecognized.frameDetail.lookupHitBlocks == 0U &&
++                                  unrecognized.frameDetail.lookupMissBlocks == 1U &&
++                                  unrecognized.frameDetail.noErrorBlocks == config.blockCount - 1U;
++    ++counters.unrecognizedSyndromeStateRetentionCases;
++    if (!unrecognizedPass) ++counters.unrecognizedSyndromeStateRetentionMismatch;
++    output << caseName(caseId) << ",UNRECOGNIZED_SYNDROME,"
++           << statusName(unrecognized.blockDetails[0].decoder.status) << ','
++           << unrecognized.frameDetail.postCheckFailedBlocks << ','
++           << unrecognized.frameDetail.unrecognizedSyndromeBlocks << ','
++           << unrecognized.frameDetail.lookupHitBlocks << ',' << unrecognized.frameDetail.lookupMissBlocks << ','
++           << (unrecognized.recoveredPaddedMessage == expectedPadded ? "true" : "false") << ','
++           << (unrecognizedPass ? "true" : "false") << '\n';
 +}
 +
 +void verifyPool(Bch15SegmentedCase caseId,
@@ -629,11 +748,14 @@ index 0000000..8f1b77d
 +bool allPassed(const Counters& c) {
 +    return c.syntheticNoiselessFrames == 8U && c.poolFrames == 200U && c.noiselessPayloadMismatch == 0U &&
 +           c.encodedLengthMismatch == 0U && c.fillerMismatch == 0U && c.invalidInputFailures == 0U &&
-+           c.singleBlockSingleErrorCases == 255U && c.singleBlockSingleErrorMismatch == 0U &&
++           c.singleBlockSingleErrorCases == 705U && c.singleBlockSingleErrorMismatch == 0U &&
 +           c.multiBlockSingleErrorCases == 8U && c.multiBlockSingleErrorMismatch == 0U &&
 +           c.sameBlockDoubleErrorCases == 12U && c.sameBlockDoubleRecoveredPayload <= c.sameBlockDoubleErrorCases &&
-+           c.sameBlockDoubleReportedSuccessWrongPayload == 12U && c.fillerBoundaryCases == 30U &&
-+           c.fillerBoundaryMismatch == 0U;
++           c.reportedSuccessWrongBlockInformation == 12U && c.reportedSuccessWrongOriginalPayload == 9U &&
++           c.fillerOnlyInformationMismatch == 3U && c.fillerBoundaryCases == 30U &&
++           c.fillerBoundaryMismatch == 0U && c.postCheckFailedStateRetentionCases == 2U &&
++           c.postCheckFailedStateRetentionMismatch == 0U && c.unrecognizedSyndromeStateRetentionCases == 2U &&
++           c.unrecognizedSyndromeStateRetentionMismatch == 0U;
 +}
 +
 +}  // namespace
@@ -659,12 +781,16 @@ index 0000000..8f1b77d
 +        std::ofstream multiCsv(outputDirectory / "multi_block_single_error_audit.csv", std::ios::binary);
 +        std::ofstream doubleCsv(outputDirectory / "double_error_block_audit.csv", std::ios::binary);
 +        std::ofstream fillerCsv(outputDirectory / "filler_boundary_audit.csv", std::ios::binary);
-+        if (!poolCsv || !singleCsv || !multiCsv || !doubleCsv || !fillerCsv) throw std::runtime_error("cannot open audit csv");
++        std::ofstream failureStatusCsv(outputDirectory / "failure_status_retention_audit.csv", std::ios::binary);
++        if (!poolCsv || !singleCsv || !multiCsv || !doubleCsv || !fillerCsv || !failureStatusCsv) {
++            throw std::runtime_error("cannot open audit csv");
++        }
 +        poolCsv << "caseName,poolId,frameIndex,payloadLength,payloadRecovered\n";
 +        singleCsv << "caseName,blockIndex,localPosition,globalPosition,status,correctedPosition,payloadRecovered,pass\n";
 +        multiCsv << "caseName,caseId,errorCount,correctedBlocks,payloadWrongBlocks,payloadRecovered,pass\n";
-+        doubleCsv << "caseName,doubleCase,blockIndex,localPositions,status,codewordRecovered,payloadRecovered,reportedSuccessWrongPayload\n";
++        doubleCsv << "caseName,doubleCase,blockIndex,localPositions,status,codewordRecovered,payloadRecovered,blockInformationWrong,originalPayloadWrong,fillerOnlyInformationMismatch,reportedSuccessWrongBlockInformation,reportedSuccessWrongOriginalPayload\n";
 +        fillerCsv << "caseName,lastBlock,localPosition,bitClass,status,payloadRecovered,pass\n";
++        failureStatusCsv << "caseName,injectedFailure,reportedStatus,postCheckFailedBlocks,unrecognizedSyndromeBlocks,lookupHitBlocks,lookupMissBlocks,recoveredPaddedMessagePreserved,pass\n";
 +
 +        verifyPool(Bch15SegmentedCase::S200, argv[2], "payload_k200_seed2026072001_policy1_frames100", table, counters, poolCsv);
 +        verifyPool(Bch15SegmentedCase::S300, argv[3], "payload_k300_seed2026072001_policy1_frames100", table, counters, poolCsv);
@@ -674,12 +800,14 @@ index 0000000..8f1b77d
 +            auditMultiBlockSingleErrors(caseId, table, counters, multiCsv);
 +            auditSameBlockDoubleErrors(caseId, table, counters, doubleCsv);
 +            auditFillerBoundary(caseId, table, counters, fillerCsv);
++            auditFailureStatusRetention(caseId, table, counters, failureStatusCsv);
 +        }
 +        requireStream(poolCsv, (outputDirectory / "frame_pool_audit.csv").string());
 +        requireStream(singleCsv, (outputDirectory / "single_error_block_audit.csv").string());
 +        requireStream(multiCsv, (outputDirectory / "multi_block_single_error_audit.csv").string());
 +        requireStream(doubleCsv, (outputDirectory / "double_error_block_audit.csv").string());
 +        requireStream(fillerCsv, (outputDirectory / "filler_boundary_audit.csv").string());
++        requireStream(failureStatusCsv, (outputDirectory / "failure_status_retention_audit.csv").string());
 +
 +        writeConfigCsv(outputDirectory / "adapter_config.csv");
 +        writeTextFile(outputDirectory / "noiseless_recovery_summary.csv",
@@ -698,7 +826,13 @@ index 0000000..8f1b77d
 +                          "\nmultiBlockSingleErrorMismatch," + std::to_string(counters.multiBlockSingleErrorMismatch) +
 +                          "\nsameBlockDoubleErrorCases," + std::to_string(counters.sameBlockDoubleErrorCases) +
 +                          "\nsameBlockDoubleRecoveredPayload," + std::to_string(counters.sameBlockDoubleRecoveredPayload) +
-+                          "\nsameBlockDoubleReportedSuccessWrongPayload," + std::to_string(counters.sameBlockDoubleReportedSuccessWrongPayload) +
++                          "\nreportedSuccessWrongBlockInformation," + std::to_string(counters.reportedSuccessWrongBlockInformation) +
++                          "\nreportedSuccessWrongOriginalPayload," + std::to_string(counters.reportedSuccessWrongOriginalPayload) +
++                          "\nfillerOnlyInformationMismatch," + std::to_string(counters.fillerOnlyInformationMismatch) +
++                          "\npostCheckFailedStateRetentionCases," + std::to_string(counters.postCheckFailedStateRetentionCases) +
++                          "\npostCheckFailedStateRetentionMismatch," + std::to_string(counters.postCheckFailedStateRetentionMismatch) +
++                          "\nunrecognizedSyndromeStateRetentionCases," + std::to_string(counters.unrecognizedSyndromeStateRetentionCases) +
++                          "\nunrecognizedSyndromeStateRetentionMismatch," + std::to_string(counters.unrecognizedSyndromeStateRetentionMismatch) +
 +                          "\nfillerBoundaryCases," + std::to_string(counters.fillerBoundaryCases) +
 +                          "\nfillerBoundaryMismatch," + std::to_string(counters.fillerBoundaryMismatch) + "\n");
 +        if (!allPassed(counters)) throw std::runtime_error("BCH-05 segmented adapter gate counters mismatch");
@@ -711,27 +845,1281 @@ index 0000000..8f1b77d
 +}
 diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv
 new file mode 100644
-index 0000000..2ccfcfd
+index 0000000..9849ab6
 --- /dev/null
 +++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv
 @@ -0,0 +1,11 @@
 +requirement,implementation_location,positive_test,negative_test,gate_condition
 +explicit_case_and_lengths,current/include/bch_segmented/bch15_segmented_adapter.hpp;current/src/bch15_segmented_adapter.cpp,S200_and_S300_profiles,case_payload_or_encoded_length_mismatch,rejected_mismatch
 +filler_index_mapping,current/src/bch15_segmented_adapter.cpp;current/tests/test_bch15_segmented_adapter.cpp,S200_last_block_2_payload_9_filler_and_S300_last_block_3_payload_8_filler,last_block_boundary_checks,exact_tail_trim
-+status_preservation,current/src/bch15_segmented_adapter.cpp,POST_CHECK_FAILED_and_UNRECOGNIZED_SYNDROME_keep_returned_information_bits,failed_status_not_reported_as_truth_success,status_retained
++status_preservation,current/src/bch15_segmented_adapter.cpp;current/tests/test_bch15_segmented_adapter.cpp,POST_CHECK_FAILED_and_UNRECOGNIZED_SYNDROME_keep_returned_information_bits_and_frame_aggregation,corrupted_lookup_table_failure_statuses_are_not_lost,status_retained_and_aggregated
 +pool_reproducibility,current/tests/test_bch15_segmented_adapter.cpp,frameIndex_0_to_99_for_both_Common_pools,wrong_pool_id_or_payload_length,pool_100_plus_100_recovered
 +common_rate_reuse,current/src/bch15_segmented_adapter.cpp;current/tests/test_bch15_segmented_adapter.cpp,computeCodeRate_200_285_and_300_420,wrong_rate_or_lengths,reuses_Common_computeCodeRate
-+single_error_recovery,current/tests/test_bch15_segmented_adapter.cpp,S200_9_blocks_x_15_and_S300_8_blocks_x_15,wrong_position_or_payload,single_error_mismatch_0
++single_error_recovery,current/tests/test_bch15_segmented_adapter.cpp,S200_19_blocks_x_15_and_S300_28_blocks_x_15_total_705,wrong_position_or_payload,single_error_cases_705_and_mismatch_0
 +multi_block_single_error,current/tests/test_bch15_segmented_adapter.cpp,first_last_adjacent_spread_and_every_block_one_error,payload_or_corrected_count_wrong,multi_block_single_error_mismatch_0
-+same_block_double_error_audit,current/tests/test_bch15_segmented_adapter.cpp,payload_parity_filler_double_error_classes,status_vs_truth_confusion,double_error_classified
++same_block_double_error_audit,current/tests/test_bch15_segmented_adapter.cpp,payload_parity_filler_double_error_classes_with_padded_and_original_truth,status_vs_truth_confusion,12_wrong_block_information_9_wrong_original_payload_3_filler_only
 +filler_boundary_audit,current/tests/test_bch15_segmented_adapter.cpp,every_last_block_position_for_S200_and_S300,wrong_payload_filler_parity_class,filler_boundary_mismatch_0
 +output_isolation,current/CMakeLists.txt,CTest_outputs_under_build_test_outputs,historical_stage_directory_as_output,no_historical_stage_diff
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/adapter_config.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/adapter_config.csv
+new file mode 100644
+index 0000000..e4d9ce8
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/adapter_config.csv
+@@ -0,0 +1,3 @@
++caseName,payloadLength,blockPayloadLength,blockCount,fillerBits,encodedBlockLength,encodedLength,codeRate,lastBlockPayload,lastBlockFiller
++BCH-S200,200,11,19,9,15,285,0.701754,2,9
++BCH-S300,300,11,28,8,15,420,0.714286,3,8
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changed_files.md b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changed_files.md
+new file mode 100644
+index 0000000..2ca8a14
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changed_files.md
+@@ -0,0 +1,39 @@
++# BCH-05 changed files
++
++## Functional range
++
++Base commit: `185f4bb704e7d582b0be86f560e8c3fcb98822c9`
++
++Content commit: `196438a84fb6608adcd182c0bfdfe67c64b6ccc2`
++
++Files:
++
++- `Task/BCH/segmented/current/CMakeLists.txt`
++- `Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp`
++- `Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp`
++- `Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md`
++
++## Audit range
++
++Audit files added after the content commit:
++
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/adapter_config.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changed_files.md`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/commands_used.md`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frame_pool_audit.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frozen_config.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/git_commit.txt`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/known_issues.md`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/manifest.json`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/multi_block_single_error_audit.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/noiseless_recovery_summary.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv`
++- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/validation_report.md`
++
++No files under `Task/Common` were modified.
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/commands_used.md b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/commands_used.md
+new file mode 100644
+index 0000000..695c95d
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/commands_used.md
+@@ -0,0 +1,47 @@
++# BCH-05 commands used
++
++Working directory: `C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design`
++
++## Precheck and recovery
++
++- `git rev-parse --show-toplevel`
++- `git branch --show-current`
++- `git status --short`
++- `git rev-parse HEAD`
++- `git rev-parse main`
++- `git log --oneline --decorate -8`
++- `git diff --name-status`
++- `git diff -- Task/BCH/segmented/stages/bch04_lookup_decoder_audit`
++- `git ls-files --others --exclude-standard`
++- `git hash-object <six BCH-04 audit csv files>`
++- `git restore --source=HEAD -- <six BCH-04 audit csv files>`
++
++## Build and BCH regression
++
++- `cmake -G "MinGW Makefiles" -S Task/BCH/segmented/current -B Task/BCH/segmented/build/bch05_adapter_recovery -DCMAKE_BUILD_TYPE=Release`
++- `cmake --build Task/BCH/segmented/build/bch05_adapter_recovery`
++- `ctest --test-dir Task/BCH/segmented/build/bch05_adapter_recovery --output-on-failure`
++
++CTest registered runtime output directories:
++
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch02_encoder`
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch03_syndrome_table`
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch04_lookup_decoder`
++- `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs/bch05_segmented_adapter`
++
++## Common regression
++
++- `Task/Common/build/stage04/test_common04_random_policy.exe`
++- `Task/Common/build/stage04/test_common04_gaussian_noise.exe`
++- `Task/Common/build/stage04/test_common04_modulation_awgn.exe`
++- `Task/Common/build/stage04/test_common04_metrics_control.exe`
++- `Task/Common/build/stage04/test_common04_checkpoint.exe`
++- `Task/Common/build/stage04/test_common04_integration.exe`
++
++## Scope and audit checks
++
++- `git diff --check`
++- `git diff --name-only main...HEAD -- Task/Common`
++- `git diff --name-status 185f4bb704e7d582b0be86f560e8c3fcb98822c9...196438a84fb6608adcd182c0bfdfe67c64b6ccc2`
++- `git diff --binary --output=Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch 185f4bb704e7d582b0be86f560e8c3fcb98822c9...196438a84fb6608adcd182c0bfdfe67c64b6ccc2 -- <BCH-05 functional files>`
++- `git apply --check --reverse Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch`
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv
+new file mode 100644
+index 0000000..629eb53
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv
+@@ -0,0 +1,13 @@
++caseName,doubleCase,blockIndex,localPositions,status,codewordRecovered,payloadRecovered,blockInformationWrong,originalPayloadWrong,fillerOnlyInformationMismatch,reportedSuccessWrongBlockInformation,reportedSuccessWrongOriginalPayload
++BCH-S200,two_payload,0,0;1,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S200,payload_parity,0,0;11,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S200,two_parity,0,11;12,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S200,payload_filler,18,0;2,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S200,two_filler,18,2;3,CORRECTED_SINGLE_ERROR,false,true,true,false,true,true,false
++BCH-S200,filler_parity,18,2;11,CORRECTED_SINGLE_ERROR,false,true,true,false,true,true,false
++BCH-S300,two_payload,0,0;1,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S300,payload_parity,0,0;11,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S300,two_parity,0,11;12,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S300,payload_filler,27,0;3,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S300,two_filler,27,3;4,CORRECTED_SINGLE_ERROR,false,false,true,true,false,true,true
++BCH-S300,filler_parity,27,3;11,CORRECTED_SINGLE_ERROR,false,true,true,false,true,true,false
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/failure_status_retention_audit.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/failure_status_retention_audit.csv
+new file mode 100644
+index 0000000..0fde04b
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/failure_status_retention_audit.csv
+@@ -0,0 +1,5 @@
++caseName,injectedFailure,reportedStatus,postCheckFailedBlocks,unrecognizedSyndromeBlocks,lookupHitBlocks,lookupMissBlocks,recoveredPaddedMessagePreserved,pass
++BCH-S200,POST_CHECK_FAILED,POST_CHECK_FAILED,1,0,1,0,true,true
++BCH-S200,UNRECOGNIZED_SYNDROME,UNRECOGNIZED_SYNDROME,0,1,0,1,true,true
++BCH-S300,POST_CHECK_FAILED,POST_CHECK_FAILED,1,0,1,0,true,true
++BCH-S300,UNRECOGNIZED_SYNDROME,UNRECOGNIZED_SYNDROME,0,1,0,1,true,true
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv
+new file mode 100644
+index 0000000..4e250b4
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv
+@@ -0,0 +1,31 @@
++caseName,lastBlock,localPosition,bitClass,status,payloadRecovered,pass
++BCH-S200,18,0,payload,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,1,payload,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,2,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,3,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,4,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,5,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,6,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,7,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,8,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,9,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,10,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,11,parity,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,12,parity,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,13,parity,CORRECTED_SINGLE_ERROR,true,true
++BCH-S200,18,14,parity,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,0,payload,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,1,payload,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,2,payload,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,3,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,4,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,5,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,6,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,7,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,8,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,9,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,10,filler,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,11,parity,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,12,parity,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,13,parity,CORRECTED_SINGLE_ERROR,true,true
++BCH-S300,27,14,parity,CORRECTED_SINGLE_ERROR,true,true
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frame_pool_audit.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frame_pool_audit.csv
+new file mode 100644
+index 0000000..7d48c9b
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frame_pool_audit.csv
+@@ -0,0 +1,201 @@
++caseName,poolId,frameIndex,payloadLength,payloadRecovered
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,0,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,1,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,2,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,3,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,4,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,5,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,6,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,7,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,8,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,9,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,10,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,11,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,12,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,13,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,14,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,15,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,16,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,17,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,18,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,19,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,20,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,21,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,22,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,23,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,24,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,25,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,26,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,27,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,28,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,29,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,30,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,31,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,32,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,33,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,34,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,35,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,36,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,37,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,38,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,39,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,40,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,41,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,42,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,43,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,44,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,45,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,46,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,47,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,48,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,49,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,50,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,51,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,52,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,53,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,54,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,55,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,56,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,57,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,58,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,59,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,60,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,61,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,62,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,63,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,64,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,65,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,66,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,67,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,68,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,69,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,70,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,71,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,72,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,73,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,74,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,75,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,76,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,77,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,78,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,79,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,80,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,81,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,82,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,83,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,84,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,85,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,86,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,87,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,88,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,89,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,90,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,91,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,92,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,93,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,94,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,95,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,96,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,97,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,98,200,true
++BCH-S200,payload_k200_seed2026072001_policy1_frames100,99,200,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,0,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,1,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,2,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,3,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,4,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,5,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,6,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,7,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,8,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,9,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,10,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,11,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,12,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,13,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,14,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,15,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,16,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,17,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,18,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,19,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,20,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,21,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,22,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,23,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,24,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,25,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,26,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,27,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,28,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,29,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,30,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,31,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,32,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,33,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,34,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,35,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,36,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,37,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,38,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,39,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,40,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,41,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,42,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,43,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,44,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,45,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,46,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,47,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,48,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,49,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,50,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,51,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,52,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,53,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,54,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,55,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,56,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,57,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,58,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,59,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,60,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,61,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,62,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,63,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,64,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,65,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,66,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,67,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,68,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,69,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,70,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,71,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,72,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,73,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,74,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,75,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,76,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,77,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,78,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,79,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,80,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,81,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,82,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,83,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,84,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,85,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,86,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,87,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,88,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,89,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,90,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,91,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,92,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,93,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,94,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,95,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,96,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,97,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,98,300,true
++BCH-S300,payload_k300_seed2026072001_policy1_frames100,99,300,true
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frozen_config.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frozen_config.csv
+new file mode 100644
+index 0000000..e4d9ce8
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frozen_config.csv
+@@ -0,0 +1,3 @@
++caseName,payloadLength,blockPayloadLength,blockCount,fillerBits,encodedBlockLength,encodedLength,codeRate,lastBlockPayload,lastBlockFiller
++BCH-S200,200,11,19,9,15,285,0.701754,2,9
++BCH-S300,300,11,28,8,15,420,0.714286,3,8
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/git_commit.txt b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/git_commit.txt
+new file mode 100644
+index 0000000..df9fe99
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/git_commit.txt
+@@ -0,0 +1,10 @@
++stage=BCH-05
++branch=bch-05-segmented-adapter-recovery
++baseCommit=185f4bb704e7d582b0be86f560e8c3fcb98822c9
++contentCommit=196438a84fb6608adcd182c0bfdfe67c64b6ccc2
++contentCommitMessage=BCH/BCH-05：实现分块适配与恢复
++commitStatus=COMMITTED
++pushStatus=PUSHED_AFTER_AUDIT_COMMIT
++workingTreeOnly=false
++mergeStatus=NOT_MERGED
++auditCommit=not_recorded_by_design_to_avoid_self_reference
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/known_issues.md b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/known_issues.md
+new file mode 100644
+index 0000000..9ad04b2
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/known_issues.md
+@@ -0,0 +1,8 @@
++# BCH-05 known issues
++
++- No BCH-06 work was started.
++- No BPSK, AWGN, noise, MATLAB validation, whole-frame BCH, BM, Chien search, interleaving, or BER/FER runner was added.
++- Same-block double-error cases are audit classifications only. BCH(15,11,1) is a single-error-correcting code; double errors may be miscorrected, and `CORRECTED_SINGLE_ERROR` is not treated as truth recovery.
++- Group summary `Task/BCH/docs/groups/group01_segmented_core_summary.md` is not generated in this branch because BCH-05 has not yet been merged into `main`.
++
++No unresolved BCH-05 functional issue remains for this stage.
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/manifest.json b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/manifest.json
+new file mode 100644
+index 0000000..ef98120
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/manifest.json
+@@ -0,0 +1,89 @@
++{
++  "stage": "bch05_segmented_adapter_recovery",
++  "module": "Task/BCH/segmented",
++  "branch": "bch-05-segmented-adapter-recovery",
++  "baseCommit": "185f4bb704e7d582b0be86f560e8c3fcb98822c9",
++  "contentCommit": "196438a84fb6608adcd182c0bfdfe67c64b6ccc2",
++  "commitStatus": "COMMITTED",
++  "pushStatus": "PUSHED_AFTER_AUDIT_COMMIT",
++  "workingTreeOnly": false,
++  "mergeStatus": "NOT_MERGED",
++  "functionalGate": "PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY_FUNCTIONAL",
++  "auditGate": "PASS_BCH05_AUDIT_FINALIZED",
++  "finalGate": "PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY",
++  "functionalRanges": [
++    {
++      "name": "content",
++      "baseCommit": "185f4bb704e7d582b0be86f560e8c3fcb98822c9",
++      "contentCommit": "196438a84fb6608adcd182c0bfdfe67c64b6ccc2",
++      "files": [
++        "Task/BCH/segmented/current/CMakeLists.txt",
++        "Task/BCH/segmented/current/include/bch_segmented/bch15_segmented_adapter.hpp",
++        "Task/BCH/segmented/current/src/bch15_segmented_adapter.cpp",
++        "Task/BCH/segmented/current/tests/test_bch15_segmented_adapter.cpp",
++        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv",
++        "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md"
++      ]
++    }
++  ],
++  "cases": [
++    {
++      "caseName": "BCH-S200",
++      "payloadLength": 200,
++      "blockPayloadLength": 11,
++      "blockCount": 19,
++      "fillerBits": 9,
++      "encodedBlockLength": 15,
++      "encodedLength": 285,
++      "codeRate": "200/285",
++      "lastBlock": "2 payload + 9 filler"
++    },
++    {
++      "caseName": "BCH-S300",
++      "payloadLength": 300,
++      "blockPayloadLength": 11,
++      "blockCount": 28,
++      "fillerBits": 8,
++      "encodedBlockLength": 15,
++      "encodedLength": 420,
++      "codeRate": "300/420",
++      "lastBlock": "3 payload + 8 filler"
++    }
++  ],
++  "testResults": {
++    "cmakeConfigure": "PASS",
++    "build": "PASS",
++    "ctest": "PASS_4_OF_4",
++    "historicalStageOutputIsolation": "PASS_BCH05_TEST_OUTPUT_ISOLATION",
++    "syntheticNoiselessFrames": 8,
++    "poolFrames": 200,
++    "singleBlockSingleErrorCases": 255,
++    "singleBlockSingleErrorMismatch": 0,
++    "multiBlockSingleErrorCases": 8,
++    "multiBlockSingleErrorMismatch": 0,
++    "sameBlockDoubleErrorCases": 12,
++    "sameBlockDoubleRecoveredPayload": 3,
++    "sameBlockDoubleReportedSuccessWrongPayload": 12,
++    "fillerBoundaryCases": 30,
++    "fillerBoundaryMismatch": 0,
++    "commonRegression": "PASS_6_OF_6",
++    "taskCommonDiff": "EMPTY"
++  },
++  "auditOutputs": [
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/adapter_config.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frozen_config.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/noiseless_recovery_summary.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frame_pool_audit.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/multi_block_single_error_audit.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv",
++    "Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changes.patch"
++  ],
++  "forbiddenScope": {
++    "taskCommonModified": false,
++    "bch06Started": false,
++    "mainMerged": false
++  }
++}
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/multi_block_single_error_audit.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/multi_block_single_error_audit.csv
+new file mode 100644
+index 0000000..31fdef0
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/multi_block_single_error_audit.csv
+@@ -0,0 +1,9 @@
++caseName,caseId,errorCount,correctedBlocks,payloadWrongBlocks,payloadRecovered,pass
++BCH-S200,first_last,2,2,0,true,true
++BCH-S200,adjacent,2,2,0,true,true
++BCH-S200,three_spread,3,3,0,true,true
++BCH-S200,every_block_one,19,19,0,true,true
++BCH-S300,first_last,2,2,0,true,true
++BCH-S300,adjacent,2,2,0,true,true
++BCH-S300,three_spread,3,3,0,true,true
++BCH-S300,every_block_one,28,28,0,true,true
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/noiseless_recovery_summary.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/noiseless_recovery_summary.csv
+new file mode 100644
+index 0000000..e5e70b9
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/noiseless_recovery_summary.csv
+@@ -0,0 +1,6 @@
++metric,value
++syntheticNoiselessFrames,8
++poolFrames,200
++noiselessPayloadMismatch,0
++encodedLengthMismatch,0
++fillerMismatch,0
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv
+new file mode 100644
+index 0000000..ed42dcb
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/single_error_block_audit.csv
+@@ -0,0 +1,706 @@
++caseName,blockIndex,localPosition,globalPosition,status,correctedPosition,payloadRecovered,pass
++BCH-S200,0,0,0,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,0,1,1,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,0,2,2,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,0,3,3,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,0,4,4,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,0,5,5,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,0,6,6,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,0,7,7,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,0,8,8,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,0,9,9,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,0,10,10,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,0,11,11,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,0,12,12,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,0,13,13,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,0,14,14,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,1,0,15,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,1,1,16,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,1,2,17,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,1,3,18,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,1,4,19,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,1,5,20,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,1,6,21,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,1,7,22,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,1,8,23,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,1,9,24,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,1,10,25,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,1,11,26,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,1,12,27,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,1,13,28,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,1,14,29,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,2,0,30,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,2,1,31,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,2,2,32,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,2,3,33,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,2,4,34,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,2,5,35,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,2,6,36,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,2,7,37,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,2,8,38,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,2,9,39,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,2,10,40,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,2,11,41,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,2,12,42,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,2,13,43,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,2,14,44,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,3,0,45,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,3,1,46,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,3,2,47,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,3,3,48,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,3,4,49,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,3,5,50,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,3,6,51,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,3,7,52,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,3,8,53,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,3,9,54,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,3,10,55,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,3,11,56,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,3,12,57,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,3,13,58,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,3,14,59,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,4,0,60,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,4,1,61,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,4,2,62,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,4,3,63,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,4,4,64,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,4,5,65,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,4,6,66,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,4,7,67,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,4,8,68,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,4,9,69,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,4,10,70,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,4,11,71,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,4,12,72,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,4,13,73,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,4,14,74,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,5,0,75,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,5,1,76,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,5,2,77,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,5,3,78,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,5,4,79,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,5,5,80,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,5,6,81,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,5,7,82,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,5,8,83,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,5,9,84,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,5,10,85,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,5,11,86,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,5,12,87,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,5,13,88,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,5,14,89,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,6,0,90,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,6,1,91,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,6,2,92,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,6,3,93,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,6,4,94,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,6,5,95,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,6,6,96,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,6,7,97,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,6,8,98,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,6,9,99,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,6,10,100,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,6,11,101,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,6,12,102,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,6,13,103,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,6,14,104,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,7,0,105,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,7,1,106,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,7,2,107,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,7,3,108,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,7,4,109,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,7,5,110,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,7,6,111,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,7,7,112,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,7,8,113,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,7,9,114,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,7,10,115,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,7,11,116,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,7,12,117,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,7,13,118,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,7,14,119,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,8,0,120,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,8,1,121,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,8,2,122,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,8,3,123,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,8,4,124,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,8,5,125,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,8,6,126,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,8,7,127,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,8,8,128,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,8,9,129,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,8,10,130,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,8,11,131,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,8,12,132,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,8,13,133,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,8,14,134,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,9,0,135,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,9,1,136,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,9,2,137,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,9,3,138,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,9,4,139,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,9,5,140,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,9,6,141,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,9,7,142,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,9,8,143,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,9,9,144,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,9,10,145,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,9,11,146,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,9,12,147,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,9,13,148,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,9,14,149,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,10,0,150,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,10,1,151,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,10,2,152,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,10,3,153,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,10,4,154,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,10,5,155,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,10,6,156,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,10,7,157,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,10,8,158,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,10,9,159,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,10,10,160,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,10,11,161,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,10,12,162,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,10,13,163,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,10,14,164,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,11,0,165,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,11,1,166,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,11,2,167,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,11,3,168,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,11,4,169,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,11,5,170,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,11,6,171,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,11,7,172,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,11,8,173,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,11,9,174,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,11,10,175,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,11,11,176,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,11,12,177,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,11,13,178,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,11,14,179,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,12,0,180,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,12,1,181,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,12,2,182,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,12,3,183,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,12,4,184,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,12,5,185,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,12,6,186,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,12,7,187,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,12,8,188,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,12,9,189,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,12,10,190,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,12,11,191,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,12,12,192,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,12,13,193,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,12,14,194,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,13,0,195,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,13,1,196,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,13,2,197,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,13,3,198,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,13,4,199,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,13,5,200,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,13,6,201,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,13,7,202,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,13,8,203,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,13,9,204,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,13,10,205,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,13,11,206,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,13,12,207,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,13,13,208,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,13,14,209,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,14,0,210,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,14,1,211,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,14,2,212,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,14,3,213,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,14,4,214,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,14,5,215,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,14,6,216,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,14,7,217,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,14,8,218,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,14,9,219,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,14,10,220,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,14,11,221,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,14,12,222,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,14,13,223,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,14,14,224,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,15,0,225,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,15,1,226,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,15,2,227,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,15,3,228,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,15,4,229,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,15,5,230,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,15,6,231,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,15,7,232,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,15,8,233,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,15,9,234,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,15,10,235,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,15,11,236,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,15,12,237,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,15,13,238,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,15,14,239,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,16,0,240,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,16,1,241,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,16,2,242,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,16,3,243,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,16,4,244,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,16,5,245,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,16,6,246,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,16,7,247,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,16,8,248,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,16,9,249,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,16,10,250,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,16,11,251,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,16,12,252,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,16,13,253,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,16,14,254,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,17,0,255,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,17,1,256,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,17,2,257,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,17,3,258,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,17,4,259,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,17,5,260,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,17,6,261,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,17,7,262,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,17,8,263,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,17,9,264,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,17,10,265,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,17,11,266,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,17,12,267,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,17,13,268,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,17,14,269,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S200,18,0,270,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S200,18,1,271,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S200,18,2,272,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S200,18,3,273,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S200,18,4,274,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S200,18,5,275,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S200,18,6,276,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S200,18,7,277,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S200,18,8,278,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S200,18,9,279,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S200,18,10,280,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S200,18,11,281,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S200,18,12,282,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S200,18,13,283,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S200,18,14,284,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,0,0,0,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,0,1,1,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,0,2,2,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,0,3,3,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,0,4,4,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,0,5,5,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,0,6,6,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,0,7,7,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,0,8,8,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,0,9,9,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,0,10,10,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,0,11,11,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,0,12,12,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,0,13,13,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,0,14,14,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,1,0,15,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,1,1,16,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,1,2,17,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,1,3,18,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,1,4,19,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,1,5,20,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,1,6,21,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,1,7,22,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,1,8,23,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,1,9,24,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,1,10,25,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,1,11,26,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,1,12,27,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,1,13,28,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,1,14,29,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,2,0,30,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,2,1,31,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,2,2,32,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,2,3,33,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,2,4,34,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,2,5,35,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,2,6,36,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,2,7,37,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,2,8,38,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,2,9,39,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,2,10,40,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,2,11,41,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,2,12,42,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,2,13,43,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,2,14,44,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,3,0,45,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,3,1,46,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,3,2,47,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,3,3,48,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,3,4,49,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,3,5,50,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,3,6,51,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,3,7,52,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,3,8,53,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,3,9,54,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,3,10,55,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,3,11,56,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,3,12,57,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,3,13,58,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,3,14,59,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,4,0,60,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,4,1,61,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,4,2,62,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,4,3,63,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,4,4,64,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,4,5,65,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,4,6,66,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,4,7,67,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,4,8,68,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,4,9,69,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,4,10,70,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,4,11,71,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,4,12,72,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,4,13,73,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,4,14,74,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,5,0,75,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,5,1,76,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,5,2,77,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,5,3,78,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,5,4,79,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,5,5,80,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,5,6,81,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,5,7,82,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,5,8,83,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,5,9,84,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,5,10,85,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,5,11,86,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,5,12,87,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,5,13,88,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,5,14,89,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,6,0,90,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,6,1,91,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,6,2,92,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,6,3,93,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,6,4,94,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,6,5,95,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,6,6,96,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,6,7,97,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,6,8,98,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,6,9,99,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,6,10,100,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,6,11,101,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,6,12,102,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,6,13,103,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,6,14,104,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,7,0,105,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,7,1,106,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,7,2,107,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,7,3,108,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,7,4,109,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,7,5,110,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,7,6,111,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,7,7,112,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,7,8,113,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,7,9,114,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,7,10,115,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,7,11,116,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,7,12,117,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,7,13,118,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,7,14,119,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,8,0,120,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,8,1,121,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,8,2,122,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,8,3,123,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,8,4,124,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,8,5,125,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,8,6,126,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,8,7,127,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,8,8,128,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,8,9,129,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,8,10,130,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,8,11,131,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,8,12,132,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,8,13,133,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,8,14,134,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,9,0,135,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,9,1,136,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,9,2,137,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,9,3,138,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,9,4,139,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,9,5,140,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,9,6,141,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,9,7,142,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,9,8,143,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,9,9,144,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,9,10,145,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,9,11,146,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,9,12,147,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,9,13,148,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,9,14,149,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,10,0,150,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,10,1,151,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,10,2,152,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,10,3,153,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,10,4,154,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,10,5,155,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,10,6,156,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,10,7,157,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,10,8,158,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,10,9,159,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,10,10,160,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,10,11,161,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,10,12,162,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,10,13,163,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,10,14,164,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,11,0,165,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,11,1,166,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,11,2,167,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,11,3,168,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,11,4,169,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,11,5,170,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,11,6,171,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,11,7,172,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,11,8,173,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,11,9,174,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,11,10,175,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,11,11,176,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,11,12,177,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,11,13,178,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,11,14,179,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,12,0,180,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,12,1,181,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,12,2,182,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,12,3,183,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,12,4,184,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,12,5,185,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,12,6,186,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,12,7,187,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,12,8,188,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,12,9,189,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,12,10,190,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,12,11,191,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,12,12,192,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,12,13,193,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,12,14,194,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,13,0,195,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,13,1,196,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,13,2,197,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,13,3,198,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,13,4,199,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,13,5,200,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,13,6,201,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,13,7,202,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,13,8,203,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,13,9,204,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,13,10,205,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,13,11,206,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,13,12,207,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,13,13,208,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,13,14,209,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,14,0,210,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,14,1,211,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,14,2,212,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,14,3,213,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,14,4,214,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,14,5,215,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,14,6,216,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,14,7,217,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,14,8,218,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,14,9,219,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,14,10,220,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,14,11,221,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,14,12,222,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,14,13,223,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,14,14,224,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,15,0,225,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,15,1,226,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,15,2,227,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,15,3,228,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,15,4,229,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,15,5,230,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,15,6,231,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,15,7,232,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,15,8,233,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,15,9,234,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,15,10,235,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,15,11,236,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,15,12,237,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,15,13,238,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,15,14,239,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,16,0,240,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,16,1,241,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,16,2,242,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,16,3,243,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,16,4,244,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,16,5,245,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,16,6,246,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,16,7,247,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,16,8,248,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,16,9,249,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,16,10,250,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,16,11,251,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,16,12,252,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,16,13,253,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,16,14,254,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,17,0,255,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,17,1,256,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,17,2,257,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,17,3,258,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,17,4,259,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,17,5,260,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,17,6,261,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,17,7,262,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,17,8,263,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,17,9,264,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,17,10,265,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,17,11,266,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,17,12,267,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,17,13,268,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,17,14,269,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,18,0,270,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,18,1,271,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,18,2,272,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,18,3,273,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,18,4,274,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,18,5,275,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,18,6,276,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,18,7,277,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,18,8,278,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,18,9,279,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,18,10,280,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,18,11,281,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,18,12,282,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,18,13,283,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,18,14,284,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,19,0,285,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,19,1,286,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,19,2,287,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,19,3,288,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,19,4,289,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,19,5,290,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,19,6,291,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,19,7,292,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,19,8,293,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,19,9,294,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,19,10,295,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,19,11,296,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,19,12,297,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,19,13,298,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,19,14,299,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,20,0,300,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,20,1,301,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,20,2,302,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,20,3,303,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,20,4,304,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,20,5,305,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,20,6,306,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,20,7,307,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,20,8,308,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,20,9,309,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,20,10,310,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,20,11,311,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,20,12,312,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,20,13,313,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,20,14,314,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,21,0,315,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,21,1,316,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,21,2,317,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,21,3,318,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,21,4,319,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,21,5,320,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,21,6,321,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,21,7,322,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,21,8,323,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,21,9,324,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,21,10,325,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,21,11,326,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,21,12,327,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,21,13,328,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,21,14,329,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,22,0,330,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,22,1,331,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,22,2,332,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,22,3,333,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,22,4,334,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,22,5,335,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,22,6,336,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,22,7,337,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,22,8,338,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,22,9,339,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,22,10,340,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,22,11,341,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,22,12,342,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,22,13,343,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,22,14,344,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,23,0,345,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,23,1,346,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,23,2,347,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,23,3,348,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,23,4,349,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,23,5,350,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,23,6,351,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,23,7,352,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,23,8,353,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,23,9,354,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,23,10,355,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,23,11,356,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,23,12,357,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,23,13,358,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,23,14,359,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,24,0,360,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,24,1,361,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,24,2,362,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,24,3,363,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,24,4,364,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,24,5,365,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,24,6,366,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,24,7,367,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,24,8,368,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,24,9,369,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,24,10,370,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,24,11,371,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,24,12,372,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,24,13,373,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,24,14,374,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,25,0,375,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,25,1,376,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,25,2,377,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,25,3,378,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,25,4,379,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,25,5,380,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,25,6,381,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,25,7,382,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,25,8,383,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,25,9,384,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,25,10,385,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,25,11,386,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,25,12,387,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,25,13,388,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,25,14,389,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,26,0,390,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,26,1,391,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,26,2,392,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,26,3,393,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,26,4,394,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,26,5,395,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,26,6,396,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,26,7,397,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,26,8,398,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,26,9,399,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,26,10,400,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,26,11,401,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,26,12,402,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,26,13,403,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,26,14,404,CORRECTED_SINGLE_ERROR,14,true,true
++BCH-S300,27,0,405,CORRECTED_SINGLE_ERROR,0,true,true
++BCH-S300,27,1,406,CORRECTED_SINGLE_ERROR,1,true,true
++BCH-S300,27,2,407,CORRECTED_SINGLE_ERROR,2,true,true
++BCH-S300,27,3,408,CORRECTED_SINGLE_ERROR,3,true,true
++BCH-S300,27,4,409,CORRECTED_SINGLE_ERROR,4,true,true
++BCH-S300,27,5,410,CORRECTED_SINGLE_ERROR,5,true,true
++BCH-S300,27,6,411,CORRECTED_SINGLE_ERROR,6,true,true
++BCH-S300,27,7,412,CORRECTED_SINGLE_ERROR,7,true,true
++BCH-S300,27,8,413,CORRECTED_SINGLE_ERROR,8,true,true
++BCH-S300,27,9,414,CORRECTED_SINGLE_ERROR,9,true,true
++BCH-S300,27,10,415,CORRECTED_SINGLE_ERROR,10,true,true
++BCH-S300,27,11,416,CORRECTED_SINGLE_ERROR,11,true,true
++BCH-S300,27,12,417,CORRECTED_SINGLE_ERROR,12,true,true
++BCH-S300,27,13,418,CORRECTED_SINGLE_ERROR,13,true,true
++BCH-S300,27,14,419,CORRECTED_SINGLE_ERROR,14,true,true
 diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md
 new file mode 100644
-index 0000000..247c991
+index 0000000..eef790e
 --- /dev/null
 +++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,94 @@
 +# BCH-05 segmented adapter and recovery stage plan
 +
 +## Goal
@@ -773,17 +2161,20 @@ index 0000000..247c991
 +- BCH-S300 block 27 has local message positions `0..2` from `payload[297..299]`, and `3..10` filler.
 +- Recovery concatenates all BCH-04 decoded 11 bit messages and returns only `[0, payloadLength)`.
 +
-+If BCH-04 reports `POST_CHECK_FAILED` or `UNRECOGNIZED_SYNDROME`, BCH-05 still concatenates the returned BCH-04 information bits and preserves the failure status in block detail. Reported decoder success is not treated as truth recovery.
++If BCH-04 reports `POST_CHECK_FAILED` or `UNRECOGNIZED_SYNDROME`, BCH-05 still concatenates the returned BCH-04 information bits and preserves the failure status in block detail. Frame aggregation records `postCheckFailedBlocks` and `unrecognizedSyndromeBlocks` separately. `lookupMissBlocks` counts only nonzero syndromes that are not found; `NO_ERROR` (syndrome zero) is never a lookup miss.
++
++Truth is intentionally split into two layers. `paddedInformation*` compares every recovered 11-bit block with the padded encoder input, including last-block filler. `originalPayload*` compares only positions retained after payload recovery. Consequently, an error confined to terminal filler may be a padded-information mismatch while the original payload remains correct. A reported decoder success is audited separately against both truths.
 +
 +## Test matrix
 +
 +| class | coverage | required truth check |
 +|---|---|---|
 +| No error | zero, one, alternating, last-bit-one synthetic frames for S200/S300; Common pool frameIndex 0..99 for both pools | payload mismatch = 0 and all blocks NO_ERROR |
-+| Single block single error | S200 first 9 blocks x 15 positions; S300 first 8 blocks x 15 positions | corrected block, local/global position, corrected codeword, recovered payload |
++| Single block single error | every S200 block (19 x 15) and every S300 block (28 x 15), total 705 | corrected block, local/global position, corrected codeword, recovered payload |
 +| Multiple blocks, one error each | first+last, adjacent blocks, three spread blocks, and every block one error | recovered frame payload and corrected block count |
 +| Same block double error | two payload bits, payload+parity, two parity bits, payload+filler, two filler bits, filler+parity | status, codeword truth, block message truth, frame payload truth |
 +| Filler boundary | every local position of the last block for both cases | payload/filler/parity classification and recovered payload |
++| Failure status retention | one test-only corrupted table for `POST_CHECK_FAILED` and one for `UNRECOGNIZED_SYNDROME`, for each case | returned 11-bit information is concatenated, failure status is retained, and frame aggregation is exact |
 +| Negative inputs | wrong payload length, non-bit payload, wrong encoded length, non-bit received bits | explicit rejection |
 +
 +Error injection exists only in tests.
@@ -823,3 +2214,109 @@ index 0000000..247c991
 +- Common six binary regressions pass.
 +- `Task/Common` is not modified.
 +- no BCH-06, AWGN, BPSK, BM, Chien, interleaver, or BER/FER runner content is introduced.
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv
+new file mode 100644
+index 0000000..4b1db0f
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/test_summary.csv
+@@ -0,0 +1,19 @@
++metric,value
++syntheticNoiselessFrames,8
++poolFrames,200
++invalidInputFailures,0
++singleBlockSingleErrorCases,705
++singleBlockSingleErrorMismatch,0
++multiBlockSingleErrorCases,8
++multiBlockSingleErrorMismatch,0
++sameBlockDoubleErrorCases,12
++sameBlockDoubleRecoveredPayload,3
++reportedSuccessWrongBlockInformation,12
++reportedSuccessWrongOriginalPayload,9
++fillerOnlyInformationMismatch,3
++postCheckFailedStateRetentionCases,2
++postCheckFailedStateRetentionMismatch,0
++unrecognizedSyndromeStateRetentionCases,2
++unrecognizedSyndromeStateRetentionMismatch,0
++fillerBoundaryCases,30
++fillerBoundaryMismatch,0
+diff --git a/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/validation_report.md b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/validation_report.md
+new file mode 100644
+index 0000000..d5dcfe8
+--- /dev/null
++++ b/Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/validation_report.md
+@@ -0,0 +1,75 @@
++# BCH-05 validation report
++
++## Git and output isolation
++
++- Branch: `bch-05-segmented-adapter-recovery`
++- Start/base commit: `185f4bb704e7d582b0be86f560e8c3fcb98822c9`
++- Content commit: `196438a84fb6608adcd182c0bfdfe67c64b6ccc2`
++- Restored BCH-04 historical outputs:
++  - `double_error_audit.csv`
++  - `multi_error_seed_audit.csv`
++  - `no_error_summary.csv`
++  - `single_error_summary.csv`
++  - `status_summary.csv`
++  - `test_summary.csv`
++- BCH-04 hash before and after CTest:
++  - `c12bae2b06267fe98f15ee083b6021e9bae4157e`
++  - `fe2549846d407535cbc04f39f324c24329ad744d`
++  - `e6ebc9df57e997a40b6f2a95bc17ab376a32e303`
++  - `bd3bf09a3924aebf090463a1a9b6a404ee99c61c`
++  - `1c5f1ea93239da0b952ad4fb7031d4f5c07df79c`
++  - `dcb28f88ce48c5c63dab217a98a2afa39433f23e`
++- Output isolation: `PASS_BCH05_TEST_OUTPUT_ISOLATION`
++
++## Build and CTest
++
++- CMake configure: PASS
++- Build: PASS
++- CTest: PASS, 4/4
++  - `bch15_encoder`: PASS
++  - `bch15_syndrome_table`: PASS
++  - `bch15_lookup_decoder`: PASS
++  - `bch15_segmented_adapter`: PASS
++
++CTest output directory: `Task/BCH/segmented/build/bch05_adapter_recovery/test_outputs`
++
++## BCH-05 functional evidence
++
++- BCH-S200: payloadLength=200, blockCount=19, fillerBits=9, encodedLength=285, codeRate=200/285, last block=2 payload + 9 filler.
++- BCH-S300: payloadLength=300, blockCount=28, fillerBits=8, encodedLength=420, codeRate=300/420, last block=3 payload + 8 filler.
++- Synthetic noiseless frames: 8, payload mismatch=0.
++- Common pool frames: 200, payload mismatch=0.
++- Single block single-error audit: 255 cases, mismatch=0.
++- Multi-block single-error audit: 8 cases, mismatch=0.
++- Same-block double-error audit: 12 cases classified.
++- Same-block double-error payload recovered cases: 3.
++- Same-block double-error reported-success but block-truth-wrong cases: 12.
++- Filler boundary audit: 30 cases, mismatch=0.
++- Invalid input failures: 0.
++
++## Common regression
++
++All six Common binaries returned exit code 0:
++
++| program | exit code | result |
++|---|---:|---|
++| `Task/Common/build/stage04/test_common04_random_policy.exe` | 0 | PASS |
++| `Task/Common/build/stage04/test_common04_gaussian_noise.exe` | 0 | PASS |
++| `Task/Common/build/stage04/test_common04_modulation_awgn.exe` | 0 | PASS |
++| `Task/Common/build/stage04/test_common04_metrics_control.exe` | 0 | PASS |
++| `Task/Common/build/stage04/test_common04_checkpoint.exe` | 0 | PASS |
++| `Task/Common/build/stage04/test_common04_integration.exe` | 0 | PASS |
++
++## Scope checks
++
++- `git diff --check`: PASS.
++- `git diff --name-only main...HEAD -- Task/Common`: empty.
++- No BCH-06 implementation files were added.
++- No AWGN, BPSK, MATLAB validation, whole-frame BCH, BM, Chien, interleaver, or BER/FER runner was implemented in BCH-05.
++- `changes.patch`: real diff from base commit to content commit, reverse apply check PASS.
++
++## Gates
++
++- `functionalGate`: `PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY_FUNCTIONAL`
++- `auditGate`: `PASS_BCH05_AUDIT_FINALIZED`
++- `finalGate`: `PASS_BCH05_SEGMENTED_ADAPTER_RECOVERY`

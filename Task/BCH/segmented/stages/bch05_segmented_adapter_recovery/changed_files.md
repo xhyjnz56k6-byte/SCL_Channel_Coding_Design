@@ -4,7 +4,7 @@
 
 Base commit: `185f4bb704e7d582b0be86f560e8c3fcb98822c9`
 
-Content commit: `196438a84fb6608adcd182c0bfdfe67c64b6ccc2`
+Content commits: `196438a84fb6608adcd182c0bfdfe67c64b6ccc2`, `a6dcc72`
 
 Files:
 
@@ -15,6 +15,8 @@ Files:
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/acceptance_matrix.csv`
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/stage_plan.md`
 
+Repair commit `a6dcc72` adds full 705-case single-error coverage, separates padded-information and original-payload truth, corrects reported-success counters, excludes `NO_ERROR` from lookup misses, and audits failure-status retention.
+
 ## Audit range
 
 Audit files added after the content commit:
@@ -24,6 +26,7 @@ Audit files added after the content commit:
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/changed_files.md`
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/commands_used.md`
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/double_error_block_audit.csv`
+- `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/failure_status_retention_audit.csv`
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/filler_boundary_audit.csv`
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frame_pool_audit.csv`
 - `Task/BCH/segmented/stages/bch05_segmented_adapter_recovery/frozen_config.csv`
