@@ -33,3 +33,12 @@ python Task/BCH/block/scripts/run_bch_group3.py --all --matlab-command D:/Apps/M
 python Task/BCH/simulation/matlab_official_validation/scripts/run_bch16v.py --all --progress
 ```
 
+????????????
+```text
+python Task/BCH/simulation/matlab_official_validation/scripts/run_bch16v.py --plot-only
+python Task/BCH/simulation/matlab_official_validation/scripts/run_bch16v.py --audit-only
+git commit -m "BCH/???????????????"
+git push origin bch16v-matlab-official-awgn-validation
+python Task/BCH/simulation/matlab_official_validation/scripts/run_bch16v.py --audit-only
+```
+

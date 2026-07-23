@@ -4,7 +4,7 @@
   "branch": "bch16v-matlab-official-awgn-validation",
   "baseCommit": "ce7ba90b61c93e7f215009dc18ce1ea71628f8b4",
   "functionalCommit": "15ad64e",
-  "resultCommit": "c578efeaff695196fd4d9e5ac38ec1bbeefcbe64",
+  "resultCommit": "24866f55ab36a513cd23e3896fcecc1f657240ee",
   "cppFormalSourceCommit": "ce7ba90b61c93e7f215009dc18ce1ea71628f8b4",
   "cppFormalSummaryHash": "87e28f91254828adb1f6989d9ceecab25cf204d8e4f3ee38f4b9e5fb10666373",
   "sharedInputHash": "manifest-per-point-sha256",
@@ -67,41 +67,164 @@
         "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/shared_input_manifest.json",
         "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/target_fer_interpolation_compare.csv"
       ]
+    },
+    {
+      "name": "plotVisibilityRepair",
+      "baseCommit": "563f2193ae04621a431be2286c4c19adf8b21f70",
+      "contentCommit": "24866f55ab36a513cd23e3896fcecc1f657240ee",
+      "files": [
+        "Task/BCH/simulation/matlab_official_validation/scripts/plot_bch16v_cpp_vs_matlab.py",
+        "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/bch_b200_cpp_vs_matlab_ber.png",
+        "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/bch_b200_cpp_vs_matlab_fer.png",
+        "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/bch_s200_cpp_vs_matlab_ber.png",
+        "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/bch_s200_cpp_vs_matlab_fer.png",
+        "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/plot_manifest.json"
+      ]
     }
   ],
   "caseConfigs": {
-    "BCH-S200": {"payloadLength": 200, "encodedLength": 285, "frameRate": 0.7017543859649123, "points": 21, "processedFrames": 321435},
-    "BCH-B200": {"payloadLength": 200, "encodedLength": 248, "frameRate": 0.8064516129032258, "points": 14, "processedFrames": 253308, "primitivePolynomial": "0x11D"}
+    "BCH-S200": {
+      "payloadLength": 200,
+      "encodedLength": 285,
+      "frameRate": 0.7017543859649124,
+      "points": 21,
+      "processedFrames": 321435
+    },
+    "BCH-B200": {
+      "payloadLength": 200,
+      "encodedLength": 248,
+      "frameRate": 0.8064516129032258,
+      "points": 14,
+      "processedFrames": 253308,
+      "primitivePolynomial": "0x11D"
+    }
   },
   "snrGrids": {
-    "BCH-S200": [4.5, 4.7, 4.9, 5.1, 5.3, 5.5, 5.7, 5.9, 6.1, 6.3, 6.5, 6.7, 6.9, 7.1, 7.3, 7.5, 7.7, 7.9, 8.1, 8.3, 8.5],
-    "BCH-B200": [3.5, 3.7, 3.9, 4.1, 4.3, 4.5, 4.7, 4.9, 5.1, 5.3, 5.5, 5.7, 5.9, 6.0]
+    "BCH-S200": [
+      4.5,
+      4.7,
+      4.9,
+      5.1,
+      5.3,
+      5.5,
+      5.7,
+      5.9,
+      6.1,
+      6.3,
+      6.5,
+      6.7,
+      6.9,
+      7.1,
+      7.3,
+      7.5,
+      7.7,
+      7.9,
+      8.1,
+      8.3,
+      8.5
+    ],
+    "BCH-B200": [
+      3.5,
+      3.7,
+      3.9,
+      4.1,
+      4.3,
+      4.5,
+      4.7,
+      4.9,
+      5.1,
+      5.3,
+      5.5,
+      5.7,
+      5.9,
+      6.0
+    ]
   },
   "processedFramesByPoint": {
-    "BCH-S200": [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5380, 8129, 11728, 17566, 23186, 45446, 50000, 50000, 50000],
-    "BCH-B200": [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 9354, 16373, 37581, 50000, 50000, 50000]
+    "BCH-S200": [
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5380,
+      8129,
+      11728,
+      17566,
+      23186,
+      45446,
+      50000,
+      50000,
+      50000
+    ],
+    "BCH-B200": [
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      5000,
+      9354,
+      16373,
+      37581,
+      50000,
+      50000,
+      50000
+    ]
   },
   "matlabVersion": "24.2.0.2712019 (R2024b)",
   "toolboxVersion": "24.2",
-  "officialFunctionsUsed": ["bchgenpoly", "bchenc", "bchdec"],
-  "encodingMismatchCounts": {"frames": 0, "bits": 0},
-  "withinCapabilityMismatchCounts": {"frames": 0, "bits": 0},
-  "beyondCapabilityMismatchCounts": {"frames": 3},
-  "berDifferenceSummary": {"maxAbsolute": 4.000000000000531e-06, "maxBitCount": 4},
-  "ferDifferenceSummary": {"maxAbsolute": 0.0, "pairedDisagreement": 0},
-  "targetFerDifferenceSummary": {"maxBracketedEbN0DifferenceDb": 0.0, "s200Fer1e3": "NOT_BRACKETED"},
+  "officialFunctionsUsed": [
+    "bchgenpoly",
+    "bchenc",
+    "bchdec"
+  ],
+  "encodingMismatchCounts": {
+    "frames": 0,
+    "bits": 0
+  },
+  "withinCapabilityMismatchCounts": {
+    "frames": 0,
+    "bits": 0
+  },
+  "beyondCapabilityMismatchCounts": {
+    "frames": 3
+  },
+  "berDifferenceSummary": {
+    "maxAbsolute": 4.000000000000531e-06,
+    "maxBitCount": 4
+  },
+  "ferDifferenceSummary": {
+    "maxAbsolute": 0.0,
+    "pairedDisagreement": 0
+  },
+  "targetFerDifferenceSummary": {
+    "maxBracketedEbN0DifferenceDb": 0.0,
+    "s200Fer1e3": "NOT_BRACKETED"
+  },
   "pngCount": 4,
   "nonPngPlotArtifactCount": 0,
   "artifactHashes": {
     "matlabOfficialFormalSummary": "92bcfca2cae8e5e965f479c892e04f06c120e2ea7a3a8759e6f4482a9b1a7efd",
     "cppMatlabOfficialSummaryCompare": "6ff266c6ad9a88cfaaffca4b2ca50452dcf4ac7174096560f9a3e35a91195820",
-    "plotManifest": "c1a26bd19188941993d973e14e7d3b5264024aa256e692143ae93d0bbc2d7c6d",
-    "bchS200BerPng": "db33850616296d379ad189f7066581ea341a4aff5c032838f5360d724aa0cb54",
-    "bchS200FerPng": "1815be16f0c4790e0823cae9037ae2513a7c0d7a3997af3506a104202df86aec",
-    "bchB200BerPng": "7d224274b213f6e1ef862971a260977564d4069a7d1354e0a2c04b8475feb600",
-    "bchB200FerPng": "0011a915b2570efe8e35859d10ce91f70ff2571effe01a1733c0aa62c807f24d"
+    "plotManifest": "8dbf92c1ddfcc7f075a11f26b1d567c372eb46f11e4ab96bfa413126a76c4f89",
+    "bchS200BerPng": "feb8268e15b7542255ddfeb6e34c977a25cdc02debffc7820dd98b41c55b4917",
+    "bchS200FerPng": "8d2a02bd28755ba646f9d50e05cbd8bcf364a96d22c37cb89697ab53b9dc26a4",
+    "bchB200BerPng": "3cd6722afa5aea6fa049bcef2f55b67fe8a12c924380d27ca1e3aa1866367c7b",
+    "bchB200FerPng": "304b5be02f99a5e679441fa0b4e4570e5da6df5f072d24a39a73ce5b342c354c"
   },
   "remoteVerification": "VERIFIED_RESULT_COMMIT",
   "gateStatus": "PASS_BCH16V_MATLAB_OFFICIAL_AWGN_CURVE_REFERENCE",
-  "mergeStatus": "NOT_MERGED"
+  "mergeStatus": "NOT_MERGED",
+  "plotVisibilityRepairCommit": "24866f55ab36a513cd23e3896fcecc1f657240ee",
+  "plotVisibilityPolicy": "C++ and MATLAB Official use distinct colors, different line widths, hollow/filled markers, and an exact-overlap annotation for identical plot values."
 }

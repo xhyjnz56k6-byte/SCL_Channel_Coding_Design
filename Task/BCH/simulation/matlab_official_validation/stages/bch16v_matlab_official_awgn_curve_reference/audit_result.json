@@ -40,11 +40,11 @@
     "comparison/cpp_matlab_official_summary_compare.csv": "6ff266c6ad9a88cfaaffca4b2ca50452dcf4ac7174096560f9a3e35a91195820",
     "matlab_official/matlab_official_formal_summary.csv": "92bcfca2cae8e5e965f479c892e04f06c120e2ea7a3a8759e6f4482a9b1a7efd",
     "matlab_official/official_encoding_compare_summary.csv": "ae68324e31ab437575100f770123aed22af63bdece418e3d6f8b50878785ef17",
-    "figures/plot_manifest.json": "c1a26bd19188941993d973e14e7d3b5264024aa256e692143ae93d0bbc2d7c6d",
-    "figures/bch_b200_cpp_vs_matlab_ber.png": "7d224274b213f6e1ef862971a260977564d4069a7d1354e0a2c04b8475feb600",
-    "figures/bch_b200_cpp_vs_matlab_fer.png": "0011a915b2570efe8e35859d10ce91f70ff2571effe01a1733c0aa62c807f24d",
-    "figures/bch_s200_cpp_vs_matlab_ber.png": "db33850616296d379ad189f7066581ea341a4aff5c032838f5360d724aa0cb54",
-    "figures/bch_s200_cpp_vs_matlab_fer.png": "1815be16f0c4790e0823cae9037ae2513a7c0d7a3997af3506a104202df86aec"
+    "figures/plot_manifest.json": "8dbf92c1ddfcc7f075a11f26b1d567c372eb46f11e4ab96bfa413126a76c4f89",
+    "figures/bch_b200_cpp_vs_matlab_ber.png": "3cd6722afa5aea6fa049bcef2f55b67fe8a12c924380d27ca1e3aa1866367c7b",
+    "figures/bch_b200_cpp_vs_matlab_fer.png": "304b5be02f99a5e679441fa0b4e4570e5da6df5f072d24a39a73ce5b342c354c",
+    "figures/bch_s200_cpp_vs_matlab_ber.png": "feb8268e15b7542255ddfeb6e34c977a25cdc02debffc7820dd98b41c55b4917",
+    "figures/bch_s200_cpp_vs_matlab_fer.png": "8d2a02bd28755ba646f9d50e05cbd8bcf364a96d22c37cb89697ab53b9dc26a4"
   },
   "gateStatus": "PASS_BCH16V_MATLAB_OFFICIAL_AWGN_CURVE_REFERENCE"
 }

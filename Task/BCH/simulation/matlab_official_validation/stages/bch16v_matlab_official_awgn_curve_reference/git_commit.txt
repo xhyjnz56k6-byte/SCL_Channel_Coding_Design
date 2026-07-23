@@ -1,7 +1,7 @@
 baseCommit=ce7ba90b61c93e7f215009dc18ce1ea71628f8b4
 functionalCommit=15ad64e
 resultCommit=c578efeaff695196fd4d9e5ac38ec1bbeefcbe64
+plotVisibilityRepairCommit=24866f55ab36a513cd23e3896fcecc1f657240ee
 auditCommit=RECORDED_BY_GIT_HISTORY_TO_AVOID_SELF_REFERENCE
 branch=bch16v-matlab-official-awgn-validation
 mergeStatus=NOT_MERGED
-
