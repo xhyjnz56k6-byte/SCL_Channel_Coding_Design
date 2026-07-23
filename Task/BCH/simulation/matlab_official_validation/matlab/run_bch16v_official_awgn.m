@@ -38,11 +38,11 @@ summaryPath = fullfile(resultsDirectory,'matlab_official_formal_summary.csv');
 representativePath = fullfile(resultsDirectory,'official_representative_decode_summary.csv');
 pairedPath = fullfile(resultsDirectory,'paired_frame_error_contingency.csv');
 if ~resume || ~isfile(summaryPath)
-    writeText(summaryPath,['caseName,ebn0Db,snrIndex,processedFrames,processedPayloadBits,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,' ...
+    writeText(summaryPath,sprintf(['caseName,ebn0Db,snrIndex,processedFrames,processedPayloadBits,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,' ...
         'officialCnumerrNegativeFrames,officialReportedCorrectedFrames,inputArtifactHash,configHash,withinCapabilityMismatchFrames,withinCapabilityMismatchBits,' ...
-        'beyondCapabilityMismatchFrames,cppTrueSuccessMatlabFailure,cppFailureMatlabTrueSuccess,bothFrameErrorDifferentPayload,bothTrueSuccess,bothFrameError,sigma\n']);
-    writeText(representativePath,'caseName,ebn0Db,snrIndex,processedFrames,withinCapabilityFrames,beyondCapabilityFrames,withinCapabilityMismatchFrames,withinCapabilityMismatchBits,beyondCapabilityMismatchFrames,status\n');
-    writeText(pairedPath,'caseName,ebn0Db,snrIndex,bothTrueSuccess,cppTrueSuccessMatlabFailure,cppFailureMatlabTrueSuccess,bothFrameError,bothFrameErrorDifferentPayload,mcnemarDiscordant,status\n');
+        'beyondCapabilityMismatchFrames,cppTrueSuccessMatlabFailure,cppFailureMatlabTrueSuccess,bothFrameErrorDifferentPayload,bothTrueSuccess,bothFrameError,sigma\n']));
+    writeText(representativePath,sprintf('caseName,ebn0Db,snrIndex,processedFrames,withinCapabilityFrames,beyondCapabilityFrames,withinCapabilityMismatchFrames,withinCapabilityMismatchBits,beyondCapabilityMismatchFrames,status\n'));
+    writeText(pairedPath,sprintf('caseName,ebn0Db,snrIndex,bothTrueSuccess,cppTrueSuccessMatlabFailure,cppFailureMatlabTrueSuccess,bothFrameError,bothFrameErrorDifferentPayload,mcnemarDiscordant,status\n'));
 end
 completed = strings(0,1);
 if resume && isfile(summaryPath)
@@ -54,16 +54,25 @@ end
 
 fprintf('BCH-16V execution plan\n');
 fprintf('Cases: BCH-S200, BCH-B200\n');
-fprintf('SNR points: %d | total frames: %d\n',numel(inputManifest.points),sum([inputManifest.points.processedFrames]));
+selectedPointIndices = 1:numel(inputManifest.points);
+if isfield(config,'pointIndices')
+    selectedPointIndices = double(config.pointIndices(:)).';
+    if isempty(selectedPointIndices) || any(selectedPointIndices < 1) || any(selectedPointIndices > numel(inputManifest.points)) || any(mod(selectedPointIndices,1) ~= 0)
+        error('BCH16V:PointIndices','Invalid pointIndices');
+    end
+end
+selectedPoints = inputManifest.points(selectedPointIndices);
+fprintf('SNR points: %d | total frames: %d\n',numel(selectedPoints),sum([selectedPoints.processedFrames]));
 fprintf('MATLAB: %s | Communications Toolbox: %s\n',version,toolbox.Version);
 fprintf('Output: %s\n',resultsDirectory);
 fprintf('Progress: %s refresh %.1fs checkpoint %d frames\n',passFail(config.progressEnabled),config.progressRefreshSeconds,config.checkpointIntervalFrames);
 
-for pointIndex = 1:numel(inputManifest.points)
+for selectedIndex = 1:numel(selectedPointIndices)
+    pointIndex = selectedPointIndices(selectedIndex);
     point = inputManifest.points(pointIndex);
     key = string(point.caseName) + "|" + string(point.snrIndex);
     if any(completed == key), continue; end
-    fprintf('[%d/%d] Run MATLAB %s %.1f dB\n',pointIndex,numel(inputManifest.points),point.caseName,point.ebn0Db);
+    fprintf('[%d/%d] Run MATLAB %s %.1f dB\n',selectedIndex,numel(selectedPointIndices),point.caseName,point.ebn0Db);
     state = initialState(point,inputManifest,config,environment);
     checkpointPath = fullfile(resultsDirectory,'checkpoints',sprintf('%s_%03d.json',lower(strrep(point.caseName,'-','_')),point.snrIndex));
     if ~exist(fileparts(checkpointPath),'dir'), mkdir(fileparts(checkpointPath)); end
@@ -145,7 +154,7 @@ for pointIndex = 1:numel(inputManifest.points)
     appendRepresentative(representativePath,point,state);
     appendPaired(pairedPath,point,state);
 end
-fprintf('PASS_BCH16V_MATLAB_OFFICIAL_EXECUTION points=%d frames=%d\n',numel(inputManifest.points),sum([inputManifest.points.processedFrames]));
+fprintf('PASS_BCH16V_MATLAB_OFFICIAL_EXECUTION points=%d frames=%d\n',numel(selectedPoints),sum([selectedPoints.processedFrames]));
 end
 
 function validateOfficialEncoding(inputManifestPath,resultsDirectory)

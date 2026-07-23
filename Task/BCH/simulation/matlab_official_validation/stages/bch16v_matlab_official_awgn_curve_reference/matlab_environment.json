@@ -1,0 +1,14 @@
+{
+  "matlabVersion": "24.2.0.2712019 (R2024b)",
+  "computerArchitecture": "PCWIN64",
+  "communicationsToolboxInstalled": true,
+  "communicationsToolboxVersion": "24.2",
+  "bchgenpolyAvailable": true,
+  "bchencAvailable": true,
+  "bchdecAvailable": true,
+  "officialFunctionsUsed": [
+    "bchgenpoly",
+    "bchenc",
+    "bchdec"
+  ]
+}

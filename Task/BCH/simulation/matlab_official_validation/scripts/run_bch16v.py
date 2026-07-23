@@ -227,7 +227,9 @@ def main() -> int:
     if do_plot:
         print("[8/9] Plot four PNG figures")
         run([sys.executable, str(validation / "scripts/plot_bch16v_cpp_vs_matlab.py"),
-             "--compare", str(results / "comparison/cpp_matlab_official_summary_compare.csv"),
+             "--compare", str((results / "comparison/cpp_matlab_official_summary_compare.csv").relative_to(repo)),
+             "--cpp-source", str(formal.relative_to(repo)),
+             "--matlab-source", str((stage / "matlab_official_formal_summary.csv").relative_to(repo)),
              "--output-dir", str(results / "figures")], repo)
         if args.plot_only:
             return 0

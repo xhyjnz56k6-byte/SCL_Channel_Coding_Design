@@ -1,0 +1,86 @@
+[
+  {
+    "filename": "bch_s200_cpp_vs_matlab_ber.png",
+    "sourceCppCsv": "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv",
+    "sourceMatlabCsv": "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/matlab_official_formal_summary.csv",
+    "sourceCompareCsv": "Task/BCH/simulation/matlab_official_validation/results/comparison/cpp_matlab_official_summary_compare.csv",
+    "figureDataCsv": "figure_data_bch_s200_cpp_vs_matlab_ber.csv",
+    "sha256": "db33850616296d379ad189f7066581ea341a4aff5c032838f5360d724aa0cb54",
+    "dpi": 240,
+    "xColumn": "ebn0Db",
+    "yColumn": "BER",
+    "lineStyles": {
+      "cpp": "solid",
+      "matlabOfficial": "dashed"
+    },
+    "markers": {
+      "cpp": "circle",
+      "matlabOfficial": "square"
+    },
+    "matplotlibVersion": "3.10.7",
+    "zeroHandlingPolicy": "Jeffreys-style plotting position 0.5/n; raw zero retained and marked in figure data"
+  },
+  {
+    "filename": "bch_s200_cpp_vs_matlab_fer.png",
+    "sourceCppCsv": "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv",
+    "sourceMatlabCsv": "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/matlab_official_formal_summary.csv",
+    "sourceCompareCsv": "Task/BCH/simulation/matlab_official_validation/results/comparison/cpp_matlab_official_summary_compare.csv",
+    "figureDataCsv": "figure_data_bch_s200_cpp_vs_matlab_fer.csv",
+    "sha256": "1815be16f0c4790e0823cae9037ae2513a7c0d7a3997af3506a104202df86aec",
+    "dpi": 240,
+    "xColumn": "ebn0Db",
+    "yColumn": "FER",
+    "lineStyles": {
+      "cpp": "solid",
+      "matlabOfficial": "dashed"
+    },
+    "markers": {
+      "cpp": "circle",
+      "matlabOfficial": "square"
+    },
+    "matplotlibVersion": "3.10.7",
+    "zeroHandlingPolicy": "Jeffreys-style plotting position 0.5/n; raw zero retained and marked in figure data"
+  },
+  {
+    "filename": "bch_b200_cpp_vs_matlab_ber.png",
+    "sourceCppCsv": "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv",
+    "sourceMatlabCsv": "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/matlab_official_formal_summary.csv",
+    "sourceCompareCsv": "Task/BCH/simulation/matlab_official_validation/results/comparison/cpp_matlab_official_summary_compare.csv",
+    "figureDataCsv": "figure_data_bch_b200_cpp_vs_matlab_ber.csv",
+    "sha256": "7d224274b213f6e1ef862971a260977564d4069a7d1354e0a2c04b8475feb600",
+    "dpi": 240,
+    "xColumn": "ebn0Db",
+    "yColumn": "BER",
+    "lineStyles": {
+      "cpp": "solid",
+      "matlabOfficial": "dashed"
+    },
+    "markers": {
+      "cpp": "circle",
+      "matlabOfficial": "square"
+    },
+    "matplotlibVersion": "3.10.7",
+    "zeroHandlingPolicy": "Jeffreys-style plotting position 0.5/n; raw zero retained and marked in figure data"
+  },
+  {
+    "filename": "bch_b200_cpp_vs_matlab_fer.png",
+    "sourceCppCsv": "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv",
+    "sourceMatlabCsv": "Task/BCH/simulation/matlab_official_validation/stages/bch16v_matlab_official_awgn_curve_reference/matlab_official_formal_summary.csv",
+    "sourceCompareCsv": "Task/BCH/simulation/matlab_official_validation/results/comparison/cpp_matlab_official_summary_compare.csv",
+    "figureDataCsv": "figure_data_bch_b200_cpp_vs_matlab_fer.csv",
+    "sha256": "0011a915b2570efe8e35859d10ce91f70ff2571effe01a1733c0aa62c807f24d",
+    "dpi": 240,
+    "xColumn": "ebn0Db",
+    "yColumn": "FER",
+    "lineStyles": {
+      "cpp": "solid",
+      "matlabOfficial": "dashed"
+    },
+    "markers": {
+      "cpp": "circle",
+      "matlabOfficial": "square"
+    },
+    "matplotlibVersion": "3.10.7",
+    "zeroHandlingPolicy": "Jeffreys-style plotting position 0.5/n; raw zero retained and marked in figure data"
+  }
+]

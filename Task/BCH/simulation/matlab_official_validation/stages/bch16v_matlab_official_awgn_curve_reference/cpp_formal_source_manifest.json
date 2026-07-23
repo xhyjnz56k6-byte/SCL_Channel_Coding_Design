@@ -1,0 +1,10 @@
+{
+  "path": "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv",
+  "sha256": "87e28f91254828adb1f6989d9ceecab25cf204d8e4f3ee38f4b9e5fb10666373",
+  "sourceCommit": "ce7ba90b61c93e7f215009dc18ce1ea71628f8b4",
+  "casePointCount": 35,
+  "processedFrames": {
+    "BCH-S200": 321435,
+    "BCH-B200": 253308
+  }
+}

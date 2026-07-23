@@ -33,6 +33,8 @@ def sha256(path: Path) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--compare", required=True, type=Path)
+    parser.add_argument("--cpp-source", required=True, type=Path)
+    parser.add_argument("--matlab-source", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     args = parser.parse_args()
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -77,8 +79,9 @@ def main() -> int:
         plt.close(fig)
         manifest.append({
             "filename": filename,
-            "sourceCppCsv": str(args.compare),
-            "sourceMatlabCsv": str(args.compare),
+            "sourceCppCsv": args.cpp_source.as_posix(),
+            "sourceMatlabCsv": args.matlab_source.as_posix(),
+            "sourceCompareCsv": args.compare.as_posix(),
             "figureDataCsv": data_name,
             "sha256": sha256(output),
             "dpi": 240,
@@ -100,4 +103,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

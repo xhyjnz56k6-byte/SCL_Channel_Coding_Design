@@ -1,0 +1,7 @@
+/build/
+/build_mingw/
+/input/
+/results/
+/results_smoke*/
+__pycache__/
+*.pyc
