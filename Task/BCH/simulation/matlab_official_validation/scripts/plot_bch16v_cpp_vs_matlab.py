@@ -15,11 +15,16 @@ import matplotlib.pyplot as plt
 
 
 PLOTS = [
-    ("BCH-S200", "BER", "bch_s200_cpp_vs_matlab_ber.png", "#1f77b4"),
-    ("BCH-S200", "FER", "bch_s200_cpp_vs_matlab_fer.png", "#1f77b4"),
-    ("BCH-B200", "BER", "bch_b200_cpp_vs_matlab_ber.png", "#ff7f0e"),
-    ("BCH-B200", "FER", "bch_b200_cpp_vs_matlab_fer.png", "#ff7f0e"),
+    ("BCH-S200", "BER", "bch_s200_cpp_vs_matlab_ber.png"),
+    ("BCH-S200", "FER", "bch_s200_cpp_vs_matlab_fer.png"),
+    ("BCH-B200", "BER", "bch_b200_cpp_vs_matlab_ber.png"),
+    ("BCH-B200", "FER", "bch_b200_cpp_vs_matlab_fer.png"),
 ]
+
+CASE_COLORS = {
+    "BCH-S200": {"cpp": "#1f77b4", "matlabOfficial": "#d62728"},
+    "BCH-B200": {"cpp": "#ff7f0e", "matlabOfficial": "#2ca02c"},
+}
 
 
 def sha256(path: Path) -> str:
@@ -41,7 +46,7 @@ def main() -> int:
     with args.compare.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     manifest: list[dict[str, object]] = []
-    for case, metric, filename, color in PLOTS:
+    for case, metric, filename in PLOTS:
         selected = sorted((row for row in rows if row["caseName"] == case), key=lambda row: float(row["ebn0Db"]))
         frame_data: list[dict[str, object]] = []
         cpp_column, matlab_column = f"cpp{metric}", f"matlab{metric}"
@@ -65,14 +70,32 @@ def main() -> int:
         x = [float(row["ebn0Db"]) for row in frame_data]
         cpp_y = [float(row[f"cpp{metric}Plot"]) for row in frame_data]
         matlab_y = [float(row[f"matlab{metric}Plot"]) for row in frame_data]
+        colors = CASE_COLORS[case]
+        exact_plot_overlap = all(cpp == matlab for cpp, matlab in zip(cpp_y, matlab_y))
         fig, ax = plt.subplots(figsize=(7.2, 5.2))
-        ax.semilogy(x, cpp_y, color=color, linestyle="-", marker="o", label=f"C++ {case} {metric}")
-        ax.semilogy(x, matlab_y, color=color, linestyle="--", marker="s", label=f"MATLAB Official {case} {metric}")
+        ax.semilogy(
+            x, cpp_y,
+            color=colors["cpp"], linestyle="-", linewidth=2.4,
+            marker="o", markersize=6.8, markerfacecolor="white", markeredgewidth=1.8,
+            label=f"C++ {case} {metric}", zorder=3,
+        )
+        ax.semilogy(
+            x, matlab_y,
+            color=colors["matlabOfficial"], linestyle="--", linewidth=1.5,
+            marker="s", markersize=4.8, markerfacecolor=colors["matlabOfficial"], markeredgewidth=1.1,
+            label=f"MATLAB Official {case} {metric}", zorder=4,
+        )
         ax.set_xlabel("Payload Eb/N0 (dB)")
         ax.set_ylabel(metric)
         ax.set_title(f"{case} {metric}: C++ vs MATLAB Official")
         ax.grid(True, which="both", linestyle=":", alpha=0.65)
-        ax.legend()
+        if exact_plot_overlap:
+            ax.text(
+                0.02, 0.03, "C++ and MATLAB plot values overlap exactly",
+                transform=ax.transAxes, fontsize=8.5, color="#444444",
+                bbox={"facecolor": "white", "edgecolor": "#bbbbbb", "alpha": 0.86, "pad": 3.0},
+            )
+        ax.legend(framealpha=0.94)
         fig.tight_layout()
         output = args.output_dir / filename
         fig.savefig(output, dpi=240)
@@ -89,6 +112,12 @@ def main() -> int:
             "yColumn": metric,
             "lineStyles": {"cpp": "solid", "matlabOfficial": "dashed"},
             "markers": {"cpp": "circle", "matlabOfficial": "square"},
+            "colors": colors,
+            "visibilityPolicy": (
+                "C++ is drawn as a thicker solid hollow-circle line below a thinner dashed "
+                "MATLAB Official filled-square line in a distinct color so exact overlaps remain visible."
+            ),
+            "exactPlotOverlap": exact_plot_overlap,
             "matplotlibVersion": matplotlib.__version__,
             "zeroHandlingPolicy": "Jeffreys-style plotting position 0.5/n; raw zero retained and marked in figure data",
         })
