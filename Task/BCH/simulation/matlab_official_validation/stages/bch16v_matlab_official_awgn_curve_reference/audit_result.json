@@ -1,0 +1,50 @@
+{
+  "stage": "bch16v_matlab_official_awgn_curve_reference",
+  "checks": {
+    "configurationMismatch": 0,
+    "snrGridMismatch": 0,
+    "processedFramesMismatch": 0,
+    "payloadInputMismatch": 0,
+    "sharedNoiseInputMismatch": 0,
+    "sigmaMismatch": 0,
+    "officialParameterMismatch": 0,
+    "officialEncodingMismatchFrames": 0,
+    "officialEncodingMismatchBits": 0,
+    "withinCapabilityDecodedMismatchFrames": 0,
+    "withinCapabilityDecodedMismatchBits": 0,
+    "missingFormalPointCount": 0,
+    "duplicateFormalPointCount": 0,
+    "invalidMetricCount": 0,
+    "nanInfCount": 0,
+    "missingPngCount": 0,
+    "nonPngPlotArtifactCount": 0,
+    "plotDataMismatchCount": 0,
+    "mainBranchViolation": 0,
+    "branchMismatch": 0,
+    "functionalRangeMismatch": 0,
+    "forbiddenCommittedArtifactCount": 0,
+    "validationReportConflictTokenCount": 0,
+    "remoteResultCommitMissing": 0,
+    "mergeStatusMismatch": 0,
+    "changesPatchMismatch": 0
+  },
+  "casePointCount": 35,
+  "processedFrames": 574743,
+  "pngFiles": [
+    "bch_b200_cpp_vs_matlab_ber.png",
+    "bch_b200_cpp_vs_matlab_fer.png",
+    "bch_s200_cpp_vs_matlab_ber.png",
+    "bch_s200_cpp_vs_matlab_fer.png"
+  ],
+  "artifactHashes": {
+    "comparison/cpp_matlab_official_summary_compare.csv": "6ff266c6ad9a88cfaaffca4b2ca50452dcf4ac7174096560f9a3e35a91195820",
+    "matlab_official/matlab_official_formal_summary.csv": "92bcfca2cae8e5e965f479c892e04f06c120e2ea7a3a8759e6f4482a9b1a7efd",
+    "matlab_official/official_encoding_compare_summary.csv": "ae68324e31ab437575100f770123aed22af63bdece418e3d6f8b50878785ef17",
+    "figures/plot_manifest.json": "c1a26bd19188941993d973e14e7d3b5264024aa256e692143ae93d0bbc2d7c6d",
+    "figures/bch_b200_cpp_vs_matlab_ber.png": "7d224274b213f6e1ef862971a260977564d4069a7d1354e0a2c04b8475feb600",
+    "figures/bch_b200_cpp_vs_matlab_fer.png": "0011a915b2570efe8e35859d10ce91f70ff2571effe01a1733c0aa62c807f24d",
+    "figures/bch_s200_cpp_vs_matlab_ber.png": "db33850616296d379ad189f7066581ea341a4aff5c032838f5360d724aa0cb54",
+    "figures/bch_s200_cpp_vs_matlab_fer.png": "1815be16f0c4790e0823cae9037ae2513a7c0d7a3997af3506a104202df86aec"
+  },
+  "gateStatus": "PASS_BCH16V_MATLAB_OFFICIAL_AWGN_CURVE_REFERENCE"
+}

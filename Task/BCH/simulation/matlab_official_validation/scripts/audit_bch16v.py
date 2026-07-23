@@ -8,6 +8,7 @@ import csv
 import hashlib
 import json
 import math
+import subprocess
 from pathlib import Path
 
 
@@ -23,7 +24,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--results-dir", required=True, type=Path)
     parser.add_argument("--stage-dir", required=True, type=Path)
+    parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     args = parser.parse_args()
+    repo = args.repo_root.resolve()
     compare = args.results_dir / "comparison" / "cpp_matlab_official_summary_compare.csv"
     matlab = args.results_dir / "matlab_official" / "matlab_official_formal_summary.csv"
     encoding = args.results_dir / "matlab_official" / "official_encoding_compare_summary.csv"
@@ -63,6 +66,44 @@ def main() -> int:
         "nonPngPlotArtifactCount": len(non_png),
         "plotDataMismatchCount": 0,
     }
+    manifest_path = args.stage_dir / "manifest.json"
+    if not manifest_path.is_file():
+        raise SystemExit("BLOCKED_BCH16V_AUDIT_INCOMPLETE")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    branch = subprocess.check_output(["git", "branch", "--show-current"], cwd=repo, text=True).strip()
+    checks["mainBranchViolation"] = int(branch == "main")
+    checks["branchMismatch"] = int(branch != manifest["branch"])
+    checks["functionalRangeMismatch"] = 0
+    audited_files: set[str] = set()
+    for functional_range in manifest["functionalRanges"]:
+        actual = subprocess.check_output(
+            ["git", "-c", "core.fsmonitor=false", "diff", "--name-only",
+             functional_range["baseCommit"], functional_range["contentCommit"]],
+            cwd=repo, text=True).splitlines()
+        expected = functional_range["files"]
+        checks["functionalRangeMismatch"] += int(actual != expected)
+        audited_files.update(actual)
+    forbidden_parts = ("/build/", "/results/")
+    forbidden_suffixes = (".exe", ".obj", ".pdb")
+    checks["forbiddenCommittedArtifactCount"] = sum(
+        any(part in f"/{path.replace(chr(92), '/')}/" for part in forbidden_parts) or
+        path.lower().endswith(forbidden_suffixes) for path in audited_files)
+    report = (args.stage_dir / "validation_report.md").read_text(encoding="utf-8")
+    conflict_tokens = ("Pending", "to be run", "NOT_PUSHED", "TO_VERIFY_AFTER_PUSH")
+    checks["validationReportConflictTokenCount"] = sum(token in report for token in conflict_tokens)
+    remote_ref = f"origin/{manifest['branch']}"
+    remote_check = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", manifest["resultCommit"], remote_ref],
+        cwd=repo, check=False)
+    checks["remoteResultCommitMissing"] = int(remote_check.returncode != 0)
+    checks["mergeStatusMismatch"] = int(manifest.get("mergeStatus") != "NOT_MERGED")
+    expected_patch = subprocess.check_output(
+        ["git", "-c", "core.fsmonitor=false", "diff", manifest["baseCommit"], manifest["resultCommit"],
+         "--", "Task/BCH/simulation/matlab_official_validation"],
+        cwd=repo).decode("utf-8")
+    actual_patch = (args.stage_dir / "changes.patch").read_text(encoding="utf-8-sig")
+    normalize = lambda value: value.replace("\r\n", "\n").rstrip("\n")
+    checks["changesPatchMismatch"] = int(normalize(actual_patch) != normalize(expected_patch))
     gate = "PASS_BCH16V_MATLAB_OFFICIAL_AWGN_CURVE_REFERENCE" if all(value == 0 for value in checks.values()) else "BLOCKED_BCH16V_AUDIT_INCOMPLETE"
     audit = {
         "stage": "bch16v_matlab_official_awgn_curve_reference",

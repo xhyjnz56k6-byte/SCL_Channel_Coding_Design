@@ -1,0 +1,17 @@
+testGroup,testName,executed,result,detail
+BCH16V,Python syntax and dry-run,true,PASS,4 primary scripts plus parallel runner
+BCH16V,C++ shared input exporter build,true,PASS,MinGW Release target bch16v_export_shared_input
+BCH16V,MATLAB official encoding vectors,true,PASS,212 vectors 0 mismatch frames 0 mismatch bits
+BCH16V,MATLAB official endpoint smoke,true,PASS,35 points x 8 frames
+BCH16V,C++ frozen formal replay,true,PASS,35 points 574743 frames exact raw-counter replay
+BCH16V,MATLAB official formal curves,true,PASS,35 points 574743 frames
+BCH16V,paired comparison,true,PASS,within capability mismatch 0 paired frame disagreement 0
+BCH16V,plot audit,true,PASS,4 PNG 0 non-PNG
+Common,stage04 CTest,true,PASS,7/7
+BCH01-06,segmented CTest,true,PASS,14/14 selected stage tests
+BCH06,MATLAB reference,true,PASS,single block and segmented cross-check
+BCH07-10,block CTest,true,PASS,1/1 comprehensive block test
+BCH07-10,MATLAB/reference checkers,true,PASS,parameter GF pool detail illegal and toolbox codec
+BCHGroup4,current CTest,true,PASS,7/7
+BCH16V,final artifact audit,true,PASS,PASS_BCH16V_MATLAB_OFFICIAL_AWGN_CURVE_REFERENCE
+

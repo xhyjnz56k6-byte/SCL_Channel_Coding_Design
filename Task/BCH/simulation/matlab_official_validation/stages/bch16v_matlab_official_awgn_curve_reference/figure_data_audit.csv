@@ -1,0 +1,5 @@
+﻿"filename","figureDataCsv","pngHashExpected","pngHashActual","pngHashMatch","figureDataExists","status"
+"bch_s200_cpp_vs_matlab_ber.png","figure_data_bch_s200_cpp_vs_matlab_ber.csv","db33850616296d379ad189f7066581ea341a4aff5c032838f5360d724aa0cb54","db33850616296d379ad189f7066581ea341a4aff5c032838f5360d724aa0cb54","true","true","PASS"
+"bch_s200_cpp_vs_matlab_fer.png","figure_data_bch_s200_cpp_vs_matlab_fer.csv","1815be16f0c4790e0823cae9037ae2513a7c0d7a3997af3506a104202df86aec","1815be16f0c4790e0823cae9037ae2513a7c0d7a3997af3506a104202df86aec","true","true","PASS"
+"bch_b200_cpp_vs_matlab_ber.png","figure_data_bch_b200_cpp_vs_matlab_ber.csv","7d224274b213f6e1ef862971a260977564d4069a7d1354e0a2c04b8475feb600","7d224274b213f6e1ef862971a260977564d4069a7d1354e0a2c04b8475feb600","true","true","PASS"
+"bch_b200_cpp_vs_matlab_fer.png","figure_data_bch_b200_cpp_vs_matlab_fer.csv","0011a915b2570efe8e35859d10ce91f70ff2571effe01a1733c0aa62c807f24d","0011a915b2570efe8e35859d10ce91f70ff2571effe01a1733c0aa62c807f24d","true","true","PASS"
