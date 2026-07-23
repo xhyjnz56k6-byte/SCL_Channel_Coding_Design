@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "bch16v.config.v1",
+  "stage": "bch16v_matlab_official_awgn_curve_reference",
+  "configHash": "bch16v-config-v1-frozen",
+  "globalSeed": 2026072201,
+  "noisePolicyVersion": 1,
+  "payloadPolicyVersion": 1,
+  "payloadLength": 200,
+  "batchSize": 512,
+  "progressEnabled": true,
+  "progressRefreshSeconds": 2.0,
+  "checkpointIntervalFrames": 2048,
+  "resume": false,
+  "sigmaDefinition": "sqrt(1/(2*(payloadLength/encodedLength)*10^(payloadEbN0Db/10)))",
+  "bpskMapping": "0_to_plus_1__1_to_minus_1",
+  "hardDecision": "received_greater_equal_zero_to_0__received_less_zero_to_1",
+  "bitOrder": "lsb_first",
+  "byteOrder": "little_endian",
+  "primitivePolynomialB200": "0x11D",
+  "formalSummary": "Task/BCH/simulation/stages/bch15_awgn_formal/formal_summary.csv",
+  "framePoolManifest": "Task/BCH/simulation/results/frame_pools/formal_k200/k200/manifest.json",
+  "matlabFunctions": [
+    "bchgenpoly",
+    "bchenc",
+    "bchdec"
+  ]
+}

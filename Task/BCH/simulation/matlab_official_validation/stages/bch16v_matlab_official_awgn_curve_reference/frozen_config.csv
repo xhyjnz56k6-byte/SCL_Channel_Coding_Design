@@ -1,0 +1,4 @@
+caseName,payloadLength,segmentInformationLength,segmentCodewordLength,segmentCount,fillerLength,motherN,motherK,shorteningLength,encodedLength,frameRate,correctionCapability,snrGrid,globalSeed,noisePolicyVersion
+BCH-S200,200,11,15,19,9,,,,285,0.7017543859649123,1,4.5:0.2:8.5,2026072201,1
+BCH-B200,200,,,,,255,207,7,248,0.8064516129032258,6,3.5:0.2:5.9 plus 6.0,2026072201,1
+

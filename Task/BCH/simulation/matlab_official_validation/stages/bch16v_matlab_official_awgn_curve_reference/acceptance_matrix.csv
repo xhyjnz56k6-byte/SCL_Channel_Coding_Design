@@ -1,0 +1,11 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+正式配置唯一来源,configs/bch16v_official_awgn_config.json 与 BCH-15 formal_summary.csv,读取35个点和逐点帧数,缺点/重复点/网格变化,configurationMismatch=0且missingFormalPointCount=0
+相同中立输入,cpp/bch16v_export_shared_input.cpp,Common payload 与标准高斯 z 流式导出并校验hash,输入hash或正式重放计数变化,sharedNoiseInputMismatch=0
+MATLAB官方参数,matlab/run_bch16v_official_awgn.m,bchgenpoly(15 11)与bchgenpoly(255 207 0x11D),工具箱缺失或参数不符,officialParameterMismatch=0
+官方编码逐bit一致,matlab/official_encode_s200.m 与 official_encode_b200.m,212个固定/Common向量,任一bit翻转,officialEncodingMismatchBits=0
+保证范围译码一致,matlab/official_decode_s200.m 与 official_decode_b200.m,全部正式帧逐payload比较,范围内payload不同,withinCapabilityDecodedMismatchFrames=0
+完整正式曲线,matlab/run_bch16v_official_awgn.m,35点574743帧固定运行,提前停止或帧数变化,processedFramesMismatch=0
+统计比较,scripts/compare_cpp_matlab_official.py,Wilson区间/配对分歧/目标FER插值,无法映射的系统FER偏移,全部差异可追溯至超能力帧
+四张PNG,scripts/plot_bch16v_cpp_vs_matlab.py,PNG与figure data/hash复核,出现PDF/SVG/EPS/PS,missingPngCount=0且nonPngPlotArtifactCount=0
+最终审计,scripts/audit_bch16v.py,全字段/点数/hash/Gate检查,NaN/Inf/缺文件/重复点,PASS_BCH16V_MATLAB_OFFICIAL_AWGN_CURVE_REFERENCE
+
