@@ -1,0 +1,1187 @@
+diff --git a/Task/BCH/simulation/current/CMakeLists.txt b/Task/BCH/simulation/current/CMakeLists.txt
+index 2b4ab44..9e5b68a 100644
+--- a/Task/BCH/simulation/current/CMakeLists.txt
++++ b/Task/BCH/simulation/current/CMakeLists.txt
+@@ -20 +20,5 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../block/current" block_core)
+-add_library(bch_case_adapter src/bch_case_adapter.cpp src/bch_awgn_simulation.cpp)
++add_library(bch_case_adapter
++    src/bch_case_adapter.cpp
++    src/bch_awgn_simulation.cpp
++    src/bch_multipath_simulation.cpp
++    src/fixed_multipath_mmse.cpp)
+@@ -28,0 +33,2 @@ target_link_libraries(test_bch12_awgn PRIVATE bch_case_adapter)
++add_executable(test_bch_s2_mmse tests/test_bch_s2_mmse.cpp)
++target_link_libraries(test_bch_s2_mmse PRIVATE bch_case_adapter)
+@@ -30,0 +37,4 @@ target_link_libraries(bch_awgn_runner PRIVATE bch_case_adapter)
++add_executable(bch_multipath_runner src/bch_multipath_runner.cpp)
++target_link_libraries(bch_multipath_runner PRIVATE bch_case_adapter)
++add_executable(export_bch_s2_matlab_vectors tests/export_bch_s2_matlab_vectors.cpp)
++target_link_libraries(export_bch_s2_matlab_vectors PRIVATE bch_case_adapter)
+@@ -37,0 +48 @@ add_test(NAME bch12_awgn_unit COMMAND test_bch12_awgn)
++add_test(NAME bch_s2_mmse_unit COMMAND test_bch_s2_mmse)
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_multipath_simulation.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_multipath_simulation.hpp
+new file mode 100644
+index 0000000..030c703
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_multipath_simulation.hpp
+@@ -0,0 +1,72 @@
++#ifndef SCL_BCH_SIMULATION_BCH_MULTIPATH_SIMULATION_HPP
++#define SCL_BCH_SIMULATION_BCH_MULTIPATH_SIMULATION_HPP
++
++#include "bch_simulation/bch_case_adapter.hpp"
++#include "bch_simulation/fixed_multipath_mmse.hpp"
++
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++struct MultipathPointConfig {
++    std::string stage = "BCH_S2_04";
++    BchCaseId caseId = BchCaseId::S200;
++    double sourcePayloadEbN0Db = 0.0;
++    std::size_t snrIndex = 0U;
++    std::uint64_t frameStart = 0U;
++    std::uint64_t frameCount = 0U;
++    std::uint64_t globalSeed = 0U;
++    std::string framePoolManifest;
++    std::string outputDirectory;
++    bool progress = true;
++    double progressRefreshSeconds = 1.0;
++    bool writeFrameDetail = false;
++    bool adaptiveStop = false;
++    std::uint64_t minFrames = 0U;
++    std::uint64_t targetFrameErrors = 0U;
++    std::uint64_t maxFrames = 0U;
++    std::string checkpointPath;
++    std::uint64_t checkpointInterval = 0U;
++    bool resume = false;
++    std::uint64_t interruptAfterFrames = 0U;
++    std::uint64_t shardIndex = 0U;
++    std::uint64_t shardCount = 1U;
++};
++
++struct MultipathPointResult {
++    MultipathPointConfig config;
++    std::uint64_t processedFrames = 0U;
++    std::uint64_t processedPayloadBits = 0U;
++    std::uint64_t preEqualizationHardBitErrors = 0U;
++    std::uint64_t preEqualizationHardFrameErrors = 0U;
++    std::uint64_t postEqualizationHardBitErrors = 0U;
++    std::uint64_t postEqualizationHardFrameErrors = 0U;
++    std::uint64_t decodedBitErrors = 0U;
++    std::uint64_t decodedFrameErrors = 0U;
++    std::uint64_t trueSuccessFrames = 0U;
++    std::uint64_t reportedSuccessFrames = 0U;
++    std::uint64_t miscorrectedFrames = 0U;
++    std::uint64_t decoderFailureFrames = 0U;
++    double snrDb = 0.0;
++    double noiseSigma = 0.0;
++    double noiseVariance = 0.0;
++    double equalizerSetupTimeUs = 0.0;
++    double equalizationTimeUsSum = 0.0;
++    double decodeTimeUsSum = 0.0;
++    double totalReceiverTimeUsSum = 0.0;
++    std::vector<double> equalizationTimesUs;
++    std::vector<double> decodeTimesUs;
++    std::string stopReason = "CONTINUE";
++    std::string configHash;
++    std::uint64_t checkpointCount = 0U;
++    std::uint64_t resumeCount = 0U;
++};
++
++MultipathPointResult runMultipathPoint(const MultipathPointConfig& config);
++void writeMultipathPointSummary(const MultipathPointResult& result, const std::string& path);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/fixed_multipath_mmse.hpp b/Task/BCH/simulation/current/include/bch_simulation/fixed_multipath_mmse.hpp
+new file mode 100644
+index 0000000..9816e98
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/fixed_multipath_mmse.hpp
+@@ -0,0 +1,87 @@
++#ifndef SCL_BCH_SIMULATION_FIXED_MULTIPATH_MMSE_HPP
++#define SCL_BCH_SIMULATION_FIXED_MULTIPATH_MMSE_HPP
++
++#include "common/types.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++enum class BchChannelType { AwgnBaselineReference, FixedMultipathMmse };
++
++struct MmseConfig {
++    std::string equalizerType = "KNOWN_CHANNEL_LINEAR_MMSE";
++};
++
++struct MultipathChannelConfig {
++    std::vector<double> rawTaps{1.0, 0.65, 0.35};
++    std::vector<std::size_t> delays{0U, 1U, 3U};
++    std::vector<double> normalizedTaps;
++    bool normalizeToUnitEnergy = true;
++    bool receiverKnowsChannel = true;
++    MmseConfig mmse;
++};
++
++struct ChannelKey {
++    std::uint64_t globalSeed = 0U;
++    std::uint64_t noiseGroup = 0U;
++    std::uint64_t frameIndex = 0U;
++    std::uint64_t noisePolicyVersion = 1U;
++};
++
++struct ChannelDiagnostics {
++    double channelEnergy = 0.0;
++    double noiseVariance = 0.0;
++    std::size_t transmittedLength = 0U;
++    std::size_t observationLength = 0U;
++    std::string equalizerMethod;
++};
++
++struct ChannelOutput {
++    std::vector<double> fullConvolutionOutput;
++    std::vector<double> receivedSamples;
++    std::vector<double> equalizedSymbols;
++    common::BitVector preEqualizationHardBits;
++    common::BitVector hardBits;
++    std::vector<double> standardGaussianNoise;
++    double equalizationTimeUs = 0.0;
++    ChannelDiagnostics diagnostics;
++};
++
++MultipathChannelConfig frozenFixedMultipathConfig();
++double channelEnergy(const std::vector<double>& taps);
++
++class FixedMultipathMmseEqualizer {
++public:
++    FixedMultipathMmseEqualizer(std::size_t symbolCount,
++                                const MultipathChannelConfig& channelConfig,
++                                double noiseVariance);
++
++    ChannelOutput apply(const std::vector<double>& transmittedSymbols,
++                        const std::vector<double>& standardGaussianNoise) const;
++    std::size_t symbolCount() const;
++    std::size_t observationCount() const;
++    double setupTimeUs() const;
++
++private:
++    std::size_t symbolCount_ = 0U;
++    std::size_t maximumDelay_ = 0U;
++    std::size_t bandwidth_ = 0U;
++    MultipathChannelConfig config_;
++    double noiseVariance_ = 0.0;
++    double setupTimeUs_ = 0.0;
++    std::vector<std::vector<double>> choleskyLowerBand_;
++};
++
++ChannelOutput applyFixedMultipathMmse(
++    const std::vector<double>& transmittedSymbols,
++    const MultipathChannelConfig& channelConfig,
++    double noiseVariance,
++    const ChannelKey& key);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/src/bch_multipath_runner.cpp b/Task/BCH/simulation/current/src/bch_multipath_runner.cpp
+new file mode 100644
+index 0000000..abefb18
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_multipath_runner.cpp
+@@ -0,0 +1,89 @@
++#include "bch_simulation/bch_multipath_simulation.hpp"
++
++#include <filesystem>
++#include <iostream>
++#include <map>
++#include <stdexcept>
++#include <string>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++std::map<std::string, std::string> parse(int argc, char** argv) {
++    std::map<std::string, std::string> values;
++    for (int i = 1; i < argc; ++i) {
++        const std::string key(argv[i]);
++        if (key == "--progress" || key == "--no-progress" ||
++            key == "--detail" || key == "--resume") {
++            values[key] = "1";
++        } else {
++            if (key.rfind("--", 0U) != 0U || i + 1 >= argc) {
++                throw std::invalid_argument("invalid runner arguments");
++            }
++            values[key] = argv[++i];
++        }
++    }
++    return values;
++}
++
++std::string required(
++    const std::map<std::string, std::string>& values, const std::string& key) {
++    const auto found = values.find(key);
++    if (found == values.end()) throw std::invalid_argument("missing argument " + key);
++    return found->second;
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        const auto args = parse(argc, argv);
++        scl::bch::simulation::MultipathPointConfig config;
++        config.stage = required(args, "--stage");
++        config.caseId =
++            scl::bch::simulation::bchSimulationCase(required(args, "--case")).id;
++        config.sourcePayloadEbN0Db = std::stod(required(args, "--ebn0-db"));
++        config.snrIndex = std::stoull(required(args, "--snr-index"));
++        config.frameStart = std::stoull(required(args, "--frame-start"));
++        config.frameCount = std::stoull(required(args, "--frame-count"));
++        config.globalSeed = std::stoull(required(args, "--global-seed"));
++        config.framePoolManifest = required(args, "--frame-pool-manifest");
++        config.outputDirectory = required(args, "--output-dir");
++        config.progress = args.count("--no-progress") == 0U;
++        if (args.count("--progress-refresh-seconds")) {
++            config.progressRefreshSeconds =
++                std::stod(args.at("--progress-refresh-seconds"));
++        }
++        config.writeFrameDetail = args.count("--detail") != 0U;
++        if (args.count("--min-frames") || args.count("--target-frame-errors") ||
++            args.count("--max-frames")) {
++            config.adaptiveStop = true;
++            config.minFrames = std::stoull(required(args, "--min-frames"));
++            config.targetFrameErrors =
++                std::stoull(required(args, "--target-frame-errors"));
++            config.maxFrames = std::stoull(required(args, "--max-frames"));
++        }
++        if (args.count("--checkpoint")) config.checkpointPath = args.at("--checkpoint");
++        if (args.count("--checkpoint-interval")) {
++            config.checkpointInterval = std::stoull(args.at("--checkpoint-interval"));
++        }
++        config.resume = args.count("--resume") != 0U;
++        if (args.count("--interrupt-after-frames")) {
++            config.interruptAfterFrames =
++                std::stoull(args.at("--interrupt-after-frames"));
++        }
++        if (args.count("--shard-index")) config.shardIndex = std::stoull(args.at("--shard-index"));
++        if (args.count("--shard-count")) config.shardCount = std::stoull(args.at("--shard-count"));
++        const auto result = scl::bch::simulation::runMultipathPoint(config);
++        scl::bch::simulation::writeMultipathPointSummary(
++            result, (fs::path(config.outputDirectory) / "summary.csv").string());
++        std::cout << "PASS_" << config.stage << '_'
++                  << scl::bch::simulation::bchSimulationCase(config.caseId).caseName
++                  << '_' << config.snrIndex << '\n';
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_S2_MULTIPATH_RUNNER: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/current/src/bch_multipath_simulation.cpp b/Task/BCH/simulation/current/src/bch_multipath_simulation.cpp
+new file mode 100644
+index 0000000..011d3d9
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_multipath_simulation.cpp
+@@ -0,0 +1,339 @@
++#include "bch_simulation/bch_multipath_simulation.hpp"
++
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++#include "common/modulation.hpp"
++#include "common/checkpoint.hpp"
++#include "common/sha256.hpp"
++#include "common/simulation_control.hpp"
++#include "common/simulation_metrics.hpp"
++
++#include <algorithm>
++#include <chrono>
++#include <cmath>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <map>
++#include <sstream>
++#include <stdexcept>
++
++namespace fs = std::filesystem;
++
++namespace scl::bch::simulation {
++namespace {
++
++double percentile(std::vector<double> values, double fraction) {
++    if (values.empty()) return 0.0;
++    std::sort(values.begin(), values.end());
++    const double position = fraction * static_cast<double>(values.size() - 1U);
++    const std::size_t lower = static_cast<std::size_t>(position);
++    const std::size_t upper = std::min(lower + 1U, values.size() - 1U);
++    const double weight = position - static_cast<double>(lower);
++    return values[lower] * (1.0 - weight) + values[upper] * weight;
++}
++
++void validateAccounting(const MultipathPointResult& result,
++                        const BchSimulationCase& simulationCase) {
++    if (result.processedFrames != result.trueSuccessFrames + result.decodedFrameErrors ||
++        result.processedFrames != result.reportedSuccessFrames + result.decoderFailureFrames ||
++        result.miscorrectedFrames > result.reportedSuccessFrames ||
++        result.processedPayloadBits != result.processedFrames * simulationCase.payloadLength ||
++        result.preEqualizationHardBitErrors > result.processedFrames * simulationCase.encodedLength ||
++        result.postEqualizationHardBitErrors > result.processedFrames * simulationCase.encodedLength) {
++        throw std::logic_error("multipath result accounting mismatch");
++    }
++}
++
++void writeCheckpoint(const MultipathPointResult& result) {
++    if (result.config.checkpointPath.empty()) return;
++    const fs::path target(result.config.checkpointPath);
++    fs::create_directories(target.parent_path());
++    const fs::path temporary = target.string() + ".tmp";
++    std::ofstream out(temporary);
++    if (!out) throw std::runtime_error("failed to write multipath checkpoint");
++    out << "schemaVersion=bch.s2.multipath.checkpoint.v1\n"
++        << "configHash=" << result.configHash << '\n'
++        << "processedFrames=" << result.processedFrames << '\n'
++        << "processedPayloadBits=" << result.processedPayloadBits << '\n'
++        << "preEqualizationHardBitErrors=" << result.preEqualizationHardBitErrors << '\n'
++        << "preEqualizationHardFrameErrors=" << result.preEqualizationHardFrameErrors << '\n'
++        << "postEqualizationHardBitErrors=" << result.postEqualizationHardBitErrors << '\n'
++        << "postEqualizationHardFrameErrors=" << result.postEqualizationHardFrameErrors << '\n'
++        << "decodedBitErrors=" << result.decodedBitErrors << '\n'
++        << "decodedFrameErrors=" << result.decodedFrameErrors << '\n'
++        << "trueSuccessFrames=" << result.trueSuccessFrames << '\n'
++        << "reportedSuccessFrames=" << result.reportedSuccessFrames << '\n'
++        << "miscorrectedFrames=" << result.miscorrectedFrames << '\n'
++        << "decoderFailureFrames=" << result.decoderFailureFrames << '\n'
++        << "equalizationTimeUsSum=" << std::setprecision(17) << result.equalizationTimeUsSum << '\n'
++        << "decodeTimeUsSum=" << result.decodeTimeUsSum << '\n'
++        << "totalReceiverTimeUsSum=" << result.totalReceiverTimeUsSum << '\n'
++        << "checkpointCount=" << result.checkpointCount << '\n';
++    out.close();
++    if (fs::exists(target)) fs::remove(target);
++    fs::rename(temporary, target);
++}
++
++std::map<std::string, std::string> readKeyValues(const std::string& path) {
++    std::ifstream in(path);
++    if (!in) throw std::runtime_error("multipath checkpoint missing");
++    std::map<std::string, std::string> values;
++    for (std::string line; std::getline(in, line);) {
++        const auto separator = line.find('=');
++        if (separator != std::string::npos) values[line.substr(0U, separator)] = line.substr(separator + 1U);
++    }
++    return values;
++}
++
++void restoreCheckpoint(MultipathPointResult& result) {
++    const auto values = readKeyValues(result.config.checkpointPath);
++    if (values.at("schemaVersion") != "bch.s2.multipath.checkpoint.v1" ||
++        values.at("configHash") != result.configHash) {
++        throw std::invalid_argument("multipath checkpoint configuration mismatch");
++    }
++#define RESTORE_U64(field) result.field = std::stoull(values.at(#field))
++    RESTORE_U64(processedFrames);
++    RESTORE_U64(processedPayloadBits);
++    RESTORE_U64(preEqualizationHardBitErrors);
++    RESTORE_U64(preEqualizationHardFrameErrors);
++    RESTORE_U64(postEqualizationHardBitErrors);
++    RESTORE_U64(postEqualizationHardFrameErrors);
++    RESTORE_U64(decodedBitErrors);
++    RESTORE_U64(decodedFrameErrors);
++    RESTORE_U64(trueSuccessFrames);
++    RESTORE_U64(reportedSuccessFrames);
++    RESTORE_U64(miscorrectedFrames);
++    RESTORE_U64(decoderFailureFrames);
++    RESTORE_U64(checkpointCount);
++#undef RESTORE_U64
++    result.equalizationTimeUsSum = std::stod(values.at("equalizationTimeUsSum"));
++    result.decodeTimeUsSum = std::stod(values.at("decodeTimeUsSum"));
++    result.totalReceiverTimeUsSum = std::stod(values.at("totalReceiverTimeUsSum"));
++    result.resumeCount = 1U;
++}
++
++}  // namespace
++
++MultipathPointResult runMultipathPoint(const MultipathPointConfig& config) {
++    if (config.frameCount == 0U || config.framePoolManifest.empty() ||
++        config.outputDirectory.empty() || config.shardCount == 0U ||
++        config.shardIndex >= config.shardCount) {
++        throw std::invalid_argument("invalid multipath point configuration");
++    }
++    if (config.adaptiveStop) {
++        common::validateStopConfig(
++            {config.minFrames, config.maxFrames, config.targetFrameErrors, true});
++        if (config.maxFrames != config.frameCount) {
++            throw std::invalid_argument("multipath maxFrames must equal frameCount");
++        }
++    }
++    const auto& simulationCase = bchSimulationCase(config.caseId);
++    common::PackedFramePoolReader pool(config.framePoolManifest);
++    if (pool.payloadLength() != simulationCase.payloadLength ||
++        config.frameStart + config.frameCount > pool.frameCount()) {
++        throw std::invalid_argument("frame pool does not cover multipath point");
++    }
++    fs::create_directories(config.outputDirectory);
++    MultipathPointResult result;
++    result.config = config;
++    result.snrDb = config.sourcePayloadEbN0Db + 10.0 * std::log10(simulationCase.frameRate);
++    result.noiseVariance = 1.0 / (2.0 * std::pow(10.0, result.snrDb / 10.0));
++    result.noiseSigma = std::sqrt(result.noiseVariance);
++    const auto channel = frozenFixedMultipathConfig();
++    const std::string channelText = "raw=1,0.65,0.35;delays=0,1,3;energy=1;known=1;mmse=banded_cholesky";
++    const std::string stopText = "frames=" + std::to_string(config.frameCount) +
++        ";min=" + std::to_string(config.minFrames) +
++        ";target=" + std::to_string(config.targetFrameErrors);
++    result.configHash = common::computeConfigHash(common::canonicalConfigText(
++        simulationCase.caseName, simulationCase.payloadLength, simulationCase.encodedLength,
++        std::to_string(config.sourcePayloadEbN0Db), pool.framePoolId(),
++        "seed=" + std::to_string(config.globalSeed) + ";group=" +
++            std::to_string(simulationCase.payloadLength * 1000000ULL + config.snrIndex),
++        stopText, channelText + ";schema=bch.s2.multipath.result.v1"));
++    FixedMultipathMmseEqualizer equalizer(
++        simulationCase.encodedLength, channel, result.noiseVariance);
++    result.equalizerSetupTimeUs = equalizer.setupTimeUs();
++    result.equalizationTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    prepareBchCase(simulationCase);
++    if (config.resume) {
++        if (config.checkpointPath.empty()) throw std::invalid_argument("resume requires checkpoint");
++        restoreCheckpoint(result);
++        if (result.processedFrames > config.frameCount) throw std::invalid_argument("checkpoint beyond run");
++    }
++
++    std::ofstream detail;
++    if (config.writeFrameDetail) {
++        detail.open(fs::path(config.outputDirectory) / "frame_detail.csv");
++        detail << "caseName,sourcePayloadEbN0Db,snrDb,snrIndex,frameIndex,preHardBitErrors,postHardBitErrors,decodedBitErrors,trueSuccess,reportedSuccess,miscorrection,decoderFailure\n";
++    }
++    const auto runStart = std::chrono::steady_clock::now();
++    auto lastProgress = runStart;
++    const std::uint64_t noiseGroup =
++        simulationCase.payloadLength * 1000000ULL + config.snrIndex;
++    for (std::uint64_t offset = result.processedFrames; offset < config.frameCount; ++offset) {
++        const std::uint64_t frameIndex = config.frameStart + offset;
++        const auto payload = pool.readFrame(frameIndex).payloadBits;
++        const auto encoded = encodeBchFrame(simulationCase, payload);
++        const auto symbols = common::bpskModulate(encoded.codeword);
++        const auto noise = common::generateStandardGaussianFrame(
++            config.globalSeed, noiseGroup, frameIndex,
++            equalizer.observationCount(), 1U);
++        const auto receiverStart = std::chrono::steady_clock::now();
++        const auto channelOutput = equalizer.apply(symbols, noise);
++        const std::uint64_t preErrors =
++            common::countBitErrors(encoded.codeword, channelOutput.preEqualizationHardBits);
++        const std::uint64_t postErrors =
++            common::countBitErrors(encoded.codeword, channelOutput.hardBits);
++        const auto decodeStart = std::chrono::steady_clock::now();
++        auto decoded = decodeBchFrame(simulationCase, channelOutput.hardBits);
++        const auto decodeEnd = std::chrono::steady_clock::now();
++        auditDecodedBchFrame(payload, decoded);
++        const auto receiverEnd = std::chrono::steady_clock::now();
++        const std::uint64_t decodedErrors = common::countBitErrors(payload, decoded.payload);
++        const double decodeUs =
++            std::chrono::duration<double, std::micro>(decodeEnd - decodeStart).count();
++        const double receiverUs =
++            std::chrono::duration<double, std::micro>(receiverEnd - receiverStart).count();
++        ++result.processedFrames;
++        result.processedPayloadBits += simulationCase.payloadLength;
++        result.preEqualizationHardBitErrors += preErrors;
++        result.preEqualizationHardFrameErrors += preErrors != 0U;
++        result.postEqualizationHardBitErrors += postErrors;
++        result.postEqualizationHardFrameErrors += postErrors != 0U;
++        result.decodedBitErrors += decodedErrors;
++        result.decodedFrameErrors += decodedErrors != 0U;
++        result.trueSuccessFrames += decoded.trueSuccess;
++        result.reportedSuccessFrames += decoded.reportedSuccess;
++        result.miscorrectedFrames += decoded.miscorrected;
++        result.decoderFailureFrames += decoded.decoderFailure;
++        result.equalizationTimeUsSum += channelOutput.equalizationTimeUs;
++        result.decodeTimeUsSum += decodeUs;
++        result.totalReceiverTimeUsSum += receiverUs;
++        result.equalizationTimesUs.push_back(channelOutput.equalizationTimeUs);
++        result.decodeTimesUs.push_back(decodeUs);
++        if (detail) {
++            detail << simulationCase.caseName << ',' << config.sourcePayloadEbN0Db << ','
++                   << result.snrDb << ',' << config.snrIndex << ',' << frameIndex << ','
++                   << preErrors << ',' << postErrors << ',' << decodedErrors << ','
++                   << decoded.trueSuccess << ',' << decoded.reportedSuccess << ','
++                   << decoded.miscorrected << ',' << decoded.decoderFailure << '\n';
++        }
++        const auto now = std::chrono::steady_clock::now();
++        if (config.progress &&
++            (std::chrono::duration<double>(now - lastProgress).count() >=
++                 config.progressRefreshSeconds ||
++             result.processedFrames == config.frameCount)) {
++            lastProgress = now;
++            const double fer = static_cast<double>(result.decodedFrameErrors) /
++                               result.processedFrames;
++            const double elapsed =
++                std::chrono::duration<double>(now - runStart).count();
++            std::cerr << "[S2-04][" << simulationCase.caseName << "][Es/N0 "
++                      << result.snrDb << " dB] frames " << result.processedFrames
++                      << '/' << config.frameCount << " FE " << result.decodedFrameErrors
++                      << " FER " << std::scientific << fer << std::fixed
++                      << " speed " << static_cast<std::uint64_t>(
++                             result.processedFrames / std::max(1e-9, elapsed))
++                      << " frame/s checkpoint " << result.checkpointCount << '\r';
++        }
++        bool saved = false;
++        if (!config.checkpointPath.empty() && config.checkpointInterval > 0U &&
++            result.processedFrames % config.checkpointInterval == 0U) {
++            ++result.checkpointCount;
++            writeCheckpoint(result);
++            saved = true;
++        }
++        if (config.interruptAfterFrames > 0U &&
++            result.processedFrames >= config.interruptAfterFrames) {
++            result.stopReason = "INTERRUPTED_CHECKPOINT";
++            if (!saved && !config.checkpointPath.empty()) {
++                ++result.checkpointCount;
++                writeCheckpoint(result);
++            }
++            break;
++        }
++        if (config.adaptiveStop) {
++            common::ErrorMetrics metrics;
++            metrics.processedFrames = result.processedFrames;
++            metrics.frameErrors = result.decodedFrameErrors;
++            const auto decision = common::evaluateStop(
++                {config.minFrames, config.maxFrames,
++                 config.targetFrameErrors, true}, metrics);
++            if (decision.shouldStop) {
++                result.stopReason = decision.reason == "TARGET_FRAME_ERRORS"
++                    ? "TARGET_FRAME_ERRORS_REACHED" : "MAX_FRAMES_REACHED";
++                break;
++            }
++        }
++    }
++    if (result.stopReason == "CONTINUE") {
++        result.stopReason = config.adaptiveStop
++            ? "MAX_FRAMES_REACHED" : "FIXED_FRAMES_REACHED";
++    }
++    if (!config.checkpointPath.empty() &&
++        result.stopReason != "INTERRUPTED_CHECKPOINT") {
++        ++result.checkpointCount;
++        writeCheckpoint(result);
++    }
++    if (config.progress) std::cerr << '\n';
++    validateAccounting(result, simulationCase);
++    return result;
++}
++
++void writeMultipathPointSummary(
++    const MultipathPointResult& result, const std::string& path) {
++    const auto& value = bchSimulationCase(result.config.caseId);
++    const double frames = static_cast<double>(result.processedFrames);
++    const double payloadBits = static_cast<double>(result.processedPayloadBits);
++    const double encodedBits = frames * value.encodedLength;
++    const auto channel = frozenFixedMultipathConfig();
++    std::ofstream out(path);
++    if (!out) throw std::runtime_error("failed to open multipath summary");
++    out << "schemaVersion,runId,experimentName,channelType,channelProfileId,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,sourcePayloadEbN0Db,snrDb,noiseSigma,noiseVariance,rawTaps,normalizedTaps,delays,channelEnergy,equalizerType,receiverKnowsChannel,equalizerMethod,equalizerSetupTimeUs,processedFrames,processedPayloadBits,preEqualizationHardBitErrors,preEqualizationHardFrameErrors,postEqualizationHardBitErrors,postEqualizationHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,preEqualizationHardBER,postEqualizationHardBER,avgEqualizationTimeUs,p50EqualizationTimeUs,p95EqualizationTimeUs,p99EqualizationTimeUs,maxEqualizationTimeUs,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,avgTotalReceiverTimeUs,minFrames,targetFrameErrors,maxFrames,stopReason,checkpointCount,resumeCount,shardIndex,shardCount,configHash,gitCommit\n";
++    out << "bch.s2.multipath.result.v1,bch-s2-seed" << result.config.globalSeed
++        << ",fixed_multipath_mmse,FIXED_MULTIPATH_MMSE,fixed_1_065_035_d0_1_3,"
++        << value.caseName << ',' << organizationName(value.organization) << ','
++        << decoderTypeName(value.decoderType) << ',' << value.payloadLength << ','
++        << value.encodedLength << ',' << std::setprecision(17) << value.frameRate << ','
++        << result.config.sourcePayloadEbN0Db << ',' << result.snrDb << ','
++        << result.noiseSigma << ',' << result.noiseVariance
++        << ",\"1;0.65;0.35\",\"" << channel.normalizedTaps[0] << ';'
++        << channel.normalizedTaps[1] << ';' << channel.normalizedTaps[2]
++        << "\",\"0;1;3\"," << channelEnergy(channel.normalizedTaps)
++        << ",KNOWN_CHANNEL_LINEAR_MMSE,1,BANDED_CHOLESKY_NORMAL_EQUATIONS,"
++        << result.equalizerSetupTimeUs << ',' << result.processedFrames << ','
++        << result.processedPayloadBits << ',' << result.preEqualizationHardBitErrors
++        << ',' << result.preEqualizationHardFrameErrors << ','
++        << result.postEqualizationHardBitErrors << ','
++        << result.postEqualizationHardFrameErrors << ',' << result.decodedBitErrors
++        << ',' << result.decodedFrameErrors << ',' << result.decodedBitErrors / payloadBits
++        << ',' << result.decodedFrameErrors / frames << ',' << result.trueSuccessFrames
++        << ',' << result.trueSuccessFrames / frames << ',' << result.reportedSuccessFrames
++        << ',' << result.reportedSuccessFrames / frames << ',' << result.miscorrectedFrames
++        << ',' << result.miscorrectedFrames / frames << ',' << result.decoderFailureFrames
++        << ',' << result.decoderFailureFrames / frames << ','
++        << result.preEqualizationHardBitErrors / encodedBits << ','
++        << result.postEqualizationHardBitErrors / encodedBits << ','
++        << result.equalizationTimeUsSum / frames << ','
++        << percentile(result.equalizationTimesUs, 0.50) << ','
++        << percentile(result.equalizationTimesUs, 0.95) << ','
++        << percentile(result.equalizationTimesUs, 0.99) << ','
++        << (result.equalizationTimesUs.empty() ? 0.0 :
++            *std::max_element(result.equalizationTimesUs.begin(), result.equalizationTimesUs.end()))
++        << ',' << result.decodeTimeUsSum / frames << ','
++        << percentile(result.decodeTimesUs, 0.50) << ','
++        << percentile(result.decodeTimesUs, 0.95) << ','
++        << percentile(result.decodeTimesUs, 0.99) << ','
++        << (result.decodeTimesUs.empty() ? 0.0 :
++            *std::max_element(result.decodeTimesUs.begin(), result.decodeTimesUs.end()))
++        << ',' << result.totalReceiverTimeUsSum / frames << ',' << result.config.minFrames
++        << ',' << result.config.targetFrameErrors << ',' << result.config.maxFrames << ','
++        << result.stopReason << ',' << result.checkpointCount << ',' << result.resumeCount
++        << ',' << result.config.shardIndex << ',' << result.config.shardCount << ','
++        << result.configHash << ",WORKTREE\n";
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/src/fixed_multipath_mmse.cpp b/Task/BCH/simulation/current/src/fixed_multipath_mmse.cpp
+new file mode 100644
+index 0000000..98d47ee
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/fixed_multipath_mmse.cpp
+@@ -0,0 +1,204 @@
++#include "bch_simulation/fixed_multipath_mmse.hpp"
++
++#include "common/demodulation.hpp"
++#include "common/gaussian_noise.hpp"
++
++#include <algorithm>
++#include <chrono>
++#include <cmath>
++#include <limits>
++#include <stdexcept>
++
++namespace scl::bch::simulation {
++namespace {
++
++void validateConfig(const MultipathChannelConfig& config) {
++    if (config.rawTaps.empty() || config.rawTaps.size() != config.delays.size()) {
++        throw std::invalid_argument("multipath taps and delays must have equal nonzero size");
++    }
++    if (!config.receiverKnowsChannel || config.mmse.equalizerType != "KNOWN_CHANNEL_LINEAR_MMSE") {
++        throw std::invalid_argument("S2 requires a known-channel linear MMSE receiver");
++    }
++    for (std::size_t i = 0; i < config.delays.size(); ++i) {
++        if (!std::isfinite(config.rawTaps[i])) throw std::invalid_argument("non-finite multipath tap");
++        if (i > 0U && config.delays[i] <= config.delays[i - 1U]) {
++            throw std::invalid_argument("multipath delays must be strictly increasing");
++        }
++    }
++}
++
++std::vector<double> normalized(const MultipathChannelConfig& config) {
++    validateConfig(config);
++    std::vector<double> taps = config.rawTaps;
++    const double energy = channelEnergy(taps);
++    if (!(energy > 0.0) || !std::isfinite(energy)) throw std::invalid_argument("invalid channel energy");
++    if (config.normalizeToUnitEnergy) {
++        const double scale = std::sqrt(energy);
++        for (double& tap : taps) tap /= scale;
++    }
++    return taps;
++}
++
++double lowerValue(const std::vector<std::vector<double>>& band,
++                  std::size_t row, std::size_t column) {
++    if (row < column || row - column >= band[row].size()) return 0.0;
++    return band[row][row - column];
++}
++
++}  // namespace
++
++MultipathChannelConfig frozenFixedMultipathConfig() {
++    MultipathChannelConfig config;
++    config.normalizedTaps = normalized(config);
++    return config;
++}
++
++double channelEnergy(const std::vector<double>& taps) {
++    double value = 0.0;
++    for (double tap : taps) value += tap * tap;
++    return value;
++}
++
++FixedMultipathMmseEqualizer::FixedMultipathMmseEqualizer(
++    std::size_t symbolCount, const MultipathChannelConfig& channelConfig, double noiseVariance)
++    : symbolCount_(symbolCount), config_(channelConfig), noiseVariance_(noiseVariance) {
++    if (symbolCount_ == 0U || !std::isfinite(noiseVariance_) || noiseVariance_ < 0.0) {
++        throw std::invalid_argument("invalid MMSE dimensions or noise variance");
++    }
++    config_.normalizedTaps = normalized(config_);
++    maximumDelay_ = config_.delays.back();
++    bandwidth_ = maximumDelay_;
++    const auto setupStart = std::chrono::steady_clock::now();
++
++    std::vector<std::vector<double>> normal(
++        symbolCount_, std::vector<double>(bandwidth_ + 1U, 0.0));
++    for (std::size_t column = 0; column < symbolCount_; ++column) {
++        for (std::size_t a = 0; a < config_.normalizedTaps.size(); ++a) {
++            const std::size_t row = column + config_.delays[a];
++            for (std::size_t b = 0; b < config_.normalizedTaps.size(); ++b) {
++                if (row < config_.delays[b]) continue;
++                const std::size_t otherColumn = row - config_.delays[b];
++                if (otherColumn >= symbolCount_ || column < otherColumn ||
++                    column - otherColumn > bandwidth_) continue;
++                normal[column][column - otherColumn] +=
++                    config_.normalizedTaps[a] * config_.normalizedTaps[b];
++            }
++        }
++    }
++    for (std::size_t i = 0; i < symbolCount_; ++i) normal[i][0] += noiseVariance_;
++
++    choleskyLowerBand_.assign(
++        symbolCount_, std::vector<double>(bandwidth_ + 1U, 0.0));
++    for (std::size_t i = 0; i < symbolCount_; ++i) {
++        const std::size_t firstColumn = i > bandwidth_ ? i - bandwidth_ : 0U;
++        for (std::size_t j = firstColumn; j <= i; ++j) {
++            double value = normal[i][i - j];
++            const std::size_t firstK = std::max(
++                i > bandwidth_ ? i - bandwidth_ : 0U,
++                j > bandwidth_ ? j - bandwidth_ : 0U);
++            for (std::size_t k = firstK; k < j; ++k) {
++                value -= lowerValue(choleskyLowerBand_, i, k) *
++                         lowerValue(choleskyLowerBand_, j, k);
++            }
++            if (i == j) {
++                if (!(value > 0.0) || !std::isfinite(value)) {
++                    throw std::runtime_error("MMSE Cholesky factorization is not positive definite");
++                }
++                choleskyLowerBand_[i][0] = std::sqrt(value);
++            } else {
++                choleskyLowerBand_[i][i - j] =
++                    value / choleskyLowerBand_[j][0];
++            }
++        }
++    }
++    setupTimeUs_ = std::chrono::duration<double, std::micro>(
++        std::chrono::steady_clock::now() - setupStart).count();
++}
++
++ChannelOutput FixedMultipathMmseEqualizer::apply(
++    const std::vector<double>& transmittedSymbols,
++    const std::vector<double>& standardGaussianNoise) const {
++    if (transmittedSymbols.size() != symbolCount_ ||
++        standardGaussianNoise.size() != observationCount()) {
++        throw std::invalid_argument("MMSE input length mismatch");
++    }
++    ChannelOutput output;
++    output.fullConvolutionOutput.assign(observationCount(), 0.0);
++    output.receivedSamples.assign(observationCount(), 0.0);
++    output.standardGaussianNoise = standardGaussianNoise;
++    for (std::size_t i = 0; i < symbolCount_; ++i) {
++        if (!std::isfinite(transmittedSymbols[i])) throw std::invalid_argument("non-finite transmitted symbol");
++        for (std::size_t tap = 0; tap < config_.normalizedTaps.size(); ++tap) {
++            output.fullConvolutionOutput[i + config_.delays[tap]] +=
++                config_.normalizedTaps[tap] * transmittedSymbols[i];
++        }
++    }
++    const double sigma = std::sqrt(noiseVariance_);
++    for (std::size_t i = 0; i < observationCount(); ++i) {
++        if (!std::isfinite(standardGaussianNoise[i])) throw std::invalid_argument("non-finite Gaussian sample");
++        output.receivedSamples[i] =
++            output.fullConvolutionOutput[i] + sigma * standardGaussianNoise[i];
++    }
++    std::vector<double> pre(symbolCount_);
++    std::copy_n(output.receivedSamples.begin(), symbolCount_, pre.begin());
++    output.preEqualizationHardBits = common::hardDecision(pre);
++
++    const auto equalizationStart = std::chrono::steady_clock::now();
++    std::vector<double> rhs(symbolCount_, 0.0);
++    for (std::size_t i = 0; i < symbolCount_; ++i) {
++        for (std::size_t tap = 0; tap < config_.normalizedTaps.size(); ++tap) {
++            rhs[i] += config_.normalizedTaps[tap] *
++                      output.receivedSamples[i + config_.delays[tap]];
++        }
++    }
++    std::vector<double> forward(symbolCount_, 0.0);
++    for (std::size_t i = 0; i < symbolCount_; ++i) {
++        double value = rhs[i];
++        const std::size_t first = i > bandwidth_ ? i - bandwidth_ : 0U;
++        for (std::size_t j = first; j < i; ++j) {
++            value -= lowerValue(choleskyLowerBand_, i, j) * forward[j];
++        }
++        forward[i] = value / choleskyLowerBand_[i][0];
++    }
++    output.equalizedSymbols.assign(symbolCount_, 0.0);
++    for (std::size_t reverse = symbolCount_; reverse-- > 0U;) {
++        double value = forward[reverse];
++        const std::size_t last = std::min(symbolCount_ - 1U, reverse + bandwidth_);
++        for (std::size_t row = reverse + 1U; row <= last; ++row) {
++            value -= lowerValue(choleskyLowerBand_, row, reverse) *
++                     output.equalizedSymbols[row];
++        }
++        output.equalizedSymbols[reverse] =
++            value / choleskyLowerBand_[reverse][0];
++    }
++    output.equalizationTimeUs = std::chrono::duration<double, std::micro>(
++        std::chrono::steady_clock::now() - equalizationStart).count();
++    output.hardBits = common::hardDecision(output.equalizedSymbols);
++    output.diagnostics.channelEnergy = channelEnergy(config_.normalizedTaps);
++    output.diagnostics.noiseVariance = noiseVariance_;
++    output.diagnostics.transmittedLength = symbolCount_;
++    output.diagnostics.observationLength = observationCount();
++    output.diagnostics.equalizerMethod = "BANDED_CHOLESKY_NORMAL_EQUATIONS";
++    return output;
++}
++
++std::size_t FixedMultipathMmseEqualizer::symbolCount() const { return symbolCount_; }
++std::size_t FixedMultipathMmseEqualizer::observationCount() const {
++    return symbolCount_ + maximumDelay_;
++}
++double FixedMultipathMmseEqualizer::setupTimeUs() const { return setupTimeUs_; }
++
++ChannelOutput applyFixedMultipathMmse(
++    const std::vector<double>& transmittedSymbols,
++    const MultipathChannelConfig& channelConfig,
++    double noiseVariance,
++    const ChannelKey& key) {
++    FixedMultipathMmseEqualizer equalizer(
++        transmittedSymbols.size(), channelConfig, noiseVariance);
++    const auto noise = common::generateStandardGaussianFrame(
++        key.globalSeed, key.noiseGroup, key.frameIndex,
++        equalizer.observationCount(), key.noisePolicyVersion);
++    return equalizer.apply(transmittedSymbols, noise);
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/tests/export_bch_s2_matlab_vectors.cpp b/Task/BCH/simulation/current/tests/export_bch_s2_matlab_vectors.cpp
+new file mode 100644
+index 0000000..a211076
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/export_bch_s2_matlab_vectors.cpp
+@@ -0,0 +1,101 @@
++#include "bch_simulation/bch_case_adapter.hpp"
++#include "bch_simulation/fixed_multipath_mmse.hpp"
++
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++#include "common/modulation.hpp"
++#include "common/simulation_metrics.hpp"
++
++#include <cmath>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <sstream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++std::string bits(const scl::common::BitVector& values) {
++    std::string text;
++    text.reserve(values.size());
++    for (auto bit : values) text.push_back(bit ? '1' : '0');
++    return text;
++}
++
++std::string doubles(const std::vector<double>& values) {
++    std::ostringstream out;
++    out << std::setprecision(17);
++    for (std::size_t i = 0; i < values.size(); ++i) {
++        if (i) out << ';';
++        out << values[i];
++    }
++    return out.str();
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 4) {
++            throw std::invalid_argument("usage: exporter k200_manifest k300_manifest output_csv");
++        }
++        scl::common::PackedFramePoolReader pools[] = {
++            scl::common::PackedFramePoolReader(argv[1]),
++            scl::common::PackedFramePoolReader(argv[2]),
++        };
++        fs::create_directories(fs::path(argv[3]).parent_path());
++        std::ofstream out(argv[3]);
++        if (!out) throw std::runtime_error("failed to open MATLAB vector CSV");
++        out << "caseName,payloadLength,encodedLength,sourcePayloadEbN0Db,snrDb,noiseVariance,frameIndex,payloadBits,encodedBits,standardNoise,cppFullConvolution,cppReceivedSamples,cppEqualizedSymbols,cppHardBits,cppDecodedPayload,cppDecodedFrameError\n";
++        const auto channel = scl::bch::simulation::frozenFixedMultipathConfig();
++        for (const std::string caseName :
++             {"BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300", "BCH-B300-426"}) {
++            const auto& simulationCase =
++                scl::bch::simulation::bchSimulationCase(caseName);
++            auto& pool = pools[simulationCase.payloadLength == 200U ? 0 : 1];
++            scl::bch::simulation::prepareBchCase(simulationCase);
++            for (double ebn0 : {8.0, 10.0, 14.0}) {
++                const double snr =
++                    ebn0 + 10.0 * std::log10(simulationCase.frameRate);
++                const double variance = 1.0 / (2.0 * std::pow(10.0, snr / 10.0));
++                scl::bch::simulation::FixedMultipathMmseEqualizer equalizer(
++                    simulationCase.encodedLength, channel, variance);
++                const std::uint64_t snrIndex =
++                    static_cast<std::uint64_t>(std::llround(ebn0 * 10.0));
++                const std::uint64_t noiseGroup =
++                    simulationCase.payloadLength * 1000000ULL + snrIndex;
++                for (std::uint64_t frame = 0; frame < 100U; ++frame) {
++                    const auto payload = pool.readFrame(frame).payloadBits;
++                    const auto encoded =
++                        scl::bch::simulation::encodeBchFrame(simulationCase, payload);
++                    const auto noise = scl::common::generateStandardGaussianFrame(
++                        2026072401ULL, noiseGroup, frame,
++                        equalizer.observationCount(), 1U);
++                    const auto result = equalizer.apply(
++                        scl::common::bpskModulate(encoded.codeword), noise);
++                    auto decoded = scl::bch::simulation::decodeBchFrame(
++                        simulationCase, result.hardBits);
++                    scl::bch::simulation::auditDecodedBchFrame(payload, decoded);
++                    out << caseName << ',' << simulationCase.payloadLength << ','
++                        << simulationCase.encodedLength << ',' << std::setprecision(17)
++                        << ebn0 << ',' << snr << ',' << variance << ',' << frame << ','
++                        << bits(payload) << ',' << bits(encoded.codeword) << ",\""
++                        << doubles(noise) << "\",\"" << doubles(result.fullConvolutionOutput)
++                        << "\",\"" << doubles(result.receivedSamples) << "\",\""
++                        << doubles(result.equalizedSymbols) << "\"," << bits(result.hardBits)
++                        << ',' << bits(decoded.payload) << ',' << (!decoded.trueSuccess) << '\n';
++                }
++            }
++        }
++        std::cout << "PASS_BCH_S2_MATLAB_VECTOR_EXPORT rows=1500\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_S2_MATLAB_VECTOR_EXPORT: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/current/tests/test_bch_s2_mmse.cpp b/Task/BCH/simulation/current/tests/test_bch_s2_mmse.cpp
+new file mode 100644
+index 0000000..0a47646
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/test_bch_s2_mmse.cpp
+@@ -0,0 +1,71 @@
++#include "bch_simulation/fixed_multipath_mmse.hpp"
++
++#include "common/modulation.hpp"
++
++#include <cmath>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++namespace {
++
++void require(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++void checkPattern(const scl::common::BitVector& bits) {
++    const auto symbols = scl::common::bpskModulate(bits);
++    auto config = scl::bch::simulation::frozenFixedMultipathConfig();
++    scl::bch::simulation::FixedMultipathMmseEqualizer equalizer(bits.size(), config, 0.0);
++    const std::vector<double> zeroNoise(equalizer.observationCount(), 0.0);
++    const auto result = equalizer.apply(symbols, zeroNoise);
++    require(result.hardBits == bits, "noiseless multipath recovery mismatch");
++    require(result.equalizedSymbols.size() == bits.size(), "equalized length mismatch");
++    require(result.fullConvolutionOutput.size() == bits.size() + 3U, "full convolution tail missing");
++    require(std::isfinite(result.equalizationTimeUs), "non-finite equalization time");
++}
++
++}  // namespace
++
++int main() {
++    try {
++        const auto frozen = scl::bch::simulation::frozenFixedMultipathConfig();
++        require(std::abs(scl::bch::simulation::channelEnergy(frozen.rawTaps) - 1.545) < 1e-14,
++                "raw channel energy mismatch");
++        require(std::abs(scl::bch::simulation::channelEnergy(frozen.normalizedTaps) - 1.0) < 1e-14,
++                "normalized channel energy mismatch");
++        for (std::size_t length : {248U, 285U, 390U, 420U, 426U}) {
++            scl::common::BitVector zeros(length, 0U);
++            scl::common::BitVector ones(length, 1U);
++            scl::common::BitVector alternating(length, 0U);
++            for (std::size_t i = 0; i < length; ++i) alternating[i] = static_cast<std::uint8_t>(i & 1U);
++            checkPattern(zeros);
++            checkPattern(ones);
++            checkPattern(alternating);
++        }
++        auto identity = frozen;
++        identity.rawTaps = {1.0};
++        identity.delays = {0U};
++        identity.normalizedTaps = {1.0};
++        scl::common::BitVector bits{0U, 1U, 0U, 1U, 1U, 0U};
++        const auto symbols = scl::common::bpskModulate(bits);
++        scl::bch::simulation::FixedMultipathMmseEqualizer eq(bits.size(), identity, 0.25);
++        std::vector<double> noise(eq.observationCount(), 0.0);
++        const auto result = eq.apply(symbols, noise);
++        require(result.hardBits == bits, "identity MMSE hard decisions differ from AWGN");
++
++        bool rejected = false;
++        try {
++            noise[0] = std::numeric_limits<double>::quiet_NaN();
++            static_cast<void>(eq.apply(symbols, noise));
++        } catch (const std::invalid_argument&) {
++            rejected = true;
++        }
++        require(rejected, "NaN input was not rejected");
++        std::cout << "PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_S2_02_MMSE_TEST: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/s2_01_channel_contract/acceptance_matrix.csv b/Task/BCH/simulation/stages/s2_01_channel_contract/acceptance_matrix.csv
+new file mode 100644
+index 0000000..8a45c8d
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_01_channel_contract/acceptance_matrix.csv
+@@ -0,0 +1,8 @@
++需求,实现位置,正向测试,负向测试,Gate条件
++五Case冻结,stage_plan.md与bch_case_adapter.cpp,checker逐字段核对,任一长度码率或能力变化必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
++固定多径单位能量,frozen_config.csv与fixed_multipath_mmse.cpp,能量误差小于1e-14,未归一化taps不得进入formal,PASS_BCH_S2_01_CHANNEL_CONTRACT
++完整卷积与MMSE,stage_plan.md,五长度首尾和无噪声恢复,截断尾部或逐帧矩阵求逆必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
++物理SNR横轴,stage_plan.md与checker,逐点重算公式,只改标签或公式不符必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
++payload FER定义,stage_plan.md与runner,原始计数恒等式,parity/filler/shortening进入分母必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
++绘图规范,stage_plan.md与plot checker,PNG/figure-data/hash一致性,非PNG或零值伪造必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
++批次边界,stage_plan.md,禁止目录审计,进入S2-05至09必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
+diff --git a/Task/BCH/simulation/stages/s2_01_channel_contract/frozen_config.csv b/Task/BCH/simulation/stages/s2_01_channel_contract/frozen_config.csv
+new file mode 100644
+index 0000000..cc64117
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_01_channel_contract/frozen_config.csv
+@@ -0,0 +1,19 @@
++key,value,unit_or_semantics
++stage,S2-01 Channel Contract,
++caseNames,BCH-S200;BCH-B200;BCH-S300;BCH-B300;BCH-B300-426,
++rawTaps,1;0.65;0.35,linear amplitude
++delays,0;1;3,symbol
++rawChannelEnergy,1.545,linear energy
++normalizedTaps,0.80451798670912955;0.52293669136093424;0.28158129534819532,linear amplitude
++normalizedChannelEnergy,0.99999999999999989,linear energy
++equalizer,KNOWN_CHANNEL_LINEAR_MMSE,
++solver,BANDED_CHOLESKY_NORMAL_EQUATIONS,
++receiverKnowsChannel,true,
++xAxis,Es/N0,dB
++xTransform,snrDb=sourcePayloadEbN0Db+10*log10(frameRate),
++minFrames,5000,frame
++targetFrameErrors,200,frame error
++maxFrames,50000,frame
++awgnRerun,SKIPPED_BCH_S2_03_AWGN_RERUN,
++awgnReuse,REUSED_S1_FORMAL_AWGN_BASELINE,
++nextStagesExcluded,S2-05;S2-06;S2-07;S2-08;S2-09,
+diff --git a/Task/BCH/simulation/stages/s2_01_channel_contract/known_issues.md b/Task/BCH/simulation/stages/s2_01_channel_contract/known_issues.md
+new file mode 100644
+index 0000000..e92d884
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_01_channel_contract/known_issues.md
+@@ -0,0 +1,4 @@
++# Known issues
++
++- S2-01 只冻结合同；数值结果由依赖 Stage 生成。
++- 频偏、遮挡、突发错误和最终全信道 MATLAB 审计尚未运行。
+diff --git a/Task/BCH/simulation/stages/s2_01_channel_contract/stage_plan.md b/Task/BCH/simulation/stages/s2_01_channel_contract/stage_plan.md
+new file mode 100644
+index 0000000..3208e5f
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_01_channel_contract/stage_plan.md
+@@ -0,0 +1,63 @@
++# S2-01 Channel Contract
++
++## 目标
++
++冻结 BCH S2 第一批实验的五个 Case、固定多径、已知信道 MMSE、物理横轴、
++指标、停止规则、绘图规范和后续边界。
++
++## 非目标
++
++不研究其他多径 profile、ZF、信道估计误差、频偏、遮挡、突发错误、交织、
++卷积码、LDPC、软判决 BCH、自适应均衡、同步或导频。
++
++## 范围
++
++- 允许：`Task/BCH/simulation/current` 的多信道扩展、本 Stage 与 S2-02～04
++  的脚本、测试、审计摘要和小型结果。
++- 禁止：`Task/CC`、`Task/LDPC`、既有 BCH 数学核心、S1 正式 CSV、旧 Stage
++  和旧实验结果。
++
++## 五个 Case
++
++| Case | payload | encoded | rate | 组织 | 译码器 |
++|---|---:|---:|---:|---|---|
++| BCH-S200 | 200 | 285 | 200/285 | 19×BCH(15,11,1)，filler=9 | SYNDROME_LOOKUP |
++| BCH-B200 | 200 | 248 | 200/248 | BCH(255,207)，shortening=7，t=6 | BERLEKAMP_MASSEY_CHIEN |
++| BCH-S300 | 300 | 420 | 300/420 | 28×BCH(15,11,1)，filler=8 | SYNDROME_LOOKUP |
++| BCH-B300 | 300 | 390 | 300/390 | BCH(511,421)，shortening=121，t=10 | BERLEKAMP_MASSEY_CHIEN |
++| BCH-B300-426 | 300 | 426 | 300/426 | BCH(511,385)，shortening=85，t=14 | BERLEKAMP_MASSEY_CHIEN |
++
++## 信道与 MMSE
++
++原始 taps 为 `[1, 0.65, 0.35]`，delays 为 `[0,1,3]`。先除以
++`sqrt(1.545)` 做单位能量归一化。长度为 N 的发送块保留 N+3 个完整线性卷积
++观测。接收端理想已知信道，使用
++
++`(H^T H + sigma^2 I) x_hat = H^T y`
++
++的带状 Cholesky 求解；每个 Case-SNR 点构造和分解一次，逐帧复用，不计算通用
++矩阵逆。
++
++## 横轴和指标
++
++物理横轴为符号信噪比 `Es/N0 (dB)`：
++
++`snrDb = sourcePayloadEbN0Db + 10*log10(frameRate)`。
++
++FER 只比较最终恢复的 200 或 300 个 payload bit。BER、FER、真实/报告成功率、
++误纠率、译码失败率、MMSE 前后硬判决 BER 和接收处理时间均由原始计数计算。
++目标 FER 损失只允许在两条曲线都真实夹住目标时按 `log10(FER)` 线性插值；
++禁止外推。AWGN FER 为零时 FER 放大倍数记为无效。
++
++## 实验和绘图 Gate
++
++- enhanced smoke 取代独立 prescan，并负责识别 waterfall 和冻结 formal 网格。
++- formal：minFrames=5000，targetFrameErrors=200，maxFrames=50000。
++- 图只用 matplotlib Agg 输出 PNG；不平滑、不拟合、不伪造零点。
++- 每图必须有 figure-data CSV 和 `plot_manifest.json`，横轴换算可审计。
++- S2-03 不重跑 AWGN，状态必须为
++  `SKIPPED_BCH_S2_03_AWGN_RERUN` 和
++  `REUSED_S1_FORMAL_AWGN_BASELINE`。
++- 本批次止于 S2-04，不进入频偏、遮挡或突发错误。
++
++Gate：`PASS_BCH_S2_01_CHANNEL_CONTRACT`
+diff --git a/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/acceptance_matrix.csv b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/acceptance_matrix.csv
+new file mode 100644
+index 0000000..529b024
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/acceptance_matrix.csv
+@@ -0,0 +1,6 @@
++需求,实现位置,正向测试,负向测试,Gate条件
++单位能量归一化,current/src/fixed_multipath_mmse.cpp,bch_s2_mmse_unit能量核对,零能量或非有限tap拒绝,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
++完整卷积,current/src/fixed_multipath_mmse.cpp,五长度输出N+3,长度不符拒绝,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
++MMSE恢复,current/tests/test_bch_s2_mmse.cpp,全零全一交替及单径,NaN输入拒绝,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
++复杂度保护,current/src/fixed_multipath_mmse.cpp,setup与逐帧计时分离,逐帧通用矩阵逆不得存在,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
++公共链路回归,current/CMakeLists.txt,bch12_awgn_unit,既有AWGN单测失败即阻止,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
+diff --git a/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/frozen_config.csv b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/frozen_config.csv
+new file mode 100644
+index 0000000..612e35a
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/frozen_config.csv
+@@ -0,0 +1,2 @@
++rawTaps,delays,normalizedTaps,channelEnergy,equalizerType,solver,maximumEncodedLength
++1;0.65;0.35,0;1;3,0.80451798670912955;0.52293669136093424;0.28158129534819532,0.99999999999999989,KNOWN_CHANNEL_LINEAR_MMSE,BANDED_CHOLESKY_NORMAL_EQUATIONS,426
+diff --git a/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/known_issues.md b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/known_issues.md
+new file mode 100644
+index 0000000..4bc09e3
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/known_issues.md
+@@ -0,0 +1,4 @@
++# Known issues
++
++- 当前 profile 固定为一组 taps，不支持信道估计误差或自适应均衡。
++- 性能实验和 MATLAB 独立数值对照属于 S2-04。
+diff --git a/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/stage_plan.md b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/stage_plan.md
+new file mode 100644
+index 0000000..994a324
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_02_multi_channel_foundation/stage_plan.md
+@@ -0,0 +1,7 @@
++# S2-02 Multi-Channel Foundation
++
++实现固定单位能量多径、完整 N+3 线性卷积观测、确定性母噪声和已知信道线性
++MMSE。正规方程使用半带宽 3 的 Cholesky；分解按 Case-SNR 点缓存，逐帧复杂度
++为 O(N·bandwidth)，不做逐帧矩阵求逆。
++
++Gate：`PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION`

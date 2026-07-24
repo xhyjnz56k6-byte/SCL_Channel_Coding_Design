@@ -1,0 +1,4 @@
+test,actualResult,evidence
+S1 source/hash audit,PASS,awgn_baseline_sources.csv
+SNR conversion,PASS,awgn_baseline_snr_converted.csv
+AWGN formal rerun,SKIPPED,explicit reuse contract

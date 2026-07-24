@@ -1,0 +1,11 @@
+test,actualResult,evidence
+Release build,PASS,cmake --build
+bch11_common_noiseless,PASS,CTest
+bch12_awgn_unit,PASS,CTest
+bch_s2_mmse_unit,PASS,CTest
+segmented and block core regression,PASS,5 CTest cases
+Common stage04 regression,PASS,7/7 CTest
+BCH segmented BCH-01~06 regression,PASS,4/4 CTest
+BCH block Group-3 regression,PASS,1/1 CTest
+BCH-B300-426 core regression,PASS,1/1 CTest
+BCH16W9 timing/SNR audit,PASS,PASS_BCH16W9_FUNCTIONAL_GATE

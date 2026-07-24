@@ -1,0 +1,7 @@
+check,mismatchCount,status
+C++ vs MATLAB hard bits,0,PASS
+C++ vs MATLAB decoded payload,0,PASS
+C++ vs MATLAB frame error,0,PASS
+checkpoint/resume raw counters,0,PASS
+three-shard raw counters,0,PASS
+figure-data/hash,0,PASS
