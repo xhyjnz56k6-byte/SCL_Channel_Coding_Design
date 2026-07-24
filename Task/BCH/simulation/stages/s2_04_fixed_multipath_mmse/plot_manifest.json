@@ -1,0 +1,1181 @@
+{
+  "schemaVersion": "bch.s2.plot_manifest.v1",
+  "figures": [
+    {
+      "filename": "bch_s2_200bit_multipath_ber.png",
+      "title": "200比特BCH多径误码率对比",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_multipath_ber.csv",
+      "figureDataSha256": "517874f96afee34765bdacebd2f4f82063d7d7b0b1933f323f540281b11ff0e0",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "BER",
+      "yLabel": "误码率（BER）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "508f69ef9ff1ca24fddb292937e86b6032f94df18b611700c5a5c1375dbb2f10",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_multipath_fer.png",
+      "title": "200比特BCH多径误帧率对比",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_multipath_fer.csv",
+      "figureDataSha256": "ef0c48a2774be88d521180adce80efd22bab2d27bd5458b02b6d8d6ab19cd37d",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "FER",
+      "yLabel": "误帧率（FER）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "d79825dd2bce8668474aa282d9e7dcfe92e6ee0dc15a0721e9c344c65109090c",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_true_success.png",
+      "title": "200比特BCH真实译码成功率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_true_success.csv",
+      "figureDataSha256": "ede7c2c6c0389eae5ea7f1f2a6c469c86de4df65f302e363bacc2a6ed138b150",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "trueSuccessRate",
+      "yLabel": "真实译码成功率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "8fa8ad5f3acec480843aa54f006fb0dbbf1f459b48f11e384aa30ed26252d990",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_miscorrection.png",
+      "title": "200比特BCH误纠率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_miscorrection.csv",
+      "figureDataSha256": "629ff3007d248e988803fddb08507b45e6272463ff5ece1506d13e589a107769",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "miscorrectionRate",
+      "yLabel": "误纠率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "db6762420560633b68cfaf0b677026242f453c2018c196a9015622ba2177d059",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_decoder_failure.png",
+      "title": "200比特BCH译码器失败率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_decoder_failure.csv",
+      "figureDataSha256": "ed120cc431470ebf6ec35d7bf0b98adae8c8001613232509b3410406bfd37f8c",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "decoderFailureRate",
+      "yLabel": "译码器失败率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "b8e5604741fb1098fff43223da02f6a5ca75ca3abad75d9abdcb1f0d6583d523",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_equalization_time.png",
+      "title": "200比特BCHMMSE均衡时延",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_equalization_time.csv",
+      "figureDataSha256": "790e35437ad5086fe791a07cd23c55646b5595dee86b45467a2462afef7b4811",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "avgEqualizationTimeUs",
+      "yLabel": "平均均衡时延（μs）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "fcd4d4e0ecd5588b132f8607ea555f7009202bc3025b161a35e10b45cad5cc8f",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_decode_time.png",
+      "title": "200比特BCH译码时延",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_decode_time.csv",
+      "figureDataSha256": "615c20ed793c6b9590dbf8ad972bbb17f733f5e02e02b03b5b68bdef62f01833",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "avgDecodeTimeUs",
+      "yLabel": "平均译码时延（μs）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "fe58fa0b5ea965df2b17da2c99fc4f0ba43f0fbf77ed5b8add0d2d7df31dbe38",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_total_receiver_time.png",
+      "title": "200比特BCH接收处理时延",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_total_receiver_time.csv",
+      "figureDataSha256": "6cad5afe0de5c8c7befd9a1699219d10e075abaa04f6939e85902405346a9821",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "avgTotalReceiverTimeUs",
+      "yLabel": "平均接收处理时延（μs）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "dd45680e308dfe8a9bf0861c9e29c61d292ce835ea6dd8e3f463bb7aa01cfdf0",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_pre_post_mmse_hard_ber.png",
+      "title": "200比特BCHMMSE前后硬判决误码率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_pre_post_mmse_hard_ber.csv",
+      "figureDataSha256": "3a843e886044240e0b4296fc65488ccd46bce6cbf5361c0a987cc856d05518ea",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "hardBER",
+      "yLabel": "硬判决误码率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "6cc42235f2ea317ec4f6bea5cfaa48602f15c428af291cfafe998b270488959f",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_200bit_awgn_vs_multipath_fer.png",
+      "title": "200比特BCH多径与AWGN对比",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_200bit_awgn_vs_multipath_fer.csv",
+      "figureDataSha256": "1fdfcab491ec8254f200670cea886155738e7bd7e19cdd5c1c0fc52f8a28e73b",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "FER",
+      "yLabel": "误帧率（FER）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "9cbba435a027a50b70c494e9ed86a7d92ebcbf7dca312b54dbf523dec34b30b2",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_multipath_ber.png",
+      "title": "300比特BCH多径误码率对比",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_multipath_ber.csv",
+      "figureDataSha256": "60160ab40cb5e097cea2c6eaccce22dde2ceb4d4ff4ce5b133cbacbe680c638c",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "BER",
+      "yLabel": "误码率（BER）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "3a7a953ce00cd6ad15d6bf1af7bbc2c82069c73d2f85140121b4a19cab00dfc8",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_multipath_fer.png",
+      "title": "300比特BCH多径误帧率对比",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_multipath_fer.csv",
+      "figureDataSha256": "e1a7718dd6253294ddf6c9835df78d9299b2376a97a93867d61ff014f6cd972e",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "FER",
+      "yLabel": "误帧率（FER）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "74b3c1b55be10854919cb3de1122752d60ba89791b7bc7bf17c37df34d773d33",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_true_success.png",
+      "title": "300比特BCH真实译码成功率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_true_success.csv",
+      "figureDataSha256": "c08bef10265e1e3a3f5f424ac912a584daea7c0e57c3ddaaba239dea637eaa8b",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "trueSuccessRate",
+      "yLabel": "真实译码成功率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "d0378603f98c27f0897badc93122c9165cfeabe75787a68cb167ae8988de88b2",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_miscorrection.png",
+      "title": "300比特BCH误纠率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_miscorrection.csv",
+      "figureDataSha256": "d237326368894a0739114a984e104ab1b69ffb49247f194cde15f325955411e4",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "miscorrectionRate",
+      "yLabel": "误纠率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "c07475060a0f65553689605cacd01dc10d7a71e4eb62fffea27ad7103d53ce00",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_decoder_failure.png",
+      "title": "300比特BCH译码器失败率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_decoder_failure.csv",
+      "figureDataSha256": "4c6a1692034dd2a06f904c168828d3a6a0a24d982b93058acadcfccd5205c9d8",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "decoderFailureRate",
+      "yLabel": "译码器失败率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "fdc530d957650bf4336503e2dcd768f195ed08878b5018afe0c0e6515230f638",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_equalization_time.png",
+      "title": "300比特BCHMMSE均衡时延",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_equalization_time.csv",
+      "figureDataSha256": "be7751f7a12c7713576571ef367ffc7058284d29e3716bd4d90be0aefe859452",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "avgEqualizationTimeUs",
+      "yLabel": "平均均衡时延（μs）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "e81f571fd06d9e1385a9413b4df5ae7cad62a7ab10664433f91cb00a0a7f5a12",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_decode_time.png",
+      "title": "300比特BCH译码时延",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_decode_time.csv",
+      "figureDataSha256": "30f2813b0a8a4a07215e0c8c1496de71e02fa31fef9bbf92f14e34883fc40a99",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "avgDecodeTimeUs",
+      "yLabel": "平均译码时延（μs）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "2d22d3ebde274cf27736de3f740b8b3935023a9e1a332fd4292e86cfdb42ce09",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_total_receiver_time.png",
+      "title": "300比特BCH接收处理时延",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_total_receiver_time.csv",
+      "figureDataSha256": "9332d6158e1ededfa14462862e00db5640eae84f23758f3579150976f346724b",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "avgTotalReceiverTimeUs",
+      "yLabel": "平均接收处理时延（μs）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "30659666dd9c995a54e58c298ded96abedd4383b4a18c2cd03bb5e297e6c68ce",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_pre_post_mmse_hard_ber.png",
+      "title": "300比特BCHMMSE前后硬判决误码率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_pre_post_mmse_hard_ber.csv",
+      "figureDataSha256": "a76a1bb12c79bec0ae08a331139e5463a8fc2d0aba1171a6e2a6f629e84800de",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "hardBER",
+      "yLabel": "硬判决误码率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "0f60495ee5bd30215c95bec514e00729b8bdfbc63258bdc1f3fa86ebd579a365",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_300bit_awgn_vs_multipath_fer.png",
+      "title": "300比特BCH多径与AWGN对比",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
+      "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
+      "figureDataCsv": "figure_data_bch_s2_300bit_awgn_vs_multipath_fer.csv",
+      "figureDataSha256": "8e4175f2a1b8011ac416ddf8386277c235034cc4fae3c08e80ca82ab8b56407d",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "FER",
+      "yLabel": "误帧率（FER）",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "855155f8cb74de7a9267aff60b59b28c68022d7a970edb213a77555c9859f7a4",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_multipath_loss_at_target_fer.png",
+      "title": "BCH多径目标FER信噪比损失",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/multipath_loss_summary.csv",
+      "sourceCsvSha256": "06a1e96496afe5b7c99505b429906438e95c5870709cb5814e6b326307ea87ee",
+      "figureDataCsv": "figure_data_bch_s2_multipath_loss_at_target_fer.csv",
+      "figureDataSha256": "6ceaf84342215d49cfb7edba61df71d439a2f3080738b4c713a6b2a081517d07",
+      "xColumn": "caseName",
+      "xLabel": "BCH方案",
+      "xUnit": "case",
+      "yColumn": "multipathLossDb",
+      "yLabel": "多径损失（dB）",
+      "yUnit": "dB",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "26237061dee4d3461015e218ad23a239ac290bf7b2df7edcf7825245142bdd4d",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_multipath_fer_amplification.png",
+      "title": "BCH多径FER放大",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/fer_amplification_summary.csv",
+      "sourceCsvSha256": "252d4e93d03073d2f0f301f9bbb7ba02565bd4f7124acb7ba0ace2a7790ced61",
+      "figureDataCsv": "figure_data_bch_s2_multipath_fer_amplification.csv",
+      "figureDataSha256": "11b4eb04e3af91a9b41f4a50281299f14fbb5088e5b2ed4d680dd4113a7af3fc",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "ferAmplification",
+      "yLabel": "FER放大倍数",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "26657123d43a8d8e289f1b6da4b09d917639b0bfba67c4a58e920aad27430c0d",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_mmse_hard_ber_reduction.png",
+      "title": "BCH MMSE硬判决改善",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/mmse_hard_ber_summary.csv",
+      "sourceCsvSha256": "3ef6c4de3f387835c13c0a02006287125b96e8f143862ffd4ca687fcc226930a",
+      "figureDataCsv": "figure_data_bch_s2_mmse_hard_ber_reduction.csv",
+      "figureDataSha256": "3ef6c4de3f387835c13c0a02006287125b96e8f143862ffd4ca687fcc226930a",
+      "xColumn": "snrDb",
+      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xUnit": "dB",
+      "yColumn": "mmseHardBerReductionRatio",
+      "yLabel": "均衡后/均衡前硬判决BER",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "log",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "55c0501635dcf74d300ffd76dcb5064465f3933e990b67f36767293ff2025b95",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    },
+    {
+      "filename": "bch_s2_receiver_time_comparison.png",
+      "title": "BCH多径接收时延对比",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/timing_summary.csv",
+      "sourceCsvSha256": "6f56ce0d2bbdb0ad5a4ec87915ea5050f21350149410d8c485ec98ab3911c29e",
+      "figureDataCsv": "figure_data_bch_s2_receiver_time_comparison.csv",
+      "figureDataSha256": "6f56ce0d2bbdb0ad5a4ec87915ea5050f21350149410d8c485ec98ab3911c29e",
+      "xColumn": "caseName",
+      "xLabel": "BCH方案",
+      "xUnit": "case",
+      "yColumn": "avgTotalReceiverTimeUs",
+      "yLabel": "平均时延（μs）",
+      "yUnit": "μs",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "caseStyles": {
+        "BCH-S200": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-B200": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-S300": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-B300": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        }
+      },
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "pngSha256": "5efb28bcc0cc66cfdbe74f30f0571d9d87cda6e230eafceedc9835356c0ca2e2",
+      "generatedBy": "plot_bch_s2_multipath.py",
+      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+    }
+  ]
+}
