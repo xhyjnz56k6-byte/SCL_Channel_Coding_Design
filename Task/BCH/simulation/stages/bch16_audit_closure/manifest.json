@@ -1,0 +1,9 @@
+{
+  "stage": "bch16_audit_closure",
+  "branch": "bch-b300-426-formal-comparison",
+  "baseCommit": "481ea6bd6eeeea04c8661ffd8e92981684739907",
+  "functionalRanges": [{"name": "bch300426_batch", "baseCommit": "481ea6bd6eeeea04c8661ffd8e92981684739907", "contentCommit": "6265b37", "files": ["Task/BCH/block/current", "Task/BCH/simulation/current", "Task/BCH/simulation/matlab_official_validation/matlab/run_bch16w3_official_codec.m", "Task/BCH/simulation/stages/bch16w1_bch511_385_core", "Task/BCH/simulation/stages/bch16w2_bch426_300_codec", "Task/BCH/simulation/stages/bch16w3_matlab_official_codec", "Task/BCH/simulation/stages/bch16w5_awgn_prescan", "Task/BCH/simulation/stages/bch16w6_formal_awgn", "Task/BCH/simulation/stages/bch16w8_five_case_comparison"]}],
+  "gates": {"W1": "PASS", "W2": "PASS", "W3": "PASS", "W5": "PASS", "W6": "PASS", "W7": "NOT_RUN", "W8": "PASS", "overall": "PASS_WITH_KNOWN_LIMITATION"},
+  "mergeStatus": "NOT_MERGED",
+  "remoteStatus": "origin/bch-b300-426-formal-comparison"
+}
