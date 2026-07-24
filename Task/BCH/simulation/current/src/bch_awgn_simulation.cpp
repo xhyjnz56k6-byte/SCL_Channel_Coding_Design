@@ -236,10 +236,13 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
             throw std::invalid_argument("adaptive maxFrames must equal requested frameCount");
         }
     }
-    const std::string stopText = "min=" + std::to_string(result.config.minFrames) +
+    std::string stopText = "min=" + std::to_string(result.config.minFrames) +
         ";target=" + std::to_string(result.config.targetFrameErrors) +
         ";max=" + std::to_string(result.config.maxFrames) +
         ";logicalFrames=" + std::to_string(result.config.logicalFrameCount);
+    if (result.config.timingWarmupFrames > 0U) {
+        stopText += ";timingWarmupFrames=" + std::to_string(result.config.timingWarmupFrames);
+    }
     const std::string noiseId = "seed=" + std::to_string(result.config.globalSeed) +
         ";policy=" + std::to_string(kBchNoisePolicyVersion) +
         ";group=" + std::to_string(pairedNoiseGroupId(simulationCase.payloadLength, result.config.snrIndex));
@@ -251,6 +254,20 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
     result.noiseVariance = result.noiseSigma * result.noiseSigma;
     result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
     const std::uint64_t noiseGroup = pairedNoiseGroupId(simulationCase.payloadLength, config.snrIndex);
+    prepareBchCase(simulationCase);
+
+    for (std::uint64_t warmup = 0U; warmup < config.timingWarmupFrames; ++warmup) {
+        const common::FrameIndex frameIndex =
+            config.frameStart + (warmup % config.frameCount);
+        const auto payload = pool.readFrame(frameIndex).payloadBits;
+        const auto encoded = encodeBchFrame(simulationCase, payload);
+        const auto standardNoise = common::generateStandardGaussianFrame(
+            config.globalSeed, noiseGroup, frameIndex, simulationCase.encodedLength,
+            kBchNoisePolicyVersion);
+        const auto received = common::applyAwgn(
+            common::bpskModulate(encoded.codeword), standardNoise, result.noiseSigma);
+        static_cast<void>(decodeBchFrame(simulationCase, common::hardDecision(received)));
+    }
 
     if (config.resume) {
         if (config.checkpointPath.empty()) throw std::invalid_argument("resume requires checkpoint path");

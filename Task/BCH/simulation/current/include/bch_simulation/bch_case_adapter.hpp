@@ -49,6 +49,7 @@ struct DecodedBchFrame {
 
 const BchSimulationCase& bchSimulationCase(BchCaseId id);
 const BchSimulationCase& bchSimulationCase(const std::string& caseName);
+void prepareBchCase(const BchSimulationCase& simulationCase);
 EncodedBchFrame encodeBchFrame(const BchSimulationCase& simulationCase,
                                const common::BitVector& payload);
 DecodedBchFrame decodeBchFrame(const BchSimulationCase& simulationCase,

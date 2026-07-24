@@ -1,0 +1,17 @@
+key,value
+stage,bch16w9_decode_timing_snr_figures
+snrDefinition,Es/N0 for one coded bit per unit-energy BPSK symbol
+snrFormulaDb,snrDb=ebn0Db+10*log10(payloadLength/encodedLength)
+snrToleranceDb,1e-12
+timingCases,BCH-S200|BCH-B200|BCH-S300|BCH-B300|BCH-B300-426
+timingBuildType,Release
+timingWarmupFramesPerPoint,500
+timingFramesPerPoint,5000
+timingRepetitions,3
+timingPublishedStatistic,median of repetition means
+figureDpi,240
+figureFormat,PNG
+xLabel,SNR（dB）
+berYLabel,误码率（BER）
+ferYLabel,误帧率（FER）
+timingYLabel,平均译码时延（μs）

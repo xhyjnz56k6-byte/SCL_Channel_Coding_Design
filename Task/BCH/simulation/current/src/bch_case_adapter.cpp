@@ -35,11 +35,25 @@ void validateCase(const BchSimulationCase& value) {
     }
 }
 
-block::BlockBchProfile blockProfile(BchCaseId id) {
-    if (id == BchCaseId::B200) return block::makeB200Profile();
-    if (id == BchCaseId::B300) return block::makeB300Profile();
-    if (id == BchCaseId::B300_426) return block::makeB300426Profile();
+const block::BlockBchProfile& blockProfile(BchCaseId id) {
+    if (id == BchCaseId::B200) {
+        static const block::BlockBchProfile profile = block::makeB200Profile();
+        return profile;
+    }
+    if (id == BchCaseId::B300) {
+        static const block::BlockBchProfile profile = block::makeB300Profile();
+        return profile;
+    }
+    if (id == BchCaseId::B300_426) {
+        static const block::BlockBchProfile profile = block::makeB300426Profile();
+        return profile;
+    }
     throw std::invalid_argument("segmented case has no whole-block profile");
+}
+
+const segmented::SyndromeTable& segmentedSyndromeTable() {
+    static const segmented::SyndromeTable table = segmented::buildBch15SyndromeTable();
+    return table;
 }
 
 segmented::Bch15SegmentedCase segmentedCase(BchCaseId id) {
@@ -73,6 +87,15 @@ const BchSimulationCase& bchSimulationCase(const std::string& name) {
     throw std::invalid_argument("unsupported BCH case name");
 }
 
+void prepareBchCase(const BchSimulationCase& simulationCase) {
+    validateCase(simulationCase);
+    if (simulationCase.organization == BchOrganization::Segmented) {
+        static_cast<void>(segmentedSyndromeTable());
+    } else {
+        static_cast<void>(blockProfile(simulationCase.id));
+    }
+}
+
 EncodedBchFrame encodeBchFrame(const BchSimulationCase& simulationCase,
                                const common::BitVector& payload) {
     validateCase(simulationCase);
@@ -102,8 +125,8 @@ DecodedBchFrame decodeBchFrame(const BchSimulationCase& simulationCase,
     common::validateBits(receivedCodeword, "BCH simulation received codeword");
     DecodedBchFrame result;
     if (simulationCase.organization == BchOrganization::Segmented) {
-        static const segmented::SyndromeTable table = segmented::buildBch15SyndromeTable();
-        const auto decoded = segmented::decodeBch15Segmented(segmentedCase(simulationCase.id), receivedCodeword, table);
+        const auto decoded = segmented::decodeBch15Segmented(
+            segmentedCase(simulationCase.id), receivedCodeword, segmentedSyndromeTable());
         result.payload = decoded.recoveredPayload;
         result.correctedBlockCount = decoded.frameDetail.correctedBlocks;
         result.noErrorBlockCount = decoded.frameDetail.noErrorBlocks;

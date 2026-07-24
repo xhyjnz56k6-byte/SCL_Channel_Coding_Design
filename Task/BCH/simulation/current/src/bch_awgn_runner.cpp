@@ -52,6 +52,10 @@ int main(int argc, char** argv) {
             config.progressRefreshSeconds = std::stod(args.at("--progress-refresh-seconds"));
         }
         config.writeFrameDetail = args.count("--detail") != 0U;
+        if (args.count("--timing-warmup-frames") != 0U) {
+            config.timingWarmupFrames =
+                static_cast<std::uint64_t>(std::stoull(args.at("--timing-warmup-frames")));
+        }
         if (args.count("--min-frames") != 0U || args.count("--target-frame-errors") != 0U || args.count("--max-frames") != 0U) {
             config.adaptiveStop = true;
             config.minFrames = static_cast<std::uint64_t>(std::stoull(required(args, "--min-frames")));

@@ -25,6 +25,7 @@ struct AwgnPointConfig {
     bool progress = true;
     double progressRefreshSeconds = 0.2;
     bool writeFrameDetail = false;
+    std::uint64_t timingWarmupFrames = 0U;
     std::string framePoolManifest;
     std::string outputDirectory;
     bool adaptiveStop = false;

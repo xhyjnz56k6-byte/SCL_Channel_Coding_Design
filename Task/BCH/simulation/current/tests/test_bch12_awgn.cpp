@@ -16,6 +16,18 @@ int main() {
         using namespace scl::bch::simulation;
         for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300, BchCaseId::B300_426}) {
             const auto& value = bchSimulationCase(id);
+            prepareBchCase(value);
+            prepareBchCase(value);
+            const scl::common::BitVector zeroPayload(value.payloadLength, 0U);
+            const auto firstEncoded = encodeBchFrame(value, zeroPayload);
+            const auto secondEncoded = encodeBchFrame(value, zeroPayload);
+            require(firstEncoded.codeword == secondEncoded.codeword, "prepared encoder is not deterministic");
+            for (unsigned repetition = 0U; repetition < 20U; ++repetition) {
+                auto decoded = decodeBchFrame(value, firstEncoded.codeword);
+                auditDecodedBchFrame(zeroPayload, decoded);
+                require(decoded.trueSuccess && decoded.reportedSuccess && !decoded.decoderFailure,
+                        "prepared decoder repeated-use mismatch");
+            }
             for (double snr : {0.0, 3.5, 8.0}) {
                 scl::common::CodeLengths lengths;
                 lengths.payloadLength = value.payloadLength;
