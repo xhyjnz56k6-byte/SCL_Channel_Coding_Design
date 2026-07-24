@@ -277,6 +277,8 @@ def main() -> int:
     parser.add_argument("--no-progress", dest="progress", action="store_false")
     parser.add_argument("--progress-refresh-seconds", type=float, default=1.0)
     parser.add_argument("--global-seed", type=int, default=2026072401)
+    parser.add_argument("--matlab-command", default="matlab")
+    parser.add_argument("--skip-matlab", action="store_true")
     parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[4])
     args = parser.parse_args()
     repo = args.repo_root.resolve()
@@ -303,7 +305,32 @@ def main() -> int:
         if not args.smoke_only and not args.plot_only and not args.audit_only:
             run_resume_shard(args, repo, executable, stage)
             run_formal(args, repo, executable, stage)
-        print("PASS_BCH_S2_04_SMOKE")
+        if args.smoke_only:
+            print("PASS_BCH_S2_04_SMOKE")
+            return 0
+        if not args.formal_only and not args.audit_only:
+            run([sys.executable, str(repo / "Task/BCH/simulation/scripts/compare_awgn_multipath.py")], repo)
+            run([sys.executable, str(repo / "Task/BCH/simulation/scripts/plot_bch_s2_multipath.py")], repo)
+            if not args.skip_matlab and not args.plot_only:
+                vector_csv = repo / "Task/BCH/simulation/results/s2_batch1/matlab_reference/input_vectors.csv"
+                vector_csv.parent.mkdir(parents=True, exist_ok=True)
+                run([
+                    str(repo / "Task/BCH/simulation/build/current/export_bch_s2_matlab_vectors.exe"),
+                    str(repo / "Task/BCH/simulation/results/frame_pools/formal_k200/k200/manifest.json"),
+                    str(repo / "Task/BCH/simulation/results/frame_pools/formal_k300/k300/manifest.json"),
+                    str(vector_csv),
+                ], repo)
+                matlab_dir = repo / "Task/BCH/simulation/matlab_official_validation/matlab"
+                matlab_output = stage / "matlab_reference_summary.csv"
+                matlab_expression = (
+                    f"addpath('{matlab_dir.as_posix()}');"
+                    f"run_bch_s2_multipath_reference('{vector_csv.as_posix()}',"
+                    f"'{matlab_output.as_posix()}');"
+                )
+                run([args.matlab_command, "-batch", matlab_expression], repo)
+        if args.audit_only:
+            run([sys.executable, str(repo / "Task/BCH/simulation/scripts/check_bch_s2_batch1.py")], repo)
+        print("PASS_BCH_S2_04_FIXED_MULTIPATH_MMSE")
     return 0
 
 
