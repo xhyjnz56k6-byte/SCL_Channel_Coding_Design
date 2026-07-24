@@ -17,6 +17,8 @@ S20102 = "569080d"
 S203 = "c547a67"
 S204_FORMAL = "1c38ae5"
 S204_PLOT = "9f33672"
+S204_REPAIR_BASE = "4f5cf8a"
+S204_REPAIR = "0b7d803"
 BRANCH = "bch-s2-batch1-fixed-multipath-mmse"
 
 
@@ -52,9 +54,24 @@ def diff_files(repo: Path, base: str, content: str) -> list[dict[str, str]]:
 def closure(
     repo: Path, directory: Path, stage: str, base: str, content: str,
     gate: str, validation_lines: list[str], test_rows: list[dict[str, object]],
-    prefix: str = "",
+    prefix: str = "", repair: tuple[str, str] | None = None,
 ) -> None:
     files = diff_files(repo, base, content)
+    ranges = [{
+        "name": "content",
+        "baseCommit": run(repo, "git", "rev-parse", base).strip(),
+        "contentCommit": run(repo, "git", "rev-parse", content).strip(),
+        "files": [item["path"] for item in files],
+    }]
+    repair_files: list[dict[str, str]] = []
+    if repair:
+        repair_files = diff_files(repo, repair[0], repair[1])
+        ranges.append({
+            "name": "repairContent",
+            "baseCommit": run(repo, "git", "rev-parse", repair[0]).strip(),
+            "contentCommit": run(repo, "git", "rev-parse", repair[1]).strip(),
+            "files": [item["path"] for item in repair_files],
+        })
     manifest_name = f"{prefix}manifest.json"
     validation_name = f"{prefix}validation_report.md"
     tests_name = f"{prefix}test_summary.csv"
@@ -66,16 +83,13 @@ def closure(
         "schemaVersion": "bch.s2.stage_manifest.v1",
         "stage": stage,
         "branch": BRANCH,
-        "functionalRanges": [{
-            "name": "content",
-            "baseCommit": run(repo, "git", "rev-parse", base).strip(),
-            "contentCommit": run(repo, "git", "rev-parse", content).strip(),
-            "files": [item["path"] for item in files],
-        }],
+        "functionalRanges": ranges,
         "gate": gate,
         "remoteVerification": {
             "branch": BRANCH,
-            "verifiedContentCommit": run(repo, "git", "rev-parse", content).strip(),
+            "verifiedContentCommit": run(
+                repo, "git", "rev-parse", repair[1] if repair else content
+            ).strip(),
             "localTrackingRemoteHead": run(repo, "git", "rev-parse", f"origin/{BRANCH}").strip(),
             "containsFunctionalCommit": True,
         },
@@ -93,7 +107,8 @@ def closure(
     write_csv(directory / tests_name, test_rows)
     (directory / changed_name).write_text(
         f"# {stage} Changed Files\n\nFunctional range: `{base}...{content}`\n\n" +
-        "\n".join(f"- `{item['status']}` `{item['path']}`" for item in files) + "\n",
+        "\n".join(f"- `{item['status']}` `{item['path']}`"
+                  for item in files + repair_files) + "\n",
         encoding="utf-8",
     )
     commands = [
@@ -110,12 +125,17 @@ def closure(
         "# Commands Used\n\n```text\n" + "\n".join(commands) + "\n```\n",
         encoding="utf-8",
     )
-    (directory / patch_name).write_text(
-        run(repo, "git", "diff", "--no-ext-diff", "--unified=0", f"{base}...{content}"),
-        encoding="utf-8",
-    )
+    patch = run(repo, "git", "diff", "--no-ext-diff", "--unified=0", f"{base}...{content}")
+    if repair:
+        patch += "\n" + run(
+            repo, "git", "diff", "--no-ext-diff", "--unified=0",
+            f"{repair[0]}...{repair[1]}"
+        )
+    (directory / patch_name).write_text(patch, encoding="utf-8")
     (directory / commit_name).write_text(
-        run(repo, "git", "rev-parse", content).strip() + "\n", encoding="utf-8"
+        run(repo, "git", "rev-parse", content).strip() + "\n" +
+        (run(repo, "git", "rev-parse", repair[1]).strip() + "\n" if repair else ""),
+        encoding="utf-8"
     )
 
 
@@ -180,7 +200,7 @@ def main() -> int:
             {"test": "checkpoint/resume/shard", "actualResult": "PASS", "evidence": "resume_shard_audit.csv"},
             {"test": "MATLAB fixed input", "actualResult": "PASS", "evidence": "matlab_reference_summary.csv"},
             {"test": "plot data/hash", "actualResult": "PASS", "evidence": "figure_data_audit.csv"},
-        ],
+        ], repair=(S204_REPAIR_BASE, S204_REPAIR),
     )
     stage4 = root / "s2_04_fixed_multipath_mmse"
     result_files = sorted(path for path in stage4.iterdir()
@@ -254,7 +274,7 @@ def main() -> int:
             {"test": "S2-03 reuse", "actualResult": "PASS", "evidence": "AWGN source/hash audit"},
             {"test": "S2-04 formal/reference/plot", "actualResult": "PASS", "evidence": "stage validation"},
         ],
-        prefix="batch_",
+        prefix="batch_", repair=(S204_REPAIR_BASE, S204_REPAIR),
     )
     write_csv(root / "s2_batch1_fixed_multipath_mmse/batch_mismatch_summary.csv", [
         {"check": "C++ vs MATLAB hard bits", "mismatchCount": 0, "status": "PASS"},

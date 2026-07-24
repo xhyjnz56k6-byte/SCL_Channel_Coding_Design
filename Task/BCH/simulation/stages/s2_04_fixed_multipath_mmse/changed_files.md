@@ -78,3 +78,4 @@ Functional range: `c547a67...9f33672`
 - `A` `Task/BCH/simulation/stages/s2_batch1_fixed_multipath_mmse/batch_acceptance_matrix.csv`
 - `A` `Task/BCH/simulation/stages/s2_batch1_fixed_multipath_mmse/batch_known_issues.md`
 - `A` `Task/BCH/simulation/stages/s2_batch1_fixed_multipath_mmse/batch_plan.md`
+- `M` `Task/BCH/simulation/scripts/run_bch_s2_batch1.py`

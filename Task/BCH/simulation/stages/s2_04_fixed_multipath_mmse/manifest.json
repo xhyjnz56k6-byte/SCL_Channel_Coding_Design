@@ -85,13 +85,21 @@
         "Task/BCH/simulation/stages/s2_batch1_fixed_multipath_mmse/batch_known_issues.md",
         "Task/BCH/simulation/stages/s2_batch1_fixed_multipath_mmse/batch_plan.md"
       ]
+    },
+    {
+      "name": "repairContent",
+      "baseCommit": "4f5cf8a378a614e1c5adfb34dd0d24f66d048780",
+      "contentCommit": "0b7d8034823448f318280983b19490d8b394d19a",
+      "files": [
+        "Task/BCH/simulation/scripts/run_bch_s2_batch1.py"
+      ]
     }
   ],
   "gate": "PASS_BCH_S2_04_FIXED_MULTIPATH_MMSE",
   "remoteVerification": {
     "branch": "bch-s2-batch1-fixed-multipath-mmse",
-    "verifiedContentCommit": "9f336728eebbf0907da7d7939896402e82450734",
-    "localTrackingRemoteHead": "9f336728eebbf0907da7d7939896402e82450734",
+    "verifiedContentCommit": "0b7d8034823448f318280983b19490d8b394d19a",
+    "localTrackingRemoteHead": "0b7d8034823448f318280983b19490d8b394d19a",
     "containsFunctionalCommit": true
   },
   "mergeStatus": "NOT_MERGED"

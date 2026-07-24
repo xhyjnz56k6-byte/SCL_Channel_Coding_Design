@@ -22,7 +22,7 @@
   "remoteVerification": {
     "branch": "bch-s2-batch1-fixed-multipath-mmse",
     "verifiedContentCommit": "c547a6766e45eaab3c8b181d1f4cb19610c10ac3",
-    "localTrackingRemoteHead": "9f336728eebbf0907da7d7939896402e82450734",
+    "localTrackingRemoteHead": "0b7d8034823448f318280983b19490d8b394d19a",
     "containsFunctionalCommit": true
   },
   "mergeStatus": "NOT_MERGED"
