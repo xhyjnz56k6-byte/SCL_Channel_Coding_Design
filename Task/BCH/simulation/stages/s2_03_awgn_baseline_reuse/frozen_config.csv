@@ -1,0 +1,5 @@
+key,value
+rerunStatus,SKIPPED_BCH_S2_03_AWGN_RERUN
+reuseStatus,REUSED_S1_FORMAL_AWGN_BASELINE
+snrFormula,snrDb=sourcePayloadEbN0Db+10*log10(frameRate)
+interpolation,adjacent linear interpolation in log10(FER); no extrapolation

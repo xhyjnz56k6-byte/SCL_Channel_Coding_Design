@@ -1,0 +1,5 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+五Case正式基线,awgn_baseline_sources.csv,路径SHA与Case覆盖核对,缺失或hash不符阻止,REUSED_S1_FORMAL_AWGN_BASELINE
+SNR换算,awgn_baseline_snr_converted.csv,逐行重算容差,仅改标签或数值不符阻止,REUSED_S1_FORMAL_AWGN_BASELINE
+禁止重跑,validation_report.md,命令审计无AWGN formal执行,新生成AWGN正式点阻止,SKIPPED_BCH_S2_03_AWGN_RERUN
+时延来源,awgn_baseline_sources.csv,BCH16W9来源存在,用时延CSV替换BER/FER阻止,REUSED_S1_FORMAL_AWGN_BASELINE
