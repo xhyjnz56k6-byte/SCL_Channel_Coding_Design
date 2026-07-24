@@ -22,6 +22,9 @@ const BchSimulationCase kS300{BchCaseId::S300, "BCH-S300", 300U, 420U, 300.0 / 4
 const BchSimulationCase kB300{BchCaseId::B300, "BCH-B300", 300U, 390U, 300.0 / 390.0,
                               BchOrganization::WholeBlockShortened, BchDecoderType::BerlekampMasseyChien,
                               0U, 0U, 511U, 421U, 121U, 10U};
+const BchSimulationCase kB300426{BchCaseId::B300_426, "BCH-B300-426", 300U, 426U, 300.0 / 426.0,
+                                 BchOrganization::WholeBlockShortened, BchDecoderType::BerlekampMasseyChien,
+                                 0U, 0U, 511U, 385U, 85U, 14U};
 
 void validateCase(const BchSimulationCase& value) {
     const BchSimulationCase& frozen = bchSimulationCase(value.id);
@@ -35,6 +38,7 @@ void validateCase(const BchSimulationCase& value) {
 block::BlockBchProfile blockProfile(BchCaseId id) {
     if (id == BchCaseId::B200) return block::makeB200Profile();
     if (id == BchCaseId::B300) return block::makeB300Profile();
+    if (id == BchCaseId::B300_426) return block::makeB300426Profile();
     throw std::invalid_argument("segmented case has no whole-block profile");
 }
 
@@ -56,12 +60,13 @@ const BchSimulationCase& bchSimulationCase(BchCaseId id) {
         case BchCaseId::B200: return kB200;
         case BchCaseId::S300: return kS300;
         case BchCaseId::B300: return kB300;
+        case BchCaseId::B300_426: return kB300426;
     }
     throw std::invalid_argument("unsupported BCH case id");
 }
 
 const BchSimulationCase& bchSimulationCase(const std::string& name) {
-    for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300}) {
+    for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300, BchCaseId::B300_426}) {
         const auto& value = bchSimulationCase(id);
         if (value.caseName == name) return value;
     }

@@ -1,0 +1,2 @@
+caseName,motherN,motherK,payloadLength,shorteningLength,shortenedN,parityLength,fieldDegree,primitivePolynomial,correctionCapability,designedDistance,toolboxGeneratorDegree,expectedGeneratorDegree,parameterMismatch,rootMismatch,generatorMismatch
+BCH-B300-426,511,385,300,85,426,126,9,0x211,14,29,126,126,0,0,0

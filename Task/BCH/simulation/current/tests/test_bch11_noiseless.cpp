@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
         summary << "caseName,processedFrames,decodedBitErrors,frameErrors,BER,FER,trueSuccessRate,reportedSuccessRate,miscorrectionRate,decoderFailureRate,channelHardBitErrors\n";
         config << "caseName,payloadLength,encodedLength,frameRate,organization,decoderType\n";
 
-        for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300}) {
+        for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300, BchCaseId::B300_426}) {
             const auto& value = scl::bch::simulation::bchSimulationCase(id);
             require(std::abs(value.frameRate - static_cast<double>(value.payloadLength) / value.encodedLength) < 1e-15,
                     "frame rate mismatch");

@@ -8,7 +8,7 @@
 
 namespace scl::bch::simulation {
 
-enum class BchCaseId { S200, B200, S300, B300 };
+enum class BchCaseId { S200, B200, S300, B300, B300_426 };
 enum class BchOrganization { Segmented, WholeBlockShortened };
 enum class BchDecoderType { SyndromeLookup, BerlekampMasseyChien };
 

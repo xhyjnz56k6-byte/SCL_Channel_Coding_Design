@@ -1,0 +1,6 @@
+caseName,metric,value
+BCH-S200,encoded_length,285
+BCH-B200,encoded_length,248
+BCH-S300,encoded_length,420
+BCH-B300,encoded_length,390
+BCH-B300-426,encoded_length,426

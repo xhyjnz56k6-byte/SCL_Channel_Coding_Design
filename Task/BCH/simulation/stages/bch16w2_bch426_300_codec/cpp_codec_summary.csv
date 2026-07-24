@@ -1,0 +1,2 @@
+caseName,encodedLengthMismatch,divisibilityFailure,payloadMutationCount,singleErrorAllPositions,weight2To14Samples,withinCapabilityFailures,overCapabilityClassifiedRows,gate
+BCH-B300-426,0,0,0,3408,1300,0,624,PASS_BCH16W2_BCH426_300_CODEC

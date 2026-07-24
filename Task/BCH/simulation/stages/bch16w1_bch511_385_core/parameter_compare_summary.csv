@@ -1,0 +1,2 @@
+caseName,motherN,motherK,payloadLength,shorteningLength,shortenedN,parityLength,frameRate,fieldDegree,primitivePolynomial,correctionCapability,designedDistance,generatorDegree,generatorPolynomial,parameterMismatch,generatorMismatch,gate
+BCH-B300-426,511,385,300,85,426,126,0.704225352112676,9,0x211,14,29,126,1111111101101100110000010101111111111111001010011111010100101101100101010001000111011000000101011000011011001100100100000011001,0,0,PASS_BCH16W1_BCH511_385_CORE

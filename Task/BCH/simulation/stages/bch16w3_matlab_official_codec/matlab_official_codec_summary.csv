@@ -1,0 +1,2 @@
+caseName,parameterMismatch,rootMismatch,generatorMismatch,encodedMismatchFrames,encodedMismatchBits,withinCapabilityComparedFrames,withinCapabilityMismatchFrames,withinCapabilityMismatchBits,gate
+BCH-B300-426,0,0,0,0,0,5332,0,0,PASS_BCH16W3_MATLAB_OFFICIAL_CODEC

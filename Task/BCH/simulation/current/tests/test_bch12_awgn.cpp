@@ -14,7 +14,7 @@ void require(bool value, const char* message) { if (!value) throw std::runtime_e
 int main() {
     try {
         using namespace scl::bch::simulation;
-        for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300}) {
+        for (BchCaseId id : {BchCaseId::S200, BchCaseId::B200, BchCaseId::S300, BchCaseId::B300, BchCaseId::B300_426}) {
             const auto& value = bchSimulationCase(id);
             for (double snr : {0.0, 3.5, 8.0}) {
                 scl::common::CodeLengths lengths;
@@ -34,7 +34,10 @@ int main() {
             require(std::equal(zB200.begin(), zB200.end(), zS200.begin()), "paired 200-bit mother noise mismatch");
             const auto zS300 = scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(300U, snrIndex), 7U, 420U, kBchNoisePolicyVersion);
             const auto zB300 = scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(300U, snrIndex), 7U, 390U, kBchNoisePolicyVersion);
+            const auto zB300426 = scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(300U, snrIndex), 7U, 426U, kBchNoisePolicyVersion);
             require(std::equal(zB300.begin(), zB300.end(), zS300.begin()), "paired 300-bit mother noise mismatch");
+            require(std::equal(zS300.begin(), zS300.end(), zB300426.begin()), "paired 300-bit extended noise prefix mismatch");
+            require(zB300426.size() == 426U, "extended noise length mismatch");
             require(standardNoiseHash(zS200) == standardNoiseHash(scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(200U, snrIndex), 7U, 285U, kBchNoisePolicyVersion)), "noise reproducibility mismatch");
             require(standardNoiseHash(zS200) != standardNoiseHash(scl::common::generateStandardGaussianFrame(seed, pairedNoiseGroupId(200U, snrIndex), 8U, 285U, kBchNoisePolicyVersion)), "noise reused across frames");
         }

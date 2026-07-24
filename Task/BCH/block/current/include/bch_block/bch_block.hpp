@@ -55,6 +55,7 @@ struct BlockBchProfile {
 
 BlockBchProfile makeB200Profile();
 BlockBchProfile makeB300Profile();
+BlockBchProfile makeB300426Profile();
 void validateProfile(const BlockBchProfile& profile);
 
 struct EncodeResult {

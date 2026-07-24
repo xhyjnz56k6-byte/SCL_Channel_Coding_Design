@@ -1,0 +1,128 @@
+[
+  {
+    "filename": "bch_s1_200bit_ber_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_200bit_ber_comparison.csv",
+    "payloadLength": 200,
+    "metric": "BER",
+    "sha256": "c578b29e1024dfbd022667dc2af16959eb69764dbd60d228191f88f9b2f82ed8",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_200bit_fer_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_200bit_fer_comparison.csv",
+    "payloadLength": 200,
+    "metric": "FER",
+    "sha256": "e195bfd72aa57aebbca2179c5de5b71cf251af178cd2fa71347bd15ece8c994d",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_200bit_true_success_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_200bit_true_success_comparison.csv",
+    "payloadLength": 200,
+    "metric": "trueSuccessRate",
+    "sha256": "d2e22ff2889b8866c733589fec5fb397985a1ff9133f9ab1f558da33ac078d2f",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_200bit_reported_success_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_200bit_reported_success_comparison.csv",
+    "payloadLength": 200,
+    "metric": "reportedSuccessRate",
+    "sha256": "dc417b89189cee805a6f779c1cd9138dc84974dd96720038eeb3cc413753f3df",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_200bit_miscorrection_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_200bit_miscorrection_comparison.csv",
+    "payloadLength": 200,
+    "metric": "miscorrectionRate",
+    "sha256": "e88a4e6668a6c6475e07f82681201e59a7b19d8b5ecebadbe0468369197fce1d",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_200bit_decoder_failure_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_200bit_decoder_failure_comparison.csv",
+    "payloadLength": 200,
+    "metric": "decoderFailureRate",
+    "sha256": "6d8e7d41b351ead29bd7dd4c168c9018c3d43e9562f0af078157376b2bea05a1",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_200bit_decode_time_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_200bit_decode_time_comparison.csv",
+    "payloadLength": 200,
+    "metric": "avgDecodeTimeUs",
+    "sha256": "a2e0a45102108da29f43442c9d7d9a70cffaff7d2678d84d2680b3f72d21b12f",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_300bit_ber_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_300bit_ber_comparison.csv",
+    "payloadLength": 300,
+    "metric": "BER",
+    "sha256": "0ae67c82f50529bf28bac04664a35eeb84a5eeae5b95bfc300c4ff2cf1e22765",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_300bit_fer_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_300bit_fer_comparison.csv",
+    "payloadLength": 300,
+    "metric": "FER",
+    "sha256": "a0143b43f5cbed968e74b1383149ed086c472e775110515a48b31f8e3b320da8",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_300bit_true_success_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_300bit_true_success_comparison.csv",
+    "payloadLength": 300,
+    "metric": "trueSuccessRate",
+    "sha256": "74a97bec051604a9d1d8f61813ea1ff5d72805f9b2deb2340dc0e9e8b997fe70",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_300bit_reported_success_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_300bit_reported_success_comparison.csv",
+    "payloadLength": 300,
+    "metric": "reportedSuccessRate",
+    "sha256": "80024e642809f9e4f3192e22fa737c28082a789440ea6e902db9e12f9f951627",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_300bit_miscorrection_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_300bit_miscorrection_comparison.csv",
+    "payloadLength": 300,
+    "metric": "miscorrectionRate",
+    "sha256": "c5a568b2225c1bac6b815d3afc63c1d7337bfd7b25beabc3210e14940a1abc08",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_300bit_decoder_failure_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_300bit_decoder_failure_comparison.csv",
+    "payloadLength": 300,
+    "metric": "decoderFailureRate",
+    "sha256": "e56f903c62ca26b8574ed4377416ddf354d7f9ca1d94d07d504c588ffaf6ec57",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_300bit_decode_time_comparison.png",
+    "figureDataCsv": "figure_data_bch_s1_300bit_decode_time_comparison.csv",
+    "payloadLength": 300,
+    "metric": "avgDecodeTimeUs",
+    "sha256": "99739cebbbce13ee34207dec6ae7be14e0a928bc433e3ac08e49c394c0b8eef4",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_all_cases_encoded_length.png",
+    "figureDataCsv": "figure_data_bch_s1_all_cases_encoded_length.csv",
+    "metric": "encoded_length",
+    "sha256": "f02f9bf7f1d20abd3455dce774e3df214ab329d462b7a7fcf06f222093322473",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch_s1_all_cases_rate.png",
+    "figureDataCsv": "figure_data_bch_s1_all_cases_rate.csv",
+    "metric": "rate",
+    "sha256": "f777b5d4ba068e8410760d27a83df470f2c527c1dabac95b9d060a02995ab1cd",
+    "matplotlibVersion": "3.10.7"
+  }
+]
