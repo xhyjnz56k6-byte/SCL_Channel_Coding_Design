@@ -1,0 +1,19 @@
+key,value,unit_or_semantics
+stage,S2-01 Channel Contract,
+caseNames,BCH-S200;BCH-B200;BCH-S300;BCH-B300;BCH-B300-426,
+rawTaps,1;0.65;0.35,linear amplitude
+delays,0;1;3,symbol
+rawChannelEnergy,1.545,linear energy
+normalizedTaps,0.80451798670912955;0.52293669136093424;0.28158129534819532,linear amplitude
+normalizedChannelEnergy,0.99999999999999989,linear energy
+equalizer,KNOWN_CHANNEL_LINEAR_MMSE,
+solver,BANDED_CHOLESKY_NORMAL_EQUATIONS,
+receiverKnowsChannel,true,
+xAxis,Es/N0,dB
+xTransform,snrDb=sourcePayloadEbN0Db+10*log10(frameRate),
+minFrames,5000,frame
+targetFrameErrors,200,frame error
+maxFrames,50000,frame
+awgnRerun,SKIPPED_BCH_S2_03_AWGN_RERUN,
+awgnReuse,REUSED_S1_FORMAL_AWGN_BASELINE,
+nextStagesExcluded,S2-05;S2-06;S2-07;S2-08;S2-09,

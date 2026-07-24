@@ -1,0 +1,6 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+单位能量归一化,current/src/fixed_multipath_mmse.cpp,bch_s2_mmse_unit能量核对,零能量或非有限tap拒绝,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
+完整卷积,current/src/fixed_multipath_mmse.cpp,五长度输出N+3,长度不符拒绝,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
+MMSE恢复,current/tests/test_bch_s2_mmse.cpp,全零全一交替及单径,NaN输入拒绝,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
+复杂度保护,current/src/fixed_multipath_mmse.cpp,setup与逐帧计时分离,逐帧通用矩阵逆不得存在,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION
+公共链路回归,current/CMakeLists.txt,bch12_awgn_unit,既有AWGN单测失败即阻止,PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION

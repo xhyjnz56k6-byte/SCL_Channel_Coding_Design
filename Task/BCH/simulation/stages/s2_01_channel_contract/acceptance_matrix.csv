@@ -1,0 +1,8 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+五Case冻结,stage_plan.md与bch_case_adapter.cpp,checker逐字段核对,任一长度码率或能力变化必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
+固定多径单位能量,frozen_config.csv与fixed_multipath_mmse.cpp,能量误差小于1e-14,未归一化taps不得进入formal,PASS_BCH_S2_01_CHANNEL_CONTRACT
+完整卷积与MMSE,stage_plan.md,五长度首尾和无噪声恢复,截断尾部或逐帧矩阵求逆必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
+物理SNR横轴,stage_plan.md与checker,逐点重算公式,只改标签或公式不符必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
+payload FER定义,stage_plan.md与runner,原始计数恒等式,parity/filler/shortening进入分母必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
+绘图规范,stage_plan.md与plot checker,PNG/figure-data/hash一致性,非PNG或零值伪造必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
+批次边界,stage_plan.md,禁止目录审计,进入S2-05至09必须阻止,PASS_BCH_S2_01_CHANNEL_CONTRACT
