@@ -1,0 +1,6 @@
+caseName,recommendedFormalMinSourcePayloadEbN0Db,recommendedFormalMaxSourcePayloadEbN0Db,recommendedFormalStepDb,selectionRule,extensionReason
+BCH-S200,8.0,16.0,0.2,smoke waterfall coverage plus 1 dB error-bearing margin,case-specific extension preserves useful waterfall coverage
+BCH-B200,6.0,10.6,0.2,smoke waterfall coverage plus 1 dB error-bearing margin,case-specific extension preserves useful waterfall coverage
+BCH-S300,8.0,16.4,0.2,smoke waterfall coverage plus 1 dB error-bearing margin,case-specific extension preserves useful waterfall coverage
+BCH-B300,6.0,10.0,0.2,smoke waterfall coverage plus 1 dB error-bearing margin,case-specific extension preserves useful waterfall coverage
+BCH-B300-426,6.0,9.0,0.2,smoke waterfall coverage plus 1 dB error-bearing margin,case-specific extension preserves useful waterfall coverage

@@ -1,0 +1,6 @@
+caseName,firstFerAtMost0_5Db,lastPositiveErrorDb,observedMinFer,observedMaxFer,status
+BCH-S200,9.0,15.0,0.0,1.0,PASS
+BCH-B200,7.0,9.0,0.0,0.965,PASS
+BCH-S300,9.0,16.0,0.002,1.0,PASS
+BCH-B300,7.0,9.0,0.0,1.0,PASS
+BCH-B300-426,7.0,8.0,0.0,1.0,PASS

@@ -1,0 +1,14 @@
+key,value
+smokeRound1,5 cases x 5 points x 200 frames
+smokeDenseSegmented,sourcePayloadEbN0Db 8:1:16 x 500 frames
+smokeDenseBlock,sourcePayloadEbN0Db 5:1:11 x 500 frames
+formalStepDb,0.2
+formalExtensionB200,10.2;10.4;10.6 sourcePayloadEbN0Db
+formalExtensionS300,16.2;16.4 sourcePayloadEbN0Db
+formalMinFrames,5000
+formalTargetFrameErrors,200
+formalMaxFrames,50000
+globalSeed,2026072401
+payloadSeed,2026072001
+imageFormat,PNG only
+backend,matplotlib Agg

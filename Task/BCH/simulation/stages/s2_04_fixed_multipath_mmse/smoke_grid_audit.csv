@@ -1,0 +1,6 @@
+caseName,pointCount,finite,hasFerAtLeast0_5,hasFerAtMost0_1,status
+BCH-S200,14,True,True,True,PASS
+BCH-B200,12,True,True,True,PASS
+BCH-S300,14,True,True,True,PASS
+BCH-B300,12,True,True,True,PASS
+BCH-B300-426,12,True,True,True,PASS
