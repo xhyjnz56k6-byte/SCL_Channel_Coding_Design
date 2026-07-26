@@ -63,10 +63,11 @@ ResidualCfoOutput applyResidualCfo(
         validateFinite(symbols[index], "BPSK symbol");
         const double phase = phi0 + static_cast<double>(index) * result.deltaPhiRad;
         const std::complex<double> rotation(std::cos(phase), std::sin(phase));
-        const std::complex<double> noise(
+        const std::complex<double> basebandSample(
+            symbols[index] +
             componentSigma * standardComplexNoise[2U * index],
             componentSigma * standardComplexNoise[2U * index + 1U]);
-        result.receivedSamples[index] = symbols[index] * rotation + noise;
+        result.receivedSamples[index] = basebandSample * rotation;
         result.compensatedSamples[index] =
             config.compensationMode == CfoCompensationMode::Perfect
                 ? result.receivedSamples[index] * std::conj(rotation)

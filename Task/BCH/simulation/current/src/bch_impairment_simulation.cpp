@@ -377,6 +377,8 @@ void writeImpairmentPointSummary(
            "miscorrectedFrames,miscorrectionRate,decoderFailureFrames,"
            "decoderFailureRate,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,"
            "p99DecodeTimeUs,maxDecodeTimeUs,avgTotalReceiverTimeUs,"
+           "medianReceiverTimeUs,p95ReceiverTimeUs,p99ReceiverTimeUs,"
+           "maxReceiverTimeUs,"
            "minFrames,targetFrameErrors,maxFrames,stopReason,"
            "checkpointCount,resumeCount,shardIndex,shardCount,"
            "configHash,gitCommit\n";
@@ -419,6 +421,10 @@ void writeImpairmentPointSummary(
         << percentile(result.decodeTimesUs, 0.99) << ','
         << maximum(result.decodeTimesUs) << ','
         << result.totalReceiverTimeUsSum / frames << ','
+        << percentile(result.receiverTimesUs, 0.50) << ','
+        << percentile(result.receiverTimesUs, 0.95) << ','
+        << percentile(result.receiverTimesUs, 0.99) << ','
+        << maximum(result.receiverTimesUs) << ','
         << result.config.minFrames << ','
         << result.config.targetFrameErrors << ','
         << result.config.maxFrames << ',' << result.stopReason
