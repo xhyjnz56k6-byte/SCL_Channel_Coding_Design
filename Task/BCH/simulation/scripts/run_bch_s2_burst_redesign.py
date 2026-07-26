@@ -18,6 +18,7 @@ from typing import Any
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 import numpy as np
 
 CASES = {
@@ -220,6 +221,7 @@ class PlotAudit:
         xscale: str = "linear", yscale: str = "linear",
         zero_policy: str = "PLOT_ALL_LINEAR",
         visual: list[dict[str, Any]] | None = None,
+        interpolation: str = "NONE",
     ) -> None:
         data = self.root / f"figure_data_{Path(filename).stem}.csv"
         image = self.root / filename
@@ -241,7 +243,7 @@ class PlotAudit:
             "pngSha256": sha256(image),
             "pointCount": len(rows),
             "visualEncoding": visual or [],
-            "format": "PNG", "interpolation": "NONE",
+            "format": "PNG", "interpolation": interpolation,
         })
 
 
@@ -414,7 +416,98 @@ def plot_experiments(repo: Path, audit: PlotAudit) -> None:
             zero_policy="PLOT_ALL_LINEAR",
             visual=[{"colormap": "cividis", "vmin": 0, "vmax": 1,
                      "interpolation": "nearest"}],
+            interpolation="nearest",
         )
+        local_values = [
+            row for row in values if int(row["burstLength"]) <= 5
+        ]
+        local_matrix = np.full((5, 15), np.nan)
+        for row in local_values:
+            local_matrix[int(row["burstLength"]) - 1,
+                         int(row["relativeStartInSubblock"])] = float(row["FER"])
+        fig, ax = plt.subplots(figsize=(9.6, 4.4))
+        image = ax.imshow(
+            local_matrix, origin="lower", aspect="auto",
+            interpolation="nearest", cmap="cividis", vmin=0.0, vmax=1.0,
+            extent=(-0.5, 14.5, 0.5, 5.5),
+        )
+        fig.colorbar(image, ax=ax, label="误帧率 FER")
+        title = f"{case} 子块边界局部热力图（L=1..5）"
+        ax.set_title(title)
+        ax.set_xlabel("子块内起点位置 r")
+        ax.set_ylabel("连续错误长度 L（bit）")
+        audit.save(
+            fig, f"bch_s2_07b_{case.lower().replace('bch-', '')}_local_l1_l5.png",
+            [dict(row) for row in local_values], b_source, title,
+            "子块内起点位置 r", "连续错误长度 L（bit）",
+            visual=[{"colormap": "cividis", "vmin": 0, "vmax": 1,
+                     "interpolation": "nearest", "region": "L=1..5"}],
+            interpolation="nearest",
+        )
+        guarantee_rows: list[dict[str, Any]] = []
+        guarantee_matrix = np.zeros((30, 15))
+        for row in values:
+            guarantee = 1 if row["theoreticalGuaranteedRegion"] == "true" else 0
+            guarantee_matrix[int(row["burstLength"]) - 1,
+                             int(row["relativeStartInSubblock"])] = guarantee
+            record: dict[str, Any] = dict(row)
+            record["guaranteeValue"] = guarantee
+            guarantee_rows.append(record)
+        fig, ax = plt.subplots(figsize=(9.6, 7.0))
+        image = ax.imshow(
+            guarantee_matrix, origin="lower", aspect="auto",
+            interpolation="nearest",
+            cmap=ListedColormap(["#d95f02", "#1b9e77"]), vmin=0, vmax=1,
+            extent=(-0.5, 14.5, 0.5, 30.5),
+        )
+        colorbar = fig.colorbar(image, ax=ax, ticks=[0, 1])
+        colorbar.ax.set_yticklabels(["非保证区", "理论保证区"])
+        title = f"{case} 理论保证区域（二值图）"
+        ax.set_title(title)
+        ax.set_xlabel("子块内起点位置 r")
+        ax.set_ylabel("连续错误长度 L（bit）")
+        audit.save(
+            fig, f"bch_s2_07b_{case.lower().replace('bch-', '')}_guarantee_binary.png",
+            guarantee_rows, b_source, title,
+            "子块内起点位置 r", "连续错误长度 L（bit）",
+            visual=[{"colormap": "binary-guarantee", "vmin": 0, "vmax": 1,
+                     "interpolation": "nearest"}],
+            interpolation="nearest",
+        )
+    l2_rows = [row for row in b if int(row["burstLength"]) == 2]
+    fig, ax = plt.subplots(figsize=(9.4, 5.6))
+    l2_visual: list[dict[str, Any]] = []
+    for case in ("BCH-S200", "BCH-S300"):
+        values = sorted(
+            [row for row in l2_rows if row["caseName"] == case],
+            key=lambda row: int(row["relativeStartInSubblock"]),
+        )
+        color, marker = CASES[case]
+        ax.plot(
+            [int(row["relativeStartInSubblock"]) for row in values],
+            [float(row["FER"]) for row in values],
+            color=color, marker=marker, linestyle="-", label=case,
+        )
+        l2_visual.append({
+            "series": case, "color": color, "marker": marker,
+            "linestyle": "-", "markerface": color,
+        })
+    ax.axvline(14, color="black", linestyle=":", linewidth=1.2)
+    ax.annotate("r=14：跨子块边界", xy=(14, 0), xytext=(9.2, 0.18),
+                arrowprops={"arrowstyle": "->"})
+    title = "分块 BCH：L=2 时起点位置与 FER"
+    ax.set_title(title)
+    ax.set_xlabel("子块内起点位置 r")
+    ax.set_ylabel("误帧率 FER")
+    ax.set_ylim(-0.02, 1.02)
+    ax.grid(True, alpha=0.25)
+    ax.legend()
+    audit.save(
+        fig, "bch_s2_07b_l2_relative_start_fer.png",
+        [dict(row, plotStatus="PLOTTED") for row in l2_rows],
+        b_source, title, "子块内起点位置 r", "误帧率 FER",
+        visual=l2_visual,
+    )
     c_source = stages / STAGE_DIRS["s2-07c"] / "formal_summary.csv"
     c = [row for row in read_csv(c_source) if int(row["burstLength"]) <= 32]
     line_plot(
@@ -527,12 +620,6 @@ def derive_stage_files(repo: Path, stage: str) -> None:
         write_csv(root / "random_start_audit.csv", formal)
         write_csv(root / "confidence_interval_summary.csv", formal)
         write_csv(root / "runtime_summary.csv", formal)
-        write_csv(root / "resume_shard_audit.csv", [{
-            "check": "deterministic_frame_index_domains",
-            "resume": "PASS", "threeShardMerge": "PASS",
-            "duplicateShardRejected": "PASS", "missingShardRejected": "PASS",
-            "overlapRejected": "PASS", "configHashMismatchRejected": "PASS",
-        }])
     if stage == "s2-07d":
         write_csv(root / "interleaver_manifest.csv", [
             row for row in formal if row["burstLength"] == "0"
@@ -548,12 +635,6 @@ def derive_stage_files(repo: Path, stage: str) -> None:
             row for row in formal if row["caseName"] in {"BCH-S200", "BCH-S300"}
         ])
         write_csv(root / "paired_comparison_summary.csv", formal)
-        write_csv(root / "resume_shard_audit.csv", [{
-            "check": "paired_deterministic_frame_index_domains",
-            "resume": "PASS", "threeShardMerge": "PASS",
-            "duplicateShardRejected": "PASS", "missingShardRejected": "PASS",
-            "overlapRejected": "PASS", "configHashMismatchRejected": "PASS",
-        }])
 
 
 def execute_stage(repo: Path, executable: Path, stage: str, mode: str) -> None:
@@ -576,6 +657,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--plot-only", action="store_true")
     parser.add_argument("--audit-only", action="store_true")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--checkpoint-dir")
+    parser.add_argument("--checkpoint-every-frames", type=int, default=50)
+    parser.add_argument("--stop-after-frames", type=int)
+    parser.add_argument("--shard-index", type=int)
+    parser.add_argument("--shard-count", type=int)
+    parser.add_argument("--frame-begin", type=int)
+    parser.add_argument("--frame-end", type=int)
     parser.add_argument("--progress", action="store_true")
     parser.add_argument("--progress-refresh-seconds", type=float, default=1.0)
     parser.add_argument("--clean-local-results", action="store_true")
