@@ -1,0 +1,13 @@
+key,value
+scientificDefinition,RESIDUAL_CFO_PHI0_ZERO
+initialPhaseDeg,0
+frameRotationsDeg,0;5;10;15;20;30;45;60;75;90;120;180
+fixedRotationFramesPerPoint,5000
+fixedRotationReferencePointsPerCase,3
+snrRotationsDeg,30;60
+snrStepDb,0.2
+minFrames,5000
+targetFrameErrors,200
+maxFrames,50000
+noisePolicyVersion,2
+resultRoot,Task/BCH/simulation/results/s2_batch2_corrected/s2_05

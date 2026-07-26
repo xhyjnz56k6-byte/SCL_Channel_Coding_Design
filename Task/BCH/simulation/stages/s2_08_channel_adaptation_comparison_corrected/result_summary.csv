@@ -1,0 +1,9 @@
+metric,value,interpretation
+toleranceClassifications,1365,all strict statuses
+LOWER_BOUND_AT_TEST_LIMIT,174,true threshold is at least tested maximum
+NON_MONOTONIC_NO_UNIQUE_THRESHOLD,16,no unique threshold selected
+burstTheoryPoints,192,all legal starts in guaranteed regions
+burstTheoryFrames,960000,zero decoded frame errors
+correctedFigures,22,PNG plus figure-data CSV
+correctedResultFiles,676,local results subtree
+correctedResultBytes,164938360,local upload asset size
