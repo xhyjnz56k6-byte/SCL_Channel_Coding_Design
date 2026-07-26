@@ -149,10 +149,23 @@ std::string timestamp() {
 
 void atomicReplace(const fs::path& temporary, const fs::path& target) {
 #ifdef _WIN32
-    if (!MoveFileExW(temporary.wstring().c_str(), target.wstring().c_str(),
-                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        throw std::runtime_error("atomic MoveFileEx checkpoint replacement failed");
+    DWORD lastError = ERROR_SUCCESS;
+    for (int attempt = 0; attempt < 100; ++attempt) {
+        if (MoveFileExW(temporary.wstring().c_str(), target.wstring().c_str(),
+                        MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+            return;
+        }
+        lastError = GetLastError();
+        if (lastError != ERROR_ACCESS_DENIED &&
+            lastError != ERROR_SHARING_VIOLATION &&
+            lastError != ERROR_LOCK_VIOLATION) {
+            break;
+        }
+        Sleep(10);
     }
+    throw std::runtime_error(
+        "atomic MoveFileEx checkpoint replacement failed, Win32 error=" +
+        std::to_string(lastError));
 #else
     std::error_code error;
     fs::rename(temporary, target, error);
