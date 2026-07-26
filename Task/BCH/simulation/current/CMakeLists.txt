@@ -48,6 +48,8 @@ add_executable(bch_impairment_runner src/bch_impairment_runner.cpp)
 target_link_libraries(bch_impairment_runner PRIVATE bch_case_adapter)
 add_executable(bch_burst_runner src/bch_burst_runner.cpp)
 target_link_libraries(bch_burst_runner PRIVATE bch_case_adapter)
+add_executable(bch_burst_audit_runner src/bch_burst_audit_runner.cpp)
+target_link_libraries(bch_burst_audit_runner PRIVATE bch_case_adapter)
 add_executable(export_bch_s2_matlab_vectors tests/export_bch_s2_matlab_vectors.cpp)
 target_link_libraries(export_bch_s2_matlab_vectors PRIVATE bch_case_adapter)
 add_executable(export_bch_s2_batch2_matlab_vectors
