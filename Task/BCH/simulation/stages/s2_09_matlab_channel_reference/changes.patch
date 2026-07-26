@@ -2,39 +2,20 @@ diff --git a/Task/BCH/simulation/current/CMakeLists.txt b/Task/BCH/simulation/cu
 index 9e5b68a..a48000d 100644
 --- a/Task/BCH/simulation/current/CMakeLists.txt
 +++ b/Task/BCH/simulation/current/CMakeLists.txt
-@@ -21,6 +21,8 @@ add_library(bch_case_adapter
-     src/bch_case_adapter.cpp
-     src/bch_awgn_simulation.cpp
-     src/bch_multipath_simulation.cpp
+@@ -23,0 +24,2 @@ add_library(bch_case_adapter
 +    src/bch_impairment_channels.cpp
 +    src/bch_impairment_simulation.cpp
-     src/fixed_multipath_mmse.cpp)
- target_include_directories(bch_case_adapter PUBLIC include)
- target_link_libraries(bch_case_adapter PUBLIC bch15_encoder bch_block common_bch_simulation)
-@@ -32,12 +34,19 @@ add_executable(test_bch12_awgn tests/test_bch12_awgn.cpp)
- target_link_libraries(test_bch12_awgn PRIVATE bch_case_adapter)
- add_executable(test_bch_s2_mmse tests/test_bch_s2_mmse.cpp)
- target_link_libraries(test_bch_s2_mmse PRIVATE bch_case_adapter)
+@@ -34,0 +37,2 @@ target_link_libraries(test_bch_s2_mmse PRIVATE bch_case_adapter)
 +add_executable(test_bch_s2_impairments tests/test_bch_s2_impairments.cpp)
 +target_link_libraries(test_bch_s2_impairments PRIVATE bch_case_adapter)
- add_executable(bch_awgn_runner src/bch_awgn_runner.cpp)
- target_link_libraries(bch_awgn_runner PRIVATE bch_case_adapter)
- add_executable(bch_multipath_runner src/bch_multipath_runner.cpp)
- target_link_libraries(bch_multipath_runner PRIVATE bch_case_adapter)
+@@ -38,0 +43,2 @@ target_link_libraries(bch_multipath_runner PRIVATE bch_case_adapter)
 +add_executable(bch_impairment_runner src/bch_impairment_runner.cpp)
 +target_link_libraries(bch_impairment_runner PRIVATE bch_case_adapter)
- add_executable(export_bch_s2_matlab_vectors tests/export_bch_s2_matlab_vectors.cpp)
- target_link_libraries(export_bch_s2_matlab_vectors PRIVATE bch_case_adapter)
+@@ -40,0 +47,3 @@ target_link_libraries(export_bch_s2_matlab_vectors PRIVATE bch_case_adapter)
 +add_executable(export_bch_s2_batch2_matlab_vectors
 +    tests/export_bch_s2_batch2_matlab_vectors.cpp)
 +target_link_libraries(export_bch_s2_batch2_matlab_vectors PRIVATE bch_case_adapter)
- 
- enable_testing()
- if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
-@@ -46,3 +55,4 @@ if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
- endif()
- add_test(NAME bch12_awgn_unit COMMAND test_bch12_awgn)
- add_test(NAME bch_s2_mmse_unit COMMAND test_bch_s2_mmse)
+@@ -48,0 +58 @@ add_test(NAME bch_s2_mmse_unit COMMAND test_bch_s2_mmse)
 +add_test(NAME bch_s2_impairments_unit COMMAND test_bch_s2_impairments)
 diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp
 new file mode 100644
