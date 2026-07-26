@@ -1,0 +1,7 @@
+key,value
+stage,s2_09_matlab_channel_reference
+title,MATLAB 独立参考
+noisePolicyVersion,2
+bandwidthConvention,Bn_EQUALS_Rs
+xTransformFormula,snrDb=sourcePayloadEbN0Db+10*log10(frameRate)
+globalSeed,2026072601
