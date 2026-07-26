@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+衰减、长度与绝对起点策略敏感性,Task/BCH/simulation/stages/s2_06_short_blockage,C++ unit/smoke/formal/reference,invalid config/hash/range rejection,PASS_BCH_S2_06
