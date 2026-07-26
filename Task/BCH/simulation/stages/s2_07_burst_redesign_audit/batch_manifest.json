@@ -225,7 +225,7 @@
     "PASS_BCH_S2_07_BURST_STRUCTURE_AND_INTERLEAVING",
     "PASS_BCH_S2_BURST_REDESIGN_AND_PLOT_QUALITY"
   ],
-  "gateStatus": "FUNCTIONAL_PASS_REMOTE_PENDING",
-  "remoteVerification": "PENDING_ORDINARY_PUSH",
+  "gateStatus": "PASS",
+  "remoteVerification": "VERIFIED_CONTAINS_REPAIR_COMMITS",
   "mergeStatus": "NOT_MERGED"
 }
