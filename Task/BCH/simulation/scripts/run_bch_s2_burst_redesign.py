@@ -539,8 +539,24 @@ def plot_experiments(repo: Path, audit: PlotAudit) -> None:
         "分块BCH交织前后最大子块错误数",
         [row for row in d if row["caseName"] in {"BCH-S200", "BCH-S300"}],
         ("caseName", "interleaverMode"),
-        ylabel="平均最大子块错误数",
+        ylabel="解交织后单个子块最大错误数的帧平均值",
         metric="averageMaximumSubblockErrorWeight",
+    )
+    over_capability: list[dict[str, str]] = []
+    for row in d:
+        if row["caseName"] not in {"BCH-S200", "BCH-S300"}:
+            continue
+        record = dict(row)
+        record["overCapabilityFrameFraction"] = str(
+            1.0 - float(row["fractionAllSubblocksWithinGuaranteedRegion"])
+        )
+        over_capability.append(record)
+    line_plot(
+        audit, d_source, "bch_s2_07d_over_capability_frame_fraction.png",
+        "交织前后超纠错能力帧比例",
+        over_capability, ("caseName", "interleaverMode"),
+        ylabel="超出子块保证纠错能力的帧比例",
+        metric="overCapabilityFrameFraction",
     )
 
 

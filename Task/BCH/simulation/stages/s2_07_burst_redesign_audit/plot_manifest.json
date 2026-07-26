@@ -1,6 +1,6 @@
 {
   "schemaVersion": "bch.s2.burst_redesign.plot_manifest.v1",
-  "figureCount": 12,
+  "figureCount": 18,
   "figures": [
     {
       "filename": "bch_s2_200bit_channel_fer_redesigned.png",
@@ -378,7 +378,58 @@
         }
       ],
       "format": "PNG",
-      "interpolation": "NONE"
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s200_local_l1_l5.png",
+      "figureData": "figure_data_bch_s2_07b_s200_local_l1_l5.csv",
+      "title": "BCH-S200 子块边界局部热力图（L=1..5）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "5bbe5259a27b796076f02249232b91f65c734c5872cb722a0689604bd664ef3d",
+      "pngSha256": "4300e74abf03a0254711105409e1711d04a563b0e706c6e6011d6cfd0eca1f61",
+      "pointCount": 75,
+      "visualEncoding": [
+        {
+          "colormap": "cividis",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest",
+          "region": "L=1..5"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s200_guarantee_binary.png",
+      "figureData": "figure_data_bch_s2_07b_s200_guarantee_binary.csv",
+      "title": "BCH-S200 理论保证区域（二值图）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "99f37c706dbb43a17f5e9518f33320cf750ef1f3da1c704249799b0641bfa99e",
+      "pngSha256": "24905567694fbaf90e5ac128249637520a3ba8bdd10365e0060cf4e2022b1bd2",
+      "pointCount": 450,
+      "visualEncoding": [
+        {
+          "colormap": "binary-guarantee",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
     },
     {
       "filename": "bch_s2_07b_s300_heatmap.png",
@@ -400,6 +451,90 @@
           "vmin": 0,
           "vmax": 1,
           "interpolation": "nearest"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s300_local_l1_l5.png",
+      "figureData": "figure_data_bch_s2_07b_s300_local_l1_l5.csv",
+      "title": "BCH-S300 子块边界局部热力图（L=1..5）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "2e511361f9249ef98b9e3eabc48cc90788cbe5568fa2f6d0e59927ec75a36f6c",
+      "pngSha256": "169c6277aacbd3ffc62cbc2001c1c9c83a043694a8a8acfdd043ccf0953a267e",
+      "pointCount": 75,
+      "visualEncoding": [
+        {
+          "colormap": "cividis",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest",
+          "region": "L=1..5"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s300_guarantee_binary.png",
+      "figureData": "figure_data_bch_s2_07b_s300_guarantee_binary.csv",
+      "title": "BCH-S300 理论保证区域（二值图）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "67ecdb9f505a4faead52fa4b4c09b00a9e44a5f9508d3a2e1895b13a330df66b",
+      "pngSha256": "178c3e3e8a5660d8516558650d63f09793ea1e76fcff4815cb5b6f7829d64d17",
+      "pointCount": 450,
+      "visualEncoding": [
+        {
+          "colormap": "binary-guarantee",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_l2_relative_start_fer.png",
+      "figureData": "figure_data_bch_s2_07b_l2_relative_start_fer.csv",
+      "title": "分块 BCH：L=2 时起点位置与 FER",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "7e935eda94b6b94cc168951d0cbb5a2b80b37c448c183a3b3c325289e336189e",
+      "pngSha256": "b2deb08a16da7233d915fb38fab4d6638985a98b5b367929ab7ee028d72e7b37",
+      "pointCount": 30,
+      "visualEncoding": [
+        {
+          "series": "BCH-S200",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "-",
+          "markerface": "tab:blue"
+        },
+        {
+          "series": "BCH-S300",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "-",
+          "markerface": "tab:green"
         }
       ],
       "format": "PNG",
@@ -576,14 +711,57 @@
       "figureData": "figure_data_bch_s2_07d_segmented_max_subblock_errors.csv",
       "title": "分块BCH交织前后最大子块错误数",
       "xLabel": "连续错误长度（bit）",
-      "yLabel": "平均最大子块错误数",
+      "yLabel": "解交织后单个子块最大错误数的帧平均值",
       "xScale": "linear",
       "yScale": "linear",
       "zeroPolicy": "PLOT_ALL_LINEAR",
       "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07d_burst_interleaving/formal_summary.csv",
       "sourceSha256": "4949848e551aac6c556c2ed42fa3c765fc938005f4bd5e4cff776e64d423b15d",
       "figureDataSha256": "e198d166b16fa5ae0f2ace48e4538793980bd5ece897eeda0fccd38e295fa299",
-      "pngSha256": "272f4cf51c283b644a61bd60cb818db4ecdbe4b1894920f68ab29a3a23b7dec0",
+      "pngSha256": "23ff1bbd444779562f39bb25cba2da63b30e6ae87c1c1851e2fbc8811ca2695a",
+      "pointCount": 132,
+      "visualEncoding": [
+        {
+          "series": "BCH-S200|NONE",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S200|FIXED_RANDOM",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "--"
+        },
+        {
+          "series": "BCH-S300|NONE",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S300|FIXED_RANDOM",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "--"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07d_over_capability_frame_fraction.png",
+      "figureData": "figure_data_bch_s2_07d_over_capability_frame_fraction.csv",
+      "title": "交织前后超纠错能力帧比例",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "超出子块保证纠错能力的帧比例",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07d_burst_interleaving/formal_summary.csv",
+      "sourceSha256": "4949848e551aac6c556c2ed42fa3c765fc938005f4bd5e4cff776e64d423b15d",
+      "figureDataSha256": "8b8d3d7cd70bff0cbb40c214176283bc500b179aa6cc872adc9bd509863d88b5",
+      "pngSha256": "aec391bf1e8c240242e0ebb1630054ac6468c6655ccb4e31f1cd86fb658759bc",
       "pointCount": 132,
       "visualEncoding": [
         {
