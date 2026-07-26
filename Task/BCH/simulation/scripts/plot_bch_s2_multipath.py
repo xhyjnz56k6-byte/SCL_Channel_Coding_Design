@@ -7,6 +7,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 import subprocess
 from pathlib import Path
 
@@ -23,7 +24,7 @@ STYLES = {
     "BCH-B300": ("#9467bd", ":", "D", "BCH-B300"),
     "BCH-B300-426": ("#ff7f0e", "--", "v", "BCH-B300-426"),
 }
-SYMBOL_ESN0_LABEL = "Symbol Es/N0 (dB)"
+SNR_LABEL = "SNR (dB)"
 TIMING_SCOPE = "EQUALIZATION_HARD_DECISION_ERROR_ACCOUNTING_DECODE_AND_AUDIT"
 
 
@@ -52,6 +53,52 @@ def row_common(row: dict[str, str]) -> dict[str, str]:
     }
 
 
+def finite_float(value: object, context: str) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise SystemExit(f"BLOCKED_BCH_S2_04_NONFINITE_VALUE: {context}") from exc
+    if not math.isfinite(number):
+        raise SystemExit(f"BLOCKED_BCH_S2_04_NONFINITE_VALUE: {context}")
+    return number
+
+
+def validate_figure_rows(name: str, rows: list[dict[str, object]], x_column: str,
+                         y_column: str, y_scale: str) -> dict[str, int]:
+    if not rows:
+        raise SystemExit(f"BLOCKED_BCH_S2_04_EMPTY_FIGURE_DATA: {name}")
+    plotted_count = 0
+    omitted_count = 0
+    for index, row in enumerate(rows, start=1):
+        plotted = str(row.get("plotted", "true")).lower() != "false"
+        if plotted:
+            plotted_count += 1
+        else:
+            omitted_count += 1
+        if x_column == "snrDb":
+            snr = finite_float(row.get("snrDb", ""), f"{name}:{index}:snrDb")
+            source_ebn0 = row.get("sourcePayloadEbN0Db", "")
+            frame_rate = row.get("frameRate", "")
+            if source_ebn0 != "" and frame_rate != "":
+                expected = finite_float(source_ebn0, f"{name}:{index}:sourcePayloadEbN0Db")
+                rate = finite_float(frame_rate, f"{name}:{index}:frameRate")
+                if rate <= 0.0:
+                    raise SystemExit(f"BLOCKED_BCH_S2_04_X_FORMULA_INVALID_RATE: {name}:{index}")
+                expected += 10.0 * math.log10(rate)
+                if abs(snr - expected) > 5e-10:
+                    raise SystemExit(f"BLOCKED_BCH_S2_04_X_FORMULA_MISMATCH: {name}:{index}")
+        if not plotted and (row.get(y_column, "") == "" or str(row.get("valid", "")).lower() == "false"):
+            continue
+        if y_column not in row or row.get(y_column, "") == "":
+            raise SystemExit(f"BLOCKED_BCH_S2_04_Y_VALUE_MISSING: {name}:{index}:{y_column}")
+        y_value = finite_float(row[y_column], f"{name}:{index}:{y_column}")
+        if y_scale == "log" and y_value <= 0.0:
+            raise SystemExit(f"BLOCKED_BCH_S2_04_LOG_Y_NONPOSITIVE: {name}:{index}:{y_column}")
+    if plotted_count == 0:
+        raise SystemExit(f"BLOCKED_BCH_S2_04_NO_PLOTTED_POINTS: {name}")
+    return {"validatedDataPointCount": plotted_count, "omittedRowCount": omitted_count}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[4])
@@ -67,14 +114,21 @@ def main() -> int:
 
     def finish(name: str, title: str, rows: list[dict[str, object]], source: Path,
                y_column: str, y_label: str, y_scale: str = "linear",
-               x_column: str = "snrDb", x_label: str = SYMBOL_ESN0_LABEL,
+               x_column: str = "snrDb", x_label: str = SNR_LABEL,
                x_unit: str = "dB", y_unit: str = "ratio",
                note: str = "") -> None:
+        if name == "bch_s2_multipath_fer_amplification":
+            title = "AWGN与多径重叠区间误帧率放大倍数"
+            y_label = "误帧率放大倍数"
+            note = "仅绘制AWGN与正式多径结果真实重叠的SNR区间；无重叠点不绘制曲线。"
+        validation = validate_figure_rows(name, rows, x_column, y_column, y_scale)
         data_path = stage / f"figure_data_{name}.csv"
         png_path = stage / f"{name}.png"
         write(data_path, rows)
         ax = plt.gca()
         labels = [label for label in ax.get_legend_handles_labels()[1] if label and not label.startswith("_")]
+        if len(labels) != len(set(labels)):
+            raise SystemExit(f"BLOCKED_BCH_S2_04_LEGEND_LABEL_DUPLICATE: {name}")
         plt.title(title)
         plt.xlabel(x_label)
         plt.ylabel(y_label)
@@ -101,13 +155,14 @@ def main() -> int:
             "yColumn": y_column,
             "yLabel": y_label,
             "yUnit": y_unit,
-            "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
-            "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
+            "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate); normalized waveform SNR uses Bn=Rs",
+            "xSemantic": "normalized waveform SNR Ps/Pn with unit-energy symbols and equivalent noise bandwidth Bn=Rs",
             "yScale": y_scale,
             "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
             "legendLabels": labels,
             "legendLabelCount": len(labels),
             "uniqueLegendLabelCount": len(set(labels)),
+            **validation,
             "totalReceiverTimingScope": TIMING_SCOPE if "receiver_time" in name else "",
             "figureNote": note,
             "caseStyles": {case: {"color": value[0], "lineStyle": value[1], "marker": value[2], "label": value[3]}
@@ -139,15 +194,15 @@ def main() -> int:
 
     for payload in (200, 300):
         prefix = f"bch_s2_{payload}bit"
-        title_prefix = f"{payload}-bit BCH"
-        line_plot(payload, "BER", f"{prefix}_multipath_ber", f"{title_prefix} multipath BER", "BER", True)
-        line_plot(payload, "FER", f"{prefix}_multipath_fer", f"{title_prefix} multipath FER", "FER", True)
-        line_plot(payload, "trueSuccessRate", f"{prefix}_true_success", f"{title_prefix} true success rate", "True success rate")
-        line_plot(payload, "miscorrectionRate", f"{prefix}_miscorrection", f"{title_prefix} miscorrection rate", "Miscorrection rate", True)
-        line_plot(payload, "decoderFailureRate", f"{prefix}_decoder_failure", f"{title_prefix} decoder failure rate", "Decoder failure rate", True)
-        line_plot(payload, "avgEqualizationTimeUs", f"{prefix}_equalization_time", f"{title_prefix} MMSE equalization time", "Average equalization time (us)")
-        line_plot(payload, "avgDecodeTimeUs", f"{prefix}_decode_time", f"{title_prefix} decode time", "Average decode time (us)")
-        line_plot(payload, "avgTotalReceiverTimeUs", f"{prefix}_total_receiver_time", f"{title_prefix} total receiver processing time", "Average total receiver processing time (us)")
+        title_prefix = f"{payload}比特 BCH"
+        line_plot(payload, "BER", f"{prefix}_multipath_ber", f"{title_prefix}误码率对比", "误码率 BER", True)
+        line_plot(payload, "FER", f"{prefix}_multipath_fer", f"{title_prefix}误帧率对比", "误帧率 FER", True)
+        line_plot(payload, "trueSuccessRate", f"{prefix}_true_success", f"{title_prefix}真实成功率对比", "真实成功率")
+        line_plot(payload, "miscorrectionRate", f"{prefix}_miscorrection", f"{title_prefix}误纠率对比", "误纠率", True)
+        line_plot(payload, "decoderFailureRate", f"{prefix}_decoder_failure", f"{title_prefix}译码失败率对比", "译码失败率", True)
+        line_plot(payload, "avgEqualizationTimeUs", f"{prefix}_equalization_time", f"{title_prefix}均衡时延对比", "平均均衡时延 (μs)")
+        line_plot(payload, "avgDecodeTimeUs", f"{prefix}_decode_time", f"{title_prefix}译码时延对比", "平均译码时延 (μs)")
+        line_plot(payload, "avgTotalReceiverTimeUs", f"{prefix}_total_receiver_time", f"{title_prefix}接收机总时延对比", "平均接收机总时延 (μs)")
 
         rows = []
         plt.figure(figsize=(8.2, 5.2))
@@ -167,8 +222,8 @@ def main() -> int:
                          markevery=max(1, len(valid) // 10), label=f"{label} {suffix}")
                 rows.extend({"caseName": case, "series": suffix, **row_common(row), "hardBER": row[metric]}
                             for row in valid)
-        finish(f"{prefix}_pre_post_mmse_hard_ber", f"{title_prefix} pre/post-MMSE hard-decision BER",
-               rows, formal_path, "hardBER", "Hard-decision BER", "log")
+        finish(f"{prefix}_pre_post_mmse_hard_ber", f"{title_prefix} MMSE前后硬判决误码率",
+               rows, formal_path, "hardBER", "硬判决误码率", "log")
 
         rows = []
         plt.figure(figsize=(8.2, 5.2))
@@ -185,8 +240,8 @@ def main() -> int:
                          marker=marker, markevery=max(1, len(selected) // 8), label=f"{label} {channel_label}")
                 rows.extend({"caseName": case, "channel": channel, **row_common(row), "FER": row["FER"]}
                             for row in selected)
-        finish(f"{prefix}_awgn_vs_multipath_fer", f"{title_prefix} AWGN vs multipath FER",
-               rows, formal_path, "FER", "FER", "log")
+        finish(f"{prefix}_awgn_vs_multipath_fer", f"{title_prefix} AWGN与多径误帧率对比",
+               rows, formal_path, "FER", "误帧率 FER", "log")
 
     loss_path = stage / "multipath_loss_summary.csv"
     loss = [row for row in read(loss_path) if row["valid"] == "true"]
@@ -198,8 +253,8 @@ def main() -> int:
         y = [float(by_case[case]["multipathLossDb"]) for case in cases if case in by_case]
         plt.bar(x, y, width=0.22, label=f"FER={target}")
     plt.xticks(range(len(cases)), cases, rotation=15)
-    finish("bch_s2_multipath_loss_at_target_fer", "Multipath loss at target FER",
-           loss, loss_path, "multipathLossDb", "Multipath loss (dB)",
+    finish("bch_s2_multipath_loss_at_target_fer", "目标误帧率下的多径损失",
+           loss, loss_path, "multipathLossDb", "多径损失 (dB)",
            x_column="caseName", x_label="BCH case", x_unit="case", y_unit="dB")
 
     source = stage / "fer_amplification_summary.csv"
@@ -227,7 +282,7 @@ def main() -> int:
     finish("bch_s2_multipath_fer_amplification",
            "AWGN与多径共同信噪比区间FER比值",
            rows, source, "ferAmplification", "FER比值（多径/AWGN）", "log",
-           note="Only real overlapping Es/N0 intervals between AWGN and formal multipath curves are shown.")
+           note="仅绘制AWGN与正式多径结果真实重叠的SNR区间；无重叠点不绘制曲线。")
 
     source = stage / "mmse_hard_ber_summary.csv"
     source_rows = read(source)
@@ -246,20 +301,20 @@ def main() -> int:
                  color=color, linestyle=style, marker=marker,
                  markevery=max(1, len(selected) // 8), label=label)
         rows.extend(selected)
-    finish("bch_s2_mmse_hard_ber_reduction", "MMSE hard-decision BER ratio",
-           rows, source, "mmseHardBerReductionRatio", "post-MMSE / pre-MMSE hard BER", "log")
+    finish("bch_s2_mmse_hard_ber_reduction", "MMSE硬判决误码率变化倍数",
+           rows, source, "mmseHardBerReductionRatio", "MMSE后/前硬判决误码率倍数", "log")
 
     timing_path = stage / "timing_summary.csv"
     timing = read(timing_path)
     plt.figure(figsize=(9, 5.4))
     cases = [row["caseName"] for row in timing]
     x = list(range(len(cases)))
-    plt.bar([v - 0.24 for v in x], [float(row["avgEqualizationTimeUs"]) for row in timing], width=0.24, label="Equalization")
-    plt.bar(x, [float(row["avgDecodeTimeUs"]) for row in timing], width=0.24, label="Decode")
-    plt.bar([v + 0.24 for v in x], [float(row["avgTotalReceiverTimeUs"]) for row in timing], width=0.24, label="Total receiver")
+    plt.bar([v - 0.24 for v in x], [float(row["avgEqualizationTimeUs"]) for row in timing], width=0.24, label="均衡")
+    plt.bar(x, [float(row["avgDecodeTimeUs"]) for row in timing], width=0.24, label="译码")
+    plt.bar([v + 0.24 for v in x], [float(row["avgTotalReceiverTimeUs"]) for row in timing], width=0.24, label="接收机总时延")
     plt.xticks(x, cases, rotation=15)
-    finish("bch_s2_receiver_time_comparison", "Receiver processing time comparison",
-           timing, timing_path, "avgTotalReceiverTimeUs", "Average time (us)",
+    finish("bch_s2_receiver_time_comparison", "BCH接收机处理时延对比",
+           timing, timing_path, "avgTotalReceiverTimeUs", "平均时延 (μs)",
            x_column="caseName", x_label="BCH case", x_unit="case", y_unit="us",
            note="Total receiver includes equalization, hard decision, error accounting, decode, and audit; bars are not additive independent hardware-module times.")
 
@@ -276,6 +331,8 @@ def main() -> int:
         "legendLabelCount": item["legendLabelCount"],
         "uniqueLegendLabelCount": item["uniqueLegendLabelCount"],
         "legendUnique": item["legendLabelCount"] == item["uniqueLegendLabelCount"],
+        "validatedDataPointCount": item["validatedDataPointCount"],
+        "omittedRowCount": item["omittedRowCount"],
         "xLabel": item["xLabel"],
         "status": "PASS",
     } for item in manifests]

@@ -19,6 +19,59 @@ def fail(code: str, detail: str) -> None:
     raise SystemExit(f"{code}: {detail}")
 
 
+def finite_float(value: object, code: str, detail: str) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        fail(code, detail)
+    if not math.isfinite(number):
+        fail(code, detail)
+    return number
+
+
+def check_figure_data(stage: Path, item: dict[str, object]) -> None:
+    rows = read(stage / str(item["figureDataCsv"]))
+    if not rows:
+        fail("BLOCKED_BCH_S2_04_EMPTY_FIGURE_DATA", str(item["filename"]))
+    plotted_count = 0
+    omitted_count = 0
+    y_column = str(item["yColumn"])
+    for index, row in enumerate(rows, start=1):
+        plotted = row.get("plotted", "true").lower() != "false"
+        if plotted:
+            plotted_count += 1
+        else:
+            omitted_count += 1
+        if item["xColumn"] == "snrDb":
+            snr = finite_float(row.get("snrDb", ""),
+                               "BLOCKED_BCH_S2_04_NONFINITE_VALUE",
+                               f"{item['filename']}:{index}:snrDb")
+            if row.get("sourcePayloadEbN0Db", "") and row.get("frameRate", ""):
+                source_ebn0 = finite_float(row["sourcePayloadEbN0Db"],
+                                           "BLOCKED_BCH_S2_04_NONFINITE_VALUE",
+                                           f"{item['filename']}:{index}:sourcePayloadEbN0Db")
+                frame_rate = finite_float(row["frameRate"],
+                                          "BLOCKED_BCH_S2_04_NONFINITE_VALUE",
+                                          f"{item['filename']}:{index}:frameRate")
+                if frame_rate <= 0.0:
+                    fail("BLOCKED_BCH_S2_04_X_FORMULA_INVALID_RATE", f"{item['filename']}:{index}")
+                expected = source_ebn0 + 10.0 * math.log10(frame_rate)
+                if abs(snr - expected) > 5e-10:
+                    fail("BLOCKED_BCH_S2_04_X_FORMULA_MISMATCH", f"{item['filename']}:{index}")
+        if not plotted and (row.get(y_column, "") == "" or row.get("valid", "").lower() == "false"):
+            continue
+        if row.get(y_column, "") == "":
+            fail("BLOCKED_BCH_S2_04_Y_VALUE_MISSING", f"{item['filename']}:{index}:{y_column}")
+        y_value = finite_float(row[y_column], "BLOCKED_BCH_S2_04_NONFINITE_VALUE",
+                               f"{item['filename']}:{index}:{y_column}")
+        if item["yScale"] == "log" and y_value <= 0.0:
+            fail("BLOCKED_BCH_S2_04_LOG_Y_NONPOSITIVE", f"{item['filename']}:{index}:{y_column}")
+    if plotted_count != int(item.get("validatedDataPointCount", -1)):
+        fail("BLOCKED_BCH_S2_04_POINT_COUNT_MISMATCH", str(item["filename"]))
+    if omitted_count != int(item.get("omittedRowCount", -1)):
+        fail("BLOCKED_BCH_S2_04_OMITTED_COUNT_MISMATCH", str(item["filename"]))
+
+
 def main() -> int:
     repo = Path(__file__).resolve().parents[4]
     root = repo / "Task/BCH/simulation/stages"
@@ -115,8 +168,12 @@ def main() -> int:
     for item in plot["figures"]:
         if item["legendLabelCount"] != item["uniqueLegendLabelCount"]:
             fail("BLOCKED_BCH_S2_04_LEGEND_LABEL_DUPLICATE", item["filename"])
-        if item["xColumn"] == "snrDb" and item["xLabel"] != "Symbol Es/N0 (dB)":
+        if item["xColumn"] == "snrDb" and item["xLabel"] != "SNR (dB)":
             fail("BLOCKED_BCH_S2_04_AXIS_LABEL_MISMATCH", item["filename"])
+        if item["xColumn"] == "snrDb" and str(item.get("xTransformFormula", "")) != (
+                "snrDb=sourcePayloadEbN0Db+10*log10(frameRate); normalized waveform SNR uses Bn=Rs"):
+            fail("BLOCKED_BCH_S2_04_X_FORMULA_MISSING", item["filename"])
+        check_figure_data(root / "s2_04_fixed_multipath_mmse", item)
         if item["filename"] == "bch_s2_receiver_time_comparison.png" and item[
                 "totalReceiverTimingScope"] != "EQUALIZATION_HARD_DECISION_ERROR_ACCOUNTING_DECODE_AND_AUDIT":
             fail("BLOCKED_BCH_S2_04_TOTAL_RECEIVER_SCOPE_MISSING", item["filename"])
