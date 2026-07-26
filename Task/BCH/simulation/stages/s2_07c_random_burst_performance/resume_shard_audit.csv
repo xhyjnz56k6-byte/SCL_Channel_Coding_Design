@@ -1,2 +1,14 @@
-resumeVsUninterruptedRawCounts,threeShardVsSingleRawCounts,duplicateShardRejected,missingShardRejected,overlapRejected,configHashMismatchRejected,mergedFixtureFrames
-PASS_CTEST_ACTUAL_DECODE,PASS_CTEST_ACTUAL_DECODE,True,True,True,True,300
+checkName,caseName,burstLength,mode,uninterruptedFrames,resumedFrames,singleFrames,mergedFrames,allRawCountsEqual,resultHash,status
+resumeVsUninterruptedRawCounts,BCH-S200,2,NONE,300,300,,,true,991094a24945094fe8b33d84f8cd3eb430ef7d487441c1fb8b489467badf706b,PASS
+threeShardVsSingleRawCounts,BCH-S200,2,NONE,,,300,300,true,991094a24945094fe8b33d84f8cd3eb430ef7d487441c1fb8b489467badf706b,PASS
+seedMismatchRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+configHashMismatchRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+caseMismatchRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+burstLengthMismatchRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+duplicateShardRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+missingShardRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+seedMismatchShardRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+configHashMismatchShardRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+caseMismatchShardRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+burstLengthMismatchShardRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
+overlapRejected,BCH-S200,2,NONE,,,,,,,PASS_REJECTED
