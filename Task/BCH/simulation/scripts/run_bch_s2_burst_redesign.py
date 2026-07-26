@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import math
+import os
 import shutil
 import subprocess
 import sys
@@ -79,6 +80,123 @@ def sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def find_matlab() -> str | None:
+    candidates = [
+        os.environ.get("MATLAB_EXE"),
+        shutil.which("matlab"),
+        r"D:\Apps\Matlab\bin\matlab.exe",
+    ]
+    for candidate in candidates:
+        if candidate and Path(candidate).is_file():
+            return str(Path(candidate).resolve())
+    return None
+
+
+def matlab_quote(path: Path) -> str:
+    return str(path.resolve()).replace("\\", "/").replace("'", "''")
+
+
+def validate_matlab_summary(path: Path) -> dict[str, int]:
+    rows = read_csv(path)
+    if len(rows) != 15:
+        raise RuntimeError("MATLAB summary must contain exactly 15 groups")
+    mismatch_fields = [
+        "encodedMismatch", "burstMismatch", "deinterleaveMismatch",
+        "payloadMismatch", "frameMismatch", "statusMismatch",
+        "permutationMismatch", "weightMismatch",
+    ]
+    frames = sum(int(row["Var3"]) for row in rows)
+    if frames != 9040:
+        raise RuntimeError(f"MATLAB compared {frames} frames, expected 9040")
+    for row in rows:
+        if row["gate"] != "PASS":
+            raise RuntimeError("MATLAB group gate is not PASS")
+        for field in mismatch_fields:
+            if int(row[field]) != 0:
+                raise RuntimeError(f"MATLAB mismatch: {field}")
+    return {"groups": len(rows), "frames": frames, "mismatches": 0}
+
+
+def run_matlab_reference(repo: Path, build: Path, allow_skip: bool) -> bool:
+    audit = repo / "Task/BCH/simulation/stages/s2_07_burst_redesign_audit"
+    execution = audit / "matlab_execution.json"
+    summary = audit / "matlab_reference_summary.csv"
+    log_path = audit / "matlab_log.txt"
+    matlab = find_matlab()
+    if matlab is None:
+        record = {
+            "schemaVersion": "bch.s2.matlab_execution.v1",
+            "executed": False, "skipped": allow_skip,
+            "returnCode": None, "gate": "BLOCKED_MATLAB_NOT_AVAILABLE",
+            "head": subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip(),
+            "timestampUnix": int(time.time()),
+        }
+        execution.write_text(
+            json.dumps(record, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8")
+        if allow_skip:
+            print("BLOCKED_BCH_S2_07_MATLAB_NOT_EXECUTED")
+            return False
+        raise RuntimeError("MATLAB executable was not found")
+    if not (build / "CMakeCache.txt").exists():
+        run([
+            "cmake", "-G", "MinGW Makefiles",
+            "-S", "Task/BCH/simulation/current",
+            "-B", str(build), "-DCMAKE_BUILD_TYPE=Release",
+        ], repo)
+    run(["cmake", "--build", str(build), "-j", "4", "--target",
+         "export_bch_s2_burst_matlab_vectors"], repo)
+    vector_path = repo / (
+        "Task/BCH/simulation/results/s2_07_burst_redesign/"
+        "matlab/burst_vectors.csv")
+    exporter = build / "export_bch_s2_burst_matlab_vectors.exe"
+    run([str(exporter), str(vector_path)], repo)
+    if summary.exists():
+        summary.unlink()
+    expression = (
+        "addpath('" + matlab_quote(
+            repo / "Task/BCH/simulation/matlab_official_validation/matlab")
+        + "'); run_bch_s2_burst_redesign_reference('"
+        + matlab_quote(vector_path) + "','" + matlab_quote(summary) + "')")
+    started = int(time.time())
+    completed = subprocess.run(
+        [matlab, "-batch", expression], cwd=repo, text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    log_path.write_text(completed.stdout, encoding="utf-8")
+    record = {
+        "schemaVersion": "bch.s2.matlab_execution.v1",
+        "executed": True, "skipped": False,
+        "command": [matlab, "-batch", expression],
+        "returnCode": completed.returncode,
+        "head": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip(),
+        "timestampUnix": started,
+        "inputFile": vector_path.relative_to(repo).as_posix(),
+        "inputSha256": sha256(vector_path),
+        "outputFile": summary.relative_to(repo).as_posix(),
+        "logFile": log_path.relative_to(repo).as_posix(),
+        "logSha256": sha256(log_path),
+    }
+    if completed.returncode != 0:
+        record["gate"] = "BLOCKED_MATLAB_RETURN_CODE"
+        execution.write_text(
+            json.dumps(record, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8")
+        raise RuntimeError(
+            f"MATLAB failed with return code {completed.returncode}")
+    result = validate_matlab_summary(summary)
+    record.update(result)
+    record["outputSha256"] = sha256(summary)
+    record["gate"] = "PASS_BCH_S2_07_MATLAB_BURST_REFERENCE"
+    execution.write_text(
+        json.dumps(record, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8")
+    print("PASS_BCH_S2_07_MATLAB_BURST_REFERENCE "
+          f"groups={result['groups']} frames={result['frames']}")
+    return True
 
 
 def configure_chinese() -> None:
@@ -493,8 +611,12 @@ def main() -> int:
             for stage in stages:
                 execute_stage(repo, executable, stage, "formal")
     if args.matlab_only:
-        print("MATLAB validation is executed by run_bch_s2_burst_redesign_reference.m")
-        return 0
+        return 0 if run_matlab_reference(
+            repo, build, allow_skip=args.skip_matlab) else 2
+    matlab_passed = True
+    if args.all and not args.smoke_only:
+        matlab_passed = run_matlab_reference(
+            repo, build, allow_skip=args.skip_matlab)
     if not args.smoke_only:
         for stage in stages:
             derive_stage_files(repo, stage)
@@ -531,6 +653,9 @@ def main() -> int:
             ])
             print("PASS_BCH_S2_07_BURST_PLOT_AUDIT")
             print("PASS_BCH_S2_07_BURST_STRUCTURE_AND_INTERLEAVING")
+            if not matlab_passed:
+                print("BLOCKED_BCH_S2_BURST_REDESIGN_AUDIT_INCOMPLETE")
+                return 2
     return 0
 
 
