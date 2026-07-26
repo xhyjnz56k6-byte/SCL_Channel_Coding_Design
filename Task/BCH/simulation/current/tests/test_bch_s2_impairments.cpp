@@ -1,5 +1,7 @@
 #include "bch_simulation/bch_impairment_channels.hpp"
+#include "bch_simulation/bch_case_adapter.hpp"
 
+#include "common/awgn_channel.hpp"
 #include "common/modulation.hpp"
 
 #include <cmath>
@@ -33,10 +35,16 @@ void testCfo() {
             "negative CFO direction mismatch");
     for (std::size_t length : {248U, 285U, 390U, 420U, 426U}) {
         const scl::common::RealVector values(length, 1.0);
-        const scl::common::RealVector z(length * 2U, 0.0);
+        scl::common::RealVector z(length * 2U, 0.0);
+        for (std::size_t index = 0U; index < length; ++index) {
+            z[2U * index] = static_cast<double>(index % 7U) / 10.0 - 0.3;
+            z[2U * index + 1U] =
+                static_cast<double>(index % 5U) / 10.0 - 0.2;
+        }
         ResidualCfoConfig config;
         config.initialPhaseDeg = 45.0;
         config.frameRotationDeg = 180.0;
+        config.noiseVariance = 0.25;
         config.compensationMode = CfoCompensationMode::Perfect;
         const auto output = applyResidualCfo(values, z, config);
         require(std::abs(output.deltaPhiRad * static_cast<double>(length - 1U) -
@@ -44,6 +52,13 @@ void testCfo() {
                 "frame-length normalization mismatch");
         require(output.hardBits == scl::common::BitVector(length, 0U),
                 "perfect compensation mismatch");
+        const double sigma = std::sqrt(config.noiseVariance / 2.0);
+        for (std::size_t index = 0U; index < length; ++index) {
+            const double awgnReference = values[index] + sigma * z[2U * index];
+            require(std::abs(output.compensatedSamples[index].real() -
+                             awgnReference) <= 1e-12,
+                    "perfect compensation differs from paired AWGN sample");
+        }
     }
     bool rejected = false;
     try {
@@ -54,6 +69,27 @@ void testCfo() {
         rejected = true;
     }
     require(rejected, "CFO NaN was not rejected");
+}
+
+void testSegmentedBurstBoundary() {
+    using namespace scl::bch::simulation;
+    for (const char* caseName : {"BCH-S200", "BCH-S300"}) {
+        const auto& simulationCase = bchSimulationCase(caseName);
+        const scl::common::BitVector payload(simulationCase.payloadLength, 0U);
+        const auto encoded = encodeBchFrame(simulationCase, payload).codeword;
+
+        auto sameSegment = applyPostHardDecisionBurst(encoded, 1U, 2U);
+        auto decoded = decodeBchFrame(simulationCase, sameSegment);
+        auditDecodedBchFrame(payload, decoded);
+        require(!decoded.trueSuccess,
+                "two errors in one BCH(15,11) segment unexpectedly succeeded");
+
+        auto acrossBoundary = applyPostHardDecisionBurst(encoded, 14U, 2U);
+        decoded = decodeBchFrame(simulationCase, acrossBoundary);
+        auditDecodedBchFrame(payload, decoded);
+        require(decoded.trueSuccess,
+                "one error per adjacent BCH(15,11) segment did not succeed");
+    }
 }
 
 void testBlockage() {
@@ -127,6 +163,7 @@ int main() {
         testCfo();
         testBlockage();
         testBurstAndStarts();
+        testSegmentedBurstBoundary();
         std::cout << "PASS_BCH_S2_IMPAIRMENT_CHANNELS\n";
         return 0;
     } catch (const std::exception& error) {
