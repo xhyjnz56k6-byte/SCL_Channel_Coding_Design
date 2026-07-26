@@ -1,4 +1,5 @@
 # Known issues
 
-- 本 Gate 不代表整个 BCH S2 多信道适应性研究完成。
-- 未运行频偏、遮挡、突发错误和最终全信道综合比较。
+- Current preserved formal data: DETERMINISTIC_PER_CASE_NOT_STRICTLY_PAIRED_BY_PHYSICAL_SNR.
+- Strict paired-noise cross-case conclusions require future v2-policy reruns.
+- Frequency offset, erasure, and burst-error experiments were not run and are not covered by this Gate.

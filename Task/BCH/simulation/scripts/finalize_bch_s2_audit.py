@@ -25,6 +25,7 @@ TIMING_SCOPE = "EQUALIZATION_HARD_DECISION_ERROR_ACCOUNTING_DECODE_AND_AUDIT"
 
 def run(repo: Path, *args: str) -> str:
     return subprocess.run(list(args), cwd=repo, check=True, text=True,
+                          encoding="utf-8", errors="replace",
                           stdout=subprocess.PIPE).stdout.strip()
 
 
