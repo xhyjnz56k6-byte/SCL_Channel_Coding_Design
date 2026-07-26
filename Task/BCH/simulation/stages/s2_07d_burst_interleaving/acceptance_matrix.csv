@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+五种 BCH Case 在无交织与固定随机交织下的配对比较,Task/BCH/simulation/stages/s2_07d_burst_interleaving,smoke+formal+业务checker,范围、非有限值、理论保证区、错误重量与配对约束,PASS_BCH_S2_07D_BURST_INTERLEAVING

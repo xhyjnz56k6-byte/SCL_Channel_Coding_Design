@@ -1,0 +1,2 @@
+stage,channelModel,awgn,masterSeed,smokeFramesOrPayloads,formalRule,encodedLengths
+S2-07A,POST_HARD_DECISION_BIT_FLIP,false,2026072607,500 frames or 8 payloads,100 payload exhaustive or min5000/errors300/max100000,248;285;390;420;426

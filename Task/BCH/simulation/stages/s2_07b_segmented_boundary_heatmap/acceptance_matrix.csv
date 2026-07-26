@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+分块 BCH 子块相对起点与连续错误长度的边界热力图,Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap,smoke+formal+业务checker,范围、非有限值、理论保证区、错误重量与配对约束,PASS_BCH_S2_07B_SEGMENTED_BOUNDARY_HEATMAP

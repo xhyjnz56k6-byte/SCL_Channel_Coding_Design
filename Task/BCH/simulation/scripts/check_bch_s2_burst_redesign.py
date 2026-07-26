@@ -6,6 +6,7 @@ import csv
 import hashlib
 import json
 import math
+import subprocess
 from pathlib import Path
 
 
@@ -83,6 +84,56 @@ def main() -> int:
         item["xLabel"] == "SNR（dB）" and item["yLabel"] == "误帧率 FER"
         and item["yScale"] == "log" for item in part_a
     ), "FAIL_BCH_S2_CHANNEL_FER_PLOT_DISTINGUISHABILITY")
+    required = {
+        "stage_plan.md", "acceptance_matrix.csv", "frozen_config.csv",
+        "known_issues.md", "validation_report.md", "test_summary.csv",
+        "commands_used.md", "changed_files.md", "manifest.json",
+        "changes.patch", "git_commit.txt",
+    }
+    for name in names.values():
+        root = stages / name
+        require(required.issubset({path.name for path in root.iterdir()}),
+                "FAIL_BCH_S2_07_AUDIT_FILES")
+        stage_manifest = json.loads(
+            (root / "manifest.json").read_text(encoding="utf-8"))
+        require(stage_manifest["gateStatus"] == "PASS"
+                and stage_manifest["mergeStatus"] == "NOT_MERGED",
+                "FAIL_BCH_S2_07_MANIFEST_STATE")
+        for functional in stage_manifest["functionalRanges"]:
+            base, content = functional["baseCommit"], functional["contentCommit"]
+            actual = subprocess.check_output([
+                "git", "diff", "--name-only", base, content
+            ], cwd=repo, text=True).splitlines()
+            require(actual == functional["files"],
+                    "FAIL_BCH_S2_07_FUNCTIONAL_RANGE")
+            expected_patch = subprocess.check_output(
+                ["git", "diff", "--binary", base, content], cwd=repo)
+            require((root / "changes.patch").read_bytes() == expected_patch,
+                    "FAIL_BCH_S2_07_PATCH_RANGE")
+            require(subprocess.run([
+                "git", "merge-base", "--is-ancestor", content,
+                "origin/bch-s2-burst-redesign-and-plot-quality"
+            ], cwd=repo).returncode == 0,
+                    "FAIL_BCH_S2_07_REMOTE_RANGE")
+        report = (root / "validation_report.md").read_text(encoding="utf-8")
+        require(not any(token in report for token in (
+            "Pending", "to be run", "NOT_PUSHED", "TO_VERIFY_AFTER_PUSH")),
+            "FAIL_BCH_S2_07_VALIDATION_PLACEHOLDER")
+    batch = json.loads((manifest_path.parent / "batch_manifest.json").read_text(
+        encoding="utf-8"))
+    require(batch["gateStatus"] == "PASS"
+            and batch["mergeStatus"] == "NOT_MERGED"
+            and batch["remoteVerification"] == "VERIFIED",
+            "FAIL_BCH_S2_07_BATCH_MANIFEST")
+    tracked = subprocess.check_output(
+        ["git", "diff", "--name-only", "origin/main...HEAD"],
+        cwd=repo, text=True).splitlines()
+    require(not any(path.startswith(("Task/CC/", "Task/LDPC/"))
+                    for path in tracked), "FAIL_BCH_S2_07_SCOPE")
+    require(not any(
+        "/build/" in path or "/results/" in path
+        or path.lower().endswith((".exe", ".obj", ".pdb"))
+        for path in tracked), "FAIL_BCH_S2_07_GENERATED_ARTIFACT")
     print("PASS_BCH_S2_CHANNEL_FER_PLOT_DISTINGUISHABILITY")
     print("PASS_BCH_S2_BURST_REDESIGN_CTEST")
     print("PASS_BCH_S2_07A_BLOCK_BURST_CORRECTION_BOUNDARY")
@@ -91,6 +142,8 @@ def main() -> int:
     print("PASS_BCH_S2_07D_BURST_INTERLEAVING")
     print("PASS_BCH_S2_07_BURST_PLOT_AUDIT")
     print("PASS_BCH_S2_07_BURST_STRUCTURE_AND_INTERLEAVING")
+    print("PASS_BCH_S2_BURST_REDESIGN_AUDIT")
+    print("PASS_BCH_S2_BURST_REDESIGN_AND_PLOT_QUALITY")
     return 0
 
 

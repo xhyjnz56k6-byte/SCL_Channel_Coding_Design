@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+整块 BCH 连续硬 bit 翻转的确定性全起点纠错边界,Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary,smoke+formal+业务checker,范围、非有限值、理论保证区、错误重量与配对约束,PASS_BCH_S2_07A_BLOCK_BURST_CORRECTION_BOUNDARY
