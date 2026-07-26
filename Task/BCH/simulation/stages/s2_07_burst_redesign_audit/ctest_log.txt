@@ -10,4 +10,4 @@ Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/s
 
 100% tests passed out of 4
 
-Total Test time (real) =   0.09 sec
+Total Test time (real) =   0.10 sec

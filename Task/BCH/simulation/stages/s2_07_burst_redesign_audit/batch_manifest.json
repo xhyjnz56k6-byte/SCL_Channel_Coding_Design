@@ -119,6 +119,95 @@
         "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/matlab_reference_summary.csv",
         "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/plot_manifest.json"
       ]
+    },
+    {
+      "name": "realCheckpointResume",
+      "baseCommit": "5ecf3d57a577abeb1d0f89f6a7b31cdd6d83c26e",
+      "contentCommit": "a6f71119eea21cd27525265f7403b24cfdd0b552",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/src/bch_burst_audit_runner.cpp"
+      ]
+    },
+    {
+      "name": "realShardMerge",
+      "baseCommit": "a6f71119eea21cd27525265f7403b24cfdd0b552",
+      "contentCommit": "dc2a7c1607b935cfb1d2bc6857abd3567c393f83",
+      "files": [
+        "Task/BCH/simulation/scripts/check_bch_s2_burst_resume_shard.py",
+        "Task/BCH/simulation/stages/s2_07c_random_burst_performance/resume_shard_audit.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/resume_shard_audit.csv"
+      ]
+    },
+    {
+      "name": "realMatlabAutomation",
+      "baseCommit": "dc2a7c1607b935cfb1d2bc6857abd3567c393f83",
+      "contentCommit": "2c4e4906949b1d6ca70fdc240da88efa7e9b02ec",
+      "files": [
+        "Task/BCH/simulation/scripts/run_bch_s2_burst_redesign.py",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/matlab_execution.json",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/matlab_log.txt"
+      ]
+    },
+    {
+      "name": "strictCTestAndPlotChecker",
+      "baseCommit": "2c4e4906949b1d6ca70fdc240da88efa7e9b02ec",
+      "contentCommit": "fe1914a1037b027b6d0a51e44a07103781591281",
+      "files": [
+        "Task/BCH/simulation/scripts/check_bch_s2_burst_redesign.py",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/ctest_log.txt",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/ctest_summary.csv",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/resume_shard_log.txt"
+      ]
+    },
+    {
+      "name": "s207bVisualization",
+      "baseCommit": "fe1914a1037b027b6d0a51e44a07103781591281",
+      "contentCommit": "3a85dd74e4ded47ca5414f94477a7667daf16cd1",
+      "files": [
+        "Task/BCH/simulation/scripts/run_bch_s2_burst_redesign.py",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/bch_s2_07b_l2_relative_start_fer.png",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/bch_s2_07b_s200_guarantee_binary.png",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/bch_s2_07b_s200_local_l1_l5.png",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/bch_s2_07b_s300_guarantee_binary.png",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/bch_s2_07b_s300_local_l1_l5.png",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/figure_data_bch_s2_07b_l2_relative_start_fer.csv",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/figure_data_bch_s2_07b_s200_guarantee_binary.csv",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/figure_data_bch_s2_07b_s200_local_l1_l5.csv",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/figure_data_bch_s2_07b_s300_guarantee_binary.csv",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/figure_data_bch_s2_07b_s300_local_l1_l5.csv"
+      ]
+    },
+    {
+      "name": "s207dVisualization",
+      "baseCommit": "3a85dd74e4ded47ca5414f94477a7667daf16cd1",
+      "contentCommit": "bb3feea3c3d322e63d9f993b2624e79ade903450",
+      "files": [
+        "Task/BCH/simulation/scripts/run_bch_s2_burst_redesign.py",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figure_data_audit.csv",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/bch_s2_07d_over_capability_frame_fraction.png",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/bch_s2_07d_segmented_max_subblock_errors.png",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/figures/figure_data_bch_s2_07d_over_capability_frame_fraction.csv",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/plot_manifest.json"
+      ]
+    },
+    {
+      "name": "unbiasedRandomStart",
+      "baseCommit": "bb3feea3c3d322e63d9f993b2624e79ade903450",
+      "contentCommit": "17c3f6cdd14aba4871431e483a6ba8743d0e6480",
+      "files": [
+        "Task/BCH/simulation/current/src/bch_burst_simulation.cpp",
+        "Task/BCH/simulation/current/tests/test_bch_s2_burst_redesign.cpp",
+        "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/unbiased_random_start.md"
+      ]
+    },
+    {
+      "name": "atomicCheckpointReliability",
+      "baseCommit": "17c3f6cdd14aba4871431e483a6ba8743d0e6480",
+      "contentCommit": "c8e965f80cfc20a5c4d9fe8733125c7b83f95733",
+      "files": [
+        "Task/BCH/simulation/current/src/bch_burst_audit_runner.cpp"
+      ]
     }
   ],
   "gates": [
@@ -129,11 +218,14 @@
     "PASS_BCH_S2_CHANNEL_FER_PLOT_DISTINGUISHABILITY",
     "PASS_BCH_S2_BURST_REDESIGN_CTEST",
     "PASS_BCH_S2_07_MATLAB_BURST_REFERENCE",
+    "PASS_BCH_S2_07_REAL_RESUME",
+    "PASS_BCH_S2_07_REAL_THREE_SHARD",
+    "PASS_BCH_S2_07_REAL_NEGATIVE_SHARD_REJECTION",
     "PASS_BCH_S2_07_BURST_PLOT_AUDIT",
     "PASS_BCH_S2_07_BURST_STRUCTURE_AND_INTERLEAVING",
     "PASS_BCH_S2_BURST_REDESIGN_AND_PLOT_QUALITY"
   ],
-  "gateStatus": "PASS",
-  "remoteVerification": "VERIFIED",
+  "gateStatus": "FUNCTIONAL_PASS_REMOTE_PENDING",
+  "remoteVerification": "PENDING_ORDINARY_PUSH",
   "mergeStatus": "NOT_MERGED"
 }

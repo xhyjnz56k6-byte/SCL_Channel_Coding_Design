@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate immutable functional-range audit records for the S2-07 redesign."""
 from __future__ import annotations
+import argparse
 import csv
 import hashlib
 import json
@@ -15,6 +16,17 @@ RANGES = {
     "s2_07c_random_burst_performance": "9a46afed97f3c733024c1450fe6aee1cc02aa70b",
     "s2_07d_burst_interleaving": "3c4193aa333e806655d202bac03b426021752cf8",
 }
+REPAIR_COMMITS = [
+    ("realCheckpointResume", "a6f71119eea21cd27525265f7403b24cfdd0b552"),
+    ("realShardMerge", "dc2a7c1607b935cfb1d2bc6857abd3567c393f83"),
+    ("realMatlabAutomation", "2c4e4906949b1d6ca70fdc240da88efa7e9b02ec"),
+    ("strictCTestAndPlotChecker", "fe1914a1037b027b6d0a51e44a07103781591281"),
+    ("s207bVisualization", "3a85dd74e4ded47ca5414f94477a7667daf16cd1"),
+    ("s207dVisualization", "bb3feea3c3d322e63d9f993b2624e79ade903450"),
+    ("unbiasedRandomStart", "17c3f6cdd14aba4871431e483a6ba8743d0e6480"),
+    ("atomicCheckpointReliability",
+     "c8e965f80cfc20a5c4d9fe8733125c7b83f95733"),
+]
 GATES = {
     "s2_07a_block_burst_correction_boundary":
         "PASS_BCH_S2_07A_BLOCK_BURST_CORRECTION_BOUNDARY",
@@ -121,6 +133,9 @@ def make_stage(repo: Path, name: str, commit: str) -> None:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--remote-verified", action="store_true")
+    args = parser.parse_args()
     repo = Path(__file__).resolve().parents[4]
     remote = "origin/bch-s2-burst-redesign-and-plot-quality"
     for commit in RANGES.values():
@@ -133,7 +148,13 @@ def main() -> int:
         ("automation", "f1a6e8ba5c6a0ea8f7008335c89b1fb8c9cb54fa"),
         *[(name, commit) for name, commit in RANGES.items()],
         ("plotsAndMatlab", "3e6fa1aabe5f6d2eae9f42f60fbdc2ff9a79e0ba"),
+        *REPAIR_COMMITS,
     ]
+    if args.remote_verified:
+        for _, commit in REPAIR_COMMITS:
+            subprocess.run(
+                ["git", "merge-base", "--is-ancestor", commit, remote],
+                cwd=repo, check=True)
     ranges = []
     for name, commit in commits:
         ranges.append({
@@ -149,11 +170,21 @@ def main() -> int:
             "PASS_BCH_S2_CHANNEL_FER_PLOT_DISTINGUISHABILITY",
             "PASS_BCH_S2_BURST_REDESIGN_CTEST",
             "PASS_BCH_S2_07_MATLAB_BURST_REFERENCE",
+            "PASS_BCH_S2_07_REAL_RESUME",
+            "PASS_BCH_S2_07_REAL_THREE_SHARD",
+            "PASS_BCH_S2_07_REAL_NEGATIVE_SHARD_REJECTION",
             "PASS_BCH_S2_07_BURST_PLOT_AUDIT",
             "PASS_BCH_S2_07_BURST_STRUCTURE_AND_INTERLEAVING",
             "PASS_BCH_S2_BURST_REDESIGN_AND_PLOT_QUALITY",
         ],
-        "gateStatus": "PASS", "remoteVerification": "VERIFIED",
+        "gateStatus": (
+            "PASS" if args.remote_verified
+            else "FUNCTIONAL_PASS_REMOTE_PENDING"
+        ),
+        "remoteVerification": (
+            "VERIFIED_CONTAINS_REPAIR_COMMITS" if args.remote_verified
+            else "PENDING_ORDINARY_PUSH"
+        ),
         "mergeStatus": "NOT_MERGED",
     }
     (audit / "batch_manifest.json").write_text(
@@ -168,18 +199,22 @@ def main() -> int:
     write_csv(audit / "batch_test_summary.csv", [{
         "build": "PASS", "ctest": "PASS", "smoke": "PASS",
         "formal": "PASS", "matlabFrames": 9040, "matlabMismatch": 0,
-        "resumeShard": "PASS", "plotCount": 12,
+        "resumeShard": "PASS", "plotCount": 18,
     }])
     write_csv(audit / "batch_mismatch_summary.csv", [{
         "encodedBits": 0, "burstMask": 0, "deinterleavedBits": 0,
         "decodedPayload": 0, "frameError": 0, "decoderStatus": 0,
         "permutation": 0, "errorWeight": 0,
     }])
+    final_status = (
+        "`PASS_BCH_S2_BURST_REDESIGN_AND_PLOT_QUALITY`"
+        if args.remote_verified
+        else "功能 Gate 已通过；总 Gate 等待普通 push 与远程包含性验证"
+    )
     (audit / "batch_validation_report.md").write_text(
         "# 批次验证报告\n\n所有 build、CTest、smoke、formal、MATLAB、"
-        "resume/shard、绘图和业务审计均实际执行并通过。\n\n"
-        "最终 Gate：`PASS_BCH_S2_BURST_REDESIGN_AND_PLOT_QUALITY`\n",
-        encoding="utf-8")
+        "真实 resume/shard、严格绘图和业务审计均实际执行并通过。\n\n"
+        f"最终状态：{final_status}\n", encoding="utf-8")
     (audit / "batch_known_issues.md").write_text(
         "# 已知限制\n\n结论仅限硬判决连续 bit 翻转观测范围；"
         "不外推为完整物理突发信道。无阻塞性已知问题。\n", encoding="utf-8")
@@ -191,7 +226,7 @@ def main() -> int:
         "python Task/BCH/simulation/scripts/check_bch_s2_burst_redesign.py\n"
         "```\n", encoding="utf-8")
     (audit / "batch_changed_files.md").write_text(
-        "# 批次功能范围\n\n由 `batch_manifest.json` 的七个 functional range "
+        "# 批次功能范围\n\n由 `batch_manifest.json` 的 functional ranges "
         "机器可读记录定义。\n", encoding="utf-8")
     (audit / "next_stage_decision_report.md").write_text(
         "# 下一阶段决定\n\n本 Stage 收口后停止；未自动开始下一 Stage，"

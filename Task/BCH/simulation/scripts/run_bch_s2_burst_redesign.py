@@ -708,6 +708,11 @@ def main() -> int:
             "ctest", "--test-dir", str(build), "--output-on-failure",
             "-R", "bch_s2_burst_redesign_unit|bch_s2_impairments_unit",
         ], repo)
+        if args.resume:
+            run([
+                sys.executable,
+                "Task/BCH/simulation/scripts/check_bch_s2_burst_resume_shard.py",
+            ], repo)
         if not args.formal_only:
             for stage in stages:
                 execute_stage(repo, executable, stage, "smoke")
