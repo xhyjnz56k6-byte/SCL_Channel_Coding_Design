@@ -128,7 +128,7 @@ def main() -> int:
         (comparison / "plot_manifest.json").read_text(encoding="utf-8")
     )
     require(
-        manifest["figureCount"] >= 18
+        manifest["figureCount"] >= 22
         and manifest["gate"] == "PASS_BCH_S2_CORRECTED_PLOT_AUDIT",
         "BLOCKED_BCH_S2_CORRECTED_PLOT_AUDIT",
     )
@@ -160,13 +160,19 @@ def main() -> int:
         "BLOCKED_BCH_S2_CORRECTED_MATLAB_MISMATCH",
     )
 
-    timing = read(comparison / "blockage_receiver_timing_audit.csv")
+    timing = read(comparison / "impairment_receiver_timing_audit.csv")
     require(
-        len(timing) == 10
+        len(timing) == 20
         and all(float(row["medianReceiverTimeUs"]) > 0.0 for row in timing)
         and all(float(row["p95ReceiverTimeUs"]) >=
                 float(row["medianReceiverTimeUs"]) for row in timing),
         "BLOCKED_BCH_S2_CORRECTED_TIMING_AUDIT",
+    )
+    require(
+        all(float(row["medianPreprocessingTimeUs"]) >= 0.0 for row in timing)
+        and all(float(row["p95PreprocessingTimeUs"]) >=
+                float(row["medianPreprocessingTimeUs"]) for row in timing),
+        "BLOCKED_BCH_S2_CORRECTED_PREPROCESSING_TIMING_AUDIT",
     )
     awgn_timing = read(comparison / "awgn_receiver_timing_audit.csv")
     require(

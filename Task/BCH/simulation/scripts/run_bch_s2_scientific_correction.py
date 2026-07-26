@@ -198,11 +198,24 @@ def run_corrected_timing(
     paths: list[Path] = []
     for case in CASES:
         ebn0 = sorted(legacy.awgn_references(awgn, case))[1]
+        for rotation in (30, 60):
+            tag = (
+                f"s2_08/timing_audit_v2/{legacy.case_slug(case)}_"
+                f"cfo_{rotation}"
+            )
+            paths.append(execute_point(
+                args, repo, "RESIDUAL_CFO", case, ebn0, 5000, tag,
+                ["--initial-phase-deg", "0",
+                 "--frame-rotation-deg", str(rotation)],
+            ))
         for profile, attenuation, length in (
             ("M", -12, 16),
             ("H", -20, 32),
         ):
-            tag = f"s2_08/timing_audit/{legacy.case_slug(case)}_blockage_{profile}"
+            tag = (
+                f"s2_08/timing_audit_v2/{legacy.case_slug(case)}_"
+                f"blockage_{profile}"
+            )
             paths.append(execute_point(
                 args, repo, "SHORT_BLOCKAGE", case, ebn0, 5000, tag,
                 ["--attenuation-db", str(attenuation),
@@ -211,7 +224,11 @@ def run_corrected_timing(
             ))
     rows = [one_row(path) for path in paths]
     for row in rows:
-        row["timingAuditClass"] = "BLOCKAGE_TIMING_ONLY_NO_BER_FER_REPLACEMENT"
+        row["timingAuditClass"] = (
+            "CFO_TIMING_ONLY_NO_BER_FER_REPLACEMENT"
+            if row["channelType"] == "RESIDUAL_CFO"
+            else "BLOCKAGE_TIMING_ONLY_NO_BER_FER_REPLACEMENT"
+        )
     validate_rows(rows)
     return rows
 
@@ -434,7 +451,7 @@ def write_stage_records(
     )
     publish(
         comparison_stage, published / "s2_08",
-        "blockage_receiver_timing_audit.csv", timing_rows,
+        "impairment_receiver_timing_audit.csv", timing_rows,
     )
     publish(
         comparison_stage, published / "s2_08",
@@ -550,7 +567,7 @@ def main() -> int:
             one_row(path)
             for path in (
                 repo / "Task/BCH/simulation/results" / RESULT_SUBTREE
-                / "s2_08/timing_audit"
+                / "s2_08/timing_audit_v2"
             ).glob("*/summary.csv")
         ]
         awgn_timing_rows = [

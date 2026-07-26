@@ -453,32 +453,26 @@ def make_outcome_plots(audit: PlotAudit, risk_path: Path) -> None:
 
 def make_timing_plots(
     audit: PlotAudit,
-    cfo_path: Path,
-    blockage_timing_path: Path,
-    awgn_timing_path: Path,
+    timing_source_path: Path,
 ) -> None:
-    cfo = selected_middle_snr(read(cfo_path))
-    cfo = [
-        row for row in cfo
-        if int(float(row["frameRotationDeg"])) in {30, 60}
+    all_rows = read(timing_source_path)
+    metrics = [
+        (
+            "decode", "译码时延",
+            "p50DecodeTimeUs", "p95DecodeTimeUs",
+            "译码器执行时延（μs/帧）",
+        ),
+        (
+            "preprocessing", "信道前处理时延",
+            "medianPreprocessingTimeUs", "p95PreprocessingTimeUs",
+            "信道前处理时延（μs/帧）",
+        ),
+        (
+            "receiver", "端到端接收机时延",
+            "medianReceiverTimeUs", "p95ReceiverTimeUs",
+            "端到端接收机时延（μs/帧）",
+        ),
     ]
-    for row in cfo:
-        row["timingProfile"] = f"CFO {int(float(row['frameRotationDeg']))}°"
-    blockage = read(blockage_timing_path)
-    for row in blockage:
-        row["timingProfile"] = (
-            "中度遮挡（-12 dB，16符号）"
-            if int(row["blockageLength"]) == 16
-            else "重度遮挡（-20 dB，32符号）"
-        )
-    awgn = read(awgn_timing_path)
-    for row in awgn:
-        row["timingProfile"] = "AWGN（计时专用复测）"
-        row["medianReceiverTimeUs"] = row["p50DecodeTimeUs"]
-        row["p95ReceiverTimeUs"] = row["p95DecodeTimeUs"]
-        row["p99ReceiverTimeUs"] = row["p99DecodeTimeUs"]
-        row["maxReceiverTimeUs"] = row["maxDecodeTimeUs"]
-    all_rows = cfo + blockage + awgn
     for payload, label in ((200, "200"), (300, "300")):
         selected = [
             row for row in all_rows
@@ -488,30 +482,32 @@ def make_timing_plots(
         names = [
             f"{row['caseName']}\n{row['timingProfile']}" for row in selected
         ]
-        median = [float(row["medianReceiverTimeUs"]) for row in selected]
-        p95 = [float(row["p95ReceiverTimeUs"]) for row in selected]
-        fig, ax = plt.subplots(figsize=(10.5, 7.4))
-        x = list(range(len(selected)))
-        ax.plot(x, median, "o-", label="中位数 P50")
-        ax.plot(x, p95, "s--", label="P95")
-        ax.set_xticks(x, names, rotation=45, ha="right", fontsize=7)
-        ax.set_ylabel("端到端接收机时延（μs/帧）")
-        ax.set_title(f"{label}比特BCH接收机时延分位数")
-        ax.grid(True, alpha=0.25)
-        ax.legend()
-        audit.save(
-            fig,
-            f"bch_s2_{label}bit_receiver_timing_quantiles.png",
-            f"{label}比特BCH接收机时延分位数",
-            blockage_timing_path,
-            [dict(row) for row in selected],
-            "profile在计时前只初始化一次。不同信道包含的前处理模块不同，"
-            "端到端绝对时延不是纯译码复杂度；主图显示P50与P95，"
-            "均值、P99及最大值保留在数据表。",
-            "caseName|timingProfile",
-            "medianReceiverTimeUs|p95ReceiverTimeUs",
-            "linear",
-        )
+        for slug, metric_title, median_field, p95_field, y_label in metrics:
+            median = [float(row[median_field]) for row in selected]
+            p95 = [float(row[p95_field]) for row in selected]
+            fig, ax = plt.subplots(figsize=(10.5, 7.4))
+            x = list(range(len(selected)))
+            ax.plot(x, median, "o-", label="中位数 P50")
+            ax.plot(x, p95, "s--", label="P95")
+            ax.set_xticks(x, names, rotation=45, ha="right", fontsize=7)
+            ax.set_ylabel(y_label)
+            ax.set_title(f"{label}比特BCH{metric_title}分位数")
+            ax.grid(True, alpha=0.25)
+            ax.legend()
+            audit.save(
+                fig,
+                f"bch_s2_{label}bit_{slug}_timing_quantiles.png",
+                f"{label}比特BCH{metric_title}分位数",
+                timing_source_path,
+                [dict(row) for row in selected],
+                "profile在计时前只初始化一次；只重跑计时，不替换BER/FER。"
+                "AWGN前处理定义为0；CFO前处理含复旋转、复噪声与硬判决；"
+                "遮挡前处理含幅度修改、噪声与硬判决。主图显示P50与P95，"
+                "均值、P99及最大值保留在数据表。",
+                "caseName|timingProfile",
+                f"{median_field}|{p95_field}",
+                "linear",
+            )
 
 
 def main() -> int:
@@ -546,17 +542,44 @@ def main() -> int:
     )
     comparison_path = comparison_stage / "channel_adaptation_summary.csv"
     risk_path = comparison_stage / "miscorrection_risk_summary.csv"
-    blockage_timing_path = comparison_stage / "blockage_receiver_timing_audit.csv"
+    impairment_timing_path = (
+        comparison_stage / "impairment_receiver_timing_audit.csv"
+    )
     awgn_timing_path = comparison_stage / "awgn_receiver_timing_audit.csv"
+    timing_rows = read(impairment_timing_path)
+    for row in timing_rows:
+        if row["channelType"] == "RESIDUAL_CFO":
+            row["timingProfile"] = (
+                f"CFO {int(float(row['frameRotationDeg']))}°"
+            )
+        else:
+            row["timingProfile"] = (
+                "中度遮挡（-12 dB，16符号）"
+                if int(row["blockageLength"]) == 16
+                else "重度遮挡（-20 dB，32符号）"
+            )
+    for row in read(awgn_timing_path):
+        row["timingProfile"] = "AWGN（计时专用复测）"
+        row["avgPreprocessingTimeUs"] = "0"
+        row["medianPreprocessingTimeUs"] = "0"
+        row["p95PreprocessingTimeUs"] = "0"
+        row["p99PreprocessingTimeUs"] = "0"
+        row["maxPreprocessingTimeUs"] = "0"
+        row["avgTotalReceiverTimeUs"] = row["avgDecodeTimeUs"]
+        row["medianReceiverTimeUs"] = row["p50DecodeTimeUs"]
+        row["p95ReceiverTimeUs"] = row["p95DecodeTimeUs"]
+        row["p99ReceiverTimeUs"] = row["p99DecodeTimeUs"]
+        row["maxReceiverTimeUs"] = row["maxDecodeTimeUs"]
+        timing_rows.append(row)
+    timing_source_path = comparison_stage / "receiver_timing_quantile_source.csv"
+    write(timing_source_path, [dict(row) for row in timing_rows])
 
     make_cfo_plots(audit, cfo_path, phase_path)
     make_burst_plots(audit, burst_path)
     make_blockage_plots(audit, blockage_path)
     make_comparison_plots(audit, comparison_path)
     make_outcome_plots(audit, risk_path)
-    make_timing_plots(
-        audit, cfo_path, blockage_timing_path, awgn_timing_path
-    )
+    make_timing_plots(audit, timing_source_path)
 
     stage_output.mkdir(parents=True, exist_ok=True)
     for path in result_output.iterdir():

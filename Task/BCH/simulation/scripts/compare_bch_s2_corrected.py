@@ -76,6 +76,18 @@ def normalized(
         "decoderFailureRate": row["decoderFailureRate"],
         "channelHardBER": row.get(hard_ber_field, ""),
         "avgDecodeTimeUs": row.get("avgDecodeTimeUs", ""),
+        "avgPreprocessingTimeUs": row.get(
+            "avgPreprocessingTimeUs", row.get("avgEqualizationTimeUs", "")
+        ),
+        "medianPreprocessingTimeUs": row.get(
+            "medianPreprocessingTimeUs", row.get("p50EqualizationTimeUs", "")
+        ),
+        "p95PreprocessingTimeUs": row.get(
+            "p95PreprocessingTimeUs", row.get("p95EqualizationTimeUs", "")
+        ),
+        "p99PreprocessingTimeUs": row.get(
+            "p99PreprocessingTimeUs", row.get("p99EqualizationTimeUs", "")
+        ),
         "avgTotalReceiverTimeUs": row.get(
             "avgTotalReceiverTimeUs", row.get("avgDecodeTimeUs", "")
         ),
@@ -157,10 +169,19 @@ def main() -> int:
         row["caseName"]: row
         for row in read(corrected / "awgn_receiver_timing_audit.csv")
     }
+    impairment_timing_rows = read(
+        corrected / "impairment_receiver_timing_audit.csv"
+    )
     blockage_timing = {
         (row["caseName"],
          "BLOCKAGE_M" if int(row["blockageLength"]) == 16 else "BLOCKAGE_H"): row
-        for row in read(corrected / "blockage_receiver_timing_audit.csv")
+        for row in impairment_timing_rows
+        if row["channelType"] == "SHORT_BLOCKAGE"
+    }
+    cfo_timing = {
+        (row["caseName"], int(float(row["frameRotationDeg"]))): row
+        for row in impairment_timing_rows
+        if row["channelType"] == "RESIDUAL_CFO"
     }
     for row in rows:
         source: dict[str, str] | None = None
@@ -172,6 +193,10 @@ def main() -> int:
             row["p95ReceiverTimeUs"] = source["p95DecodeTimeUs"]
             row["p99ReceiverTimeUs"] = source["p99DecodeTimeUs"]
             row["timingSemantics"] = "TIMING_ONLY_RERUN_PROFILE_PREINITIALIZED"
+            row["avgPreprocessingTimeUs"] = 0.0
+            row["medianPreprocessingTimeUs"] = 0.0
+            row["p95PreprocessingTimeUs"] = 0.0
+            row["p99PreprocessingTimeUs"] = 0.0
         elif row["channelType"] in {"BLOCKAGE_M", "BLOCKAGE_H"}:
             source = blockage_timing[
                 (str(row["caseName"]), str(row["channelType"]))
@@ -179,7 +204,21 @@ def main() -> int:
             for field in (
                 "avgDecodeTimeUs", "avgTotalReceiverTimeUs",
                 "medianReceiverTimeUs", "p95ReceiverTimeUs",
-                "p99ReceiverTimeUs",
+                "p99ReceiverTimeUs", "avgPreprocessingTimeUs",
+                "medianPreprocessingTimeUs", "p95PreprocessingTimeUs",
+                "p99PreprocessingTimeUs",
+            ):
+                row[field] = source[field]
+            row["timingSemantics"] = "TIMING_ONLY_RERUN_PROFILE_PREINITIALIZED"
+        elif str(row["channelType"]).startswith("CFO_"):
+            rotation = int(str(row["channelType"]).split("_")[1])
+            source = cfo_timing[(str(row["caseName"]), rotation)]
+            for field in (
+                "avgDecodeTimeUs", "avgTotalReceiverTimeUs",
+                "medianReceiverTimeUs", "p95ReceiverTimeUs",
+                "p99ReceiverTimeUs", "avgPreprocessingTimeUs",
+                "medianPreprocessingTimeUs", "p95PreprocessingTimeUs",
+                "p99PreprocessingTimeUs",
             ):
                 row[field] = source[field]
             row["timingSemantics"] = "TIMING_ONLY_RERUN_PROFILE_PREINITIALIZED"
@@ -276,6 +315,10 @@ def main() -> int:
         "snrDb": row["snrDb"],
         "avgDecodeTimeUs": row["avgDecodeTimeUs"],
         "avgTotalReceiverTimeUs": row["avgTotalReceiverTimeUs"],
+        "avgPreprocessingTimeUs": row["avgPreprocessingTimeUs"],
+        "medianPreprocessingTimeUs": row["medianPreprocessingTimeUs"],
+        "p95PreprocessingTimeUs": row["p95PreprocessingTimeUs"],
+        "p99PreprocessingTimeUs": row["p99PreprocessingTimeUs"],
         "medianReceiverTimeUs": row["medianReceiverTimeUs"],
         "p95ReceiverTimeUs": row["p95ReceiverTimeUs"],
         "p99ReceiverTimeUs": row["p99ReceiverTimeUs"],
