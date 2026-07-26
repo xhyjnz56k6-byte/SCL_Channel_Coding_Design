@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+独立复算 CFO、遮挡和 burst 代表点,Task/BCH/simulation/stages/s2_09_matlab_channel_reference,C++ unit/smoke/formal/reference,invalid config/hash/range rejection,PASS_BCH_S2_09
