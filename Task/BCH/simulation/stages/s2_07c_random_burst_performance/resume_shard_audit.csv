@@ -1,0 +1,2 @@
+resumeVsUninterruptedRawCounts,threeShardVsSingleRawCounts,duplicateShardRejected,missingShardRejected,overlapRejected,configHashMismatchRejected,mergedFixtureFrames
+PASS_CTEST_ACTUAL_DECODE,PASS_CTEST_ACTUAL_DECODE,True,True,True,True,300
