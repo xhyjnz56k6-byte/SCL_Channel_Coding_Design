@@ -158,6 +158,25 @@ void testReproducibilityAndConservation() {
             sim::uniformBurstStart(285U, 8U, 2U, frame, 9U);
     }
     require(changed, "different seeds should change start sequence");
+    constexpr std::size_t legalCount = 17U;
+    std::vector<std::uint64_t> frequencies(legalCount, 0U);
+    constexpr std::uint64_t samples = 170000U;
+    for (std::uint64_t frame = 0U; frame < samples; ++frame) {
+        const auto start = sim::uniformBurstStart(
+            32U, 16U, 20260726U, frame, 7001U);
+        require(start < legalCount, "unbiased start outside legal range");
+        ++frequencies[start];
+    }
+    const double expected = static_cast<double>(samples) / legalCount;
+    double chiSquare = 0.0;
+    for (std::uint64_t observed : frequencies) {
+        const double delta = static_cast<double>(observed) - expected;
+        chiSquare += delta * delta / expected;
+        require(observed > 0U, "uniform-start coverage missing legal start");
+    }
+    // Sanity check only, not a mathematical proof. The fixed deterministic
+    // sample has 16 degrees of freedom; 60 is deliberately conservative.
+    require(chiSquare < 60.0, "uniform-start frequency sanity check");
 }
 
 struct RawCounts {

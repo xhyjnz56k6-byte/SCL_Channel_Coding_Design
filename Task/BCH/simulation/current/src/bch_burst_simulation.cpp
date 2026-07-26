@@ -98,9 +98,21 @@ std::size_t uniformBurstStart(
         throw std::invalid_argument("burst length exceeds frame length");
     }
     if (burstLength == 0U) return 0U;
-    return static_cast<std::size_t>(
-        burstDomainValue(seed, frameIndex, domain) %
-        (frameLength - burstLength + 1U));
+    const std::uint64_t legalCount =
+        static_cast<std::uint64_t>(frameLength - burstLength + 1U);
+    // Rejection removes the short low-end interval which would otherwise
+    // receive one extra preimage under modulo reduction. Each retry uses a
+    // separate deterministic domain, so resume/shard order cannot affect it.
+    const std::uint64_t threshold =
+        (std::uint64_t{0} - legalCount) % legalCount;
+    for (std::uint64_t attempt = 0U;; ++attempt) {
+        const std::uint64_t sample = burstDomainValue(
+            seed, frameIndex,
+            domain ^ (attempt * 0x9e3779b97f4a7c15ULL));
+        if (sample >= threshold) {
+            return static_cast<std::size_t>(sample % legalCount);
+        }
+    }
 }
 
 }  // namespace scl::bch::simulation
