@@ -215,7 +215,7 @@ def main() -> int:
         patch = b""
         for item in ranges:
             patch += subprocess.check_output([
-                "git", "diff", "--binary",
+                "git", "diff", "--binary", "--unified=0",
                 f"{item['baseCommit']}...{item['contentCommit']}",
             ], cwd=repo)
         (directory / "changes.patch").write_bytes(patch)
@@ -298,7 +298,8 @@ def main() -> int:
         encoding="utf-8",
     )
     (batch / "batch_changes.patch").write_bytes(subprocess.check_output([
-        "git", "diff", "--binary", f"{INITIAL}...{git(repo, 'rev-parse', S209)}",
+        "git", "diff", "--binary", "--unified=0",
+        f"{INITIAL}...{git(repo, 'rev-parse', S209)}",
     ], cwd=repo))
     print("PASS_BCH_S2_BATCH2_AUDIT_RECORD_GENERATION")
     return 0
