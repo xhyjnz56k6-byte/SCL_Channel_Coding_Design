@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "bch.stage.audit.v2",
+  "stage": "s2_09_matlab_channel_reference_corrected",
+  "branch": "bch-s2-batch2-cfo-blockage-burst-final-audit",
+  "baseMainCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+  "functionalRanges": [
+    {
+      "name": "scientificCorrectionContent",
+      "baseCommit": "38ed6bfcfb857eac6d1645a5dc19ba5d35472254",
+      "contentCommit": "2eaa0ea9e5936ca1604ac57a6c3a5ccda3451469",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/src/bch_impairment_channels.cpp",
+        "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp",
+        "Task/BCH/simulation/current/tests/export_bch_s2_corrected_cfo_matlab_vectors.cpp",
+        "Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp",
+        "Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_corrected_cfo_reference.m",
+        "Task/BCH/simulation/scripts/check_bch_s2_corrected.py",
+        "Task/BCH/simulation/scripts/compare_bch_s2_corrected.py",
+        "Task/BCH/simulation/scripts/plot_bch_s2_corrected.py",
+        "Task/BCH/simulation/scripts/run_bch_s2_scientific_correction.py"
+      ]
+    },
+    {
+      "name": "timingSemanticsRepair",
+      "baseCommit": "2eaa0ea9e5936ca1604ac57a6c3a5ccda3451469",
+      "contentCommit": "1facb09a1e12e6c219ea7c8ecbf28914ba1c38aa",
+      "files": [
+        "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp",
+        "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp",
+        "Task/BCH/simulation/scripts/check_bch_s2_corrected.py",
+        "Task/BCH/simulation/scripts/compare_bch_s2_corrected.py",
+        "Task/BCH/simulation/scripts/plot_bch_s2_corrected.py",
+        "Task/BCH/simulation/scripts/run_bch_s2_scientific_correction.py"
+      ]
+    }
+  ],
+  "resultRoot": "Task/BCH/simulation/results/s2_batch2_corrected/s2_09",
+  "remoteVerificationStatus": "VERIFIED_FUNCTIONAL_COMMITS_ON_REMOTE",
+  "gate": "PASS_BCH_S2_CORRECTED_MATLAB_REFERENCE",
+  "mergeStatus": "NOT_MERGED"
+}

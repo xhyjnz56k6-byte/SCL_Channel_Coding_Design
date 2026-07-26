@@ -1,0 +1,9 @@
+key,value
+correctedClass,RESIDUAL_CFO_PHI0_ZERO
+correctedRotationsDeg,0;30;60
+initialPhaseClass,INITIAL_PHASE_SENSITIVITY
+initialPhasesDeg,0;45;90;135
+framesPerGroup,100
+groupCount,35
+totalFrames,3500
+sampleTolerance,1e-12

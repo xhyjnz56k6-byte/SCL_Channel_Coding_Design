@@ -1,0 +1,6 @@
+caseName,guaranteedBurstLengthMax,testedPointCount,expectedPointCount,decodedFrameErrors,status
+BCH-S200,1,6,6,0,PASS
+BCH-S300,1,6,6,0,PASS
+BCH-B200,6,36,36,0,PASS
+BCH-B300,10,60,60,0,PASS
+BCH-B300-426,14,84,84,0,PASS
