@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+只复用既有 AWGN/多径基线并纳入新信道,Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison,C++ unit/smoke/formal/reference,invalid config/hash/range rejection,PASS_BCH_S2_08

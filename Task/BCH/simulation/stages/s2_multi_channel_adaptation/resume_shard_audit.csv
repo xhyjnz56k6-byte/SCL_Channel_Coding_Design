@@ -1,0 +1,35 @@
+channel,test,mismatchCount,status,configHashCount,diagnostic
+CFO,resume_equivalence,0,PASS,,
+CFO,three_shard_merge_equivalence,0,PASS,1,
+CFO,seed_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+CFO,snr_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+CFO,profile_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+CFO,start_policy_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+CFO,length_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+CFO,noise_policy_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: invalid impairment point configuration
+CFO,shard_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BLOCKAGE,resume_equivalence,0,PASS,,
+BLOCKAGE,three_shard_merge_equivalence,0,PASS,1,
+BLOCKAGE,seed_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BLOCKAGE,snr_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BLOCKAGE,profile_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BLOCKAGE,start_policy_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BLOCKAGE,length_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BLOCKAGE,noise_policy_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: invalid impairment point configuration
+BLOCKAGE,shard_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BURST,resume_equivalence,0,PASS,,
+BURST,three_shard_merge_equivalence,0,PASS,1,
+BURST,seed_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BURST,snr_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BURST,profile_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BURST,start_policy_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BURST,length_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+BURST,noise_policy_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: invalid impairment point configuration
+BURST,shard_mismatch,0,PASS,,BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: checkpoint config hash mismatch
+MERGE_VALIDATOR,duplicate_shard,0,PASS,,rejected by explicit pre-merge invariant
+MERGE_VALIDATOR,overlap,0,PASS,,rejected by explicit pre-merge invariant
+MERGE_VALIDATOR,missing_range,0,PASS,,rejected by explicit pre-merge invariant
+MERGE_VALIDATOR,different_config_hash,0,PASS,,rejected by explicit pre-merge invariant
+MERGE_VALIDATOR,different_frame_pool,0,PASS,,rejected by explicit pre-merge invariant
+MERGE_VALIDATOR,different_seed,0,PASS,,rejected by explicit pre-merge invariant
+MERGE_VALIDATOR,different_channel_config,0,PASS,,rejected by explicit pre-merge invariant

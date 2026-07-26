@@ -1,0 +1,1652 @@
+{
+  "schemaVersion": "bch.s2.batch2.plot-manifest.v1",
+  "imageFormat": "PNG",
+  "nonPngCount": 0,
+  "figureCount": 12,
+  "figures": [
+    {
+      "filename": "bch_s2_cfo_rotation_fer.png",
+      "title": "残余频偏旋转角与误帧率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_05_residual_cfo/cfo_phase_aggregate_summary.csv",
+      "sourceCsvSha256": "f70136235820da0f614853b5602cb2d050f4322de3edae480b4d351ea9703569",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_fer.csv",
+      "figureDataSha256": "84f62c5f9ba4f72a1572ee2bdbc4d64818bdf8e2bd1062fd0467a51c00f0f7a3",
+      "pngSha256": "7e9d5e45dcae4514ad899a18dcdf791fab8a391340b1d8d49befa53578ad02ad",
+      "xColumn": "frameRotationDeg",
+      "xLabel": "整帧累计相位旋转（°）",
+      "xUnit": "degree",
+      "yColumn": "FER",
+      "yLabel": "误帧率 FER",
+      "yUnit": "ratio",
+      "xTransformFormula": "IDENTITY",
+      "bandwidthConvention": "NOT_APPLICABLE",
+      "xSemantic": "DIRECT_PARAMETER",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|DEFAULT|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|DEFAULT|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|DEFAULT|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S300|DEFAULT|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200",
+        "BCH-B300",
+        "BCH-B300-426",
+        "BCH-S200",
+        "BCH-S300"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|DEFAULT|#d62728|--|s",
+        "BCH-B300|DEFAULT|#9467bd|:|D",
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v",
+        "BCH-S200|DEFAULT|#1f77b4|-|o",
+        "BCH-S300|DEFAULT|#2ca02c|-.|^"
+      ],
+      "sourcePointCount": 60,
+      "figureDataPointCount": 60,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_cfo_rotation_ber.png",
+      "title": "残余频偏旋转角与误码率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_05_residual_cfo/cfo_phase_aggregate_summary.csv",
+      "sourceCsvSha256": "f70136235820da0f614853b5602cb2d050f4322de3edae480b4d351ea9703569",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_ber.csv",
+      "figureDataSha256": "84f62c5f9ba4f72a1572ee2bdbc4d64818bdf8e2bd1062fd0467a51c00f0f7a3",
+      "pngSha256": "9f6e0ef022f98e6477843937b92f07cd4bb2bec8f7657bec87b4a2987dc14c7f",
+      "xColumn": "frameRotationDeg",
+      "xLabel": "整帧累计相位旋转（°）",
+      "xUnit": "degree",
+      "yColumn": "BER",
+      "yLabel": "误码率 BER",
+      "yUnit": "ratio",
+      "xTransformFormula": "IDENTITY",
+      "bandwidthConvention": "NOT_APPLICABLE",
+      "xSemantic": "DIRECT_PARAMETER",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|DEFAULT|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|DEFAULT|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|DEFAULT|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S300|DEFAULT|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200",
+        "BCH-B300",
+        "BCH-B300-426",
+        "BCH-S200",
+        "BCH-S300"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|DEFAULT|#d62728|--|s",
+        "BCH-B300|DEFAULT|#9467bd|:|D",
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v",
+        "BCH-S200|DEFAULT|#1f77b4|-|o",
+        "BCH-S300|DEFAULT|#2ca02c|-.|^"
+      ],
+      "sourcePointCount": 60,
+      "figureDataPointCount": 60,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_cfo_snr_fer.png",
+      "title": "残余频偏下的误帧率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_05_residual_cfo/cfo_snr_aggregate_summary.csv",
+      "sourceCsvSha256": "40ba01afcd90196e00a1bed5630a176cf4ece2bd45bcc3006200718ea9654a9e",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_snr_fer.csv",
+      "figureDataSha256": "c18b619f7086f41ff93c52e8d3e1807043ecedbd6e33458b4bb5ead0952dba3a",
+      "pngSha256": "eef2e3064968a566c11d73399bf0dd9a096081a049144ef12dc812fe220e90a0",
+      "xColumn": "snrDb",
+      "xLabel": "信噪比 SNR（dB，Bn=Rs）",
+      "xUnit": "dB",
+      "yColumn": "FER",
+      "yLabel": "误帧率 FER",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "bandwidthConvention": "Bn_EQUALS_Rs",
+      "xSemantic": "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|30|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|60|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|30|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|60|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|30|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|60|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|30|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|60|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|30|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|60|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / 30",
+        "BCH-B200 / 60",
+        "BCH-B300 / 30",
+        "BCH-B300 / 60",
+        "BCH-B300-426 / 30",
+        "BCH-B300-426 / 60",
+        "BCH-S200 / 30",
+        "BCH-S200 / 60",
+        "BCH-S300 / 30",
+        "BCH-S300 / 60"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|30|#d62728|-|s",
+        "BCH-B200|60|#d62728|--|s",
+        "BCH-B300|30|#9467bd|-|D",
+        "BCH-B300|60|#9467bd|--|D",
+        "BCH-B300-426|30|#ff7f0e|-|v",
+        "BCH-B300-426|60|#ff7f0e|--|v",
+        "BCH-S200|30|#1f77b4|-|o",
+        "BCH-S200|60|#1f77b4|--|o",
+        "BCH-S300|30|#2ca02c|-|^",
+        "BCH-S300|60|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 156,
+      "figureDataPointCount": 156,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_blockage_length_fer.png",
+      "title": "短时遮挡长度与误帧率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_position_summary.csv",
+      "sourceCsvSha256": "9485b38897c84ae28c6e2d248d8f454f36e4cb050a4adc5030b504551a2c4e7e",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_fer.csv",
+      "figureDataSha256": "19afce945fb485d9dcd3f2656e0c5768c3dd371cacb33dcb41fcca66b448c7c1",
+      "pngSha256": "afa1e04d70034688c27d267b198985b28f0db8568c32df5d12b5d861a096779b",
+      "xColumn": "blockageLength",
+      "xLabel": "遮挡长度（符号）",
+      "xUnit": "symbol/bit",
+      "yColumn": "FER",
+      "yLabel": "误帧率 FER",
+      "yUnit": "ratio",
+      "xTransformFormula": "IDENTITY",
+      "bandwidthConvention": "NOT_APPLICABLE",
+      "xSemantic": "DIRECT_PARAMETER",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|-12|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|-20|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|-12|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|-20|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|-12|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|-20|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|-12|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|-20|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|-12|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|-20|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / -12",
+        "BCH-B200 / -20",
+        "BCH-B300 / -12",
+        "BCH-B300 / -20",
+        "BCH-B300-426 / -12",
+        "BCH-B300-426 / -20",
+        "BCH-S200 / -12",
+        "BCH-S200 / -20",
+        "BCH-S300 / -12",
+        "BCH-S300 / -20"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|-12|#d62728|-|s",
+        "BCH-B200|-20|#d62728|--|s",
+        "BCH-B300|-12|#9467bd|-|D",
+        "BCH-B300|-20|#9467bd|--|D",
+        "BCH-B300-426|-12|#ff7f0e|-|v",
+        "BCH-B300-426|-20|#ff7f0e|--|v",
+        "BCH-S200|-12|#1f77b4|-|o",
+        "BCH-S200|-20|#1f77b4|--|o",
+        "BCH-S300|-12|#2ca02c|-|^",
+        "BCH-S300|-20|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 180,
+      "figureDataPointCount": 180,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_blockage_length_ber.png",
+      "title": "短时遮挡长度与误码率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_position_summary.csv",
+      "sourceCsvSha256": "9485b38897c84ae28c6e2d248d8f454f36e4cb050a4adc5030b504551a2c4e7e",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_ber.csv",
+      "figureDataSha256": "19afce945fb485d9dcd3f2656e0c5768c3dd371cacb33dcb41fcca66b448c7c1",
+      "pngSha256": "7890bf6b29c7e45be750300d867cf3216789fbcaf2d94497fe50328b8178cb6c",
+      "xColumn": "blockageLength",
+      "xLabel": "遮挡长度（符号）",
+      "xUnit": "symbol/bit",
+      "yColumn": "BER",
+      "yLabel": "误码率 BER",
+      "yUnit": "ratio",
+      "xTransformFormula": "IDENTITY",
+      "bandwidthConvention": "NOT_APPLICABLE",
+      "xSemantic": "DIRECT_PARAMETER",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|-12|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|-20|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|-12|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|-20|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|-12|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|-20|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|-12|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|-20|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|-12|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|-20|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / -12",
+        "BCH-B200 / -20",
+        "BCH-B300 / -12",
+        "BCH-B300 / -20",
+        "BCH-B300-426 / -12",
+        "BCH-B300-426 / -20",
+        "BCH-S200 / -12",
+        "BCH-S200 / -20",
+        "BCH-S300 / -12",
+        "BCH-S300 / -20"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|-12|#d62728|-|s",
+        "BCH-B200|-20|#d62728|--|s",
+        "BCH-B300|-12|#9467bd|-|D",
+        "BCH-B300|-20|#9467bd|--|D",
+        "BCH-B300-426|-12|#ff7f0e|-|v",
+        "BCH-B300-426|-20|#ff7f0e|--|v",
+        "BCH-S200|-12|#1f77b4|-|o",
+        "BCH-S200|-20|#1f77b4|--|o",
+        "BCH-S300|-12|#2ca02c|-|^",
+        "BCH-S300|-20|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 180,
+      "figureDataPointCount": 180,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_blockage_snr_fer.png",
+      "title": "典型遮挡下的误帧率",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_formal_snr_summary.csv",
+      "sourceCsvSha256": "fbc0bc560b88259183414e8431ff5d11b26e7e96596482fea5fa3f9a6e098899",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_snr_fer.csv",
+      "figureDataSha256": "47bda3446d5d671949431c0bd92c243ff47c90b627bbcae82b73fc300f4e8e60",
+      "pngSha256": "10bb1bf6a1e4c5b9fd33108764f4db5f0c80d2401ce46d31430e0a33b40e380a",
+      "xColumn": "snrDb",
+      "xLabel": "信噪比 SNR（dB，Bn=Rs）",
+      "xUnit": "dB",
+      "yColumn": "FER",
+      "yLabel": "误帧率 FER",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "bandwidthConvention": "Bn_EQUALS_Rs",
+      "xSemantic": "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|H|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|M|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|H|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|M|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|H|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|M|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|H|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|M|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|H|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|M|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / H",
+        "BCH-B200 / M",
+        "BCH-B300 / H",
+        "BCH-B300 / M",
+        "BCH-B300-426 / H",
+        "BCH-B300-426 / M",
+        "BCH-S200 / H",
+        "BCH-S200 / M",
+        "BCH-S300 / H",
+        "BCH-S300 / M"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|H|#d62728|-|s",
+        "BCH-B200|M|#d62728|--|s",
+        "BCH-B300|H|#9467bd|-|D",
+        "BCH-B300|M|#9467bd|--|D",
+        "BCH-B300-426|H|#ff7f0e|-|v",
+        "BCH-B300-426|M|#ff7f0e|--|v",
+        "BCH-S200|H|#1f77b4|-|o",
+        "BCH-S200|M|#1f77b4|--|o",
+        "BCH-S300|H|#2ca02c|-|^",
+        "BCH-S300|M|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 156,
+      "figureDataPointCount": 156,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_pure_burst_fer.png",
+      "title": "纯突发翻转长度敏感性",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_07_burst_sensitivity/burst_start_sensitivity.csv",
+      "sourceCsvSha256": "bfe66386779dcf7b50053abcecfb6af15923f4fd62f1716b2bb3431f041376ab",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_pure_burst_fer.csv",
+      "figureDataSha256": "9b6c1728f1c47536055e8428b84a76f8dceb12edc0d4e013799e32851656654c",
+      "pngSha256": "087d6726c51c62f8759c95048f2cd4f15840ddadc22ccce0d302c17f90aee938",
+      "xColumn": "burstLength",
+      "xLabel": "突发长度（比特）",
+      "xUnit": "symbol/bit",
+      "yColumn": "FER",
+      "yLabel": "误帧率 FER",
+      "yUnit": "ratio",
+      "xTransformFormula": "IDENTITY",
+      "bandwidthConvention": "NOT_APPLICABLE",
+      "xSemantic": "DIRECT_PARAMETER",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|DEFAULT|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|DEFAULT|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|DEFAULT|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S300|DEFAULT|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200",
+        "BCH-B300",
+        "BCH-B300-426",
+        "BCH-S200",
+        "BCH-S300"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|DEFAULT|#d62728|--|s",
+        "BCH-B300|DEFAULT|#9467bd|:|D",
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v",
+        "BCH-S200|DEFAULT|#1f77b4|-|o",
+        "BCH-S300|DEFAULT|#2ca02c|-.|^"
+      ],
+      "sourcePointCount": 105,
+      "figureDataPointCount": 105,
+      "omittedZeroCount": 28,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_awgn_burst_fer.png",
+      "title": "AWGN 与突发翻转联合敏感性",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_07_burst_sensitivity/burst_start_sensitivity.csv",
+      "sourceCsvSha256": "bfe66386779dcf7b50053abcecfb6af15923f4fd62f1716b2bb3431f041376ab",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_awgn_burst_fer.csv",
+      "figureDataSha256": "b2d21249f4738a8fcab815e8cba32e35d77551c1f488a00045be21b36c352f3a",
+      "pngSha256": "75115106a1fff9b67e3be1b0b89b79edde6016685707cbfb2a7341b979f1aee5",
+      "xColumn": "burstLength",
+      "xLabel": "突发长度（比特）",
+      "xUnit": "symbol/bit",
+      "yColumn": "FER",
+      "yLabel": "误帧率 FER",
+      "yUnit": "ratio",
+      "xTransformFormula": "IDENTITY",
+      "bandwidthConvention": "NOT_APPLICABLE",
+      "xSemantic": "DIRECT_PARAMETER",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|DEFAULT|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|DEFAULT|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|DEFAULT|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S300|DEFAULT|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200",
+        "BCH-B300",
+        "BCH-B300-426",
+        "BCH-S200",
+        "BCH-S300"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|DEFAULT|#d62728|--|s",
+        "BCH-B300|DEFAULT|#9467bd|:|D",
+        "BCH-B300-426|DEFAULT|#ff7f0e|--|v",
+        "BCH-S200|DEFAULT|#1f77b4|-|o",
+        "BCH-S300|DEFAULT|#2ca02c|-.|^"
+      ],
+      "sourcePointCount": 105,
+      "figureDataPointCount": 105,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_channel_comparison_fer.png",
+      "title": "多信道适应性综合比较",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv",
+      "sourceCsvSha256": "344fe29862e8ffdcc0bf02e8edd981ccf8951478109d1edb2d7e404882776e50",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_fer.csv",
+      "figureDataSha256": "382d4f3ae9fc427ecede04fc9c1601bc164c8ea488ca034cd5379f23855aa547",
+      "pngSha256": "1d2f5d1821d2d826cc59c4da8091c120321a845dc4051a12dbbbe174af84f416",
+      "xColumn": "snrDb",
+      "xLabel": "信噪比 SNR（dB，Bn=Rs）",
+      "xUnit": "dB",
+      "yColumn": "FER",
+      "yLabel": "误帧率 FER",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "bandwidthConvention": "Bn_EQUALS_Rs",
+      "xSemantic": "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|AWGN|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s": {
+          "color": "#d62728",
+          "lineStyle": "-.",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s": {
+          "color": "#d62728",
+          "lineStyle": ":",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|AWGN|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D": {
+          "color": "#9467bd",
+          "lineStyle": "-.",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|AWGN|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-.",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v": {
+          "color": "#ff7f0e",
+          "lineStyle": ":",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|AWGN|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-.",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o": {
+          "color": "#1f77b4",
+          "lineStyle": ":",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|AWGN|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^": {
+          "color": "#2ca02c",
+          "lineStyle": ":",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / AWGN",
+        "BCH-B200 / BLOCKAGE_H",
+        "BCH-B200 / BLOCKAGE_M",
+        "BCH-B200 / CFO_30_NO_COMPENSATION",
+        "BCH-B200 / CFO_60_NO_COMPENSATION",
+        "BCH-B200 / MULTIPATH_MMSE",
+        "BCH-B300 / AWGN",
+        "BCH-B300 / BLOCKAGE_H",
+        "BCH-B300 / BLOCKAGE_M",
+        "BCH-B300 / CFO_30_NO_COMPENSATION",
+        "BCH-B300 / CFO_60_NO_COMPENSATION",
+        "BCH-B300 / MULTIPATH_MMSE",
+        "BCH-B300-426 / AWGN",
+        "BCH-B300-426 / BLOCKAGE_H",
+        "BCH-B300-426 / BLOCKAGE_M",
+        "BCH-B300-426 / CFO_30_NO_COMPENSATION",
+        "BCH-B300-426 / CFO_60_NO_COMPENSATION",
+        "BCH-B300-426 / MULTIPATH_MMSE",
+        "BCH-S200 / AWGN",
+        "BCH-S200 / BLOCKAGE_H",
+        "BCH-S200 / BLOCKAGE_M",
+        "BCH-S200 / CFO_30_NO_COMPENSATION",
+        "BCH-S200 / CFO_60_NO_COMPENSATION",
+        "BCH-S200 / MULTIPATH_MMSE",
+        "BCH-S300 / AWGN",
+        "BCH-S300 / BLOCKAGE_H",
+        "BCH-S300 / BLOCKAGE_M",
+        "BCH-S300 / CFO_30_NO_COMPENSATION",
+        "BCH-S300 / CFO_60_NO_COMPENSATION",
+        "BCH-S300 / MULTIPATH_MMSE"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|AWGN|#d62728|-|s",
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s",
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s",
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s",
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s",
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s",
+        "BCH-B300|AWGN|#9467bd|-|D",
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D",
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D",
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D",
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D",
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D",
+        "BCH-B300-426|AWGN|#ff7f0e|-|v",
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v",
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v",
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v",
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v",
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v",
+        "BCH-S200|AWGN|#1f77b4|-|o",
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o",
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o",
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o",
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o",
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o",
+        "BCH-S300|AWGN|#2ca02c|-|^",
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^",
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^",
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^",
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^",
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 531,
+      "figureDataPointCount": 531,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_channel_comparison_miscorrection.png",
+      "title": "多信道误纠风险",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv",
+      "sourceCsvSha256": "344fe29862e8ffdcc0bf02e8edd981ccf8951478109d1edb2d7e404882776e50",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_miscorrection.csv",
+      "figureDataSha256": "62cc71863941610ba5af4db85f92a274770e629bc1e4a784460e7e5ccb740fea",
+      "pngSha256": "ef3a1158a76413afca19023b94267e9a3c3ab8d653aff61357baed673d392118",
+      "xColumn": "snrDb",
+      "xLabel": "信噪比 SNR（dB，Bn=Rs）",
+      "xUnit": "dB",
+      "yColumn": "miscorrectionRate",
+      "yLabel": "误纠率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "bandwidthConvention": "Bn_EQUALS_Rs",
+      "xSemantic": "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|AWGN|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s": {
+          "color": "#d62728",
+          "lineStyle": "-.",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s": {
+          "color": "#d62728",
+          "lineStyle": ":",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|AWGN|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D": {
+          "color": "#9467bd",
+          "lineStyle": "-.",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|AWGN|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-.",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v": {
+          "color": "#ff7f0e",
+          "lineStyle": ":",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|AWGN|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-.",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o": {
+          "color": "#1f77b4",
+          "lineStyle": ":",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|AWGN|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^": {
+          "color": "#2ca02c",
+          "lineStyle": ":",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / AWGN",
+        "BCH-B200 / BLOCKAGE_H",
+        "BCH-B200 / BLOCKAGE_M",
+        "BCH-B200 / CFO_30_NO_COMPENSATION",
+        "BCH-B200 / CFO_60_NO_COMPENSATION",
+        "BCH-B200 / MULTIPATH_MMSE",
+        "BCH-B300 / AWGN",
+        "BCH-B300 / BLOCKAGE_H",
+        "BCH-B300 / BLOCKAGE_M",
+        "BCH-B300 / CFO_30_NO_COMPENSATION",
+        "BCH-B300 / CFO_60_NO_COMPENSATION",
+        "BCH-B300 / MULTIPATH_MMSE",
+        "BCH-B300-426 / AWGN",
+        "BCH-B300-426 / BLOCKAGE_H",
+        "BCH-B300-426 / BLOCKAGE_M",
+        "BCH-B300-426 / CFO_30_NO_COMPENSATION",
+        "BCH-B300-426 / CFO_60_NO_COMPENSATION",
+        "BCH-B300-426 / MULTIPATH_MMSE",
+        "BCH-S200 / AWGN",
+        "BCH-S200 / BLOCKAGE_H",
+        "BCH-S200 / BLOCKAGE_M",
+        "BCH-S200 / CFO_30_NO_COMPENSATION",
+        "BCH-S200 / CFO_60_NO_COMPENSATION",
+        "BCH-S200 / MULTIPATH_MMSE",
+        "BCH-S300 / AWGN",
+        "BCH-S300 / BLOCKAGE_H",
+        "BCH-S300 / BLOCKAGE_M",
+        "BCH-S300 / CFO_30_NO_COMPENSATION",
+        "BCH-S300 / CFO_60_NO_COMPENSATION",
+        "BCH-S300 / MULTIPATH_MMSE"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|AWGN|#d62728|-|s",
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s",
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s",
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s",
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s",
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s",
+        "BCH-B300|AWGN|#9467bd|-|D",
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D",
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D",
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D",
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D",
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D",
+        "BCH-B300-426|AWGN|#ff7f0e|-|v",
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v",
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v",
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v",
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v",
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v",
+        "BCH-S200|AWGN|#1f77b4|-|o",
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o",
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o",
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o",
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o",
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o",
+        "BCH-S300|AWGN|#2ca02c|-|^",
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^",
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^",
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^",
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^",
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 531,
+      "figureDataPointCount": 531,
+      "omittedZeroCount": 188,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_channel_comparison_failure.png",
+      "title": "多信道译码失败风险",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv",
+      "sourceCsvSha256": "344fe29862e8ffdcc0bf02e8edd981ccf8951478109d1edb2d7e404882776e50",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_failure.csv",
+      "figureDataSha256": "0a733f5f2df85521e2dd4a95a56da20f06737d52dfcb684695b1f0dab5508f39",
+      "pngSha256": "4574055765bc414fd26645aa0bfe578b7d2ff68437dadce059d6946f0d8b4286",
+      "xColumn": "snrDb",
+      "xLabel": "信噪比 SNR（dB，Bn=Rs）",
+      "xUnit": "dB",
+      "yColumn": "decoderFailureRate",
+      "yLabel": "译码失败率",
+      "yUnit": "ratio",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "bandwidthConvention": "Bn_EQUALS_Rs",
+      "xSemantic": "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN",
+      "yScale": "log",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|AWGN|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s": {
+          "color": "#d62728",
+          "lineStyle": "-.",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s": {
+          "color": "#d62728",
+          "lineStyle": ":",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|AWGN|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D": {
+          "color": "#9467bd",
+          "lineStyle": "-.",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|AWGN|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-.",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v": {
+          "color": "#ff7f0e",
+          "lineStyle": ":",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|AWGN|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-.",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o": {
+          "color": "#1f77b4",
+          "lineStyle": ":",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|AWGN|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^": {
+          "color": "#2ca02c",
+          "lineStyle": ":",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / AWGN",
+        "BCH-B200 / BLOCKAGE_H",
+        "BCH-B200 / BLOCKAGE_M",
+        "BCH-B200 / CFO_30_NO_COMPENSATION",
+        "BCH-B200 / CFO_60_NO_COMPENSATION",
+        "BCH-B200 / MULTIPATH_MMSE",
+        "BCH-B300 / AWGN",
+        "BCH-B300 / BLOCKAGE_H",
+        "BCH-B300 / BLOCKAGE_M",
+        "BCH-B300 / CFO_30_NO_COMPENSATION",
+        "BCH-B300 / CFO_60_NO_COMPENSATION",
+        "BCH-B300 / MULTIPATH_MMSE",
+        "BCH-B300-426 / AWGN",
+        "BCH-B300-426 / BLOCKAGE_H",
+        "BCH-B300-426 / BLOCKAGE_M",
+        "BCH-B300-426 / CFO_30_NO_COMPENSATION",
+        "BCH-B300-426 / CFO_60_NO_COMPENSATION",
+        "BCH-B300-426 / MULTIPATH_MMSE",
+        "BCH-S200 / AWGN",
+        "BCH-S200 / BLOCKAGE_H",
+        "BCH-S200 / BLOCKAGE_M",
+        "BCH-S200 / CFO_30_NO_COMPENSATION",
+        "BCH-S200 / CFO_60_NO_COMPENSATION",
+        "BCH-S200 / MULTIPATH_MMSE",
+        "BCH-S300 / AWGN",
+        "BCH-S300 / BLOCKAGE_H",
+        "BCH-S300 / BLOCKAGE_M",
+        "BCH-S300 / CFO_30_NO_COMPENSATION",
+        "BCH-S300 / CFO_60_NO_COMPENSATION",
+        "BCH-S300 / MULTIPATH_MMSE"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|AWGN|#d62728|-|s",
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s",
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s",
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s",
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s",
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s",
+        "BCH-B300|AWGN|#9467bd|-|D",
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D",
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D",
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D",
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D",
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D",
+        "BCH-B300-426|AWGN|#ff7f0e|-|v",
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v",
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v",
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v",
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v",
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v",
+        "BCH-S200|AWGN|#1f77b4|-|o",
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o",
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o",
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o",
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o",
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o",
+        "BCH-S300|AWGN|#2ca02c|-|^",
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^",
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^",
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^",
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^",
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 531,
+      "figureDataPointCount": 531,
+      "omittedZeroCount": 266,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    },
+    {
+      "filename": "bch_s2_channel_receiver_time.png",
+      "title": "多信道接收机平均时延",
+      "sourceCsv": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv",
+      "sourceCsvSha256": "344fe29862e8ffdcc0bf02e8edd981ccf8951478109d1edb2d7e404882776e50",
+      "figureDataCsv": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_receiver_time.csv",
+      "figureDataSha256": "382d4f3ae9fc427ecede04fc9c1601bc164c8ea488ca034cd5379f23855aa547",
+      "pngSha256": "15bf7682b67e306894b9f7c95a1d262b85a0c59991c4bda26eeec83fa0f8dc92",
+      "xColumn": "snrDb",
+      "xLabel": "信噪比 SNR（dB，Bn=Rs）",
+      "xUnit": "dB",
+      "yColumn": "avgTotalReceiverTimeUs",
+      "yLabel": "平均时延（μs）",
+      "yUnit": "us",
+      "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "bandwidthConvention": "Bn_EQUALS_Rs",
+      "xSemantic": "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN",
+      "yScale": "linear",
+      "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
+      "seriesStyles": {
+        "BCH-B200|AWGN|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s": {
+          "color": "#d62728",
+          "lineStyle": "-.",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s": {
+          "color": "#d62728",
+          "lineStyle": ":",
+          "marker": "s"
+        },
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s": {
+          "color": "#d62728",
+          "lineStyle": "-",
+          "marker": "s"
+        },
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s": {
+          "color": "#d62728",
+          "lineStyle": "--",
+          "marker": "s"
+        },
+        "BCH-B300|AWGN|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D": {
+          "color": "#9467bd",
+          "lineStyle": "-.",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D": {
+          "color": "#9467bd",
+          "lineStyle": ":",
+          "marker": "D"
+        },
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D": {
+          "color": "#9467bd",
+          "lineStyle": "-",
+          "marker": "D"
+        },
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D": {
+          "color": "#9467bd",
+          "lineStyle": "--",
+          "marker": "D"
+        },
+        "BCH-B300-426|AWGN|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-.",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v": {
+          "color": "#ff7f0e",
+          "lineStyle": ":",
+          "marker": "v"
+        },
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "-",
+          "marker": "v"
+        },
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v": {
+          "color": "#ff7f0e",
+          "lineStyle": "--",
+          "marker": "v"
+        },
+        "BCH-S200|AWGN|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-.",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o": {
+          "color": "#1f77b4",
+          "lineStyle": ":",
+          "marker": "o"
+        },
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o": {
+          "color": "#1f77b4",
+          "lineStyle": "-",
+          "marker": "o"
+        },
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o": {
+          "color": "#1f77b4",
+          "lineStyle": "--",
+          "marker": "o"
+        },
+        "BCH-S300|AWGN|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        },
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-.",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^": {
+          "color": "#2ca02c",
+          "lineStyle": ":",
+          "marker": "^"
+        },
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^": {
+          "color": "#2ca02c",
+          "lineStyle": "-",
+          "marker": "^"
+        },
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^": {
+          "color": "#2ca02c",
+          "lineStyle": "--",
+          "marker": "^"
+        }
+      },
+      "legendLabels": [
+        "BCH-B200 / AWGN",
+        "BCH-B200 / BLOCKAGE_H",
+        "BCH-B200 / BLOCKAGE_M",
+        "BCH-B200 / CFO_30_NO_COMPENSATION",
+        "BCH-B200 / CFO_60_NO_COMPENSATION",
+        "BCH-B200 / MULTIPATH_MMSE",
+        "BCH-B300 / AWGN",
+        "BCH-B300 / BLOCKAGE_H",
+        "BCH-B300 / BLOCKAGE_M",
+        "BCH-B300 / CFO_30_NO_COMPENSATION",
+        "BCH-B300 / CFO_60_NO_COMPENSATION",
+        "BCH-B300 / MULTIPATH_MMSE",
+        "BCH-B300-426 / AWGN",
+        "BCH-B300-426 / BLOCKAGE_H",
+        "BCH-B300-426 / BLOCKAGE_M",
+        "BCH-B300-426 / CFO_30_NO_COMPENSATION",
+        "BCH-B300-426 / CFO_60_NO_COMPENSATION",
+        "BCH-B300-426 / MULTIPATH_MMSE",
+        "BCH-S200 / AWGN",
+        "BCH-S200 / BLOCKAGE_H",
+        "BCH-S200 / BLOCKAGE_M",
+        "BCH-S200 / CFO_30_NO_COMPENSATION",
+        "BCH-S200 / CFO_60_NO_COMPENSATION",
+        "BCH-S200 / MULTIPATH_MMSE",
+        "BCH-S300 / AWGN",
+        "BCH-S300 / BLOCKAGE_H",
+        "BCH-S300 / BLOCKAGE_M",
+        "BCH-S300 / CFO_30_NO_COMPENSATION",
+        "BCH-S300 / CFO_60_NO_COMPENSATION",
+        "BCH-S300 / MULTIPATH_MMSE"
+      ],
+      "visualStyleKeys": [
+        "BCH-B200|AWGN|#d62728|-|s",
+        "BCH-B200|BLOCKAGE_H|#d62728|--|s",
+        "BCH-B200|BLOCKAGE_M|#d62728|-.|s",
+        "BCH-B200|CFO_30_NO_COMPENSATION|#d62728|:|s",
+        "BCH-B200|CFO_60_NO_COMPENSATION|#d62728|-|s",
+        "BCH-B200|MULTIPATH_MMSE|#d62728|--|s",
+        "BCH-B300|AWGN|#9467bd|-|D",
+        "BCH-B300|BLOCKAGE_H|#9467bd|--|D",
+        "BCH-B300|BLOCKAGE_M|#9467bd|-.|D",
+        "BCH-B300|CFO_30_NO_COMPENSATION|#9467bd|:|D",
+        "BCH-B300|CFO_60_NO_COMPENSATION|#9467bd|-|D",
+        "BCH-B300|MULTIPATH_MMSE|#9467bd|--|D",
+        "BCH-B300-426|AWGN|#ff7f0e|-|v",
+        "BCH-B300-426|BLOCKAGE_H|#ff7f0e|--|v",
+        "BCH-B300-426|BLOCKAGE_M|#ff7f0e|-.|v",
+        "BCH-B300-426|CFO_30_NO_COMPENSATION|#ff7f0e|:|v",
+        "BCH-B300-426|CFO_60_NO_COMPENSATION|#ff7f0e|-|v",
+        "BCH-B300-426|MULTIPATH_MMSE|#ff7f0e|--|v",
+        "BCH-S200|AWGN|#1f77b4|-|o",
+        "BCH-S200|BLOCKAGE_H|#1f77b4|--|o",
+        "BCH-S200|BLOCKAGE_M|#1f77b4|-.|o",
+        "BCH-S200|CFO_30_NO_COMPENSATION|#1f77b4|:|o",
+        "BCH-S200|CFO_60_NO_COMPENSATION|#1f77b4|-|o",
+        "BCH-S200|MULTIPATH_MMSE|#1f77b4|--|o",
+        "BCH-S300|AWGN|#2ca02c|-|^",
+        "BCH-S300|BLOCKAGE_H|#2ca02c|--|^",
+        "BCH-S300|BLOCKAGE_M|#2ca02c|-.|^",
+        "BCH-S300|CFO_30_NO_COMPENSATION|#2ca02c|:|^",
+        "BCH-S300|CFO_60_NO_COMPENSATION|#2ca02c|-|^",
+        "BCH-S300|MULTIPATH_MMSE|#2ca02c|--|^"
+      ],
+      "sourcePointCount": 531,
+      "figureDataPointCount": 531,
+      "omittedZeroCount": 0,
+      "dpi": 180,
+      "matplotlibVersion": "3.10.7",
+      "gitCommit": "WORKTREE"
+    }
+  ]
+}
