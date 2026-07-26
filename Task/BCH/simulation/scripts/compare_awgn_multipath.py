@@ -97,22 +97,59 @@ def main() -> int:
     write(stage / "multipath_loss_summary.csv", loss)
 
     amplification: list[dict[str, object]] = []
+    overlap_audit: list[dict[str, object]] = []
     for case in cases:
+        multipath_count = len(by_multi[case])
+        valid_count = 0
+        valid_snrs: list[float] = []
         for row in by_multi[case]:
             snr = float(row["snrDb"])
             awgn_fer, reason = interpolate_positive(by_awgn[case], snr)
             valid = awgn_fer is not None
+            if valid:
+                valid_count += 1
+                valid_snrs.append(snr)
             amplification.append({
                 "caseName": case, "snrDb": row["snrDb"],
+                "sourcePayloadEbN0Db": row["sourcePayloadEbN0Db"],
+                "frameRate": row["frameRate"],
                 "multipathFer": row["FER"],
                 "awgnFer": "" if awgn_fer is None else f"{awgn_fer:.17g}",
                 "ferAmplification": "" if not valid else f"{float(row['FER']) / awgn_fer:.17g}",
-                "valid": str(valid).lower(), "reason": reason,
+                "valid": str(valid).lower(),
+                "publicationStatus": "CURVE_ALLOWED" if valid else "NO_VALID_OVERLAP",
+                "reason": reason,
             })
+        if valid_count >= 2:
+            status = "CURVE_ALLOWED"
+            reason = "at least two real overlapping AWGN/multipath Es/N0 points"
+        elif valid_count == 1:
+            status = "SINGLE_POINT_ONLY"
+            reason = "only one real overlapping AWGN/multipath Es/N0 point"
+        else:
+            status = "NO_VALID_OVERLAP"
+            reason = "no real overlapping AWGN/multipath Es/N0 point"
+        for item in amplification:
+            if item["caseName"] == case and item["valid"] == "true":
+                item["publicationStatus"] = status
+        overlap_audit.append({
+            "caseName": case,
+            "multipathPointCount": multipath_count,
+            "validOverlapPointCount": valid_count,
+            "invalidPointCount": multipath_count - valid_count,
+            "overlapSnrMin": "" if not valid_snrs else f"{min(valid_snrs):.17g}",
+            "overlapSnrMax": "" if not valid_snrs else f"{max(valid_snrs):.17g}",
+            "hasAtLeastTwoValidPoints": str(valid_count >= 2).lower(),
+            "publicationStatus": status,
+            "reason": reason,
+        })
     write(stage / "fer_amplification_summary.csv", amplification)
+    write(stage / "fer_amplification_overlap_audit.csv", overlap_audit)
 
     mmse = [{
         "caseName": row["caseName"], "snrDb": row["snrDb"],
+        "sourcePayloadEbN0Db": row["sourcePayloadEbN0Db"],
+        "frameRate": row["frameRate"],
         "preEqHardBER": row["preEqualizationHardBER"],
         "postEqHardBER": row["postEqualizationHardBER"],
         "mmseHardBerReductionRatio": (

@@ -18,6 +18,7 @@ struct MultipathPointConfig {
     std::uint64_t frameStart = 0U;
     std::uint64_t frameCount = 0U;
     std::uint64_t globalSeed = 0U;
+    std::uint64_t noisePolicyVersion = 1U;
     std::string framePoolManifest;
     std::string outputDirectory;
     bool progress = true;
@@ -66,6 +67,9 @@ struct MultipathPointResult {
 
 MultipathPointResult runMultipathPoint(const MultipathPointConfig& config);
 void writeMultipathPointSummary(const MultipathPointResult& result, const std::string& path);
+std::uint64_t makePhysicalSnrNoiseGroup(std::size_t payloadLength,
+                                        double snrDb,
+                                        std::uint64_t noisePolicyVersion = 2U);
 
 }  // namespace scl::bch::simulation
 

@@ -9,6 +9,7 @@
 namespace scl::common {
 
 constexpr std::uint64_t kNoisePolicyVersion = 1ULL;
+constexpr std::uint64_t kMaxNoisePolicyVersion = 2ULL;
 constexpr std::uint64_t kNoiseDomainSeparator = 0x4E4F4953455F3034ULL;
 constexpr std::uint64_t kDefaultNoiseGroupId = 0ULL;
 

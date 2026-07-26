@@ -48,6 +48,9 @@ int main(int argc, char** argv) {
         config.frameStart = std::stoull(required(args, "--frame-start"));
         config.frameCount = std::stoull(required(args, "--frame-count"));
         config.globalSeed = std::stoull(required(args, "--global-seed"));
+        if (args.count("--noise-policy-version")) {
+            config.noisePolicyVersion = std::stoull(args.at("--noise-policy-version"));
+        }
         config.framePoolManifest = required(args, "--frame-pool-manifest");
         config.outputDirectory = required(args, "--output-dir");
         config.progress = args.count("--no-progress") == 0U;

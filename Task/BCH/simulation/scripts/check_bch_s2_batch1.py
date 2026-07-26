@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import math
 import subprocess
@@ -55,6 +56,11 @@ def main() -> int:
                 fail("BLOCKED_BCH_S2_AUDIT_STATE_CONFLICT", f"{name}:{forbidden}")
 
     formal = read(root / "s2_04_fixed_multipath_mmse/formal_summary.csv")
+    formal_sha = hashlib.sha256(
+        (root / "s2_04_fixed_multipath_mmse/formal_summary.csv").read_bytes()
+    ).hexdigest().upper()
+    if formal_sha != "ECDAB168917C606B9ED06805463E1DECE7F0F3C5E129B3800B5EA71845C5B649":
+        fail("BLOCKED_BCH_S2_04_FORMAL_SUMMARY_CHANGED", formal_sha)
     if len(formal) != 145:
         fail("BLOCKED_BCH_S2_04_FORMAL_POINT_INCOMPLETE", str(len(formal)))
     cases = {row["caseName"] for row in formal}
@@ -85,6 +91,15 @@ def main() -> int:
        "AWGN:TARGET_NOT_BRACKETED_NO_EXTRAPOLATION" not in row["reason"]
        for row in invalid):
         fail("BLOCKED_BCH_S2_04_INVALID_INTERPOLATION", str(actual_invalid))
+    overlap = read(root / "s2_04_fixed_multipath_mmse/fer_amplification_overlap_audit.csv")
+    if len(overlap) != 5:
+        fail("BLOCKED_BCH_S2_04_FER_AMPLIFICATION_OVERLAP_AUDIT", "row count")
+    if any(row["publicationStatus"] == "CURVE_ALLOWED" and
+           int(row["validOverlapPointCount"]) < 2 for row in overlap):
+        fail("BLOCKED_BCH_S2_04_FER_AMPLIFICATION_OVERLAP_AUDIT", "curve with fewer than two points")
+    if any(row["publicationStatus"] == "SINGLE_POINT_ONLY" and
+           int(row["validOverlapPointCount"]) != 1 for row in overlap):
+        fail("BLOCKED_BCH_S2_04_FER_AMPLIFICATION_OVERLAP_AUDIT", "single point count mismatch")
     resume = read(root / "s2_04_fixed_multipath_mmse/resume_shard_audit.csv")
     if len(resume) != 2 or any(row["status"] != "PASS" for row in resume):
         fail("BLOCKED_BCH_S2_04_CHECKPOINT_RESUME_MISMATCH", "equivalence")
@@ -97,6 +112,14 @@ def main() -> int:
     plot = json.loads((root / "s2_04_fixed_multipath_mmse/plot_manifest.json").read_text(encoding="utf-8"))
     if len(plot["figures"]) != 24:
         fail("BLOCKED_BCH_S2_04_FIGURE_DATA_MISMATCH", "PNG count")
+    for item in plot["figures"]:
+        if item["legendLabelCount"] != item["uniqueLegendLabelCount"]:
+            fail("BLOCKED_BCH_S2_04_LEGEND_LABEL_DUPLICATE", item["filename"])
+        if item["xColumn"] == "snrDb" and item["xLabel"] != "Symbol Es/N0 (dB)":
+            fail("BLOCKED_BCH_S2_04_AXIS_LABEL_MISMATCH", item["filename"])
+        if item["filename"] == "bch_s2_receiver_time_comparison.png" and item[
+                "totalReceiverTimingScope"] != "EQUALIZATION_HARD_DECISION_ERROR_ACCOUNTING_DECODE_AND_AUDIT":
+            fail("BLOCKED_BCH_S2_04_TOTAL_RECEIVER_SCOPE_MISSING", item["filename"])
     stage4 = root / "s2_04_fixed_multipath_mmse"
     non_png = [path.name for path in stage4.iterdir()
                if path.suffix.lower() in {".pdf", ".svg", ".eps", ".ps"}]
@@ -105,6 +128,8 @@ def main() -> int:
     audit = read(stage4 / "figure_data_audit.csv")
     if len(audit) != 24 or any(row["status"] != "PASS" for row in audit):
         fail("BLOCKED_BCH_S2_04_FIGURE_DATA_MISMATCH", "hash audit")
+    if any(row["legendLabelCount"] != row["uniqueLegendLabelCount"] for row in audit):
+        fail("BLOCKED_BCH_S2_04_LEGEND_LABEL_DUPLICATE", "figure_data_audit.csv")
     changed = subprocess.run(
         ["git", "diff", "--name-only", "main...HEAD"], cwd=repo, check=True,
         text=True, stdout=subprocess.PIPE,
@@ -118,8 +143,8 @@ def main() -> int:
     print("PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION")
     print("SKIPPED_BCH_S2_03_AWGN_RERUN")
     print("REUSED_S1_FORMAL_AWGN_BASELINE")
-    print("PASS_BCH_S2_04_FIXED_MULTIPATH_MMSE")
-    print("PASS_BCH_S2_BATCH1_FIXED_MULTIPATH_MMSE")
+    print("PASS_BCH_S2_04_FIXED_MULTIPATH_MMSE_FUNCTIONAL")
+    print("PASS_BCH_S2_BATCH1_STRICT_AUDIT_CLEANUP")
     return 0
 
 

@@ -1,0 +1,6 @@
+caseName,multipathPointCount,validOverlapPointCount,invalidPointCount,overlapSnrMin,overlapSnrMax,hasAtLeastTwoValidPoints,publicationStatus,reason
+BCH-B200,24,1,23,5.0657831483776494,5.0657831483776494,false,SINGLE_POINT_ONLY,only one real overlapping AWGN/multipath Es/N0 point
+BCH-B300,21,0,21,,,false,NO_VALID_OVERLAP,no real overlapping AWGN/multipath Es/N0 point
+BCH-B300-426,16,0,16,,,false,NO_VALID_OVERLAP,no real overlapping AWGN/multipath Es/N0 point
+BCH-S200,41,3,38,6.4618513565547095,6.8618513565547099,true,CURVE_ALLOWED,at least two real overlapping AWGN/multipath Es/N0 points
+BCH-S300,43,6,37,6.53871964321762,7.53871964321762,true,CURVE_ALLOWED,at least two real overlapping AWGN/multipath Es/N0 points

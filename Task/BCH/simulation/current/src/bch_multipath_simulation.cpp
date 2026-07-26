@@ -116,6 +116,27 @@ void restoreCheckpoint(MultipathPointResult& result) {
 
 }  // namespace
 
+std::uint64_t makePhysicalSnrNoiseGroup(
+    std::size_t payloadLength, double snrDb, std::uint64_t noisePolicyVersion) {
+    if (payloadLength == 0U || !std::isfinite(snrDb) || noisePolicyVersion == 0U) {
+        throw std::invalid_argument("invalid physical-SNR noise group input");
+    }
+    const auto quantizedSnrMilliDb =
+        static_cast<std::int64_t>(std::llround(snrDb * 1000.0));
+    const std::uint64_t zigzagSnr = quantizedSnrMilliDb < 0
+        ? (static_cast<std::uint64_t>(-quantizedSnrMilliDb) * 2ULL - 1ULL)
+        : (static_cast<std::uint64_t>(quantizedSnrMilliDb) * 2ULL);
+    std::uint64_t group = 1469598103934665603ULL;
+    const auto mix = [&group](std::uint64_t value) {
+        group ^= value;
+        group *= 1099511628211ULL;
+    };
+    mix(static_cast<std::uint64_t>(payloadLength));
+    mix(zigzagSnr);
+    mix(noisePolicyVersion);
+    return group;
+}
+
 MultipathPointResult runMultipathPoint(const MultipathPointConfig& config) {
     if (config.frameCount == 0U || config.framePoolManifest.empty() ||
         config.outputDirectory.empty() || config.shardCount == 0U ||
@@ -150,7 +171,12 @@ MultipathPointResult runMultipathPoint(const MultipathPointConfig& config) {
         simulationCase.caseName, simulationCase.payloadLength, simulationCase.encodedLength,
         std::to_string(config.sourcePayloadEbN0Db), pool.framePoolId(),
         "seed=" + std::to_string(config.globalSeed) + ";group=" +
-            std::to_string(simulationCase.payloadLength * 1000000ULL + config.snrIndex),
+            std::to_string(config.noisePolicyVersion == 1U
+                ? simulationCase.payloadLength * 1000000ULL + config.snrIndex
+                : makePhysicalSnrNoiseGroup(simulationCase.payloadLength,
+                                            result.snrDb,
+                                            config.noisePolicyVersion)) +
+            ";noisePolicyVersion=" + std::to_string(config.noisePolicyVersion),
         stopText, channelText + ";schema=bch.s2.multipath.result.v1"));
     FixedMultipathMmseEqualizer equalizer(
         simulationCase.encodedLength, channel, result.noiseVariance);
@@ -171,8 +197,10 @@ MultipathPointResult runMultipathPoint(const MultipathPointConfig& config) {
     }
     const auto runStart = std::chrono::steady_clock::now();
     auto lastProgress = runStart;
-    const std::uint64_t noiseGroup =
-        simulationCase.payloadLength * 1000000ULL + config.snrIndex;
+    const std::uint64_t noiseGroup = config.noisePolicyVersion == 1U
+        ? simulationCase.payloadLength * 1000000ULL + config.snrIndex
+        : makePhysicalSnrNoiseGroup(
+              simulationCase.payloadLength, result.snrDb, config.noisePolicyVersion);
     for (std::uint64_t offset = result.processedFrames; offset < config.frameCount; ++offset) {
         const std::uint64_t frameIndex = config.frameStart + offset;
         const auto payload = pool.readFrame(frameIndex).payloadBits;
@@ -180,7 +208,7 @@ MultipathPointResult runMultipathPoint(const MultipathPointConfig& config) {
         const auto symbols = common::bpskModulate(encoded.codeword);
         const auto noise = common::generateStandardGaussianFrame(
             config.globalSeed, noiseGroup, frameIndex,
-            equalizer.observationCount(), 1U);
+            equalizer.observationCount(), config.noisePolicyVersion);
         const auto receiverStart = std::chrono::steady_clock::now();
         const auto channelOutput = equalizer.apply(symbols, noise);
         const std::uint64_t preErrors =

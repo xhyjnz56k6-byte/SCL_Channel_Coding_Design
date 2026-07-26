@@ -7,7 +7,8 @@
 namespace scl::common {
 
 void validateNoiseKey(const NoiseKey& key) {
-    if (key.noisePolicyVersion != kNoisePolicyVersion) {
+    if (key.noisePolicyVersion == 0U ||
+        key.noisePolicyVersion > kMaxNoisePolicyVersion) {
         throw std::invalid_argument("unsupported noisePolicyVersion");
     }
 }

@@ -1,1181 +1,1539 @@
 {
-  "schemaVersion": "bch.s2.plot_manifest.v1",
+  "schemaVersion": "bch.s2.plot_manifest.v2",
   "figures": [
     {
       "filename": "bch_s2_200bit_multipath_ber.png",
-      "title": "200比特BCH多径误码率对比",
+      "title": "200-bit BCH multipath BER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_multipath_ber.csv",
-      "figureDataSha256": "517874f96afee34765bdacebd2f4f82063d7d7b0b1933f323f540281b11ff0e0",
+      "figureDataSha256": "0bca9f949be8a708b313920f1f3b86e73b314da071e171a8dcad477ec70bf36c",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "BER",
-      "yLabel": "误码率（BER）",
+      "yLabel": "BER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "508f69ef9ff1ca24fddb292937e86b6032f94df18b611700c5a5c1375dbb2f10",
+      "pngSha256": "1ac279d5593b97ae65e54887ad39b2b8b59b347ee2625746dfbf26efa23eec40",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_multipath_fer.png",
-      "title": "200比特BCH多径误帧率对比",
+      "title": "200-bit BCH multipath FER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_multipath_fer.csv",
-      "figureDataSha256": "ef0c48a2774be88d521180adce80efd22bab2d27bd5458b02b6d8d6ab19cd37d",
+      "figureDataSha256": "28d897ff27f18d0d0166f3070eac4bfad78a5e7d51af5c46bc35f283424f5319",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "FER",
-      "yLabel": "误帧率（FER）",
+      "yLabel": "FER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "d79825dd2bce8668474aa282d9e7dcfe92e6ee0dc15a0721e9c344c65109090c",
+      "pngSha256": "108fa3e28c37b10cfc732c312eabf3878703437d19c5eca4ac0f04b2b53768e4",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_true_success.png",
-      "title": "200比特BCH真实译码成功率",
+      "title": "200-bit BCH true success rate",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_true_success.csv",
-      "figureDataSha256": "ede7c2c6c0389eae5ea7f1f2a6c469c86de4df65f302e363bacc2a6ed138b150",
+      "figureDataSha256": "ddd7d0c358a4aeb4d4c50fe8152366e23e0b784d65e878c43c24b0f55a6d70d5",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "trueSuccessRate",
-      "yLabel": "真实译码成功率",
+      "yLabel": "True success rate",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "8fa8ad5f3acec480843aa54f006fb0dbbf1f459b48f11e384aa30ed26252d990",
+      "pngSha256": "141098276fe4c01533a8d0edd865265dc5ea1566c34a6b6463e261812efd278c",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_miscorrection.png",
-      "title": "200比特BCH误纠率",
+      "title": "200-bit BCH miscorrection rate",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_miscorrection.csv",
-      "figureDataSha256": "629ff3007d248e988803fddb08507b45e6272463ff5ece1506d13e589a107769",
+      "figureDataSha256": "3ab0184649549a9a2f1c974acb4022d6b89f1fe53dfda6fa096fb15b81262306",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "miscorrectionRate",
-      "yLabel": "误纠率",
+      "yLabel": "Miscorrection rate",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "db6762420560633b68cfaf0b677026242f453c2018c196a9015622ba2177d059",
+      "pngSha256": "967b1f65fc370c7596ca08eafd04415420323d736a963315496d81e9a8b81904",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_decoder_failure.png",
-      "title": "200比特BCH译码器失败率",
+      "title": "200-bit BCH decoder failure rate",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_decoder_failure.csv",
-      "figureDataSha256": "ed120cc431470ebf6ec35d7bf0b98adae8c8001613232509b3410406bfd37f8c",
+      "figureDataSha256": "5be3d7dad56780ac0cff3e1db38c3085828286b7172e53bf6c64e289d5f7cfa0",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "decoderFailureRate",
-      "yLabel": "译码器失败率",
+      "yLabel": "Decoder failure rate",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-B200"
+      ],
+      "legendLabelCount": 1,
+      "uniqueLegendLabelCount": 1,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "b8e5604741fb1098fff43223da02f6a5ca75ca3abad75d9abdcb1f0d6583d523",
+      "pngSha256": "c6f56694d465371e3720e3e25e4638bf32675b66deafc9114200197202e3120a",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_equalization_time.png",
-      "title": "200比特BCHMMSE均衡时延",
+      "title": "200-bit BCH MMSE equalization time",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_equalization_time.csv",
-      "figureDataSha256": "790e35437ad5086fe791a07cd23c55646b5595dee86b45467a2462afef7b4811",
+      "figureDataSha256": "b75b012338b7c58cc954cd09636b9884d38c859120558b6e5548a40ea78d7242",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "avgEqualizationTimeUs",
-      "yLabel": "平均均衡时延（μs）",
+      "yLabel": "Average equalization time (us)",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "fcd4d4e0ecd5588b132f8607ea555f7009202bc3025b161a35e10b45cad5cc8f",
+      "pngSha256": "4277daaf17f45bb8ed737187dc722e007660585bafc3bee9ac68e502a7218d11",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_decode_time.png",
-      "title": "200比特BCH译码时延",
+      "title": "200-bit BCH decode time",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_decode_time.csv",
-      "figureDataSha256": "615c20ed793c6b9590dbf8ad972bbb17f733f5e02e02b03b5b68bdef62f01833",
+      "figureDataSha256": "22e66a6a2af4a2c5441eaae61f109642cf11fbec787903ea275262c6d2d7ac05",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "avgDecodeTimeUs",
-      "yLabel": "平均译码时延（μs）",
+      "yLabel": "Average decode time (us)",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "fe58fa0b5ea965df2b17da2c99fc4f0ba43f0fbf77ed5b8add0d2d7df31dbe38",
+      "pngSha256": "2306251fe7e621012e82027ab648da92c3570d31b1bfa3d4fbfed9ae60c72d49",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_total_receiver_time.png",
-      "title": "200比特BCH接收处理时延",
+      "title": "200-bit BCH total receiver processing time",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_total_receiver_time.csv",
-      "figureDataSha256": "6cad5afe0de5c8c7befd9a1699219d10e075abaa04f6939e85902405346a9821",
+      "figureDataSha256": "359d9ba7523702a7f7372b1b872938ddfd2236b518882a5c23dcfb9d436c323f",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "avgTotalReceiverTimeUs",
-      "yLabel": "平均接收处理时延（μs）",
+      "yLabel": "Average total receiver processing time (us)",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "EQUALIZATION_HARD_DECISION_ERROR_ACCOUNTING_DECODE_AND_AUDIT",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "dd45680e308dfe8a9bf0861c9e29c61d292ce835ea6dd8e3f463bb7aa01cfdf0",
+      "pngSha256": "efd211fd8c7615ddc3c9ee36d2711ce17333019bd656f558b8a14cd36d7f30b0",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_pre_post_mmse_hard_ber.png",
-      "title": "200比特BCHMMSE前后硬判决误码率",
+      "title": "200-bit BCH pre/post-MMSE hard-decision BER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_pre_post_mmse_hard_ber.csv",
-      "figureDataSha256": "3a843e886044240e0b4296fc65488ccd46bce6cbf5361c0a987cc856d05518ea",
+      "figureDataSha256": "28ba1dd60c482b927909cc3b172115c794b25bd3c2884223638f04e63b5fe66e",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "hardBER",
-      "yLabel": "硬判决误码率",
+      "yLabel": "Hard-decision BER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200 pre-MMSE",
+        "BCH-S200 post-MMSE",
+        "BCH-B200 pre-MMSE",
+        "BCH-B200 post-MMSE"
+      ],
+      "legendLabelCount": 4,
+      "uniqueLegendLabelCount": 4,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "6cc42235f2ea317ec4f6bea5cfaa48602f15c428af291cfafe998b270488959f",
+      "pngSha256": "66baad8e3725e85baaa24a1794de8e59d92e1ea401081ae997779705e2922d0c",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_200bit_awgn_vs_multipath_fer.png",
-      "title": "200比特BCH多径与AWGN对比",
+      "title": "200-bit BCH AWGN vs multipath FER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_200bit_awgn_vs_multipath_fer.csv",
-      "figureDataSha256": "1fdfcab491ec8254f200670cea886155738e7bd7e19cdd5c1c0fc52f8a28e73b",
+      "figureDataSha256": "d16e24ee4dc208ae462f18f63ae7c8ef2f7e77171b36a95c0a92feee2b2475ff",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "FER",
-      "yLabel": "误帧率（FER）",
+      "yLabel": "FER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200 AWGN",
+        "BCH-S200 Multipath+MMSE",
+        "BCH-B200 AWGN",
+        "BCH-B200 Multipath+MMSE"
+      ],
+      "legendLabelCount": 4,
+      "uniqueLegendLabelCount": 4,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "9cbba435a027a50b70c494e9ed86a7d92ebcbf7dca312b54dbf523dec34b30b2",
+      "pngSha256": "0e763065f8459368237ee00fc73ff9abadfc04c9efa56009ddf0ff511b482262",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_multipath_ber.png",
-      "title": "300比特BCH多径误码率对比",
+      "title": "300-bit BCH multipath BER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_multipath_ber.csv",
-      "figureDataSha256": "60160ab40cb5e097cea2c6eaccce22dde2ceb4d4ff4ce5b133cbacbe680c638c",
+      "figureDataSha256": "6533139bac7746ff404ce6a21ac6fcd9b6648d884feded7ca384763d00b019c3",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "BER",
-      "yLabel": "误码率（BER）",
+      "yLabel": "BER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300",
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "3a7a953ce00cd6ad15d6bf1af7bbc2c82069c73d2f85140121b4a19cab00dfc8",
+      "pngSha256": "cfb4c85a5e77805661bf83a7f949c7f772e5f80d213f4eab5e0f9663cbe754c7",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_multipath_fer.png",
-      "title": "300比特BCH多径误帧率对比",
+      "title": "300-bit BCH multipath FER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_multipath_fer.csv",
-      "figureDataSha256": "e1a7718dd6253294ddf6c9835df78d9299b2376a97a93867d61ff014f6cd972e",
+      "figureDataSha256": "ad278806fde8cf075562814ead401f14adf0140a0b3d26b7cae39d64aff3241f",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "FER",
-      "yLabel": "误帧率（FER）",
+      "yLabel": "FER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300",
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "74b3c1b55be10854919cb3de1122752d60ba89791b7bc7bf17c37df34d773d33",
+      "pngSha256": "016d9b55dadce93cecc733a1d1bd0cdf00714dbc8e21117b0a23fbda6b395553",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_true_success.png",
-      "title": "300比特BCH真实译码成功率",
+      "title": "300-bit BCH true success rate",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_true_success.csv",
-      "figureDataSha256": "c08bef10265e1e3a3f5f424ac912a584daea7c0e57c3ddaaba239dea637eaa8b",
+      "figureDataSha256": "2ea02a2f1abab1ba98577fe9278c9b838a3cce32cee1b1f3552920b64c540120",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "trueSuccessRate",
-      "yLabel": "真实译码成功率",
+      "yLabel": "True success rate",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300",
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "d0378603f98c27f0897badc93122c9165cfeabe75787a68cb167ae8988de88b2",
+      "pngSha256": "f3c52062a5755f17d00f58084b4d900bc57aff013711d91b3273477047b597e5",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_miscorrection.png",
-      "title": "300比特BCH误纠率",
+      "title": "300-bit BCH miscorrection rate",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_miscorrection.csv",
-      "figureDataSha256": "d237326368894a0739114a984e104ab1b69ffb49247f194cde15f325955411e4",
+      "figureDataSha256": "5e6cc450c52588db9051020a7b6231d5437ff9a1f1fa25ebfe9d3f653f21d825",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "miscorrectionRate",
-      "yLabel": "误纠率",
+      "yLabel": "Miscorrection rate",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300"
+      ],
+      "legendLabelCount": 1,
+      "uniqueLegendLabelCount": 1,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "c07475060a0f65553689605cacd01dc10d7a71e4eb62fffea27ad7103d53ce00",
+      "pngSha256": "7df74a8d28e69a5d544883f17e0426340951340af1e033e02ca78bcf2cfeffef",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_decoder_failure.png",
-      "title": "300比特BCH译码器失败率",
+      "title": "300-bit BCH decoder failure rate",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_decoder_failure.csv",
-      "figureDataSha256": "4c6a1692034dd2a06f904c168828d3a6a0a24d982b93058acadcfccd5205c9d8",
+      "figureDataSha256": "5aa937ecd5c79ab0814b9d0203f0153560f80c96e218ef521d92b5f5f5e0d751",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "decoderFailureRate",
-      "yLabel": "译码器失败率",
+      "yLabel": "Decoder failure rate",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 2,
+      "uniqueLegendLabelCount": 2,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "fdc530d957650bf4336503e2dcd768f195ed08878b5018afe0c0e6515230f638",
+      "pngSha256": "9d28f00da9228ec059449ce7628dfb04b36b1c892aadd95142d2c9051da8b882",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_equalization_time.png",
-      "title": "300比特BCHMMSE均衡时延",
+      "title": "300-bit BCH MMSE equalization time",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_equalization_time.csv",
-      "figureDataSha256": "be7751f7a12c7713576571ef367ffc7058284d29e3716bd4d90be0aefe859452",
+      "figureDataSha256": "6d08b3b30d9ea9987bebf2ffc14e840c44168ab0e9ec85272e81ed38dc22bf31",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "avgEqualizationTimeUs",
-      "yLabel": "平均均衡时延（μs）",
+      "yLabel": "Average equalization time (us)",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300",
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "e81f571fd06d9e1385a9413b4df5ae7cad62a7ab10664433f91cb00a0a7f5a12",
+      "pngSha256": "503e6fd2f9a2187b4cfe2e07951ec63aba2fa9fd4b04b192ccd10d13e92b7780",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_decode_time.png",
-      "title": "300比特BCH译码时延",
+      "title": "300-bit BCH decode time",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_decode_time.csv",
-      "figureDataSha256": "30f2813b0a8a4a07215e0c8c1496de71e02fa31fef9bbf92f14e34883fc40a99",
+      "figureDataSha256": "90a29705d45f925be77e7664216508d74279330d4c53c15c6c833e106e4a9946",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "avgDecodeTimeUs",
-      "yLabel": "平均译码时延（μs）",
+      "yLabel": "Average decode time (us)",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300",
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "2d22d3ebde274cf27736de3f740b8b3935023a9e1a332fd4292e86cfdb42ce09",
+      "pngSha256": "3a86c4449e79c9d393992a02023549a20a6a79c064a0ce4fb4dae33d90c1f99a",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_total_receiver_time.png",
-      "title": "300比特BCH接收处理时延",
+      "title": "300-bit BCH total receiver processing time",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_total_receiver_time.csv",
-      "figureDataSha256": "9332d6158e1ededfa14462862e00db5640eae84f23758f3579150976f346724b",
+      "figureDataSha256": "70fa3b3e5c2b739493225a8d7d0bf03aeb1d88d8ebc144a90aadcd3ad462daac",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "avgTotalReceiverTimeUs",
-      "yLabel": "平均接收处理时延（μs）",
+      "yLabel": "Average total receiver processing time (us)",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300",
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "EQUALIZATION_HARD_DECISION_ERROR_ACCOUNTING_DECODE_AND_AUDIT",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "30659666dd9c995a54e58c298ded96abedd4383b4a18c2cd03bb5e297e6c68ce",
+      "pngSha256": "861f91252df3ccbeba46002efa15e778e54856210246fc2ff8c6e3197fac575c",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_pre_post_mmse_hard_ber.png",
-      "title": "300比特BCHMMSE前后硬判决误码率",
+      "title": "300-bit BCH pre/post-MMSE hard-decision BER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_pre_post_mmse_hard_ber.csv",
-      "figureDataSha256": "a76a1bb12c79bec0ae08a331139e5463a8fc2d0aba1171a6e2a6f629e84800de",
+      "figureDataSha256": "ac3cad980f63d273535f2b8a036394992d940457fb563e9bf421ec7b54fff65f",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "hardBER",
-      "yLabel": "硬判决误码率",
+      "yLabel": "Hard-decision BER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300 pre-MMSE",
+        "BCH-S300 post-MMSE",
+        "BCH-B300 pre-MMSE",
+        "BCH-B300 post-MMSE",
+        "BCH-B300-426 pre-MMSE",
+        "BCH-B300-426 post-MMSE"
+      ],
+      "legendLabelCount": 6,
+      "uniqueLegendLabelCount": 6,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "0f60495ee5bd30215c95bec514e00729b8bdfbc63258bdc1f3fa86ebd579a365",
+      "pngSha256": "db652cb0d3b9cecfad997a066efcaad1a831980651e2646b792eb44cd0564fd0",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_300bit_awgn_vs_multipath_fer.png",
-      "title": "300比特BCH多径与AWGN对比",
+      "title": "300-bit BCH AWGN vs multipath FER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv",
       "sourceCsvSha256": "ecdab168917c606b9ed06805463e1dece7f0f3c5e129b3800b5ea71845c5b649",
       "figureDataCsv": "figure_data_bch_s2_300bit_awgn_vs_multipath_fer.csv",
-      "figureDataSha256": "8e4175f2a1b8011ac416ddf8386277c235034cc4fae3c08e80ca82ab8b56407d",
+      "figureDataSha256": "80dee86fc9a442ddcf9e100c79b4247eea8b9447066c2e8da7c5416982b8722a",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "FER",
-      "yLabel": "误帧率（FER）",
+      "yLabel": "FER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S300 AWGN",
+        "BCH-S300 Multipath+MMSE",
+        "BCH-B300 AWGN",
+        "BCH-B300 Multipath+MMSE",
+        "BCH-B300-426 AWGN",
+        "BCH-B300-426 Multipath+MMSE"
+      ],
+      "legendLabelCount": 6,
+      "uniqueLegendLabelCount": 6,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "855155f8cb74de7a9267aff60b59b28c68022d7a970edb213a77555c9859f7a4",
+      "pngSha256": "7f381c89ddbc933ef9a7d8e447c853b69ccb818aa5a493acb03e013a7180b24f",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_multipath_loss_at_target_fer.png",
-      "title": "BCH多径目标FER信噪比损失",
+      "title": "Multipath loss at target FER",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/multipath_loss_summary.csv",
       "sourceCsvSha256": "06a1e96496afe5b7c99505b429906438e95c5870709cb5814e6b326307ea87ee",
       "figureDataCsv": "figure_data_bch_s2_multipath_loss_at_target_fer.csv",
       "figureDataSha256": "6ceaf84342215d49cfb7edba61df71d439a2f3080738b4c713a6b2a081517d07",
       "xColumn": "caseName",
-      "xLabel": "BCH方案",
+      "xLabel": "BCH case",
       "xUnit": "case",
       "yColumn": "multipathLossDb",
-      "yLabel": "多径损失（dB）",
+      "yLabel": "Multipath loss (dB)",
       "yUnit": "dB",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "FER=0.1",
+        "FER=0.01",
+        "FER=0.001"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "26237061dee4d3461015e218ad23a239ac290bf7b2df7edcf7825245142bdd4d",
+      "pngSha256": "3b162a6ed2f67182979b80c8eda1a93d1b40db5cd8fd14c2d30f3dd7e4c8a2ea",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_multipath_fer_amplification.png",
-      "title": "BCH多径FER放大",
+      "title": "AWGN与多径共同信噪比区间FER比值",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/fer_amplification_summary.csv",
-      "sourceCsvSha256": "252d4e93d03073d2f0f301f9bbb7ba02565bd4f7124acb7ba0ace2a7790ced61",
+      "sourceCsvSha256": "eacee4379a05dc59de071df36b1707eba606ee136a572e6cbfd1ceb43e04d07c",
       "figureDataCsv": "figure_data_bch_s2_multipath_fer_amplification.csv",
-      "figureDataSha256": "11b4eb04e3af91a9b41f4a50281299f14fbb5088e5b2ed4d680dd4113a7af3fc",
+      "figureDataSha256": "738b42ee577f3234bb361d53495dcc2020c2afe145ada4ba7220f70bb12831c7",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "ferAmplification",
-      "yLabel": "FER放大倍数",
+      "yLabel": "FER比值（多径/AWGN）",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200 single point",
+        "BCH-S300"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "",
+      "figureNote": "Only real overlapping Es/N0 intervals between AWGN and formal multipath curves are shown.",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "26657123d43a8d8e289f1b6da4b09d917639b0bfba67c4a58e920aad27430c0d",
+      "pngSha256": "f21121929202113000912aac91bf2b899c357731b1c861f7b31e1ef6c39b03b3",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_mmse_hard_ber_reduction.png",
-      "title": "BCH MMSE硬判决改善",
+      "title": "MMSE hard-decision BER ratio",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/mmse_hard_ber_summary.csv",
-      "sourceCsvSha256": "3ef6c4de3f387835c13c0a02006287125b96e8f143862ffd4ca687fcc226930a",
+      "sourceCsvSha256": "8c8b3475e267175afda4eca2c5de650936ca720723feafe1bab7d5b08545681b",
       "figureDataCsv": "figure_data_bch_s2_mmse_hard_ber_reduction.csv",
-      "figureDataSha256": "3ef6c4de3f387835c13c0a02006287125b96e8f143862ffd4ca687fcc226930a",
+      "figureDataSha256": "8c8b3475e267175afda4eca2c5de650936ca720723feafe1bab7d5b08545681b",
       "xColumn": "snrDb",
-      "xLabel": "符号信噪比 Es/N0（dB）",
+      "xLabel": "Symbol Es/N0 (dB)",
       "xUnit": "dB",
       "yColumn": "mmseHardBerReductionRatio",
-      "yLabel": "均衡后/均衡前硬判决BER",
+      "yLabel": "post-MMSE / pre-MMSE hard BER",
       "yUnit": "ratio",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "log",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "BCH-S200",
+        "BCH-B200",
+        "BCH-S300",
+        "BCH-B300",
+        "BCH-B300-426"
+      ],
+      "legendLabelCount": 5,
+      "uniqueLegendLabelCount": 5,
+      "totalReceiverTimingScope": "",
+      "figureNote": "",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "55c0501635dcf74d300ffd76dcb5064465f3933e990b67f36767293ff2025b95",
+      "pngSha256": "4bc0e8329442a1168ac72ffea7811ace49f124b1a142ee85e36c7f5a0124811b",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     },
     {
       "filename": "bch_s2_receiver_time_comparison.png",
-      "title": "BCH多径接收时延对比",
+      "title": "Receiver processing time comparison",
       "sourceCsv": "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/timing_summary.csv",
       "sourceCsvSha256": "6f56ce0d2bbdb0ad5a4ec87915ea5050f21350149410d8c485ec98ab3911c29e",
       "figureDataCsv": "figure_data_bch_s2_receiver_time_comparison.csv",
       "figureDataSha256": "6f56ce0d2bbdb0ad5a4ec87915ea5050f21350149410d8c485ec98ab3911c29e",
       "xColumn": "caseName",
-      "xLabel": "BCH方案",
+      "xLabel": "BCH case",
       "xUnit": "case",
       "yColumn": "avgTotalReceiverTimeUs",
-      "yLabel": "平均时延（μs）",
-      "yUnit": "μs",
+      "yLabel": "Average time (us)",
+      "yUnit": "us",
       "xTransformFormula": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)",
+      "xSemantic": "physical symbol energy-to-noise-density ratio Es/N0, not generic SNR index",
       "yScale": "linear",
       "zeroHandlingPolicy": "omit zero observations from logarithmic panels; never replace with epsilon",
+      "legendLabels": [
+        "Equalization",
+        "Decode",
+        "Total receiver"
+      ],
+      "legendLabelCount": 3,
+      "uniqueLegendLabelCount": 3,
+      "totalReceiverTimingScope": "EQUALIZATION_HARD_DECISION_ERROR_ACCOUNTING_DECODE_AND_AUDIT",
+      "figureNote": "Total receiver includes equalization, hard decision, error accounting, decode, and audit; bars are not additive independent hardware-module times.",
       "caseStyles": {
         "BCH-S200": {
           "color": "#1f77b4",
           "lineStyle": "-",
-          "marker": "o"
+          "marker": "o",
+          "label": "BCH-S200"
         },
         "BCH-B200": {
           "color": "#d62728",
           "lineStyle": "--",
-          "marker": "s"
+          "marker": "s",
+          "label": "BCH-B200"
         },
         "BCH-S300": {
           "color": "#2ca02c",
           "lineStyle": "-.",
-          "marker": "^"
+          "marker": "^",
+          "label": "BCH-S300"
         },
         "BCH-B300": {
           "color": "#9467bd",
           "lineStyle": ":",
-          "marker": "D"
+          "marker": "D",
+          "label": "BCH-B300"
         },
         "BCH-B300-426": {
           "color": "#ff7f0e",
           "lineStyle": "--",
-          "marker": "v"
+          "marker": "v",
+          "label": "BCH-B300-426"
         }
       },
       "dpi": 180,
       "matplotlibVersion": "3.10.7",
-      "pngSha256": "5efb28bcc0cc66cfdbe74f30f0571d9d87cda6e230eafceedc9835356c0ca2e2",
+      "pngSha256": "74bd74d9d5fe3326fa23299152fe2954ae15f62ff8c3ee635a3b8969a378a367",
       "generatedBy": "plot_bch_s2_multipath.py",
-      "gitCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df"
+      "gitCommit": "f74aa16317514ce67491783c9d503e5bb6f205e0"
     }
   ]
 }
