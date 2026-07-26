@@ -1,0 +1,2 @@
+head,testCount,failedCount,returnCode,logSha256,coveredAssertions,gate
+2c4e4906949b1d6ca70fdc240da88efa7e9b02ec,4,0,0,fc693425b4b599652713e590e6ccd32b7461f429c88b6e07354547c93cc3aaeb,awgn;mmse;impairments;injector;interleaver;deinterleaver;decoder;unbiased_random_start,PASS_BCH_S2_BURST_REDESIGN_CTEST
