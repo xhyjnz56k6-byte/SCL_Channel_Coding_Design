@@ -23,6 +23,8 @@ add_library(bch_case_adapter
     src/bch_multipath_simulation.cpp
     src/bch_impairment_channels.cpp
     src/bch_impairment_simulation.cpp
+    src/bch_burst_simulation.cpp
+    src/bch_interleaver.cpp
     src/fixed_multipath_mmse.cpp)
 target_include_directories(bch_case_adapter PUBLIC include)
 target_link_libraries(bch_case_adapter PUBLIC bch15_encoder bch_block common_bch_simulation)
@@ -36,12 +38,16 @@ add_executable(test_bch_s2_mmse tests/test_bch_s2_mmse.cpp)
 target_link_libraries(test_bch_s2_mmse PRIVATE bch_case_adapter)
 add_executable(test_bch_s2_impairments tests/test_bch_s2_impairments.cpp)
 target_link_libraries(test_bch_s2_impairments PRIVATE bch_case_adapter)
+add_executable(test_bch_s2_burst_redesign tests/test_bch_s2_burst_redesign.cpp)
+target_link_libraries(test_bch_s2_burst_redesign PRIVATE bch_case_adapter)
 add_executable(bch_awgn_runner src/bch_awgn_runner.cpp)
 target_link_libraries(bch_awgn_runner PRIVATE bch_case_adapter)
 add_executable(bch_multipath_runner src/bch_multipath_runner.cpp)
 target_link_libraries(bch_multipath_runner PRIVATE bch_case_adapter)
 add_executable(bch_impairment_runner src/bch_impairment_runner.cpp)
 target_link_libraries(bch_impairment_runner PRIVATE bch_case_adapter)
+add_executable(bch_burst_runner src/bch_burst_runner.cpp)
+target_link_libraries(bch_burst_runner PRIVATE bch_case_adapter)
 add_executable(export_bch_s2_matlab_vectors tests/export_bch_s2_matlab_vectors.cpp)
 target_link_libraries(export_bch_s2_matlab_vectors PRIVATE bch_case_adapter)
 add_executable(export_bch_s2_batch2_matlab_vectors
@@ -51,6 +57,9 @@ add_executable(export_bch_s2_corrected_cfo_matlab_vectors
     tests/export_bch_s2_corrected_cfo_matlab_vectors.cpp)
 target_link_libraries(export_bch_s2_corrected_cfo_matlab_vectors
     PRIVATE bch_case_adapter)
+add_executable(export_bch_s2_burst_matlab_vectors
+    tests/export_bch_s2_burst_matlab_vectors.cpp)
+target_link_libraries(export_bch_s2_burst_matlab_vectors PRIVATE bch_case_adapter)
 
 enable_testing()
 if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
@@ -60,3 +69,4 @@ endif()
 add_test(NAME bch12_awgn_unit COMMAND test_bch12_awgn)
 add_test(NAME bch_s2_mmse_unit COMMAND test_bch_s2_mmse)
 add_test(NAME bch_s2_impairments_unit COMMAND test_bch_s2_impairments)
+add_test(NAME bch_s2_burst_redesign_unit COMMAND test_bch_s2_burst_redesign)
