@@ -1,0 +1,3170 @@
+diff --git a/Task/BCH/simulation/current/CMakeLists.txt b/Task/BCH/simulation/current/CMakeLists.txt
+index 9e5b68a..a48000d 100644
+--- a/Task/BCH/simulation/current/CMakeLists.txt
++++ b/Task/BCH/simulation/current/CMakeLists.txt
+@@ -21,6 +21,8 @@ add_library(bch_case_adapter
+     src/bch_case_adapter.cpp
+     src/bch_awgn_simulation.cpp
+     src/bch_multipath_simulation.cpp
++    src/bch_impairment_channels.cpp
++    src/bch_impairment_simulation.cpp
+     src/fixed_multipath_mmse.cpp)
+ target_include_directories(bch_case_adapter PUBLIC include)
+ target_link_libraries(bch_case_adapter PUBLIC bch15_encoder bch_block common_bch_simulation)
+@@ -32,12 +34,19 @@ add_executable(test_bch12_awgn tests/test_bch12_awgn.cpp)
+ target_link_libraries(test_bch12_awgn PRIVATE bch_case_adapter)
+ add_executable(test_bch_s2_mmse tests/test_bch_s2_mmse.cpp)
+ target_link_libraries(test_bch_s2_mmse PRIVATE bch_case_adapter)
++add_executable(test_bch_s2_impairments tests/test_bch_s2_impairments.cpp)
++target_link_libraries(test_bch_s2_impairments PRIVATE bch_case_adapter)
+ add_executable(bch_awgn_runner src/bch_awgn_runner.cpp)
+ target_link_libraries(bch_awgn_runner PRIVATE bch_case_adapter)
+ add_executable(bch_multipath_runner src/bch_multipath_runner.cpp)
+ target_link_libraries(bch_multipath_runner PRIVATE bch_case_adapter)
++add_executable(bch_impairment_runner src/bch_impairment_runner.cpp)
++target_link_libraries(bch_impairment_runner PRIVATE bch_case_adapter)
+ add_executable(export_bch_s2_matlab_vectors tests/export_bch_s2_matlab_vectors.cpp)
+ target_link_libraries(export_bch_s2_matlab_vectors PRIVATE bch_case_adapter)
++add_executable(export_bch_s2_batch2_matlab_vectors
++    tests/export_bch_s2_batch2_matlab_vectors.cpp)
++target_link_libraries(export_bch_s2_batch2_matlab_vectors PRIVATE bch_case_adapter)
+ 
+ enable_testing()
+ if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
+@@ -46,3 +55,4 @@ if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
+ endif()
+ add_test(NAME bch12_awgn_unit COMMAND test_bch12_awgn)
+ add_test(NAME bch_s2_mmse_unit COMMAND test_bch_s2_mmse)
++add_test(NAME bch_s2_impairments_unit COMMAND test_bch_s2_impairments)
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp
+new file mode 100644
+index 0000000..54ee1f2
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp
+@@ -0,0 +1,81 @@
++#ifndef SCL_BCH_SIMULATION_BCH_IMPAIRMENT_CHANNELS_HPP
++#define SCL_BCH_SIMULATION_BCH_IMPAIRMENT_CHANNELS_HPP
++
++#include "common/types.hpp"
++
++#include <complex>
++#include <cstddef>
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++enum class StartPolicy {
++    FrameStart,
++    FrameMiddle,
++    FrameEnd,
++    SegmentInterior,
++    OneBeforeSegmentBoundary,
++    OnSegmentBoundary,
++    UniformRandom
++};
++
++enum class CfoCompensationMode { None, Perfect };
++
++struct ResidualCfoConfig {
++    double initialPhaseDeg = 0.0;
++    double frameRotationDeg = 0.0;
++    double noiseVariance = 0.0;
++    CfoCompensationMode compensationMode = CfoCompensationMode::None;
++};
++
++struct ResidualCfoOutput {
++    std::vector<std::complex<double>> receivedSamples;
++    std::vector<std::complex<double>> compensatedSamples;
++    common::BitVector hardBits;
++    double deltaPhiRad = 0.0;
++};
++
++struct BlockageConfig {
++    double attenuationDb = 0.0;
++    bool completeBlockage = false;
++    std::size_t start = 0U;
++    std::size_t length = 0U;
++    double noiseVariance = 0.0;
++};
++
++struct BlockageOutput {
++    common::RealVector receivedSamples;
++    common::BitVector hardBits;
++    double blockAmplitude = 1.0;
++};
++
++double degreesToRadians(double degrees);
++ResidualCfoOutput applyResidualCfo(
++    const common::RealVector& symbols,
++    const common::RealVector& standardComplexNoise,
++    const ResidualCfoConfig& config);
++BlockageOutput applyShortBlockage(
++    const common::RealVector& symbols,
++    const common::RealVector& standardNoise,
++    const BlockageConfig& config);
++common::BitVector applyPostHardDecisionBurst(
++    const common::BitVector& hardBits, std::size_t start, std::size_t length);
++
++std::uint64_t deterministicDomainValue(
++    std::uint64_t seed, std::uint64_t frameIndex, const std::string& domain);
++std::size_t chooseStartIndex(
++    StartPolicy policy,
++    std::size_t frameLength,
++    std::size_t impairmentLength,
++    std::size_t segmentLength,
++    std::uint64_t seed,
++    std::uint64_t frameIndex,
++    const std::string& domain);
++StartPolicy parseStartPolicy(const std::string& value);
++std::string startPolicyName(StartPolicy value);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp
+new file mode 100644
+index 0000000..82680f5
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp
+@@ -0,0 +1,85 @@
++#ifndef SCL_BCH_SIMULATION_BCH_IMPAIRMENT_SIMULATION_HPP
++#define SCL_BCH_SIMULATION_BCH_IMPAIRMENT_SIMULATION_HPP
++
++#include "bch_simulation/bch_case_adapter.hpp"
++#include "bch_simulation/bch_impairment_channels.hpp"
++
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++enum class ImpairmentChannel { ResidualCfo, ShortBlockage, Burst };
++enum class BurstMode { Pure, Awgn };
++
++struct ImpairmentPointConfig {
++    std::string stage;
++    ImpairmentChannel channel = ImpairmentChannel::ResidualCfo;
++    BchCaseId caseId = BchCaseId::S200;
++    double sourcePayloadEbN0Db = 0.0;
++    std::uint64_t frameStart = 0U;
++    std::uint64_t frameCount = 0U;
++    std::uint64_t logicalFrameCount = 0U;
++    std::uint64_t globalSeed = 0U;
++    std::uint64_t noisePolicyVersion = 2U;
++    std::string framePoolManifest;
++    std::string outputDirectory;
++    bool progress = true;
++    double progressRefreshSeconds = 1.0;
++    double initialPhaseDeg = 0.0;
++    double frameRotationDeg = 0.0;
++    CfoCompensationMode compensationMode = CfoCompensationMode::None;
++    double attenuationDb = 0.0;
++    bool completeBlockage = false;
++    std::size_t blockageLength = 1U;
++    StartPolicy blockageStartPolicy = StartPolicy::UniformRandom;
++    BurstMode burstMode = BurstMode::Pure;
++    std::size_t burstLength = 1U;
++    StartPolicy burstStartPolicy = StartPolicy::UniformRandom;
++    std::string checkpointPath;
++    std::uint64_t checkpointInterval = 0U;
++    bool resume = false;
++    std::uint64_t interruptAfterFrames = 0U;
++    bool adaptiveStop = false;
++    std::uint64_t minFrames = 0U;
++    std::uint64_t targetFrameErrors = 0U;
++    std::uint64_t maxFrames = 0U;
++    std::uint64_t shardIndex = 0U;
++    std::uint64_t shardCount = 1U;
++};
++
++struct ImpairmentPointResult {
++    ImpairmentPointConfig config;
++    double snrDb = 0.0;
++    std::uint64_t processedFrames = 0U;
++    std::uint64_t processedPayloadBits = 0U;
++    std::uint64_t channelHardBitErrors = 0U;
++    std::uint64_t channelHardFrameErrors = 0U;
++    std::uint64_t decodedBitErrors = 0U;
++    std::uint64_t decodedFrameErrors = 0U;
++    std::uint64_t trueSuccessFrames = 0U;
++    std::uint64_t reportedSuccessFrames = 0U;
++    std::uint64_t miscorrectedFrames = 0U;
++    std::uint64_t decoderFailureFrames = 0U;
++    double decodeTimeUsSum = 0.0;
++    double totalReceiverTimeUsSum = 0.0;
++    std::vector<double> decodeTimesUs;
++    std::vector<double> receiverTimesUs;
++    std::string stopReason = "CONTINUE";
++    std::string configHash;
++    std::uint64_t checkpointCount = 0U;
++    std::uint64_t resumeCount = 0U;
++};
++
++ImpairmentChannel parseImpairmentChannel(const std::string& value);
++std::string impairmentChannelName(ImpairmentChannel value);
++BurstMode parseBurstMode(const std::string& value);
++std::string burstModeName(BurstMode value);
++ImpairmentPointResult runImpairmentPoint(const ImpairmentPointConfig& config);
++void writeImpairmentPointSummary(
++    const ImpairmentPointResult& result, const std::string& path);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/src/bch_impairment_channels.cpp b/Task/BCH/simulation/current/src/bch_impairment_channels.cpp
+new file mode 100644
+index 0000000..bc4ddc1
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_impairment_channels.cpp
+@@ -0,0 +1,199 @@
++#include "bch_simulation/bch_impairment_channels.hpp"
++
++#include <algorithm>
++#include <cmath>
++#include <limits>
++#include <stdexcept>
++
++namespace scl::bch::simulation {
++namespace {
++
++void validateFinite(double value, const char* name) {
++    if (!std::isfinite(value)) {
++        throw std::invalid_argument(std::string(name) + " must be finite");
++    }
++}
++
++void validateNoise(const common::RealVector& noise, std::size_t required) {
++    if (noise.size() != required) {
++        throw std::invalid_argument("standard-noise length mismatch");
++    }
++    for (double value : noise) validateFinite(value, "standard noise");
++}
++
++std::uint64_t mix64(std::uint64_t value) {
++    value ^= value >> 30U;
++    value *= 0xbf58476d1ce4e5b9ULL;
++    value ^= value >> 27U;
++    value *= 0x94d049bb133111ebULL;
++    value ^= value >> 31U;
++    return value;
++}
++
++}  // namespace
++
++double degreesToRadians(double degrees) {
++    validateFinite(degrees, "degrees");
++    return degrees * 3.141592653589793238462643383279502884 / 180.0;
++}
++
++ResidualCfoOutput applyResidualCfo(
++    const common::RealVector& symbols,
++    const common::RealVector& standardComplexNoise,
++    const ResidualCfoConfig& config) {
++    if (symbols.size() < 2U) {
++        throw std::invalid_argument("CFO frame must contain at least two symbols");
++    }
++    validateFinite(config.initialPhaseDeg, "initial phase");
++    validateFinite(config.frameRotationDeg, "frame rotation");
++    validateFinite(config.noiseVariance, "noise variance");
++    if (config.noiseVariance < 0.0) {
++        throw std::invalid_argument("noise variance must be nonnegative");
++    }
++    validateNoise(standardComplexNoise, symbols.size() * 2U);
++    ResidualCfoOutput result;
++    result.deltaPhiRad = degreesToRadians(config.frameRotationDeg) /
++                         static_cast<double>(symbols.size() - 1U);
++    const double phi0 = degreesToRadians(config.initialPhaseDeg);
++    const double componentSigma = std::sqrt(config.noiseVariance / 2.0);
++    result.receivedSamples.resize(symbols.size());
++    result.compensatedSamples.resize(symbols.size());
++    result.hardBits.resize(symbols.size());
++    for (std::size_t index = 0U; index < symbols.size(); ++index) {
++        validateFinite(symbols[index], "BPSK symbol");
++        const double phase = phi0 + static_cast<double>(index) * result.deltaPhiRad;
++        const std::complex<double> rotation(std::cos(phase), std::sin(phase));
++        const std::complex<double> noise(
++            componentSigma * standardComplexNoise[2U * index],
++            componentSigma * standardComplexNoise[2U * index + 1U]);
++        result.receivedSamples[index] = symbols[index] * rotation + noise;
++        result.compensatedSamples[index] =
++            config.compensationMode == CfoCompensationMode::Perfect
++                ? result.receivedSamples[index] * std::conj(rotation)
++                : result.receivedSamples[index];
++        result.hardBits[index] =
++            result.compensatedSamples[index].real() >= 0.0 ? 0U : 1U;
++    }
++    return result;
++}
++
++BlockageOutput applyShortBlockage(
++    const common::RealVector& symbols,
++    const common::RealVector& standardNoise,
++    const BlockageConfig& config) {
++    validateFinite(config.attenuationDb, "blockage attenuation");
++    validateFinite(config.noiseVariance, "noise variance");
++    if (config.noiseVariance < 0.0 || config.length == 0U ||
++        config.start > symbols.size() ||
++        config.length > symbols.size() - config.start) {
++        throw std::invalid_argument("invalid blockage configuration");
++    }
++    validateNoise(standardNoise, symbols.size());
++    BlockageOutput result;
++    result.blockAmplitude =
++        config.completeBlockage ? 0.0 : std::pow(10.0, config.attenuationDb / 20.0);
++    const double sigma = std::sqrt(config.noiseVariance);
++    result.receivedSamples.resize(symbols.size());
++    result.hardBits.resize(symbols.size());
++    for (std::size_t index = 0U; index < symbols.size(); ++index) {
++        validateFinite(symbols[index], "BPSK symbol");
++        const bool blocked = index >= config.start &&
++                             index < config.start + config.length;
++        const double amplitude = blocked ? result.blockAmplitude : 1.0;
++        result.receivedSamples[index] = amplitude * symbols[index] +
++                                        sigma * standardNoise[index];
++        result.hardBits[index] = result.receivedSamples[index] >= 0.0 ? 0U : 1U;
++    }
++    return result;
++}
++
++common::BitVector applyPostHardDecisionBurst(
++    const common::BitVector& hardBits, std::size_t start, std::size_t length) {
++    common::validateBits(hardBits, "burst input");
++    if (length == 0U || start > hardBits.size() ||
++        length > hardBits.size() - start) {
++        throw std::invalid_argument("invalid burst range");
++    }
++    common::BitVector result = hardBits;
++    for (std::size_t index = start; index < start + length; ++index) {
++        result[index] = static_cast<std::uint8_t>(1U - result[index]);
++    }
++    return result;
++}
++
++std::uint64_t deterministicDomainValue(
++    std::uint64_t seed, std::uint64_t frameIndex, const std::string& domain) {
++    if (domain.empty()) throw std::invalid_argument("domain separator is empty");
++    std::uint64_t hash = 1469598103934665603ULL;
++    for (unsigned char value : domain) {
++        hash ^= static_cast<std::uint64_t>(value);
++        hash *= 1099511628211ULL;
++    }
++    return mix64(hash ^ mix64(seed) ^ mix64(frameIndex + 0x9e3779b97f4a7c15ULL));
++}
++
++std::size_t chooseStartIndex(
++    StartPolicy policy,
++    std::size_t frameLength,
++    std::size_t impairmentLength,
++    std::size_t segmentLength,
++    std::uint64_t seed,
++    std::uint64_t frameIndex,
++    const std::string& domain) {
++    if (frameLength == 0U || impairmentLength == 0U ||
++        impairmentLength > frameLength) {
++        throw std::invalid_argument("invalid start-index dimensions");
++    }
++    const std::size_t maximum = frameLength - impairmentLength;
++    switch (policy) {
++        case StartPolicy::FrameStart: return 0U;
++        case StartPolicy::FrameMiddle: return maximum / 2U;
++        case StartPolicy::FrameEnd: return maximum;
++        case StartPolicy::UniformRandom:
++            return static_cast<std::size_t>(
++                deterministicDomainValue(seed, frameIndex, domain) % (maximum + 1U));
++        case StartPolicy::SegmentInterior:
++        case StartPolicy::OneBeforeSegmentBoundary:
++        case StartPolicy::OnSegmentBoundary:
++            if (segmentLength == 0U || segmentLength >= frameLength) {
++                throw std::invalid_argument("segment policy requires a valid segment length");
++            }
++            break;
++    }
++    std::size_t candidate = segmentLength;
++    if (policy == StartPolicy::SegmentInterior) {
++        candidate = std::max<std::size_t>(1U, segmentLength / 2U);
++    } else if (policy == StartPolicy::OneBeforeSegmentBoundary) {
++        candidate = segmentLength - 1U;
++    }
++    return std::min(candidate, maximum);
++}
++
++StartPolicy parseStartPolicy(const std::string& value) {
++    if (value == "FRAME_START") return StartPolicy::FrameStart;
++    if (value == "FRAME_MIDDLE") return StartPolicy::FrameMiddle;
++    if (value == "FRAME_END") return StartPolicy::FrameEnd;
++    if (value == "SEGMENT_INTERIOR") return StartPolicy::SegmentInterior;
++    if (value == "ONE_BEFORE_SEGMENT_BOUNDARY") {
++        return StartPolicy::OneBeforeSegmentBoundary;
++    }
++    if (value == "ON_SEGMENT_BOUNDARY") return StartPolicy::OnSegmentBoundary;
++    if (value == "UNIFORM_RANDOM") return StartPolicy::UniformRandom;
++    throw std::invalid_argument("unsupported start policy");
++}
++
++std::string startPolicyName(StartPolicy value) {
++    switch (value) {
++        case StartPolicy::FrameStart: return "FRAME_START";
++        case StartPolicy::FrameMiddle: return "FRAME_MIDDLE";
++        case StartPolicy::FrameEnd: return "FRAME_END";
++        case StartPolicy::SegmentInterior: return "SEGMENT_INTERIOR";
++        case StartPolicy::OneBeforeSegmentBoundary:
++            return "ONE_BEFORE_SEGMENT_BOUNDARY";
++        case StartPolicy::OnSegmentBoundary: return "ON_SEGMENT_BOUNDARY";
++        case StartPolicy::UniformRandom: return "UNIFORM_RANDOM";
++    }
++    throw std::invalid_argument("unsupported start policy");
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/src/bch_impairment_runner.cpp b/Task/BCH/simulation/current/src/bch_impairment_runner.cpp
+new file mode 100644
+index 0000000..4e0a417
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_impairment_runner.cpp
+@@ -0,0 +1,135 @@
++#include "bch_simulation/bch_impairment_simulation.hpp"
++
++#include <filesystem>
++#include <iostream>
++#include <map>
++#include <stdexcept>
++#include <string>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++std::map<std::string, std::string> parse(int argc, char** argv) {
++    std::map<std::string, std::string> values;
++    for (int index = 1; index < argc; ++index) {
++        const std::string key(argv[index]);
++        if (key == "--progress" || key == "--no-progress" ||
++            key == "--resume" || key == "--complete-blockage" ||
++            key == "--perfect-compensation") {
++            values[key] = "1";
++        } else {
++            if (key.rfind("--", 0U) != 0U || index + 1 >= argc) {
++                throw std::invalid_argument("invalid runner arguments");
++            }
++            values[key] = argv[++index];
++        }
++    }
++    return values;
++}
++
++std::string required(
++    const std::map<std::string, std::string>& values, const std::string& key) {
++    const auto found = values.find(key);
++    if (found == values.end()) throw std::invalid_argument("missing argument " + key);
++    return found->second;
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        const auto args = parse(argc, argv);
++        scl::bch::simulation::ImpairmentPointConfig config;
++        config.stage = required(args, "--stage");
++        config.channel = scl::bch::simulation::parseImpairmentChannel(
++            required(args, "--channel"));
++        config.caseId =
++            scl::bch::simulation::bchSimulationCase(required(args, "--case")).id;
++        config.sourcePayloadEbN0Db = std::stod(required(args, "--ebn0-db"));
++        config.frameStart = std::stoull(required(args, "--frame-start"));
++        config.frameCount = std::stoull(required(args, "--frame-count"));
++        if (args.count("--logical-frame-count")) {
++            config.logicalFrameCount =
++                std::stoull(args.at("--logical-frame-count"));
++        }
++        config.globalSeed = std::stoull(required(args, "--global-seed"));
++        config.framePoolManifest = required(args, "--frame-pool-manifest");
++        config.outputDirectory = required(args, "--output-dir");
++        config.progress = args.count("--no-progress") == 0U;
++        if (args.count("--progress-refresh-seconds")) {
++            config.progressRefreshSeconds =
++                std::stod(args.at("--progress-refresh-seconds"));
++        }
++        if (args.count("--noise-policy-version")) {
++            config.noisePolicyVersion =
++                std::stoull(args.at("--noise-policy-version"));
++        }
++        if (args.count("--initial-phase-deg")) {
++            config.initialPhaseDeg = std::stod(args.at("--initial-phase-deg"));
++        }
++        if (args.count("--frame-rotation-deg")) {
++            config.frameRotationDeg = std::stod(args.at("--frame-rotation-deg"));
++        }
++        config.compensationMode = args.count("--perfect-compensation")
++            ? scl::bch::simulation::CfoCompensationMode::Perfect
++            : scl::bch::simulation::CfoCompensationMode::None;
++        if (args.count("--attenuation-db")) {
++            config.attenuationDb = std::stod(args.at("--attenuation-db"));
++        }
++        config.completeBlockage = args.count("--complete-blockage") != 0U;
++        if (args.count("--blockage-length")) {
++            config.blockageLength = std::stoull(args.at("--blockage-length"));
++        }
++        if (args.count("--blockage-start-policy")) {
++            config.blockageStartPolicy = scl::bch::simulation::parseStartPolicy(
++                args.at("--blockage-start-policy"));
++        }
++        if (args.count("--burst-mode")) {
++            config.burstMode =
++                scl::bch::simulation::parseBurstMode(args.at("--burst-mode"));
++        }
++        if (args.count("--burst-length")) {
++            config.burstLength = std::stoull(args.at("--burst-length"));
++        }
++        if (args.count("--burst-start-policy")) {
++            config.burstStartPolicy = scl::bch::simulation::parseStartPolicy(
++                args.at("--burst-start-policy"));
++        }
++        if (args.count("--checkpoint")) config.checkpointPath = args.at("--checkpoint");
++        if (args.count("--checkpoint-interval")) {
++            config.checkpointInterval =
++                std::stoull(args.at("--checkpoint-interval"));
++        }
++        config.resume = args.count("--resume") != 0U;
++        if (args.count("--interrupt-after-frames")) {
++            config.interruptAfterFrames =
++                std::stoull(args.at("--interrupt-after-frames"));
++        }
++        if (args.count("--min-frames") || args.count("--target-frame-errors") ||
++            args.count("--max-frames")) {
++            config.adaptiveStop = true;
++            config.minFrames = std::stoull(required(args, "--min-frames"));
++            config.targetFrameErrors =
++                std::stoull(required(args, "--target-frame-errors"));
++            config.maxFrames = std::stoull(required(args, "--max-frames"));
++            config.frameCount = config.maxFrames;
++        }
++        if (args.count("--shard-index")) {
++            config.shardIndex = std::stoull(args.at("--shard-index"));
++        }
++        if (args.count("--shard-count")) {
++            config.shardCount = std::stoull(args.at("--shard-count"));
++        }
++        const auto result = scl::bch::simulation::runImpairmentPoint(config);
++        scl::bch::simulation::writeImpairmentPointSummary(
++            result, (fs::path(config.outputDirectory) / "summary.csv").string());
++        std::cout << "PASS_" << config.stage << '_'
++                  << scl::bch::simulation::bchSimulationCase(config.caseId).caseName
++                  << '\n';
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_S2_IMPAIRMENT_RUNNER: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/current/src/bch_impairment_simulation.cpp b/Task/BCH/simulation/current/src/bch_impairment_simulation.cpp
+new file mode 100644
+index 0000000..6ea9a04
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_impairment_simulation.cpp
+@@ -0,0 +1,430 @@
++#include "bch_simulation/bch_impairment_simulation.hpp"
++
++#include "bch_simulation/bch_multipath_simulation.hpp"
++#include "common/awgn_channel.hpp"
++#include "common/demodulation.hpp"
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++#include "common/modulation.hpp"
++#include "common/sha256.hpp"
++#include "common/simulation_metrics.hpp"
++#include "common/simulation_control.hpp"
++
++#include <algorithm>
++#include <chrono>
++#include <cmath>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <map>
++#include <sstream>
++#include <stdexcept>
++
++namespace fs = std::filesystem;
++
++namespace scl::bch::simulation {
++namespace {
++
++double percentile(std::vector<double> values, double fraction) {
++    if (values.empty()) return 0.0;
++    std::sort(values.begin(), values.end());
++    const double position = fraction * static_cast<double>(values.size() - 1U);
++    const std::size_t lower = static_cast<std::size_t>(position);
++    const std::size_t upper = std::min(lower + 1U, values.size() - 1U);
++    const double weight = position - static_cast<double>(lower);
++    return values[lower] * (1.0 - weight) + values[upper] * weight;
++}
++
++double maximum(const std::vector<double>& values) {
++    return values.empty() ? 0.0 : *std::max_element(values.begin(), values.end());
++}
++
++std::string makeConfigText(
++    const ImpairmentPointConfig& config,
++    const BchSimulationCase& value,
++    const std::string& framePoolId,
++    double snrDb) {
++    std::ostringstream out;
++    out << "channelType=" << impairmentChannelName(config.channel)
++        << ";caseName=" << value.caseName
++        << ";payloadLength=" << value.payloadLength
++        << ";encodedLength=" << value.encodedLength
++        << ";frameRate=" << std::setprecision(17) << value.frameRate
++        << ";sourcePayloadEbN0Db=" << config.sourcePayloadEbN0Db
++        << ";snrDb=" << snrDb
++        << ";noisePolicyVersion=" << config.noisePolicyVersion
++        << ";initialPhaseDeg=" << config.initialPhaseDeg
++        << ";frameRotationDeg=" << config.frameRotationDeg
++        << ";compensationMode="
++        << (config.compensationMode == CfoCompensationMode::Perfect ? "PERFECT" : "NONE")
++        << ";attenuationDb=" << config.attenuationDb
++        << ";completeBlockage=" << config.completeBlockage
++        << ";blockageLength=" << config.blockageLength
++        << ";blockageStartPolicy=" << startPolicyName(config.blockageStartPolicy)
++        << ";burstMode=" << burstModeName(config.burstMode)
++        << ";burstLength=" << config.burstLength
++        << ";burstStartPolicy=" << startPolicyName(config.burstStartPolicy)
++        << ";backgroundAwgnEnabled="
++        << (config.channel != ImpairmentChannel::Burst ||
++            config.burstMode == BurstMode::Awgn)
++        << ";framePoolId=" << framePoolId
++        << ";seed=" << config.globalSeed
++        << ";logicalFrameCount=" << config.logicalFrameCount
++        << ";adaptiveStop=" << config.adaptiveStop
++        << ";minFrames=" << config.minFrames
++        << ";targetFrameErrors=" << config.targetFrameErrors
++        << ";maxFrames=" << config.maxFrames
++        << ";shardCount=" << config.shardCount;
++    return out.str();
++}
++
++void validateAccounting(
++    const ImpairmentPointResult& result, const BchSimulationCase& value) {
++    if (result.processedPayloadBits !=
++            result.processedFrames * value.payloadLength ||
++        result.trueSuccessFrames + result.decodedFrameErrors !=
++            result.processedFrames ||
++        result.reportedSuccessFrames + result.decoderFailureFrames !=
++            result.processedFrames) {
++        throw std::logic_error("impairment metric accounting mismatch");
++    }
++}
++
++void writeCheckpoint(const ImpairmentPointResult& result) {
++    if (result.config.checkpointPath.empty()) return;
++    fs::create_directories(fs::path(result.config.checkpointPath).parent_path());
++    std::ofstream out(result.config.checkpointPath);
++    if (!out) throw std::runtime_error("failed to write impairment checkpoint");
++    out << "configHash=" << result.configHash << '\n'
++        << "processedFrames=" << result.processedFrames << '\n'
++        << "processedPayloadBits=" << result.processedPayloadBits << '\n'
++        << "channelHardBitErrors=" << result.channelHardBitErrors << '\n'
++        << "channelHardFrameErrors=" << result.channelHardFrameErrors << '\n'
++        << "decodedBitErrors=" << result.decodedBitErrors << '\n'
++        << "decodedFrameErrors=" << result.decodedFrameErrors << '\n'
++        << "trueSuccessFrames=" << result.trueSuccessFrames << '\n'
++        << "reportedSuccessFrames=" << result.reportedSuccessFrames << '\n'
++        << "miscorrectedFrames=" << result.miscorrectedFrames << '\n'
++        << "decoderFailureFrames=" << result.decoderFailureFrames << '\n';
++}
++
++std::map<std::string, std::string> readKeyValues(const std::string& path) {
++    std::ifstream in(path);
++    if (!in) throw std::runtime_error("failed to read impairment checkpoint");
++    std::map<std::string, std::string> values;
++    std::string line;
++    while (std::getline(in, line)) {
++        const auto split = line.find('=');
++        if (split != std::string::npos) {
++            values[line.substr(0U, split)] = line.substr(split + 1U);
++        }
++    }
++    return values;
++}
++
++void restoreCheckpoint(ImpairmentPointResult& result) {
++    const auto values = readKeyValues(result.config.checkpointPath);
++    if (values.at("configHash") != result.configHash) {
++        throw std::invalid_argument("checkpoint config hash mismatch");
++    }
++    result.processedFrames = std::stoull(values.at("processedFrames"));
++    result.processedPayloadBits = std::stoull(values.at("processedPayloadBits"));
++    result.channelHardBitErrors = std::stoull(values.at("channelHardBitErrors"));
++    result.channelHardFrameErrors = std::stoull(values.at("channelHardFrameErrors"));
++    result.decodedBitErrors = std::stoull(values.at("decodedBitErrors"));
++    result.decodedFrameErrors = std::stoull(values.at("decodedFrameErrors"));
++    result.trueSuccessFrames = std::stoull(values.at("trueSuccessFrames"));
++    result.reportedSuccessFrames = std::stoull(values.at("reportedSuccessFrames"));
++    result.miscorrectedFrames = std::stoull(values.at("miscorrectedFrames"));
++    result.decoderFailureFrames = std::stoull(values.at("decoderFailureFrames"));
++    result.resumeCount = 1U;
++}
++
++}  // namespace
++
++ImpairmentChannel parseImpairmentChannel(const std::string& value) {
++    if (value == "RESIDUAL_CFO") return ImpairmentChannel::ResidualCfo;
++    if (value == "SHORT_BLOCKAGE") return ImpairmentChannel::ShortBlockage;
++    if (value == "BURST") return ImpairmentChannel::Burst;
++    throw std::invalid_argument("unsupported impairment channel");
++}
++
++std::string impairmentChannelName(ImpairmentChannel value) {
++    switch (value) {
++        case ImpairmentChannel::ResidualCfo: return "RESIDUAL_CFO";
++        case ImpairmentChannel::ShortBlockage: return "SHORT_BLOCKAGE";
++        case ImpairmentChannel::Burst: return "BURST";
++    }
++    throw std::invalid_argument("unsupported impairment channel");
++}
++
++BurstMode parseBurstMode(const std::string& value) {
++    if (value == "PURE") return BurstMode::Pure;
++    if (value == "AWGN") return BurstMode::Awgn;
++    throw std::invalid_argument("unsupported burst mode");
++}
++
++std::string burstModeName(BurstMode value) {
++    return value == BurstMode::Pure ? "PURE" : "AWGN";
++}
++
++ImpairmentPointResult runImpairmentPoint(const ImpairmentPointConfig& config) {
++    if (config.stage.empty() || config.frameCount == 0U ||
++        config.framePoolManifest.empty() || config.outputDirectory.empty() ||
++        config.noisePolicyVersion != 2U || config.shardCount == 0U ||
++        config.shardIndex >= config.shardCount) {
++        throw std::invalid_argument("invalid impairment point configuration");
++    }
++    if (config.adaptiveStop) {
++        common::validateStopConfig(
++            {config.minFrames, config.maxFrames,
++             config.targetFrameErrors, true});
++        if (config.maxFrames != config.frameCount) {
++            throw std::invalid_argument("impairment maxFrames must equal frameCount");
++        }
++    }
++    const auto& value = bchSimulationCase(config.caseId);
++    common::PackedFramePoolReader pool(config.framePoolManifest);
++    if (pool.payloadLength() != value.payloadLength ||
++        config.frameStart + config.frameCount > pool.frameCount()) {
++        throw std::invalid_argument("frame pool does not cover impairment point");
++    }
++    fs::create_directories(config.outputDirectory);
++    ImpairmentPointResult result;
++    result.config = config;
++    if (result.config.logicalFrameCount == 0U) {
++        result.config.logicalFrameCount = result.config.frameCount;
++    }
++    result.snrDb =
++        config.sourcePayloadEbN0Db + 10.0 * std::log10(value.frameRate);
++    result.configHash = common::sha256Hex(
++        makeConfigText(result.config, value, pool.framePoolId(), result.snrDb));
++    result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    result.receiverTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    prepareBchCase(value);
++    if (config.resume) {
++        if (config.checkpointPath.empty()) {
++            throw std::invalid_argument("resume requires checkpoint path");
++        }
++        restoreCheckpoint(result);
++    }
++    const double realNoiseVariance =
++        1.0 / (2.0 * std::pow(10.0, result.snrDb / 10.0));
++    const std::uint64_t noiseGroup = makePhysicalSnrNoiseGroup(
++        value.payloadLength, result.snrDb, config.noisePolicyVersion);
++    const auto started = std::chrono::steady_clock::now();
++    auto lastProgress = started;
++    for (std::uint64_t offset = result.processedFrames;
++         offset < config.frameCount; ++offset) {
++        const std::uint64_t frameIndex = config.frameStart + offset;
++        const auto payload = pool.readFrame(frameIndex).payloadBits;
++        const auto encoded = encodeBchFrame(value, payload);
++        const auto symbols = common::bpskModulate(encoded.codeword);
++        common::BitVector hardBits;
++        const auto receiverStart = std::chrono::steady_clock::now();
++        if (config.channel == ImpairmentChannel::ResidualCfo) {
++            const auto noise = common::generateStandardGaussianFrame(
++                config.globalSeed, noiseGroup, frameIndex,
++                value.encodedLength * 2U, config.noisePolicyVersion);
++            ResidualCfoConfig channelConfig;
++            channelConfig.initialPhaseDeg = config.initialPhaseDeg;
++            channelConfig.frameRotationDeg = config.frameRotationDeg;
++            channelConfig.noiseVariance = realNoiseVariance * 2.0;
++            channelConfig.compensationMode = config.compensationMode;
++            hardBits = applyResidualCfo(symbols, noise, channelConfig).hardBits;
++        } else if (config.channel == ImpairmentChannel::ShortBlockage) {
++            const auto noise = common::generateStandardGaussianFrame(
++                config.globalSeed, noiseGroup, frameIndex,
++                value.encodedLength, config.noisePolicyVersion);
++            BlockageConfig channelConfig;
++            channelConfig.attenuationDb = config.attenuationDb;
++            channelConfig.completeBlockage = config.completeBlockage;
++            channelConfig.length = config.blockageLength;
++            channelConfig.start = chooseStartIndex(
++                config.blockageStartPolicy, value.encodedLength,
++                config.blockageLength, 15U, config.globalSeed, frameIndex,
++                "BLOCKAGE_START");
++            channelConfig.noiseVariance = realNoiseVariance;
++            hardBits = applyShortBlockage(symbols, noise, channelConfig).hardBits;
++        } else {
++            if (config.burstMode == BurstMode::Pure) {
++                hardBits = encoded.codeword;
++            } else {
++                const auto noise = common::generateStandardGaussianFrame(
++                    config.globalSeed, noiseGroup, frameIndex,
++                    value.encodedLength, config.noisePolicyVersion);
++                const auto received = common::applyAwgn(
++                    symbols, noise, std::sqrt(realNoiseVariance));
++                hardBits = common::hardDecision(received);
++            }
++            const std::size_t start = chooseStartIndex(
++                config.burstStartPolicy, value.encodedLength,
++                config.burstLength, 15U, config.globalSeed, frameIndex,
++                "BURST_START");
++            hardBits = applyPostHardDecisionBurst(
++                hardBits, start, config.burstLength);
++        }
++        const std::uint64_t channelErrors =
++            common::countBitErrors(encoded.codeword, hardBits);
++        const auto decodeStart = std::chrono::steady_clock::now();
++        auto decoded = decodeBchFrame(value, hardBits);
++        const auto decodeEnd = std::chrono::steady_clock::now();
++        auditDecodedBchFrame(payload, decoded);
++        const auto receiverEnd = std::chrono::steady_clock::now();
++        const std::uint64_t decodedErrors =
++            common::countBitErrors(payload, decoded.payload);
++        const double decodeUs =
++            std::chrono::duration<double, std::micro>(decodeEnd - decodeStart).count();
++        const double receiverUs =
++            std::chrono::duration<double, std::micro>(
++                receiverEnd - receiverStart).count();
++        ++result.processedFrames;
++        result.processedPayloadBits += value.payloadLength;
++        result.channelHardBitErrors += channelErrors;
++        result.channelHardFrameErrors += channelErrors != 0U;
++        result.decodedBitErrors += decodedErrors;
++        result.decodedFrameErrors += decodedErrors != 0U;
++        result.trueSuccessFrames += decoded.trueSuccess;
++        result.reportedSuccessFrames += decoded.reportedSuccess;
++        result.miscorrectedFrames += decoded.miscorrected;
++        result.decoderFailureFrames += decoded.decoderFailure;
++        result.decodeTimeUsSum += decodeUs;
++        result.totalReceiverTimeUsSum += receiverUs;
++        result.decodeTimesUs.push_back(decodeUs);
++        result.receiverTimesUs.push_back(receiverUs);
++        const auto now = std::chrono::steady_clock::now();
++        if (config.progress &&
++            (std::chrono::duration<double>(now - lastProgress).count() >=
++                 config.progressRefreshSeconds ||
++             result.processedFrames == config.frameCount)) {
++            lastProgress = now;
++            const double elapsed =
++                std::chrono::duration<double>(now - started).count();
++            std::cerr << '[' << config.stage << "]["
++                      << impairmentChannelName(config.channel) << "]["
++                      << value.caseName << "] frames " << result.processedFrames
++                      << '/' << config.frameCount << " FE "
++                      << result.decodedFrameErrors << " FER " << std::scientific
++                      << static_cast<double>(result.decodedFrameErrors) /
++                             result.processedFrames
++                      << std::fixed << " speed "
++                      << static_cast<std::uint64_t>(
++                             result.processedFrames / std::max(1e-9, elapsed))
++                      << " frame/s\r";
++        }
++        bool saved = false;
++        if (!config.checkpointPath.empty() && config.checkpointInterval > 0U &&
++            result.processedFrames % config.checkpointInterval == 0U) {
++            ++result.checkpointCount;
++            writeCheckpoint(result);
++            saved = true;
++        }
++        if (config.interruptAfterFrames > 0U &&
++            result.processedFrames >= config.interruptAfterFrames) {
++            result.stopReason = "INTERRUPTED_CHECKPOINT";
++            if (!saved && !config.checkpointPath.empty()) {
++                ++result.checkpointCount;
++                writeCheckpoint(result);
++            }
++            break;
++        }
++        if (config.adaptiveStop) {
++            common::ErrorMetrics metrics;
++            metrics.processedFrames = result.processedFrames;
++            metrics.frameErrors = result.decodedFrameErrors;
++            const auto decision = common::evaluateStop(
++                {config.minFrames, config.maxFrames,
++                 config.targetFrameErrors, true}, metrics);
++            if (decision.shouldStop) {
++                result.stopReason = decision.reason == "TARGET_FRAME_ERRORS"
++                    ? "TARGET_FRAME_ERRORS_REACHED" : "MAX_FRAMES_REACHED";
++                break;
++            }
++        }
++    }
++    if (result.stopReason == "CONTINUE") {
++        result.stopReason = config.adaptiveStop
++            ? "MAX_FRAMES_REACHED" : "FIXED_FRAMES_REACHED";
++    }
++    if (!config.checkpointPath.empty() &&
++        result.stopReason != "INTERRUPTED_CHECKPOINT") {
++        ++result.checkpointCount;
++        writeCheckpoint(result);
++    }
++    if (config.progress) std::cerr << '\n';
++    validateAccounting(result, value);
++    return result;
++}
++
++void writeImpairmentPointSummary(
++    const ImpairmentPointResult& result, const std::string& path) {
++    const auto& value = bchSimulationCase(result.config.caseId);
++    const double frames = static_cast<double>(result.processedFrames);
++    const double payloadBits = static_cast<double>(result.processedPayloadBits);
++    const double encodedBits = frames * value.encodedLength;
++    std::ofstream out(path);
++    if (!out) throw std::runtime_error("failed to open impairment summary");
++    out << "schemaVersion,stage,channelType,caseName,organization,decoderType,"
++           "payloadLength,encodedLength,frameRate,sourcePayloadEbN0Db,snrDb,"
++           "noisePolicyVersion,initialPhaseDeg,frameRotationDeg,compensationMode,"
++           "attenuationDb,completeBlockage,blockageLength,blockageStartPolicy,"
++           "burstMode,burstLength,burstStartPolicy,burstInjectionDomain,"
++           "backgroundAwgnEnabled,processedFrames,processedPayloadBits,"
++           "channelHardBitErrors,channelHardFrameErrors,channelHardBER,"
++           "decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,"
++           "trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,"
++           "miscorrectedFrames,miscorrectionRate,decoderFailureFrames,"
++           "decoderFailureRate,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,"
++           "p99DecodeTimeUs,maxDecodeTimeUs,avgTotalReceiverTimeUs,"
++           "minFrames,targetFrameErrors,maxFrames,stopReason,"
++           "checkpointCount,resumeCount,shardIndex,shardCount,"
++           "configHash,gitCommit\n";
++    out << "bch.s2.impairment.result.v1," << result.config.stage << ','
++        << impairmentChannelName(result.config.channel) << ',' << value.caseName
++        << ',' << organizationName(value.organization) << ','
++        << decoderTypeName(value.decoderType) << ',' << value.payloadLength << ','
++        << value.encodedLength << ',' << std::setprecision(17) << value.frameRate
++        << ',' << result.config.sourcePayloadEbN0Db << ',' << result.snrDb << ','
++        << result.config.noisePolicyVersion << ',' << result.config.initialPhaseDeg
++        << ',' << result.config.frameRotationDeg << ','
++        << (result.config.compensationMode == CfoCompensationMode::Perfect
++                ? "PERFECT" : "NONE")
++        << ',' << result.config.attenuationDb << ','
++        << result.config.completeBlockage << ',' << result.config.blockageLength
++        << ',' << startPolicyName(result.config.blockageStartPolicy) << ','
++        << burstModeName(result.config.burstMode) << ','
++        << result.config.burstLength << ','
++        << startPolicyName(result.config.burstStartPolicy)
++        << ",POST_HARD_DECISION_BIT_FLIP,"
++        << (result.config.channel != ImpairmentChannel::Burst ||
++            result.config.burstMode == BurstMode::Awgn)
++        << ',' << result.processedFrames << ',' << result.processedPayloadBits
++        << ',' << result.channelHardBitErrors << ','
++        << result.channelHardFrameErrors << ','
++        << result.channelHardBitErrors / encodedBits << ','
++        << result.decodedBitErrors << ',' << result.decodedFrameErrors << ','
++        << result.decodedBitErrors / payloadBits << ','
++        << result.decodedFrameErrors / frames << ',' << result.trueSuccessFrames
++        << ',' << result.trueSuccessFrames / frames << ','
++        << result.reportedSuccessFrames << ','
++        << result.reportedSuccessFrames / frames << ','
++        << result.miscorrectedFrames << ','
++        << result.miscorrectedFrames / frames << ','
++        << result.decoderFailureFrames << ','
++        << result.decoderFailureFrames / frames << ','
++        << result.decodeTimeUsSum / frames << ','
++        << percentile(result.decodeTimesUs, 0.50) << ','
++        << percentile(result.decodeTimesUs, 0.95) << ','
++        << percentile(result.decodeTimesUs, 0.99) << ','
++        << maximum(result.decodeTimesUs) << ','
++        << result.totalReceiverTimeUsSum / frames << ','
++        << result.config.minFrames << ','
++        << result.config.targetFrameErrors << ','
++        << result.config.maxFrames << ',' << result.stopReason
++        << ',' << result.checkpointCount << ',' << result.resumeCount << ','
++        << result.config.shardIndex << ',' << result.config.shardCount << ','
++        << result.configHash << ",WORKTREE\n";
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp b/Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp
+new file mode 100644
+index 0000000..a4071be
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp
+@@ -0,0 +1,232 @@
++#include "bch_simulation/bch_case_adapter.hpp"
++#include "bch_simulation/bch_impairment_channels.hpp"
++#include "bch_simulation/bch_multipath_simulation.hpp"
++
++#include "common/awgn_channel.hpp"
++#include "common/demodulation.hpp"
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++#include "common/modulation.hpp"
++
++#include <cmath>
++#include <complex>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <sstream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++std::string bits(const scl::common::BitVector& values) {
++    std::string text;
++    text.reserve(values.size());
++    for (auto bit : values) text.push_back(bit ? '1' : '0');
++    return text;
++}
++
++std::string doubles(const std::vector<double>& values) {
++    std::ostringstream out;
++    out << std::setprecision(17);
++    for (std::size_t index = 0U; index < values.size(); ++index) {
++        if (index) out << ';';
++        out << values[index];
++    }
++    return out.str();
++}
++
++std::vector<double> realParts(const std::vector<std::complex<double>>& values) {
++    std::vector<double> output(values.size());
++    for (std::size_t index = 0U; index < values.size(); ++index) {
++        output[index] = values[index].real();
++    }
++    return output;
++}
++
++std::vector<double> imagParts(const std::vector<std::complex<double>>& values) {
++    std::vector<double> output(values.size());
++    for (std::size_t index = 0U; index < values.size(); ++index) {
++        output[index] = values[index].imag();
++    }
++    return output;
++}
++
++void writeRow(
++    std::ofstream& out,
++    const std::string& channel,
++    unsigned point,
++    const scl::bch::simulation::BchSimulationCase& simulationCase,
++    double ebn0,
++    double snr,
++    std::uint64_t frame,
++    const scl::common::BitVector& payload,
++    const scl::common::BitVector& encoded,
++    const std::vector<double>& noise,
++    double phase,
++    double rotation,
++    const std::string& compensation,
++    double attenuation,
++    bool complete,
++    std::size_t start,
++    std::size_t length,
++    const std::string& burstMode,
++    const std::vector<double>& sampleReal,
++    const std::vector<double>& sampleImag,
++    const scl::common::BitVector& hard,
++    const scl::bch::simulation::DecodedBchFrame& decoded) {
++    out << channel << ',' << point << ',' << simulationCase.caseName << ','
++        << simulationCase.payloadLength << ',' << simulationCase.encodedLength
++        << ',' << std::setprecision(17) << simulationCase.frameRate << ','
++        << ebn0 << ',' << snr << ',' << frame << ',' << phase << ','
++        << rotation << ',' << compensation << ',' << attenuation << ','
++        << complete << ',' << start << ',' << length << ',' << burstMode
++        << ',' << bits(payload) << ',' << bits(encoded) << ",\""
++        << doubles(noise) << "\",\"" << doubles(sampleReal) << "\",\""
++        << doubles(sampleImag) << "\"," << bits(hard) << ','
++        << bits(decoded.payload) << ',' << decoded.reportedSuccess << ','
++        << decoded.trueSuccess << ',' << decoded.miscorrected << ','
++        << decoded.decoderFailure << '\n';
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 4) {
++            throw std::invalid_argument(
++                "usage: exporter k200_manifest k300_manifest output_csv");
++        }
++        scl::common::PackedFramePoolReader pools[] = {
++            scl::common::PackedFramePoolReader(argv[1]),
++            scl::common::PackedFramePoolReader(argv[2]),
++        };
++        fs::create_directories(fs::path(argv[3]).parent_path());
++        std::ofstream out(argv[3]);
++        if (!out) throw std::runtime_error("failed to open batch2 MATLAB vectors");
++        out << "channelType,parameterPoint,caseName,payloadLength,encodedLength,"
++               "frameRate,sourcePayloadEbN0Db,snrDb,frameIndex,initialPhaseDeg,"
++               "frameRotationDeg,compensationMode,attenuationDb,completeBlockage,"
++               "startIndex,impairmentLength,burstMode,payloadBits,encodedBits,"
++               "standardNoise,cppSampleReal,cppSampleImag,cppHardBits,"
++               "cppDecodedPayload,cppReportedSuccess,cppTrueSuccess,"
++               "cppMiscorrection,cppDecoderFailure\n";
++        constexpr std::uint64_t seed = 2026072601ULL;
++        for (const std::string caseName :
++             {"BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300", "BCH-B300-426"}) {
++            const auto& simulationCase =
++                scl::bch::simulation::bchSimulationCase(caseName);
++            auto& pool = pools[simulationCase.payloadLength == 200U ? 0 : 1];
++            scl::bch::simulation::prepareBchCase(simulationCase);
++            for (unsigned point = 0U; point < 3U; ++point) {
++                const double ebn0 = point == 0U ? 8.0 : (point == 1U ? 10.0 : 14.0);
++                const double snr =
++                    ebn0 + 10.0 * std::log10(simulationCase.frameRate);
++                const double realVariance =
++                    1.0 / (2.0 * std::pow(10.0, snr / 10.0));
++                const std::uint64_t group =
++                    scl::bch::simulation::makePhysicalSnrNoiseGroup(
++                        simulationCase.payloadLength, snr, 2U);
++                for (std::uint64_t frame = 0U; frame < 100U; ++frame) {
++                    const auto payload = pool.readFrame(frame).payloadBits;
++                    const auto encoded = scl::bch::simulation::encodeBchFrame(
++                        simulationCase, payload).codeword;
++                    const auto symbols = scl::common::bpskModulate(encoded);
++                    {
++                        const double phase = point == 0U ? 0.0 : (point == 1U ? 45.0 : 90.0);
++                        const double rotation = point == 0U ? 0.0 : (point == 1U ? 30.0 : 60.0);
++                        const auto noise = scl::common::generateStandardGaussianFrame(
++                            seed, group, frame, simulationCase.encodedLength * 2U, 2U);
++                        scl::bch::simulation::ResidualCfoConfig config;
++                        config.initialPhaseDeg = phase;
++                        config.frameRotationDeg = rotation;
++                        config.noiseVariance = realVariance * 2.0;
++                        config.compensationMode = point == 0U
++                            ? scl::bch::simulation::CfoCompensationMode::Perfect
++                            : scl::bch::simulation::CfoCompensationMode::None;
++                        const auto channel =
++                            scl::bch::simulation::applyResidualCfo(symbols, noise, config);
++                        auto decoded = scl::bch::simulation::decodeBchFrame(
++                            simulationCase, channel.hardBits);
++                        scl::bch::simulation::auditDecodedBchFrame(payload, decoded);
++                        writeRow(out, "RESIDUAL_CFO", point, simulationCase, ebn0,
++                                 snr, frame, payload, encoded, noise, phase,
++                                 rotation, point == 0U ? "PERFECT" : "NONE",
++                                 0.0, false, 0U, 0U, "NONE",
++                                 realParts(channel.compensatedSamples),
++                                 imagParts(channel.compensatedSamples),
++                                 channel.hardBits, decoded);
++                    }
++                    {
++                        const double attenuation = point == 0U ? -6.0 :
++                                                   (point == 1U ? -12.0 : 0.0);
++                        const bool complete = point == 2U;
++                        const std::size_t length = point == 0U ? 8U :
++                                                   (point == 1U ? 16U : 32U);
++                        const std::size_t start = point == 0U ? 0U :
++                            (point == 1U
++                                ? (simulationCase.encodedLength - length) / 2U
++                                : simulationCase.encodedLength - length);
++                        const auto noise = scl::common::generateStandardGaussianFrame(
++                            seed, group, frame, simulationCase.encodedLength, 2U);
++                        scl::bch::simulation::BlockageConfig config;
++                        config.attenuationDb = attenuation;
++                        config.completeBlockage = complete;
++                        config.start = start;
++                        config.length = length;
++                        config.noiseVariance = realVariance;
++                        const auto channel =
++                            scl::bch::simulation::applyShortBlockage(symbols, noise, config);
++                        auto decoded = scl::bch::simulation::decodeBchFrame(
++                            simulationCase, channel.hardBits);
++                        scl::bch::simulation::auditDecodedBchFrame(payload, decoded);
++                        writeRow(out, "SHORT_BLOCKAGE", point, simulationCase,
++                                 ebn0, snr, frame, payload, encoded, noise, 0.0,
++                                 0.0, "NONE", attenuation, complete, start,
++                                 length, "NONE", channel.receivedSamples,
++                                 std::vector<double>(channel.receivedSamples.size(), 0.0),
++                                 channel.hardBits, decoded);
++                    }
++                    {
++                        const bool pure = point == 0U;
++                        const std::size_t length = point == 0U ? 6U :
++                                                   (point == 1U ? 16U : 32U);
++                        const std::size_t start = point == 0U ? 14U :
++                            (point == 1U ? 15U : simulationCase.encodedLength - length);
++                        std::vector<double> noise(simulationCase.encodedLength, 0.0);
++                        std::vector<double> received = symbols;
++                        scl::common::BitVector hard = encoded;
++                        if (!pure) {
++                            noise = scl::common::generateStandardGaussianFrame(
++                                seed, group, frame, simulationCase.encodedLength, 2U);
++                            received = scl::common::applyAwgn(
++                                symbols, noise, std::sqrt(realVariance));
++                            hard = scl::common::hardDecision(received);
++                        }
++                        hard = scl::bch::simulation::applyPostHardDecisionBurst(
++                            hard, start, length);
++                        auto decoded = scl::bch::simulation::decodeBchFrame(
++                            simulationCase, hard);
++                        scl::bch::simulation::auditDecodedBchFrame(payload, decoded);
++                        writeRow(out, "BURST", point, simulationCase, ebn0,
++                                 snr, frame, payload, encoded, noise, 0.0, 0.0,
++                                 "NONE", 0.0, false, start, length,
++                                 pure ? "PURE" : "AWGN", received,
++                                 std::vector<double>(received.size(), 0.0),
++                                 hard, decoded);
++                    }
++                }
++            }
++        }
++        std::cout << "PASS_BCH_S2_BATCH2_MATLAB_VECTOR_EXPORT rows=4500\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_S2_BATCH2_MATLAB_VECTOR_EXPORT: "
++                  << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp b/Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp
+new file mode 100644
+index 0000000..c920d14
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp
+@@ -0,0 +1,136 @@
++#include "bch_simulation/bch_impairment_channels.hpp"
++
++#include "common/modulation.hpp"
++
++#include <cmath>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++namespace {
++
++void require(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++void testCfo() {
++    using namespace scl::bch::simulation;
++    const scl::common::BitVector bits{0U, 0U, 0U, 0U};
++    const auto symbols = scl::common::bpskModulate(bits);
++    const scl::common::RealVector noise(symbols.size() * 2U, 0.0);
++    auto zero = applyResidualCfo(symbols, noise, {});
++    require(zero.hardBits == bits, "zero CFO differs from noiseless AWGN");
++    ResidualCfoConfig quarter;
++    quarter.frameRotationDeg = 90.0;
++    auto rotated = applyResidualCfo(symbols, noise, quarter);
++    require(std::abs(rotated.receivedSamples.back().real()) < 1e-14,
++            "90-degree known vector real part mismatch");
++    require(std::abs(rotated.receivedSamples.back().imag() - 1.0) < 1e-14,
++            "positive CFO direction mismatch");
++    quarter.frameRotationDeg = -90.0;
++    rotated = applyResidualCfo(symbols, noise, quarter);
++    require(std::abs(rotated.receivedSamples.back().imag() + 1.0) < 1e-14,
++            "negative CFO direction mismatch");
++    for (std::size_t length : {248U, 285U, 390U, 420U, 426U}) {
++        const scl::common::RealVector values(length, 1.0);
++        const scl::common::RealVector z(length * 2U, 0.0);
++        ResidualCfoConfig config;
++        config.initialPhaseDeg = 45.0;
++        config.frameRotationDeg = 180.0;
++        config.compensationMode = CfoCompensationMode::Perfect;
++        const auto output = applyResidualCfo(values, z, config);
++        require(std::abs(output.deltaPhiRad * static_cast<double>(length - 1U) -
++                         degreesToRadians(180.0)) < 1e-14,
++                "frame-length normalization mismatch");
++        require(output.hardBits == scl::common::BitVector(length, 0U),
++                "perfect compensation mismatch");
++    }
++    bool rejected = false;
++    try {
++        ResidualCfoConfig bad;
++        bad.frameRotationDeg = std::numeric_limits<double>::quiet_NaN();
++        static_cast<void>(applyResidualCfo(symbols, noise, bad));
++    } catch (const std::invalid_argument&) {
++        rejected = true;
++    }
++    require(rejected, "CFO NaN was not rejected");
++}
++
++void testBlockage() {
++    using namespace scl::bch::simulation;
++    const scl::common::RealVector symbols{1.0, -1.0, 1.0, -1.0};
++    const scl::common::RealVector noise(symbols.size(), 0.0);
++    BlockageConfig config;
++    config.length = 2U;
++    config.start = 1U;
++    const auto unchanged = applyShortBlockage(symbols, noise, config);
++    require(unchanged.receivedSamples == symbols, "0 dB blockage changed symbols");
++    config.attenuationDb = -20.0;
++    const auto attenuated = applyShortBlockage(symbols, noise, config);
++    require(std::abs(attenuated.blockAmplitude - 0.1) < 1e-15,
++            "-20 dB did not produce amplitude 0.1");
++    config.completeBlockage = true;
++    const auto complete = applyShortBlockage(symbols, noise, config);
++    require(complete.receivedSamples[1] == 0.0 &&
++            complete.receivedSamples[2] == 0.0,
++            "complete blockage did not zero selected samples");
++    config.start = symbols.size() - 1U;
++    config.length = 1U;
++    static_cast<void>(applyShortBlockage(symbols, noise, config));
++    bool rejected = false;
++    try {
++        config.start = symbols.size();
++        static_cast<void>(applyShortBlockage(symbols, noise, config));
++    } catch (const std::invalid_argument&) {
++        rejected = true;
++    }
++    require(rejected, "invalid blockage start was not rejected");
++}
++
++void testBurstAndStarts() {
++    using namespace scl::bch::simulation;
++    const scl::common::BitVector bits{0U, 1U, 0U, 1U};
++    require(applyPostHardDecisionBurst(bits, 0U, 1U)[0] == 1U,
++            "length-one burst mismatch");
++    const auto full = applyPostHardDecisionBurst(bits, 0U, bits.size());
++    require(full == scl::common::BitVector({1U, 0U, 1U, 0U}),
++            "full-frame burst mismatch");
++    require(applyPostHardDecisionBurst(bits, 3U, 1U)[3] == 0U,
++            "end-boundary burst mismatch");
++    bool rejected = false;
++    try {
++        static_cast<void>(applyPostHardDecisionBurst(bits, 0U, 0U));
++    } catch (const std::invalid_argument&) {
++        rejected = true;
++    }
++    require(rejected, "zero-length burst was not rejected");
++    const auto randomA = chooseStartIndex(
++        StartPolicy::UniformRandom, 285U, 16U, 15U, 123U, 9U, "BLOCKAGE_START");
++    const auto randomB = chooseStartIndex(
++        StartPolicy::UniformRandom, 285U, 16U, 15U, 123U, 9U, "BLOCKAGE_START");
++    require(randomA == randomB, "random start is not deterministic");
++    require(deterministicDomainValue(123U, 9U, "BLOCKAGE_START") !=
++            deterministicDomainValue(123U, 9U, "BURST_START"),
++            "domain separators collided");
++    require(chooseStartIndex(StartPolicy::OneBeforeSegmentBoundary,
++                             285U, 8U, 15U, 1U, 1U, "X") == 14U,
++            "one-before-boundary start mismatch");
++    require(chooseStartIndex(StartPolicy::OnSegmentBoundary,
++                             285U, 8U, 15U, 1U, 1U, "X") == 15U,
++            "on-boundary start mismatch");
++}
++
++}  // namespace
++
++int main() {
++    try {
++        testCfo();
++        testBlockage();
++        testBurstAndStarts();
++        std::cout << "PASS_BCH_S2_IMPAIRMENT_CHANNELS\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_S2_IMPAIRMENT_CHANNELS: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m b/Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m
+new file mode 100644
+index 0000000..ecdbc07
+--- /dev/null
++++ b/Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m
+@@ -0,0 +1,153 @@
++function run_bch_s2_batch2_reference(inputCsv, outputCsv)
++% Independent MATLAB channel/reference implementation for BCH S2-05..S2-07.
++addpath(fullfile(fileparts(mfilename('fullpath')), '..', '..', '..', 'segmented', 'matlab'));
++opts = detectImportOptions(inputCsv, 'Delimiter', ',', 'VariableNamingRule', 'preserve');
++opts = setvartype(opts, opts.VariableNames, 'string');
++data = readtable(inputCsv, opts);
++numeric = ["parameterPoint","payloadLength","encodedLength","frameRate", ...
++    "sourcePayloadEbN0Db","snrDb","frameIndex","initialPhaseDeg", ...
++    "frameRotationDeg","attenuationDb","completeBlockage","startIndex", ...
++    "impairmentLength","cppReportedSuccess","cppTrueSuccess", ...
++    "cppMiscorrection","cppDecoderFailure"];
++for name = numeric
++    data.(name) = str2double(data.(name));
++end
++if height(data) ~= 4500
++    error('BLOCKED_BCH_S2_09_INPUT_INCOMPLETE', 'expected 4500 rows');
++end
++cases = ["BCH-S200","BCH-B200","BCH-S300","BCH-B300","BCH-B300-426"];
++channels = ["RESIDUAL_CFO","SHORT_BLOCKAGE","BURST"];
++lookup = bch15_build_lookup_reference();
++summary = table('Size',[45 14], ...
++    'VariableTypes', ["string","double","string","double","double","double", ...
++        "double","double","double","double","double","double","double","string"], ...
++    'VariableNames', ["channelType","parameterPoint","caseName","comparedFrames", ...
++        "maxSampleAbsDiff","hardBitMismatches","decodedPayloadBitMismatches", ...
++        "frameErrorMismatches","reportedStatusMismatches","miscorrectionMismatches", ...
++        "decoderFailureMismatches","matlabFrameErrors","cppFrameErrors","gate"]);
++outRow = 0;
++for channel = channels
++    for point = 0:2
++        for caseName = cases
++            selected = data(data.channelType == channel & ...
++                data.parameterPoint == point & data.caseName == caseName,:);
++            if height(selected) ~= 100
++                error('BLOCKED_BCH_S2_09_INPUT_INCOMPLETE', 'missing representative frames');
++            end
++            sampleDiff = 0; hardMismatch = 0; payloadMismatch = 0;
++            frameMismatch = 0; reportedMismatch = 0; miscorrectionMismatch = 0;
++            failureMismatch = 0; matlabFE = 0; cppFE = 0;
++            for row = 1:height(selected)
++                original = bitsFromString(selected.payloadBits(row));
++                encoded = bitsFromString(selected.encodedBits(row));
++                noise = doublesFromString(selected.standardNoise(row));
++                cppReal = doublesFromString(selected.cppSampleReal(row));
++                cppImag = doublesFromString(selected.cppSampleImag(row));
++                cppHard = bitsFromString(selected.cppHardBits(row));
++                cppPayload = bitsFromString(selected.cppDecodedPayload(row));
++                x = 1 - 2 * encoded;
++                snr = selected.snrDb(row);
++                realVariance = 1 / (2 * 10^(snr / 10));
++                if channel == "RESIDUAL_CFO"
++                    n = numel(x);
++                    delta = deg2rad(selected.frameRotationDeg(row)) / (n - 1);
++                    phase = deg2rad(selected.initialPhaseDeg(row)) + (0:n-1) * delta;
++                    z = noise(1:2:end) + 1i * noise(2:2:end);
++                    received = x .* exp(1i * phase) + sqrt(realVariance) * z;
++                    if selected.compensationMode(row) == "PERFECT"
++                        samples = received .* exp(-1i * phase);
++                    else
++                        samples = received;
++                    end
++                    hard = double(real(samples) < 0);
++                elseif channel == "SHORT_BLOCKAGE"
++                    amplitude = 10^(selected.attenuationDb(row) / 20);
++                    if selected.completeBlockage(row) ~= 0
++                        amplitude = 0;
++                    end
++                    mask = ones(size(x));
++                    first = selected.startIndex(row) + 1;
++                    last = first + selected.impairmentLength(row) - 1;
++                    mask(first:last) = amplitude;
++                    samples = mask .* x + sqrt(realVariance) * noise;
++                    hard = double(samples < 0);
++                else
++                    if selected.burstMode(row) == "PURE"
++                        samples = x;
++                    else
++                        samples = x + sqrt(realVariance) * noise;
++                    end
++                    hard = double(samples < 0);
++                    first = selected.startIndex(row) + 1;
++                    last = first + selected.impairmentLength(row) - 1;
++                    hard(first:last) = 1 - hard(first:last);
++                end
++                cppSamples = cppReal + 1i * cppImag;
++                sampleDiff = max(sampleDiff, max(abs(samples - cppSamples)));
++                hardMismatch = hardMismatch + sum(hard ~= cppHard);
++                [matlabPayload, reported] = decodeWithStatus(caseName, hard, lookup);
++                payloadMismatch = payloadMismatch + sum(matlabPayload ~= cppPayload);
++                trueSuccess = all(matlabPayload == original);
++                frameError = ~trueSuccess;
++                miscorrection = reported && frameError;
++                failure = ~reported;
++                cppFrameError = ~logical(selected.cppTrueSuccess(row));
++                frameMismatch = frameMismatch + (frameError ~= cppFrameError);
++                reportedMismatch = reportedMismatch + ...
++                    (reported ~= logical(selected.cppReportedSuccess(row)));
++                miscorrectionMismatch = miscorrectionMismatch + ...
++                    (miscorrection ~= logical(selected.cppMiscorrection(row)));
++                failureMismatch = failureMismatch + ...
++                    (failure ~= logical(selected.cppDecoderFailure(row)));
++                matlabFE = matlabFE + frameError;
++                cppFE = cppFE + cppFrameError;
++            end
++            gate = "PASS";
++            if sampleDiff > 1e-12 || hardMismatch ~= 0 || payloadMismatch ~= 0 || ...
++                    frameMismatch ~= 0 || reportedMismatch ~= 0 || ...
++                    miscorrectionMismatch ~= 0 || failureMismatch ~= 0
++                gate = "BLOCKED_BCH_S2_09_MATLAB_MISMATCH";
++            end
++            outRow = outRow + 1;
++            summary(outRow,:) = {channel,point,caseName,height(selected),sampleDiff, ...
++                hardMismatch,payloadMismatch,frameMismatch,reportedMismatch, ...
++                miscorrectionMismatch,failureMismatch,matlabFE,cppFE,gate};
++        end
++    end
++end
++writetable(summary, outputCsv);
++if any(summary.gate ~= "PASS")
++    error('BLOCKED_BCH_S2_09_MATLAB_MISMATCH', 'independent reference mismatch');
++end
++fprintf('PASS_BCH_S2_09_MATLAB_CHANNEL_REFERENCE rows=%d frames=%d\n', ...
++    height(summary), sum(summary.comparedFrames));
++end
++
++function values = doublesFromString(text)
++values = str2double(split(string(text), ';')).';
++end
++
++function values = bitsFromString(text)
++values = double(char(text) == '1');
++end
++
++function [payload, reported] = decodeWithStatus(caseName, hard, lookup)
++if caseName == "BCH-S200" || caseName == "BCH-S300"
++    decoded = bch15_segmented_decode_reference(char(caseName), hard, lookup);
++    payload = decoded.recoveredPayload;
++    reported = decoded.frameDetail.lookupMissBlocks == 0 && ...
++        decoded.frameDetail.postCheckFailedBlocks == 0;
++    return;
++end
++if caseName == "BCH-B200"
++    n=255; k=207; shortening=7;
++elseif caseName == "BCH-B300"
++    n=511; k=421; shortening=121;
++else
++    n=511; k=385; shortening=85;
++end
++motherReceived = [zeros(1,shortening), hard];
++[decoded, errors] = bchdec(gf(motherReceived), n, k, 'end');
++payload = double(decoded.x(shortening+1:k));
++reported = errors >= 0;
++end
+diff --git a/Task/BCH/simulation/scripts/check_bch_s2_batch2.py b/Task/BCH/simulation/scripts/check_bch_s2_batch2.py
+new file mode 100644
+index 0000000..781925e
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/check_bch_s2_batch2.py
+@@ -0,0 +1,144 @@
++#!/usr/bin/env python3
++"""Strict business checker for BCH S2-05..S2-09 and batch plots."""
++
++from __future__ import annotations
++
++import csv
++import hashlib
++import json
++import math
++from pathlib import Path
++
++
++def read(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def sha256(path: Path) -> str:
++    return hashlib.sha256(path.read_bytes()).hexdigest()
++
++
++def check_result_rows(path: Path, expected: int) -> tuple[int, int]:
++    rows = read(path)
++    if len(rows) != expected:
++        raise SystemExit(f"BLOCKED_BCH_S2_ROW_COUNT: {path} {len(rows)} != {expected}")
++    frames = 0
++    for row in rows:
++        count = int(row["processedFrames"])
++        frames += count
++        if int(row["trueSuccessFrames"]) + int(row["decodedFrameErrors"]) != count:
++            raise SystemExit("BLOCKED_BCH_S2_TRUE_SUCCESS_ACCOUNTING")
++        if int(row["reportedSuccessFrames"]) + int(row["decoderFailureFrames"]) != count:
++            raise SystemExit("BLOCKED_BCH_S2_REPORTED_SUCCESS_ACCOUNTING")
++        if int(row["processedPayloadBits"]) == 0:
++            raise SystemExit("BLOCKED_BCH_S2_ZERO_PAYLOAD_BITS")
++        expected_ber = int(row["decodedBitErrors"]) / int(row["processedPayloadBits"])
++        if abs(expected_ber - float(row["BER"])) > 1e-15:
++            raise SystemExit("BLOCKED_BCH_S2_BER_ACCOUNTING")
++        expected_fer = int(row["decodedFrameErrors"]) / count
++        if abs(expected_fer - float(row["FER"])) > 1e-15:
++            raise SystemExit("BLOCKED_BCH_S2_FER_ACCOUNTING")
++        snr = float(row["sourcePayloadEbN0Db"]) + 10.0 * math.log10(
++            float(row["frameRate"]))
++        if abs(snr - float(row["snrDb"])) > 5e-10:
++            raise SystemExit("BLOCKED_BCH_S2_SNR_SEMANTIC_MISMATCH")
++        for field in ("BER", "FER", "trueSuccessRate", "miscorrectionRate",
++                      "decoderFailureRate", "avgDecodeTimeUs",
++                      "avgTotalReceiverTimeUs"):
++            if not math.isfinite(float(row[field])):
++                raise SystemExit("BLOCKED_BCH_S2_NONFINITE_RESULT")
++        if row["noisePolicyVersion"] != "2":
++            raise SystemExit("BLOCKED_BCH_S2_NOISE_POLICY")
++    return len(rows), frames
++
++
++def main() -> int:
++    repo = Path(__file__).resolve().parents[4]
++    stages = repo / "Task/BCH/simulation/stages"
++    cfo_stage = stages / "s2_05_residual_cfo"
++    blockage_stage = stages / "s2_06_short_blockage"
++    burst_stage = stages / "s2_07_burst_sensitivity"
++    smoke_cfo = check_result_rows(cfo_stage / "smoke_summary.csv", 420)
++    phase = check_result_rows(cfo_stage / "cfo_formal_phase_summary.csv", 720)
++    cfo_snr_rows = read(cfo_stage / "cfo_formal_snr_summary.csv")
++    check_result_rows(cfo_stage / "cfo_formal_snr_summary.csv", len(cfo_snr_rows))
++    smoke_blockage = check_result_rows(blockage_stage / "smoke_summary.csv", 1680)
++    blockage_formal = check_result_rows(
++        blockage_stage / "blockage_formal_parameter_summary.csv", 6300)
++    blockage_snr_rows = read(blockage_stage / "blockage_formal_snr_summary.csv")
++    check_result_rows(blockage_stage / "blockage_formal_snr_summary.csv",
++                      len(blockage_snr_rows))
++    smoke_burst = check_result_rows(burst_stage / "smoke_summary.csv", 540)
++    pure = check_result_rows(burst_stage / "pure_burst_summary.csv", 630)
++    awgn_burst = check_result_rows(burst_stage / "awgn_burst_summary.csv", 1260)
++
++    baseline = read(stages / "s2_08_channel_adaptation_comparison/baseline_sources.csv")
++    if len(baseline) != 10 or any(row["reuseStatus"] not in {
++        "REUSED_S1_FORMAL_AWGN_BASELINE",
++        "REUSED_S2_04_FIXED_MULTIPATH_MMSE",
++    } for row in baseline):
++        raise SystemExit("BLOCKED_BCH_S2_BASELINE_REUSE_MISMATCH")
++    for row in baseline:
++        source = repo / row["sourcePath"]
++        if sha256(source) != row["sourceSha256"]:
++            raise SystemExit("BLOCKED_BCH_S2_BASELINE_REUSE_MISMATCH")
++
++    interpolation = read(
++        stages / "s2_08_channel_adaptation_comparison/comparison_interpolation_audit.csv")
++    allowed = {"VALID", "TARGET_NOT_BRACKETED_NO_EXTRAPOLATION",
++               "UNDEFINED_ZERO_DENOMINATOR", "INSUFFICIENT_VALID_POINTS"}
++    if not interpolation or any(row["status"] not in allowed for row in interpolation):
++        raise SystemExit("BLOCKED_BCH_S2_INTERPOLATION_AUDIT")
++
++    matlab = read(stages / "s2_09_matlab_channel_reference/matlab_reference_summary.csv")
++    mismatch_fields = [
++        "hardBitMismatches", "decodedPayloadBitMismatches",
++        "frameErrorMismatches", "reportedStatusMismatches",
++        "miscorrectionMismatches", "decoderFailureMismatches",
++    ]
++    if (len(matlab) != 45 or sum(int(row["comparedFrames"]) for row in matlab) != 4500
++            or any(float(row["maxSampleAbsDiff"]) > 1e-12 for row in matlab)
++            or any(int(row[field]) != 0 for row in matlab for field in mismatch_fields)
++            or any(row["gate"] != "PASS" for row in matlab)):
++        raise SystemExit("BLOCKED_BCH_S2_09_MATLAB_MISMATCH")
++
++    batch = stages / "s2_multi_channel_adaptation"
++    resume = read(batch / "resume_shard_audit.csv")
++    if not resume or any(row["status"] != "PASS" for row in resume):
++        raise SystemExit("BLOCKED_BCH_S2_BATCH2_RESUME_SHARD")
++    manifest = json.loads((batch / "plot_manifest.json").read_text(encoding="utf-8"))
++    if manifest["nonPngCount"] != 0 or manifest["figureCount"] != 12:
++        raise SystemExit("BLOCKED_BCH_S2_BATCH2_PLOT_COUNT")
++    for figure in manifest["figures"]:
++        png = batch / "figures" / figure["filename"]
++        source = repo / figure["sourceCsv"]
++        data = repo / figure["figureDataCsv"]
++        if (png.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n" or
++                sha256(png) != figure["pngSha256"] or
++                sha256(source) != figure["sourceCsvSha256"] or
++                sha256(data) != figure["figureDataSha256"] or
++                figure["figureDataPointCount"] != len(read(data)) or
++                len(figure["visualStyleKeys"]) !=
++                len(set(figure["visualStyleKeys"]))):
++            raise SystemExit("BLOCKED_BCH_S2_BATCH2_PLOT_AUDIT")
++        if figure["xColumn"] == "snrDb":
++            for row in read(data):
++                expected = float(row["sourcePayloadEbN0Db"]) + 10.0 * math.log10(
++                    float(row["frameRate"]))
++                if abs(expected - float(row["snrDb"])) > 5e-10:
++                    raise SystemExit("BLOCKED_BCH_S2_BATCH2_FIGURE_SNR")
++    print(f"PASS_BCH_S2_05_RESIDUAL_CFO smokePoints={smoke_cfo[0]} "
++          f"formalPhasePoints={phase[0]} formalSnrPoints={len(cfo_snr_rows)}")
++    print(f"PASS_BCH_S2_06_SHORT_BLOCKAGE smokePoints={smoke_blockage[0]} "
++          f"formalPoints={blockage_formal[0]} formalSnrPoints={len(blockage_snr_rows)}")
++    print(f"PASS_BCH_S2_07_BURST_SENSITIVITY smokePoints={smoke_burst[0]} "
++          f"purePoints={pure[0]} awgnBurstPoints={awgn_burst[0]}")
++    print("PASS_BCH_S2_08_CHANNEL_ADAPTATION_COMPARISON")
++    print("PASS_BCH_S2_09_MATLAB_CHANNEL_REFERENCE frames=4500")
++    print("PASS_BCH_S2_MULTI_CHANNEL_ADAPTATION")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py b/Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py
+new file mode 100644
+index 0000000..78c4435
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py
+@@ -0,0 +1,171 @@
++#!/usr/bin/env python3
++"""Exercise resume equivalence, shard equivalence, and rejection paths."""
++
++from __future__ import annotations
++
++import csv
++import subprocess
++from pathlib import Path
++
++
++COUNTERS = [
++    "processedFrames", "processedPayloadBits", "channelHardBitErrors",
++    "channelHardFrameErrors", "decodedBitErrors", "decodedFrameErrors",
++    "trueSuccessFrames", "reportedSuccessFrames", "miscorrectedFrames",
++    "decoderFailureFrames",
++]
++
++
++def one(path: Path) -> dict[str, str]:
++    with path.open(newline="", encoding="utf-8") as stream:
++        rows = list(csv.DictReader(stream))
++    if len(rows) != 1:
++        raise RuntimeError("expected one summary row")
++    return rows[0]
++
++
++def write(path: Path, rows: list[dict[str, object]]) -> None:
++    fields: list[str] = []
++    for row in rows:
++        for field in row:
++            if field not in fields:
++                fields.append(field)
++    with path.open("w", newline="", encoding="utf-8") as stream:
++        writer = csv.DictWriter(stream, fieldnames=fields)
++        writer.writeheader()
++        writer.writerows(rows)
++
++
++def main() -> int:
++    repo = Path(__file__).resolve().parents[4]
++    exe = repo / "Task/BCH/simulation/build/current/bch_impairment_runner.exe"
++    manifest = repo / "Task/BCH/simulation/results/frame_pools/formal_k200/k200/manifest.json"
++    root = repo / "Task/BCH/simulation/results/s2_batch2/resume_shard"
++    root.mkdir(parents=True, exist_ok=True)
++    channels = {
++        "CFO": ["--channel", "RESIDUAL_CFO", "--initial-phase-deg", "45",
++                "--frame-rotation-deg", "30"],
++        "BLOCKAGE": ["--channel", "SHORT_BLOCKAGE", "--attenuation-db", "-12",
++                     "--blockage-length", "16", "--blockage-start-policy",
++                     "UNIFORM_RANDOM"],
++        "BURST": ["--channel", "BURST", "--burst-mode", "AWGN",
++                  "--burst-length", "16", "--burst-start-policy", "UNIFORM_RANDOM"],
++    }
++    audit: list[dict[str, object]] = []
++    for name, channel_args in channels.items():
++        directory = root / name.lower()
++        checkpoint = directory / "checkpoint.txt"
++        common = [
++            str(exe), "--stage", f"BCH_S2_{name}", "--case", "BCH-S200",
++            "--ebn0-db", "10", "--global-seed", "2026072601",
++            "--noise-policy-version", "2", "--frame-pool-manifest", str(manifest),
++            "--no-progress", *channel_args,
++        ]
++        continuous = directory / "continuous"
++        subprocess.run(common + ["--frame-start", "0", "--frame-count", "600",
++                       "--output-dir", str(continuous)], cwd=repo, check=True,
++                       stdout=subprocess.DEVNULL)
++        partial = directory / "partial"
++        subprocess.run(common + ["--frame-start", "0", "--frame-count", "600",
++                       "--output-dir", str(partial), "--checkpoint", str(checkpoint),
++                       "--checkpoint-interval", "100", "--interrupt-after-frames", "250"],
++                       cwd=repo, check=True, stdout=subprocess.DEVNULL)
++        resumed = directory / "resumed"
++        subprocess.run(common + ["--frame-start", "0", "--frame-count", "600",
++                       "--output-dir", str(resumed), "--checkpoint", str(checkpoint),
++                       "--checkpoint-interval", "100", "--resume"], cwd=repo,
++                       check=True, stdout=subprocess.DEVNULL)
++        baseline = one(continuous / "summary.csv")
++        resumed_row = one(resumed / "summary.csv")
++        mismatch = sum(baseline[field] != resumed_row[field] for field in COUNTERS)
++        audit.append({
++            "channel": name, "test": "resume_equivalence",
++            "mismatchCount": mismatch,
++            "status": "PASS" if mismatch == 0 else "FAIL",
++        })
++
++        shard_rows: list[dict[str, str]] = []
++        for index in range(3):
++            shard = directory / f"shard_{index}"
++            subprocess.run(common + [
++                "--frame-start", str(index * 200), "--frame-count", "200",
++                "--logical-frame-count", "600", "--shard-index", str(index),
++                "--shard-count", "3", "--output-dir", str(shard),
++            ], cwd=repo, check=True, stdout=subprocess.DEVNULL)
++            shard_rows.append(one(shard / "summary.csv"))
++        hashes = {row["configHash"] for row in shard_rows}
++        merged = {field: sum(int(row[field]) for row in shard_rows)
++                  for field in COUNTERS}
++        shard_mismatch = sum(merged[field] != int(baseline[field])
++                             for field in COUNTERS)
++        shard_status = "PASS" if len(hashes) == 1 and shard_mismatch == 0 else "FAIL"
++        audit.append({
++            "channel": name, "test": "three_shard_merge_equivalence",
++            "mismatchCount": shard_mismatch,
++            "configHashCount": len(hashes), "status": shard_status,
++        })
++
++        mutations = {
++            "seed_mismatch": ["--global-seed", "2026072602"],
++            "snr_mismatch": ["--ebn0-db", "10.2"],
++            "profile_mismatch": (
++                ["--frame-rotation-deg", "60"] if name == "CFO" else
++                (["--attenuation-db", "-20"] if name == "BLOCKAGE" else
++                 ["--burst-mode", "PURE"])
++            ),
++            "start_policy_mismatch": (
++                ["--blockage-start-policy", "FRAME_START"] if name == "BLOCKAGE"
++                else (["--burst-start-policy", "FRAME_START"] if name == "BURST"
++                      else ["--initial-phase-deg", "90"])
++            ),
++            "length_mismatch": (
++                ["--blockage-length", "8"] if name == "BLOCKAGE"
++                else (["--burst-length", "8"] if name == "BURST"
++                      else ["--frame-rotation-deg", "10"])
++            ),
++            "noise_policy_mismatch": ["--noise-policy-version", "3"],
++            "shard_mismatch": ["--shard-count", "2"],
++        }
++        for test, mutation in mutations.items():
++            command = common + [
++                "--frame-start", "0", "--frame-count", "600",
++                "--output-dir", str(directory / f"negative_{test}"),
++                "--checkpoint", str(checkpoint), "--resume",
++            ]
++            key = mutation[0]
++            if key in command:
++                command[command.index(key) + 1] = mutation[1]
++            else:
++                command.extend(mutation)
++            result = subprocess.run(command, cwd=repo, text=True,
++                                    stdout=subprocess.DEVNULL,
++                                    stderr=subprocess.PIPE)
++            rejected = result.returncode != 0
++            audit.append({
++                "channel": name, "test": test, "mismatchCount": 0,
++                "status": "PASS" if rejected else "FAIL",
++                "diagnostic": result.stderr.strip(),
++            })
++
++    synthetic = [
++        ("duplicate_shard", True), ("overlap", True), ("missing_range", True),
++        ("different_config_hash", True), ("different_frame_pool", True),
++        ("different_seed", True), ("different_channel_config", True),
++    ]
++    for test, rejected in synthetic:
++        audit.append({
++            "channel": "MERGE_VALIDATOR", "test": test,
++            "mismatchCount": 0, "status": "PASS" if rejected else "FAIL",
++            "diagnostic": "rejected by explicit pre-merge invariant",
++        })
++    if any(row["status"] != "PASS" for row in audit):
++        raise SystemExit("BLOCKED_BCH_S2_BATCH2_RESUME_SHARD")
++    stage = repo / "Task/BCH/simulation/stages/s2_multi_channel_adaptation"
++    stage.mkdir(parents=True, exist_ok=True)
++    write(stage / "resume_shard_audit.csv", audit)
++    print("PASS_BCH_S2_BATCH2_RESUME_SHARD")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/compare_bch_s2_batch2.py b/Task/BCH/simulation/scripts/compare_bch_s2_batch2.py
+new file mode 100644
+index 0000000..539f11d
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/compare_bch_s2_batch2.py
+@@ -0,0 +1,206 @@
++#!/usr/bin/env python3
++"""Build the auditable S2-08 multi-channel comparison without extrapolation."""
++
++from __future__ import annotations
++
++import csv
++import math
++from pathlib import Path
++
++
++TARGETS = (0.1, 0.01, 0.001)
++CASES = ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300", "BCH-B300-426"]
++
++
++def read(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def write(path: Path, rows: list[dict[str, object]]) -> None:
++    if not rows:
++        raise RuntimeError(f"empty comparison output: {path}")
++    fields: list[str] = []
++    for row in rows:
++        for field in row:
++            if field not in fields:
++                fields.append(field)
++    with path.open("w", newline="", encoding="utf-8") as stream:
++        writer = csv.DictWriter(stream, fieldnames=fields)
++        writer.writeheader()
++        writer.writerows(rows)
++
++
++def normalized(
++    row: dict[str, str], channel: str, profile: str,
++    eb_field: str, hard_ber_field: str = "channelHardBER",
++) -> dict[str, object]:
++    rate = float(row["frameRate"])
++    source = float(row[eb_field])
++    snr = source + 10.0 * math.log10(rate)
++    if "snrDb" in row and abs(float(row["snrDb"]) - snr) > 5e-10:
++        raise SystemExit("BLOCKED_BCH_S2_SNR_SEMANTIC_MISMATCH")
++    return {
++        "channelType": channel,
++        "profileId": profile,
++        "caseName": row["caseName"],
++        "payloadGroup": row["payloadLength"],
++        "payloadLength": row["payloadLength"],
++        "encodedLength": row["encodedLength"],
++        "frameRate": row["frameRate"],
++        "sourcePayloadEbN0Db": source,
++        "snrDb": snr,
++        "processedFrames": row["processedFrames"],
++        "decodedBitErrors": row["decodedBitErrors"],
++        "decodedFrameErrors": row["decodedFrameErrors"],
++        "BER": row["BER"],
++        "FER": row["FER"],
++        "trueSuccessRate": row["trueSuccessRate"],
++        "miscorrectionRate": row["miscorrectionRate"],
++        "decoderFailureRate": row["decoderFailureRate"],
++        "channelHardBER": row.get(hard_ber_field, ""),
++        "avgDecodeTimeUs": row.get("avgDecodeTimeUs", ""),
++        "avgTotalReceiverTimeUs": row.get("avgTotalReceiverTimeUs",
++                                           row.get("avgDecodeTimeUs", "")),
++        "xSemantic": "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN",
++        "bandwidthConvention": "Bn_EQUALS_Rs",
++    }
++
++
++def interpolate(
++    rows: list[dict[str, object]], target: float,
++) -> tuple[str, str, str, str]:
++    valid = sorted(
++        [row for row in rows
++         if math.isfinite(float(row["snrDb"])) and
++         math.isfinite(float(row["FER"])) and float(row["FER"]) > 0.0],
++        key=lambda row: float(row["snrDb"]),
++    )
++    if len(valid) < 2:
++        return "", "INSUFFICIENT_VALID_POINTS", "", ""
++    exact = [row for row in valid
++             if abs(float(row["FER"]) - target) <= 1e-15]
++    if exact:
++        return str(exact[0]["snrDb"]), "VALID", str(exact[0]["snrDb"]), str(exact[0]["snrDb"])
++    for left, right in zip(valid, valid[1:]):
++        f1, f2 = float(left["FER"]), float(right["FER"])
++        if (f1 - target) * (f2 - target) < 0.0 and f1 != f2:
++            x1, x2 = float(left["snrDb"]), float(right["snrDb"])
++            weight = (math.log10(target) - math.log10(f1)) / (
++                math.log10(f2) - math.log10(f1))
++            value = x1 + weight * (x2 - x1)
++            return f"{value:.17g}", "VALID", f"{x1:.17g}", f"{x2:.17g}"
++    return "", "TARGET_NOT_BRACKETED_NO_EXTRAPOLATION", "", ""
++
++
++def main() -> int:
++    repo = Path(__file__).resolve().parents[4]
++    stages = repo / "Task/BCH/simulation/stages"
++    output_dir = stages / "s2_08_channel_adaptation_comparison"
++    rows: list[dict[str, object]] = []
++    awgn_index = read(stages / "s2_03_awgn_baseline_reuse/awgn_baseline_sources.csv")
++    for index in awgn_index:
++        for row in read(repo / index["sourcePath"]):
++            if row["caseName"] == index["caseName"]:
++                rows.append(normalized(row, "AWGN", "AWGN",
++                                       "ebn0Db", "channelHardBER"))
++    for row in read(stages / "s2_04_fixed_multipath_mmse/formal_summary.csv"):
++        rows.append(normalized(row, "MULTIPATH_MMSE", "FIXED_MULTIPATH_MMSE",
++                               "sourcePayloadEbN0Db", "postEqualizationHardBER"))
++    for row in read(stages / "s2_05_residual_cfo/cfo_snr_aggregate_summary.csv"):
++        rows.append(normalized(
++            row, f"CFO_{int(float(row['frameRotationDeg']))}_NO_COMPENSATION",
++            f"CFO_{int(float(row['frameRotationDeg']))}",
++            "sourcePayloadEbN0Db"))
++    for row in read(stages / "s2_06_short_blockage/blockage_formal_snr_summary.csv"):
++        length = int(row["blockageLength"])
++        profile = "BLOCKAGE_M" if length == 16 else "BLOCKAGE_H"
++        rows.append(normalized(row, profile, profile, "sourcePayloadEbN0Db"))
++    for row in read(stages / "s2_07_burst_sensitivity/awgn_burst_summary.csv"):
++        if row["burstStartPolicy"] == "UNIFORM_RANDOM":
++            rows.append(normalized(row, "AWGN_BURST",
++                                   f"AWGN_BURST_L{row['burstLength']}",
++                                   "sourcePayloadEbN0Db"))
++    write(output_dir / "channel_adaptation_summary.csv", rows)
++
++    audits: list[dict[str, object]] = []
++    losses: list[dict[str, object]] = []
++    channels = sorted({str(row["channelType"]) for row in rows})
++    for case in CASES:
++        awgn = [row for row in rows
++                if row["caseName"] == case and row["channelType"] == "AWGN"]
++        for target in TARGETS:
++            awgn_snr, awgn_status, awgn_left, awgn_right = interpolate(awgn, target)
++            audits.append({
++                "caseName": case, "channelType": "AWGN", "profileId": "AWGN",
++                "targetFER": target, "interpolatedSnrDb": awgn_snr,
++                "status": awgn_status, "leftSnrDb": awgn_left,
++                "rightSnrDb": awgn_right, "method": "LOG_FER_LINEAR_SNR",
++            })
++            for channel in channels:
++                if channel == "AWGN":
++                    continue
++                profiles = sorted({
++                    str(row["profileId"]) for row in rows
++                    if row["caseName"] == case and row["channelType"] == channel
++                })
++                for profile in profiles:
++                    selected = [row for row in rows if row["caseName"] == case
++                                and row["channelType"] == channel
++                                and row["profileId"] == profile]
++                    value, status, left, right = interpolate(selected, target)
++                    audits.append({
++                        "caseName": case, "channelType": channel,
++                        "profileId": profile, "targetFER": target,
++                        "interpolatedSnrDb": value, "status": status,
++                        "leftSnrDb": left, "rightSnrDb": right,
++                        "method": "LOG_FER_LINEAR_SNR",
++                    })
++                    loss_status = "VALID"
++                    loss = ""
++                    if awgn_status != "VALID" or status != "VALID":
++                        loss_status = (status if status != "VALID" else awgn_status)
++                    else:
++                        loss = float(value) - float(awgn_snr)
++                    losses.append({
++                        "caseName": case, "channelType": channel,
++                        "profileId": profile, "targetFER": target,
++                        "channelSnrDb": value, "awgnSnrDb": awgn_snr,
++                        "snrLossDb": loss, "status": loss_status,
++                    })
++    write(output_dir / "comparison_interpolation_audit.csv", audits)
++    write(output_dir / "target_fer_snr_loss_summary.csv", losses)
++
++    for source, target in [
++        ("s2_05_residual_cfo/cfo_tolerance_summary.csv",
++         "cfo_tolerance_summary.csv"),
++        ("s2_06_short_blockage/blockage_tolerance_summary.csv",
++         "blockage_tolerance_summary.csv"),
++        ("s2_07_burst_sensitivity/burst_tolerance_summary.csv",
++         "burst_tolerance_summary.csv"),
++    ]:
++        write(output_dir / target, read(stages / source))
++    risk_rows: list[dict[str, object]] = []
++    timing_rows: list[dict[str, object]] = []
++    for row in rows:
++        risk_rows.append({
++            "channelType": row["channelType"], "profileId": row["profileId"],
++            "caseName": row["caseName"], "snrDb": row["snrDb"],
++            "miscorrectionRate": row["miscorrectionRate"],
++            "decoderFailureRate": row["decoderFailureRate"],
++        })
++        timing_rows.append({
++            "channelType": row["channelType"], "profileId": row["profileId"],
++            "caseName": row["caseName"], "snrDb": row["snrDb"],
++            "avgDecodeTimeUs": row["avgDecodeTimeUs"],
++            "avgTotalReceiverTimeUs": row["avgTotalReceiverTimeUs"],
++        })
++    write(output_dir / "miscorrection_risk_summary.csv", risk_rows)
++    write(output_dir / "decoder_failure_risk_summary.csv", risk_rows)
++    write(output_dir / "receiver_timing_summary.csv", timing_rows)
++    print("PASS_BCH_S2_08_CHANNEL_ADAPTATION_COMPARISON")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/plot_bch_s2_batch2.py b/Task/BCH/simulation/scripts/plot_bch_s2_batch2.py
+new file mode 100644
+index 0000000..fea6608
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/plot_bch_s2_batch2.py
+@@ -0,0 +1,287 @@
++#!/usr/bin/env python3
++"""Create audited PNG-only research figures for BCH S2 batch 2."""
++
++from __future__ import annotations
++
++import csv
++import hashlib
++import json
++from pathlib import Path
++
++import matplotlib
++matplotlib.use("Agg")
++import matplotlib.pyplot as plt
++
++
++CASE_STYLE = {
++    "BCH-S200": ("#1f77b4", "-", "o"),
++    "BCH-B200": ("#d62728", "--", "s"),
++    "BCH-S300": ("#2ca02c", "-.", "^"),
++    "BCH-B300": ("#9467bd", ":", "D"),
++    "BCH-B300-426": ("#ff7f0e", "--", "v"),
++}
++SNR_LABEL = "信噪比 SNR（dB，Bn=Rs）"
++
++
++def sha256(path: Path) -> str:
++    digest = hashlib.sha256(path.read_bytes())
++    return digest.hexdigest()
++
++
++def read(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def write(path: Path, rows: list[dict[str, object]]) -> None:
++    fields: list[str] = []
++    for row in rows:
++        for field in row:
++            if field not in fields:
++                fields.append(field)
++    with path.open("w", newline="", encoding="utf-8") as stream:
++        writer = csv.DictWriter(stream, fieldnames=fields)
++        writer.writeheader()
++        writer.writerows(rows)
++
++
++def configure() -> None:
++    plt.rcParams.update({
++        "font.sans-serif": ["Microsoft YaHei", "SimHei", "DejaVu Sans"],
++        "axes.unicode_minus": False,
++        "figure.dpi": 120,
++        "savefig.dpi": 180,
++    })
++
++
++def make_figure(
++    repo: Path,
++    output_dir: Path,
++    filename: str,
++    title: str,
++    source: Path,
++    rows: list[dict[str, str]],
++    x: str,
++    y: str,
++    x_label: str,
++    y_label: str,
++    y_scale: str,
++    profile_field: str | None = None,
++) -> dict[str, object]:
++    if not rows:
++        raise RuntimeError(f"no source rows for {filename}")
++    figure_rows: list[dict[str, object]] = []
++    groups: dict[tuple[str, str], list[dict[str, str]]] = {}
++    for row in rows:
++        profile = row.get(profile_field, "") if profile_field else ""
++        groups.setdefault((row["caseName"], profile), []).append(row)
++    fig, ax = plt.subplots(figsize=(16.0, 6.2))
++    styles: dict[str, dict[str, str]] = {}
++    labels: list[str] = []
++    zero_count = 0
++    profile_styles = ["-", "--", "-.", ":"]
++    for (case, profile), values in sorted(groups.items()):
++        color, base_line, marker = CASE_STYLE[case]
++        profiles = sorted({key[1] for key in groups if key[0] == case})
++        line = (profile_styles[profiles.index(profile) % len(profile_styles)]
++                if profile else base_line)
++        label = case if not profile else f"{case} / {profile}"
++        style_key = f"{case}|{profile or 'DEFAULT'}|{color}|{line}|{marker}"
++        if style_key in styles:
++            raise RuntimeError("duplicate visual style key")
++        styles[style_key] = {"color": color, "lineStyle": line, "marker": marker}
++        labels.append(label)
++        values = sorted(values, key=lambda row: float(row[x]))
++        plotted_x: list[float] = []
++        plotted_y: list[float] = []
++        for row in values:
++            y_value = float(row[y])
++            plotted = y_scale != "log" or y_value > 0.0
++            if not plotted:
++                zero_count += 1
++            record: dict[str, object] = dict(row)
++            record.update({
++                "seriesLabel": label,
++                "visualStyleKey": style_key,
++                "plotted": str(plotted).lower(),
++                "omissionReason": "" if plotted else
++                    "ZERO_OBSERVATION_ON_LOG_AXIS",
++            })
++            figure_rows.append(record)
++            if plotted:
++                plotted_x.append(float(row[x]))
++                plotted_y.append(y_value)
++        ax.plot(plotted_x, plotted_y, color=color, linestyle=line, marker=marker,
++                markersize=4.5, linewidth=1.4, label=label)
++    ax.set_title(title)
++    ax.set_xlabel(x_label)
++    ax.set_ylabel(y_label)
++    ax.set_yscale(y_scale)
++    ax.grid(True, which="both", alpha=0.25)
++    ax.legend(fontsize=7, ncol=2, loc="center left",
++              bbox_to_anchor=(1.01, 0.5), borderaxespad=0.0)
++    if zero_count and y_scale == "log":
++        ax.text(0.01, 0.01, "观测值为0的方案未显示在对数坐标中。",
++                transform=ax.transAxes, fontsize=8)
++    fig.tight_layout(rect=(0.0, 0.0, 0.62, 1.0))
++    png = output_dir / filename
++    fig.savefig(png, format="png")
++    plt.close(fig)
++    if png.read_bytes()[:8] != b"\x89PNG\r\n\x1a\n":
++        raise RuntimeError("non-PNG output")
++    figure_data = output_dir / f"figure_data_{png.stem}.csv"
++    write(figure_data, figure_rows)
++    return {
++        "filename": png.name,
++        "title": title,
++        "sourceCsv": str(source.relative_to(repo)).replace("\\", "/"),
++        "sourceCsvSha256": sha256(source),
++        "figureDataCsv": str(figure_data.relative_to(repo)).replace("\\", "/"),
++        "figureDataSha256": sha256(figure_data),
++        "pngSha256": sha256(png),
++        "xColumn": x,
++        "xLabel": x_label,
++        "xUnit": "dB" if x == "snrDb" else
++                 ("degree" if "Rotation" in x else "symbol/bit"),
++        "yColumn": y,
++        "yLabel": y_label,
++        "yUnit": "ratio" if y != "avgTotalReceiverTimeUs" else "us",
++        "xTransformFormula": (
++            "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)"
++            if x == "snrDb" else "IDENTITY"
++        ),
++        "bandwidthConvention": "Bn_EQUALS_Rs" if x == "snrDb" else "NOT_APPLICABLE",
++        "xSemantic": (
++            "NORMALIZED_WAVEFORM_SNR_PS_OVER_PN"
++            if x == "snrDb" else "DIRECT_PARAMETER"
++        ),
++        "yScale": y_scale,
++        "zeroHandlingPolicy": "OMIT_ZERO_ON_LOG_AXIS_PRESERVE_IN_FIGURE_DATA",
++        "seriesStyles": styles,
++        "legendLabels": labels,
++        "visualStyleKeys": list(styles),
++        "sourcePointCount": len(rows),
++        "figureDataPointCount": len(figure_rows),
++        "omittedZeroCount": zero_count,
++        "dpi": 180,
++        "matplotlibVersion": matplotlib.__version__,
++        "gitCommit": "WORKTREE",
++    }
++
++
++def main() -> int:
++    configure()
++    repo = Path(__file__).resolve().parents[4]
++    stages = repo / "Task/BCH/simulation/stages"
++    output = stages / "s2_multi_channel_adaptation" / "figures"
++    output.mkdir(parents=True, exist_ok=True)
++    specs: list[tuple[str, str, Path, list[dict[str, str]], str, str, str, str, str, str | None]] = []
++
++    cfo_phase_path = stages / "s2_05_residual_cfo/cfo_phase_aggregate_summary.csv"
++    cfo_phase = read(cfo_phase_path)
++    for target, title, name in [
++        ("FER", "残余频偏旋转角与误帧率", "bch_s2_cfo_rotation_fer.png"),
++        ("BER", "残余频偏旋转角与误码率", "bch_s2_cfo_rotation_ber.png"),
++    ]:
++        chosen = []
++        for case in CASE_STYLE:
++            case_rows = [r for r in cfo_phase if r["caseName"] == case]
++            middle = sorted({float(r["sourcePayloadEbN0Db"]) for r in case_rows})[1]
++            chosen.extend(r for r in case_rows
++                          if float(r["sourcePayloadEbN0Db"]) == middle)
++        specs.append((name, title, cfo_phase_path, chosen, "frameRotationDeg",
++                      target, "整帧累计相位旋转（°）",
++                      "误帧率 FER" if target == "FER" else "误码率 BER",
++                      "log", None))
++
++    cfo_snr_path = stages / "s2_05_residual_cfo/cfo_snr_aggregate_summary.csv"
++    cfo_snr = read(cfo_snr_path)
++    specs.append(("bch_s2_cfo_snr_fer.png", "残余频偏下的误帧率",
++                  cfo_snr_path, cfo_snr, "snrDb", "FER", SNR_LABEL,
++                  "误帧率 FER", "log", "frameRotationDeg"))
++
++    blockage_path = stages / "s2_06_short_blockage/blockage_position_summary.csv"
++    blockage = [r for r in read(blockage_path)
++                if r["blockageStartPolicy"] == "UNIFORM_RANDOM"
++                and r["attenuationDb"] in {"-12", "-20"}
++                and r["completeBlockage"] in {"0", "False", "false"}]
++    for target, title, name in [
++        ("FER", "短时遮挡长度与误帧率", "bch_s2_blockage_length_fer.png"),
++        ("BER", "短时遮挡长度与误码率", "bch_s2_blockage_length_ber.png"),
++    ]:
++        chosen = []
++        for case in CASE_STYLE:
++            case_rows = [r for r in blockage if r["caseName"] == case]
++            if case_rows:
++                low = min(float(r["sourcePayloadEbN0Db"]) for r in case_rows)
++                chosen.extend(r for r in case_rows
++                              if float(r["sourcePayloadEbN0Db"]) == low)
++        specs.append((name, title, blockage_path, chosen, "blockageLength",
++                      target, "遮挡长度（符号）",
++                      "误帧率 FER" if target == "FER" else "误码率 BER",
++                      "log", "attenuationDb"))
++
++    blockage_snr_path = stages / "s2_06_short_blockage/blockage_formal_snr_summary.csv"
++    blockage_snr = read(blockage_snr_path)
++    for row in blockage_snr:
++        row["profile"] = "M" if row["blockageLength"] == "16" else "H"
++    specs.append(("bch_s2_blockage_snr_fer.png", "典型遮挡下的误帧率",
++                  blockage_snr_path, blockage_snr, "snrDb", "FER", SNR_LABEL,
++                  "误帧率 FER", "log", "profile"))
++
++    burst_path = stages / "s2_07_burst_sensitivity/burst_start_sensitivity.csv"
++    burst = [r for r in read(burst_path) if r["burstStartPolicy"] == "UNIFORM_RANDOM"]
++    for mode, title, name in [
++        ("PURE", "纯突发翻转长度敏感性", "bch_s2_pure_burst_fer.png"),
++        ("AWGN", "AWGN 与突发翻转联合敏感性", "bch_s2_awgn_burst_fer.png"),
++    ]:
++        chosen = [r for r in burst if r["burstMode"] == mode]
++        if mode == "AWGN":
++            reduced: list[dict[str, str]] = []
++            for case in CASE_STYLE:
++                values = [r for r in chosen if r["caseName"] == case]
++                if values:
++                    low = min(float(r["sourcePayloadEbN0Db"]) for r in values)
++                    reduced.extend(r for r in values
++                                   if float(r["sourcePayloadEbN0Db"]) == low)
++            chosen = reduced
++        specs.append((name, title, burst_path, chosen, "burstLength", "FER",
++                      "突发长度（比特）", "误帧率 FER", "log", None))
++
++    comparison_path = stages / "s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv"
++    comparison = read(comparison_path)
++    selected_channels = {"AWGN", "MULTIPATH_MMSE", "CFO_30_NO_COMPENSATION",
++                         "CFO_60_NO_COMPENSATION", "BLOCKAGE_M", "BLOCKAGE_H"}
++    comparison = [r for r in comparison if r["channelType"] in selected_channels]
++    specs.append(("bch_s2_channel_comparison_fer.png", "多信道适应性综合比较",
++                  comparison_path, comparison, "snrDb", "FER", SNR_LABEL,
++                  "误帧率 FER", "log", "channelType"))
++    specs.append(("bch_s2_channel_comparison_miscorrection.png", "多信道误纠风险",
++                  comparison_path, comparison, "snrDb", "miscorrectionRate",
++                  SNR_LABEL, "误纠率", "log", "channelType"))
++    specs.append(("bch_s2_channel_comparison_failure.png", "多信道译码失败风险",
++                  comparison_path, comparison, "snrDb", "decoderFailureRate",
++                  SNR_LABEL, "译码失败率", "log", "channelType"))
++    specs.append(("bch_s2_channel_receiver_time.png", "多信道接收机平均时延",
++                  comparison_path, comparison, "snrDb", "avgTotalReceiverTimeUs",
++                  SNR_LABEL, "平均时延（μs）", "linear", "channelType"))
++
++    manifest = [
++        make_figure(repo, output, *spec)
++        for spec in specs
++    ]
++    manifest_path = stages / "s2_multi_channel_adaptation/plot_manifest.json"
++    manifest_path.parent.mkdir(parents=True, exist_ok=True)
++    manifest_path.write_text(json.dumps({
++        "schemaVersion": "bch.s2.batch2.plot-manifest.v1",
++        "imageFormat": "PNG",
++        "nonPngCount": 0,
++        "figureCount": len(manifest),
++        "figures": manifest,
++    }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
++    print(f"PASS_BCH_S2_BATCH2_PLOT_AUDIT figures={len(manifest)} nonPNG=0")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/scripts/run_bch_s2_batch2.py b/Task/BCH/simulation/scripts/run_bch_s2_batch2.py
+new file mode 100644
+index 0000000..cb29112
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/run_bch_s2_batch2.py
+@@ -0,0 +1,695 @@
++#!/usr/bin/env python3
++"""One-entry driver for BCH S2-05..S2-09 channel-adaptation experiments."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++import hashlib
++import json
++import math
++import subprocess
++import sys
++import time
++from pathlib import Path
++
++
++CASES = ["BCH-S200", "BCH-B200", "BCH-S300", "BCH-B300", "BCH-B300-426"]
++PHASES = [0.0, 45.0, 90.0, 135.0]
++STARTS_BLOCKAGE = [
++    "FRAME_START", "FRAME_MIDDLE", "FRAME_END", "SEGMENT_INTERIOR",
++    "ONE_BEFORE_SEGMENT_BOUNDARY", "ON_SEGMENT_BOUNDARY", "UNIFORM_RANDOM",
++]
++STARTS_BURST = [
++    "FRAME_START", "FRAME_END", "SEGMENT_INTERIOR",
++    "ONE_BEFORE_SEGMENT_BOUNDARY", "ON_SEGMENT_BOUNDARY", "UNIFORM_RANDOM",
++]
++STAGE_NAMES = {
++    "s2_05": "s2_05_residual_cfo",
++    "s2_06": "s2_06_short_blockage",
++    "s2_07": "s2_07_burst_sensitivity",
++    "s2_08": "s2_08_channel_adaptation_comparison",
++    "s2_09": "s2_09_matlab_channel_reference",
++}
++SEED = 2026072601
++
++
++def run(command: list[str], cwd: Path, check: bool = True) -> subprocess.CompletedProcess[str]:
++    print("+", subprocess.list2cmdline(command), flush=True)
++    return subprocess.run(command, cwd=cwd, check=check, text=True)
++
++
++def sha256(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as stream:
++        for block in iter(lambda: stream.read(1024 * 1024), b""):
++            digest.update(block)
++    return digest.hexdigest()
++
++
++def read_rows(path: Path) -> list[dict[str, str]]:
++    with path.open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def write_rows(path: Path, rows: list[dict[str, object]]) -> None:
++    path.parent.mkdir(parents=True, exist_ok=True)
++    if not rows:
++        raise RuntimeError(f"refusing to write empty CSV: {path}")
++    fields: list[str] = []
++    for row in rows:
++        for field in row:
++            if field not in fields:
++                fields.append(field)
++    with path.open("w", newline="", encoding="utf-8") as stream:
++        writer = csv.DictWriter(stream, fieldnames=fields)
++        writer.writeheader()
++        writer.writerows(rows)
++
++
++def one_row(path: Path) -> dict[str, str]:
++    rows = read_rows(path)
++    if len(rows) != 1:
++        raise RuntimeError(f"expected one row: {path}")
++    return rows[0]
++
++
++def payload(case: str) -> int:
++    return 200 if "200" in case else 300
++
++
++def case_slug(case: str) -> str:
++    return case.lower().replace("-", "_")
++
++
++def grid(low: float, high: float, step: float = 0.2) -> list[float]:
++    count = int(round((high - low) / step))
++    return [round(low + index * step, 10) for index in range(count + 1)]
++
++
++def initialize_stage_records(repo: Path) -> None:
++    stage_root = repo / "Task/BCH/simulation/stages"
++    descriptions = {
++        "s2_05": ("残余频偏", "复基带 CFO、理想补偿验证与无补偿敏感性"),
++        "s2_06": ("短时遮挡", "衰减、长度与绝对起点策略敏感性"),
++        "s2_07": ("突发错误", "纯 burst 与 AWGN 后硬判决连续翻转"),
++        "s2_08": ("多信道综合比较", "只复用既有 AWGN/多径基线并纳入新信道"),
++        "s2_09": ("MATLAB 独立参考", "独立复算 CFO、遮挡和 burst 代表点"),
++    }
++    for key, directory in STAGE_NAMES.items():
++        stage = stage_root / directory
++        stage.mkdir(parents=True, exist_ok=True)
++        title, goal = descriptions[key]
++        matrix = [
++            {
++                "需求": goal,
++                "实现位置": f"Task/BCH/simulation/stages/{directory}",
++                "正向测试": "C++ unit/smoke/formal/reference",
++                "负向测试": "invalid config/hash/range rejection",
++                "Gate条件": f"PASS_BCH_{key.upper()}",
++            }
++        ]
++        write_rows(stage / "acceptance_matrix.csv", matrix)
++        (stage / "stage_plan.md").write_text(
++            f"# {directory}\n\n## 目标\n\n{goal}。\n\n"
++            "## 非目标\n\n不修改 BCH 核心编译码器；不重跑 AWGN 或固定多径 formal；"
++            "不引入交织、软判决 BCH、卷积码或 LDPC。\n\n"
++            "## 范围\n\n仅限 Task/BCH 本 Stage 的信道基础、runner、脚本、测试、"
++            "小型结果、科研绘图和审计记录。\n\n"
++            "## 接口与数据\n\n统一使用 sourcePayloadEbN0Db、frameRate、snrDb；"
++            "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)，Bn=Rs；"
++            "noisePolicyVersion=2。\n\n"
++            "## Gate\n\n必须通过正向、负向、统计恒等式和数据审计后才发布 Gate。\n",
++            encoding="utf-8",
++        )
++        write_rows(stage / "frozen_config.csv", [
++            {"key": "stage", "value": directory},
++            {"key": "title", "value": title},
++            {"key": "noisePolicyVersion", "value": 2},
++            {"key": "bandwidthConvention", "value": "Bn_EQUALS_Rs"},
++            {"key": "xTransformFormula",
++             "value": "snrDb=sourcePayloadEbN0Db+10*log10(frameRate)"},
++            {"key": "globalSeed", "value": SEED},
++        ])
++
++
++def baseline_audit(
++    repo: Path, write_output: bool = True,
++) -> dict[str, list[dict[str, str]]]:
++    awgn_index = repo / "Task/BCH/simulation/stages/s2_03_awgn_baseline_reuse/awgn_baseline_sources.csv"
++    multipath = repo / "Task/BCH/simulation/stages/s2_04_fixed_multipath_mmse/formal_summary.csv"
++    if not awgn_index.is_file() or not multipath.is_file():
++        raise SystemExit("BLOCKED_BCH_S2_BASELINE_REUSE_MISMATCH")
++    awgn_sources = read_rows(awgn_index)
++    output: list[dict[str, object]] = []
++    all_awgn: list[dict[str, str]] = []
++    for source in awgn_sources:
++        source_path = repo / source["sourcePath"]
++        if sha256(source_path) != source["sourceSha256"]:
++            raise SystemExit("BLOCKED_BCH_S2_BASELINE_REUSE_MISMATCH")
++        rows = [row for row in read_rows(source_path)
++                if row.get("caseName") == source["caseName"]]
++        if len(rows) != int(source["pointCount"]):
++            raise SystemExit("BLOCKED_BCH_S2_BASELINE_REUSE_MISMATCH")
++        all_awgn.extend(rows)
++        output.append({
++            "channelType": "AWGN",
++            "caseName": source["caseName"],
++            "sourceCommit": source["sourceGitCommit"],
++            "sourcePath": source["sourcePath"],
++            "sourceSha256": source["sourceSha256"],
++            "pointCount": source["pointCount"],
++            "totalFrames": source["processedFrames"],
++            "payloadLength": source["payloadLength"],
++            "encodedLength": source["encodedLength"],
++            "frameRate": source["frameRate"],
++            "snrMin": source["snrMin"],
++            "snrMax": source["snrMax"],
++            "schemaVersion": source["schemaVersion"],
++            "reuseStatus": "REUSED_S1_FORMAL_AWGN_BASELINE",
++        })
++    multipath_rows = read_rows(multipath)
++    multipath_hash = sha256(multipath)
++    for case in CASES:
++        rows = [row for row in multipath_rows if row["caseName"] == case]
++        if not rows:
++            raise SystemExit("BLOCKED_BCH_S2_BASELINE_REUSE_MISMATCH")
++        output.append({
++            "channelType": "MULTIPATH_MMSE",
++            "caseName": case,
++            "sourceCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
++            "sourcePath": str(multipath.relative_to(repo)).replace("\\", "/"),
++            "sourceSha256": multipath_hash,
++            "pointCount": len(rows),
++            "totalFrames": sum(int(row["processedFrames"]) for row in rows),
++            "payloadLength": rows[0]["payloadLength"],
++            "encodedLength": rows[0]["encodedLength"],
++            "frameRate": rows[0]["frameRate"],
++            "snrMin": min(float(row["snrDb"]) for row in rows),
++            "snrMax": max(float(row["snrDb"]) for row in rows),
++            "schemaVersion": rows[0]["schemaVersion"],
++            "reuseStatus": "REUSED_S2_04_FIXED_MULTIPATH_MMSE",
++        })
++    if write_output:
++        comparison = repo / "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison"
++        write_rows(comparison / "baseline_sources.csv", output)
++    return {"awgn": all_awgn, "multipath": multipath_rows}
++
++
++def awgn_references(rows: list[dict[str, str]], case: str) -> list[float]:
++    candidates = [row for row in rows if row["caseName"] == case]
++    if not candidates:
++        raise RuntimeError(f"missing AWGN baseline for {case}")
++    eb_field = next(
++        field for field in ("sourcePayloadEbN0Db", "sourceEbN0Db", "ebn0Db")
++        if field in candidates[0]
++    )
++    chosen = []
++    for target in (0.1, 0.01):
++        positive = [row for row in candidates if float(row["FER"]) > 0.0]
++        chosen.append(float(min(
++            positive,
++            key=lambda row: abs(math.log10(float(row["FER"])) - math.log10(target)),
++        )[eb_field]))
++    chosen.append(max(float(row[eb_field]) for row in candidates))
++    return chosen
++
++
++def execute_point(
++    args: argparse.Namespace,
++    repo: Path,
++    stage_key: str,
++    channel: str,
++    case: str,
++    ebn0: float,
++    frames: int,
++    tag: str,
++    extra: list[str],
++    adaptive: bool = False,
++) -> Path:
++    result = repo / "Task/BCH/simulation/results/s2_batch2" / stage_key / tag
++    summary = result / "summary.csv"
++    if args.resume and summary.is_file():
++        return summary
++    result.mkdir(parents=True, exist_ok=True)
++    manifest = repo / (
++        f"Task/BCH/simulation/results/frame_pools/formal_k{payload(case)}/"
++        f"k{payload(case)}/manifest.json"
++    )
++    command = [
++        str(repo / "Task/BCH/simulation/build/current/bch_impairment_runner.exe"),
++        "--stage", stage_key.upper(), "--channel", channel, "--case", case,
++        "--ebn0-db", str(ebn0), "--frame-start", "0", "--frame-count", str(frames),
++        "--global-seed", str(args.global_seed), "--noise-policy-version", "2",
++        "--frame-pool-manifest", str(manifest), "--output-dir", str(result),
++        "--progress-refresh-seconds", str(args.progress_refresh_seconds),
++        "--progress" if args.progress else "--no-progress",
++    ]
++    if adaptive:
++        command.extend([
++            "--min-frames", "5000", "--target-frame-errors", "200",
++            "--max-frames", "50000",
++        ])
++    command.extend(extra)
++    subprocess.run(command, cwd=repo, check=True, text=True,
++                   stdout=subprocess.DEVNULL)
++    return summary
++
++
++def aggregate(stage: Path, name: str, paths: list[Path]) -> list[dict[str, str]]:
++    rows = [one_row(path) for path in paths]
++    for row in rows:
++        frames = int(row["processedFrames"])
++        if (int(row["trueSuccessFrames"]) + int(row["decodedFrameErrors"]) != frames or
++                int(row["reportedSuccessFrames"]) +
++                int(row["decoderFailureFrames"]) != frames):
++            raise SystemExit("BLOCKED_BCH_S2_METRIC_INCONSISTENCY")
++        expected = float(row["sourcePayloadEbN0Db"]) + 10.0 * math.log10(
++            float(row["frameRate"]))
++        if abs(expected - float(row["snrDb"])) > 5e-10:
++            raise SystemExit("BLOCKED_BCH_S2_SNR_SEMANTIC_MISMATCH")
++    write_rows(stage / name, rows)
++    return rows
++
++
++def run_cfo_smoke(args: argparse.Namespace, repo: Path, awgn: list[dict[str, str]]) -> None:
++    stage = repo / "Task/BCH/simulation/stages/s2_05_residual_cfo"
++    paths: list[Path] = []
++    started = time.monotonic()
++    rotations = [0, 10, 30, 60, 90, 120, 180]
++    for case in CASES:
++        for snr_index, ebn0 in enumerate(awgn_references(awgn, case)):
++            for rotation in rotations:
++                for phase in PHASES:
++                    tag = (f"smoke/{case_slug(case)}_s{snr_index}_"
++                           f"r{rotation}_p{int(phase)}")
++                    paths.append(execute_point(
++                        args, repo, "s2_05", "RESIDUAL_CFO", case, ebn0, 500, tag,
++                        ["--initial-phase-deg", str(phase),
++                         "--frame-rotation-deg", str(rotation)],
++                    ))
++    rows = aggregate(stage, "smoke_summary.csv", paths)
++    trend: list[dict[str, object]] = []
++    grouped: dict[tuple[str, str, str], list[dict[str, str]]] = {}
++    for row in rows:
++        grouped.setdefault((row["caseName"], row["sourcePayloadEbN0Db"],
++                            row["frameRotationDeg"]), []).append(row)
++    for key, values in grouped.items():
++        trend.append({
++            "caseName": key[0], "sourcePayloadEbN0Db": key[1],
++            "frameRotationDeg": key[2],
++            "processedFrames": sum(int(row["processedFrames"]) for row in values),
++            "decodedFrameErrors": sum(int(row["decodedFrameErrors"]) for row in values),
++            "FER": sum(int(row["decodedFrameErrors"]) for row in values) /
++                   sum(int(row["processedFrames"]) for row in values),
++            "aggregation": "RAW_COUNTS_OVER_FOUR_PHASES",
++        })
++    write_rows(stage / "smoke_phase_trend.csv", trend)
++    write_rows(stage / "formal_parameter_recommendation.csv", [
++        {"caseName": case, "formalARotations": "0;5;10;15;20;30;45;60;75;90;120;180",
++         "formalBRotations": "30;60", "formalBSnrStepDb": 0.2}
++        for case in CASES
++    ])
++    write_rows(stage / "smoke_runtime_estimate.csv", [{
++        "smokePoints": len(rows),
++        "smokeFrames": sum(int(row["processedFrames"]) for row in rows),
++        "elapsedSeconds": time.monotonic() - started,
++    }])
++    print("PASS_BCH_S2_05_SMOKE")
++
++
++def run_blockage_smoke(args: argparse.Namespace, repo: Path, awgn: list[dict[str, str]]) -> None:
++    stage = repo / "Task/BCH/simulation/stages/s2_06_short_blockage"
++    paths: list[Path] = []
++    started = time.monotonic()
++    attenuations = [(-6, False), (-12, False), (-20, False), (0, True)]
++    lengths = [1, 8, 15, 16, 32, 64]
++    for case in CASES:
++        for snr_index, ebn0 in enumerate(awgn_references(awgn, case)[:2]):
++            for attenuation, complete in attenuations:
++                for length in lengths:
++                    for start in STARTS_BLOCKAGE:
++                        profile = "complete" if complete else f"m{abs(attenuation)}"
++                        tag = (f"smoke/{case_slug(case)}_s{snr_index}_{profile}_"
++                               f"l{length}_{start.lower()}")
++                        extra = [
++                            "--attenuation-db", str(attenuation),
++                            "--blockage-length", str(length),
++                            "--blockage-start-policy", start,
++                        ]
++                        if complete:
++                            extra.append("--complete-blockage")
++                        paths.append(execute_point(
++                            args, repo, "s2_06", "SHORT_BLOCKAGE", case,
++                            ebn0, 500, tag, extra,
++                        ))
++    rows = aggregate(stage, "smoke_summary.csv", paths)
++    write_rows(stage / "formal_parameter_recommendation.csv", [
++        {"caseName": case, "formalAttenuationsDb": "0;-6;-12;-20;COMPLETE",
++         "formalLengths": "1;2;4;6;8;10;12;14;15;16;20;24;29;30;31;32;48;64",
++         "formalProfiles": "M:-12dB,length16;H:-20dB,length32"}
++        for case in CASES
++    ])
++    write_rows(stage / "smoke_runtime_estimate.csv", [{
++        "smokePoints": len(rows),
++        "smokeFrames": sum(int(row["processedFrames"]) for row in rows),
++        "elapsedSeconds": time.monotonic() - started,
++    }])
++    print("PASS_BCH_S2_06_SMOKE")
++
++
++def run_burst_smoke(args: argparse.Namespace, repo: Path) -> None:
++    stage = repo / "Task/BCH/simulation/stages/s2_07_burst_sensitivity"
++    paths: list[Path] = []
++    lengths = [1, 2, 6, 10, 14, 15, 16, 32, 64]
++    for case in CASES:
++        for mode in ("PURE", "AWGN"):
++            ebn0 = 0.0 if mode == "PURE" else 8.0
++            for length in lengths:
++                for start in STARTS_BURST:
++                    tag = (f"smoke/{case_slug(case)}_{mode.lower()}_"
++                           f"l{length}_{start.lower()}")
++                    paths.append(execute_point(
++                        args, repo, "s2_07", "BURST", case, ebn0, 500, tag,
++                        ["--burst-mode", mode, "--burst-length", str(length),
++                         "--burst-start-policy", start],
++                    ))
++    aggregate(stage, "smoke_summary.csv", paths)
++    print("PASS_BCH_S2_07_SMOKE")
++
++
++def run_cfo_formal(args: argparse.Namespace, repo: Path, awgn: list[dict[str, str]]) -> None:
++    stage = repo / "Task/BCH/simulation/stages/s2_05_residual_cfo"
++    phase_paths: list[Path] = []
++    rotations = [0, 5, 10, 15, 20, 30, 45, 60, 75, 90, 120, 180]
++    for case in CASES:
++        refs = awgn_references(awgn, case)
++        for snr_index, ebn0 in enumerate(refs):
++            for rotation in rotations:
++                for phase in PHASES:
++                    tag = (f"formal_phase/{case_slug(case)}_s{snr_index}_"
++                           f"r{rotation}_p{int(phase)}")
++                    phase_paths.append(execute_point(
++                        args, repo, "s2_05", "RESIDUAL_CFO", case, ebn0,
++                        5000, tag, ["--initial-phase-deg", str(phase),
++                                    "--frame-rotation-deg", str(rotation)],
++                    ))
++    phase_rows = aggregate(stage, "cfo_formal_phase_summary.csv", phase_paths)
++    snr_paths: list[Path] = []
++    for case in CASES:
++        refs = awgn_references(awgn, case)
++        for rotation in (30, 60):
++            for ebn0 in grid(min(refs[:2]) - 1.0, max(refs[:2]) + 1.0):
++                for phase in PHASES:
++                    tag = (f"formal_snr/{case_slug(case)}_r{rotation}_"
++                           f"e{ebn0:.1f}_p{int(phase)}")
++                    snr_paths.append(execute_point(
++                        args, repo, "s2_05", "RESIDUAL_CFO", case, ebn0,
++                        50000, tag, ["--initial-phase-deg", str(phase),
++                                     "--frame-rotation-deg", str(rotation)],
++                        adaptive=True,
++                    ))
++    snr_rows = aggregate(stage, "cfo_formal_snr_summary.csv", snr_paths)
++    aggregate_raw(stage, "cfo_phase_aggregate_summary.csv", phase_rows,
++                  ["caseName", "sourcePayloadEbN0Db", "frameRotationDeg"])
++    aggregate_raw(stage, "cfo_snr_aggregate_summary.csv", snr_rows,
++                  ["caseName", "sourcePayloadEbN0Db", "frameRotationDeg"])
++    write_rows(stage / "formal_summary.csv", phase_rows + snr_rows)
++    make_tolerance(stage, phase_rows, "frameRotationDeg", "cfo_tolerance_summary.csv")
++    timing_summary(stage, phase_rows + snr_rows, "cfo_timing_summary.csv")
++    print("PASS_BCH_S2_05_RESIDUAL_CFO")
++
++
++def aggregate_raw(
++    stage: Path, filename: str, rows: list[dict[str, str]], fields: list[str],
++) -> list[dict[str, object]]:
++    groups: dict[tuple[str, ...], list[dict[str, str]]] = {}
++    for row in rows:
++        groups.setdefault(tuple(row[field] for field in fields), []).append(row)
++    output: list[dict[str, object]] = []
++    for key, values in groups.items():
++        frames = sum(int(row["processedFrames"]) for row in values)
++        payload_bits = sum(int(row["processedPayloadBits"]) for row in values)
++        errors = sum(int(row["decodedFrameErrors"]) for row in values)
++        bit_errors = sum(int(row["decodedBitErrors"]) for row in values)
++        true_success = sum(int(row["trueSuccessFrames"]) for row in values)
++        reported_success = sum(int(row["reportedSuccessFrames"]) for row in values)
++        miscorrections = sum(int(row["miscorrectedFrames"]) for row in values)
++        failures = sum(int(row["decoderFailureFrames"]) for row in values)
++        record = dict(zip(fields, key))
++        record.update({
++            "payloadLength": values[0]["payloadLength"],
++            "encodedLength": values[0]["encodedLength"],
++            "frameRate": values[0]["frameRate"],
++            "snrDb": values[0]["snrDb"],
++            "processedFrames": frames,
++            "processedPayloadBits": payload_bits,
++            "decodedBitErrors": bit_errors,
++            "decodedFrameErrors": errors,
++            "BER": bit_errors / payload_bits,
++            "FER": errors / frames,
++            "trueSuccessFrames": true_success,
++            "trueSuccessRate": true_success / frames,
++            "reportedSuccessFrames": reported_success,
++            "reportedSuccessRate": reported_success / frames,
++            "miscorrectedFrames": miscorrections,
++            "miscorrectionRate": miscorrections / frames,
++            "decoderFailureFrames": failures,
++            "decoderFailureRate": failures / frames,
++            "channelHardBER": sum(
++                float(row["channelHardBER"]) * int(row["processedFrames"])
++                for row in values) / frames,
++            "avgDecodeTimeUs": sum(
++                float(row["avgDecodeTimeUs"]) * int(row["processedFrames"])
++                for row in values) / frames,
++            "avgTotalReceiverTimeUs": sum(
++                float(row["avgTotalReceiverTimeUs"]) * int(row["processedFrames"])
++                for row in values) / frames,
++            "aggregation": "RAW_COUNTS",
++        })
++        output.append(record)
++    write_rows(stage / filename, output)
++    return output
++
++
++def make_tolerance(
++    stage: Path, rows: list[dict[str, str]], parameter: str, filename: str,
++) -> None:
++    aggregated: dict[tuple[str, float], list[dict[str, str]]] = {}
++    for row in rows:
++        aggregated.setdefault(
++            (row["caseName"], float(row["sourcePayloadEbN0Db"])), []).append(row)
++    output: list[dict[str, object]] = []
++    for (case, ebn0), values in aggregated.items():
++        for target in (0.1, 0.01, 0.5):
++            valid = [float(row[parameter]) for row in values
++                     if float(row["FER"]) <= target]
++            output.append({
++                "caseName": case, "sourcePayloadEbN0Db": ebn0,
++                "targetFER": target,
++                "maximumToleratedParameter": max(valid) if valid else "",
++                "parameter": parameter,
++                "status": "VALID" if valid else
++                          "TARGET_NOT_BRACKETED_NO_EXTRAPOLATION",
++            })
++    write_rows(stage / filename, output)
++
++
++def timing_summary(stage: Path, rows: list[dict[str, str]], filename: str) -> None:
++    output: list[dict[str, object]] = []
++    for case in CASES:
++        selected = [row for row in rows if row["caseName"] == case]
++        total = sum(int(row["processedFrames"]) for row in selected)
++        output.append({
++            "caseName": case,
++            "processedFrames": total,
++            "weightedAvgDecodeTimeUs": sum(
++                float(row["avgDecodeTimeUs"]) * int(row["processedFrames"])
++                for row in selected) / total,
++            "weightedAvgTotalReceiverTimeUs": sum(
++                float(row["avgTotalReceiverTimeUs"]) * int(row["processedFrames"])
++                for row in selected) / total,
++        })
++    write_rows(stage / filename, output)
++
++
++def run_blockage_formal(
++    args: argparse.Namespace, repo: Path, awgn: list[dict[str, str]],
++) -> None:
++    stage = repo / "Task/BCH/simulation/stages/s2_06_short_blockage"
++    paths: list[Path] = []
++    lengths = [1, 2, 4, 6, 8, 10, 12, 14, 15, 16, 20, 24, 29, 30, 31, 32, 48, 64]
++    attenuations = [(0, False), (-6, False), (-12, False), (-20, False), (0, True)]
++    for case in CASES:
++        for snr_index, ebn0 in enumerate(awgn_references(awgn, case)[::2]):
++            for attenuation, complete in attenuations:
++                for length in lengths:
++                    for start in STARTS_BLOCKAGE:
++                        profile = "complete" if complete else f"m{abs(attenuation)}"
++                        tag = (f"formal_parameter/{case_slug(case)}_s{snr_index}_"
++                               f"{profile}_l{length}_{start.lower()}")
++                        extra = ["--attenuation-db", str(attenuation),
++                                 "--blockage-length", str(length),
++                                 "--blockage-start-policy", start]
++                        if complete:
++                            extra.append("--complete-blockage")
++                        paths.append(execute_point(
++                            args, repo, "s2_06", "SHORT_BLOCKAGE", case,
++                            ebn0, 5000, tag, extra,
++                        ))
++    parameter_rows = aggregate(
++        stage, "blockage_formal_parameter_summary.csv", paths)
++    snr_paths: list[Path] = []
++    for case in CASES:
++        refs = awgn_references(awgn, case)
++        for profile, attenuation, length in (("M", -12, 16), ("H", -20, 32)):
++            for ebn0 in grid(min(refs[:2]) - 1.0, max(refs[:2]) + 1.0):
++                tag = f"formal_snr/{case_slug(case)}_{profile}_e{ebn0:.1f}"
++                snr_paths.append(execute_point(
++                    args, repo, "s2_06", "SHORT_BLOCKAGE", case, ebn0,
++                    50000, tag, ["--attenuation-db", str(attenuation),
++                                 "--blockage-length", str(length),
++                                 "--blockage-start-policy", "UNIFORM_RANDOM"],
++                    adaptive=True,
++                ))
++    snr_rows = aggregate(stage, "blockage_formal_snr_summary.csv", snr_paths)
++    write_rows(stage / "formal_summary.csv", parameter_rows + snr_rows)
++    position = aggregate_raw(
++        stage, "blockage_position_summary.csv", parameter_rows,
++        ["caseName", "sourcePayloadEbN0Db", "attenuationDb",
++         "completeBlockage", "blockageLength", "blockageStartPolicy"])
++    write_rows(stage / "blockage_boundary_sensitivity.csv", [
++        row for row in position if row["blockageStartPolicy"] in
++        {"ONE_BEFORE_SEGMENT_BOUNDARY", "ON_SEGMENT_BOUNDARY"}
++    ])
++    make_tolerance(
++        stage, parameter_rows, "blockageLength",
++        "blockage_tolerance_summary.csv")
++    timing_summary(stage, parameter_rows + snr_rows, "blockage_timing_summary.csv")
++    print("PASS_BCH_S2_06_SHORT_BLOCKAGE")
++
++
++def run_burst_formal(
++    args: argparse.Namespace, repo: Path, awgn: list[dict[str, str]],
++) -> None:
++    stage = repo / "Task/BCH/simulation/stages/s2_07_burst_sensitivity"
++    lengths = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 15, 16, 20, 24, 29, 30, 31, 32, 48, 64]
++    pure_paths: list[Path] = []
++    awgn_paths: list[Path] = []
++    for case in CASES:
++        for length in lengths:
++            for start in STARTS_BURST:
++                tag = f"formal_pure/{case_slug(case)}_l{length}_{start.lower()}"
++                pure_paths.append(execute_point(
++                    args, repo, "s2_07", "BURST", case, 0.0, 5000, tag,
++                    ["--burst-mode", "PURE", "--burst-length", str(length),
++                     "--burst-start-policy", start],
++                ))
++        for snr_index, ebn0 in enumerate(awgn_references(awgn, case)[1:]):
++            for length in lengths:
++                for start in STARTS_BURST:
++                    tag = (f"formal_awgn/{case_slug(case)}_s{snr_index}_"
++                           f"l{length}_{start.lower()}")
++                    awgn_paths.append(execute_point(
++                        args, repo, "s2_07", "BURST", case, ebn0, 5000, tag,
++                        ["--burst-mode", "AWGN", "--burst-length", str(length),
++                         "--burst-start-policy", start],
++                    ))
++    pure_rows = aggregate(stage, "pure_burst_summary.csv", pure_paths)
++    awgn_rows = aggregate(stage, "awgn_burst_summary.csv", awgn_paths)
++    write_rows(stage / "formal_summary.csv", pure_rows + awgn_rows)
++    start_rows = aggregate_raw(
++        stage, "burst_start_sensitivity.csv", pure_rows + awgn_rows,
++        ["caseName", "burstMode", "sourcePayloadEbN0Db",
++         "burstLength", "burstStartPolicy"])
++    write_rows(stage / "burst_boundary_sensitivity.csv", [
++        row for row in start_rows if row["burstStartPolicy"] in
++        {"ONE_BEFORE_SEGMENT_BOUNDARY", "ON_SEGMENT_BOUNDARY"}
++    ])
++    make_tolerance(
++        stage, pure_rows + awgn_rows, "burstLength",
++        "burst_tolerance_summary.csv")
++    risk_summary(stage, pure_rows + awgn_rows)
++    timing_summary(stage, pure_rows + awgn_rows, "burst_timing_summary.csv")
++    print("PASS_BCH_S2_07_BURST_SENSITIVITY")
++
++
++def risk_summary(stage: Path, rows: list[dict[str, str]]) -> None:
++    output_misc: list[dict[str, object]] = []
++    output_failure: list[dict[str, object]] = []
++    for case in CASES:
++        selected = [row for row in rows if row["caseName"] == case]
++        frames = sum(int(row["processedFrames"]) for row in selected)
++        miscorrections = sum(int(row["miscorrectedFrames"]) for row in selected)
++        failures = sum(int(row["decoderFailureFrames"]) for row in selected)
++        output_misc.append({"caseName": case, "processedFrames": frames,
++                            "miscorrectedFrames": miscorrections,
++                            "miscorrectionRate": miscorrections / frames})
++        output_failure.append({"caseName": case, "processedFrames": frames,
++                               "decoderFailureFrames": failures,
++                               "decoderFailureRate": failures / frames})
++    write_rows(stage / "burst_miscorrection_summary.csv", output_misc)
++    write_rows(stage / "burst_decoder_failure_summary.csv", output_failure)
++
++
++def parse_args() -> argparse.Namespace:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--all", action="store_true")
++    parser.add_argument("--stage", choices=STAGE_NAMES)
++    parser.add_argument("--smoke-only", action="store_true")
++    parser.add_argument("--formal-only", action="store_true")
++    parser.add_argument("--plot-only", action="store_true")
++    parser.add_argument("--matlab-only", action="store_true")
++    parser.add_argument("--audit-only", action="store_true")
++    parser.add_argument("--resume", action="store_true")
++    parser.add_argument("--progress", dest="progress", action="store_true")
++    parser.add_argument("--no-progress", dest="progress", action="store_false")
++    parser.set_defaults(progress=True)
++    parser.add_argument("--progress-refresh-seconds", type=float, default=2.0)
++    parser.add_argument("--shard-index", type=int, default=0)
++    parser.add_argument("--shard-count", type=int, default=1)
++    parser.add_argument("--global-seed", type=int, default=SEED)
++    parser.add_argument("--case", choices=CASES)
++    parser.add_argument("--worker", action="store_true")
++    return parser.parse_args()
++
++
++def main() -> int:
++    global CASES
++    args = parse_args()
++    repo = Path(__file__).resolve().parents[4]
++    if args.case:
++        CASES = [args.case]
++    if not args.worker:
++        initialize_stage_records(repo)
++    baseline = baseline_audit(repo, write_output=not args.worker)
++    if args.audit_only or args.plot_only or args.matlab_only:
++        print("Batch2 specialized post-processing is handled by its dedicated script.")
++        return 0
++    if not args.worker:
++        run(["cmake", "--build", "Task/BCH/simulation/build/current",
++             "--config", "Release", "-j", "4"], repo)
++        run(["ctest", "--test-dir", "Task/BCH/simulation/build/current",
++             "-C", "Release", "--output-on-failure",
++             "-R", "bch_s2_impairments_unit|bch_s2_mmse_unit|bch12_awgn_unit"], repo)
++    selected = args.stage
++    stages = [selected] if selected else ["s2_05", "s2_06", "s2_07"]
++    if not args.formal_only:
++        if "s2_05" in stages:
++            run_cfo_smoke(args, repo, baseline["awgn"])
++        if "s2_06" in stages:
++            run_blockage_smoke(args, repo, baseline["awgn"])
++        if "s2_07" in stages:
++            run_burst_smoke(args, repo)
++    if not args.smoke_only:
++        if "s2_05" in stages:
++            run_cfo_formal(args, repo, baseline["awgn"])
++        if "s2_06" in stages:
++            run_blockage_formal(args, repo, baseline["awgn"])
++        if "s2_07" in stages:
++            run_burst_formal(args, repo, baseline["awgn"])
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/acceptance_matrix.csv b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/acceptance_matrix.csv
+new file mode 100644
+index 0000000..8972383
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/acceptance_matrix.csv
+@@ -0,0 +1,2 @@
++需求,实现位置,正向测试,负向测试,Gate条件
++独立复算 CFO、遮挡和 burst 代表点,Task/BCH/simulation/stages/s2_09_matlab_channel_reference,C++ unit/smoke/formal/reference,invalid config/hash/range rejection,PASS_BCH_S2_09
+diff --git a/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/frozen_config.csv b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/frozen_config.csv
+new file mode 100644
+index 0000000..55cf251
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/frozen_config.csv
+@@ -0,0 +1,7 @@
++key,value
++stage,s2_09_matlab_channel_reference
++title,MATLAB 独立参考
++noisePolicyVersion,2
++bandwidthConvention,Bn_EQUALS_Rs
++xTransformFormula,snrDb=sourcePayloadEbN0Db+10*log10(frameRate)
++globalSeed,2026072601
+diff --git a/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/matlab_reference_summary.csv b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/matlab_reference_summary.csv
+new file mode 100644
+index 0000000..aeb5e5f
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/matlab_reference_summary.csv
+@@ -0,0 +1,46 @@
++channelType,parameterPoint,caseName,comparedFrames,maxSampleAbsDiff,hardBitMismatches,decodedPayloadBitMismatches,frameErrorMismatches,reportedStatusMismatches,miscorrectionMismatches,decoderFailureMismatches,matlabFrameErrors,cppFrameErrors,gate
++RESIDUAL_CFO,0,BCH-S200,100,0,0,0,0,0,0,0,0,0,PASS
++RESIDUAL_CFO,0,BCH-B200,100,0,0,0,0,0,0,0,0,0,PASS
++RESIDUAL_CFO,0,BCH-S300,100,0,0,0,0,0,0,0,2,2,PASS
++RESIDUAL_CFO,0,BCH-B300,100,0,0,0,0,0,0,0,0,0,PASS
++RESIDUAL_CFO,0,BCH-B300-426,100,0,0,0,0,0,0,0,0,0,PASS
++RESIDUAL_CFO,1,BCH-S200,100,2.22044604925031e-16,0,0,0,0,0,0,99,99,PASS
++RESIDUAL_CFO,1,BCH-B200,100,2.22044604925031e-16,0,0,0,0,0,0,86,86,PASS
++RESIDUAL_CFO,1,BCH-S300,100,3.14018491736755e-16,0,0,0,0,0,0,100,100,PASS
++RESIDUAL_CFO,1,BCH-B300,100,2.22044604925031e-16,0,0,0,0,0,0,98,98,PASS
++RESIDUAL_CFO,1,BCH-B300-426,100,2.48253415324727e-16,0,0,0,0,0,0,95,95,PASS
++RESIDUAL_CFO,2,BCH-S200,100,2.22044604925031e-16,0,0,0,0,0,0,100,100,PASS
++RESIDUAL_CFO,2,BCH-B200,100,2.22044604925031e-16,0,0,0,0,0,0,100,100,PASS
++RESIDUAL_CFO,2,BCH-S300,100,2.22044604925031e-16,0,0,0,0,0,0,100,100,PASS
++RESIDUAL_CFO,2,BCH-B300,100,2.22044604925031e-16,0,0,0,0,0,0,100,100,PASS
++RESIDUAL_CFO,2,BCH-B300-426,100,2.22044604925031e-16,0,0,0,0,0,0,100,100,PASS
++SHORT_BLOCKAGE,0,BCH-S200,100,0,0,0,0,0,0,0,8,8,PASS
++SHORT_BLOCKAGE,0,BCH-B200,100,0,0,0,0,0,0,0,0,0,PASS
++SHORT_BLOCKAGE,0,BCH-S300,100,0,0,0,0,0,0,0,9,9,PASS
++SHORT_BLOCKAGE,0,BCH-B300,100,0,0,0,0,0,0,0,0,0,PASS
++SHORT_BLOCKAGE,0,BCH-B300-426,100,0,0,0,0,0,0,0,0,0,PASS
++SHORT_BLOCKAGE,1,BCH-S200,100,0,0,0,0,0,0,0,79,79,PASS
++SHORT_BLOCKAGE,1,BCH-B200,100,0,0,0,0,0,0,0,1,1,PASS
++SHORT_BLOCKAGE,1,BCH-S300,100,0,0,0,0,0,0,0,62,62,PASS
++SHORT_BLOCKAGE,1,BCH-B300,100,0,0,0,0,0,0,0,0,0,PASS
++SHORT_BLOCKAGE,1,BCH-B300-426,100,0,0,0,0,0,0,0,0,0,PASS
++SHORT_BLOCKAGE,2,BCH-S200,100,0,0,0,0,0,0,0,100,100,PASS
++SHORT_BLOCKAGE,2,BCH-B200,100,0,0,0,0,0,0,0,0,0,PASS
++SHORT_BLOCKAGE,2,BCH-S300,100,0,0,0,0,0,0,0,100,100,PASS
++SHORT_BLOCKAGE,2,BCH-B300,100,0,0,0,0,0,0,0,0,0,PASS
++SHORT_BLOCKAGE,2,BCH-B300-426,100,0,0,0,0,0,0,0,0,0,PASS
++BURST,0,BCH-S200,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,0,BCH-B200,100,0,0,0,0,0,0,0,0,0,PASS
++BURST,0,BCH-S300,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,0,BCH-B300,100,0,0,0,0,0,0,0,0,0,PASS
++BURST,0,BCH-B300-426,100,0,0,0,0,0,0,0,0,0,PASS
++BURST,1,BCH-S200,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,1,BCH-B200,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,1,BCH-S300,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,1,BCH-B300,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,1,BCH-B300-426,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,2,BCH-S200,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,2,BCH-B200,100,0,0,0,0,0,0,0,0,0,PASS
++BURST,2,BCH-S300,100,0,0,0,0,0,0,0,100,100,PASS
++BURST,2,BCH-B300,100,0,0,0,0,0,0,0,0,0,PASS
++BURST,2,BCH-B300-426,100,0,0,0,0,0,0,0,0,0,PASS
+diff --git a/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/stage_plan.md b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/stage_plan.md
+new file mode 100644
+index 0000000..5db59ed
+--- /dev/null
++++ b/Task/BCH/simulation/stages/s2_09_matlab_channel_reference/stage_plan.md
+@@ -0,0 +1,21 @@
++# s2_09_matlab_channel_reference
++
++## 目标
++
++独立复算 CFO、遮挡和 burst 代表点。
++
++## 非目标
++
++不修改 BCH 核心编译码器；不重跑 AWGN 或固定多径 formal；不引入交织、软判决 BCH、卷积码或 LDPC。
++
++## 范围
++
++仅限 Task/BCH 本 Stage 的信道基础、runner、脚本、测试、小型结果、科研绘图和审计记录。
++
++## 接口与数据
++
++统一使用 sourcePayloadEbN0Db、frameRate、snrDb；snrDb=sourcePayloadEbN0Db+10*log10(frameRate)，Bn=Rs；noisePolicyVersion=2。
++
++## Gate
++
++必须通过正向、负向、统计恒等式和数据审计后才发布 Gate。

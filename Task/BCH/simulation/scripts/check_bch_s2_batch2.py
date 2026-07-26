@@ -7,6 +7,7 @@ import csv
 import hashlib
 import json
 import math
+import subprocess
 from pathlib import Path
 
 
@@ -128,6 +129,49 @@ def main() -> int:
                     float(row["frameRate"]))
                 if abs(expected - float(row["snrDb"])) > 5e-10:
                     raise SystemExit("BLOCKED_BCH_S2_BATCH2_FIGURE_SNR")
+    forbidden_report_tokens = {
+        "Pending", "to be run", "NOT_PUSHED", "TO_VERIFY_AFTER_PUSH",
+    }
+    for stage_name in (
+        "s2_05_residual_cfo", "s2_06_short_blockage",
+        "s2_07_burst_sensitivity", "s2_08_channel_adaptation_comparison",
+        "s2_09_matlab_channel_reference",
+    ):
+        directory = stages / stage_name
+        audit = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+        if audit["mergeStatus"] != "NOT_MERGED" or audit["gate"].startswith("PASS_") is False:
+            raise SystemExit("BLOCKED_BCH_S2_STAGE_MANIFEST_STATE")
+        for functional_range in audit["functionalRanges"]:
+            output = subprocess.check_output([
+                "git", "diff", "--name-only",
+                f"{functional_range['baseCommit']}...{functional_range['contentCommit']}",
+            ], cwd=repo, text=True, encoding="utf-8")
+            actual = sorted(line.strip().replace("\\", "/")
+                            for line in output.splitlines() if line.strip())
+            if actual != sorted(functional_range["files"]):
+                raise SystemExit("BLOCKED_BCH_S2_FUNCTIONAL_RANGE_MISMATCH")
+            ancestor = subprocess.run([
+                "git", "merge-base", "--is-ancestor",
+                functional_range["contentCommit"],
+                "origin/bch-s2-batch2-cfo-blockage-burst-final-audit",
+            ], cwd=repo)
+            if ancestor.returncode != 0:
+                raise SystemExit("BLOCKED_BCH_S2_REMOTE_FUNCTIONAL_MISMATCH")
+        report_text = (directory / "validation_report.md").read_text(encoding="utf-8")
+        if any(token in report_text for token in forbidden_report_tokens):
+            raise SystemExit("BLOCKED_BCH_S2_VALIDATION_REPORT_STATE")
+    changed = subprocess.check_output([
+        "git", "diff", "--name-only",
+        "069373b02401ad0acc10d96eb4e63bad8763c64c...HEAD",
+    ], cwd=repo, text=True, encoding="utf-8").splitlines()
+    forbidden_paths = [
+        path for path in changed if
+        path.startswith(("Task/Common/Plan/", "Task/CC/", "Task/LDPC/")) or
+        "/build/" in path or "/results/" in path or
+        path.lower().endswith((".exe", ".obj", ".pdb"))
+    ]
+    if forbidden_paths:
+        raise SystemExit("BLOCKED_BCH_S2_BATCH2_FORBIDDEN_PATH")
     print(f"PASS_BCH_S2_05_RESIDUAL_CFO smokePoints={smoke_cfo[0]} "
           f"formalPhasePoints={phase[0]} formalSnrPoints={len(cfo_snr_rows)}")
     print(f"PASS_BCH_S2_06_SHORT_BLOCKAGE smokePoints={smoke_blockage[0]} "

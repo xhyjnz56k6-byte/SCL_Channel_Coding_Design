@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "bch.s2.stage-manifest.v2",
+  "stage": "s2_06_short_blockage",
+  "branch": "bch-s2-batch2-cfo-blockage-burst-final-audit",
+  "baseMainCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+  "functionalRanges": [
+    {
+      "name": "sharedInfrastructure",
+      "baseCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+      "contentCommit": "759bd3d2af63009a251615573045a1d95a70a4b0",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp",
+        "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp",
+        "Task/BCH/simulation/current/src/bch_impairment_channels.cpp",
+        "Task/BCH/simulation/current/src/bch_impairment_runner.cpp",
+        "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp",
+        "Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp",
+        "Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp",
+        "Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m",
+        "Task/BCH/simulation/scripts/check_bch_s2_batch2.py",
+        "Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py",
+        "Task/BCH/simulation/scripts/compare_bch_s2_batch2.py",
+        "Task/BCH/simulation/scripts/plot_bch_s2_batch2.py",
+        "Task/BCH/simulation/scripts/run_bch_s2_batch2.py"
+      ],
+      "nameStatus": [
+        {
+          "status": "M",
+          "path": "Task/BCH/simulation/current/CMakeLists.txt"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/src/bch_impairment_channels.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/src/bch_impairment_runner.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/check_bch_s2_batch2.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/compare_bch_s2_batch2.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/plot_bch_s2_batch2.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/run_bch_s2_batch2.py"
+        }
+      ]
+    },
+    {
+      "name": "content",
+      "baseCommit": "25019bd310b8fdd0e3ac07ad0b7676a5e0920eee",
+      "contentCommit": "a6956ab61eea3b288bcc02eae589e308bdcfcaa8",
+      "files": [
+        "Task/BCH/simulation/stages/s2_06_short_blockage/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_boundary_sensitivity.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_formal_parameter_summary.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_formal_snr_summary.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_position_summary.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_timing_summary.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_tolerance_summary.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/formal_parameter_recommendation.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/formal_summary.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/frozen_config.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/smoke_runtime_estimate.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/smoke_summary.csv",
+        "Task/BCH/simulation/stages/s2_06_short_blockage/stage_plan.md"
+      ],
+      "nameStatus": [
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/acceptance_matrix.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_boundary_sensitivity.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_formal_parameter_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_formal_snr_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_position_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_timing_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_tolerance_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/formal_parameter_recommendation.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/formal_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/frozen_config.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/smoke_runtime_estimate.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/smoke_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_06_short_blockage/stage_plan.md"
+        }
+      ]
+    }
+  ],
+  "functionalFiles": [
+    "Task/BCH/simulation/current/CMakeLists.txt",
+    "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp",
+    "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp",
+    "Task/BCH/simulation/current/src/bch_impairment_channels.cpp",
+    "Task/BCH/simulation/current/src/bch_impairment_runner.cpp",
+    "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp",
+    "Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp",
+    "Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp",
+    "Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m",
+    "Task/BCH/simulation/scripts/check_bch_s2_batch2.py",
+    "Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py",
+    "Task/BCH/simulation/scripts/compare_bch_s2_batch2.py",
+    "Task/BCH/simulation/scripts/plot_bch_s2_batch2.py",
+    "Task/BCH/simulation/scripts/run_bch_s2_batch2.py",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/acceptance_matrix.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_boundary_sensitivity.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_formal_parameter_summary.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_formal_snr_summary.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_position_summary.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_timing_summary.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/blockage_tolerance_summary.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/formal_parameter_recommendation.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/formal_summary.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/frozen_config.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/smoke_runtime_estimate.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/smoke_summary.csv",
+    "Task/BCH/simulation/stages/s2_06_short_blockage/stage_plan.md"
+  ],
+  "gate": "PASS_BCH_S2_06_SHORT_BLOCKAGE",
+  "remoteVerificationStatus": "VERIFIED_FUNCTIONAL_COMMITS_ON_REMOTE",
+  "remoteHeadAtVerification": "5910dd965f008592293276757796069c7e41d554",
+  "mergeStatus": "NOT_MERGED",
+  "awgnFormalRerun": false,
+  "multipathFormalRerun": false
+}
