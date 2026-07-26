@@ -1,0 +1,6 @@
+caseName,formalAttenuationsDb,formalLengths,formalProfiles
+BCH-S200,0;-6;-12;-20;COMPLETE,1;2;4;6;8;10;12;14;15;16;20;24;29;30;31;32;48;64,"M:-12dB,length16;H:-20dB,length32"
+BCH-B200,0;-6;-12;-20;COMPLETE,1;2;4;6;8;10;12;14;15;16;20;24;29;30;31;32;48;64,"M:-12dB,length16;H:-20dB,length32"
+BCH-S300,0;-6;-12;-20;COMPLETE,1;2;4;6;8;10;12;14;15;16;20;24;29;30;31;32;48;64,"M:-12dB,length16;H:-20dB,length32"
+BCH-B300,0;-6;-12;-20;COMPLETE,1;2;4;6;8;10;12;14;15;16;20;24;29;30;31;32;48;64,"M:-12dB,length16;H:-20dB,length32"
+BCH-B300-426,0;-6;-12;-20;COMPLETE,1;2;4;6;8;10;12;14;15;16;20;24;29;30;31;32;48;64,"M:-12dB,length16;H:-20dB,length32"

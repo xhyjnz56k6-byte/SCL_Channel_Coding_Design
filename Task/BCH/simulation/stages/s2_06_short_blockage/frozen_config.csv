@@ -1,0 +1,7 @@
+key,value
+stage,s2_06_short_blockage
+title,短时遮挡
+noisePolicyVersion,2
+bandwidthConvention,Bn_EQUALS_Rs
+xTransformFormula,snrDb=sourcePayloadEbN0Db+10*log10(frameRate)
+globalSeed,2026072601
