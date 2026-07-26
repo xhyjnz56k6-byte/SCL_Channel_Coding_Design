@@ -63,8 +63,10 @@ struct ImpairmentPointResult {
     std::uint64_t miscorrectedFrames = 0U;
     std::uint64_t decoderFailureFrames = 0U;
     double decodeTimeUsSum = 0.0;
+    double preprocessingTimeUsSum = 0.0;
     double totalReceiverTimeUsSum = 0.0;
     std::vector<double> decodeTimesUs;
+    std::vector<double> preprocessingTimesUs;
     std::vector<double> receiverTimesUs;
     std::string stopReason = "CONTINUE";
     std::string configHash;

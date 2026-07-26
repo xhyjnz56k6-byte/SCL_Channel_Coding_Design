@@ -201,6 +201,7 @@ ImpairmentPointResult runImpairmentPoint(const ImpairmentPointConfig& config) {
     result.configHash = common::sha256Hex(
         makeConfigText(result.config, value, pool.framePoolId(), result.snrDb));
     result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
+    result.preprocessingTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
     result.receiverTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
     prepareBchCase(value);
     if (config.resume) {
@@ -279,6 +280,7 @@ ImpairmentPointResult runImpairmentPoint(const ImpairmentPointConfig& config) {
         const double receiverUs =
             std::chrono::duration<double, std::micro>(
                 receiverEnd - receiverStart).count();
+        const double preprocessingUs = receiverUs - decodeUs;
         ++result.processedFrames;
         result.processedPayloadBits += value.payloadLength;
         result.channelHardBitErrors += channelErrors;
@@ -290,8 +292,10 @@ ImpairmentPointResult runImpairmentPoint(const ImpairmentPointConfig& config) {
         result.miscorrectedFrames += decoded.miscorrected;
         result.decoderFailureFrames += decoded.decoderFailure;
         result.decodeTimeUsSum += decodeUs;
+        result.preprocessingTimeUsSum += preprocessingUs;
         result.totalReceiverTimeUsSum += receiverUs;
         result.decodeTimesUs.push_back(decodeUs);
+        result.preprocessingTimesUs.push_back(preprocessingUs);
         result.receiverTimesUs.push_back(receiverUs);
         const auto now = std::chrono::steady_clock::now();
         if (config.progress &&
@@ -376,7 +380,9 @@ void writeImpairmentPointSummary(
            "trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,"
            "miscorrectedFrames,miscorrectionRate,decoderFailureFrames,"
            "decoderFailureRate,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,"
-           "p99DecodeTimeUs,maxDecodeTimeUs,avgTotalReceiverTimeUs,"
+           "p99DecodeTimeUs,maxDecodeTimeUs,avgPreprocessingTimeUs,"
+           "medianPreprocessingTimeUs,p95PreprocessingTimeUs,"
+           "p99PreprocessingTimeUs,maxPreprocessingTimeUs,avgTotalReceiverTimeUs,"
            "medianReceiverTimeUs,p95ReceiverTimeUs,p99ReceiverTimeUs,"
            "maxReceiverTimeUs,"
            "minFrames,targetFrameErrors,maxFrames,stopReason,"
@@ -420,6 +426,11 @@ void writeImpairmentPointSummary(
         << percentile(result.decodeTimesUs, 0.95) << ','
         << percentile(result.decodeTimesUs, 0.99) << ','
         << maximum(result.decodeTimesUs) << ','
+        << result.preprocessingTimeUsSum / frames << ','
+        << percentile(result.preprocessingTimesUs, 0.50) << ','
+        << percentile(result.preprocessingTimesUs, 0.95) << ','
+        << percentile(result.preprocessingTimesUs, 0.99) << ','
+        << maximum(result.preprocessingTimesUs) << ','
         << result.totalReceiverTimeUsSum / frames << ','
         << percentile(result.receiverTimesUs, 0.50) << ','
         << percentile(result.receiverTimesUs, 0.95) << ','
