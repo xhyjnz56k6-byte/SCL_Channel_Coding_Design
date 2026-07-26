@@ -1,0 +1,2 @@
+stage,status,result
+s2_09_matlab_channel_reference,PASS,MATLAB 独立复算 4500 帧，样本误差不超过 1e-12，离散 mismatch 为 0。

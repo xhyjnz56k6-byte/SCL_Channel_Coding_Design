@@ -1,0 +1,6 @@
+test,result,detail
+Common CTest,PASS,7/7
+BCH simulation CTest,PASS,9/9
+MATLAB reference,PASS,4500 frames
+plot audit,PASS,12 PNG
+resume/shard,PASS,all positive/negative

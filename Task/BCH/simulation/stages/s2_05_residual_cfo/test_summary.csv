@@ -1,0 +1,5 @@
+test,result,detail
+Common CTest,PASS,7/7
+BCH simulation CTest,PASS,9/9
+batch2 business checker,PASS,PASS_BCH_S2_05_RESIDUAL_CFO
+remote functional verification,PASS,5910dd965f008592293276757796069c7e41d554
