@@ -1,0 +1,12 @@
+{
+  "stageId": "stage12_blockage_formal",
+  "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
+  "sourceCsvSha256": "c0473d5c4e4f6b109a384032f2e5e32e619392c7585ca706ec8d031810f77043",
+  "figureData": "results\\stage12_blockage_formal_figure_data_k300_miscorrection_vs_ratio.csv",
+  "figureDataSha256": "56421ad93c4d439ddf320cf566069c9fad8902db6d3f617049e66734613bcffd",
+  "png": "plots\\stage12_blockage_formal_k300_miscorrection_vs_ratio.png",
+  "pngSha256": "7ac68425b4e2c6be7a474671f4f4010716dcb4b08e6f4090ce15e311b693c72a",
+  "xAxis": "遮挡比例",
+  "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
+  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator only"
+}
