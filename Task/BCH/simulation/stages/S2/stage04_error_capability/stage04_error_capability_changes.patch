@@ -1,0 +1,668 @@
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/CMakeLists.txt b/Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/CMakeLists.txt
+new file mode 100644
+index 0000000..a7d9034
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/CMakeLists.txt
+@@ -0,0 +1,34 @@
++cmake_minimum_required(VERSION 3.16)
++project(stage04_error_capability LANGUAGES CXX)
++
++set(BCH_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../..")
++set(COMMON_ROOT "${BCH_ROOT}/../Common")
++set(STAGE02_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../stage02_case_contract/cpp")
++
++add_library(stage04_block_core "${BCH_ROOT}/block/current/src/bch_block.cpp")
++target_include_directories(stage04_block_core PUBLIC "${BCH_ROOT}/block/current/include" "${COMMON_ROOT}/include")
++target_compile_features(stage04_block_core PUBLIC cxx_std_17)
++
++add_library(stage04_segmented_core
++    "${BCH_ROOT}/segmented/current/src/bch15_encoder.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_syndrome.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_lookup_table.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_lookup_decoder.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_segmented_adapter.cpp")
++target_include_directories(stage04_segmented_core PUBLIC "${BCH_ROOT}/segmented/current/include" "${COMMON_ROOT}/include")
++target_compile_features(stage04_segmented_core PUBLIC cxx_std_17)
++
++add_library(stage04_contract "${STAGE02_ROOT}/stage02_case_contract.cpp")
++target_include_directories(stage04_contract PUBLIC "${STAGE02_ROOT}")
++target_link_libraries(stage04_contract PUBLIC stage04_block_core stage04_segmented_core)
++target_compile_features(stage04_contract PUBLIC cxx_std_17)
++
++add_executable(stage04_error_capability_runner stage04_error_capability_runner.cpp)
++target_link_libraries(stage04_error_capability_runner PRIVATE stage04_contract)
++
++if (NOT DEFINED STAGE04_OUTPUT_DIR)
++    set(STAGE04_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/stage04_error_capability_results")
++endif()
++enable_testing()
++add_test(NAME stage04_error_capability_gate
++    COMMAND stage04_error_capability_runner "${STAGE04_OUTPUT_DIR}")
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/stage04_error_capability_runner.cpp b/Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/stage04_error_capability_runner.cpp
+new file mode 100644
+index 0000000..945137b
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/stage04_error_capability_runner.cpp
+@@ -0,0 +1,302 @@
++#include "stage02_case_contract.hpp"
++
++#include "bch_block/bch_block.hpp"
++#include "bch_segmented/bch15_lookup_table.hpp"
++#include "bch_segmented/bch15_segmented_adapter.hpp"
++
++#include <algorithm>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <map>
++#include <numeric>
++#include <set>
++#include <sstream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++using scl::bch::s2::stage02::CaseContract;
++using scl::bch::s2::stage02::CaseId;
++using scl::bch::s2::stage02::Organization;
++
++enum class TruthStatus {
++    TrueSuccess,
++    DetectedFailure,
++    Miscorrection,
++    UndetectedError,
++    InvalidConfiguration
++};
++
++struct TruthDecode {
++    scl::common::BitVector payload;
++    TruthStatus status = TruthStatus::InvalidConfiguration;
++    std::size_t failedBlocks = 0U;
++    std::size_t correctedBlocks = 0U;
++    std::size_t noErrorBlocks = 0U;
++};
++
++void require(bool value, const std::string& message) {
++    if (!value) throw std::runtime_error(message);
++}
++
++const char* statusName(TruthStatus status) {
++    switch (status) {
++        case TruthStatus::TrueSuccess: return "TRUE_SUCCESS";
++        case TruthStatus::DetectedFailure: return "DETECTED_FAILURE";
++        case TruthStatus::Miscorrection: return "MISCORRECTION";
++        case TruthStatus::UndetectedError: return "UNDETECTED_ERROR";
++        case TruthStatus::InvalidConfiguration: return "INVALID_CONFIGURATION";
++    }
++    return "INVALID_CONFIGURATION";
++}
++
++std::string bitsText(const scl::common::BitVector& bits) {
++    std::string text;
++    text.reserve(bits.size());
++    for (auto bit : bits) text.push_back(bit == 0U ? '0' : '1');
++    return text;
++}
++
++scl::common::BitVector payloadFor(const CaseContract& contract, std::uint64_t seed) {
++    scl::common::BitVector bits(contract.payloadLength, 0U);
++    for (std::size_t i = 0; i < bits.size(); ++i) {
++        bits[i] = static_cast<scl::common::Bit>(((i * 37U + seed * 19U + 11U) % 101U) < 50U);
++    }
++    return bits;
++}
++
++scl::bch::block::BlockBchProfile profile(const CaseContract& contract, std::size_t blockIndex) {
++    scl::bch::block::BlockBchProfile result;
++    if (contract.motherN == 255U) result = scl::bch::block::makeB200Profile();
++    else if (contract.motherK == 421U) result = scl::bch::block::makeB300Profile();
++    else if (contract.motherK == 385U) result = scl::bch::block::makeB300426Profile();
++    else throw std::invalid_argument("unsupported block profile");
++    result.caseName = contract.caseId + "_STAGE04_BLOCK_" + std::to_string(blockIndex);
++    result.payloadLength = contract.payloadPerBlock.at(blockIndex);
++    result.shorteningLength = contract.shorteningPerBlock.at(blockIndex);
++    scl::bch::block::validateProfile(result);
++    return result;
++}
++
++const scl::bch::segmented::SyndromeTable& syndromeTable() {
++    static const auto table = scl::bch::segmented::buildBch15SyndromeTable();
++    return table;
++}
++
++TruthDecode decodeTruth(const CaseContract& contract,
++                        const scl::common::BitVector& original,
++                        const scl::common::BitVector& received) {
++    TruthDecode truth;
++    if (contract.organization == Organization::Segmented15) {
++        const auto id = contract.payloadLength == 200U
++            ? scl::bch::segmented::Bch15SegmentedCase::S200
++            : scl::bch::segmented::Bch15SegmentedCase::S300;
++        const auto decoded = scl::bch::segmented::decodeBch15Segmented(id, received, syndromeTable());
++        truth.payload = decoded.recoveredPayload;
++        for (const auto& block : decoded.blockDetails) {
++            using Status = scl::bch::segmented::Bch15DecodeStatus;
++            if (block.decoder.status == Status::NO_ERROR) ++truth.noErrorBlocks;
++            else if (block.decoder.status == Status::CORRECTED_SINGLE_ERROR) ++truth.correctedBlocks;
++            else ++truth.failedBlocks;
++        }
++    } else {
++        std::size_t encodedOffset = 0U;
++        for (std::size_t blockIndex = 0; blockIndex < contract.blockCount; ++blockIndex) {
++            const std::size_t count = contract.encodedLengthPerBlock[blockIndex];
++            const scl::common::BitVector blockReceived(
++                received.begin() + static_cast<std::ptrdiff_t>(encodedOffset),
++                received.begin() + static_cast<std::ptrdiff_t>(encodedOffset + count));
++            const auto decoded = scl::bch::block::decodeShortenedNoThrow(
++                profile(contract, blockIndex), blockReceived);
++            using Status = scl::bch::block::DecodeStatus;
++            if (decoded.status == Status::NoError) ++truth.noErrorBlocks;
++            else if (decoded.status == Status::Corrected) ++truth.correctedBlocks;
++            else ++truth.failedBlocks;
++            truth.payload.insert(truth.payload.end(), decoded.payload.begin(), decoded.payload.end());
++            encodedOffset += count;
++        }
++    }
++    if (truth.payload == original) truth.status = TruthStatus::TrueSuccess;
++    else if (truth.failedBlocks > 0U) truth.status = TruthStatus::DetectedFailure;
++    else if (truth.correctedBlocks > 0U) truth.status = TruthStatus::Miscorrection;
++    else if (truth.noErrorBlocks == contract.blockCount) truth.status = TruthStatus::UndetectedError;
++    else truth.status = TruthStatus::InvalidConfiguration;
++    return truth;
++}
++
++std::vector<std::size_t> localPositions(
++    std::size_t length, std::size_t systematicLength, unsigned weight,
++    unsigned mode, std::uint64_t seed) {
++    if (weight == 0U) return {};
++    require(weight <= length, "error weight exceeds block length");
++    std::vector<std::size_t> positions;
++    positions.reserve(weight);
++    std::set<std::size_t> used;
++    auto add = [&](std::size_t value) {
++        value %= length;
++        for (std::size_t attempts = 0; used.count(value) != 0U && attempts < length; ++attempts) {
++            value = (value + 1U) % length;
++        }
++        require(used.insert(value).second, "cannot generate unique error position");
++        positions.push_back(value);
++    };
++    for (unsigned i = 0; i < weight; ++i) {
++        if (mode == 0U) add(i);
++        else if (mode == 1U) add(length - 1U - i);
++        else if (mode == 2U) add((i & 1U) == 0U ? i / 2U : length - 1U - i / 2U);
++        else if (mode == 3U) add(seed % length + i);
++        else if (mode == 4U) add(systematicLength - 1U + i);
++        else add(seed * 17U + i * 37U + 7U);
++    }
++    return positions;
++}
++
++std::string positionsText(const std::vector<std::size_t>& positions) {
++    std::ostringstream out;
++    for (std::size_t i = 0; i < positions.size(); ++i) {
++        if (i) out << '|';
++        out << positions[i];
++    }
++    return out.str();
++}
++
++void executePattern(const CaseContract& contract,
++                    const scl::common::BitVector& payload,
++                    const scl::common::BitVector& encoded,
++                    std::size_t blockIndex,
++                    unsigned weight,
++                    unsigned mode,
++                    const std::string& patternName,
++                    std::uint64_t patternId,
++                    std::map<std::string,std::uint64_t>& statusCounts,
++                    std::ofstream& cases,
++                    std::ofstream& results,
++                    std::ofstream& samples) {
++    std::size_t blockOffset = 0U;
++    for (std::size_t i = 0; i < blockIndex; ++i) blockOffset += contract.encodedLengthPerBlock[i];
++    const auto local = localPositions(contract.encodedLengthPerBlock[blockIndex],
++        contract.organization == Organization::Segmented15 ? 11U : contract.payloadPerBlock[blockIndex],
++        weight, mode, patternId);
++    scl::common::BitVector received = encoded;
++    std::vector<std::size_t> global;
++    for (std::size_t position : local) {
++        received[blockOffset + position] ^= 1U;
++        global.push_back(blockOffset + position);
++    }
++    const auto decoded = decodeTruth(contract, payload, received);
++    const bool withinCapability = weight <= contract.motherT;
++    const bool guaranteePass = !withinCapability || decoded.status == TruthStatus::TrueSuccess;
++    ++statusCounts[statusName(decoded.status)];
++    cases << contract.caseId << ',' << patternId << ',' << blockIndex << ',' << weight << ','
++          << patternName << ',' << positionsText(global) << ',' << withinCapability << '\n';
++    results << contract.caseId << ',' << patternId << ',' << blockIndex << ',' << weight << ','
++            << patternName << ',' << statusName(decoded.status) << ',' << decoded.failedBlocks << ','
++            << decoded.correctedBlocks << ',' << decoded.noErrorBlocks << ',' << withinCapability << ','
++            << guaranteePass << '\n';
++    if ((weight == 0U || weight == contract.motherT) && mode == 5U && blockIndex == 0U) {
++        samples << contract.caseId << ',' << patternId << ',' << weight << ',' << bitsText(payload) << ','
++                << bitsText(encoded) << ',' << bitsText(received) << ',' << bitsText(decoded.payload) << ','
++                << statusName(decoded.status) << '\n';
++    }
++    require(guaranteePass, contract.caseId + " failed within guaranteed correction capability");
++}
++
++void executeCustom(const CaseContract& contract,
++                   const scl::common::BitVector& payload,
++                   const scl::common::BitVector& encoded,
++                   const std::vector<std::size_t>& globalPositions,
++                   const std::string& patternName,
++                   std::uint64_t patternId,
++                   bool requireSuccess,
++                   std::map<std::string,std::uint64_t>& statusCounts,
++                   std::ofstream& cases,
++                   std::ofstream& results) {
++    auto received = encoded;
++    for (auto position : globalPositions) received.at(position) ^= 1U;
++    const auto decoded = decodeTruth(contract, payload, received);
++    ++statusCounts[statusName(decoded.status)];
++    cases << contract.caseId << ',' << patternId << ",-1," << globalPositions.size() << ','
++          << patternName << ',' << positionsText(globalPositions) << ',' << requireSuccess << '\n';
++    results << contract.caseId << ',' << patternId << ",-1," << globalPositions.size() << ','
++            << patternName << ',' << statusName(decoded.status) << ',' << decoded.failedBlocks << ','
++            << decoded.correctedBlocks << ',' << decoded.noErrorBlocks << ',' << requireSuccess << ','
++            << (!requireSuccess || decoded.status == TruthStatus::TrueSuccess) << '\n';
++    if (requireSuccess) require(decoded.status == TruthStatus::TrueSuccess,
++                                contract.caseId + " cross-block guaranteed pattern failed");
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::invalid_argument("usage: stage04_error_capability_runner OUTPUT_DIR");
++        const fs::path output(argv[1]);
++        fs::create_directories(output);
++        std::ofstream cases(output / "stage04_error_capability_cases.csv");
++        std::ofstream results(output / "stage04_error_capability_results.csv");
++        std::ofstream summary(output / "stage04_error_capability_status_summary.csv");
++        std::ofstream samples(output / "stage04_error_capability_cpp_matlab_samples.csv");
++        if (!cases || !results || !summary || !samples) throw std::runtime_error("cannot open stage04 output");
++        cases << "caseId,patternId,blockIndex,errorWeight,patternName,errorPositions,withinCapability\n";
++        results << "caseId,patternId,blockIndex,errorWeight,patternName,status,failedBlocks,"
++                   "correctedBlocks,noErrorBlocks,withinCapability,guaranteePass\n";
++        summary << "caseId,totalPatterns,TRUE_SUCCESS,DETECTED_FAILURE,MISCORRECTION,"
++                   "UNDETECTED_ERROR,INVALID_CONFIGURATION,withinCapabilityFailures,stopReason\n";
++        samples << "caseId,patternId,errorWeight,payloadBits,encodedBits,receivedBits,"
++                   "cppRecoveredBits,cppStatus\n";
++
++        for (const auto& contract : scl::bch::s2::stage02::allCaseContracts()) {
++            const auto payload = payloadFor(contract, static_cast<std::uint64_t>(contract.payloadLength + contract.motherK));
++            const auto encoded = scl::bch::s2::stage02::encodeFrame(contract.id, payload).encodedBits;
++            std::map<std::string,std::uint64_t> counts;
++            std::uint64_t patternId = 0U;
++            for (std::size_t block = 0; block < contract.blockCount; ++block) {
++                for (unsigned weight = 0U; weight <= contract.motherT + 2U; ++weight) {
++                    const unsigned firstMode = weight == 0U ? 5U : 0U;
++                    for (unsigned mode = firstMode; mode < 6U; ++mode) {
++                        static const char* names[] = {
++                            "SYSTEMATIC","PARITY","HEAD_TAIL","CONTIGUOUS","SYSTEMATIC_PARITY_BOUNDARY","RANDOM"
++                        };
++                        executePattern(contract, payload, encoded, block, weight, mode, names[mode],
++                                       patternId++, counts, cases, results, samples);
++                    }
++                }
++            }
++            if (contract.organization == Organization::Segmented15) {
++                for (std::size_t position = 0; position < 15U; ++position) {
++                    executeCustom(contract, payload, encoded, {position}, "BCH15_SINGLE_ALL_POSITIONS",
++                                  patternId++, true, counts, cases, results);
++                }
++                executeCustom(contract, payload, encoded, {0U,1U}, "BCH15_DOUBLE_SAME_BLOCK",
++                              patternId++, false, counts, cases, results);
++                executeCustom(contract, payload, encoded, {0U,15U}, "BCH15_DOUBLE_CROSS_BLOCK",
++                              patternId++, true, counts, cases, results);
++                std::vector<std::size_t> onePerBlock;
++                for (std::size_t block = 0; block < contract.blockCount; ++block) onePerBlock.push_back(block*15U);
++                executeCustom(contract, payload, encoded, onePerBlock, "BCH15_ONE_ERROR_EACH_BLOCK",
++                              patternId++, true, counts, cases, results);
++            }
++            if (contract.organization == Organization::ShortenedMultiBlock) {
++                executeCustom(contract, payload, encoded, {0U,contract.encodedLengthPerBlock[0]},
++                              "MULTIBLOCK_ONE_ERROR_EACH_BLOCK", patternId++, true,
++                              counts, cases, results);
++            }
++            const std::uint64_t total = counts["TRUE_SUCCESS"] + counts["DETECTED_FAILURE"] +
++                counts["MISCORRECTION"] + counts["UNDETECTED_ERROR"] + counts["INVALID_CONFIGURATION"];
++            summary << contract.caseId << ',' << total << ',' << counts["TRUE_SUCCESS"] << ','
++                    << counts["DETECTED_FAILURE"] << ',' << counts["MISCORRECTION"] << ','
++                    << counts["UNDETECTED_ERROR"] << ',' << counts["INVALID_CONFIGURATION"]
++                    << ",0,ERROR_CAPABILITY_FIXED_CASES\n";
++        }
++        std::cout << "PASS_STAGE04_ERROR_CAPABILITY\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_STAGE04_ERROR_CAPABILITY: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_check.log b/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_check.log
+new file mode 100644
+index 0000000..7487820
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_check.log
+@@ -0,0 +1 @@
++PASS_STAGE04_ERROR_CAPABILITY_CHECK
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_ctest.log b/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_ctest.log
+new file mode 100644
+index 0000000..e994036
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_ctest.log
+@@ -0,0 +1,20 @@
++UpdateCTestConfiguration  from :C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage04_error_capability/DartConfiguration.tcl
++Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage04_error_capability
++Constructing a list of tests
++Done constructing a list of tests
++Updating test list for fixtures
++Added 0 tests to meet fixture requirements
++Checking test dependency graph...
++Checking test dependency graph end
++test 1
++    Start 1: stage04_error_capability_gate
++
++1: Test command: C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\BCH\simulation\build\S2\stage04_error_capability\stage04_error_capability_runner.exe "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/S2/stage04_error_capability/results"
++1: Working Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage04_error_capability
++1: Test timeout computed to be: 10000000
++1: PASS_STAGE04_ERROR_CAPABILITY
++1/1 Test #1: stage04_error_capability_gate ....   Passed    0.08 sec
++
++100% tests passed out of 1
++
++Total Test time (real) =   0.08 sec
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_matlab.log b/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_matlab.log
+new file mode 100644
+index 0000000..02b2895
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_matlab.log
+@@ -0,0 +1 @@
++PASS_STAGE04_ERROR_CAPABILITY_MATLAB_REFERENCE
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/matlab/stage04_error_capability_matlab_reference.m b/Task/BCH/simulation/stages/S2/stage04_error_capability/matlab/stage04_error_capability_matlab_reference.m
+new file mode 100644
+index 0000000..fad59a3
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/matlab/stage04_error_capability_matlab_reference.m
+@@ -0,0 +1,59 @@
++function stage04_error_capability_matlab_reference(samplesCsv, outputCsv, segmentedReferencePath)
++    addpath(segmentedReferencePath);
++    options = detectImportOptions(samplesCsv, Delimiter=",", TextType="string");
++    options = setvartype(options, ...
++        {'caseId','payloadBits','encodedBits','receivedBits','cppRecoveredBits','cppStatus'}, 'string');
++    data = readtable(samplesCsv, options);
++    table15 = bch15_build_lookup_reference();
++    recoveredMismatchBits = zeros(height(data),1);
++    cppRecoveredMismatchBits = zeros(height(data),1);
++    matlabTrueSuccess = false(height(data),1);
++    for row=1:height(data)
++        id=char(data.caseId(row));
++        payload=double(char(data.payloadBits(row)))-double('0');
++        received=double(char(data.receivedBits(row)))-double('0');
++        cppRecovered=double(char(data.cppRecoveredBits(row)))-double('0');
++        if contains(id,'_S15')
++            oldId='BCH-S200'; if startsWith(id,'K300'),oldId='BCH-S300';end
++            decoded=bch15_segmented_decode_reference(oldId,received,table15);
++            recovered=decoded.recoveredPayload;
++        else
++            [n,k,payloads,shortening,encodedLengths]=blockContract(id);
++            recovered=[]; offset=0;
++            for block=1:numel(payloads)
++                shortened=received(offset+1:offset+encodedLengths(block));
++                decoded=double(bchdec(gf([zeros(1,shortening(block)),shortened]),n,k).x);
++                recovered=[recovered decoded(shortening(block)+1:k)]; %#ok<AGROW>
++                offset=offset+encodedLengths(block);
++            end
++        end
++        recoveredMismatchBits(row)=sum(recovered~=payload);
++        cppRecoveredMismatchBits(row)=sum(cppRecovered~=payload);
++        matlabTrueSuccess(row)=isequal(recovered,payload);
++    end
++    caseId=data.caseId; patternId=data.patternId; errorWeight=data.errorWeight;
++    cppStatus=data.cppStatus;
++    passed=recoveredMismatchBits==0 & cppRecoveredMismatchBits==0 & ...
++        matlabTrueSuccess & cppStatus=="TRUE_SUCCESS";
++    output=table(caseId,patternId,errorWeight,cppStatus,recoveredMismatchBits, ...
++        cppRecoveredMismatchBits,matlabTrueSuccess,passed);
++    writetable(output,outputCsv);
++    if ~all(passed),error("BLOCKED_STAGE04_ERROR_CAPABILITY_MATLAB_REFERENCE");end
++    fprintf("PASS_STAGE04_ERROR_CAPABILITY_MATLAB_REFERENCE\n");
++end
++
++function [n,k,payloads,shortening,encodedLengths]=blockContract(id)
++    if contains(id,'M255K207')
++        n=255;k=207;
++        if startsWith(id,'K300'),payloads=[150 150];shortening=[57 57];encodedLengths=[198 198];
++        else,payloads=200;shortening=7;encodedLengths=248;end
++    elseif contains(id,'M511K421')
++        n=511;k=421;
++        if startsWith(id,'K300'),payloads=300;shortening=121;encodedLengths=390;
++        else,payloads=200;shortening=221;encodedLengths=290;end
++    elseif contains(id,'M511K385')
++        n=511;k=385;
++        if startsWith(id,'K300'),payloads=300;shortening=85;encodedLengths=426;
++        else,payloads=200;shortening=185;encodedLengths=326;end
++    else,error("unsupported block case");end
++end
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_check.py b/Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_check.py
+new file mode 100644
+index 0000000..bac258c
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_check.py
+@@ -0,0 +1,88 @@
++import csv
++from collections import Counter
++from pathlib import Path
++
++
++STAGE = Path(__file__).resolve().parents[1]
++RESULTS = STAGE / "results"
++LOGS = STAGE / "logs"
++ALLOWED = {
++    "TRUE_SUCCESS", "DETECTED_FAILURE", "MISCORRECTION",
++    "UNDETECTED_ERROR", "INVALID_CONFIGURATION",
++}
++
++
++def rows(name):
++    with (RESULTS / name).open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def require(value, message):
++    if not value:
++        raise SystemExit(f"BLOCKED_STAGE04_ERROR_CAPABILITY_CHECK: {message}")
++
++
++def main():
++    results = rows("stage04_error_capability_results.csv")
++    require(results, "results are empty")
++    require(all(row["status"] in ALLOWED for row in results), "unknown status")
++    guaranteed = [row for row in results if row["withinCapability"] in ("1", "true")]
++    require(guaranteed, "guaranteed set is empty")
++    require(all(row["guaranteePass"] in ("1", "true") and row["status"] == "TRUE_SUCCESS"
++                for row in guaranteed), "0..t guarantee failed")
++    beyond = [row for row in results if int(row["errorWeight"]) > 0 and
++              row["withinCapability"] in ("0", "false")]
++    require(beyond, "over-capability set is empty")
++    require(all(row["status"] != "INVALID_CONFIGURATION" for row in results),
++            "invalid configuration occurred")
++
++    cases = rows("stage04_error_capability_cases.csv")
++    require(len(cases) == len(results), "case/result row count mismatch")
++    for case_id in ("K200_S15", "K300_S15"):
++        single = [row for row in cases if row["caseId"] == case_id and
++                  row["patternName"] == "BCH15_SINGLE_ALL_POSITIONS"]
++        require(len(single) == 15, f"{case_id} does not cover all 15 single-error positions")
++        require(any(row["patternName"] == "BCH15_DOUBLE_SAME_BLOCK" for row in cases
++                    if row["caseId"] == case_id), f"{case_id} same-block double missing")
++        require(any(row["patternName"] == "BCH15_DOUBLE_CROSS_BLOCK" for row in cases
++                    if row["caseId"] == case_id), f"{case_id} cross-block double missing")
++        require(any(row["patternName"] == "BCH15_ONE_ERROR_EACH_BLOCK" for row in cases
++                    if row["caseId"] == case_id), f"{case_id} one-error-each-block missing")
++    require(any(row["caseId"] == "K300_M255K207" and
++                row["patternName"] == "MULTIBLOCK_ONE_ERROR_EACH_BLOCK" for row in cases),
++            "K300 M255 multi-block boundary case missing")
++
++    summary = rows("stage04_error_capability_status_summary.csv")
++    require(len(summary) == 8, "summary case count is not 8")
++    for row in summary:
++        total = sum(int(row[name]) for name in ALLOWED)
++        require(total == int(row["totalPatterns"]), f"{row['caseId']} status accounting mismatch")
++        require(int(row["withinCapabilityFailures"]) == 0, "within capability failure recorded")
++        require(row["stopReason"] == "ERROR_CAPABILITY_FIXED_CASES", "stop reason mismatch")
++
++    matlab = rows("stage04_error_capability_cpp_matlab_compare.csv")
++    require(len(matlab) == 16, "MATLAB key sample count is not 16")
++    require(all(row["passed"] in ("1", "true") and row["recoveredMismatchBits"] == "0"
++                for row in matlab), "MATLAB key sample mismatch")
++    ctest = (LOGS / "stage04_error_capability_ctest.log").read_text(encoding="utf-8")
++    require("100% tests passed" in ctest and "PASS_STAGE04_ERROR_CAPABILITY" in ctest,
++            "CTest Gate failed")
++    matlab_log = (LOGS / "stage04_error_capability_matlab.log").read_text(encoding="utf-8")
++    require("PASS_STAGE04_ERROR_CAPABILITY_MATLAB_REFERENCE" in matlab_log, "MATLAB Gate failed")
++    status_counts = Counter(row["status"] for row in beyond)
++    detail = "|".join(f"{key}:{status_counts.get(key,0)}" for key in sorted(ALLOWED))
++    (STAGE / "stage04_error_capability_test_summary.csv").write_text(
++        "test,executed,result,detail\n"
++        f"0..t guaranteed recovery,true,PASS,{len(guaranteed)} patterns\n"
++        f"t+1 and t+2 classification,true,PASS,{len(beyond)} patterns;{detail}\n"
++        "BCH15 all single positions,true,PASS,30 patterns\n"
++        "BCH15 same/cross/multi-block,true,PASS,6 patterns\n"
++        "K300 M255 cross-block,true,PASS,1 pattern\n"
++        "C++ MATLAB key samples,true,PASS,16/16\n",
++        encoding="utf-8",
++    )
++    print("PASS_STAGE04_ERROR_CAPABILITY_CHECK")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_run.py b/Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_run.py
+new file mode 100644
+index 0000000..4920f56
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_run.py
+@@ -0,0 +1,45 @@
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parents[7]
++STAGE = Path(__file__).resolve().parents[1]
++BUILD = ROOT / "Task" / "BCH" / "simulation" / "build" / "S2" / "stage04_error_capability"
++RESULTS = STAGE / "results"
++LOGS = STAGE / "logs"
++
++
++def run(command, log=None):
++    result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE,
++                            stderr=subprocess.STDOUT, check=False)
++    print(result.stdout, end="")
++    if log:
++        log.parent.mkdir(parents=True, exist_ok=True)
++        log.write_text(result.stdout, encoding="utf-8")
++    if result.returncode:
++        raise SystemExit(f"command failed ({result.returncode}): {' '.join(map(str, command))}")
++
++
++def main():
++    RESULTS.mkdir(parents=True, exist_ok=True)
++    LOGS.mkdir(parents=True, exist_ok=True)
++    run(["cmake", "-S", str(STAGE / "cpp"), "-B", str(BUILD), "-G", "MinGW Makefiles",
++         "-DCMAKE_BUILD_TYPE=Release", f"-DSTAGE04_OUTPUT_DIR={RESULTS.as_posix()}"])
++    run(["cmake", "--build", str(BUILD), "--config", "Release", "-j", "2"])
++    run(["ctest", "--test-dir", str(BUILD), "-C", "Release", "--output-on-failure", "-V"],
++        LOGS / "stage04_error_capability_ctest.log")
++    matlab_path = (STAGE / "matlab").as_posix().replace("'", "''")
++    segmented = (ROOT / "Task" / "BCH" / "segmented" / "matlab").as_posix().replace("'", "''")
++    samples = (RESULTS / "stage04_error_capability_cpp_matlab_samples.csv").as_posix().replace("'", "''")
++    compare = (RESULTS / "stage04_error_capability_cpp_matlab_compare.csv").as_posix().replace("'", "''")
++    batch = (
++        f"addpath('{matlab_path}'); "
++        f"stage04_error_capability_matlab_reference('{samples}','{compare}','{segmented}')"
++    )
++    run(["matlab", "-batch", batch], LOGS / "stage04_error_capability_matlab.log")
++    run(["python", str(STAGE / "python" / "stage04_error_capability_check.py")],
++        LOGS / "stage04_error_capability_check.log")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_acceptance_matrix.csv b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_acceptance_matrix.csv
+new file mode 100644
+index 0000000..42468ee
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_acceptance_matrix.csv
+@@ -0,0 +1,7 @@
++需求,实现位置,正向测试,负向测试,Gate条件
++0..t保证区,cpp/stage04_error_capability_runner.cpp,每块六类位置模式,任一非TRUE_SUCCESS阻塞,保证区全部恢复
++t+1和t+2,results/stage04_error_capability_results.csv,真实执行并分类,不要求全部显式失败,无INVALID_CONFIGURATION
++BCH15全部单错,cpp/stage04_error_capability_runner.cpp,每个payload组覆盖15位置,任一单错恢复失败阻塞,30/30 PASS
++分块边界,cpp/stage04_error_capability_runner.cpp,同块双错与跨块每块单错,跨块保证区失败阻塞,边界分类可审计
++多块边界,cpp/stage04_error_capability_runner.cpp,K300_M255每块单错,任一块恢复失败阻塞,TRUE_SUCCESS
++MATLAB关键样本,matlab/stage04_error_capability_matlab_reference.m,每Case 0错和t错,任一恢复mismatch阻塞,16/16 PASS
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_commands_used.md b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_commands_used.md
+new file mode 100644
+index 0000000..133ea8e
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_commands_used.md
+@@ -0,0 +1,9 @@
++# stage04_error_capability 实际命令
++
++```powershell
++python Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_run.py
++python Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_check.py
++```
++
++运行器执行 Release CMake/MinGW 构建、CTest、固定错误模式注入、MATLAB R2024b
++关键样本参考和 Python 业务 checker。首次完整执行即通过。
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_frozen_config.csv b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_frozen_config.csv
+new file mode 100644
+index 0000000..d951896
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_frozen_config.csv
+@@ -0,0 +1,7 @@
++key,value
++errorWeights,0..t+2
++positionModes,SYSTEMATIC|PARITY|HEAD_TAIL|CONTIGUOUS|SYSTEMATIC_PARITY_BOUNDARY|RANDOM
++truthStatuses,TRUE_SUCCESS|DETECTED_FAILURE|MISCORRECTION|UNDETECTED_ERROR|INVALID_CONFIGURATION
++withinCapabilityRequiredStatus,TRUE_SUCCESS
++overCapabilityPolicy,RECORD_ACTUAL_STATUS
++stopReason,ERROR_CAPABILITY_FIXED_CASES
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_stage_plan.md b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_stage_plan.md
+new file mode 100644
+index 0000000..3b10bd5
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_stage_plan.md
+@@ -0,0 +1,10 @@
++# stage04_error_capability 规格冻结
++
++每个独立 BCH 码块覆盖 `0..t+2`。`0..t` 为保证区，所有模式必须恢复原 payload；
++`t+1/t+2` 不预设必须失败，只按真实行为分类为 TRUE_SUCCESS、DETECTED_FAILURE、
++MISCORRECTION、UNDETECTED_ERROR 或 INVALID_CONFIGURATION。
++
++错误模式覆盖系统区、校验区、首尾、连续位置、系统/校验边界和确定性随机位置。
++BCH(15,11,1) 额外覆盖全部 15 个单错位置、同块双错、跨块双错及每块一个错误。
++
++Gate：`PASS_STAGE04_ERROR_CAPABILITY`
+diff --git a/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_test_summary.csv b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_test_summary.csv
+new file mode 100644
+index 0000000..60c3da6
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_test_summary.csv
+@@ -0,0 +1,7 @@
++test,executed,result,detail
++0..t guaranteed recovery,true,PASS,767 patterns
++t+1 and t+2 classification,true,PASS,650 patterns;DETECTED_FAILURE:70|INVALID_CONFIGURATION:0|MISCORRECTION:552|TRUE_SUCCESS:28|UNDETECTED_ERROR:0
++BCH15 all single positions,true,PASS,30 patterns
++BCH15 same/cross/multi-block,true,PASS,6 patterns
++K300 M255 cross-block,true,PASS,1 pattern
++C++ MATLAB key samples,true,PASS,16/16
