@@ -150,10 +150,70 @@ void writeRow(std::ostream& out, const Point& point, const FormalCounters& c,
         << ",0\n";
 }
 
+std::string bitText(const scl::common::BitVector& bits) {
+    std::string text; text.reserve(bits.size());
+    for (auto bit : bits) text.push_back(bit ? '1' : '0');
+    return text;
+}
+
+template <typename T>
+std::string semicolonText(const std::vector<T>& values) {
+    std::ostringstream out; out << std::setprecision(17);
+    for (std::size_t i=0;i<values.size();++i) {
+        if(i) out << ';';
+        out << values[i];
+    }
+    return out.str();
+}
+
+void writeSpotcheck(const fs::path& path) {
+    const CaseId ids[]={CaseId::K200_S15,CaseId::K200_M511K385,
+                        CaseId::K300_S15,CaseId::K300_M255K207};
+    std::ofstream out(path);
+    require(bool(out),"cannot create CFO MATLAB spotcheck");
+    out<<"caseId,sampleId,ebn0Db,sigmaDimension,payloadBits,encodedBits,zI,"
+         "receivedReal,hardBits,cppRecoveredBits,cppTrueSuccess\n";
+    const std::uint64_t seed=2026072710ULL;
+    for(const auto id:ids) {
+        const auto& c=scl::bch::s2::stage02::caseContract(id);
+        const double grid[3]={c.payloadLength==200?4.5:5.0,
+                              c.payloadLength==200?6.5:7.0,
+                              c.payloadLength==200?8.5:9.0};
+        for(std::size_t sample=0;sample<3;++sample) {
+            const auto payload=payloadFrame("stage10_cfo_formal_spotcheck",c.caseId,
+                                            sample,0,c.payloadLength,seed);
+            const auto encoded=scl::bch::s2::stage02::encodeFrame(id,payload).encodedBits;
+            const scl::bch::s2::stage01::RandomIdentity identity{
+                seed,"stage10_cfo_formal_spotcheck",c.caseId,sample,0};
+            const auto z=scl::bch::s2::stage01::standardGaussianFrame(
+                identity,scl::bch::s2::stage01::RandomDomain::Awgn,encoded.size());
+            const double sigma=std::sqrt(scl::bch::s2::stage01::awgnSigma2(c.actualRate,grid[sample]));
+            std::vector<double> received(encoded.size());
+            scl::common::BitVector hard(encoded.size());
+            for(std::size_t k=0;k<encoded.size();++k) {
+                received[k]=scl::bch::s2::stage01::bpsk(encoded[k])*
+                    std::cos(static_cast<double>(k)*deltaPhase(encoded.size(),30.0))+sigma*z[k];
+                hard[k]=static_cast<scl::common::Bit>(scl::bch::s2::stage01::hardDecision(received[k]));
+            }
+            const auto decoded=decodeAudited(c,hard);
+            const bool success=bitErrors(payload,decoded.payload)==0U;
+            out<<c.caseId<<','<<sample<<','<<grid[sample]<<','<<std::setprecision(17)<<sigma<<','
+               <<bitText(payload)<<','<<bitText(encoded)<<','<<semicolonText(z)<<','
+               <<semicolonText(received)<<','<<bitText(hard)<<','<<bitText(decoded.payload)<<','
+               <<success<<'\n';
+        }
+    }
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
     try {
+        if(argc==3 && std::string(argv[1])=="--spotcheck") {
+            writeSpotcheck(argv[2]);
+            std::cout<<"PASS_STAGE10_CFO_FORMAL_SPOTCHECK_EXPORT\n";
+            return 0;
+        }
         if (argc != 7) throw std::invalid_argument(
             "usage: runner POINTS OUTPUT_DIR SEED GIT_COMMIT MODE FRAMES");
         const auto points = readCfoPoints(argv[1]);
