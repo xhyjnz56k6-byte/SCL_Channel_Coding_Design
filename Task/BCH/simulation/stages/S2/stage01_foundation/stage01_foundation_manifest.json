@@ -1,0 +1,35 @@
+{
+  "stage": "stage01_foundation",
+  "branch": "stage01-06-bch-s2-awgn",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+      "contentCommit": "3c41bc7194ff16547f8d6f12d5e21c2d1e2074f9",
+      "files": [
+        "Task/BCH/simulation/stages/S2/stage01_foundation/cpp/CMakeLists.txt",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.cpp",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.hpp",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_export.cpp",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_test.cpp",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_compare.log",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_ctest.log",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_export.log",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_matlab.log",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/matlab/stage01_foundation_matlab_reference.m",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_check.py",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_compare.py",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_run.py",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_commands_used.md",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_file_hashes.json",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_frozen_config.csv",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_stage_plan.md",
+        "Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_test_summary.csv"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE01_FOUNDATION",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED"
+}

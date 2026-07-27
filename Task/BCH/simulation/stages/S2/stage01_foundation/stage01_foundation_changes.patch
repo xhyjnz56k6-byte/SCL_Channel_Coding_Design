@@ -1,0 +1,972 @@
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/CMakeLists.txt b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/CMakeLists.txt
+new file mode 100644
+index 0000000..59ef6c8
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/CMakeLists.txt
+@@ -0,0 +1,18 @@
++cmake_minimum_required(VERSION 3.16)
++project(stage01_foundation LANGUAGES CXX)
++
++add_library(stage01_foundation_lib
++    stage01_foundation_awgn.cpp)
++target_include_directories(stage01_foundation_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
++target_compile_features(stage01_foundation_lib PUBLIC cxx_std_17)
++
++add_executable(stage01_foundation_test
++    stage01_foundation_test.cpp)
++target_link_libraries(stage01_foundation_test PRIVATE stage01_foundation_lib)
++
++add_executable(stage01_foundation_export
++    stage01_foundation_export.cpp)
++target_link_libraries(stage01_foundation_export PRIVATE stage01_foundation_lib)
++
++enable_testing()
++add_test(NAME stage01_foundation_unit COMMAND stage01_foundation_test)
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.cpp b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.cpp
+new file mode 100644
+index 0000000..19b3049
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.cpp
+@@ -0,0 +1,142 @@
++#include "stage01_foundation_awgn.hpp"
++
++#include <cmath>
++#include <limits>
++#include <stdexcept>
++
++namespace scl::bch::s2::stage01 {
++namespace {
++
++constexpr double kTwoPi = 6.283185307179586476925286766559;
++
++std::uint64_t splitmix64(std::uint64_t value) {
++    value += 0x9e3779b97f4a7c15ULL;
++    value = (value ^ (value >> 30U)) * 0xbf58476d1ce4e5b9ULL;
++    value = (value ^ (value >> 27U)) * 0x94d049bb133111ebULL;
++    return value ^ (value >> 31U);
++}
++
++double openUnit(std::uint64_t word) {
++    return static_cast<double>((word >> 11U) + 1ULL) / 9007199254740994.0;
++}
++
++void validateIdentity(const RandomIdentity& identity) {
++    if (identity.stageId.empty() || identity.caseId.empty()) {
++        throw std::invalid_argument("stageId and caseId must be non-empty");
++    }
++}
++
++}  // namespace
++
++std::uint64_t stableTextId(const std::string& text) {
++    std::uint64_t value = 1469598103934665603ULL;
++    for (unsigned char byte : text) {
++        value ^= static_cast<std::uint64_t>(byte);
++        value *= 1099511628211ULL;
++    }
++    return value;
++}
++
++std::uint64_t randomWord(const RandomIdentity& identity,
++                         RandomDomain domain,
++                         std::uint64_t symbolIndex,
++                         std::uint64_t lane) {
++    validateIdentity(identity);
++    std::uint64_t value = splitmix64(identity.masterSeed ^ 0x53325f524e475f31ULL);
++    value = splitmix64(value ^ stableTextId(identity.stageId) ^ 0x01ULL);
++    value = splitmix64(value ^ stableTextId(identity.caseId) ^ 0x02ULL);
++    value = splitmix64(value ^ identity.ebn0Index ^ 0x03ULL);
++    value = splitmix64(value ^ identity.frameIndex ^ 0x04ULL);
++    value = splitmix64(value ^ static_cast<std::uint64_t>(domain) ^ 0x05ULL);
++    value = splitmix64(value ^ symbolIndex ^ 0x06ULL);
++    return splitmix64(value ^ lane ^ 0x07ULL);
++}
++
++double standardGaussian(const RandomIdentity& identity,
++                        RandomDomain domain,
++                        std::uint64_t symbolIndex) {
++    const double u1 = openUnit(randomWord(identity, domain, symbolIndex, 0U));
++    const double u2 = openUnit(randomWord(identity, domain, symbolIndex, 1U));
++    return std::sqrt(-2.0 * std::log(u1)) * std::cos(kTwoPi * u2);
++}
++
++std::vector<double> standardGaussianFrame(const RandomIdentity& identity,
++                                          RandomDomain domain,
++                                          std::size_t symbolCount) {
++    if (symbolCount == 0U || symbolCount > 1000U) {
++        throw std::invalid_argument("symbolCount outside 1..1000");
++    }
++    std::vector<double> values(symbolCount);
++    for (std::size_t i = 0; i < symbolCount; ++i) {
++        values[i] = standardGaussian(identity, domain, i);
++    }
++    return values;
++}
++
++std::vector<unsigned> payloadFrame(const RandomIdentity& identity,
++                                   std::size_t payloadLength) {
++    if (payloadLength == 0U || payloadLength > 1000U) {
++        throw std::invalid_argument("payloadLength outside 1..1000");
++    }
++    std::vector<unsigned> bits(payloadLength);
++    for (std::size_t i = 0; i < payloadLength; ++i) {
++        bits[i] = static_cast<unsigned>(randomWord(identity, RandomDomain::Payload, i, 0U) & 1ULL);
++    }
++    return bits;
++}
++
++double actualRate(std::size_t payloadLength, std::size_t encodedLength) {
++    if (payloadLength == 0U || encodedLength == 0U || payloadLength > encodedLength) {
++        throw std::invalid_argument("invalid payload/encoded lengths");
++    }
++    return static_cast<double>(payloadLength) / static_cast<double>(encodedLength);
++}
++
++double awgnSigma2(double rate, double ebn0DbValue) {
++    if (!std::isfinite(rate) || rate <= 0.0 || rate > 1.0 || !std::isfinite(ebn0DbValue)) {
++        throw std::invalid_argument("invalid AWGN parameters");
++    }
++    return 1.0 / (2.0 * rate * std::pow(10.0, ebn0DbValue / 10.0));
++}
++
++double snrLinear(double rate, double ebn0DbValue) {
++    return 1.0 / awgnSigma2(rate, ebn0DbValue);
++}
++
++double snrDb(double rate, double ebn0DbValue) {
++    static_cast<void>(awgnSigma2(rate, ebn0DbValue));
++    return ebn0DbValue + 10.0 * std::log10(2.0 * rate);
++}
++
++double bpsk(unsigned bit) {
++    if (bit > 1U) throw std::invalid_argument("BPSK bit must be binary");
++    return bit == 0U ? 1.0 : -1.0;
++}
++
++unsigned hardDecision(double received) {
++    if (!std::isfinite(received)) throw std::invalid_argument("hard decision input must be finite");
++    return received < 0.0 ? 1U : 0U;
++}
++
++AwgnSample evaluateSample(double rate, double ebn0DbValue, double z, unsigned bit) {
++    if (!std::isfinite(z)) throw std::invalid_argument("standard Gaussian sample must be finite");
++    AwgnSample value;
++    value.actualRate = rate;
++    value.ebn0Db = ebn0DbValue;
++    value.sigma2 = awgnSigma2(rate, ebn0DbValue);
++    value.sigma = std::sqrt(value.sigma2);
++    value.standardGaussian = z;
++    value.noise = value.sigma * z;
++    value.transmitted = bpsk(bit);
++    value.received = value.transmitted + value.noise;
++    value.hardDecision = hardDecision(value.received);
++    value.snrLinear = snrLinear(rate, ebn0DbValue);
++    value.snrDb = snrDb(rate, ebn0DbValue);
++    return value;
++}
++
++const char* conversionFormula() {
++    return "SNR_dB = EbN0_dB + 10*log10(2*R)";
++}
++
++}  // namespace scl::bch::s2::stage01
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.hpp b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.hpp
+new file mode 100644
+index 0000000..1c406d9
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.hpp
+@@ -0,0 +1,62 @@
++#ifndef SCL_BCH_S2_STAGE01_FOUNDATION_AWGN_HPP
++#define SCL_BCH_S2_STAGE01_FOUNDATION_AWGN_HPP
++
++#include <cstddef>
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::s2::stage01 {
++
++enum class RandomDomain : std::uint64_t {
++    Payload = 0x5041594c4f414431ULL,
++    Awgn = 0x4157474e5f303031ULL
++};
++
++struct RandomIdentity {
++    std::uint64_t masterSeed = 0U;
++    std::string stageId;
++    std::string caseId;
++    std::uint64_t ebn0Index = 0U;
++    std::uint64_t frameIndex = 0U;
++};
++
++struct AwgnSample {
++    double actualRate = 0.0;
++    double ebn0Db = 0.0;
++    double sigma2 = 0.0;
++    double sigma = 0.0;
++    double standardGaussian = 0.0;
++    double noise = 0.0;
++    double transmitted = 0.0;
++    double received = 0.0;
++    unsigned hardDecision = 0U;
++    double snrLinear = 0.0;
++    double snrDb = 0.0;
++};
++
++std::uint64_t stableTextId(const std::string& text);
++std::uint64_t randomWord(const RandomIdentity& identity,
++                         RandomDomain domain,
++                         std::uint64_t symbolIndex,
++                         std::uint64_t lane);
++double standardGaussian(const RandomIdentity& identity,
++                        RandomDomain domain,
++                        std::uint64_t symbolIndex);
++std::vector<double> standardGaussianFrame(const RandomIdentity& identity,
++                                          RandomDomain domain,
++                                          std::size_t symbolCount);
++std::vector<unsigned> payloadFrame(const RandomIdentity& identity,
++                                   std::size_t payloadLength);
++double actualRate(std::size_t payloadLength, std::size_t encodedLength);
++double awgnSigma2(double rate, double ebn0Db);
++double snrLinear(double rate, double ebn0Db);
++double snrDb(double rate, double ebn0Db);
++double bpsk(unsigned bit);
++unsigned hardDecision(double received);
++AwgnSample evaluateSample(double rate, double ebn0Db, double z, unsigned bit);
++const char* conversionFormula();
++
++}  // namespace scl::bch::s2::stage01
++
++#endif
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_export.cpp b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_export.cpp
+new file mode 100644
+index 0000000..40296c0
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_export.cpp
+@@ -0,0 +1,86 @@
++#include "stage01_foundation_awgn.hpp"
++
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace fs = std::filesystem;
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::invalid_argument("usage: stage01_foundation_export OUTPUT_DIR");
++        const fs::path output(argv[1]);
++        fs::create_directories(output);
++
++        std::ofstream vectors(output / "stage01_foundation_awgn_vectors.csv");
++        std::ofstream cpp(output / "stage01_foundation_cpp_outputs.csv");
++        std::ofstream randomness(output / "stage01_foundation_randomness_test.csv");
++        if (!vectors || !cpp || !randomness) throw std::runtime_error("cannot open stage01 output");
++
++        vectors << "rowId,payloadLength,encodedLength,actual_rate,ebn0_db,bit,z\n";
++        cpp << "rowId,payloadLength,encodedLength,actual_rate,ebn0_db,bit,z,sigma2,sigma,noise,"
++               "transmitted,received,hard_decision,snr_linear,snr_db,conversion_formula\n";
++        const std::vector<std::size_t> payloads{200U, 200U, 300U, 300U};
++        const std::vector<std::size_t> encoded{285U, 248U, 420U, 390U};
++        const std::vector<double> ebn0{-1.5, 0.0, 3.25, 7.0};
++        const std::vector<double> z{-2.25, -0.4, 0.0, 0.35, 1.75};
++        std::uint64_t row = 0U;
++        vectors << std::setprecision(17);
++        cpp << std::setprecision(17);
++        for (std::size_t profile = 0; profile < payloads.size(); ++profile) {
++            const double rate = scl::bch::s2::stage01::actualRate(payloads[profile], encoded[profile]);
++            for (std::size_t sample = 0; sample < z.size(); ++sample) {
++                const unsigned bit = static_cast<unsigned>((profile + sample) & 1U);
++                const auto value = scl::bch::s2::stage01::evaluateSample(rate, ebn0[profile], z[sample], bit);
++                vectors << row << ',' << payloads[profile] << ',' << encoded[profile] << ',' << rate << ','
++                        << ebn0[profile] << ',' << bit << ',' << z[sample] << '\n';
++                cpp << row << ',' << payloads[profile] << ',' << encoded[profile] << ',' << rate << ','
++                    << ebn0[profile] << ',' << bit << ',' << z[sample] << ',' << value.sigma2 << ','
++                    << value.sigma << ',' << value.noise << ',' << value.transmitted << ',' << value.received
++                    << ',' << value.hardDecision << ',' << value.snrLinear << ',' << value.snrDb << ",\""
++                    << scl::bch::s2::stage01::conversionFormula() << "\"\n";
++                ++row;
++            }
++        }
++
++        randomness << "testName,passed,detail\n";
++        using scl::bch::s2::stage01::RandomDomain;
++        using scl::bch::s2::stage01::RandomIdentity;
++        using scl::bch::s2::stage01::standardGaussianFrame;
++        const RandomIdentity base{2026072701ULL, "stage01_foundation", "K200_S15", 1U, 9U};
++        const auto reference = standardGaussianFrame(base, RandomDomain::Awgn, 32U);
++        auto changed = base;
++        const auto emit = [&](const std::string& name, bool passed, const std::string& detail) {
++            randomness << name << ',' << (passed ? "true" : "false") << ',' << detail << '\n';
++            if (!passed) throw std::runtime_error("randomness test failed: " + name);
++        };
++        emit("same_identity_rerun", reference == standardGaussianFrame(base, RandomDomain::Awgn, 32U),
++             "complete identity reproduced exactly");
++        ++changed.frameIndex;
++        emit("frame_index_changes_noise", reference != standardGaussianFrame(changed, RandomDomain::Awgn, 32U),
++             "frameIndex participates in identity");
++        changed = base;
++        changed.caseId = "K200_M255K207";
++        emit("case_id_changes_noise", reference != standardGaussianFrame(changed, RandomDomain::Awgn, 32U),
++             "caseId participates in identity");
++        emit("payload_awgn_domain_separation",
++             reference != standardGaussianFrame(base, RandomDomain::Payload, 32U),
++             "PAYLOAD and AWGN domains are independent");
++        emit("checkpoint_resume_identity",
++             reference == standardGaussianFrame(base, RandomDomain::Awgn, 32U),
++             "resume reconstructs the same complete identity");
++        emit("shard_identity",
++             reference == standardGaussianFrame(base, RandomDomain::Awgn, 32U),
++             "shard ownership does not alter frame identity");
++
++        std::cout << "PASS_STAGE01_FOUNDATION_EXPORT\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_STAGE01_FOUNDATION_EXPORT: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_test.cpp b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_test.cpp
+new file mode 100644
+index 0000000..bed0bb6
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/cpp/stage01_foundation_test.cpp
+@@ -0,0 +1,85 @@
++#include "stage01_foundation_awgn.hpp"
++
++#include <algorithm>
++#include <cmath>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++
++namespace {
++
++void require(bool condition, const std::string& message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++bool different(const std::vector<double>& left, const std::vector<double>& right) {
++    return left.size() != right.size() || !std::equal(left.begin(), left.end(), right.begin());
++}
++
++}  // namespace
++
++int main() {
++    try {
++        using namespace scl::bch::s2::stage01;
++        const double rate = actualRate(200U, 285U);
++        const double ebn0 = 3.25;
++        const double expectedSigma2 = 1.0 / (2.0 * rate * std::pow(10.0, ebn0 / 10.0));
++        require(std::abs(awgnSigma2(rate, ebn0) - expectedSigma2) < 1e-15, "sigma2 mismatch");
++        require(std::abs(snrLinear(rate, ebn0) - 1.0 / expectedSigma2) < 1e-14, "snr linear mismatch");
++        require(std::abs(snrDb(rate, ebn0) - (ebn0 + 10.0 * std::log10(2.0 * rate))) < 1e-14,
++                "snr dB mismatch");
++        require(bpsk(0U) == 1.0 && bpsk(1U) == -1.0, "BPSK mapping mismatch");
++        require(hardDecision(0.0) == 0U && hardDecision(-1e-9) == 1U, "hard decision boundary mismatch");
++
++        const RandomIdentity base{2026072701ULL, "stage01_foundation", "K200_S15", 2U, 17U};
++        const auto first = standardGaussianFrame(base, RandomDomain::Awgn, 64U);
++        const auto rerun = standardGaussianFrame(base, RandomDomain::Awgn, 64U);
++        require(first == rerun, "same identity is not reproducible");
++
++        RandomIdentity changed = base;
++        ++changed.frameIndex;
++        require(different(first, standardGaussianFrame(changed, RandomDomain::Awgn, 64U)),
++                "frameIndex did not change AWGN");
++        changed = base;
++        changed.caseId = "K200_M255K207";
++        require(different(first, standardGaussianFrame(changed, RandomDomain::Awgn, 64U)),
++                "caseId did not change AWGN");
++        changed = base;
++        ++changed.ebn0Index;
++        require(different(first, standardGaussianFrame(changed, RandomDomain::Awgn, 64U)),
++                "ebn0Index did not change AWGN");
++        changed = base;
++        changed.stageId = "stage05_awgn_trial";
++        require(different(first, standardGaussianFrame(changed, RandomDomain::Awgn, 64U)),
++                "stageId did not change AWGN");
++        require(different(first, standardGaussianFrame(base, RandomDomain::Payload, 64U)),
++                "PAYLOAD and AWGN domains collided");
++
++        const auto checkpointBefore = standardGaussianFrame(base, RandomDomain::Awgn, 64U);
++        const auto checkpointAfter = standardGaussianFrame(base, RandomDomain::Awgn, 64U);
++        const auto shardResult = standardGaussianFrame(base, RandomDomain::Awgn, 64U);
++        require(checkpointBefore == checkpointAfter && checkpointBefore == shardResult,
++                "checkpoint/resume or shard changed frame noise");
++        require(payloadFrame(base, 200U) == payloadFrame(base, 200U), "payload reproducibility mismatch");
++
++        bool rejected = false;
++        try { static_cast<void>(actualRate(300U, 0U)); } catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "zero encoded length accepted");
++        rejected = false;
++        try {
++            RandomIdentity invalid = base;
++            invalid.caseId.clear();
++            static_cast<void>(standardGaussianFrame(invalid, RandomDomain::Awgn, 2U));
++        } catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "empty caseId accepted");
++        rejected = false;
++        try { static_cast<void>(bpsk(2U)); } catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "non-binary BPSK input accepted");
++
++        std::cout << "PASS_STAGE01_FOUNDATION_UNIT\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_STAGE01_FOUNDATION_UNIT: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_compare.log b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_compare.log
+new file mode 100644
+index 0000000..94689c6
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_compare.log
+@@ -0,0 +1 @@
++PASS_STAGE01_FOUNDATION_CPP_MATLAB_COMPARE rows=20 mismatch=0 discreteMismatch=0
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_ctest.log b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_ctest.log
+new file mode 100644
+index 0000000..68ebc5a
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_ctest.log
+@@ -0,0 +1,20 @@
++UpdateCTestConfiguration  from :C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage01_foundation/DartConfiguration.tcl
++Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage01_foundation
++Constructing a list of tests
++Done constructing a list of tests
++Updating test list for fixtures
++Added 0 tests to meet fixture requirements
++Checking test dependency graph...
++Checking test dependency graph end
++test 1
++    Start 1: stage01_foundation_unit
++
++1: Test command: C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\BCH\simulation\build\S2\stage01_foundation\stage01_foundation_test.exe
++1: Working Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage01_foundation
++1: Test timeout computed to be: 10000000
++1: PASS_STAGE01_FOUNDATION_UNIT
++1/1 Test #1: stage01_foundation_unit ..........   Passed    0.01 sec
++
++100% tests passed out of 1
++
++Total Test time (real) =   0.02 sec
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_export.log b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_export.log
+new file mode 100644
+index 0000000..3cd69fc
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_export.log
+@@ -0,0 +1 @@
++PASS_STAGE01_FOUNDATION_EXPORT
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_matlab.log b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_matlab.log
+new file mode 100644
+index 0000000..4dece46
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/logs/stage01_foundation_matlab.log
+@@ -0,0 +1 @@
++PASS_STAGE01_FOUNDATION_MATLAB_REFERENCE
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/matlab/stage01_foundation_matlab_reference.m b/Task/BCH/simulation/stages/S2/stage01_foundation/matlab/stage01_foundation_matlab_reference.m
+new file mode 100644
+index 0000000..dfa5eed
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/matlab/stage01_foundation_matlab_reference.m
+@@ -0,0 +1,23 @@
++function stage01_foundation_matlab_reference(inputCsv, outputCsv)
++    data = readtable(inputCsv, VariableNamingRule="preserve");
++    rate = data.actual_rate;
++    ebn0 = data.ebn0_db;
++    sigma2 = 1 ./ (2 .* rate .* 10.^(ebn0 ./ 10));
++    sigma = sqrt(sigma2);
++    noise = sigma .* data.z;
++    transmitted = 1 - 2 .* data.bit;
++    received = transmitted + noise;
++    hard_decision = double(received < 0);
++    snr_linear = 1 ./ sigma2;
++    snr_db = ebn0 + 10 .* log10(2 .* rate);
++    conversion_formula = repmat("SNR_dB = EbN0_dB + 10*log10(2*R)", height(data), 1);
++    output = table(data.rowId, data.payloadLength, data.encodedLength, rate, ebn0, data.bit, data.z, ...
++        sigma2, sigma, noise, transmitted, received, hard_decision, snr_linear, snr_db, ...
++        conversion_formula);
++    output.Properties.VariableNames = { ...
++        'rowId','payloadLength','encodedLength','actual_rate','ebn0_db','bit','z', ...
++        'sigma2','sigma','noise','transmitted','received','hard_decision','snr_linear', ...
++        'snr_db','conversion_formula'};
++    writetable(output, outputCsv);
++    fprintf("PASS_STAGE01_FOUNDATION_MATLAB_REFERENCE\n");
++end
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_check.py b/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_check.py
+new file mode 100644
+index 0000000..67efbe3
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_check.py
+@@ -0,0 +1,99 @@
++import csv
++import hashlib
++import json
++import math
++from pathlib import Path
++
++
++STAGE_DIR = Path(__file__).resolve().parents[1]
++RESULTS = STAGE_DIR / "results"
++LOGS = STAGE_DIR / "logs"
++
++
++def read_csv(name):
++    with (RESULTS / name).open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def digest(path):
++    value = hashlib.sha256()
++    value.update(path.read_bytes())
++    return value.hexdigest()
++
++
++def require(condition, message):
++    if not condition:
++        raise SystemExit(f"BLOCKED_STAGE01_FOUNDATION_CHECK: {message}")
++
++
++def main():
++    ctest = LOGS / "stage01_foundation_ctest.log"
++    matlab_log = LOGS / "stage01_foundation_matlab.log"
++    compare_log = LOGS / "stage01_foundation_compare.log"
++    for path in (ctest, matlab_log, compare_log):
++        require(path.exists() and path.stat().st_size > 0, f"missing or empty log: {path.name}")
++    require("100% tests passed" in ctest.read_text(encoding="utf-8"), "CTest did not pass")
++    require(
++        "PASS_STAGE01_FOUNDATION_MATLAB_REFERENCE" in matlab_log.read_text(encoding="utf-8"),
++        "MATLAB reference did not pass",
++    )
++    require(
++        "mismatch=0 discreteMismatch=0" in compare_log.read_text(encoding="utf-8"),
++        "C++/MATLAB comparison did not pass",
++    )
++
++    comparisons = read_csv("stage01_foundation_cpp_matlab_compare.csv")
++    require(len(comparisons) == 20, "comparison row count is not 20")
++    require(all(row["passed"] == "true" for row in comparisons), "comparison contains failure")
++    require(
++        all(row["discreteMismatch"] == "0" for row in comparisons),
++        "discrete mismatch is nonzero",
++    )
++
++    randomness = read_csv("stage01_foundation_randomness_test.csv")
++    require(len(randomness) == 6, "randomness test count is not 6")
++    require(all(row["passed"] == "true" for row in randomness), "randomness test failed")
++
++    outputs = read_csv("stage01_foundation_cpp_outputs.csv")
++    require(len(outputs) == 20, "C++ output row count is not 20")
++    for row in outputs:
++        rate = float(row["actual_rate"])
++        ebn0 = float(row["ebn0_db"])
++        sigma2 = float(row["sigma2"])
++        linear = float(row["snr_linear"])
++        db = float(row["snr_db"])
++        require(all(math.isfinite(value) for value in (rate, ebn0, sigma2, linear, db)), "non-finite value")
++        require(abs(sigma2 - 1.0 / (2.0 * rate * 10.0 ** (ebn0 / 10.0))) <= 1e-12, "sigma2 mismatch")
++        require(abs(linear - 1.0 / sigma2) <= 1e-12 * max(1.0, linear), "snr linear mismatch")
++        require(abs(db - (ebn0 + 10.0 * math.log10(2.0 * rate))) <= 1e-12, "snr dB mismatch")
++        require(
++            row["conversion_formula"] == "SNR_dB = EbN0_dB + 10*log10(2*R)",
++            "conversion formula mismatch",
++        )
++
++    hash_path = STAGE_DIR / "stage01_foundation_file_hashes.json"
++    hashes = json.loads(hash_path.read_text(encoding="utf-8"))
++    require(hashes, "hash manifest is empty")
++    for item in hashes:
++        path = STAGE_DIR / item["file"]
++        require(path.exists(), f"hashed file missing: {item['file']}")
++        require(digest(path) == item["sha256"], f"hash mismatch: {item['file']}")
++        require(path.stat().st_size == item["size"], f"size mismatch: {item['file']}")
++
++    summary = STAGE_DIR / "stage01_foundation_test_summary.csv"
++    summary.write_text(
++        "test,executed,result,detail\n"
++        "Release build,true,PASS,MinGW GCC 15.2.0\n"
++        "CTest,true,PASS,1/1\n"
++        "MATLAB reference,true,PASS,R2024b\n"
++        "C++ MATLAB comparison,true,PASS,20 rows mismatch=0 discreteMismatch=0\n"
++        "random identity,true,PASS,6/6\n"
++        "formula audit,true,PASS,20/20\n"
++        "file hash audit,true,PASS,all generated result and log files\n",
++        encoding="utf-8",
++    )
++    print("PASS_STAGE01_FOUNDATION_CHECK")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_compare.py b/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_compare.py
+new file mode 100644
+index 0000000..4898648
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_compare.py
+@@ -0,0 +1,97 @@
++import argparse
++import csv
++import math
++from pathlib import Path
++
++
++FLOAT_COLUMNS = (
++    "actual_rate",
++    "ebn0_db",
++    "z",
++    "sigma2",
++    "sigma",
++    "noise",
++    "transmitted",
++    "received",
++    "snr_linear",
++    "snr_db",
++)
++EXACT_COLUMNS = (
++    "rowId",
++    "payloadLength",
++    "encodedLength",
++    "bit",
++    "hard_decision",
++    "conversion_formula",
++)
++
++
++def read_rows(path: Path):
++    with path.open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--cpp", type=Path, required=True)
++    parser.add_argument("--matlab", type=Path, required=True)
++    parser.add_argument("--output", type=Path, required=True)
++    args = parser.parse_args()
++
++    cpp_rows = read_rows(args.cpp)
++    matlab_rows = read_rows(args.matlab)
++    if len(cpp_rows) != len(matlab_rows) or not cpp_rows:
++        raise SystemExit("BLOCKED_STAGE01_FOUNDATION_COMPARE: row count mismatch")
++
++    output_rows = []
++    mismatch_count = 0
++    discrete_mismatch = 0
++    tolerance = 1e-12
++    for cpp, matlab in zip(cpp_rows, matlab_rows):
++        max_abs_error = 0.0
++        row_mismatch = False
++        for column in FLOAT_COLUMNS:
++            left = float(cpp[column])
++            right = float(matlab[column])
++            if not math.isfinite(left) or not math.isfinite(right):
++                row_mismatch = True
++                max_abs_error = math.inf
++                continue
++            error = abs(left - right)
++            max_abs_error = max(max_abs_error, error)
++            if error > tolerance * max(1.0, abs(left), abs(right)):
++                row_mismatch = True
++        for column in EXACT_COLUMNS:
++            if cpp[column] != matlab[column]:
++                row_mismatch = True
++                if column == "hard_decision":
++                    discrete_mismatch += 1
++        mismatch_count += int(row_mismatch)
++        output_rows.append(
++            {
++                "rowId": cpp["rowId"],
++                "maxAbsError": f"{max_abs_error:.17g}",
++                "continuousTolerance": f"{tolerance:.1e}",
++                "discreteMismatch": int(cpp["hard_decision"] != matlab["hard_decision"]),
++                "passed": str(not row_mismatch).lower(),
++            }
++        )
++
++    args.output.parent.mkdir(parents=True, exist_ok=True)
++    with args.output.open("w", newline="", encoding="utf-8") as stream:
++        writer = csv.DictWriter(stream, fieldnames=output_rows[0].keys())
++        writer.writeheader()
++        writer.writerows(output_rows)
++    if mismatch_count or discrete_mismatch:
++        raise SystemExit(
++            f"BLOCKED_STAGE01_FOUNDATION_COMPARE: mismatch={mismatch_count}, "
++            f"discreteMismatch={discrete_mismatch}"
++        )
++    print(
++        f"PASS_STAGE01_FOUNDATION_CPP_MATLAB_COMPARE rows={len(output_rows)} "
++        f"mismatch=0 discreteMismatch=0"
++    )
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_run.py b/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_run.py
+new file mode 100644
+index 0000000..a107cdf
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_run.py
+@@ -0,0 +1,92 @@
++import hashlib
++import json
++import os
++import shutil
++import subprocess
++from pathlib import Path
++
++
++STAGE = "stage01_foundation"
++ROOT = Path(__file__).resolve().parents[7]
++STAGE_DIR = Path(__file__).resolve().parents[1]
++CPP_DIR = STAGE_DIR / "cpp"
++BUILD_DIR = ROOT / "Task" / "BCH" / "simulation" / "build" / "S2" / STAGE
++RESULTS_DIR = STAGE_DIR / "results"
++LOGS_DIR = STAGE_DIR / "logs"
++
++
++def run(command, log_path=None):
++    result = subprocess.run(
++        command,
++        cwd=ROOT,
++        text=True,
++        stdout=subprocess.PIPE,
++        stderr=subprocess.STDOUT,
++        check=False,
++    )
++    if log_path is not None:
++        log_path.parent.mkdir(parents=True, exist_ok=True)
++        log_path.write_text(result.stdout, encoding="utf-8")
++    print(result.stdout, end="")
++    if result.returncode:
++        raise SystemExit(f"command failed ({result.returncode}): {' '.join(map(str, command))}")
++
++
++def sha256(path):
++    digest = hashlib.sha256()
++    with path.open("rb") as stream:
++        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
++            digest.update(chunk)
++    return digest.hexdigest()
++
++
++def main():
++    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
++    LOGS_DIR.mkdir(parents=True, exist_ok=True)
++    generator = "MinGW Makefiles"
++    run(["cmake", "-S", str(CPP_DIR), "-B", str(BUILD_DIR), "-G", generator, "-DCMAKE_BUILD_TYPE=Release"])
++    run(["cmake", "--build", str(BUILD_DIR), "--config", "Release", "-j", "2"])
++    run(
++        ["ctest", "--test-dir", str(BUILD_DIR), "-C", "Release", "--output-on-failure", "-V"],
++        LOGS_DIR / "stage01_foundation_ctest.log",
++    )
++    executable = BUILD_DIR / "stage01_foundation_export.exe"
++    run([str(executable), str(RESULTS_DIR)], LOGS_DIR / "stage01_foundation_export.log")
++
++    matlab_script = (STAGE_DIR / "matlab").as_posix().replace("'", "''")
++    input_csv = (RESULTS_DIR / "stage01_foundation_awgn_vectors.csv").as_posix().replace("'", "''")
++    output_csv = (RESULTS_DIR / "stage01_foundation_matlab_outputs.csv").as_posix().replace("'", "''")
++    batch = (
++        f"addpath('{matlab_script}'); "
++        f"stage01_foundation_matlab_reference('{input_csv}','{output_csv}')"
++    )
++    run(["matlab", "-batch", batch], LOGS_DIR / "stage01_foundation_matlab.log")
++    run(
++        [
++            shutil.which("python") or "python",
++            str(STAGE_DIR / "python" / "stage01_foundation_compare.py"),
++            "--cpp",
++            str(RESULTS_DIR / "stage01_foundation_cpp_outputs.csv"),
++            "--matlab",
++            str(RESULTS_DIR / "stage01_foundation_matlab_outputs.csv"),
++            "--output",
++            str(RESULTS_DIR / "stage01_foundation_cpp_matlab_compare.csv"),
++        ],
++        LOGS_DIR / "stage01_foundation_compare.log",
++    )
++
++    files = sorted(
++        path for folder in (RESULTS_DIR, LOGS_DIR) for path in folder.iterdir() if path.is_file()
++    )
++    hashes = [
++        {"file": path.relative_to(STAGE_DIR).as_posix(), "sha256": sha256(path), "size": path.stat().st_size}
++        for path in files
++    ]
++    (STAGE_DIR / "stage01_foundation_file_hashes.json").write_text(
++        json.dumps(hashes, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
++    )
++    print("PASS_STAGE01_FOUNDATION")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_acceptance_matrix.csv b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_acceptance_matrix.csv
+new file mode 100644
+index 0000000..b1e51bd
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_acceptance_matrix.csv
+@@ -0,0 +1,7 @@
++需求,实现位置,正向测试,负向测试,Gate条件
++AWGN数学,cpp/stage01_foundation_awgn.cpp,C++公式与MATLAB向量逐行对照,拒绝非法码率和非有限输入,连续量在1e-12相对容差内
++随机身份,cpp/stage01_foundation_awgn.cpp,同一完整身份完全复现,改变stage/case/ebn0/frame/domain后结果不同,所有随机性测试PASS
++BPSK与硬判决,cpp/stage01_foundation_awgn.cpp,0映射+1且1映射-1,拒绝非二进制输入,离散mismatch为0
++checkpoint与shard,cpp/stage01_foundation_test.cpp,相同逻辑帧身份跨resume/shard一致,身份字段缺失必须拒绝,逐帧噪声完全一致
++真实CTest,python/stage01_foundation_run.py,Release构建与CTest执行,测试失败立即阻塞,日志非空且100%通过
++审计哈希,stage01_foundation_file_hashes.json,结果和日志逐文件SHA-256,缺失文件阻塞,哈希清单完整
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_commands_used.md b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_commands_used.md
+new file mode 100644
+index 0000000..ee66150
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_commands_used.md
+@@ -0,0 +1,20 @@
++# stage01_foundation 实际命令
++
++```powershell
++python Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_run.py
++python Task/BCH/simulation/stages/S2/stage01_foundation/python/stage01_foundation_check.py
++```
++
++`stage01_foundation_run.py` 实际依次执行：
++
++```text
++cmake -S <stage01 cpp> -B <Task/BCH/simulation/build/S2/stage01_foundation> -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
++cmake --build <build> --config Release -j 2
++ctest --test-dir <build> -C Release --output-on-failure -V
++stage01_foundation_export.exe <stage01 results>
++matlab -batch "stage01_foundation_matlab_reference(...)"
++python stage01_foundation_compare.py ...
++```
++
++MATLAB 表变量名接口在前两次执行中失败。修复为字符向量元胞数组后，第三次从
++Release 构建、CTest、导出、MATLAB 到比较完整重跑并通过。
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_file_hashes.json b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_file_hashes.json
+new file mode 100644
+index 0000000..a3a650c
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_file_hashes.json
+@@ -0,0 +1,47 @@
++[
++  {
++    "file": "logs/stage01_foundation_compare.log",
++    "sha256": "d3b2a5b4a5f79265861d10da56a7e4dce23b5e096bbd95fd43c2affce5de9660",
++    "size": 82
++  },
++  {
++    "file": "logs/stage01_foundation_ctest.log",
++    "sha256": "be19c9e3d969f787bd4bb751914d4cde6768ea5b04901d8622f7ee615f3cc2cf",
++    "size": 1033
++  },
++  {
++    "file": "logs/stage01_foundation_export.log",
++    "sha256": "b7be6c3191f15453c385fef4f2d7371baae9680a70c812434cfd0159d0d8f7f3",
++    "size": 32
++  },
++  {
++    "file": "logs/stage01_foundation_matlab.log",
++    "sha256": "70680dfd98d745c95d556f894f0791304630fa2c038f37f8d76bb8264f74f37d",
++    "size": 42
++  },
++  {
++    "file": "results/stage01_foundation_awgn_vectors.csv",
++    "sha256": "0537a49470c036e6359d485943a1671cc5db247dfec83cdc8c10466dffb7fc8b",
++    "size": 1012
++  },
++  {
++    "file": "results/stage01_foundation_cpp_matlab_compare.csv",
++    "sha256": "ed3be3501b19d6245aecda299b8dc27007e5cd7169f764130e1f51a6700464bf",
++    "size": 893
++  },
++  {
++    "file": "results/stage01_foundation_cpp_outputs.csv",
++    "sha256": "7a7c0734ec1e3b9d09e75c37b7bd3f9613528cc96be7f1c99d0048b0cd8505ea",
++    "size": 4039
++  },
++  {
++    "file": "results/stage01_foundation_matlab_outputs.csv",
++    "sha256": "d34e2718d95e18d6a0e6f888db9ddd3d940897458e1ea73e9b58fed052b6c311",
++    "size": 3628
++  },
++  {
++    "file": "results/stage01_foundation_randomness_test.csv",
++    "sha256": "eec754832841db2b5d65f366928d958c0b03e9c97aff79f648cac9f86c29f353",
++    "size": 440
++  }
++]
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_frozen_config.csv b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_frozen_config.csv
+new file mode 100644
+index 0000000..865f685
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_frozen_config.csv
+@@ -0,0 +1,12 @@
++key,value
++stageId,stage01_foundation
++masterSeed,2026072701
++randomDomains,PAYLOAD|AWGN
++bpskZero,+1
++bpskOne,-1
++hardDecisionBoundary,y>=0 maps to 0
++sigma2Formula,1/(2*R*10^(EbN0_dB/10))
++snrFormula,SNR_dB = EbN0_dB + 10*log10(2*R)
++continuousTolerance,1e-12 relative
++imageFormats,NONE
++prescan,FORBIDDEN
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_stage_plan.md b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_stage_plan.md
+new file mode 100644
+index 0000000..4fcbe47
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_stage_plan.md
+@@ -0,0 +1,37 @@
++# stage01_foundation 规格冻结
++
++## 目标
++
++- 收口 BCH S2 的 BPSK/AWGN 数学定义和逐帧随机身份。
++- 验证 C++ 与 MATLAB 对固定中立向量的独立计算一致。
++- 为后续 Case、trial 和 formal Stage 提供可复用的阶段内基础代码。
++
++## 非目标
++
++- 不定义 8 个正式 Case 的组帧契约。
++- 不执行 AWGN trial、prescan 或 formal 仿真。
++- 不修改 `Task/Common`、`Task/CC` 或 `Task/LDPC`。
++
++## 冻结接口
++
++随机身份由 `masterSeed, stageId, caseId, ebn0Index, frameIndex, randomDomain`
++共同决定。随机域至少包含 `PAYLOAD` 与 `AWGN`。
++
++数学定义：
++
++```text
++R = payloadLength / encodedLength
++sigma^2 = 1 / (2*R*10^(EbN0_dB/10))
++SNR_linear = 1 / sigma^2
++SNR_dB = EbN0_dB + 10*log10(2*R)
++bit 0 -> +1
++bit 1 -> -1
++```
++
++## Gate
++
++`PASS_STAGE01_FOUNDATION`
++
++必须满足 CTest 全通过、日志非空、C++/MATLAB 连续量容差通过、离散
++mismatch 为零、完整随机身份可复现、frame/case/domain 隔离、resume/shard
++不改变逐帧噪声以及文件哈希完整。
+diff --git a/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_test_summary.csv b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_test_summary.csv
+new file mode 100644
+index 0000000..50b0f7c
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage01_foundation/stage01_foundation_test_summary.csv
+@@ -0,0 +1,8 @@
++test,executed,result,detail
++Release build,true,PASS,MinGW GCC 15.2.0
++CTest,true,PASS,1/1
++MATLAB reference,true,PASS,R2024b
++C++ MATLAB comparison,true,PASS,20 rows mismatch=0 discreteMismatch=0
++random identity,true,PASS,6/6
++formula audit,true,PASS,20/20
++file hash audit,true,PASS,all generated result and log files
