@@ -1,0 +1,1753 @@
+﻿diff --git a/Task/BCH/simulation/current/CMakeLists.txt b/Task/BCH/simulation/current/CMakeLists.txt
+index 9e5b68a..905657b 100644
+--- a/Task/BCH/simulation/current/CMakeLists.txt
++++ b/Task/BCH/simulation/current/CMakeLists.txt
+@@ -21,7 +21,11 @@ add_library(bch_case_adapter
+     src/bch_case_adapter.cpp
+     src/bch_awgn_simulation.cpp
+     src/bch_multipath_simulation.cpp
+-    src/fixed_multipath_mmse.cpp)
++    src/fixed_multipath_mmse.cpp
++    src/bch_impairment_channels.cpp
++    src/bch_impairment_simulation.cpp
++    src/bch_burst_simulation.cpp
++    src/bch_interleaver.cpp)
+ target_include_directories(bch_case_adapter PUBLIC include)
+ target_link_libraries(bch_case_adapter PUBLIC bch15_encoder bch_block common_bch_simulation)
+ target_compile_features(bch_case_adapter PUBLIC cxx_std_17)
+@@ -32,6 +36,10 @@ add_executable(test_bch12_awgn tests/test_bch12_awgn.cpp)
+ target_link_libraries(test_bch12_awgn PRIVATE bch_case_adapter)
+ add_executable(test_bch_s2_mmse tests/test_bch_s2_mmse.cpp)
+ target_link_libraries(test_bch_s2_mmse PRIVATE bch_case_adapter)
++add_executable(test_bch_s2_impairments tests/test_bch_s2_impairments.cpp)
++target_link_libraries(test_bch_s2_impairments PRIVATE bch_case_adapter)
++add_executable(test_bch_s2_burst_redesign tests/test_bch_s2_burst_redesign.cpp)
++target_link_libraries(test_bch_s2_burst_redesign PRIVATE bch_case_adapter)
+ add_executable(bch_awgn_runner src/bch_awgn_runner.cpp)
+ target_link_libraries(bch_awgn_runner PRIVATE bch_case_adapter)
+ add_executable(bch_multipath_runner src/bch_multipath_runner.cpp)
+@@ -46,3 +54,5 @@ if (DEFINED BCH_K200_MANIFEST AND DEFINED BCH_K300_MANIFEST)
+ endif()
+ add_test(NAME bch12_awgn_unit COMMAND test_bch12_awgn)
+ add_test(NAME bch_s2_mmse_unit COMMAND test_bch_s2_mmse)
++add_test(NAME bch_s2_impairments_unit COMMAND test_bch_s2_impairments)
++add_test(NAME bch_s2_burst_redesign_unit COMMAND test_bch_s2_burst_redesign)
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_burst_simulation.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_burst_simulation.hpp
+new file mode 100644
+index 0000000..a01aa87
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_burst_simulation.hpp
+@@ -0,0 +1,41 @@
++#ifndef SCL_BCH_SIMULATION_BCH_BURST_SIMULATION_HPP
++#define SCL_BCH_SIMULATION_BCH_BURST_SIMULATION_HPP
++
++#include "bch_simulation/bch_case_adapter.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++struct BurstStructure {
++    std::size_t burstLength = 0U;
++    std::size_t burstStart = 0U;
++    std::size_t relativeStartInSubblock = 0U;
++    std::size_t touchedSubblockCount = 0U;
++    std::vector<std::size_t> perSubblockErrorWeights;
++    std::size_t maximumSubblockErrorWeight = 0U;
++    std::size_t numberOfSubblocksWithOneError = 0U;
++    std::size_t numberOfSubblocksWithMoreThanOneError = 0U;
++    bool allSubblocksWithinGuaranteedRegion = true;
++};
++
++common::BitVector injectConsecutiveBitBurst(
++    const common::BitVector& bits, std::size_t start, std::size_t length);
++std::vector<std::size_t> errorPositions(
++    const common::BitVector& expected, const common::BitVector& observed);
++BurstStructure analyzeBurstStructure(
++    const BchSimulationCase& simulationCase,
++    const std::vector<std::size_t>& positions,
++    std::size_t transmittedStart,
++    std::size_t transmittedLength);
++std::uint64_t burstDomainValue(
++    std::uint64_t seed, std::uint64_t frameIndex, std::uint64_t domain);
++std::size_t uniformBurstStart(
++    std::size_t frameLength, std::size_t burstLength,
++    std::uint64_t seed, std::uint64_t frameIndex, std::uint64_t domain);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp
+new file mode 100644
+index 0000000..54ee1f2
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp
+@@ -0,0 +1,81 @@
++#ifndef SCL_BCH_SIMULATION_BCH_IMPAIRMENT_CHANNELS_HPP
++#define SCL_BCH_SIMULATION_BCH_IMPAIRMENT_CHANNELS_HPP
++
++#include "common/types.hpp"
++
++#include <complex>
++#include <cstddef>
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++enum class StartPolicy {
++    FrameStart,
++    FrameMiddle,
++    FrameEnd,
++    SegmentInterior,
++    OneBeforeSegmentBoundary,
++    OnSegmentBoundary,
++    UniformRandom
++};
++
++enum class CfoCompensationMode { None, Perfect };
++
++struct ResidualCfoConfig {
++    double initialPhaseDeg = 0.0;
++    double frameRotationDeg = 0.0;
++    double noiseVariance = 0.0;
++    CfoCompensationMode compensationMode = CfoCompensationMode::None;
++};
++
++struct ResidualCfoOutput {
++    std::vector<std::complex<double>> receivedSamples;
++    std::vector<std::complex<double>> compensatedSamples;
++    common::BitVector hardBits;
++    double deltaPhiRad = 0.0;
++};
++
++struct BlockageConfig {
++    double attenuationDb = 0.0;
++    bool completeBlockage = false;
++    std::size_t start = 0U;
++    std::size_t length = 0U;
++    double noiseVariance = 0.0;
++};
++
++struct BlockageOutput {
++    common::RealVector receivedSamples;
++    common::BitVector hardBits;
++    double blockAmplitude = 1.0;
++};
++
++double degreesToRadians(double degrees);
++ResidualCfoOutput applyResidualCfo(
++    const common::RealVector& symbols,
++    const common::RealVector& standardComplexNoise,
++    const ResidualCfoConfig& config);
++BlockageOutput applyShortBlockage(
++    const common::RealVector& symbols,
++    const common::RealVector& standardNoise,
++    const BlockageConfig& config);
++common::BitVector applyPostHardDecisionBurst(
++    const common::BitVector& hardBits, std::size_t start, std::size_t length);
++
++std::uint64_t deterministicDomainValue(
++    std::uint64_t seed, std::uint64_t frameIndex, const std::string& domain);
++std::size_t chooseStartIndex(
++    StartPolicy policy,
++    std::size_t frameLength,
++    std::size_t impairmentLength,
++    std::size_t segmentLength,
++    std::uint64_t seed,
++    std::uint64_t frameIndex,
++    const std::string& domain);
++StartPolicy parseStartPolicy(const std::string& value);
++std::string startPolicyName(StartPolicy value);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp
+new file mode 100644
+index 0000000..f930bf6
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp
+@@ -0,0 +1,87 @@
++#ifndef SCL_BCH_SIMULATION_BCH_IMPAIRMENT_SIMULATION_HPP
++#define SCL_BCH_SIMULATION_BCH_IMPAIRMENT_SIMULATION_HPP
++
++#include "bch_simulation/bch_case_adapter.hpp"
++#include "bch_simulation/bch_impairment_channels.hpp"
++
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++enum class ImpairmentChannel { ResidualCfo, ShortBlockage, Burst };
++enum class BurstMode { Pure, Awgn };
++
++struct ImpairmentPointConfig {
++    std::string stage;
++    ImpairmentChannel channel = ImpairmentChannel::ResidualCfo;
++    BchCaseId caseId = BchCaseId::S200;
++    double sourcePayloadEbN0Db = 0.0;
++    std::uint64_t frameStart = 0U;
++    std::uint64_t frameCount = 0U;
++    std::uint64_t logicalFrameCount = 0U;
++    std::uint64_t globalSeed = 0U;
++    std::uint64_t noisePolicyVersion = 2U;
++    std::string framePoolManifest;
++    std::string outputDirectory;
++    bool progress = true;
++    double progressRefreshSeconds = 1.0;
++    double initialPhaseDeg = 0.0;
++    double frameRotationDeg = 0.0;
++    CfoCompensationMode compensationMode = CfoCompensationMode::None;
++    double attenuationDb = 0.0;
++    bool completeBlockage = false;
++    std::size_t blockageLength = 1U;
++    StartPolicy blockageStartPolicy = StartPolicy::UniformRandom;
++    BurstMode burstMode = BurstMode::Pure;
++    std::size_t burstLength = 1U;
++    StartPolicy burstStartPolicy = StartPolicy::UniformRandom;
++    std::string checkpointPath;
++    std::uint64_t checkpointInterval = 0U;
++    bool resume = false;
++    std::uint64_t interruptAfterFrames = 0U;
++    bool adaptiveStop = false;
++    std::uint64_t minFrames = 0U;
++    std::uint64_t targetFrameErrors = 0U;
++    std::uint64_t maxFrames = 0U;
++    std::uint64_t shardIndex = 0U;
++    std::uint64_t shardCount = 1U;
++};
++
++struct ImpairmentPointResult {
++    ImpairmentPointConfig config;
++    double snrDb = 0.0;
++    std::uint64_t processedFrames = 0U;
++    std::uint64_t processedPayloadBits = 0U;
++    std::uint64_t channelHardBitErrors = 0U;
++    std::uint64_t channelHardFrameErrors = 0U;
++    std::uint64_t decodedBitErrors = 0U;
++    std::uint64_t decodedFrameErrors = 0U;
++    std::uint64_t trueSuccessFrames = 0U;
++    std::uint64_t reportedSuccessFrames = 0U;
++    std::uint64_t miscorrectedFrames = 0U;
++    std::uint64_t decoderFailureFrames = 0U;
++    double decodeTimeUsSum = 0.0;
++    double preprocessingTimeUsSum = 0.0;
++    double totalReceiverTimeUsSum = 0.0;
++    std::vector<double> decodeTimesUs;
++    std::vector<double> preprocessingTimesUs;
++    std::vector<double> receiverTimesUs;
++    std::string stopReason = "CONTINUE";
++    std::string configHash;
++    std::uint64_t checkpointCount = 0U;
++    std::uint64_t resumeCount = 0U;
++};
++
++ImpairmentChannel parseImpairmentChannel(const std::string& value);
++std::string impairmentChannelName(ImpairmentChannel value);
++BurstMode parseBurstMode(const std::string& value);
++std::string burstModeName(BurstMode value);
++ImpairmentPointResult runImpairmentPoint(const ImpairmentPointConfig& config);
++void writeImpairmentPointSummary(
++    const ImpairmentPointResult& result, const std::string& path);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/include/bch_simulation/bch_interleaver.hpp b/Task/BCH/simulation/current/include/bch_simulation/bch_interleaver.hpp
+new file mode 100644
+index 0000000..abc8bab
+--- /dev/null
++++ b/Task/BCH/simulation/current/include/bch_simulation/bch_interleaver.hpp
+@@ -0,0 +1,35 @@
++#ifndef SCL_BCH_SIMULATION_BCH_INTERLEAVER_HPP
++#define SCL_BCH_SIMULATION_BCH_INTERLEAVER_HPP
++
++#include "common/types.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::bch::simulation {
++
++enum class InterleaverMode { None, FixedRandom };
++
++struct BchInterleaver {
++    InterleaverMode mode = InterleaverMode::None;
++    std::uint64_t seed = 0U;
++    std::vector<std::size_t> permutation;
++    std::vector<std::size_t> inversePermutation;
++    std::string permutationHash;
++    std::string inversePermutationHash;
++};
++
++BchInterleaver makeBchInterleaver(
++    std::size_t length, InterleaverMode mode, std::uint64_t seed);
++void validateBchInterleaver(const BchInterleaver& interleaver);
++common::BitVector interleave(
++    const common::BitVector& input, const BchInterleaver& interleaver);
++common::BitVector deinterleave(
++    const common::BitVector& input, const BchInterleaver& interleaver);
++std::string interleaverModeName(InterleaverMode mode);
++
++}  // namespace scl::bch::simulation
++
++#endif
+diff --git a/Task/BCH/simulation/current/src/bch_burst_simulation.cpp b/Task/BCH/simulation/current/src/bch_burst_simulation.cpp
+new file mode 100644
+index 0000000..e08d50e
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_burst_simulation.cpp
+@@ -0,0 +1,118 @@
++#include "bch_simulation/bch_burst_simulation.hpp"
++
++#include <algorithm>
++#include <stdexcept>
++
++namespace scl::bch::simulation {
++namespace {
++
++std::uint64_t mix64(std::uint64_t value) {
++    value ^= value >> 30U;
++    value *= 0xbf58476d1ce4e5b9ULL;
++    value ^= value >> 27U;
++    value *= 0x94d049bb133111ebULL;
++    value ^= value >> 31U;
++    return value;
++}
++
++}  // namespace
++
++common::BitVector injectConsecutiveBitBurst(
++    const common::BitVector& bits, std::size_t start, std::size_t length) {
++    common::validateBits(bits, "consecutive-bit-burst input");
++    if (start > bits.size() || length > bits.size() - start) {
++        throw std::invalid_argument("consecutive-bit-burst range exceeds frame");
++    }
++    if (length == 0U && start != 0U) {
++        throw std::invalid_argument("zero-length burst uses canonical start zero");
++    }
++    common::BitVector output = bits;
++    for (std::size_t index = start; index < start + length; ++index) {
++        output[index] ^= 1U;
++    }
++    return output;
++}
++
++std::vector<std::size_t> errorPositions(
++    const common::BitVector& expected, const common::BitVector& observed) {
++    if (expected.size() != observed.size()) {
++        throw std::invalid_argument("error-position vectors have different lengths");
++    }
++    common::validateBits(expected, "expected bits");
++    common::validateBits(observed, "observed bits");
++    std::vector<std::size_t> positions;
++    positions.reserve(expected.size());
++    for (std::size_t index = 0U; index < expected.size(); ++index) {
++        if (expected[index] != observed[index]) positions.push_back(index);
++    }
++    return positions;
++}
++
++BurstStructure analyzeBurstStructure(
++    const BchSimulationCase& simulationCase,
++    const std::vector<std::size_t>& positions,
++    std::size_t transmittedStart,
++    std::size_t transmittedLength) {
++    BurstStructure result;
++    result.burstLength = transmittedLength;
++    result.burstStart = transmittedStart;
++    result.relativeStartInSubblock = transmittedStart % 15U;
++    const std::size_t blockCount =
++        simulationCase.organization == BchOrganization::Segmented
++            ? simulationCase.segmentCount : 1U;
++    result.perSubblockErrorWeights.assign(blockCount, 0U);
++    for (std::size_t position : positions) {
++        if (position >= simulationCase.encodedLength) {
++            throw std::invalid_argument("error position exceeds encoded frame");
++        }
++        const std::size_t block =
++            simulationCase.organization == BchOrganization::Segmented
++                ? position / 15U : 0U;
++        ++result.perSubblockErrorWeights[block];
++    }
++    for (std::size_t weight : result.perSubblockErrorWeights) {
++        if (weight > 0U) ++result.touchedSubblockCount;
++        if (weight == 1U) ++result.numberOfSubblocksWithOneError;
++        if (weight > 1U) ++result.numberOfSubblocksWithMoreThanOneError;
++        result.maximumSubblockErrorWeight =
++            std::max(result.maximumSubblockErrorWeight, weight);
++    }
++    result.allSubblocksWithinGuaranteedRegion =
++        simulationCase.organization == BchOrganization::Segmented
++            ? result.maximumSubblockErrorWeight <= 1U
++            : result.maximumSubblockErrorWeight <=
++                  simulationCase.correctionCapability;
++    return result;
++}
++
++std::uint64_t burstDomainValue(
++    std::uint64_t seed, std::uint64_t frameIndex, std::uint64_t domain) {
++    return mix64(mix64(seed) ^ mix64(frameIndex + 0x9e3779b97f4a7c15ULL) ^
++                 mix64(domain + 0x243f6a8885a308d3ULL));
++}
++
++std::size_t uniformBurstStart(
++    std::size_t frameLength, std::size_t burstLength,
++    std::uint64_t seed, std::uint64_t frameIndex, std::uint64_t domain) {
++    if (burstLength > frameLength) {
++        throw std::invalid_argument("burst length exceeds frame length");
++    }
++    if (burstLength == 0U) return 0U;
++    const std::uint64_t legalCount =
++        static_cast<std::uint64_t>(frameLength - burstLength + 1U);
++    // Rejection removes the short low-end interval which would otherwise
++    // receive one extra preimage under modulo reduction. Each retry uses a
++    // separate deterministic domain, so resume/shard order cannot affect it.
++    const std::uint64_t threshold =
++        (std::uint64_t{0} - legalCount) % legalCount;
++    for (std::uint64_t attempt = 0U;; ++attempt) {
++        const std::uint64_t sample = burstDomainValue(
++            seed, frameIndex,
++            domain ^ (attempt * 0x9e3779b97f4a7c15ULL));
++        if (sample >= threshold) {
++            return static_cast<std::size_t>(sample % legalCount);
++        }
++    }
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/src/bch_impairment_channels.cpp b/Task/BCH/simulation/current/src/bch_impairment_channels.cpp
+new file mode 100644
+index 0000000..94d3e05
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_impairment_channels.cpp
+@@ -0,0 +1,200 @@
++#include "bch_simulation/bch_impairment_channels.hpp"
++
++#include <algorithm>
++#include <cmath>
++#include <limits>
++#include <stdexcept>
++
++namespace scl::bch::simulation {
++namespace {
++
++void validateFinite(double value, const char* name) {
++    if (!std::isfinite(value)) {
++        throw std::invalid_argument(std::string(name) + " must be finite");
++    }
++}
++
++void validateNoise(const common::RealVector& noise, std::size_t required) {
++    if (noise.size() != required) {
++        throw std::invalid_argument("standard-noise length mismatch");
++    }
++    for (double value : noise) validateFinite(value, "standard noise");
++}
++
++std::uint64_t mix64(std::uint64_t value) {
++    value ^= value >> 30U;
++    value *= 0xbf58476d1ce4e5b9ULL;
++    value ^= value >> 27U;
++    value *= 0x94d049bb133111ebULL;
++    value ^= value >> 31U;
++    return value;
++}
++
++}  // namespace
++
++double degreesToRadians(double degrees) {
++    validateFinite(degrees, "degrees");
++    return degrees * 3.141592653589793238462643383279502884 / 180.0;
++}
++
++ResidualCfoOutput applyResidualCfo(
++    const common::RealVector& symbols,
++    const common::RealVector& standardComplexNoise,
++    const ResidualCfoConfig& config) {
++    if (symbols.size() < 2U) {
++        throw std::invalid_argument("CFO frame must contain at least two symbols");
++    }
++    validateFinite(config.initialPhaseDeg, "initial phase");
++    validateFinite(config.frameRotationDeg, "frame rotation");
++    validateFinite(config.noiseVariance, "noise variance");
++    if (config.noiseVariance < 0.0) {
++        throw std::invalid_argument("noise variance must be nonnegative");
++    }
++    validateNoise(standardComplexNoise, symbols.size() * 2U);
++    ResidualCfoOutput result;
++    result.deltaPhiRad = degreesToRadians(config.frameRotationDeg) /
++                         static_cast<double>(symbols.size() - 1U);
++    const double phi0 = degreesToRadians(config.initialPhaseDeg);
++    const double componentSigma = std::sqrt(config.noiseVariance / 2.0);
++    result.receivedSamples.resize(symbols.size());
++    result.compensatedSamples.resize(symbols.size());
++    result.hardBits.resize(symbols.size());
++    for (std::size_t index = 0U; index < symbols.size(); ++index) {
++        validateFinite(symbols[index], "BPSK symbol");
++        const double phase = phi0 + static_cast<double>(index) * result.deltaPhiRad;
++        const std::complex<double> rotation(std::cos(phase), std::sin(phase));
++        const std::complex<double> basebandSample(
++            symbols[index] +
++            componentSigma * standardComplexNoise[2U * index],
++            componentSigma * standardComplexNoise[2U * index + 1U]);
++        result.receivedSamples[index] = basebandSample * rotation;
++        result.compensatedSamples[index] =
++            config.compensationMode == CfoCompensationMode::Perfect
++                ? result.receivedSamples[index] * std::conj(rotation)
++                : result.receivedSamples[index];
++        result.hardBits[index] =
++            result.compensatedSamples[index].real() >= 0.0 ? 0U : 1U;
++    }
++    return result;
++}
++
++BlockageOutput applyShortBlockage(
++    const common::RealVector& symbols,
++    const common::RealVector& standardNoise,
++    const BlockageConfig& config) {
++    validateFinite(config.attenuationDb, "blockage attenuation");
++    validateFinite(config.noiseVariance, "noise variance");
++    if (config.noiseVariance < 0.0 || config.length == 0U ||
++        config.start > symbols.size() ||
++        config.length > symbols.size() - config.start) {
++        throw std::invalid_argument("invalid blockage configuration");
++    }
++    validateNoise(standardNoise, symbols.size());
++    BlockageOutput result;
++    result.blockAmplitude =
++        config.completeBlockage ? 0.0 : std::pow(10.0, config.attenuationDb / 20.0);
++    const double sigma = std::sqrt(config.noiseVariance);
++    result.receivedSamples.resize(symbols.size());
++    result.hardBits.resize(symbols.size());
++    for (std::size_t index = 0U; index < symbols.size(); ++index) {
++        validateFinite(symbols[index], "BPSK symbol");
++        const bool blocked = index >= config.start &&
++                             index < config.start + config.length;
++        const double amplitude = blocked ? result.blockAmplitude : 1.0;
++        result.receivedSamples[index] = amplitude * symbols[index] +
++                                        sigma * standardNoise[index];
++        result.hardBits[index] = result.receivedSamples[index] >= 0.0 ? 0U : 1U;
++    }
++    return result;
++}
++
++common::BitVector applyPostHardDecisionBurst(
++    const common::BitVector& hardBits, std::size_t start, std::size_t length) {
++    common::validateBits(hardBits, "burst input");
++    if (length == 0U || start > hardBits.size() ||
++        length > hardBits.size() - start) {
++        throw std::invalid_argument("invalid burst range");
++    }
++    common::BitVector result = hardBits;
++    for (std::size_t index = start; index < start + length; ++index) {
++        result[index] = static_cast<std::uint8_t>(1U - result[index]);
++    }
++    return result;
++}
++
++std::uint64_t deterministicDomainValue(
++    std::uint64_t seed, std::uint64_t frameIndex, const std::string& domain) {
++    if (domain.empty()) throw std::invalid_argument("domain separator is empty");
++    std::uint64_t hash = 1469598103934665603ULL;
++    for (unsigned char value : domain) {
++        hash ^= static_cast<std::uint64_t>(value);
++        hash *= 1099511628211ULL;
++    }
++    return mix64(hash ^ mix64(seed) ^ mix64(frameIndex + 0x9e3779b97f4a7c15ULL));
++}
++
++std::size_t chooseStartIndex(
++    StartPolicy policy,
++    std::size_t frameLength,
++    std::size_t impairmentLength,
++    std::size_t segmentLength,
++    std::uint64_t seed,
++    std::uint64_t frameIndex,
++    const std::string& domain) {
++    if (frameLength == 0U || impairmentLength == 0U ||
++        impairmentLength > frameLength) {
++        throw std::invalid_argument("invalid start-index dimensions");
++    }
++    const std::size_t maximum = frameLength - impairmentLength;
++    switch (policy) {
++        case StartPolicy::FrameStart: return 0U;
++        case StartPolicy::FrameMiddle: return maximum / 2U;
++        case StartPolicy::FrameEnd: return maximum;
++        case StartPolicy::UniformRandom:
++            return static_cast<std::size_t>(
++                deterministicDomainValue(seed, frameIndex, domain) % (maximum + 1U));
++        case StartPolicy::SegmentInterior:
++        case StartPolicy::OneBeforeSegmentBoundary:
++        case StartPolicy::OnSegmentBoundary:
++            if (segmentLength == 0U || segmentLength >= frameLength) {
++                throw std::invalid_argument("segment policy requires a valid segment length");
++            }
++            break;
++    }
++    std::size_t candidate = segmentLength;
++    if (policy == StartPolicy::SegmentInterior) {
++        candidate = std::max<std::size_t>(1U, segmentLength / 2U);
++    } else if (policy == StartPolicy::OneBeforeSegmentBoundary) {
++        candidate = segmentLength - 1U;
++    }
++    return std::min(candidate, maximum);
++}
++
++StartPolicy parseStartPolicy(const std::string& value) {
++    if (value == "FRAME_START") return StartPolicy::FrameStart;
++    if (value == "FRAME_MIDDLE") return StartPolicy::FrameMiddle;
++    if (value == "FRAME_END") return StartPolicy::FrameEnd;
++    if (value == "SEGMENT_INTERIOR") return StartPolicy::SegmentInterior;
++    if (value == "ONE_BEFORE_SEGMENT_BOUNDARY") {
++        return StartPolicy::OneBeforeSegmentBoundary;
++    }
++    if (value == "ON_SEGMENT_BOUNDARY") return StartPolicy::OnSegmentBoundary;
++    if (value == "UNIFORM_RANDOM") return StartPolicy::UniformRandom;
++    throw std::invalid_argument("unsupported start policy");
++}
++
++std::string startPolicyName(StartPolicy value) {
++    switch (value) {
++        case StartPolicy::FrameStart: return "FRAME_START";
++        case StartPolicy::FrameMiddle: return "FRAME_MIDDLE";
++        case StartPolicy::FrameEnd: return "FRAME_END";
++        case StartPolicy::SegmentInterior: return "SEGMENT_INTERIOR";
++        case StartPolicy::OneBeforeSegmentBoundary:
++            return "ONE_BEFORE_SEGMENT_BOUNDARY";
++        case StartPolicy::OnSegmentBoundary: return "ON_SEGMENT_BOUNDARY";
++        case StartPolicy::UniformRandom: return "UNIFORM_RANDOM";
++    }
++    throw std::invalid_argument("unsupported start policy");
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/src/bch_impairment_simulation.cpp b/Task/BCH/simulation/current/src/bch_impairment_simulation.cpp
+new file mode 100644
+index 0000000..6b7457c
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_impairment_simulation.cpp
+@@ -0,0 +1,447 @@
++#include "bch_simulation/bch_impairment_simulation.hpp"
++
++#include "bch_simulation/bch_multipath_simulation.hpp"
++#include "common/awgn_channel.hpp"
++#include "common/demodulation.hpp"
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++#include "common/modulation.hpp"
++#include "common/sha256.hpp"
++#include "common/simulation_metrics.hpp"
++#include "common/simulation_control.hpp"
++
++#include <algorithm>
++#include <chrono>
++#include <cmath>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <map>
++#include <sstream>
++#include <stdexcept>
++
++namespace fs = std::filesystem;
++
++namespace scl::bch::simulation {
++namespace {
++
++double percentile(std::vector<double> values, double fraction) {
++    if (values.empty()) return 0.0;
++    std::sort(values.begin(), values.end());
++    const double position = fraction * static_cast<double>(values.size() - 1U);
++    const std::size_t lower = static_cast<std::size_t>(position);
++    const std::size_t upper = std::min(lower + 1U, values.size() - 1U);
++    const double weight = position - static_cast<double>(lower);
++    return values[lower] * (1.0 - weight) + values[upper] * weight;
++}
++
++double maximum(const std::vector<double>& values) {
++    return values.empty() ? 0.0 : *std::max_element(values.begin(), values.end());
++}
++
++std::string makeConfigText(
++    const ImpairmentPointConfig& config,
++    const BchSimulationCase& value,
++    const std::string& framePoolId,
++    double snrDb) {
++    std::ostringstream out;
++    out << "channelType=" << impairmentChannelName(config.channel)
++        << ";caseName=" << value.caseName
++        << ";payloadLength=" << value.payloadLength
++        << ";encodedLength=" << value.encodedLength
++        << ";frameRate=" << std::setprecision(17) << value.frameRate
++        << ";sourcePayloadEbN0Db=" << config.sourcePayloadEbN0Db
++        << ";snrDb=" << snrDb
++        << ";noisePolicyVersion=" << config.noisePolicyVersion
++        << ";initialPhaseDeg=" << config.initialPhaseDeg
++        << ";frameRotationDeg=" << config.frameRotationDeg
++        << ";compensationMode="
++        << (config.compensationMode == CfoCompensationMode::Perfect ? "PERFECT" : "NONE")
++        << ";attenuationDb=" << config.attenuationDb
++        << ";completeBlockage=" << config.completeBlockage
++        << ";blockageLength=" << config.blockageLength
++        << ";blockageStartPolicy=" << startPolicyName(config.blockageStartPolicy)
++        << ";burstMode=" << burstModeName(config.burstMode)
++        << ";burstLength=" << config.burstLength
++        << ";burstStartPolicy=" << startPolicyName(config.burstStartPolicy)
++        << ";backgroundAwgnEnabled="
++        << (config.channel != ImpairmentChannel::Burst ||
++            config.burstMode == BurstMode::Awgn)
++        << ";framePoolId=" << framePoolId
++        << ";seed=" << config.globalSeed
++        << ";logicalFrameCount=" << config.logicalFrameCount
++        << ";adaptiveStop=" << config.adaptiveStop
++        << ";minFrames=" << config.minFrames
++        << ";targetFrameErrors=" << config.targetFrameErrors
++        << ";maxFrames=" << config.maxFrames
++        << ";shardCount=" << config.shardCount;
++    return out.str();
++}
++
++void validateAccounting(
++    const ImpairmentPointResult& result, const BchSimulationCase& value) {
++    if (result.processedPayloadBits !=
++            result.processedFrames * value.payloadLength ||
++        result.trueSuccessFrames + result.decodedFrameErrors !=
++            result.processedFrames ||
++        result.reportedSuccessFrames + result.decoderFailureFrames !=
++            result.processedFrames) {
++        throw std::logic_error("impairment metric accounting mismatch");
++    }
++}
++
++void writeCheckpoint(const ImpairmentPointResult& result) {
++    if (result.config.checkpointPath.empty()) return;
++    fs::create_directories(fs::path(result.config.checkpointPath).parent_path());
++    std::ofstream out(result.config.checkpointPath);
++    if (!out) throw std::runtime_error("failed to write impairment checkpoint");
++    out << "configHash=" << result.configHash << '\n'
++        << "processedFrames=" << result.processedFrames << '\n'
++        << "processedPayloadBits=" << result.processedPayloadBits << '\n'
++        << "channelHardBitErrors=" << result.channelHardBitErrors << '\n'
++        << "channelHardFrameErrors=" << result.channelHardFrameErrors << '\n'
++        << "decodedBitErrors=" << result.decodedBitErrors << '\n'
++        << "decodedFrameErrors=" << result.decodedFrameErrors << '\n'
++        << "trueSuccessFrames=" << result.trueSuccessFrames << '\n'
++        << "reportedSuccessFrames=" << result.reportedSuccessFrames << '\n'
++        << "miscorrectedFrames=" << result.miscorrectedFrames << '\n'
++        << "decoderFailureFrames=" << result.decoderFailureFrames << '\n';
++}
++
++std::map<std::string, std::string> readKeyValues(const std::string& path) {
++    std::ifstream in(path);
++    if (!in) throw std::runtime_error("failed to read impairment checkpoint");
++    std::map<std::string, std::string> values;
++    std::string line;
++    while (std::getline(in, line)) {
++        const auto split = line.find('=');
++        if (split != std::string::npos) {
++            values[line.substr(0U, split)] = line.substr(split + 1U);
++        }
++    }
++    return values;
++}
++
++void restoreCheckpoint(ImpairmentPointResult& result) {
++    const auto values = readKeyValues(result.config.checkpointPath);
++    if (values.at("configHash") != result.configHash) {
++        throw std::invalid_argument("checkpoint config hash mismatch");
++    }
++    result.processedFrames = std::stoull(values.at("processedFrames"));
++    result.processedPayloadBits = std::stoull(values.at("processedPayloadBits"));
++    result.channelHardBitErrors = std::stoull(values.at("channelHardBitErrors"));
++    result.channelHardFrameErrors = std::stoull(values.at("channelHardFrameErrors"));
++    result.decodedBitErrors = std::stoull(values.at("decodedBitErrors"));
++    result.decodedFrameErrors = std::stoull(values.at("decodedFrameErrors"));
++    result.trueSuccessFrames = std::stoull(values.at("trueSuccessFrames"));
++    result.reportedSuccessFrames = std::stoull(values.at("reportedSuccessFrames"));
++    result.miscorrectedFrames = std::stoull(values.at("miscorrectedFrames"));
++    result.decoderFailureFrames = std::stoull(values.at("decoderFailureFrames"));
++    result.resumeCount = 1U;
++}
++
++}  // namespace
++
++ImpairmentChannel parseImpairmentChannel(const std::string& value) {
++    if (value == "RESIDUAL_CFO") return ImpairmentChannel::ResidualCfo;
++    if (value == "SHORT_BLOCKAGE") return ImpairmentChannel::ShortBlockage;
++    if (value == "BURST") return ImpairmentChannel::Burst;
++    throw std::invalid_argument("unsupported impairment channel");
++}
++
++std::string impairmentChannelName(ImpairmentChannel value) {
++    switch (value) {
++        case ImpairmentChannel::ResidualCfo: return "RESIDUAL_CFO";
++        case ImpairmentChannel::ShortBlockage: return "SHORT_BLOCKAGE";
++        case ImpairmentChannel::Burst: return "BURST";
++    }
++    throw std::invalid_argument("unsupported impairment channel");
++}
++
++BurstMode parseBurstMode(const std::string& value) {
++    if (value == "PURE") return BurstMode::Pure;
++    if (value == "AWGN") return BurstMode::Awgn;
++    throw std::invalid_argument("unsupported burst mode");
++}
++
++std::string burstModeName(BurstMode value) {
++    return value == BurstMode::Pure ? "PURE" : "AWGN";
++}
++
++ImpairmentPointResult runImpairmentPoint(const ImpairmentPointConfig& config) {
++    if (config.stage.empty() || config.frameCount == 0U ||
++        config.framePoolManifest.empty() || config.outputDirectory.empty() ||
++        config.noisePolicyVersion != 2U || config.shardCount == 0U ||
++        config.shardIndex >= config.shardCount) {
++        throw std::invalid_argument("invalid impairment point configuration");
++    }
++    if (config.adaptiveStop) {
++        common::validateStopConfig(
++            {config.minFrames, config.maxFrames,
++             config.targetFrameErrors, true});
++        if (config.maxFrames != config.frameCount) {
++            throw std::invalid_argument("impairment maxFrames must equal frameCount");
++        }
++    }
++    const auto& value = bchSimulationCase(config.caseId);
++    common::PackedFramePoolReader pool(config.framePoolManifest);
++    if (pool.payloadLength() != value.payloadLength ||
++        config.frameStart + config.frameCount > pool.frameCount()) {
++        throw std::invalid_argument("frame pool does not cover impairment point");
++    }
++    fs::create_directories(config.outputDirectory);
++    ImpairmentPointResult result;
++    result.config = config;
++    if (result.config.logicalFrameCount == 0U) {
++        result.config.logicalFrameCount = result.config.frameCount;
++    }
++    result.snrDb =
++        config.sourcePayloadEbN0Db + 10.0 * std::log10(value.frameRate);
++    result.configHash = common::sha256Hex(
++        makeConfigText(result.config, value, pool.framePoolId(), result.snrDb));
++    result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    result.preprocessingTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    result.receiverTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
++    prepareBchCase(value);
++    if (config.resume) {
++        if (config.checkpointPath.empty()) {
++            throw std::invalid_argument("resume requires checkpoint path");
++        }
++        restoreCheckpoint(result);
++    }
++    const double realNoiseVariance =
++        1.0 / (2.0 * std::pow(10.0, result.snrDb / 10.0));
++    const std::uint64_t noiseGroup = makePhysicalSnrNoiseGroup(
++        value.payloadLength, result.snrDb, config.noisePolicyVersion);
++    const auto started = std::chrono::steady_clock::now();
++    auto lastProgress = started;
++    for (std::uint64_t offset = result.processedFrames;
++         offset < config.frameCount; ++offset) {
++        const std::uint64_t frameIndex = config.frameStart + offset;
++        const auto payload = pool.readFrame(frameIndex).payloadBits;
++        const auto encoded = encodeBchFrame(value, payload);
++        const auto symbols = common::bpskModulate(encoded.codeword);
++        common::BitVector hardBits;
++        const auto receiverStart = std::chrono::steady_clock::now();
++        if (config.channel == ImpairmentChannel::ResidualCfo) {
++            const auto noise = common::generateStandardGaussianFrame(
++                config.globalSeed, noiseGroup, frameIndex,
++                value.encodedLength * 2U, config.noisePolicyVersion);
++            ResidualCfoConfig channelConfig;
++            channelConfig.initialPhaseDeg = config.initialPhaseDeg;
++            channelConfig.frameRotationDeg = config.frameRotationDeg;
++            channelConfig.noiseVariance = realNoiseVariance * 2.0;
++            channelConfig.compensationMode = config.compensationMode;
++            hardBits = applyResidualCfo(symbols, noise, channelConfig).hardBits;
++        } else if (config.channel == ImpairmentChannel::ShortBlockage) {
++            const auto noise = common::generateStandardGaussianFrame(
++                config.globalSeed, noiseGroup, frameIndex,
++                value.encodedLength, config.noisePolicyVersion);
++            BlockageConfig channelConfig;
++            channelConfig.attenuationDb = config.attenuationDb;
++            channelConfig.completeBlockage = config.completeBlockage;
++            channelConfig.length = config.blockageLength;
++            channelConfig.start = chooseStartIndex(
++                config.blockageStartPolicy, value.encodedLength,
++                config.blockageLength, 15U, config.globalSeed, frameIndex,
++                "BLOCKAGE_START");
++            channelConfig.noiseVariance = realNoiseVariance;
++            hardBits = applyShortBlockage(symbols, noise, channelConfig).hardBits;
++        } else {
++            if (config.burstMode == BurstMode::Pure) {
++                hardBits = encoded.codeword;
++            } else {
++                const auto noise = common::generateStandardGaussianFrame(
++                    config.globalSeed, noiseGroup, frameIndex,
++                    value.encodedLength, config.noisePolicyVersion);
++                const auto received = common::applyAwgn(
++                    symbols, noise, std::sqrt(realNoiseVariance));
++                hardBits = common::hardDecision(received);
++            }
++            const std::size_t start = chooseStartIndex(
++                config.burstStartPolicy, value.encodedLength,
++                config.burstLength, 15U, config.globalSeed, frameIndex,
++                "BURST_START");
++            hardBits = applyPostHardDecisionBurst(
++                hardBits, start, config.burstLength);
++        }
++        const std::uint64_t channelErrors =
++            common::countBitErrors(encoded.codeword, hardBits);
++        const auto decodeStart = std::chrono::steady_clock::now();
++        auto decoded = decodeBchFrame(value, hardBits);
++        const auto decodeEnd = std::chrono::steady_clock::now();
++        auditDecodedBchFrame(payload, decoded);
++        const auto receiverEnd = std::chrono::steady_clock::now();
++        const std::uint64_t decodedErrors =
++            common::countBitErrors(payload, decoded.payload);
++        const double decodeUs =
++            std::chrono::duration<double, std::micro>(decodeEnd - decodeStart).count();
++        const double receiverUs =
++            std::chrono::duration<double, std::micro>(
++                receiverEnd - receiverStart).count();
++        const double preprocessingUs = receiverUs - decodeUs;
++        ++result.processedFrames;
++        result.processedPayloadBits += value.payloadLength;
++        result.channelHardBitErrors += channelErrors;
++        result.channelHardFrameErrors += channelErrors != 0U;
++        result.decodedBitErrors += decodedErrors;
++        result.decodedFrameErrors += decodedErrors != 0U;
++        result.trueSuccessFrames += decoded.trueSuccess;
++        result.reportedSuccessFrames += decoded.reportedSuccess;
++        result.miscorrectedFrames += decoded.miscorrected;
++        result.decoderFailureFrames += decoded.decoderFailure;
++        result.decodeTimeUsSum += decodeUs;
++        result.preprocessingTimeUsSum += preprocessingUs;
++        result.totalReceiverTimeUsSum += receiverUs;
++        result.decodeTimesUs.push_back(decodeUs);
++        result.preprocessingTimesUs.push_back(preprocessingUs);
++        result.receiverTimesUs.push_back(receiverUs);
++        const auto now = std::chrono::steady_clock::now();
++        if (config.progress &&
++            (std::chrono::duration<double>(now - lastProgress).count() >=
++                 config.progressRefreshSeconds ||
++             result.processedFrames == config.frameCount)) {
++            lastProgress = now;
++            const double elapsed =
++                std::chrono::duration<double>(now - started).count();
++            std::cerr << '[' << config.stage << "]["
++                      << impairmentChannelName(config.channel) << "]["
++                      << value.caseName << "] frames " << result.processedFrames
++                      << '/' << config.frameCount << " FE "
++                      << result.decodedFrameErrors << " FER " << std::scientific
++                      << static_cast<double>(result.decodedFrameErrors) /
++                             result.processedFrames
++                      << std::fixed << " speed "
++                      << static_cast<std::uint64_t>(
++                             result.processedFrames / std::max(1e-9, elapsed))
++                      << " frame/s\r";
++        }
++        bool saved = false;
++        if (!config.checkpointPath.empty() && config.checkpointInterval > 0U &&
++            result.processedFrames % config.checkpointInterval == 0U) {
++            ++result.checkpointCount;
++            writeCheckpoint(result);
++            saved = true;
++        }
++        if (config.interruptAfterFrames > 0U &&
++            result.processedFrames >= config.interruptAfterFrames) {
++            result.stopReason = "INTERRUPTED_CHECKPOINT";
++            if (!saved && !config.checkpointPath.empty()) {
++                ++result.checkpointCount;
++                writeCheckpoint(result);
++            }
++            break;
++        }
++        if (config.adaptiveStop) {
++            common::ErrorMetrics metrics;
++            metrics.processedFrames = result.processedFrames;
++            metrics.frameErrors = result.decodedFrameErrors;
++            const auto decision = common::evaluateStop(
++                {config.minFrames, config.maxFrames,
++                 config.targetFrameErrors, true}, metrics);
++            if (decision.shouldStop) {
++                result.stopReason = decision.reason == "TARGET_FRAME_ERRORS"
++                    ? "TARGET_FRAME_ERRORS_REACHED" : "MAX_FRAMES_REACHED";
++                break;
++            }
++        }
++    }
++    if (result.stopReason == "CONTINUE") {
++        result.stopReason = config.adaptiveStop
++            ? "MAX_FRAMES_REACHED" : "FIXED_FRAMES_REACHED";
++    }
++    if (!config.checkpointPath.empty() &&
++        result.stopReason != "INTERRUPTED_CHECKPOINT") {
++        ++result.checkpointCount;
++        writeCheckpoint(result);
++    }
++    if (config.progress) std::cerr << '\n';
++    validateAccounting(result, value);
++    return result;
++}
++
++void writeImpairmentPointSummary(
++    const ImpairmentPointResult& result, const std::string& path) {
++    const auto& value = bchSimulationCase(result.config.caseId);
++    const double frames = static_cast<double>(result.processedFrames);
++    const double payloadBits = static_cast<double>(result.processedPayloadBits);
++    const double encodedBits = frames * value.encodedLength;
++    std::ofstream out(path);
++    if (!out) throw std::runtime_error("failed to open impairment summary");
++    out << "schemaVersion,stage,channelType,caseName,organization,decoderType,"
++           "payloadLength,encodedLength,frameRate,sourcePayloadEbN0Db,snrDb,"
++           "noisePolicyVersion,initialPhaseDeg,frameRotationDeg,compensationMode,"
++           "attenuationDb,completeBlockage,blockageLength,blockageStartPolicy,"
++           "burstMode,burstLength,burstStartPolicy,burstInjectionDomain,"
++           "backgroundAwgnEnabled,processedFrames,processedPayloadBits,"
++           "channelHardBitErrors,channelHardFrameErrors,channelHardBER,"
++           "decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,"
++           "trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,"
++           "miscorrectedFrames,miscorrectionRate,decoderFailureFrames,"
++           "decoderFailureRate,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,"
++           "p99DecodeTimeUs,maxDecodeTimeUs,avgPreprocessingTimeUs,"
++           "medianPreprocessingTimeUs,p95PreprocessingTimeUs,"
++           "p99PreprocessingTimeUs,maxPreprocessingTimeUs,avgTotalReceiverTimeUs,"
++           "medianReceiverTimeUs,p95ReceiverTimeUs,p99ReceiverTimeUs,"
++           "maxReceiverTimeUs,"
++           "minFrames,targetFrameErrors,maxFrames,stopReason,"
++           "checkpointCount,resumeCount,shardIndex,shardCount,"
++           "configHash,gitCommit\n";
++    out << "bch.s2.impairment.result.v1," << result.config.stage << ','
++        << impairmentChannelName(result.config.channel) << ',' << value.caseName
++        << ',' << organizationName(value.organization) << ','
++        << decoderTypeName(value.decoderType) << ',' << value.payloadLength << ','
++        << value.encodedLength << ',' << std::setprecision(17) << value.frameRate
++        << ',' << result.config.sourcePayloadEbN0Db << ',' << result.snrDb << ','
++        << result.config.noisePolicyVersion << ',' << result.config.initialPhaseDeg
++        << ',' << result.config.frameRotationDeg << ','
++        << (result.config.compensationMode == CfoCompensationMode::Perfect
++                ? "PERFECT" : "NONE")
++        << ',' << result.config.attenuationDb << ','
++        << result.config.completeBlockage << ',' << result.config.blockageLength
++        << ',' << startPolicyName(result.config.blockageStartPolicy) << ','
++        << burstModeName(result.config.burstMode) << ','
++        << result.config.burstLength << ','
++        << startPolicyName(result.config.burstStartPolicy)
++        << ",POST_HARD_DECISION_BIT_FLIP,"
++        << (result.config.channel != ImpairmentChannel::Burst ||
++            result.config.burstMode == BurstMode::Awgn)
++        << ',' << result.processedFrames << ',' << result.processedPayloadBits
++        << ',' << result.channelHardBitErrors << ','
++        << result.channelHardFrameErrors << ','
++        << result.channelHardBitErrors / encodedBits << ','
++        << result.decodedBitErrors << ',' << result.decodedFrameErrors << ','
++        << result.decodedBitErrors / payloadBits << ','
++        << result.decodedFrameErrors / frames << ',' << result.trueSuccessFrames
++        << ',' << result.trueSuccessFrames / frames << ','
++        << result.reportedSuccessFrames << ','
++        << result.reportedSuccessFrames / frames << ','
++        << result.miscorrectedFrames << ','
++        << result.miscorrectedFrames / frames << ','
++        << result.decoderFailureFrames << ','
++        << result.decoderFailureFrames / frames << ','
++        << result.decodeTimeUsSum / frames << ','
++        << percentile(result.decodeTimesUs, 0.50) << ','
++        << percentile(result.decodeTimesUs, 0.95) << ','
++        << percentile(result.decodeTimesUs, 0.99) << ','
++        << maximum(result.decodeTimesUs) << ','
++        << result.preprocessingTimeUsSum / frames << ','
++        << percentile(result.preprocessingTimesUs, 0.50) << ','
++        << percentile(result.preprocessingTimesUs, 0.95) << ','
++        << percentile(result.preprocessingTimesUs, 0.99) << ','
++        << maximum(result.preprocessingTimesUs) << ','
++        << result.totalReceiverTimeUsSum / frames << ','
++        << percentile(result.receiverTimesUs, 0.50) << ','
++        << percentile(result.receiverTimesUs, 0.95) << ','
++        << percentile(result.receiverTimesUs, 0.99) << ','
++        << maximum(result.receiverTimesUs) << ','
++        << result.config.minFrames << ','
++        << result.config.targetFrameErrors << ','
++        << result.config.maxFrames << ',' << result.stopReason
++        << ',' << result.checkpointCount << ',' << result.resumeCount << ','
++        << result.config.shardIndex << ',' << result.config.shardCount << ','
++        << result.configHash << ",WORKTREE\n";
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/src/bch_interleaver.cpp b/Task/BCH/simulation/current/src/bch_interleaver.cpp
+new file mode 100644
+index 0000000..592f35c
+--- /dev/null
++++ b/Task/BCH/simulation/current/src/bch_interleaver.cpp
+@@ -0,0 +1,101 @@
++#include "bch_simulation/bch_interleaver.hpp"
++
++#include <algorithm>
++#include <iomanip>
++#include <numeric>
++#include <random>
++#include <sstream>
++#include <stdexcept>
++
++namespace scl::bch::simulation {
++namespace {
++
++std::string hashIndices(const std::vector<std::size_t>& values) {
++    std::uint64_t hash = 1469598103934665603ULL;
++    for (std::size_t value : values) {
++        for (unsigned byte = 0U; byte < 8U; ++byte) {
++            hash ^= static_cast<std::uint8_t>(
++                (static_cast<std::uint64_t>(value) >> (8U * byte)) & 0xffU);
++            hash *= 1099511628211ULL;
++        }
++    }
++    std::ostringstream text;
++    text << std::hex << std::setfill('0') << std::setw(16) << hash;
++    return text.str();
++}
++
++}  // namespace
++
++BchInterleaver makeBchInterleaver(
++    std::size_t length, InterleaverMode mode, std::uint64_t seed) {
++    if (length == 0U) throw std::invalid_argument("interleaver length is zero");
++    BchInterleaver result;
++    result.mode = mode;
++    result.seed = seed;
++    result.permutation.resize(length);
++    std::iota(result.permutation.begin(), result.permutation.end(), 0U);
++    if (mode == InterleaverMode::FixedRandom) {
++        std::mt19937_64 engine(seed);
++        std::shuffle(result.permutation.begin(), result.permutation.end(), engine);
++    }
++    result.inversePermutation.resize(length);
++    for (std::size_t output = 0U; output < length; ++output) {
++        result.inversePermutation[result.permutation[output]] = output;
++    }
++    result.permutationHash = hashIndices(result.permutation);
++    result.inversePermutationHash = hashIndices(result.inversePermutation);
++    validateBchInterleaver(result);
++    return result;
++}
++
++void validateBchInterleaver(const BchInterleaver& value) {
++    const std::size_t length = value.permutation.size();
++    if (length == 0U || value.inversePermutation.size() != length) {
++        throw std::invalid_argument("invalid interleaver dimensions");
++    }
++    std::vector<bool> seen(length, false);
++    for (std::size_t output = 0U; output < length; ++output) {
++        const std::size_t input = value.permutation[output];
++        if (input >= length || seen[input]) {
++            throw std::invalid_argument("interleaver permutation is not bijective");
++        }
++        seen[input] = true;
++        if (value.inversePermutation[input] != output) {
++            throw std::invalid_argument("interleaver inverse is inconsistent");
++        }
++    }
++}
++
++common::BitVector interleave(
++    const common::BitVector& input, const BchInterleaver& value) {
++    validateBchInterleaver(value);
++    common::validateBits(input, "interleaver input");
++    if (input.size() != value.permutation.size()) {
++        throw std::invalid_argument("interleaver input length mismatch");
++    }
++    common::BitVector output(input.size());
++    for (std::size_t index = 0U; index < input.size(); ++index) {
++        output[index] = input[value.permutation[index]];
++    }
++    return output;
++}
++
++common::BitVector deinterleave(
++    const common::BitVector& input, const BchInterleaver& value) {
++    validateBchInterleaver(value);
++    common::validateBits(input, "deinterleaver input");
++    if (input.size() != value.permutation.size()) {
++        throw std::invalid_argument("deinterleaver input length mismatch");
++    }
++    common::BitVector output(input.size());
++    for (std::size_t original = 0U; original < input.size(); ++original) {
++        output[original] = input[value.inversePermutation[original]];
++    }
++    return output;
++}
++
++std::string interleaverModeName(InterleaverMode mode) {
++    return mode == InterleaverMode::None ? "NONE" : "FIXED_RANDOM";
++}
++
++}  // namespace scl::bch::simulation
+diff --git a/Task/BCH/simulation/current/tests/test_bch_s2_burst_redesign.cpp b/Task/BCH/simulation/current/tests/test_bch_s2_burst_redesign.cpp
+new file mode 100644
+index 0000000..1fb7222
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/test_bch_s2_burst_redesign.cpp
+@@ -0,0 +1,244 @@
++#include "bch_simulation/bch_burst_simulation.hpp"
++#include "bch_simulation/bch_interleaver.hpp"
++
++#include <algorithm>
++#include <iostream>
++#include <stdexcept>
++
++namespace sim = scl::bch::simulation;
++
++namespace {
++
++void require(bool value, const char* message) {
++    if (!value) throw std::runtime_error(message);
++}
++
++template <typename Function>
++void requireThrows(Function function, const char* message) {
++    try {
++        function();
++    } catch (const std::exception&) {
++        return;
++    }
++    throw std::runtime_error(message);
++}
++
++scl::common::BitVector payload(const sim::BchSimulationCase& value, std::uint64_t seed) {
++    scl::common::BitVector bits(value.payloadLength);
++    for (std::size_t index = 0U; index < bits.size(); ++index) {
++        bits[index] = static_cast<std::uint8_t>(
++            sim::burstDomainValue(seed, index, 17U) & 1U);
++    }
++    return bits;
++}
++
++void testInjector() {
++    const scl::common::BitVector source{0U, 1U, 0U, 1U, 0U};
++    require(sim::injectConsecutiveBitBurst(source, 0U, 0U) == source, "L=0");
++    require(sim::injectConsecutiveBitBurst(source, 0U, 1U)[0] == 1U, "frame start");
++    require(sim::injectConsecutiveBitBurst(source, 4U, 1U)[4] == 1U, "frame end");
++    const auto all = sim::injectConsecutiveBitBurst(source, 0U, source.size());
++    require(sim::errorPositions(source, all).size() == source.size(), "L=N");
++    require(sim::errorPositions(
++        source, sim::injectConsecutiveBitBurst(source, 1U, 3U)).size() == 3U,
++        "exactly L flips");
++    requireThrows([&] { sim::injectConsecutiveBitBurst(source, 1U, 0U); },
++                  "noncanonical zero burst");
++    requireThrows([&] { sim::injectConsecutiveBitBurst(source, 0U, 6U); },
++                  "L>N");
++    requireThrows([&] { sim::injectConsecutiveBitBurst(source, 4U, 2U); },
++                  "start+L>N");
++}
++
++void testInterleaver() {
++    for (std::size_t length : {248U, 285U, 390U, 420U, 426U}) {
++        for (sim::InterleaverMode mode :
++             {sim::InterleaverMode::None, sim::InterleaverMode::FixedRandom}) {
++            const auto value = sim::makeBchInterleaver(length, mode, 20260726U);
++            sim::validateBchInterleaver(value);
++            for (unsigned pattern = 0U; pattern < 4U; ++pattern) {
++                scl::common::BitVector bits(length);
++                for (std::size_t index = 0U; index < length; ++index) {
++                    bits[index] = pattern == 0U ? 0U :
++                                  pattern == 1U ? 1U :
++                                  pattern == 2U ? index % 2U :
++                                  sim::burstDomainValue(9U, index, length) & 1U;
++                }
++                require(sim::deinterleave(sim::interleave(bits, value), value) == bits,
++                        "interleave/deinterleave identity");
++            }
++            auto invalid = value;
++            invalid.permutation[0] = invalid.permutation[1];
++            requireThrows([&] { sim::validateBchInterleaver(invalid); },
++                          "non-bijection rejected");
++            invalid = value;
++            invalid.inversePermutation[0] = invalid.inversePermutation[1];
++            requireThrows([&] { sim::validateBchInterleaver(invalid); },
++                          "bad inverse rejected");
++        }
++    }
++}
++
++void testGuaranteedRegions() {
++    for (sim::BchCaseId id :
++         {sim::BchCaseId::B200, sim::BchCaseId::B300,
++          sim::BchCaseId::B300_426}) {
++        const auto& value = sim::bchSimulationCase(id);
++        sim::prepareBchCase(value);
++        const auto source = payload(value, 41U);
++        const auto encoded = sim::encodeBchFrame(value, source).codeword;
++        for (std::size_t length = 0U;
++             length <= value.correctionCapability; ++length) {
++            const std::vector<std::size_t> starts{
++                0U,
++                length == 0U ? 0U :
++                    static_cast<std::size_t>((value.encodedLength - length) / 2U),
++                length == 0U ? 0U :
++                    static_cast<std::size_t>(value.encodedLength - length)};
++            for (std::size_t start : starts) {
++                auto decoded = sim::decodeBchFrame(
++                    value, sim::injectConsecutiveBitBurst(encoded, start, length));
++                sim::auditDecodedBchFrame(source, decoded);
++                require(decoded.trueSuccess, "whole BCH guaranteed correction");
++                require(!decoded.miscorrected, "no guaranteed-region miscorrection");
++            }
++        }
++    }
++}
++
++void testSegmentBoundaryAndWeight() {
++    for (sim::BchCaseId id : {sim::BchCaseId::S200, sim::BchCaseId::S300}) {
++        const auto& value = sim::bchSimulationCase(id);
++        sim::prepareBchCase(value);
++        const auto source = payload(value, 83U);
++        const auto encoded = sim::encodeBchFrame(value, source).codeword;
++        const std::vector<std::size_t> starts{
++            14U, static_cast<std::size_t>(value.encodedLength - 16U)};
++        for (std::size_t start : starts) {
++            const auto received = sim::injectConsecutiveBitBurst(encoded, start, 2U);
++            const auto structure = sim::analyzeBurstStructure(
++                value, sim::errorPositions(encoded, received), start, 2U);
++            require(structure.maximumSubblockErrorWeight == 1U,
++                    "cross-boundary max weight");
++            require(structure.touchedSubblockCount == 2U, "cross-boundary blocks");
++            auto decoded = sim::decodeBchFrame(value, received);
++            sim::auditDecodedBchFrame(source, decoded);
++            require(decoded.trueSuccess, "cross-boundary recovery");
++        }
++        const auto same = sim::analyzeBurstStructure(
++            value, sim::errorPositions(
++                encoded, sim::injectConsecutiveBitBurst(encoded, 0U, 2U)),
++            0U, 2U);
++        require(same.maximumSubblockErrorWeight == 2U &&
++                !same.allSubblocksWithinGuaranteedRegion,
++                "same-block L=2 is outside guarantee");
++    }
++}
++
++void testReproducibilityAndConservation() {
++    for (std::size_t length : {248U, 285U, 390U, 420U, 426U}) {
++        for (std::size_t frame = 0U; frame < 50U; ++frame) {
++            const auto a = sim::uniformBurstStart(length, 16U, 99U, frame, 7U);
++            const auto b = sim::uniformBurstStart(length, 16U, 99U, frame, 7U);
++            require(a == b && a + 16U <= length, "random-start reproducibility");
++        }
++        const auto inter = sim::makeBchInterleaver(
++            length, sim::InterleaverMode::FixedRandom, 71U + length);
++        scl::common::BitVector zero(length, 0U);
++        const auto transmitted = sim::interleave(zero, inter);
++        const auto damaged = sim::injectConsecutiveBitBurst(transmitted, 3U, 16U);
++        const auto restored = sim::deinterleave(damaged, inter);
++        require(sim::errorPositions(zero, damaged).size() == 16U, "before weight");
++        require(sim::errorPositions(zero, restored).size() == 16U, "after weight");
++    }
++    bool changed = false;
++    for (std::size_t frame = 0U; frame < 30U; ++frame) {
++        changed = changed ||
++            sim::uniformBurstStart(285U, 8U, 1U, frame, 9U) !=
++            sim::uniformBurstStart(285U, 8U, 2U, frame, 9U);
++    }
++    require(changed, "different seeds should change start sequence");
++    constexpr std::size_t legalCount = 17U;
++    std::vector<std::uint64_t> frequencies(legalCount, 0U);
++    constexpr std::uint64_t samples = 170000U;
++    for (std::uint64_t frame = 0U; frame < samples; ++frame) {
++        const auto start = sim::uniformBurstStart(
++            32U, 16U, 20260726U, frame, 7001U);
++        require(start < legalCount, "unbiased start outside legal range");
++        ++frequencies[start];
++    }
++    const double expected = static_cast<double>(samples) / legalCount;
++    double chiSquare = 0.0;
++    for (std::uint64_t observed : frequencies) {
++        const double delta = static_cast<double>(observed) - expected;
++        chiSquare += delta * delta / expected;
++        require(observed > 0U, "uniform-start coverage missing legal start");
++    }
++    // Sanity check only, not a mathematical proof. The fixed deterministic
++    // sample has 16 degrees of freedom; 60 is deliberately conservative.
++    require(chiSquare < 60.0, "uniform-start frequency sanity check");
++}
++
++struct RawCounts {
++    std::uint64_t frames = 0, frameErrors = 0, bitErrors = 0;
++};
++
++RawCounts deterministicRange(std::uint64_t begin, std::uint64_t end,
++                             std::uint64_t stride = 1U) {
++    const auto& value = sim::bchSimulationCase(sim::BchCaseId::S200);
++    RawCounts counts;
++    for (std::uint64_t frame = begin; frame < end; frame += stride) {
++        const auto source = payload(value, 9000U + frame);
++        const auto encoded = sim::encodeBchFrame(value, source).codeword;
++        const auto start = sim::uniformBurstStart(
++            value.encodedLength, 2U, 2026072607ULL, frame, 91U);
++        auto decoded = sim::decodeBchFrame(
++            value, sim::injectConsecutiveBitBurst(encoded, start, 2U));
++        sim::auditDecodedBchFrame(source, decoded);
++        ++counts.frames;
++        counts.frameErrors += decoded.trueSuccess ? 0U : 1U;
++        for (std::size_t i = 0; i < source.size(); ++i)
++            counts.bitErrors += source[i] != decoded.payload[i] ? 1U : 0U;
++    }
++    return counts;
++}
++
++RawCounts add(RawCounts a, const RawCounts& b) {
++    a.frames += b.frames; a.frameErrors += b.frameErrors; a.bitErrors += b.bitErrors;
++    return a;
++}
++
++void testResumeAndShardCounts() {
++    const auto uninterrupted = deterministicRange(0U, 300U);
++    const auto resumed = add(deterministicRange(0U, 113U),
++                             deterministicRange(113U, 300U));
++    require(uninterrupted.frames == resumed.frames &&
++            uninterrupted.frameErrors == resumed.frameErrors &&
++            uninterrupted.bitErrors == resumed.bitErrors,
++            "resume raw counts differ");
++    RawCounts merged;
++    for (std::uint64_t shard = 0; shard < 3U; ++shard)
++        merged = add(merged, deterministicRange(shard, 300U, 3U));
++    require(uninterrupted.frames == merged.frames &&
++            uninterrupted.frameErrors == merged.frameErrors &&
++            uninterrupted.bitErrors == merged.bitErrors,
++            "three-shard raw counts differ");
++}
++
++}  // namespace
++
++int main() {
++    try {
++        testInjector();
++        testInterleaver();
++        testGuaranteedRegions();
++        testSegmentBoundaryAndWeight();
++        testReproducibilityAndConservation();
++        testResumeAndShardCounts();
++        std::cout << "PASS_BCH_S2_BURST_REDESIGN_CTEST\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "FAIL_BCH_S2_BURST_REDESIGN_CTEST: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp b/Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp
+new file mode 100644
+index 0000000..061fa4a
+--- /dev/null
++++ b/Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp
+@@ -0,0 +1,173 @@
++#include "bch_simulation/bch_impairment_channels.hpp"
++#include "bch_simulation/bch_case_adapter.hpp"
++
++#include "common/awgn_channel.hpp"
++#include "common/modulation.hpp"
++
++#include <cmath>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++
++namespace {
++
++void require(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++void testCfo() {
++    using namespace scl::bch::simulation;
++    const scl::common::BitVector bits{0U, 0U, 0U, 0U};
++    const auto symbols = scl::common::bpskModulate(bits);
++    const scl::common::RealVector noise(symbols.size() * 2U, 0.0);
++    auto zero = applyResidualCfo(symbols, noise, {});
++    require(zero.hardBits == bits, "zero CFO differs from noiseless AWGN");
++    ResidualCfoConfig quarter;
++    quarter.frameRotationDeg = 90.0;
++    auto rotated = applyResidualCfo(symbols, noise, quarter);
++    require(std::abs(rotated.receivedSamples.back().real()) < 1e-14,
++            "90-degree known vector real part mismatch");
++    require(std::abs(rotated.receivedSamples.back().imag() - 1.0) < 1e-14,
++            "positive CFO direction mismatch");
++    quarter.frameRotationDeg = -90.0;
++    rotated = applyResidualCfo(symbols, noise, quarter);
++    require(std::abs(rotated.receivedSamples.back().imag() + 1.0) < 1e-14,
++            "negative CFO direction mismatch");
++    for (std::size_t length : {248U, 285U, 390U, 420U, 426U}) {
++        const scl::common::RealVector values(length, 1.0);
++        scl::common::RealVector z(length * 2U, 0.0);
++        for (std::size_t index = 0U; index < length; ++index) {
++            z[2U * index] = static_cast<double>(index % 7U) / 10.0 - 0.3;
++            z[2U * index + 1U] =
++                static_cast<double>(index % 5U) / 10.0 - 0.2;
++        }
++        ResidualCfoConfig config;
++        config.initialPhaseDeg = 45.0;
++        config.frameRotationDeg = 180.0;
++        config.noiseVariance = 0.25;
++        config.compensationMode = CfoCompensationMode::Perfect;
++        const auto output = applyResidualCfo(values, z, config);
++        require(std::abs(output.deltaPhiRad * static_cast<double>(length - 1U) -
++                         degreesToRadians(180.0)) < 1e-14,
++                "frame-length normalization mismatch");
++        require(output.hardBits == scl::common::BitVector(length, 0U),
++                "perfect compensation mismatch");
++        const double sigma = std::sqrt(config.noiseVariance / 2.0);
++        for (std::size_t index = 0U; index < length; ++index) {
++            const double awgnReference = values[index] + sigma * z[2U * index];
++            require(std::abs(output.compensatedSamples[index].real() -
++                             awgnReference) <= 1e-12,
++                    "perfect compensation differs from paired AWGN sample");
++        }
++    }
++    bool rejected = false;
++    try {
++        ResidualCfoConfig bad;
++        bad.frameRotationDeg = std::numeric_limits<double>::quiet_NaN();
++        static_cast<void>(applyResidualCfo(symbols, noise, bad));
++    } catch (const std::invalid_argument&) {
++        rejected = true;
++    }
++    require(rejected, "CFO NaN was not rejected");
++}
++
++void testSegmentedBurstBoundary() {
++    using namespace scl::bch::simulation;
++    for (const char* caseName : {"BCH-S200", "BCH-S300"}) {
++        const auto& simulationCase = bchSimulationCase(caseName);
++        const scl::common::BitVector payload(simulationCase.payloadLength, 0U);
++        const auto encoded = encodeBchFrame(simulationCase, payload).codeword;
++
++        auto sameSegment = applyPostHardDecisionBurst(encoded, 1U, 2U);
++        auto decoded = decodeBchFrame(simulationCase, sameSegment);
++        auditDecodedBchFrame(payload, decoded);
++        require(!decoded.trueSuccess,
++                "two errors in one BCH(15,11) segment unexpectedly succeeded");
++
++        auto acrossBoundary = applyPostHardDecisionBurst(encoded, 14U, 2U);
++        decoded = decodeBchFrame(simulationCase, acrossBoundary);
++        auditDecodedBchFrame(payload, decoded);
++        require(decoded.trueSuccess,
++                "one error per adjacent BCH(15,11) segment did not succeed");
++    }
++}
++
++void testBlockage() {
++    using namespace scl::bch::simulation;
++    const scl::common::RealVector symbols{1.0, -1.0, 1.0, -1.0};
++    const scl::common::RealVector noise(symbols.size(), 0.0);
++    BlockageConfig config;
++    config.length = 2U;
++    config.start = 1U;
++    const auto unchanged = applyShortBlockage(symbols, noise, config);
++    require(unchanged.receivedSamples == symbols, "0 dB blockage changed symbols");
++    config.attenuationDb = -20.0;
++    const auto attenuated = applyShortBlockage(symbols, noise, config);
++    require(std::abs(attenuated.blockAmplitude - 0.1) < 1e-15,
++            "-20 dB did not produce amplitude 0.1");
++    config.completeBlockage = true;
++    const auto complete = applyShortBlockage(symbols, noise, config);
++    require(complete.receivedSamples[1] == 0.0 &&
++            complete.receivedSamples[2] == 0.0,
++            "complete blockage did not zero selected samples");
++    config.start = symbols.size() - 1U;
++    config.length = 1U;
++    static_cast<void>(applyShortBlockage(symbols, noise, config));
++    bool rejected = false;
++    try {
++        config.start = symbols.size();
++        static_cast<void>(applyShortBlockage(symbols, noise, config));
++    } catch (const std::invalid_argument&) {
++        rejected = true;
++    }
++    require(rejected, "invalid blockage start was not rejected");
++}
++
++void testBurstAndStarts() {
++    using namespace scl::bch::simulation;
++    const scl::common::BitVector bits{0U, 1U, 0U, 1U};
++    require(applyPostHardDecisionBurst(bits, 0U, 1U)[0] == 1U,
++            "length-one burst mismatch");
++    const auto full = applyPostHardDecisionBurst(bits, 0U, bits.size());
++    require(full == scl::common::BitVector({1U, 0U, 1U, 0U}),
++            "full-frame burst mismatch");
++    require(applyPostHardDecisionBurst(bits, 3U, 1U)[3] == 0U,
++            "end-boundary burst mismatch");
++    bool rejected = false;
++    try {
++        static_cast<void>(applyPostHardDecisionBurst(bits, 0U, 0U));
++    } catch (const std::invalid_argument&) {
++        rejected = true;
++    }
++    require(rejected, "zero-length burst was not rejected");
++    const auto randomA = chooseStartIndex(
++        StartPolicy::UniformRandom, 285U, 16U, 15U, 123U, 9U, "BLOCKAGE_START");
++    const auto randomB = chooseStartIndex(
++        StartPolicy::UniformRandom, 285U, 16U, 15U, 123U, 9U, "BLOCKAGE_START");
++    require(randomA == randomB, "random start is not deterministic");
++    require(deterministicDomainValue(123U, 9U, "BLOCKAGE_START") !=
++            deterministicDomainValue(123U, 9U, "BURST_START"),
++            "domain separators collided");
++    require(chooseStartIndex(StartPolicy::OneBeforeSegmentBoundary,
++                             285U, 8U, 15U, 1U, 1U, "X") == 14U,
++            "one-before-boundary start mismatch");
++    require(chooseStartIndex(StartPolicy::OnSegmentBoundary,
++                             285U, 8U, 15U, 1U, 1U, "X") == 15U,
++            "on-boundary start mismatch");
++}
++
++}  // namespace
++
++int main() {
++    try {
++        testCfo();
++        testBlockage();
++        testBurstAndStarts();
++        testSegmentedBurstBoundary();
++        std::cout << "PASS_BCH_S2_IMPAIRMENT_CHANNELS\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_BCH_S2_IMPAIRMENT_CHANNELS: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/scripts/foundation/README.md b/Task/BCH/simulation/scripts/foundation/README.md
+new file mode 100644
+index 0000000..a470f99
+--- /dev/null
++++ b/Task/BCH/simulation/scripts/foundation/README.md
+@@ -0,0 +1,5 @@
++# BCH S2 foundation scripts
++
++This directory is reserved for formal-neutral validation, MATLAB exchange,
++and audit helpers. It intentionally excludes prototype runners, historical
++result checkers, plots, and any script that depends on archived formal data.
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/NEXT_FORMAL_BRANCH_PLAN.md b/Task/BCH/simulation/stages/S2-foundation-planning/NEXT_FORMAL_BRANCH_PLAN.md
+new file mode 100644
+index 0000000..88aa8a6
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/NEXT_FORMAL_BRANCH_PLAN.md
+@@ -0,0 +1,8 @@
++# Next formal branch plan
++
++After this foundation is reviewed and the user decides to merge it into
++`main`, create `feature/bch-s2-formal-channel-comparison` from the updated
++`main` only. That future branch will define the approved 200/300-bit framing
++policies and execute the full four-scheme comparison across AWGN, fixed
++multipath, residual CFO, short blockage, burst error, and required
++interleaving. It must not be created from the archive branch.
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/formal_case_requirements.md b/Task/BCH/simulation/stages/S2-foundation-planning/formal_case_requirements.md
+new file mode 100644
+index 0000000..ee18ba4
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/formal_case_requirements.md
+@@ -0,0 +1,14 @@
++# Formal S2 case requirements
++
++This branch defines interfaces only; it does not freeze a framing policy or
++produce formal performance results.
++
++| Payload | BCH(15,11) | BCH(255,207) | BCH(511,421) | BCH(511,385) |
++|---|---|---|---|---|
++| 200 bit | segmented framing required | single shortened block can contain 200 | single shortened block can contain 200 | single shortened block can contain 200 |
++| 300 bit | segmented framing required | REQUIRES_FORMAL_FRAMING_POLICY | single shortened block can contain 300 | single shortened block can contain 300 |
++
++For BCH(255,207) with a 300-bit payload, the framing/segmentation policy must
++be explicitly approved before formal runs. This branch does not infer one.
++All four schemes require identical channel, seed, stopping, and metric
++contracts before a comparison can be claimed.
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/foundation_candidate_matrix.csv b/Task/BCH/simulation/stages/S2-foundation-planning/foundation_candidate_matrix.csv
+new file mode 100644
+index 0000000..4d251a8
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/foundation_candidate_matrix.csv
+@@ -0,0 +1,19 @@
++module,source_paths,source_commits,purpose,needed_by_formal_s2,algorithm_maturity,test_coverage,matlab_coverage,depends_on_old_case_matrix,depends_on_old_results,duplicate_implementation,recommended_action,target_path,notes
++fixed_multipath_and_mmse,current/include/bch_simulation/{bch_multipath_simulation,fixed_multipath_mmse}.hpp;current/src/{bch_multipath_simulation,fixed_multipath_mmse}.cpp,069373b,base channel and equalizer,yes,stable,test_bch_s2_mmse,vector exporter,no,no,no,ACCEPT,retain current paths,already present on main
++residual_cfo_and_blockage,current/include/bch_simulation/bch_impairment_channels.hpp;current/src/bch_impairment_channels.cpp,df5aac5,channel impairment primitives,yes,reviewed,test_bch_s2_impairments,archive reference,no,no,no,ACCEPT,current/include and src,extract without results
++impairment_simulation,current/include/bch_simulation/bch_impairment_simulation.hpp;current/src/bch_impairment_simulation.cpp,df5aac5,deterministic impairment runner core,yes,reviewed,test_bch_s2_impairments,archive reference,yes,no,no,ACCEPT_AFTER_REFACTOR,current/include and src,uses old case adapter until formal interface exists
++burst_injection,current/include/bch_simulation/bch_burst_simulation.hpp;current/src/bch_burst_simulation.cpp,df5aac5,consecutive bit-flip channel,yes,reviewed,test_bch_s2_burst_redesign,archive reference,no,no,no,ACCEPT,current/include and src,zero-length degeneration tested
++interleaver,current/include/bch_simulation/bch_interleaver.hpp;current/src/bch_interleaver.cpp,df5aac5,permutation and inverse mapping,yes,reviewed,test_bch_s2_burst_redesign,archive reference,no,no,no,ACCEPT,current/include and src,keep deterministic seed interface
++error_structure_analysis,current/src/bch_burst_audit_runner.cpp,df5aac5,prototype reporting,optional,prototype,indirect,none,yes,yes,no,ARCHIVE_ONLY,,depends on old audit outputs
++case_adapter,current/include/bch_simulation/bch_case_adapter.hpp;current/src/bch_case_adapter.cpp,069373b,shared BCH coding interface,yes,stable,S1 and S2,existing,no,no,no,ACCEPT,retain current paths,shared with S1; do not duplicate
++metrics,Task/Common/include and src,main,raw BER FER counters,yes,stable,Common tests,none,no,no,no,ACCEPT,Task/Common,shared existing implementation
++checkpoint_resume,Task/Common/include and src/checkpoint.cpp,main,reproducible restart,yes,stable,Common tests,none,no,no,no,ACCEPT,Task/Common,shared existing implementation
++shard_merge,scripts and prototype runners,df5aac5,formal workload partitioning,yes,prototype,archive checks,archive only,yes,yes,no,ACCEPT_AFTER_REFACTOR,scripts/foundation,do not import result-bound checker
++matlab_vector_export,current tests exporters,df5aac5,frame-level reference exchange,yes,reviewed,export executables,archive reference,yes,no,no,ACCEPT_AFTER_REFACTOR,scripts/foundation/matlab,formal neutral schema required
++matlab_reference,current matlab S2 references,df5aac5,independent reference algorithms,yes,reviewed,archive validation,yes,yes,no,ARCHIVE_ONLY,,separate clean reference design required
++plot_manifest,prototype plot manifests,df5aac5,figure data audit,yes,reviewed,archive checker,none,yes,yes,no,ACCEPT_AFTER_REFACTOR,scripts/foundation/audit,exclude all historical PNG CSV
++hash_audit,prototype checkers,df5aac5,artifact identity checks,yes,reviewed,archive checker,none,no,yes,no,ACCEPT_AFTER_REFACTOR,scripts/foundation/audit,only generic hash utilities
++domain_random_policy,Task/Common random_policy.cpp,main,domain separated randomness,yes,stable,Common tests,none,no,no,no,ACCEPT,Task/Common,shared existing implementation
++unbiased_random_start,current/src/bch_burst_simulation.cpp,df5aac5,uniform legal start sampling,yes,reviewed,test_bch_s2_burst_redesign,archive reference,no,no,no,ACCEPT,current/src,retain rejection sampling
++progress_and_run_audit,prototype runners and logs,df5aac5,operational tracing,optional,prototype,archive only,none,yes,yes,no,ARCHIVE_ONLY,,not a formal foundation API
++legacy_results_and_gates,stages and results,df5aac5,prototype evidence,no,archive,archive only,archive only,yes,yes,no,ARCHIVE_ONLY,,never import into foundation
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/rejected_archive_only_files.csv b/Task/BCH/simulation/stages/S2-foundation-planning/rejected_archive_only_files.csv
+new file mode 100644
+index 0000000..5101bdc
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/rejected_archive_only_files.csv
+@@ -0,0 +1,6 @@
++path,category,reason,archive_location,status
++Task/BCH/simulation/stages/S2-test,historical Stage audit,contains historical gates and evidence,archive/bch-s2-prototype,ARCHIVE_ONLY
++Task/BCH/simulation/results/S2-test,local results,formal and review data must not enter Git foundation,archive local workspace,ARCHIVE_ONLY
++Task/BCH/simulation/scripts/S2-test/run,prototype runner,depends on old case matrix and result layout,archive/bch-s2-prototype,ARCHIVE_ONLY
++Task/BCH/simulation/scripts/S2-test/plot,historical plotting,depends on historical figure data and PNG output,archive/bch-s2-prototype,ARCHIVE_ONLY
++Task/BCH/simulation/matlab_official_validation/S2-test/matlab,prototype MATLAB reference,requires clean formal-neutral reference design,archive/bch-s2-prototype,ARCHIVE_ONLY
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/selected_source_files.csv b/Task/BCH/simulation/stages/S2-foundation-planning/selected_source_files.csv
+new file mode 100644
+index 0000000..85ff914
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/selected_source_files.csv
+@@ -0,0 +1,11 @@
++source_branch,source_commit,source_path,target_path,module,selection_reason,refactor_required,tests_added,status
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp,same path,residual CFO and blockage,formal-neutral channel API,no,test_bch_s2_impairments,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_impairment_channels.cpp,same path,residual CFO and blockage,formal-neutral channel implementation,no,test_bch_s2_impairments,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp,same path,impairment simulation core,reviews deterministic behavior,no,test_bch_s2_impairments,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_impairment_simulation.cpp,same path,impairment simulation core,reviews deterministic behavior,no,test_bch_s2_impairments,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_burst_simulation.hpp,same path,burst injection,zero-length and bounded behavior,no,test_bch_s2_burst_redesign,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_burst_simulation.cpp,same path,burst injection,unbiased start selection,no,test_bch_s2_burst_redesign,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_interleaver.hpp,same path,interleaver,bijective permutation,no,test_bch_s2_burst_redesign,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_interleaver.cpp,same path,interleaver,inverse mapping,no,test_bch_s2_burst_redesign,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp,same path,channel tests,independent no-result test,no,CTest,SELECTED
++archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/tests/test_bch_s2_burst_redesign.cpp,same path,burst and interleaver tests,independent no-result test,no,CTest,SELECTED
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/shared_code_audit.csv b/Task/BCH/simulation/stages/S2-foundation-planning/shared_code_audit.csv
+new file mode 100644
+index 0000000..f238039
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/shared_code_audit.csv
+@@ -0,0 +1,5 @@
++module,original_location,modified,S1_regression,S2_use,reason_not_duplicated
++bch_case_adapter,current/include and src,no,CTest bch11 bch12,case coding interface,shared implementation retained
++random_policy,Task/Common,no,Common CTest,domain separated seeds,shared implementation retained
++checkpoint,Task/Common,no,Common CTest,resume foundation,shared implementation retained
++simulation_metrics,Task/Common,no,Common CTest,raw BER FER counters,shared implementation retained
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/source_commit_map.csv b/Task/BCH/simulation/stages/S2-foundation-planning/source_commit_map.csv
+new file mode 100644
+index 0000000..fa780eb
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/source_commit_map.csv
+@@ -0,0 +1,4 @@
++module,source_branch,source_commit,selection_method
++channel impairment and burst primitives,archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,git restore specified files
++fixed multipath and MMSE,main,069373b02401ad0acc10d96eb4e63bad8763c64c,already present and retained
++shared adapter and reproducibility utilities,main,069373b02401ad0acc10d96eb4e63bad8763c64c,reuse without duplication
+diff --git a/Task/BCH/simulation/stages/S2-foundation-planning/stage_plan.md b/Task/BCH/simulation/stages/S2-foundation-planning/stage_plan.md
+new file mode 100644
+index 0000000..b2ce24b
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2-foundation-planning/stage_plan.md
+@@ -0,0 +1,6 @@
++# BCH S2 channel foundation plan
++
++Build a reusable channel foundation from `main` by selectively extracting
++tested prototype primitives. Exclude historical results, plots, conclusions,
++Stage Gate records, and result-bound drivers. The branch is not a formal S2
++experiment and does not select a best coding scheme.

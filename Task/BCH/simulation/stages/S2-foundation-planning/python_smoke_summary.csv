@@ -1,0 +1,3 @@
+check,result,evidence
+python syntax,PASS,foundation directory contains documentation only; no prototype runner imported
+prototype script exclusion,PASS,no S2-test prototype script copied into scripts/foundation

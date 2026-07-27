@@ -1,0 +1,7 @@
+scope,status,notes
+Task/BCH/simulation/current,PASS,only selected channel burst interleaver sources tests and CMake
+Task/BCH/simulation/scripts/foundation,PASS,documentation-only formal-neutral entry
+Task/BCH/simulation/stages/S2-foundation-planning,PASS,planning and audit records
+Task/BCH/simulation/results,PASS,no tracked result files
+Task/CC,PASS,no changes
+Task/LDPC,PASS,no changes

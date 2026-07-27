@@ -1,0 +1,4 @@
+check,result,evidence
+historical MATLAB result exclusion,PASS,no historical MATLAB result or reference script imported
+future MATLAB contract,PASS,scripts/foundation/matlab reserved for formal-neutral vector exchange
+independent-reference policy,PASS,documented in candidate matrix and rejection list

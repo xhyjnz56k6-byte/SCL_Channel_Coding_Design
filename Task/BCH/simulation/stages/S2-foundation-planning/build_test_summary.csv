@@ -1,0 +1,7 @@
+test,result,evidence
+Release configure,PASS,cmake --fresh MinGW Makefiles build/S2-foundation
+Release build,PASS,all foundation targets built
+CTest,PASS,9/9 passed including S1 and foundation tests
+S1 regression,PASS,bch12_awgn_unit plus BCH core tests passed
+foundation impairment test,PASS,bch_s2_impairments_unit
+foundation burst test,PASS,bch_s2_burst_redesign_unit

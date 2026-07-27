@@ -1,0 +1,11 @@
+{
+  "stage": "bch_s2_channel_foundation",
+  "branch": "feature/bch-s2-channel-foundation",
+  "baseMainCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+  "archiveSourceCommit": "e100d83da00d52b783815f8d2ca5d93a738abd69",
+  "sourcePrototypeCommit": "df5aac541604fbdbb029de310abb7ea8f380f4c2",
+  "mergeStatus": "NOT_MERGED",
+  "historicalResultsIncluded": false,
+  "coreBchCodecModified": false,
+  "gate": "PASS_BCH_S2_CHANNEL_FOUNDATION"
+}
