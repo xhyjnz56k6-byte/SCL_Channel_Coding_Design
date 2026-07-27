@@ -8,5 +8,5 @@
 - MATLAB comparison: PASS (24/24)
 - Plot publication checker: PASS (13/13)
 - Checkpoint and merge audit: PASS
-- Gate: PASS_STAGE14_BURST_FORMAL_FUNCTIONAL
+- Gate: PASS_STAGE14_BURST_FORMAL
 - Merge status: NOT_MERGED
