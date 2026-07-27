@@ -32,13 +32,13 @@
     "maxFrames": 50000
   },
   "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
-  "sourceCsvSha256": "ae8a2d48443b8d37b7d18027d7c2d218f8d99dfa8134f46b8c62ad65fa254ca2",
+  "sourceCsvSha256": "c27fd99a4e399781ad1c06bae749fe35d144c3845d3f69abe3fa5150711988c3",
   "figureData": "results\\stage12_blockage_formal_figure_data_k300_ber_vs_snr.csv",
-  "figureDataSha256": "b6b98e255c774b78106c22c33890e4226bc67c6e5645c14ba10a9572f12a9365",
+  "figureDataSha256": "1deb885df8a29474f654fb498cbb39b79a175a658231a12c1f29ec47aa216f55",
   "png": "plots\\stage12_blockage_formal_k300_ber_vs_snr.png",
-  "pngSha256": "bba84c1b81cbd6c5960d7a8a0ed38d041a428a7eff363c1b764c8041622cfdeb",
+  "pngSha256": "d9cad5cca864130f167ea69da895c93dc5a8fdd954dfc2fedcb3ffbc54fb6258",
   "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator for log display only",
-  "generatedFromGitCommit": "8d555a744022a1690204ec9fca5fcbf42360064f",
+  "generatedFromGitCommit": "9a7e74fd287a569265f5437e1da41e0fbf53be87",
   "caseIdToStyle": {
     "K300_S15": {
       "legendLabel": "分块",

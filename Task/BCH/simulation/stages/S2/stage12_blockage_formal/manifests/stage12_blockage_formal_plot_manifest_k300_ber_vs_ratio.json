@@ -1,7 +1,7 @@
 {
   "stageId": "stage12_blockage_formal",
   "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
-  "sourceCsvSha256": "ae8a2d48443b8d37b7d18027d7c2d218f8d99dfa8134f46b8c62ad65fa254ca2",
+  "sourceCsvSha256": "c27fd99a4e399781ad1c06bae749fe35d144c3845d3f69abe3fa5150711988c3",
   "figureData": "results\\stage12_blockage_formal_figure_data_k300_ber_vs_ratio.csv",
   "figureDataSha256": "4b1addb3014fcf7351e9620c788c9bd3083916d4d836bc373562611bde88aa50",
   "png": "plots\\stage12_blockage_formal_k300_ber_vs_ratio.png",
