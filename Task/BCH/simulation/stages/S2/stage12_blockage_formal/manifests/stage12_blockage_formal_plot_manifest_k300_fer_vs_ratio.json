@@ -1,7 +1,7 @@
 {
   "stageId": "stage12_blockage_formal",
   "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
-  "sourceCsvSha256": "c27fd99a4e399781ad1c06bae749fe35d144c3845d3f69abe3fa5150711988c3",
+  "sourceCsvSha256": "e7020a8241cb4927046dbd8b4cae658b66635f917f12ec046aa3ca7a3ea64616",
   "figureData": "results\\stage12_blockage_formal_figure_data_k300_fer_vs_ratio.csv",
   "figureDataSha256": "f2ee48e37c96db9d701628564f195ee88d3fce6c1376ccd52051448b16b35219",
   "png": "plots\\stage12_blockage_formal_k300_fer_vs_ratio.png",

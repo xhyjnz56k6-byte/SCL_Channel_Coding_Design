@@ -32,13 +32,13 @@
     "maxFrames": 50000
   },
   "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
-  "sourceCsvSha256": "c27fd99a4e399781ad1c06bae749fe35d144c3845d3f69abe3fa5150711988c3",
+  "sourceCsvSha256": "e7020a8241cb4927046dbd8b4cae658b66635f917f12ec046aa3ca7a3ea64616",
   "figureData": "results\\stage12_blockage_formal_figure_data_k200_fer_vs_snr.csv",
   "figureDataSha256": "bab54baf61485ebbc66a1dc484c5aa10e5a8ffc7ec17452a8c2cf88f08a376d4",
   "png": "plots\\stage12_blockage_formal_k200_fer_vs_snr.png",
   "pngSha256": "eed60b1293016c82cb5a5cbe41bcd5d0e539bbca479c80f45b1c04e3516e0eb3",
   "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator for log display only",
-  "generatedFromGitCommit": "9a7e74fd287a569265f5437e1da41e0fbf53be87",
+  "generatedFromGitCommit": "3768c26a3f2cab3bc6b71a55b67cd985f1f6257e",
   "caseIdToStyle": {
     "K200_S15": {
       "legendLabel": "分块",
