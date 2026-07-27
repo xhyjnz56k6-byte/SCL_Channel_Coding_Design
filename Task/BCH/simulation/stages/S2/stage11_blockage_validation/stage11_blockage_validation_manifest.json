@@ -1,0 +1,34 @@
+{
+  "stage": "stage11_blockage_validation",
+  "branch": "stage09-12-bch-s2-cfo-blockage",
+  "functionalRanges": [{
+    "name": "content",
+    "baseCommit": "3ec3e28cf6fe78f769a9878fe8683e634ed99217",
+    "contentCommit": "10d85af8b99aeb44c118a312104348190c1bc997",
+    "files": [
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/configs/stage11_blockage_validation_stage12_frozen_config.json",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/cpp/CMakeLists.txt",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/cpp/stage11_blockage_validation_runner.cpp",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/logs/stage11_blockage_validation_build.log",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/logs/stage11_blockage_validation_checker.log",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/logs/stage11_blockage_validation_cmake.log",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/logs/stage11_blockage_validation_ctest.log",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/logs/stage11_blockage_validation_matlab.log",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/matlab/stage11_blockage_validation_matlab_reference.m",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/python/stage11_blockage_validation_checker.py",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/python/stage11_blockage_validation_run.py",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/results/stage11_blockage_validation_case_results.csv",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/results/stage11_blockage_validation_comparison.csv",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/results/stage11_blockage_validation_cpp_outputs.csv",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/results/stage11_blockage_validation_fixed_vectors.csv",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/results/stage11_blockage_validation_matlab_outputs.csv",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/results/stage11_blockage_validation_statistics.csv",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/stage11_blockage_validation_commands_used.md",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/stage11_blockage_validation_known_issues.md",
+      "Task/BCH/simulation/stages/S2/stage11_blockage_validation/stage11_blockage_validation_stage_plan.md"
+    ]
+  }],
+  "gate": "PASS_STAGE11_BLOCKAGE_VALIDATION",
+  "remoteVerification": "VERIFIED_ON_ORIGIN",
+  "mergeStatus": "NOT_MERGED"
+}
