@@ -1,0 +1,7 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+固定边界payload,cpp/stage03_noiseless_runner.cpp,每Case七类固定样本,硬判决改变码字即阻塞,56/56 PASS
+随机帧,cpp/stage03_noiseless_runner.cpp,每Case1000帧完整链路,任何payload mismatch阻塞,8000/8000 PASS
+filler与多块边界,stage02统一适配器,S15末块和K300_M255双块恢复,错误长度由stage02拒绝,恢复mismatch为0
+缩短恢复,stage02统一适配器,六个缩短Case恢复,虚拟缩短位不发送,恢复mismatch为0
+MATLAB对照,matlab/stage03_noiseless_matlab_reference.m,8个固定样本官方或独立参考,任一编码或恢复mismatch阻塞,8/8 PASS
+统计恒等式,python/stage03_noiseless_check.py,8056帧逐行复核,非零错误或失败计数阻塞,trueSuccess等于totalFrames
