@@ -1,0 +1,5 @@
+functionalBase=be243bec3672584792c6486766a89b4795aa8cc3
+functionalContent=8934d6b01b0415262c753f10e0044b100bcdc95a
+branch=stage07-08-bch-s2-multipath
+remoteContainsFunctionalContent=true
+mergeStatus=NOT_MERGED

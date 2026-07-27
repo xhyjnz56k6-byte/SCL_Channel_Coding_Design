@@ -1,0 +1,53 @@
+{
+  "stage": "stage07_multipath_validation",
+  "branch": "stage07-08-bch-s2-multipath",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "be243bec3672584792c6486766a89b4795aa8cc3",
+      "contentCommit": "8934d6b01b0415262c753f10e0044b100bcdc95a",
+      "files": [
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/cpp/CMakeLists.txt",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/cpp/stage07_multipath_validation_core.cpp",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/cpp/stage07_multipath_validation_core.hpp",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/cpp/stage07_multipath_validation_runner.cpp",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/cpp/stage07_multipath_validation_test.cpp",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/logs/stage07_multipath_validation_check.log",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/logs/stage07_multipath_validation_compare.log",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/logs/stage07_multipath_validation_cpp.log",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/logs/stage07_multipath_validation_ctest.log",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/logs/stage07_multipath_validation_matlab.log",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/matlab/stage07_multipath_validation_matlab_reference.m",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/python/stage07_multipath_validation_check.py",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/python/stage07_multipath_validation_compare.py",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_cpp_matlab_compare.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_cpp_outputs.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_h1_awgn_compare.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_matlab_outputs.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_noiseless_results.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_resume_compare.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_runtime_estimate.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_shard_merge_compare.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_test_vectors.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/results/stage07_multipath_validation_trial_results.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/stage07_multipath_validation_acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/stage07_multipath_validation_file_hashes.json",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/stage07_multipath_validation_frozen_model.json",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/stage07_multipath_validation_old_code_audit.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/stage07_multipath_validation_stage_plan.md",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/stage07_multipath_validation_test_summary.csv",
+        "Task/BCH/simulation/stages/S2/stage07_multipath_validation/stage07_multipath_validation_trial_config.json",
+        "Task/BCH/simulation/stages/S2/stage08_multipath_formal/stage08_multipath_formal_config.json",
+        "Task/BCH/simulation/stages/S2/stage08_multipath_formal/stage08_multipath_formal_frozen_grid.csv"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE07_MULTIPATH_VALIDATION",
+  "remoteVerification": {
+    "branch": "stage07-08-bch-s2-multipath",
+    "verifiedContentCommit": "8934d6b01b0415262c753f10e0044b100bcdc95a",
+    "remoteHeadAtVerification": "8934d6b01b0415262c753f10e0044b100bcdc95a",
+    "containsFunctionalCommit": true
+  },
+  "mergeStatus": "NOT_MERGED"
+}
