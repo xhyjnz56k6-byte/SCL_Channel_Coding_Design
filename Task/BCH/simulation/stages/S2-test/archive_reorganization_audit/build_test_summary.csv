@@ -1,0 +1,9 @@
+test,result,evidence
+Release configure,PASS,MinGW CMake configure in build/S2-test
+Release build,PASS,all targets built
+CTest,PASS,7/7 tests passed
+Python help,PASS,run_bch_s2_batch1.py --help
+Python dry run,PASS,formal case-points=145
+AWGN multipath comparison,PASS,PASS_BCH_S2_04_AWGN_MULTIPATH_COMPARISON
+MATLAB checkcode,WARNING,2 format warnings; no syntax failure
+old path audit,PASS,0 nonhistorical old-path hits

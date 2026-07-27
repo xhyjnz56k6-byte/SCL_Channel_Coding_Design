@@ -1,6 +1,0 @@
-test,actualResult,evidence
-Release build,PASS,cmake --build Task/BCH/simulation/build/current --config Release -j 4
-BCH current CTest,PASS,8/8; includes new noise-key v2 unit checks
-AWGN/multipath compare,PASS,PASS_BCH_S2_04_AWGN_MULTIPATH_COMPARISON
-Plot generation,PASS,PASS_BCH_S2_04_PLOTS png=24
-Batch checker,PASS,PASS_BCH_S2_BATCH1_STRICT_AUDIT_CLEANUP

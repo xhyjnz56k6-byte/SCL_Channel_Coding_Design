@@ -1,0 +1,17 @@
+{
+  "stage": "bch_s2_semi_finished_archive_reorganization",
+  "branch": "bch-s2-semi-finished-archive-reorganization",
+  "initialHead": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+  "originMainHeadAtStart": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+  "mergeStatus": "NOT_MERGED",
+  "remoteVerification": "NOT_COMPLETED",
+  "scope": ["Task/BCH/simulation"],
+  "excludedScope": ["Task/CC", "Task/LDPC", "main", "original result contents"],
+  "evidence": [
+    "../s2_file_ownership.csv",
+    "../path_migration_manifest.csv",
+    "../results_migration_audit.csv",
+    "../archive_reorganization_audit/build_test_summary.csv"
+  ],
+  "gate": "BLOCKED_BCH_S2_SEMI_FINISHED_ARCHIVE_REORGANIZATION"
+}
