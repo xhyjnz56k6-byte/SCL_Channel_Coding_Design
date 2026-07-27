@@ -9,5 +9,5 @@
 - Prescan: PASS (1664 points, 200 frames/point)
 - Checkpoint/resume: PASS
 - Shard/merge and reversed order: PASS
-- Functional/audit state: PASS_STAGE13_BURST_INTERLEAVING_VALIDATION_FUNCTIONAL
+- Functional/audit state: PASS_STAGE13_BURST_INTERLEAVING_VALIDATION
 - Merge status: NOT_MERGED
