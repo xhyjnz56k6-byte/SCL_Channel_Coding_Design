@@ -1,6 +1,7 @@
 # stage12_blockage_formal 验证报告
 
-Gate：`PASS_STAGE12_BLOCKAGE_FORMAL`  
+Gate：`PASS_STAGE12_BLOCKAGE_FORMAL`
+
 组 Gate：`PASS_BCH_S2_CFO_BLOCKAGE_STAGE09_TO_STAGE12`
 
 - 64 个固定 SNR/比例点与 40 个固定 10% 比例/SNR 点均由当前 runner 重新生成。
