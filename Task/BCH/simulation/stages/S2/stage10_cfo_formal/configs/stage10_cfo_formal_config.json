@@ -6,9 +6,8 @@
   "phaseLaw": "LINEAR_ACROSS_ENCODED_FRAME",
   "receiver": "REAL_PART_HARD_DECISION",
   "cfoCompensation": "DISABLED",
-  "stopRule": {"minFrames": 5000, "targetFrameErrors": 200, "maxFrames": 50000},
+  "stopRule": {"minFrames": 1000, "targetFrameErrors": 200, "maxFrames": 50000},
   "grids": {
-    "K200": [4.5, 5.5, 6.5, 7.5, 8.5],
-    "K300": [5.0, 6.0, 7.0, 8.0, 9.0]
+    "targetSnrDb": [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0]
   }
 }

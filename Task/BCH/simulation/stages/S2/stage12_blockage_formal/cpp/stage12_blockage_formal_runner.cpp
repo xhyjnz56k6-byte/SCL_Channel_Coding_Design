@@ -73,12 +73,14 @@ BlockCounters simulate(const BlockPoint& p,std::uint64_t first,std::uint64_t cou
 }
 std::vector<BlockPoint> readBlockPoints(const fs::path& path){
  std::ifstream in(path);require(bool(in),"cannot open blockage points");std::string line;std::getline(in,line);
- require(line=="experimentType,caseId,ebn0Index,ebn0Db,blockageParameterIndex,requestedBlockageRatio","point header mismatch");
+ require(line=="experimentType,caseId,ebn0Index,ebn0Db,blockageParameterIndex,requestedBlockageRatio"||
+         line=="experimentType,caseId,ebn0Index,ebn0Db,blockageParameterIndex,requestedBlockageRatio,targetSnrDb",
+         "point header mismatch");
  std::vector<BlockPoint> out;while(std::getline(in,line)){if(line.empty())continue;std::istringstream s(line);
-  std::string ex,id,ei,db,pi,rho;std::getline(s,ex,',');std::getline(s,id,',');std::getline(s,ei,',');
-  std::getline(s,db,',');std::getline(s,pi,',');std::getline(s,rho,',');
+  std::string ex,id,ei,db,pi,rho,target;std::getline(s,ex,',');std::getline(s,id,',');std::getline(s,ei,',');
+  std::getline(s,db,',');std::getline(s,pi,',');std::getline(s,rho,',');std::getline(s,target,',');
   out.push_back({{parseCase(id),id,std::stoull(ei),std::stod(db)},ex,std::stoull(pi),std::stod(rho),0,false});}
- require(out.size()==104,"formal blockage point count must be 104");return out;
+ require(out.size()==104||out.size()==136,"formal blockage point count must be 104 or 136");return out;
 }
 std::vector<BlockPoint> readFixedLengthPoints(const fs::path& path){
  std::ifstream in(path);require(bool(in),"cannot open fixed-length blockage points");std::string line;std::getline(in,line);
@@ -155,7 +157,7 @@ int runFixedLength(const fs::path& pointsPath,const fs::path& output,std::uint64
  for(const auto& p:points){BlockCounters c;std::string stop="CONTINUE";
   while(c.totalFrames<50000){auto n=std::min<std::uint64_t>(100,50000-c.totalFrames);
    addBlock(c,simulate(p,c.totalFrames,n,seed));
-   if(c.totalFrames>=5000&&c.payloadErrorFrames>=200){stop="TARGET_FRAME_ERRORS_REACHED";break;}}
+   if(c.totalFrames>=1000&&c.payloadErrorFrames>=200){stop="TARGET_FRAME_ERRORS_REACHED";break;}}
   if(stop=="CONTINUE")stop="MAX_FRAMES_REACHED";
   const bool ok=c.trueSuccessFrames+c.payloadErrorFrames==c.totalFrames;
   require(ok&&c.totalFrames<=50000,"fixed-length accounting/frame cap failed");

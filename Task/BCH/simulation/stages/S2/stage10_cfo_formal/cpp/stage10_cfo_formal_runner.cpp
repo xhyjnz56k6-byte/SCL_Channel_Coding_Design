@@ -95,13 +95,19 @@ std::vector<Point> readCfoPoints(const fs::path& path) {
     require(static_cast<bool>(input), "cannot open CFO point CSV");
     std::string line;
     std::getline(input, line);
-    require(line == "caseId,ebn0Index,ebn0Db", "CFO point header mismatch");
+    const bool denseHeader = line == "caseId,snrIndex,targetSnrDb,ebn0Db";
+    require(line == "caseId,ebn0Index,ebn0Db" || denseHeader, "CFO point header mismatch");
     std::vector<Point> points;
     while (std::getline(input, line)) {
         if (line.empty()) continue;
         std::istringstream row(line);
-        std::string id, index, db;
-        std::getline(row,id,','); std::getline(row,index,','); std::getline(row,db,',');
+        std::string id, index, target, db;
+        std::getline(row,id,','); std::getline(row,index,',');
+        if (denseHeader) {
+            std::getline(row,target,','); std::getline(row,db,',');
+        } else {
+            std::getline(row,db,',');
+        }
         points.push_back({parseCase(id),id,static_cast<std::size_t>(std::stoull(index)),std::stod(db)});
     }
     require(!points.empty(), "CFO point list is empty");
@@ -237,7 +243,7 @@ int main(int argc, char** argv) {
                 const std::uint64_t count = std::min<std::uint64_t>(
                     100U, maximum-counters.totalFrames);
                 addFormal(counters, simulateFormal(point,counters.totalFrames,count,seed));
-                if (mode == "formal" && counters.totalFrames >= 5000U &&
+                if (mode == "formal" && counters.totalFrames >= 1000U &&
                     counters.payloadErrorFrames >= 200U) {
                     stop = "TARGET_FRAME_ERRORS_REACHED";
                     break;
