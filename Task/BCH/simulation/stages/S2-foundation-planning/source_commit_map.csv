@@ -1,0 +1,4 @@
+module,source_branch,source_commit,selection_method
+channel impairment and burst primitives,archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,git restore specified files
+fixed multipath and MMSE,main,069373b02401ad0acc10d96eb4e63bad8763c64c,already present and retained
+shared adapter and reproducibility utilities,main,069373b02401ad0acc10d96eb4e63bad8763c64c,reuse without duplication

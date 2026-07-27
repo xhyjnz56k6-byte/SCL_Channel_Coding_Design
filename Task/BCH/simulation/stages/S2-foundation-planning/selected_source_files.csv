@@ -1,0 +1,11 @@
+source_branch,source_commit,source_path,target_path,module,selection_reason,refactor_required,tests_added,status
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp,same path,residual CFO and blockage,formal-neutral channel API,no,test_bch_s2_impairments,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_impairment_channels.cpp,same path,residual CFO and blockage,formal-neutral channel implementation,no,test_bch_s2_impairments,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp,same path,impairment simulation core,reviews deterministic behavior,no,test_bch_s2_impairments,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_impairment_simulation.cpp,same path,impairment simulation core,reviews deterministic behavior,no,test_bch_s2_impairments,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_burst_simulation.hpp,same path,burst injection,zero-length and bounded behavior,no,test_bch_s2_burst_redesign,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_burst_simulation.cpp,same path,burst injection,unbiased start selection,no,test_bch_s2_burst_redesign,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/include/bch_simulation/bch_interleaver.hpp,same path,interleaver,bijective permutation,no,test_bch_s2_burst_redesign,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/src/bch_interleaver.cpp,same path,interleaver,inverse mapping,no,test_bch_s2_burst_redesign,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp,same path,channel tests,independent no-result test,no,CTest,SELECTED
+archive/bch-s2-prototype,df5aac541604fbdbb029de310abb7ea8f380f4c2,Task/BCH/simulation/current/tests/test_bch_s2_burst_redesign.cpp,same path,burst and interleaver tests,independent no-result test,no,CTest,SELECTED

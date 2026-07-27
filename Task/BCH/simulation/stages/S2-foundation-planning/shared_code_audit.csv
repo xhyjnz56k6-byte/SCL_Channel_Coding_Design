@@ -1,0 +1,5 @@
+module,original_location,modified,S1_regression,S2_use,reason_not_duplicated
+bch_case_adapter,current/include and src,no,CTest bch11 bch12,case coding interface,shared implementation retained
+random_policy,Task/Common,no,Common CTest,domain separated seeds,shared implementation retained
+checkpoint,Task/Common,no,Common CTest,resume foundation,shared implementation retained
+simulation_metrics,Task/Common,no,Common CTest,raw BER FER counters,shared implementation retained

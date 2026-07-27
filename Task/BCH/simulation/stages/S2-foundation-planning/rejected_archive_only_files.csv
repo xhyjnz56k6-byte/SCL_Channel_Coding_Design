@@ -1,0 +1,6 @@
+path,category,reason,archive_location,status
+Task/BCH/simulation/stages/S2-test,historical Stage audit,contains historical gates and evidence,archive/bch-s2-prototype,ARCHIVE_ONLY
+Task/BCH/simulation/results/S2-test,local results,formal and review data must not enter Git foundation,archive local workspace,ARCHIVE_ONLY
+Task/BCH/simulation/scripts/S2-test/run,prototype runner,depends on old case matrix and result layout,archive/bch-s2-prototype,ARCHIVE_ONLY
+Task/BCH/simulation/scripts/S2-test/plot,historical plotting,depends on historical figure data and PNG output,archive/bch-s2-prototype,ARCHIVE_ONLY
+Task/BCH/simulation/matlab_official_validation/S2-test/matlab,prototype MATLAB reference,requires clean formal-neutral reference design,archive/bch-s2-prototype,ARCHIVE_ONLY
