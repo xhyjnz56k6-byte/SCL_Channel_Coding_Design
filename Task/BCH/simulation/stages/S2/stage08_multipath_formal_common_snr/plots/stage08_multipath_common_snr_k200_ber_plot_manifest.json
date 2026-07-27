@@ -1,0 +1,60 @@
+{
+  "plotFile": "plots/stage08_multipath_common_snr_k200_ber.png",
+  "plotType": "ber",
+  "title": "200比特BCH多径误码率对比",
+  "xLabel": "SNR (dB)",
+  "yLabel": "BER",
+  "xSourceColumn": "waveformSnrDb",
+  "ySourceColumn": "ber",
+  "xScale": "linear",
+  "yScale": "log",
+  "zeroHandlingRule": "raw zero retained; plotY=0.5/count only for log display",
+  "sourceCsv": "results/stage08_multipath_formal_common_snr_results.csv",
+  "sourceCsvSha256": "5eb7ec83049534d8a7337059711a8b91c665d11ad2f94a3c3e3b3c2747b309d7",
+  "figureDataCsv": "plots/stage08_multipath_common_snr_k200_ber_figure_data.csv",
+  "figureDataSha256": "2e696307aab130c47fab190887f7e5047211c0eacf594943b76cf8e9ce3d65e6",
+  "legendMapping": {
+    "K200_S15": "分块200",
+    "K200_M255K207": "255整块200",
+    "K200_M511K421": "421整块200",
+    "K200_M511K385": "385整块200"
+  },
+  "styleMapping": {
+    "K200_S15": {
+      "styleId": "STYLE_1",
+      "color": "C0",
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "K200_M255K207": {
+      "styleId": "STYLE_2",
+      "color": "C1",
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "K200_M511K421": {
+      "styleId": "STYLE_3",
+      "color": "C2",
+      "lineStyle": "-.",
+      "marker": "^"
+    },
+    "K200_M511K385": {
+      "styleId": "STYLE_4",
+      "color": "C3",
+      "lineStyle": ":",
+      "marker": "D"
+    }
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "dpi": 140,
+  "imageFormat": "PNG",
+  "imageWidth": 1260,
+  "imageHeight": 812,
+  "plotScript": "python/stage08_multipath_formal_common_snr_plot.py",
+  "plotScriptSha256": "642f31a129477bba2784758bf028dba82ecd7ebadd94a9598037a6d8ca1466d0",
+  "plotFileSha256": "b4c84922e2a2f215c3a278f472a74c9dd2f29249ff6b003149e72e10d4e3af60",
+  "gitCommit": "a251a4f1d4cfb87fd01e99da592a8ae9a9bfe790",
+  "configHash": "BC8C55A2713D7A06EBAA8A6EDD34813874918E3535AC4C23C9BAE7ABA7755784",
+  "gridDefinition": "0:0.5:18 dB; BASE_0P5DB; NO_REFINEMENT"
+}

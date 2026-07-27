@@ -1,0 +1,14 @@
+*
+!*/
+!.gitignore
+!cpp/CMakeLists.txt
+!cpp/stage08_multipath_formal_common_snr_runner.cpp
+!python/stage08_multipath_formal_common_snr_*.py
+!logs/stage08_multipath_formal_common_snr_*.log
+!results/stage08_multipath_formal_common_snr_*.csv
+!plots/stage08_multipath_common_snr_*.png
+!plots/stage08_multipath_common_snr_*_figure_data.csv
+!plots/stage08_multipath_common_snr_*_plot_manifest.json
+!plots/stage08_multipath_common_snr_*_plot_check.log
+!manifests/stage08_multipath_formal_common_snr_*
+!stage08_multipath_formal_common_snr_*
