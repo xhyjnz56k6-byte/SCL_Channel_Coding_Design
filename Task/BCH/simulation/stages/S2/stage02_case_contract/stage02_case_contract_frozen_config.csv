@@ -1,0 +1,10 @@
+key,value
+caseCount,8
+K300_M255K207_payloadPerBlock,150|150
+K300_M255K207_shorteningPerBlock,57|57
+K300_M255K207_encodedLengthPerBlock,198|198
+K300_M255K207_totalEncodedLength,396
+rateFormula,actualRate=payloadLength/totalEncodedLength
+payloadReassemblyOrder,BLOCK_ASCENDING_PAYLOAD_CONCATENATION
+ferDefinition,FRAME_ERROR_IF_ANY_RECOVERED_PAYLOAD_BIT_DIFFERS
+latencyDefinition,ONE_FRAME_DECODE_ELAPSED_TIME_INCLUDING_ALL_BLOCKS

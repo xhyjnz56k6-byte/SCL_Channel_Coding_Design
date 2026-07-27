@@ -1,0 +1,7 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+8个Case契约,cpp/stage02_case_contract.cpp,8个Case逐项验证,非法CaseId拒绝,Case数量和唯一性通过
+长度与码率,results/stage02_case_contract_length_audit.csv,54个码块长度复算,单块超过1000阻塞,全部长度和码率PASS
+K300_M255合法组帧,cpp/stage02_case_contract.cpp,150+150编码恢复,禁止300塞入单个k207母码,总发送长度396
+编解码一致,cpp/stage02_case_contract_test.cpp,每Case四种payload无噪声恢复,错误payload和接收长度拒绝,32/32恢复
+MATLAB数学参考,matlab/stage02_case_contract_matlab_reference.m,8个Case独立复算,任一不一致阻塞,8/8 PASS
+绘图契约,results/stage02_case_contract_plot_style_mapping.csv,payload组内图例和样式唯一,重复图例或样式阻塞,两组各4条唯一曲线
