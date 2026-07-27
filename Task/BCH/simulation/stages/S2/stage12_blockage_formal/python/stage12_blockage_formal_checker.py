@@ -19,7 +19,7 @@ baseline = subprocess.check_output([
     "git", "show", "92d3df7ad4ecf1b9c9aac42196e740b35e88daa5:"
     "Task/BCH/simulation/stages/S2/stage12_blockage_formal/results/"
     "stage12_blockage_formal_result_summary.csv"
-], text=True)
+], encoding="utf-8")
 baseline_a = [row for row in csv.DictReader(baseline.splitlines()) if row["experimentType"] == "RATIO"]
 assert a_rows == baseline_a
 

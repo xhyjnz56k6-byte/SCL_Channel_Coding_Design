@@ -175,15 +175,17 @@ template<class T>std::string values12(const std::vector<T>&v){std::ostringstream
 void spotcheck12(const fs::path& path){
  const CaseId ids[]={CaseId::K200_S15,CaseId::K200_M511K385,CaseId::K300_S15,CaseId::K300_M255K207};
  std::ofstream o(path);require(bool(o),"cannot create blockage MATLAB samples");
- o<<"caseId,sampleId,samplePolicy,ebn0Db,sigmaDimension,requestedBlockageRatio,blockageStart,blockageLength,"
+ o<<"caseId,sampleId,samplePolicy,targetSnrDb,ebn0Db,sigmaDimension,requestedBlockageRatio,blockageStart,blockageLength,"
    "payloadBits,encodedBits,z,received,hardBits,cppRecoveredBits,cppTrueSuccess\n";
  const std::uint64_t seed=2026072712ULL;
- for(auto id:ids){const auto&c=scl::bch::s2::stage02::caseContract(id);const double db=c.payloadLength==200?7.5:8.0;
+ for(auto id:ids){const auto&c=scl::bch::s2::stage02::caseContract(id);
   for(std::size_t sample=0;sample<3;++sample){const double rho=sample==0?0.0:.1;const auto l=lengthFor(rho,c.totalEncodedLength);
    const auto payload=payloadFrame("stage12_blockage_formal_spotcheck",c.caseId,sample,0,c.payloadLength,seed);
    const auto encoded=scl::bch::s2::stage02::encodeFrame(id,payload).encodedBits;
    const scl::bch::s2::stage01::RandomIdentity identity{seed,"stage12_blockage_formal_spotcheck",c.caseId,sample,0};
    const auto z=scl::bch::s2::stage01::standardGaussianFrame(identity,scl::bch::s2::stage01::RandomDomain::Awgn,encoded.size());
+   const double targetSnr=sample==0?0.0:sample==1?4.0:8.0;
+   const double db=targetSnr-10.0*std::log10(c.actualRate);
    const double sigma=std::sqrt(scl::bch::s2::stage01::awgnSigma2(c.actualRate,db));
    const auto start=sample==1?0:startFor(identity,encoded.size(),l,sample);
    std::vector<double> received(encoded.size());scl::common::BitVector hard(encoded.size());
@@ -192,7 +194,7 @@ void spotcheck12(const fs::path& path){
     hard[k]=static_cast<scl::common::Bit>(scl::bch::s2::stage01::hardDecision(received[k]));}
    const auto decoded=decodeAudited(c,hard);const bool success=bitErrors(payload,decoded.payload)==0;
    o<<c.caseId<<','<<sample<<','<<(sample==0?"ZERO_RATIO":sample==1?"BOUNDARY_START":"RANDOM_START")<<','
-    <<db<<','<<std::setprecision(17)<<sigma<<','<<rho<<','<<start<<','<<l<<','<<bits12(payload)<<','
+    <<targetSnr<<','<<db<<','<<std::setprecision(17)<<sigma<<','<<rho<<','<<start<<','<<l<<','<<bits12(payload)<<','
     <<bits12(encoded)<<','<<values12(z)<<','<<values12(received)<<','<<bits12(hard)<<','
     <<bits12(decoded.payload)<<','<<success<<'\n';
   }

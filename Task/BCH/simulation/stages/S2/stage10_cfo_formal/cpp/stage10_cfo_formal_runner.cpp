@@ -177,14 +177,12 @@ void writeSpotcheck(const fs::path& path) {
                         CaseId::K300_S15,CaseId::K300_M255K207};
     std::ofstream out(path);
     require(bool(out),"cannot create CFO MATLAB spotcheck");
-    out<<"caseId,sampleId,ebn0Db,sigmaDimension,payloadBits,encodedBits,zI,"
+    out<<"caseId,sampleId,targetSnrDb,ebn0Db,sigmaDimension,payloadBits,encodedBits,zI,"
          "receivedReal,hardBits,cppRecoveredBits,cppTrueSuccess\n";
     const std::uint64_t seed=2026072710ULL;
     for(const auto id:ids) {
         const auto& c=scl::bch::s2::stage02::caseContract(id);
-        const double grid[3]={c.payloadLength==200?4.5:5.0,
-                              c.payloadLength==200?6.5:7.0,
-                              c.payloadLength==200?8.5:9.0};
+            const double grid[3]={0.0,4.0,8.0};
         for(std::size_t sample=0;sample<3;++sample) {
             const auto payload=payloadFrame("stage10_cfo_formal_spotcheck",c.caseId,
                                             sample,0,c.payloadLength,seed);
@@ -193,7 +191,8 @@ void writeSpotcheck(const fs::path& path) {
                 seed,"stage10_cfo_formal_spotcheck",c.caseId,sample,0};
             const auto z=scl::bch::s2::stage01::standardGaussianFrame(
                 identity,scl::bch::s2::stage01::RandomDomain::Awgn,encoded.size());
-            const double sigma=std::sqrt(scl::bch::s2::stage01::awgnSigma2(c.actualRate,grid[sample]));
+            const double ebn0=grid[sample]-10.0*std::log10(c.actualRate);
+            const double sigma=std::sqrt(scl::bch::s2::stage01::awgnSigma2(c.actualRate,ebn0));
             std::vector<double> received(encoded.size());
             scl::common::BitVector hard(encoded.size());
             for(std::size_t k=0;k<encoded.size();++k) {
@@ -203,7 +202,7 @@ void writeSpotcheck(const fs::path& path) {
             }
             const auto decoded=decodeAudited(c,hard);
             const bool success=bitErrors(payload,decoded.payload)==0U;
-            out<<c.caseId<<','<<sample<<','<<grid[sample]<<','<<std::setprecision(17)<<sigma<<','
+            out<<c.caseId<<','<<sample<<','<<grid[sample]<<','<<ebn0<<','<<std::setprecision(17)<<sigma<<','
                <<bitText(payload)<<','<<bitText(encoded)<<','<<semicolonText(z)<<','
                <<semicolonText(received)<<','<<bitText(hard)<<','<<bitText(decoded.payload)<<','
                <<success<<'\n';

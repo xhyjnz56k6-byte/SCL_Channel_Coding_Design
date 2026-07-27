@@ -41,3 +41,4 @@ run([str(BUILD/"stage10_cfo_formal_runner.exe"),str(points),str(RESULTS),
     "stage10_cfo_formal_formal_runner.log")
 run(["python",str(STAGE/"python/stage10_cfo_formal_plot.py")],"stage10_cfo_formal_plot.log")
 run(["python",str(STAGE/"python/stage10_cfo_formal_checker.py")],"stage10_cfo_formal_checker.log")
+run(["python",str(STAGE/"python/stage10_cfo_formal_matlab_spotcheck.py")],"stage10_cfo_formal_matlab_runner.log")

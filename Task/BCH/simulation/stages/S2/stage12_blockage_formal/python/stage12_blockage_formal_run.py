@@ -116,3 +116,5 @@ run(["python", str(STAGE / "python/stage12_blockage_formal_plot.py")],
     "stage12_blockage_formal_plot.log")
 run(["python", str(STAGE / "python/stage12_blockage_formal_checker.py")],
     "stage12_blockage_formal_checker.log")
+run(["python", str(STAGE / "python/stage12_blockage_formal_matlab_spotcheck.py")],
+    "stage12_blockage_formal_matlab_runner.log")
