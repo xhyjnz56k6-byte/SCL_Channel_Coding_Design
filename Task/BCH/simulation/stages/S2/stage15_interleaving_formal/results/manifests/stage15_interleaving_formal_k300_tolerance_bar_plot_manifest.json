@@ -1,0 +1,41 @@
+{
+  "plotId": "stage15_interleaving_formal_k300_tolerance_bar",
+  "stageId": "stage15_interleaving_formal",
+  "gitCommit": "c56ea139a842ce7156261a02174dba399024849b",
+  "sourceFiles": [
+    "stage15_interleaving_formal_method_results.csv"
+  ],
+  "sourceSha256": [
+    "314ee3786133817c3dc61c5fb0d53a658f7076afa5d442b34b8757c95e0701e8"
+  ],
+  "figureDataFile": "results/figure_data/stage15_interleaving_formal_k300_tolerance_bar_figure_data.csv",
+  "figureDataSha256": "fc8b2957e5820af9757baac5a03a22c967d9e6d261218849d8210c8793ac9a64",
+  "pngFile": "results/plots/stage15_interleaving_formal_k300_tolerance_bar.png",
+  "pngSha256": "8cf43807f67ff3a698c4ca0460667448cb6f4b5580d5f6777a5e9f18d6c9e797",
+  "xSourceColumn": "caseId",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "BCH方案",
+  "xPhysicalQuantity": "case_category",
+  "xUnit": "1",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "toleranceL1e1",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "突发容限（bit）",
+  "yUnit": "bit",
+  "yScale": "linear",
+  "title": "300比特BCH交织突发容限",
+  "legendLabels": [
+    "分块300",
+    "255双块300",
+    "421整块300",
+    "385整块300"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {},
+  "markers": {},
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; logarithmic rate plots use 0.5/denominator only in figure-data.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T14:37:30.878336+00:00"
+}

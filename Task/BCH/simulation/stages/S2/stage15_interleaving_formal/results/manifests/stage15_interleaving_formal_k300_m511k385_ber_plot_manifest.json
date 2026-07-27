@@ -1,0 +1,51 @@
+{
+  "plotId": "stage15_interleaving_formal_k300_m511k385_ber",
+  "stageId": "stage15_interleaving_formal",
+  "gitCommit": "c56ea139a842ce7156261a02174dba399024849b",
+  "sourceFiles": [
+    "stage15_interleaving_formal_method_results.csv"
+  ],
+  "sourceSha256": [
+    "314ee3786133817c3dc61c5fb0d53a658f7076afa5d442b34b8757c95e0701e8"
+  ],
+  "figureDataFile": "results/figure_data/stage15_interleaving_formal_k300_m511k385_ber_figure_data.csv",
+  "figureDataSha256": "205c188fd15876403f05aa1f59965902526072059c286dd3f317184d4a492ca3",
+  "pngFile": "results/plots/stage15_interleaving_formal_k300_m511k385_ber.png",
+  "pngSha256": "f6a9c36617128bc0a8036b25a3f6392c4bdaea27df09ce5eac029730d905fdab",
+  "xSourceColumn": "burstLengthBits",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发长度（bit）",
+  "xPhysicalQuantity": "burst_length",
+  "xUnit": "bit",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "ber",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "BER",
+  "yUnit": "1",
+  "yScale": "log",
+  "title": "385整块300交织方式BER",
+  "legendLabels": [
+    "无交织",
+    "块交织",
+    "行列交织",
+    "伪随机交织"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {
+    "无交织": "-",
+    "块交织": "--",
+    "行列交织": "-.",
+    "伪随机交织": ":"
+  },
+  "markers": {
+    "无交织": "o",
+    "块交织": "s",
+    "行列交织": "^",
+    "伪随机交织": "D"
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; logarithmic rate plots use 0.5/denominator only in figure-data.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T14:37:29.985791+00:00"
+}

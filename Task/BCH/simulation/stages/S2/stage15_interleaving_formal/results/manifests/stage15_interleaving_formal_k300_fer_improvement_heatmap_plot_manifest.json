@@ -1,0 +1,40 @@
+{
+  "plotId": "stage15_interleaving_formal_k300_fer_improvement_heatmap",
+  "stageId": "stage15_interleaving_formal",
+  "gitCommit": "c56ea139a842ce7156261a02174dba399024849b",
+  "sourceFiles": [
+    "stage15_interleaving_formal_method_results.csv"
+  ],
+  "sourceSha256": [
+    "314ee3786133817c3dc61c5fb0d53a658f7076afa5d442b34b8757c95e0701e8"
+  ],
+  "figureDataFile": "results/figure_data/stage15_interleaving_formal_k300_fer_improvement_heatmap_figure_data.csv",
+  "figureDataSha256": "5c9488e0f4703d6951e0f144159b399ada98ccb62d13ba30eba4b6f5ecea39ef",
+  "pngFile": "results/plots/stage15_interleaving_formal_k300_fer_improvement_heatmap.png",
+  "pngSha256": "e81e8aae300ff3e6cbbd60fcb65d511d949d23a1e2988c8c0b51253b5f0bb2bd",
+  "xSourceColumn": "burstLengthBits",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发长度（bit）",
+  "xPhysicalQuantity": "burst_length",
+  "xUnit": "bit",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "relativeFerReduction",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "相对FER降低",
+  "yUnit": "1",
+  "yScale": "linear",
+  "title": "300比特BCH FER改善",
+  "legendLabels": [
+    "块交织",
+    "行列交织",
+    "伪随机交织"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {},
+  "markers": {},
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; logarithmic rate plots use 0.5/denominator only in figure-data.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T14:37:31.222769+00:00"
+}
