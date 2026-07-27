@@ -1,0 +1,9 @@
+vectorId,k,isBlocked,received,hardBit
+RECT8,0,0,1.1,0
+RECT8,1,0,-1.2,1
+RECT8,2,1,0.3,0
+RECT8,3,1,-0.4,1
+RECT8,4,1,0.5,0
+RECT8,5,0,-1.6,1
+RECT8,6,0,1.7,0
+RECT8,7,0,0.2,0

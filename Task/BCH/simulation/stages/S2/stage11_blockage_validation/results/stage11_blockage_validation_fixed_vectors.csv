@@ -1,0 +1,9 @@
+vectorId,k,encodedLength,bpsk,noise,start,length,amplitude
+RECT8,0,8,1,0.1,2,3,0
+RECT8,1,8,-1,-0.2,2,3,0
+RECT8,2,8,1,0.3,2,3,0
+RECT8,3,8,1,-0.4,2,3,0
+RECT8,4,8,-1,0.5,2,3,0
+RECT8,5,8,-1,-0.6,2,3,0
+RECT8,6,8,1,0.7,2,3,0
+RECT8,7,8,1,-0.8,2,3,0

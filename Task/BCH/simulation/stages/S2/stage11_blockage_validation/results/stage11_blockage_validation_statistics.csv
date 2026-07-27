@@ -1,0 +1,2 @@
+sampleCount,negativeCount,blockedRawBer,lowerBound,upperBound,passed
+100000,49936,0.49936,0.48,0.52,1
