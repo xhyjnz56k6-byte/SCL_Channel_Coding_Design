@@ -1,0 +1,3 @@
+functionalCommit=f3c03718a69a41aeb72e9b7b6a2d9e017930bb19
+baseCommit=8bd58cf80c60f2d373d479b9d8e02a1919fdca8d
+branch=stage07-bch-s2-awgn-dense-formal
