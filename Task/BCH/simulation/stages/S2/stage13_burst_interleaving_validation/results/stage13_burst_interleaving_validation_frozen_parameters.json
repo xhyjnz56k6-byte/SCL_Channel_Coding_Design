@@ -1,0 +1,119 @@
+{
+  "stageId": "stage13_burst_interleaving_validation",
+  "sourcePrescan": "stage13_burst_interleaving_validation_prescan.csv",
+  "sourcePrescanSha256": "56b417c3caa90ac293d6ecbb3d4b2eec66a978750c2269fc25c0793fc9839c7d",
+  "caseIds": [
+    "K200_S15",
+    "K200_M255K207",
+    "K200_M511K421",
+    "K200_M511K385",
+    "K300_S15",
+    "K300_M255K207",
+    "K300_M511K421",
+    "K300_M511K385"
+  ],
+  "requiredInterleaverModes": [
+    "NONE",
+    "BLOCK",
+    "ROW_COLUMN",
+    "PSEUDORANDOM"
+  ],
+  "formalDepths": [
+    4,
+    8,
+    16
+  ],
+  "methodComparisonDepth": 8,
+  "stage14BurstLengthsByPayload": {
+    "200": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      10,
+      12,
+      15,
+      20,
+      25,
+      30,
+      40,
+      50
+    ],
+    "300": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      8,
+      10,
+      12,
+      15,
+      20,
+      25,
+      30,
+      40,
+      50
+    ]
+  },
+  "stage15MethodBurstLengthsByPayload": {
+    "200": [
+      1,
+      2,
+      3,
+      5,
+      8,
+      10,
+      15,
+      20,
+      30
+    ],
+    "300": [
+      1,
+      2,
+      3,
+      5,
+      8,
+      10,
+      15,
+      20,
+      30
+    ]
+  },
+  "stage15DepthBurstLengthsByPayload": {
+    "200": [
+      3,
+      5,
+      8,
+      10,
+      15,
+      20,
+      30
+    ],
+    "300": [
+      3,
+      5,
+      8,
+      10,
+      15,
+      20,
+      30
+    ]
+  },
+  "formalStopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000,
+    "checkpointIntervalFrames": 1000
+  },
+  "selectionPolicy": {
+    "append50IfStage14FerAt40Below": 0.8,
+    "append50IfBestD8FerAt30Below": 0.8
+  }
+}

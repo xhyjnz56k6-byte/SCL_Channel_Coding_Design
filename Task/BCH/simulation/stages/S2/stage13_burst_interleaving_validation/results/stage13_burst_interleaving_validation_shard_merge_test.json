@@ -1,0 +1,14 @@
+{
+  "stageId": "stage13_burst_interleaving_validation",
+  "tests": [
+    {"caseId": "K200_S15", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true},
+    {"caseId": "K200_M255K207", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true},
+    {"caseId": "K200_M511K421", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true},
+    {"caseId": "K200_M511K385", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true},
+    {"caseId": "K300_S15", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true},
+    {"caseId": "K300_M255K207", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true},
+    {"caseId": "K300_M511K421", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true},
+    {"caseId": "K300_M511K385", "continuousFrames": 120, "shards": [[60, 60], [0, 60]], "executionOrderReversed": true, "allIntegerCountsEqual": true, "passed": true}
+  ],
+  "passed": true
+}

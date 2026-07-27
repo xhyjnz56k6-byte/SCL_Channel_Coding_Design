@@ -1,0 +1,5 @@
+[ 11%] Built target stage13_block_core
+[ 47%] Built target stage13_segmented_core
+[ 76%] Built target stage13_support
+[ 88%] Built target stage13_burst_interleaving_validation_test
+[100%] Built target stage13_burst_interleaving_validation_runner

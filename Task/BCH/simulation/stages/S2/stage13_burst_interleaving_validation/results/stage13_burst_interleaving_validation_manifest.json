@@ -1,0 +1,33 @@
+{
+  "stage": "stage13_burst_interleaving_validation",
+  "branch": "stage13-16-bch-s2-burst-interleaving",
+  "baseCommit": "8bd58cf80c60f2d373d479b9d8e02a1919fdca8d",
+  "functionalRanges": [],
+  "gitHeadWhenChecked": "8bd58cf80c60f2d373d479b9d8e02a1919fdca8d",
+  "caseCount": 8,
+  "prescanPointCount": 1664,
+  "formalStopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000,
+    "checkpointIntervalFrames": 1000
+  },
+  "generatedEvidence": [
+    "results/stage13_burst_interleaving_validation_case_contracts.csv",
+    "results/stage13_burst_interleaving_validation_checkpoint_test.json",
+    "results/stage13_burst_interleaving_validation_comparison.csv",
+    "results/stage13_burst_interleaving_validation_cpp_outputs.csv",
+    "results/stage13_burst_interleaving_validation_frozen_parameters.json",
+    "results/stage13_burst_interleaving_validation_matlab_outputs.csv",
+    "results/stage13_burst_interleaving_validation_negative_tests.csv",
+    "results/stage13_burst_interleaving_validation_permutation_sha256.csv",
+    "results/stage13_burst_interleaving_validation_permutations.csv",
+    "results/stage13_burst_interleaving_validation_prescan.csv",
+    "results/stage13_burst_interleaving_validation_shard_merge_test.json",
+    "results/stage13_burst_interleaving_validation_vectors.csv"
+  ],
+  "evidenceSha256File": "results/stage13_burst_interleaving_validation_sha256.csv",
+  "gate": "PASS_STAGE13_BURST_INTERLEAVING_VALIDATION_FUNCTIONAL",
+  "remoteVerification": "DEFERRED_TO_AUTHORIZED_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}
