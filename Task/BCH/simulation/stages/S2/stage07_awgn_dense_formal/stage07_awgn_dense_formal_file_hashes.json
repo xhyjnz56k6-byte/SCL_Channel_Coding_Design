@@ -1,6 +1,6 @@
-{
+﻿{
     "stage":  "stage07_awgn_dense_formal",
-    "note":  "Self file excluded to avoid recursive hash instability",
+    "note":  "Self file and recursive patch excluded; ignored local-only results are excluded",
     "files":  [
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/configs/stage07_awgn_dense_formal_config.json",
@@ -163,16 +163,6 @@
                       "bytes":  5500
                   },
                   {
-                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/resume_test/stage07_awgn_dense_formal_K200_S15_004_checkpoint.json",
-                      "sha256":  "10254616c20b633f4959617e78fedcf4f5492e26dd21b5cfc54fa4509d4064e1",
-                      "bytes":  751
-                  },
-                  {
-                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/stage07_awgn_dense_formal_error_floor_analysis.csv",
-                      "sha256":  "639cf3222eda2e779fc6d1248b0e63cfc6a830d85e0f6609dafe7836c34ea39e",
-                      "bytes":  77850
-                  },
-                  {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/stage07_awgn_dense_formal_point_audit.csv",
                       "sha256":  "7cacfa018d9b6d106f925b32a2b7a1d11d7cd412359b3a7944cdbf9b67cdeaf2",
                       "bytes":  22038
@@ -226,11 +216,6 @@
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changed_files.md",
                       "sha256":  "f283a70a822e12b85a03493242f9f1873e2291c36079040a56ea0b51448495e1",
                       "bytes":  978
-                  },
-                  {
-                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changes.patch",
-                      "sha256":  "347ee2fd0d5d548cd9d2ba28122047d5e42cc2041b69d1246eaddf43ef99aaaf",
-                      "bytes":  5539586
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_commands_used.md",
