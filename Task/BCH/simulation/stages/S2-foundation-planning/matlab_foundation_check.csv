@@ -1,4 +1,4 @@
 check,result,evidence
 historical MATLAB result exclusion,PASS,no historical MATLAB result or reference script imported
-future MATLAB contract,PASS,scripts/foundation/matlab reserved for formal-neutral vector exchange
+future MATLAB contract,PASS,executed MATLAB path assertion reports PASS_BCH_S2_FOUNDATION_MATLAB_PATH_CHECK
 independent-reference policy,PASS,documented in candidate matrix and rejection list
