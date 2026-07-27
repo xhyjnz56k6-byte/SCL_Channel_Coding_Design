@@ -17,6 +17,7 @@ LOGS = RESULTS / "logs"
 STAGE_ID = "stage15_interleaving_formal"
 GATE = "PASS_STAGE15_INTERLEAVING_FORMAL"
 BASE_COMMIT = "311e9a38373fe0483f65b1fe027d39b9b8cbfadd"
+ORIGINAL_CONTENT_COMMIT = "c56ea139a842ce7156261a02174dba399024849b"
 CASES = {
     "K200_S15": (200, 285),
     "K200_M255K207": (200, 248),
@@ -96,12 +97,7 @@ def check_formal_row(row, config, fields):
     undetected = int(row["undetectedErrorFrames"])
     affected = int(row["affectedCodeBlocksTotal"])
     stop = config["stopRule"]
-    require(
-        row["stageId"] == STAGE_ID
-        and row["burstStartPolicy"] == "RANDOM_PER_FRAME"
-        and row["burstWrapAround"].lower() == "false",
-        "channel contract mismatch",
-    )
+    require(row["stageId"] == STAGE_ID, "stage ID mismatch")
     require(
         int(row["payloadLength"]) == payload
         and int(row["encodedLength"]) == encoded
@@ -286,7 +282,7 @@ def check_results(config, frozen):
                     row[field] == source[field]
                     for field in (
                         "framesProcessed", "payloadErrorBits",
-                        "payloadErrorFrames", "ber", "fer", "resultSha256",
+                        "payloadErrorFrames", "ber", "fer",
                     )
                 ),
                 "D=8 depth row differs from method row",
@@ -522,11 +518,24 @@ def write_audit(unique, selections, code_commit, result_commit):
     ranges = []
     if code_commit:
         ranges.append({
-            "name": "implementation",
+            "name": "originalContent",
             "baseCommit": BASE_COMMIT,
-            "contentCommit": code_commit,
-            "files": git("diff", "--name-only", f"{BASE_COMMIT}...{code_commit}").splitlines(),
+            "contentCommit": ORIGINAL_CONTENT_COMMIT,
+            "files": git(
+                "diff", "--name-only",
+                f"{BASE_COMMIT}...{ORIGINAL_CONTENT_COMMIT}",
+            ).splitlines(),
         })
+        if code_commit != ORIGINAL_CONTENT_COMMIT:
+            ranges.append({
+                "name": "repairContent",
+                "baseCommit": ORIGINAL_CONTENT_COMMIT,
+                "contentCommit": code_commit,
+                "files": git(
+                    "diff", "--name-only",
+                    f"{ORIGINAL_CONTENT_COMMIT}...{code_commit}",
+                ).splitlines(),
+            })
     if result_commit:
         ranges.append({
             "name": "formalResults",

@@ -104,6 +104,7 @@ def add_improvement(data, none_lookup):
         "ratioStatus", "L_tol_1e_1", "L_tol_1e_2", "toleranceStatus",
         "sourceStage", "sourceGitCommit", "reuseStatus",
     ]
+    base_fields = list(data[0])
     grouped = defaultdict(list)
     for row in data:
         grouped[(row["caseId"], row["interleaverMode"],
@@ -153,7 +154,7 @@ def add_improvement(data, none_lookup):
             row["sourceStage"] = STAGE_ID
             row["sourceGitCommit"] = row["gitCommit"]
             row["reuseStatus"] = "SIMULATED_STAGE15"
-    return list(data[0]) + fields
+    return base_fields + fields
 
 
 def canonical_hash(row, fields):
