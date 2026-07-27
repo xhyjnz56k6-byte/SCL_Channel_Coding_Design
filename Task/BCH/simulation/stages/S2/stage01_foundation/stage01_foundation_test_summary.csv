@@ -1,0 +1,8 @@
+test,executed,result,detail
+Release build,true,PASS,MinGW GCC 15.2.0
+CTest,true,PASS,1/1
+MATLAB reference,true,PASS,R2024b
+C++ MATLAB comparison,true,PASS,20 rows mismatch=0 discreteMismatch=0
+random identity,true,PASS,6/6
+formula audit,true,PASS,20/20
+file hash audit,true,PASS,all generated result and log files

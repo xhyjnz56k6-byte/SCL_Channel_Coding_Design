@@ -1,0 +1,47 @@
+[
+  {
+    "file": "logs/stage01_foundation_compare.log",
+    "sha256": "d3b2a5b4a5f79265861d10da56a7e4dce23b5e096bbd95fd43c2affce5de9660",
+    "size": 82
+  },
+  {
+    "file": "logs/stage01_foundation_ctest.log",
+    "sha256": "be19c9e3d969f787bd4bb751914d4cde6768ea5b04901d8622f7ee615f3cc2cf",
+    "size": 1033
+  },
+  {
+    "file": "logs/stage01_foundation_export.log",
+    "sha256": "b7be6c3191f15453c385fef4f2d7371baae9680a70c812434cfd0159d0d8f7f3",
+    "size": 32
+  },
+  {
+    "file": "logs/stage01_foundation_matlab.log",
+    "sha256": "70680dfd98d745c95d556f894f0791304630fa2c038f37f8d76bb8264f74f37d",
+    "size": 42
+  },
+  {
+    "file": "results/stage01_foundation_awgn_vectors.csv",
+    "sha256": "0537a49470c036e6359d485943a1671cc5db247dfec83cdc8c10466dffb7fc8b",
+    "size": 1012
+  },
+  {
+    "file": "results/stage01_foundation_cpp_matlab_compare.csv",
+    "sha256": "ed3be3501b19d6245aecda299b8dc27007e5cd7169f764130e1f51a6700464bf",
+    "size": 893
+  },
+  {
+    "file": "results/stage01_foundation_cpp_outputs.csv",
+    "sha256": "7a7c0734ec1e3b9d09e75c37b7bd3f9613528cc96be7f1c99d0048b0cd8505ea",
+    "size": 4039
+  },
+  {
+    "file": "results/stage01_foundation_matlab_outputs.csv",
+    "sha256": "d34e2718d95e18d6a0e6f888db9ddd3d940897458e1ea73e9b58fed052b6c311",
+    "size": 3628
+  },
+  {
+    "file": "results/stage01_foundation_randomness_test.csv",
+    "sha256": "eec754832841db2b5d65f366928d958c0b03e9c97aff79f648cac9f86c29f353",
+    "size": 440
+  }
+]
