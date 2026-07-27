@@ -1,0 +1,23 @@
+{
+  "channelModelId": "S2_FIXED_REAL_FIR_V1",
+  "rawImpulseResponse": [1.0, 0.65, 0.0, 0.35],
+  "normalizedImpulseResponse": [0.8045179867091297, 0.5229366913609343, 0.0, 0.28158129534819537],
+  "tapCount": 3,
+  "tapDelays": [0, 1, 3],
+  "rawChannelEnergy": 1.545,
+  "normalizedChannelEnergy": 1.0,
+  "normalizationEnabled": true,
+  "normalizationTolerance": 1e-14,
+  "signalDomain": "REAL_BPSK",
+  "channelKnowledge": "PERFECT",
+  "convolutionMode": "LINEAR_FULL",
+  "boundaryPolicy": "ZERO_OUTSIDE_FRAME",
+  "rxObservationPolicy": "N_PLUS_LH_MINUS_1",
+  "noiseInjectionPosition": "AFTER_LINEAR_CONVOLUTION",
+  "equalizerType": "BLOCK_LINEAR_MMSE",
+  "solverType": "BANDED_CHOLESKY_NORMAL_EQUATIONS",
+  "solverResidualTolerance": 1e-11,
+  "continuousComparisonTolerance": 1e-10,
+  "decisionThreshold": 0.0,
+  "decisionAlignment": "XHAT_INDEX_EQUALS_TRANSMITTED_SYMBOL_INDEX"
+}

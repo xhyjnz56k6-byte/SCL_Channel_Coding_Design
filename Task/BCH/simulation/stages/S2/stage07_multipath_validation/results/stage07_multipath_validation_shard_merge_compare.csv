@@ -1,0 +1,3 @@
+mode,totalFrames,totalPayloadBits,payloadErrorBits,payloadErrorFrames,decoderFailureFrames,miscorrectionFrames,undetectedErrorFrames,trueSuccessFrames,gate
+continuous,60,12000,264,35,35,0,0,25,REFERENCE
+candidate,60,12000,264,35,35,0,0,25,PASS

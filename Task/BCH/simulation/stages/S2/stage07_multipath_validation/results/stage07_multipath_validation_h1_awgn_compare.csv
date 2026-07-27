@@ -1,0 +1,9 @@
+caseId,receivedMaxAbsDiff,equalizerMaxAbsDiff,hardMismatch,payloadMismatch,payloadErrorBitsMismatch,payloadErrorFramesMismatch,decoderStatusMismatch,gate
+K200_S15,0,2.22045e-16,0,0,0,0,0,PASS
+K200_M255K207,0,2.22045e-16,0,0,0,0,0,PASS
+K200_M511K421,0,4.44089e-16,0,0,0,0,0,PASS
+K200_M511K385,0,4.44089e-16,0,0,0,0,0,PASS
+K300_S15,0,4.44089e-16,0,0,0,0,0,PASS
+K300_M255K207,0,4.44089e-16,0,0,0,0,0,PASS
+K300_M511K421,0,4.44089e-16,0,0,0,0,0,PASS
+K300_M511K385,0,4.44089e-16,0,0,0,0,0,PASS

@@ -1,0 +1,10 @@
+test,actualResult,evidence
+release_build,PASS,MinGW GCC Release
+ctest,PASS,1/1
+cpp_validation,PASS,PASS_STAGE07_MULTIPATH_VALIDATION_CPP
+matlab_reference,PASS,PASS_STAGE07_MULTIPATH_VALIDATION_MATLAB
+cpp_matlab_compare,PASS,PASS_STAGE07_CPP_MATLAB_COMPARE
+h1_degeneration,PASS,8 cases zero discrete mismatch
+noiseless,PASS,8 cases 1007 frames zero error
+resume_shard,PASS,integer counts identical
+trial,PASS,24 points 12000 frames

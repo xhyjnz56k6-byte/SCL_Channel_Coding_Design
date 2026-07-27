@@ -1,0 +1,12 @@
+{
+  "results/stage07_multipath_validation_test_vectors.csv": "95b87daa9ffc95af71b76bdddd98964a34eb8f32fe3387cabe1b6f3c4677fe5e",
+  "results/stage07_multipath_validation_cpp_outputs.csv": "8dab5eb2f8872191cb61accb169f8fc333e0b33a97ed5e45328bf0643cc2e127",
+  "results/stage07_multipath_validation_matlab_outputs.csv": "e518784b2d1573280851134f554ef96ea7487c49899e44071f365f85acd9b11d",
+  "results/stage07_multipath_validation_cpp_matlab_compare.csv": "633429b273449e190378e1dced5396ea606b2ed44122dfe42846628af4489240",
+  "results/stage07_multipath_validation_h1_awgn_compare.csv": "1f887cd71c0b22e59d4db620036e0a2fe37e131a2df7594bf703ae7340e7a0fd",
+  "results/stage07_multipath_validation_noiseless_results.csv": "63f2e41d2e2f565979707d32315930678644a36b420fe242f106ffd933d23985",
+  "results/stage07_multipath_validation_resume_compare.csv": "92e2644e6ff368d6ccfdb54b8fd593f20bf6c91c047ce75f2e297b01a0e6085b",
+  "results/stage07_multipath_validation_shard_merge_compare.csv": "92e2644e6ff368d6ccfdb54b8fd593f20bf6c91c047ce75f2e297b01a0e6085b",
+  "results/stage07_multipath_validation_trial_results.csv": "d7f26e956c9468600bbb9331764b9dc4c33f220d02958f30bd591a26b708eced",
+  "results/stage07_multipath_validation_runtime_estimate.csv": "fe99cdd7d4764cb29f084a1cb66096cae991e5a81558b90257b1f14282aa9527"
+}
