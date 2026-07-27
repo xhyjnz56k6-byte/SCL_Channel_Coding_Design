@@ -1,0 +1,13 @@
+key,value
+stageId,stage05_awgn_trial
+masterSeed,2026072705
+framesPerPoint,500
+pointsPerCase,3
+resumeInterruptAfterFrames,211
+shardCount,3
+formalMinFrames,5000
+formalTargetFrameErrors,200
+formalMaxFrames,50000
+plotDpi,300
+plotXAxis,SNR (dB)
+zeroSurrogate,0.5/denominator

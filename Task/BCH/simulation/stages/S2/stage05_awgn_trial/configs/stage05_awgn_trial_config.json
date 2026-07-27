@@ -1,0 +1,23 @@
+{
+  "stageId": "stage05_awgn_trial",
+  "purpose": "fixed representative infrastructure trial; not a prescan",
+  "masterSeed": 2026072705,
+  "framesPerPoint": 500,
+  "resumeInterruptAfterFrames": 211,
+  "shardCount": 3,
+  "formalStopRuleToValidate": {
+    "minFrames": 5000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000
+  },
+  "points": {
+    "K200_S15": [4.5, 6.5, 8.5],
+    "K200_M255K207": [3.5, 4.7, 6.0],
+    "K200_M511K421": [3.0, 4.5, 6.0],
+    "K200_M511K385": [2.5, 4.0, 5.5],
+    "K300_S15": [5.0, 7.0, 9.0],
+    "K300_M255K207": [3.5, 5.0, 6.5],
+    "K300_M511K421": [4.0, 4.8, 5.5],
+    "K300_M511K385": [3.0, 4.5, 6.0]
+  }
+}

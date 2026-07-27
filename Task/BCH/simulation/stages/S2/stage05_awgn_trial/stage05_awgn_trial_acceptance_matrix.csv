@@ -1,0 +1,7 @@
+requirement,implementation,positiveTest,negativeTest,gate
+24 fixed trial points,configs and runner,8 cases x 3 x 500,duplicate identity check,24/24 PASS
+AWGN formula,stage01 foundation reuse,recompute sigma2 and SNR,NaN Inf rejection,24/24 PASS
+checkpoint resume,C++ runner,continuous versus resumed,raw count mismatch rejection,8/8 PASS
+shard merge,C++ runner,continuous versus 3 shards,range/count mismatch rejection,8/8 PASS
+formal stop rule,Python driver,4 boundary decisions,early stop rejection,4/4 PASS
+trial plots,plot script,4 PNG plus figure data,forbidden format rejection,4/4 PASS
