@@ -19,6 +19,7 @@ CASES = [
 ]
 STYLE_IDS = {"STYLE_1", "STYLE_2", "STYLE_3", "STYLE_4"}
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+ZERO_OBSERVED_UPPER_BOUND_FACTOR = 3.0
 
 
 def rows(path):
@@ -173,10 +174,49 @@ def check_figures(data):
                 req(int(r["rawDenominator"]) == int(source["totalFrames"]), "FER denominator mismatch")
             if r["isZeroObserved"] == "true":
                 req(r["plotSurrogateUsed"] == "true", "zero surrogate flag mismatch")
-                req(close(r["plotY"], 0.5 / int(r["rawDenominator"])), "zero surrogate value mismatch")
+                req(r["zeroObservedStatus"] == "ZERO_OBSERVED_CENSORED", "zero status mismatch")
+                req(close(r["oneSided95UpperBound"],
+                          ZERO_OBSERVED_UPPER_BOUND_FACTOR / int(r["rawDenominator"])),
+                    "zero upper-bound value mismatch")
+                req(close(r["plotY"], r["oneSided95UpperBound"]), "zero plotY upper-bound mismatch")
+                req(r["plotSurrogateFormula"].startswith("3/"), "zero surrogate formula mismatch")
             else:
+                req(r["zeroObservedStatus"] == "OBSERVED_ERROR_RATE", "non-zero status mismatch")
                 req(r["plotSurrogateUsed"] == "false" and close(r["plotY"], r["rawY"]),
                     "non-zero plotY mismatch")
+
+
+def write_error_floor_analysis(data):
+    fields = [
+        "caseId", "payloadLength", "snrIndex", "snrDb", "metric", "rawNumerator",
+        "rawDenominator", "rawRate", "zeroObservedStatus", "oneSided95UpperBound",
+        "upperBoundFormula", "stopReason", "totalFrames",
+    ]
+    analysis = []
+    for r in data:
+        metrics = (
+            ("ber", int(r["payloadErrorBits"]), int(r["totalPayloadBits"]), float(r["ber"])),
+            ("fer", int(r["payloadErrorFrames"]), int(r["totalFrames"]), float(r["fer"])),
+        )
+        for metric, numerator, denominator, raw_rate in metrics:
+            zero = numerator == 0
+            upper = ZERO_OBSERVED_UPPER_BOUND_FACTOR / denominator if zero else raw_rate
+            analysis.append({
+                "caseId": r["caseId"],
+                "payloadLength": r["payloadLength"],
+                "snrIndex": r["snrIndex"],
+                "snrDb": r["snrDb"],
+                "metric": metric,
+                "rawNumerator": numerator,
+                "rawDenominator": denominator,
+                "rawRate": f"{raw_rate:.17g}",
+                "zeroObservedStatus": "ZERO_OBSERVED_CENSORED" if zero else "OBSERVED_ERROR_RATE",
+                "oneSided95UpperBound": f"{upper:.17g}",
+                "upperBoundFormula": "3/rawDenominator" if zero else "not_censored",
+                "stopReason": r["stopReason"],
+                "totalFrames": r["totalFrames"],
+            })
+    write_csv(RESULTS / "stage07_awgn_dense_formal_error_floor_analysis.csv", analysis, fields)
 
 
 def write_summaries(data):
@@ -205,6 +245,7 @@ def write_summaries(data):
             "stopReason": r["stopReason"], "ber": r["ber"], "fer": r["fer"], "passed": "true",
         })
     write_csv(RESULTS / "stage07_awgn_dense_formal_point_audit.csv", audit)
+    write_error_floor_analysis(data)
     manifest = {
         "stageId": "stage07_awgn_dense_formal",
         "results": "stage07_awgn_dense_formal_results.csv",
@@ -283,6 +324,7 @@ def main():
         RESULTS / "stage07_awgn_dense_formal_summary.csv",
         RESULTS / "stage07_awgn_dense_formal_stop_reason_summary.csv",
         RESULTS / "stage07_awgn_dense_formal_point_audit.csv",
+        RESULTS / "stage07_awgn_dense_formal_error_floor_analysis.csv",
         RESULTS / "stage07_awgn_dense_formal_raw_results_manifest.json",
     ):
         dst = PUBLISHED / src.name

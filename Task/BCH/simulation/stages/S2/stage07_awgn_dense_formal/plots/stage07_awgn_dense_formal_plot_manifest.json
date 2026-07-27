@@ -3,7 +3,7 @@
   "sourceResultsFile": "stage07_awgn_dense_formal_results.csv",
   "sourceResultsSha256": "337c1cb6f46dc8239482f9183738375dc5f7f1f8c9b320e03d5b238a310a6843",
   "plotScript": "stage07_awgn_dense_formal_plot.py",
-  "plotScriptSha256": "2c3afe6616ea2a54131eab6796321f34bb5ea3b4cc4f02fc4889b56a9266d00e",
+  "plotScriptSha256": "90574ac690de75dc289c4e1cb280c43d66d8bfa445bd80a552d6633bea347baa",
   "configFile": "stage07_awgn_dense_formal_config.json",
   "configSha256": "06c0a60191fbbad29be0c8054a0f2f0e1a2a41ec8a64c125eb84b9670f0ea338",
   "configHash": "06c0a60191fbbad29be0c8054a0f2f0e1a2a41ec8a64c125eb84b9670f0ea338",
@@ -11,7 +11,8 @@
   "pythonVersion": "3.11.0",
   "matplotlibVersion": "3.10.7",
   "createdAt": "ZiHua",
-  "zeroSurrogateRule": "raw CSV keeps zero; log plots use 0.5/raw denominator",
+  "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored and log plots use one-sided 95% upper bound 3/raw denominator",
+  "zeroObservedUpperBoundFactor": 3.0,
   "xTransformFormula": "EbN0_dB = SNR_dB - 10*log10(2*R); sigma2 = 1/10^(SNR_dB/10)",
   "legendMapping": {
     "K200_S15": "分块200",
@@ -46,14 +47,14 @@
     ]
   },
   "aggregateFigureData": "stage07_awgn_dense_formal_figure_data.csv",
-  "aggregateFigureDataSha256": "17e27990cc2d29620730152000df70d7ee11fd6fd1948bacee3fd7bafb46aae8",
+  "aggregateFigureDataSha256": "3aff4b3ec4993321bd7bc0d1a7e815d928bc0a9d774b8402098531036f93dd96",
   "figures": [
     {
       "figureId": "stage07_awgn_dense_formal_k200_ber",
       "png": "stage07_awgn_dense_formal_k200_ber.png",
-      "pngSha256": "629a886891455c688debe6e94c2a2bd56cab85eded78aac7b7c1a43848c6c58c",
+      "pngSha256": "3e11346a0dbee0af091729944c806d4bd045c8a07533535ca55e5586763983c7",
       "figureData": "stage07_awgn_dense_formal_k200_ber_figure_data.csv",
-      "figureDataSha256": "cc99fc6950f251d35d54fc7d6fac2efc3dd33b656633217641489088f6723cc7",
+      "figureDataSha256": "6930feda89bbfc926f57598ceed9b9bb6838e9af8c9786f7cfe6830d7a4fdf08",
       "title": "200比特BCH误码率对比",
       "xLabel": "SNR (dB)",
       "yLabel": "BER",
@@ -76,14 +77,15 @@
       "xMin": 0.0,
       "xMax": 18.0,
       "xStep": 0.5,
-      "markEvery": 2
+      "markEvery": 2,
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k200_fer",
       "png": "stage07_awgn_dense_formal_k200_fer.png",
-      "pngSha256": "7ea91402ef868e9c468b0b011ec38d0992063d2ea238b1a88a9ddef41a98b1a5",
+      "pngSha256": "7ac0c9ea5da9eb5d88047654c5dd3681398ca7f281034c90075dfba64e81b753",
       "figureData": "stage07_awgn_dense_formal_k200_fer_figure_data.csv",
-      "figureDataSha256": "dae12e7e250d70725d507a9435992b98ee271b9b21d612c5b0055145fbef5193",
+      "figureDataSha256": "49fc52dbb93a1bea3124a755f4f85ff5dbb2bfab2d88b526471ca19bb1a631ce",
       "title": "200比特BCH误帧率对比",
       "xLabel": "SNR (dB)",
       "yLabel": "FER",
@@ -106,14 +108,15 @@
       "xMin": 0.0,
       "xMax": 18.0,
       "xStep": 0.5,
-      "markEvery": 2
+      "markEvery": 2,
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k200_latency",
       "png": "stage07_awgn_dense_formal_k200_latency.png",
       "pngSha256": "6fec1dd81475cf4e63d789a35896b00ddd81a4cbc842d01be3ab7ea763a94b2c",
       "figureData": "stage07_awgn_dense_formal_k200_latency_figure_data.csv",
-      "figureDataSha256": "a364fb487575079d9998eb042c7fa9897a576a8e9427cfcd86a665bd1da3b114",
+      "figureDataSha256": "878565d17d238646dfc03a285fcb71b20a14a81b37693bc4b2d9b2402e1c00b0",
       "title": "200比特BCH译码时延对比",
       "xLabel": "SNR (dB)",
       "yLabel": "译码时延 (us)",
@@ -136,14 +139,15 @@
       "xMin": 0.0,
       "xMax": 18.0,
       "xStep": 0.5,
-      "markEvery": 2
+      "markEvery": 2,
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k300_ber",
       "png": "stage07_awgn_dense_formal_k300_ber.png",
-      "pngSha256": "841719a7e9b5d9ba4c04fda355cfc3d79d0fdf80149f83b2c9196e9153d799ea",
+      "pngSha256": "56fdcefbdcc62064979593c10f7186a3503f1098991d8ba717ccd42ffa29c8c7",
       "figureData": "stage07_awgn_dense_formal_k300_ber_figure_data.csv",
-      "figureDataSha256": "8830dc412c2dd34e501dc8740e212d9cd11931ea49a05b1fd09b222766ba1915",
+      "figureDataSha256": "f61a8b84a648aa5afedbbcc3933f6e6c00e8684e631a1fe2db08d1adfb6d4baf",
       "title": "300比特BCH误码率对比",
       "xLabel": "SNR (dB)",
       "yLabel": "BER",
@@ -166,14 +170,15 @@
       "xMin": 0.0,
       "xMax": 18.0,
       "xStep": 0.5,
-      "markEvery": 2
+      "markEvery": 2,
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k300_fer",
       "png": "stage07_awgn_dense_formal_k300_fer.png",
-      "pngSha256": "c07723e2cc42b80a9b18bd9cbc6ef4ec856daf8b3671e7ed0f77d4c7091049cb",
+      "pngSha256": "53c72a7a4ce15d2f50a9c69d29793c5f0724d9d6020089841bfec30c45a186ac",
       "figureData": "stage07_awgn_dense_formal_k300_fer_figure_data.csv",
-      "figureDataSha256": "9c221d31d5d643aae0c3ab70b21d69b70d7b8702cb81bdcab4b9e28622d2b827",
+      "figureDataSha256": "3da1042e9944e18103ee2def376a6dd4e44c1cfa272c57182c2793fdbd481350",
       "title": "300比特BCH误帧率对比",
       "xLabel": "SNR (dB)",
       "yLabel": "FER",
@@ -196,14 +201,15 @@
       "xMin": 0.0,
       "xMax": 18.0,
       "xStep": 0.5,
-      "markEvery": 2
+      "markEvery": 2,
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k300_latency",
       "png": "stage07_awgn_dense_formal_k300_latency.png",
       "pngSha256": "1f1a41e4db9b94e3265d263adb53d788c72ad490fa8226a7a074a7d3911d4b4b",
       "figureData": "stage07_awgn_dense_formal_k300_latency_figure_data.csv",
-      "figureDataSha256": "6ab156e9d9f048643127104e000835a2eb1ad3eb080e22b9b23f448e96c2cef3",
+      "figureDataSha256": "a8a2a2dc0352e6729d26bdb8f336d9a63a2e3b493375fe7fd9adcf5d8d474238",
       "title": "300比特BCH译码时延对比",
       "xLabel": "SNR (dB)",
       "yLabel": "译码时延 (us)",
@@ -226,7 +232,8 @@
       "xMin": 0.0,
       "xMax": 18.0,
       "xStep": 0.5,
-      "markEvery": 2
+      "markEvery": 2,
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
     }
   ]
 }

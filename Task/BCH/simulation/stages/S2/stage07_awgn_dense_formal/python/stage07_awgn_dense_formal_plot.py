@@ -18,6 +18,7 @@ RESULTS = STAGE / "results"
 PLOTS = STAGE / "plots"
 SOURCE = RESULTS / "stage07_awgn_dense_formal_results.csv"
 CONFIG = STAGE / "configs/stage07_awgn_dense_formal_config.json"
+ZERO_OBSERVED_UPPER_BOUND_FACTOR = 3.0
 STYLE = {
     "STYLE_1": ("#1f77b4", "-", "o"),
     "STYLE_2": ("#ff7f0e", "--", "s"),
@@ -36,7 +37,8 @@ FIGURE_FIELDS = [
     "figureId", "sourceCsv", "sourceRowId", "sourceRowSha256", "caseId", "payloadLength",
     "legendLabel", "styleId", "snrIndex", "snrDb", "snrLinear", "ebn0Db", "actualRate",
     "encodedLength", "metric", "rawNumerator", "rawDenominator", "rawY", "plotY",
-    "isZeroObserved", "plotSurrogateUsed", "plotSurrogateFormula", "totalFrames", "stopReason",
+    "isZeroObserved", "zeroObservedStatus", "plotSurrogateUsed", "plotSurrogateFormula",
+    "oneSided95UpperBound", "totalFrames", "stopReason",
 ]
 
 
@@ -73,19 +75,20 @@ def figure_row(fid, source_name, source_row_id, row, metric):
         raw_num = int(row["payloadErrorBits"])
         raw_den = int(row["totalPayloadBits"])
         raw_y = float(row["ber"])
-        formula = "0.5/totalPayloadBits"
+        formula = "3/totalPayloadBits"
     elif metric == "fer":
         raw_num = int(row["payloadErrorFrames"])
         raw_den = int(row["totalFrames"])
         raw_y = float(row["fer"])
-        formula = "0.5/totalFrames"
+        formula = "3/totalFrames"
     else:
         raw_num = int(row["decodeTimeTotalNs"])
         raw_den = int(row["totalFrames"])
         raw_y = float(row["decodeTimeMeanNs"]) / 1000.0
         formula = "none"
     zero = metric in ("ber", "fer") and raw_y == 0.0
-    plot_y = 0.5 / raw_den if zero else raw_y
+    upper_bound = ZERO_OBSERVED_UPPER_BOUND_FACTOR / raw_den if metric in ("ber", "fer") else raw_y
+    plot_y = upper_bound if zero else raw_y
     return {
         "figureId": fid,
         "sourceCsv": source_name,
@@ -107,8 +110,10 @@ def figure_row(fid, source_name, source_row_id, row, metric):
         "rawY": f"{raw_y:.17g}",
         "plotY": f"{plot_y:.17g}",
         "isZeroObserved": str(zero).lower(),
+        "zeroObservedStatus": "ZERO_OBSERVED_CENSORED" if zero else "OBSERVED_ERROR_RATE",
         "plotSurrogateUsed": str(zero).lower(),
         "plotSurrogateFormula": formula if zero else "none",
+        "oneSided95UpperBound": f"{upper_bound:.17g}" if metric in ("ber", "fer") else "none",
         "totalFrames": row["totalFrames"],
         "stopReason": row["stopReason"],
     }
@@ -175,6 +180,7 @@ def main():
             "xMax": 18.0,
             "xStep": 0.5,
             "markEvery": 2,
+            "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N.",
         })
     aggregate_path = PLOTS / "stage07_awgn_dense_formal_figure_data.csv"
     write(aggregate_path, aggregate, FIGURE_FIELDS)
@@ -191,7 +197,8 @@ def main():
         "pythonVersion": platform.python_version(),
         "matplotlibVersion": matplotlib.__version__,
         "createdAt": platform.node(),
-        "zeroSurrogateRule": "raw CSV keeps zero; log plots use 0.5/raw denominator",
+        "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored and log plots use one-sided 95% upper bound 3/raw denominator",
+        "zeroObservedUpperBoundFactor": ZERO_OBSERVED_UPPER_BOUND_FACTOR,
         "xTransformFormula": "EbN0_dB = SNR_dB - 10*log10(2*R); sigma2 = 1/10^(SNR_dB/10)",
         "legendMapping": {r["caseId"]: r["legendLabel"] for r in raw},
         "styleMapping": STYLE,
