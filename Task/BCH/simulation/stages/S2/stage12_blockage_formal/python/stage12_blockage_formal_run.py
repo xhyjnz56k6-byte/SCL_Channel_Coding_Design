@@ -56,7 +56,10 @@ run(["cmake", "--build", str(BUILD), "-j", "2"], "stage12_blockage_formal_build.
 run(["ctest", "--test-dir", str(BUILD), "-V", "--output-on-failure"],
     "stage12_blockage_formal_ctest.log")
 
-commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+commit = subprocess.check_output([
+    "git", "log", "-n", "1", "--format=%H", "--",
+    "Task/BCH/simulation/stages/S2/stage12_blockage_formal/cpp/stage12_blockage_formal_runner.cpp"
+], cwd=ROOT, text=True).strip()
 rates = {row["caseId"]: float(row["actualRate"]) for row in old_summary_rows}
 grid = config["snrExperiment"]["targetSnrDb"]
 work = RESULTS / "dense_snr_experiment_b"
