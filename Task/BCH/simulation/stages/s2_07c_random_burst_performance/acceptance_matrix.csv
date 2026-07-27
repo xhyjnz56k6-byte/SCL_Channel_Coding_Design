@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+五种 BCH Case 的随机起点连续错误统计性能,Task/BCH/simulation/stages/s2_07c_random_burst_performance,smoke+formal+业务checker,范围、非有限值、理论保证区、错误重量与配对约束,PASS_BCH_S2_07C_RANDOM_BURST_PERFORMANCE

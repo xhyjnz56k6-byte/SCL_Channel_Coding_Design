@@ -1,0 +1,887 @@
+{
+  "schemaVersion": "bch.s2.burst_redesign.plot_manifest.v1",
+  "figureCount": 18,
+  "figures": [
+    {
+      "filename": "bch_s2_200bit_channel_fer_redesigned.png",
+      "figureData": "figure_data_bch_s2_200bit_channel_fer_redesigned.csv",
+      "title": "200比特BCH信道误帧率比较",
+      "xLabel": "SNR（dB）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "log",
+      "zeroPolicy": "OMITTED_ZERO_OBSERVATION",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison_corrected/channel_adaptation_summary.csv",
+      "sourceSha256": "c7080e4a0bd66c3822180dfc4c335eb034518291b04699e107a1022926ae8ca7",
+      "figureDataSha256": "440ce35aa718f1b09c0c21eacb14eb66386f89a80a9f00ee56fe02c3ddb6b0b6",
+      "pngSha256": "cbf90bfde67b8b592a5e63e16d908b2b93e08fa426af3c3dea030b6d65bf23ed",
+      "pointCount": 164,
+      "visualEncoding": [
+        {
+          "caseName": "BCH-S200",
+          "channelType": "AWGN",
+          "color": "#0072B2",
+          "marker": "o",
+          "linestyle": "'-'",
+          "markerface": "#0072B2",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-S200",
+          "channelType": "MULTIPATH_MMSE",
+          "color": "#D55E00",
+          "marker": "s",
+          "linestyle": "'--'",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-S200",
+          "channelType": "CFO_30_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#009E73",
+          "marker": "^",
+          "linestyle": "':'",
+          "markerface": "#009E73",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-S200",
+          "channelType": "CFO_60_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#CC79A7",
+          "marker": "D",
+          "linestyle": "'-.'",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B200",
+          "channelType": "AWGN",
+          "color": "#E69F00",
+          "marker": "v",
+          "linestyle": "(0, (7, 2))",
+          "markerface": "#E69F00",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B200",
+          "channelType": "MULTIPATH_MMSE",
+          "color": "#56B4E9",
+          "marker": "P",
+          "linestyle": "(0, (3, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B200",
+          "channelType": "CFO_30_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#000000",
+          "marker": "X",
+          "linestyle": "(0, (1, 1))",
+          "markerface": "#000000",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B200",
+          "channelType": "CFO_60_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#882255",
+          "marker": "*",
+          "linestyle": "(0, (5, 1, 1, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_200bit_blockage_fer_redesigned.png",
+      "figureData": "figure_data_bch_s2_200bit_blockage_fer_redesigned.csv",
+      "title": "200比特BCH遮挡误帧率比较",
+      "xLabel": "SNR（dB）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "log",
+      "zeroPolicy": "OMITTED_ZERO_OBSERVATION",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison_corrected/channel_adaptation_summary.csv",
+      "sourceSha256": "c7080e4a0bd66c3822180dfc4c335eb034518291b04699e107a1022926ae8ca7",
+      "figureDataSha256": "72fb0c8430c6da08250bfbc58efaeb4114a9e104c350f5ee169dc9b37de250e5",
+      "pngSha256": "7ec836318929bfcdc801d092627c1e3eea7ca57a4e4a66854b2a62541edf370f",
+      "pointCount": 64,
+      "visualEncoding": [
+        {
+          "caseName": "BCH-S200",
+          "channelType": "BLOCKAGE_M",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "(0, (5, 1, 1, 1))",
+          "markerface": "tab:blue",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-S200",
+          "channelType": "BLOCKAGE_H",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "(0, (3, 1, 1, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-B200",
+          "channelType": "BLOCKAGE_M",
+          "color": "tab:red",
+          "marker": "s",
+          "linestyle": "(0, (5, 1, 1, 1))",
+          "markerface": "tab:red",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-B200",
+          "channelType": "BLOCKAGE_H",
+          "color": "tab:red",
+          "marker": "s",
+          "linestyle": "(0, (3, 1, 1, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_300bit_channel_fer_redesigned.png",
+      "figureData": "figure_data_bch_s2_300bit_channel_fer_redesigned.csv",
+      "title": "300比特BCH信道误帧率比较",
+      "xLabel": "SNR（dB）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "log",
+      "zeroPolicy": "OMITTED_ZERO_OBSERVATION",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison_corrected/channel_adaptation_summary.csv",
+      "sourceSha256": "c7080e4a0bd66c3822180dfc4c335eb034518291b04699e107a1022926ae8ca7",
+      "figureDataSha256": "9504a1399db38a11fa6cf310d17f2584f9798065f108fda5c46a2067017e41c9",
+      "pngSha256": "f94dd24afdaf58cfc88ec582f853f49a428224e20b40845debd9bfaea71228fc",
+      "pointCount": 211,
+      "visualEncoding": [
+        {
+          "caseName": "BCH-S300",
+          "channelType": "AWGN",
+          "color": "#0072B2",
+          "marker": "o",
+          "linestyle": "'-'",
+          "markerface": "#0072B2",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-S300",
+          "channelType": "MULTIPATH_MMSE",
+          "color": "#D55E00",
+          "marker": "s",
+          "linestyle": "'--'",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-S300",
+          "channelType": "CFO_30_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#009E73",
+          "marker": "^",
+          "linestyle": "':'",
+          "markerface": "#009E73",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-S300",
+          "channelType": "CFO_60_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#CC79A7",
+          "marker": "D",
+          "linestyle": "'-.'",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300",
+          "channelType": "AWGN",
+          "color": "#E69F00",
+          "marker": "v",
+          "linestyle": "(0, (7, 2))",
+          "markerface": "#E69F00",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300",
+          "channelType": "MULTIPATH_MMSE",
+          "color": "#56B4E9",
+          "marker": "P",
+          "linestyle": "(0, (3, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300",
+          "channelType": "CFO_30_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#000000",
+          "marker": "X",
+          "linestyle": "(0, (1, 1))",
+          "markerface": "#000000",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300",
+          "channelType": "CFO_60_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#882255",
+          "marker": "*",
+          "linestyle": "(0, (5, 1, 1, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300-426",
+          "channelType": "AWGN",
+          "color": "#44AA99",
+          "marker": "<",
+          "linestyle": "(0, (9, 2, 1, 2))",
+          "markerface": "#44AA99",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300-426",
+          "channelType": "MULTIPATH_MMSE",
+          "color": "#AA4499",
+          "marker": ">",
+          "linestyle": "(0, (2, 1, 2, 3))",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300-426",
+          "channelType": "CFO_30_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#999933",
+          "marker": "h",
+          "linestyle": "(0, (4, 1, 1, 1, 1, 3))",
+          "markerface": "#999933",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        },
+        {
+          "caseName": "BCH-B300-426",
+          "channelType": "CFO_60_NO_COMPENSATION_PHI0_ZERO",
+          "color": "#117733",
+          "marker": "p",
+          "linestyle": "(0, (1, 1, 5, 1))",
+          "markerface": "none",
+          "linewidth": 2.0,
+          "markersize": 6.6,
+          "markeredgewidth": 1.35
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_300bit_blockage_fer_redesigned.png",
+      "figureData": "figure_data_bch_s2_300bit_blockage_fer_redesigned.csv",
+      "title": "300比特BCH遮挡误帧率比较",
+      "xLabel": "SNR（dB）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "log",
+      "zeroPolicy": "OMITTED_ZERO_OBSERVATION",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison_corrected/channel_adaptation_summary.csv",
+      "sourceSha256": "c7080e4a0bd66c3822180dfc4c335eb034518291b04699e107a1022926ae8ca7",
+      "figureDataSha256": "5db5e4df19953557623189365e1d662755b2e64e4321ad2a11784a1d7c758242",
+      "pngSha256": "6f6d95308c073993ee3ac7a3437d95a31c55bcac99f824b991492d783b65cb2c",
+      "pointCount": 92,
+      "visualEncoding": [
+        {
+          "caseName": "BCH-S300",
+          "channelType": "BLOCKAGE_M",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "(0, (5, 1, 1, 1))",
+          "markerface": "tab:green",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-S300",
+          "channelType": "BLOCKAGE_H",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "(0, (3, 1, 1, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-B300",
+          "channelType": "BLOCKAGE_M",
+          "color": "tab:purple",
+          "marker": "D",
+          "linestyle": "(0, (5, 1, 1, 1))",
+          "markerface": "tab:purple",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-B300",
+          "channelType": "BLOCKAGE_H",
+          "color": "tab:purple",
+          "marker": "D",
+          "linestyle": "(0, (3, 1, 1, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-B300-426",
+          "channelType": "BLOCKAGE_M",
+          "color": "tab:orange",
+          "marker": "v",
+          "linestyle": "(0, (5, 1, 1, 1))",
+          "markerface": "tab:orange",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        },
+        {
+          "caseName": "BCH-B300-426",
+          "channelType": "BLOCKAGE_H",
+          "color": "tab:orange",
+          "marker": "v",
+          "linestyle": "(0, (3, 1, 1, 1, 1, 1))",
+          "markerface": "none",
+          "linewidth": 1.5,
+          "markersize": 5.0,
+          "markeredgewidth": 1.2
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07a_block_burst_boundary.png",
+      "figureData": "figure_data_bch_s2_07a_block_burst_boundary.csv",
+      "title": "整块BCH连续错误纠正边界",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "成功起点比例",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary/formal_summary.csv",
+      "sourceSha256": "d7127b6d491b1477a51383e5b66dc46097582367c264852e9303fcf89f9a500e",
+      "figureDataSha256": "6b415d56b7ef801cb735962d877076ad2ec67d3cfa525038e7008b3abec62fec",
+      "pngSha256": "0b3cd146666c65ddea7839ce2ad9e97e796a9fc92a476f30a487a58429699458",
+      "pointCount": 45,
+      "visualEncoding": [
+        {
+          "series": "BCH-B200",
+          "color": "tab:red",
+          "marker": "s",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B300",
+          "color": "tab:purple",
+          "marker": "D",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B300-426",
+          "color": "tab:orange",
+          "marker": "v",
+          "linestyle": "-"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07b_s200_heatmap.png",
+      "figureData": "figure_data_bch_s2_07b_s200_heatmap.csv",
+      "title": "S200子块边界突发错误热力图",
+      "xLabel": "子块内起点位置",
+      "yLabel": "连续错误长度（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "4d24a29dd4355e364d6c0acdbc944046871771b5e44e5405930a50631150af1e",
+      "pngSha256": "ef2316ba3834fb28b80f2836de69789f61eb12f1c26d46d93ff3e274c0d88770",
+      "pointCount": 450,
+      "visualEncoding": [
+        {
+          "colormap": "cividis",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s200_local_l1_l5.png",
+      "figureData": "figure_data_bch_s2_07b_s200_local_l1_l5.csv",
+      "title": "BCH-S200 子块边界局部热力图（L=1..5）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "5bbe5259a27b796076f02249232b91f65c734c5872cb722a0689604bd664ef3d",
+      "pngSha256": "4300e74abf03a0254711105409e1711d04a563b0e706c6e6011d6cfd0eca1f61",
+      "pointCount": 75,
+      "visualEncoding": [
+        {
+          "colormap": "cividis",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest",
+          "region": "L=1..5"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s200_guarantee_binary.png",
+      "figureData": "figure_data_bch_s2_07b_s200_guarantee_binary.csv",
+      "title": "BCH-S200 理论保证区域（二值图）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "99f37c706dbb43a17f5e9518f33320cf750ef1f3da1c704249799b0641bfa99e",
+      "pngSha256": "24905567694fbaf90e5ac128249637520a3ba8bdd10365e0060cf4e2022b1bd2",
+      "pointCount": 450,
+      "visualEncoding": [
+        {
+          "colormap": "binary-guarantee",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s300_heatmap.png",
+      "figureData": "figure_data_bch_s2_07b_s300_heatmap.csv",
+      "title": "S300子块边界突发错误热力图",
+      "xLabel": "子块内起点位置",
+      "yLabel": "连续错误长度（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "3900754256283061dd1e7fc521b936277dc6e903622849d80a1d3deb073b855b",
+      "pngSha256": "f674bffb697a977d3501e109cc49e111be872d08d27a392bebdaad3fdecf1331",
+      "pointCount": 450,
+      "visualEncoding": [
+        {
+          "colormap": "cividis",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s300_local_l1_l5.png",
+      "figureData": "figure_data_bch_s2_07b_s300_local_l1_l5.csv",
+      "title": "BCH-S300 子块边界局部热力图（L=1..5）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "2e511361f9249ef98b9e3eabc48cc90788cbe5568fa2f6d0e59927ec75a36f6c",
+      "pngSha256": "169c6277aacbd3ffc62cbc2001c1c9c83a043694a8a8acfdd043ccf0953a267e",
+      "pointCount": 75,
+      "visualEncoding": [
+        {
+          "colormap": "cividis",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest",
+          "region": "L=1..5"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_s300_guarantee_binary.png",
+      "figureData": "figure_data_bch_s2_07b_s300_guarantee_binary.csv",
+      "title": "BCH-S300 理论保证区域（二值图）",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "连续错误长度 L（bit）",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "67ecdb9f505a4faead52fa4b4c09b00a9e44a5f9508d3a2e1895b13a330df66b",
+      "pngSha256": "178c3e3e8a5660d8516558650d63f09793ea1e76fcff4815cb5b6f7829d64d17",
+      "pointCount": 450,
+      "visualEncoding": [
+        {
+          "colormap": "binary-guarantee",
+          "vmin": 0,
+          "vmax": 1,
+          "interpolation": "nearest"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "nearest"
+    },
+    {
+      "filename": "bch_s2_07b_l2_relative_start_fer.png",
+      "figureData": "figure_data_bch_s2_07b_l2_relative_start_fer.csv",
+      "title": "分块 BCH：L=2 时起点位置与 FER",
+      "xLabel": "子块内起点位置 r",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+      "sourceSha256": "c684c0292cd8ab9b287cef036f51bcfeede33775f49f674a95901584c78b88d8",
+      "figureDataSha256": "7e935eda94b6b94cc168951d0cbb5a2b80b37c448c183a3b3c325289e336189e",
+      "pngSha256": "b2deb08a16da7233d915fb38fab4d6638985a98b5b367929ab7ee028d72e7b37",
+      "pointCount": 30,
+      "visualEncoding": [
+        {
+          "series": "BCH-S200",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "-",
+          "markerface": "tab:blue"
+        },
+        {
+          "series": "BCH-S300",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "-",
+          "markerface": "tab:green"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07c_200bit_random_burst_fer.png",
+      "figureData": "figure_data_bch_s2_07c_200bit_random_burst_fer.csv",
+      "title": "200比特BCH随机突发误帧率",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07c_random_burst_performance/formal_summary.csv",
+      "sourceSha256": "f45defc1a611984824647b47de401c4eaa3650a6c4098c9d3388df9b62725353",
+      "figureDataSha256": "7de6048750994eb19f5cd428469dd2cd002c59179d3ed78b17924bfde138e66b",
+      "pngSha256": "bbd5916d109197ba16c8f3f64ce979bd35100f421dc9eae07693c7aaeb5d39ec",
+      "pointCount": 66,
+      "visualEncoding": [
+        {
+          "series": "BCH-S200",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B200",
+          "color": "tab:red",
+          "marker": "s",
+          "linestyle": "-"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07c_300bit_random_burst_fer.png",
+      "figureData": "figure_data_bch_s2_07c_300bit_random_burst_fer.csv",
+      "title": "300比特BCH随机突发误帧率",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07c_random_burst_performance/formal_summary.csv",
+      "sourceSha256": "f45defc1a611984824647b47de401c4eaa3650a6c4098c9d3388df9b62725353",
+      "figureDataSha256": "c7d26eaae37797d3820499e15d09bc9e2aae66d9aa7916f91bd7ceffbe86946f",
+      "pngSha256": "4b6c9948779bd48d376b16138de101cfb167ef11b41fc7676d5559bf5c5c78cd",
+      "pointCount": 99,
+      "visualEncoding": [
+        {
+          "series": "BCH-S300",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B300",
+          "color": "tab:purple",
+          "marker": "D",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B300-426",
+          "color": "tab:orange",
+          "marker": "v",
+          "linestyle": "-"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07d_200bit_interleaving_fer.png",
+      "figureData": "figure_data_bch_s2_07d_200bit_interleaving_fer.csv",
+      "title": "200比特BCH交织前后突发误帧率",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07d_burst_interleaving/formal_summary.csv",
+      "sourceSha256": "4949848e551aac6c556c2ed42fa3c765fc938005f4bd5e4cff776e64d423b15d",
+      "figureDataSha256": "868ba4b1e6daad6a90fcb876ddef5fac374ff39ed1b05f10128555393dc1ece7",
+      "pngSha256": "1ae3fde2106de312665cc26c88eb267d0f4cb97c10303e06d96f4617e437c12a",
+      "pointCount": 132,
+      "visualEncoding": [
+        {
+          "series": "BCH-S200|NONE",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S200|FIXED_RANDOM",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "--"
+        },
+        {
+          "series": "BCH-B200|NONE",
+          "color": "tab:red",
+          "marker": "s",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B200|FIXED_RANDOM",
+          "color": "tab:red",
+          "marker": "s",
+          "linestyle": "--"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07d_300bit_interleaving_fer.png",
+      "figureData": "figure_data_bch_s2_07d_300bit_interleaving_fer.csv",
+      "title": "300比特BCH交织前后突发误帧率",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "误帧率 FER",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07d_burst_interleaving/formal_summary.csv",
+      "sourceSha256": "4949848e551aac6c556c2ed42fa3c765fc938005f4bd5e4cff776e64d423b15d",
+      "figureDataSha256": "fde6ab58e58fc3a54ba0c8d34a0544cf34dfe6e8c1b7f0566c4c63e30805f26a",
+      "pngSha256": "3778ede0205d6b9e3955c7e39340b2aff4f64f4d83ed2aaa87364d343096544f",
+      "pointCount": 198,
+      "visualEncoding": [
+        {
+          "series": "BCH-S300|NONE",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S300|FIXED_RANDOM",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "--"
+        },
+        {
+          "series": "BCH-B300|NONE",
+          "color": "tab:purple",
+          "marker": "D",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B300|FIXED_RANDOM",
+          "color": "tab:purple",
+          "marker": "D",
+          "linestyle": "--"
+        },
+        {
+          "series": "BCH-B300-426|NONE",
+          "color": "tab:orange",
+          "marker": "v",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-B300-426|FIXED_RANDOM",
+          "color": "tab:orange",
+          "marker": "v",
+          "linestyle": "--"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07d_segmented_max_subblock_errors.png",
+      "figureData": "figure_data_bch_s2_07d_segmented_max_subblock_errors.csv",
+      "title": "分块BCH交织前后最大子块错误数",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "解交织后单个子块最大错误数的帧平均值",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07d_burst_interleaving/formal_summary.csv",
+      "sourceSha256": "4949848e551aac6c556c2ed42fa3c765fc938005f4bd5e4cff776e64d423b15d",
+      "figureDataSha256": "e198d166b16fa5ae0f2ace48e4538793980bd5ece897eeda0fccd38e295fa299",
+      "pngSha256": "23ff1bbd444779562f39bb25cba2da63b30e6ae87c1c1851e2fbc8811ca2695a",
+      "pointCount": 132,
+      "visualEncoding": [
+        {
+          "series": "BCH-S200|NONE",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S200|FIXED_RANDOM",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "--"
+        },
+        {
+          "series": "BCH-S300|NONE",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S300|FIXED_RANDOM",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "--"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    },
+    {
+      "filename": "bch_s2_07d_over_capability_frame_fraction.png",
+      "figureData": "figure_data_bch_s2_07d_over_capability_frame_fraction.csv",
+      "title": "交织前后超纠错能力帧比例",
+      "xLabel": "连续错误长度（bit）",
+      "yLabel": "超出子块保证纠错能力的帧比例",
+      "xScale": "linear",
+      "yScale": "linear",
+      "zeroPolicy": "PLOT_ALL_LINEAR",
+      "sourceFile": "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07d_burst_interleaving/formal_summary.csv",
+      "sourceSha256": "4949848e551aac6c556c2ed42fa3c765fc938005f4bd5e4cff776e64d423b15d",
+      "figureDataSha256": "8b8d3d7cd70bff0cbb40c214176283bc500b179aa6cc872adc9bd509863d88b5",
+      "pngSha256": "aec391bf1e8c240242e0ebb1630054ac6468c6655ccb4e31f1cd86fb658759bc",
+      "pointCount": 132,
+      "visualEncoding": [
+        {
+          "series": "BCH-S200|NONE",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S200|FIXED_RANDOM",
+          "color": "tab:blue",
+          "marker": "o",
+          "linestyle": "--"
+        },
+        {
+          "series": "BCH-S300|NONE",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "-"
+        },
+        {
+          "series": "BCH-S300|FIXED_RANDOM",
+          "color": "tab:green",
+          "marker": "^",
+          "linestyle": "--"
+        }
+      ],
+      "format": "PNG",
+      "interpolation": "NONE"
+    }
+  ],
+  "gate": "PASS_BCH_S2_07_BURST_PLOT_AUDIT"
+}

@@ -1,0 +1,2 @@
+stage,status,result
+s2_08_channel_adaptation_comparison,PASS,AWGN/多径基线 hash 复用、对数 FER 夹区间插值和 12 图审计均通过。

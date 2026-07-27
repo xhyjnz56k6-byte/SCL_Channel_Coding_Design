@@ -1,0 +1,2 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+纯 burst 与 AWGN 后硬判决连续翻转,Task/BCH/simulation/stages/s2_07_burst_sensitivity,C++ unit/smoke/formal/reference,invalid config/hash/range rejection,PASS_BCH_S2_07

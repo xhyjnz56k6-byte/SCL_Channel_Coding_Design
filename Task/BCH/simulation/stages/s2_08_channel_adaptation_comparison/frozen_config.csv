@@ -1,0 +1,7 @@
+key,value
+stage,s2_08_channel_adaptation_comparison
+title,多信道综合比较
+noisePolicyVersion,2
+bandwidthConvention,Bn_EQUALS_Rs
+xTransformFormula,snrDb=sourcePayloadEbN0Db+10*log10(frameRate)
+globalSeed,2026072601

@@ -1,0 +1,7 @@
+metric,value,gate
+comparisonGroups,35,PASS
+comparedFrames,3500,PASS
+maxAllowedSampleAbsDiff,1e-12,PASS
+hardBitMismatches,0,PASS
+decodedPayloadBitMismatches,0,PASS
+frameErrorMismatches,0,PASS

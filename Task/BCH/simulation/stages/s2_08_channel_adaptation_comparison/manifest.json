@@ -1,0 +1,352 @@
+{
+  "schemaVersion": "bch.s2.stage-manifest.v2",
+  "stage": "s2_08_channel_adaptation_comparison",
+  "branch": "bch-s2-batch2-cfo-blockage-burst-final-audit",
+  "baseMainCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+  "functionalRanges": [
+    {
+      "name": "sharedInfrastructure",
+      "baseCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+      "contentCommit": "759bd3d2af63009a251615573045a1d95a70a4b0",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp",
+        "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp",
+        "Task/BCH/simulation/current/src/bch_impairment_channels.cpp",
+        "Task/BCH/simulation/current/src/bch_impairment_runner.cpp",
+        "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp",
+        "Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp",
+        "Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp",
+        "Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m",
+        "Task/BCH/simulation/scripts/check_bch_s2_batch2.py",
+        "Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py",
+        "Task/BCH/simulation/scripts/compare_bch_s2_batch2.py",
+        "Task/BCH/simulation/scripts/plot_bch_s2_batch2.py",
+        "Task/BCH/simulation/scripts/run_bch_s2_batch2.py"
+      ],
+      "nameStatus": [
+        {
+          "status": "M",
+          "path": "Task/BCH/simulation/current/CMakeLists.txt"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/src/bch_impairment_channels.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/src/bch_impairment_runner.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/check_bch_s2_batch2.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/compare_bch_s2_batch2.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/plot_bch_s2_batch2.py"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/scripts/run_bch_s2_batch2.py"
+        }
+      ]
+    },
+    {
+      "name": "content",
+      "baseCommit": "6d94678a505e60b036f2dd2aeac6d164dc00518f",
+      "contentCommit": "42f2f99a2f837b1c831c3115898d1613390c5d06",
+      "files": [
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/baseline_sources.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/blockage_tolerance_summary.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/burst_tolerance_summary.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/cfo_tolerance_summary.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/comparison_interpolation_audit.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/decoder_failure_risk_summary.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/frozen_config.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/miscorrection_risk_summary.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/receiver_timing_summary.csv",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/stage_plan.md",
+        "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/target_fer_snr_loss_summary.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_awgn_burst_fer.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_length_ber.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_length_fer.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_snr_fer.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_rotation_ber.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_rotation_fer.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_snr_fer.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_failure.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_fer.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_miscorrection.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_receiver_time.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_pure_burst_fer.png",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_awgn_burst_fer.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_ber.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_fer.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_snr_fer.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_ber.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_fer.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_snr_fer.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_failure.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_fer.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_miscorrection.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_receiver_time.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_pure_burst_fer.csv",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/plot_manifest.json",
+        "Task/BCH/simulation/stages/s2_multi_channel_adaptation/resume_shard_audit.csv"
+      ],
+      "nameStatus": [
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/acceptance_matrix.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/baseline_sources.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/blockage_tolerance_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/burst_tolerance_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/cfo_tolerance_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/comparison_interpolation_audit.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/decoder_failure_risk_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/frozen_config.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/miscorrection_risk_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/receiver_timing_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/stage_plan.md"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/target_fer_snr_loss_summary.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_awgn_burst_fer.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_length_ber.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_length_fer.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_snr_fer.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_rotation_ber.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_rotation_fer.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_snr_fer.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_failure.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_fer.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_miscorrection.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_receiver_time.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_pure_burst_fer.png"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_awgn_burst_fer.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_ber.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_fer.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_snr_fer.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_ber.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_fer.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_snr_fer.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_failure.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_fer.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_miscorrection.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_receiver_time.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_pure_burst_fer.csv"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/plot_manifest.json"
+        },
+        {
+          "status": "A",
+          "path": "Task/BCH/simulation/stages/s2_multi_channel_adaptation/resume_shard_audit.csv"
+        }
+      ]
+    }
+  ],
+  "functionalFiles": [
+    "Task/BCH/simulation/current/CMakeLists.txt",
+    "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_channels.hpp",
+    "Task/BCH/simulation/current/include/bch_simulation/bch_impairment_simulation.hpp",
+    "Task/BCH/simulation/current/src/bch_impairment_channels.cpp",
+    "Task/BCH/simulation/current/src/bch_impairment_runner.cpp",
+    "Task/BCH/simulation/current/src/bch_impairment_simulation.cpp",
+    "Task/BCH/simulation/current/tests/export_bch_s2_batch2_matlab_vectors.cpp",
+    "Task/BCH/simulation/current/tests/test_bch_s2_impairments.cpp",
+    "Task/BCH/simulation/matlab_official_validation/matlab/run_bch_s2_batch2_reference.m",
+    "Task/BCH/simulation/scripts/check_bch_s2_batch2.py",
+    "Task/BCH/simulation/scripts/check_bch_s2_batch2_resume_shard.py",
+    "Task/BCH/simulation/scripts/compare_bch_s2_batch2.py",
+    "Task/BCH/simulation/scripts/plot_bch_s2_batch2.py",
+    "Task/BCH/simulation/scripts/run_bch_s2_batch2.py",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/acceptance_matrix.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/baseline_sources.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/blockage_tolerance_summary.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/burst_tolerance_summary.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/cfo_tolerance_summary.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/channel_adaptation_summary.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/comparison_interpolation_audit.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/decoder_failure_risk_summary.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/frozen_config.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/miscorrection_risk_summary.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/receiver_timing_summary.csv",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/stage_plan.md",
+    "Task/BCH/simulation/stages/s2_08_channel_adaptation_comparison/target_fer_snr_loss_summary.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_awgn_burst_fer.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_length_ber.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_length_fer.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_blockage_snr_fer.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_rotation_ber.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_rotation_fer.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_cfo_snr_fer.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_failure.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_fer.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_comparison_miscorrection.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_channel_receiver_time.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/bch_s2_pure_burst_fer.png",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_awgn_burst_fer.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_ber.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_length_fer.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_blockage_snr_fer.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_ber.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_rotation_fer.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_cfo_snr_fer.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_failure.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_fer.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_comparison_miscorrection.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_channel_receiver_time.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/figures/figure_data_bch_s2_pure_burst_fer.csv",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/plot_manifest.json",
+    "Task/BCH/simulation/stages/s2_multi_channel_adaptation/resume_shard_audit.csv"
+  ],
+  "gate": "PASS_BCH_S2_08_CHANNEL_ADAPTATION_COMPARISON",
+  "remoteVerificationStatus": "VERIFIED_FUNCTIONAL_COMMITS_ON_REMOTE",
+  "remoteHeadAtVerification": "5910dd965f008592293276757796069c7e41d554",
+  "mergeStatus": "NOT_MERGED",
+  "awgnFormalRerun": false,
+  "multipathFormalRerun": false
+}

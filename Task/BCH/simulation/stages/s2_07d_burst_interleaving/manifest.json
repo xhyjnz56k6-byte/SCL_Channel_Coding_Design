@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "bch.s2.stage_manifest.v2",
+  "stage": "s2_07d",
+  "branch": "bch-s2-burst-redesign-and-plot-quality",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "9a46afed97f3c733024c1450fe6aee1cc02aa70b",
+      "contentCommit": "3c4193aa333e806655d202bac03b426021752cf8",
+      "files": [
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/error_weight_conservation_audit.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/formal_summary.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/interleaver_manifest.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/paired_comparison_summary.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/permutation_hashes.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/resume_shard_audit.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/smoke_summary.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/subblock_dispersion_summary.csv",
+        "Task/BCH/simulation/stages/s2_07d_burst_interleaving/test_summary.csv"
+      ]
+    }
+  ],
+  "gate": "PASS_BCH_S2_07D_BURST_INTERLEAVING",
+  "gateStatus": "PASS",
+  "remoteVerification": "VERIFIED_CONTAINS_CONTENT_COMMIT",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "bch.s2.stage_manifest.v2",
+  "stage": "s2_07b",
+  "branch": "bch-s2-burst-redesign-and-plot-quality",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "d09db7eb73e0347b8f8de830769cf3511c01e0df",
+      "contentCommit": "73ecc758d132d54e797c19cea92c9e370de2e52b",
+      "files": [
+        "Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/boundary_heatmap_summary.csv",
+        "Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/formal_summary.csv",
+        "Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/guaranteed_subblock_audit.csv",
+        "Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/smoke_summary.csv",
+        "Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/subblock_error_distribution.csv",
+        "Task/BCH/simulation/stages/s2_07b_segmented_boundary_heatmap/test_summary.csv"
+      ]
+    }
+  ],
+  "gate": "PASS_BCH_S2_07B_SEGMENTED_BOUNDARY_HEATMAP",
+  "gateStatus": "PASS",
+  "remoteVerification": "VERIFIED_CONTAINS_CONTENT_COMMIT",
+  "mergeStatus": "NOT_MERGED"
+}

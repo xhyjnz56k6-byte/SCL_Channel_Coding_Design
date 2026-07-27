@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "bch.s2.matlab_execution.v1",
+  "executed": true,
+  "skipped": false,
+  "command": [
+    "D:\\Apps\\Matlab\\bin\\matlab.exe",
+    "-batch",
+    "addpath('C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/matlab_official_validation/matlab'); run_bch_s2_burst_redesign_reference('C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/results/s2_07_burst_redesign/matlab/burst_vectors.csv','C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/s2_07_burst_redesign_audit/matlab_reference_summary.csv')"
+  ],
+  "returnCode": 0,
+  "head": "dc2a7c1607b935cfb1d2bc6857abd3567c393f83",
+  "timestampUnix": 1785078128,
+  "inputFile": "Task/BCH/simulation/results/s2_07_burst_redesign/matlab/burst_vectors.csv",
+  "inputSha256": "5387e3283932bd8c910ff76d432c0684d4fa941604e8e5306f2935229ae044b5",
+  "outputFile": "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/matlab_reference_summary.csv",
+  "logFile": "Task/BCH/simulation/stages/s2_07_burst_redesign_audit/matlab_log.txt",
+  "logSha256": "b8cd6de7331b508339f32e3e87fcf9c42778944624876bfa843d35ac4f83f68d",
+  "groups": 15,
+  "frames": 9040,
+  "mismatches": 0,
+  "outputSha256": "c1ced855031ec3829e00d17ab833122b449cbf867c42241ea363b64891aa5397",
+  "gate": "PASS_BCH_S2_07_MATLAB_BURST_REFERENCE"
+}

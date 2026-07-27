@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "bch.s2.stage_manifest.v2",
+  "stage": "s2_07a",
+  "branch": "bch-s2-burst-redesign-and-plot-quality",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "f1a6e8ba5c6a0ea8f7008335c89b1fb8c9cb54fa",
+      "contentCommit": "d09db7eb73e0347b8f8de830769cf3511c01e0df",
+      "files": [
+        "Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary/formal_summary.csv",
+        "Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary/guaranteed_region_audit.csv",
+        "Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary/miscorrection_summary.csv",
+        "Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary/smoke_summary.csv",
+        "Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary/start_position_summary.csv",
+        "Task/BCH/simulation/stages/s2_07a_block_burst_correction_boundary/test_summary.csv"
+      ]
+    }
+  ],
+  "gate": "PASS_BCH_S2_07A_BLOCK_BURST_CORRECTION_BOUNDARY",
+  "gateStatus": "PASS",
+  "remoteVerification": "VERIFIED_CONTAINS_CONTENT_COMMIT",
+  "mergeStatus": "NOT_MERGED"
+}
