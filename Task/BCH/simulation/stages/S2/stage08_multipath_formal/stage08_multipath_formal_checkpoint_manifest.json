@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "stage08.checkpoint.v1",
+  "checkpointLevel": "WITHIN_POINT_EVERY_1000_FRAMES_AND_COMPLETED_GRID_POINT",
+  "resumeVerification": "PASS_FRAME_INTERRUPT_RESUME_INTEGER_COUNTS_AND_COMPLETED_POINT_HASH_UNCHANGED",
+  "checkpointIntervalFramesConfigured": 1000,
+  "implementedFlushBoundary": "EACH_1000_FRAMES_AND_EACH_COMPLETED_POINT",
+  "forcedInterruptFrame": 2500,
+  "forcedInterruptCaseId": "K200_S15",
+  "integerCountEquivalence": "PASS",
+  "shards": [
+    {
+      "shardId": "SHARD_0",
+      "completedPoints": 12,
+      "resultFile": "results/stage08_multipath_formal_shard_0.csv",
+      "resultSha256": "262ee9af45ce6ff2df37e7f6f4a8ccdfb7f92119827a5f86c62c887721eea94a"
+    },
+    {
+      "shardId": "SHARD_1",
+      "completedPoints": 12,
+      "resultFile": "results/stage08_multipath_formal_shard_1.csv",
+      "resultSha256": "91d2cc0b44a3e802b56ba6675a1bc08d7fa796b637718865f77d8c92f4cb76fb"
+    }
+  ]
+}

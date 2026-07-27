@@ -1,0 +1,59 @@
+{
+  "plotFile": "plots/stage08_multipath_formal_k200_equalize_latency.png",
+  "plotType": "equalizeTimeMeanNs",
+  "title": "200比特BCH多径均衡时延对比",
+  "xLabel": "SNR (dB)",
+  "yLabel": "均衡时延 (μs)",
+  "xSourceColumn": "snrDb",
+  "ySourceColumn": "equalizeTimeMeanNs",
+  "xTransformFormula": "SNR_dB = EbN0_dB + 10*log10(2*R)",
+  "yScale": "linear",
+  "zeroHandlingRule": "raw zero retained; plotY=0.5/count only for log display",
+  "sourceCsv": "results/stage08_multipath_formal_results.csv",
+  "sourceCsvSha256": "d7bbbda6c51fd13da3f76949cc8650fde7313f8e107ed1e734210185b2af4a14",
+  "figureDataCsv": "plots/stage08_multipath_formal_k200_equalize_latency_figure_data.csv",
+  "figureDataSha256": "457e38b71f5d4a610f2ce9e085073f2568bbecae46b8aac3e75a4d1b3960bdb6",
+  "legendMapping": {
+    "K200_S15": "分块200",
+    "K200_M255K207": "255整块200",
+    "K200_M511K421": "421整块200",
+    "K200_M511K385": "385整块200"
+  },
+  "styleMapping": {
+    "K200_S15": {
+      "styleId": "STYLE_1",
+      "color": "C0",
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "K200_M255K207": {
+      "styleId": "STYLE_2",
+      "color": "C1",
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "K200_M511K421": {
+      "styleId": "STYLE_3",
+      "color": "C2",
+      "lineStyle": "-.",
+      "marker": "^"
+    },
+    "K200_M511K385": {
+      "styleId": "STYLE_4",
+      "color": "C3",
+      "lineStyle": ":",
+      "marker": "D"
+    }
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "dpi": 140,
+  "imageFormat": "PNG",
+  "imageWidth": 1260,
+  "imageHeight": 812,
+  "plotScript": "python/stage08_multipath_formal_plot.py",
+  "plotScriptSha256": "d02029c9111e58ce118c36294f242b84768ff3854636780e18b7f650cbc45521",
+  "plotFileSha256": "ea05ef65f746839043d56a1b450a385335f0194391772d14fdfeb3304dec7bc3",
+  "gitCommit": "5fb6a373263eb6a50d0ef70a14cad16963a0fb3d",
+  "configHash": "457ea7422976679d98dd9ca6857c00c84e2fbb71e546f759d4ff745aac299a84"
+}

@@ -1,0 +1,58 @@
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_checkpoint_interrupt.log ===
+INTERRUPTED_AFTER_CHECKPOINT frames=2500
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_checkpoint_resume.log ===
+POINT_COMPLETE K200_S15:0 frames=5000 errors=2543
+PASS_STAGE08_MULTIPATH_FORMAL_SHARD shard=0 executed=1 resumeSkipped=0
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_checkpoint_continuous.log ===
+POINT_COMPLETE K200_S15:0 frames=5000 errors=2543
+PASS_STAGE08_MULTIPATH_FORMAL_SHARD shard=0 executed=1 resumeSkipped=0
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_shard_0.log ===
+POINT_COMPLETE K200_S15:0 frames=5000 errors=2543
+POINT_COMPLETE K200_S15:2 frames=50000 errors=30
+POINT_COMPLETE K200_M255K207:1 frames=5000 errors=305
+POINT_COMPLETE K200_M511K421:0 frames=5000 errors=4906
+POINT_COMPLETE K200_M511K421:2 frames=6469 errors=200
+POINT_COMPLETE K200_M511K385:1 frames=5000 errors=4235
+POINT_COMPLETE K300_S15:0 frames=5000 errors=3159
+POINT_COMPLETE K300_S15:2 frames=50000 errors=48
+POINT_COMPLETE K300_M255K207:1 frames=5000 errors=439
+POINT_COMPLETE K300_M511K421:0 frames=5000 errors=3258
+POINT_COMPLETE K300_M511K421:2 frames=50000 errors=16
+POINT_COMPLETE K300_M511K385:1 frames=5000 errors=692
+PASS_STAGE08_MULTIPATH_FORMAL_SHARD shard=0 executed=12 resumeSkipped=0
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_shard_1.log ===
+POINT_COMPLETE K200_S15:1 frames=5103 errors=200
+POINT_COMPLETE K200_M255K207:0 frames=5000 errors=2753
+POINT_COMPLETE K200_M255K207:2 frames=50000 errors=96
+POINT_COMPLETE K200_M511K421:1 frames=5000 errors=2461
+POINT_COMPLETE K200_M511K385:0 frames=5000 errors=4997
+POINT_COMPLETE K200_M511K385:2 frames=5000 errors=552
+POINT_COMPLETE K300_S15:1 frames=5000 errors=301
+POINT_COMPLETE K300_M255K207:0 frames=5000 errors=3441
+POINT_COMPLETE K300_M255K207:2 frames=50000 errors=196
+POINT_COMPLETE K300_M511K421:1 frames=5000 errors=206
+POINT_COMPLETE K300_M511K385:0 frames=5000 errors=4586
+POINT_COMPLETE K300_M511K385:2 frames=50000 errors=44
+PASS_STAGE08_MULTIPATH_FORMAL_SHARD shard=1 executed=12 resumeSkipped=0
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_resume_0.log ===
+PASS_STAGE08_MULTIPATH_FORMAL_SHARD shard=0 executed=0 resumeSkipped=12
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_resume_1.log ===
+PASS_STAGE08_MULTIPATH_FORMAL_SHARD shard=1 executed=0 resumeSkipped=12
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_merge.log ===
+PASS_STAGE08_SHARD_MERGE points=24 frames=391572
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_check.log ===
+PASS_STAGE08_MULTIPATH_FORMAL_RESULTS points=24 frames=391572
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_plot.log ===
+PASS_STAGE08_PLOT_GENERATION plots=8
+
+=== Task/BCH/simulation/stages/S2/stage08_multipath_formal/logs/stage08_multipath_formal_plot_check.log ===
+PASS_STAGE08_PLOT_CHECK

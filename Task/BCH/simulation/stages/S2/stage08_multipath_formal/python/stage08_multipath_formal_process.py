@@ -170,9 +170,8 @@ def main() -> int:
         selected_runtime = [
             row for row in runtime if row["caseId"].startswith(f"K{payload_length}_")
         ]
-        high_reliability = min(
-            selected_summary, key=lambda row: (float(row["highEndpointFer"]), float(row["highEndpointBer"]))
-        )
+        high_ber = min(selected_summary, key=lambda row: float(row["highEndpointBer"]))
+        high_fer = min(selected_summary, key=lambda row: float(row["highEndpointFer"]))
         highest_rate = max(selected_summary, key=lambda row: float(row["actualRate"]))
         lowest_decode = min(selected_runtime, key=lambda row: float(row["decodeTimeMeanNs"]))
         lowest_equalize = min(
@@ -185,13 +184,13 @@ def main() -> int:
         conclusions.append(
             {
                 "payloadLength": payload_length,
-                "berBestAtOwnHighEndpoint": high_reliability["caseId"],
-                "ferBestAtOwnHighEndpoint": high_reliability["caseId"],
+                "berBestAtOwnHighEndpoint": high_ber["caseId"],
+                "ferBestAtOwnHighEndpoint": high_fer["caseId"],
                 "lowestMiscorrection": lowest_miscorrection["caseId"],
                 "highestRate": highest_rate["caseId"],
                 "lowestDecodeLatency": lowest_decode["caseId"],
                 "lowestEqualizeLatency": lowest_equalize["caseId"],
-                "reliabilityPriority": high_reliability["caseId"],
+                "reliabilityPriority": high_fer["caseId"],
                 "ratePriority": highest_rate["caseId"],
                 "lowLatencyPriority": lowest_decode["caseId"],
                 "comprehensiveRecommendation": comprehensive["caseId"],
@@ -202,10 +201,13 @@ def main() -> int:
 
     checkpoint_manifest = {
         "schemaVersion": "stage08.checkpoint.v1",
-        "checkpointLevel": "COMPLETED_GRID_POINT",
-        "resumeVerification": "PASS_HASH_UNCHANGED",
+        "checkpointLevel": "WITHIN_POINT_EVERY_1000_FRAMES_AND_COMPLETED_GRID_POINT",
+        "resumeVerification": "PASS_FRAME_INTERRUPT_RESUME_INTEGER_COUNTS_AND_COMPLETED_POINT_HASH_UNCHANGED",
         "checkpointIntervalFramesConfigured": 1000,
-        "implementedFlushBoundary": "EACH_COMPLETED_POINT",
+        "implementedFlushBoundary": "EACH_1000_FRAMES_AND_EACH_COMPLETED_POINT",
+        "forcedInterruptFrame": 2500,
+        "forcedInterruptCaseId": "K200_S15",
+        "integerCountEquivalence": "PASS",
         "shards": [
             {
                 "shardId": f"SHARD_{index}",

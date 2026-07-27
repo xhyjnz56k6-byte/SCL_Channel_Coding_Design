@@ -69,6 +69,12 @@ def main() -> int:
         require(len(set(manifest["legendMapping"].values())) == 4, "legend duplicate")
         styles = [entry["styleId"] for entry in manifest["styleMapping"].values()]
         require(len(set(styles)) == 4, "style duplicate")
+        (manifest_path.parent / manifest_path.name.replace(
+            "_plot_manifest.json", "_plot_check.log"
+        )).write_text(
+            f"PASS_STAGE08_PLOT_CHECK plot={manifest['plotFile']}\n",
+            encoding="utf-8",
+        )
     forbidden = [
         path for path in stage.rglob("*")
         if path.is_file() and path.suffix.lower() in (".pdf", ".svg", ".eps", ".jpg", ".jpeg")

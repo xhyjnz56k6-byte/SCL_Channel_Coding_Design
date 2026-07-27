@@ -1,0 +1,3 @@
+payloadLength,berBestAtOwnHighEndpoint,ferBestAtOwnHighEndpoint,lowestMiscorrection,highestRate,lowestDecodeLatency,lowestEqualizeLatency,reliabilityPriority,ratePriority,lowLatencyPriority,comprehensiveRecommendation,qualification
+200,K200_S15,K200_S15,K200_M511K385,K200_M255K207,K200_S15,K200_M255K207,K200_S15,K200_M255K207,K200_S15,K200_M255K207,NO_SINGLE_ABSOLUTE_BEST; endpoints use different frozen EbN0 grids
+300,K300_S15,K300_M511K421,K300_M511K385,K300_M511K421,K300_S15,K300_M255K207,K300_M511K421,K300_M511K421,K300_S15,K300_M511K421,NO_SINGLE_ABSOLUTE_BEST; endpoints use different frozen EbN0 grids
