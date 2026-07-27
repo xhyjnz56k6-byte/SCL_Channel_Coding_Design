@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "bch.s2.stage_manifest.v1",
+  "stage": "S2-02 Multi-Channel Foundation",
+  "branch": "bch-s2-batch1-fixed-multipath-mmse",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "36c988d976a8fcce6539cbf7516e2e1a0029c5df",
+      "contentCommit": "569080d0773e7e0b52e17a97426dc7e8aef52837",
+      "files": [
+        "Task/BCH/simulation/current/CMakeLists.txt",
+        "Task/BCH/simulation/current/S2-test/include/bch_simulation/bch_multipath_simulation.hpp",
+        "Task/BCH/simulation/current/S2-test/include/bch_simulation/fixed_multipath_mmse.hpp",
+        "Task/BCH/simulation/current/S2-test/src/bch_multipath_runner.cpp",
+        "Task/BCH/simulation/current/S2-test/src/bch_multipath_simulation.cpp",
+        "Task/BCH/simulation/current/S2-test/src/fixed_multipath_mmse.cpp",
+        "Task/BCH/simulation/current/S2-test/tests/export_bch_s2_matlab_vectors.cpp",
+        "Task/BCH/simulation/current/S2-test/tests/test_bch_s2_mmse.cpp",
+        "Task/BCH/simulation/stages/S2-test/s2_01_channel_contract/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2-test/s2_01_channel_contract/frozen_config.csv",
+        "Task/BCH/simulation/stages/S2-test/s2_01_channel_contract/known_issues.md",
+        "Task/BCH/simulation/stages/S2-test/s2_01_channel_contract/stage_plan.md",
+        "Task/BCH/simulation/stages/S2-test/s2_02_multi_channel_foundation/acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2-test/s2_02_multi_channel_foundation/frozen_config.csv",
+        "Task/BCH/simulation/stages/S2-test/s2_02_multi_channel_foundation/known_issues.md",
+        "Task/BCH/simulation/stages/S2-test/s2_02_multi_channel_foundation/stage_plan.md"
+      ]
+    }
+  ],
+  "gate": "PASS_BCH_S2_02_MULTI_CHANNEL_FOUNDATION",
+  "remoteVerification": {
+    "branch": "bch-s2-batch1-fixed-multipath-mmse",
+    "verifiedContentCommit": "569080d0773e7e0b52e17a97426dc7e8aef52837",
+    "localTrackingRemoteHead": "0b7d8034823448f318280983b19490d8b394d19a",
+    "containsFunctionalCommit": true
+  },
+  "mergeStatus": "NOT_MERGED"
+}

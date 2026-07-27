@@ -1,0 +1,5 @@
+scope,file_count,bytes,source
+s2_batch1,371,42971037,Task/BCH/simulation/results/s2_batch1
+s2_batch2,12385,105305928,Task/BCH/simulation/results/s2_batch2
+s2_batch2_corrected,676,164938360,Task/BCH/simulation/results/s2_batch2_corrected
+s2_07_burst_redesign,141,46805009,Task/BCH/simulation/results/s2_07_burst_redesign

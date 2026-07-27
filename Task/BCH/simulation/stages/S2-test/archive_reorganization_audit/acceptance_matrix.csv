@@ -1,0 +1,6 @@
+requirement,implementation,positive_test,negative_test,gate_condition
+S2 code grouped,current/S2-test,CMake Release build,shared files remain outside S2-test,BUILD_PASS
+S2 scripts grouped,scripts/S2-test,help dry-run compare,old script path audit,PATH_REFERENCE_PASS
+tracked Stages grouped,stages/S2-test,git rename inventory,missing required Stage file,STAGE_INVENTORY_PASS
+local results preserved,results/S2-test,pre/post counts bytes hashes,destination mismatch,RESULT_MIGRATION_PASS
+MATLAB entry point grouped,matlab_official_validation/S2-test,checkcode and path scan,old path reference,MATLAB_PATH_PASS
