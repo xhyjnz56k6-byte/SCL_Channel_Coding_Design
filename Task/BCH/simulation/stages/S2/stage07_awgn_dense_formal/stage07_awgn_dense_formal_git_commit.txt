@@ -1,3 +1,5 @@
 functionalCommit=f3c03718a69a41aeb72e9b7b6a2d9e017930bb19
+auditScriptRepairCommit=a34c16d430fa25f436e8f1baaf3b7d8d4b6c4969
+errorFloorRepairCommit=3410ec1fcd9679d242768f55c535305f5431580a
 baseCommit=8bd58cf80c60f2d373d479b9d8e02a1919fdca8d
 branch=stage07-bch-s2-awgn-dense-formal

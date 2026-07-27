@@ -1,4 +1,4 @@
-{
+﻿{
     "stage":  "stage07_awgn_dense_formal",
     "note":  "Self file excluded to avoid recursive hash instability",
     "files":  [
@@ -19,8 +19,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_check.log",
-                      "sha256":  "16ee263a41151862529705686780d23f96e176c3e4845162f78340f810461a69",
-                      "bytes":  98
+                      "sha256":  "5dae2e0bd49c27bd13e0b313727724fa0ae81afd0f6a3a340f2247237069675d",
+                      "bytes":  101
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_ctest.log",
@@ -29,8 +29,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_plot.log",
-                      "sha256":  "727e82a83d9f849f6b4f3f1db0942a477b40724f051bffce09abf8d42ade940d",
-                      "bytes":  37
+                      "sha256":  "c014b963dfe92f2d53beea3e6cfd77ec622719100d822c49464027121e1bee2d",
+                      "bytes":  40
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_resume_test.log",
@@ -44,28 +44,28 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_figure_data.csv",
-                      "sha256":  "17e27990cc2d29620730152000df70d7ee11fd6fd1948bacee3fd7bafb46aae8",
-                      "bytes":  308964
+                      "sha256":  "3aff4b3ec4993321bd7bc0d1a7e815d928bc0a9d774b8402098531036f93dd96",
+                      "bytes":  341272
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png",
-                      "sha256":  "629a886891455c688debe6e94c2a2bd56cab85eded78aac7b7c1a43848c6c58c",
-                      "bytes":  286955
+                      "sha256":  "3e11346a0dbee0af091729944c806d4bd045c8a07533535ca55e5586763983c7",
+                      "bytes":  273644
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber_figure_data.csv",
-                      "sha256":  "cc99fc6950f251d35d54fc7d6fac2efc3dd33b656633217641489088f6723cc7",
-                      "bytes":  51232
+                      "sha256":  "6930feda89bbfc926f57598ceed9b9bb6838e9af8c9786f7cfe6830d7a4fdf08",
+                      "bytes":  56945
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png",
-                      "sha256":  "7ea91402ef868e9c468b0b011ec38d0992063d2ea238b1a88a9ddef41a98b1a5",
-                      "bytes":  266524
+                      "sha256":  "7ac0c9ea5da9eb5d88047654c5dd3681398ca7f281034c90075dfba64e81b753",
+                      "bytes":  258659
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer_figure_data.csv",
-                      "sha256":  "dae12e7e250d70725d507a9435992b98ee271b9b21d612c5b0055145fbef5193",
-                      "bytes":  49817
+                      "sha256":  "49fc52dbb93a1bea3124a755f4f85ff5dbb2bfab2d88b526471ca19bb1a631ce",
+                      "bytes":  56239
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_latency.png",
@@ -74,28 +74,28 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_latency_figure_data.csv",
-                      "sha256":  "a364fb487575079d9998eb042c7fa9897a576a8e9427cfcd86a665bd1da3b114",
-                      "bytes":  53813
+                      "sha256":  "878565d17d238646dfc03a285fcb71b20a14a81b37693bc4b2d9b2402e1c00b0",
+                      "bytes":  57553
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png",
-                      "sha256":  "841719a7e9b5d9ba4c04fda355cfc3d79d0fdf80149f83b2c9196e9153d799ea",
-                      "bytes":  287108
+                      "sha256":  "56fdcefbdcc62064979593c10f7186a3503f1098991d8ba717ccd42ffa29c8c7",
+                      "bytes":  274441
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber_figure_data.csv",
-                      "sha256":  "8830dc412c2dd34e501dc8740e212d9cd11931ea49a05b1fd09b222766ba1915",
-                      "bytes":  51926
+                      "sha256":  "f61a8b84a648aa5afedbbcc3933f6e6c00e8684e631a1fe2db08d1adfb6d4baf",
+                      "bytes":  58401
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png",
-                      "sha256":  "c07723e2cc42b80a9b18bd9cbc6ef4ec856daf8b3671e7ed0f77d4c7091049cb",
-                      "bytes":  265331
+                      "sha256":  "53c72a7a4ce15d2f50a9c69d29793c5f0724d9d6020089841bfec30c45a186ac",
+                      "bytes":  261995
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer_figure_data.csv",
-                      "sha256":  "9c221d31d5d643aae0c3ab70b21d69b70d7b8702cb81bdcab4b9e28622d2b827",
-                      "bytes":  49607
+                      "sha256":  "3da1042e9944e18103ee2def376a6dd4e44c1cfa272c57182c2793fdbd481350",
+                      "bytes":  56025
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_latency.png",
@@ -104,13 +104,18 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_latency_figure_data.csv",
-                      "sha256":  "6ab156e9d9f048643127104e000835a2eb1ad3eb080e22b9b23f448e96c2cef3",
-                      "bytes":  53914
+                      "sha256":  "a8a2a2dc0352e6729d26bdb8f336d9a63a2e3b493375fe7fd9adcf5d8d474238",
+                      "bytes":  57654
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json",
-                      "sha256":  "49b68fafc09e4478e8d090b4ca78e834e9aeabc0f75c326b7e495a8c50e8319c",
-                      "bytes":  7654
+                      "sha256":  "b525314cfd4bfc8c31805889df70076e32b59d2883c5edc6479ca80e07fab194",
+                      "bytes":  8646
+                  },
+                  {
+                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/published_results/stage07_awgn_dense_formal_error_floor_analysis.csv",
+                      "sha256":  "639cf3222eda2e779fc6d1248b0e63cfc6a830d85e0f6609dafe7836c34ea39e",
+                      "bytes":  77850
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/published_results/stage07_awgn_dense_formal_point_audit.csv",
@@ -144,8 +149,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py",
-                      "sha256":  "9d6ce129798e1bcb8a1cae1a754f1fd10a547f1d3357dfe1ef2c554aac4be7a9",
-                      "bytes":  14600
+                      "sha256":  "a3c29e7397dc513fe59e031d81f8e628836ae023b9a4b1e31a4a474eb2e038bb",
+                      "bytes":  16780
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py",
@@ -156,11 +161,6 @@
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_run.py",
                       "sha256":  "07dea96d9b23430476ea6587156f38c039f24d963a420cc8875a26ddc12aa6bb",
                       "bytes":  5500
-                  },
-                  {
-                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/resume_test/stage07_awgn_dense_formal_K200_S15_004_checkpoint.json",
-                      "sha256":  "10254616c20b633f4959617e78fedcf4f5492e26dd21b5cfc54fa4509d4064e1",
-                      "bytes":  751
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/stage07_awgn_dense_formal_point_audit.csv",
@@ -214,8 +214,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changed_files.md",
-                      "sha256":  "dc052395f93e2049d9306249c62f09db9b00bf3887fde20066382d879dba68e8",
-                      "bytes":  801
+                      "sha256":  "f283a70a822e12b85a03493242f9f1873e2291c36079040a56ea0b51448495e1",
+                      "bytes":  978
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changes.patch",
@@ -224,8 +224,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_commands_used.md",
-                      "sha256":  "05c88666d5655d3e0f98310f9cf0c9b0ffe20ebbb1d586d9be80dfb893942ae5",
-                      "bytes":  1455
+                      "sha256":  "45e2d04fbbb47bb47e96d801469a23a29f67c4b520ec3655e99fbd80fb881aec",
+                      "bytes":  2057
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_frozen_config.csv",
@@ -239,18 +239,18 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_git_commit.txt",
-                      "sha256":  "786cedc4d7dfada0268e58e71e3ff1d49b3f2eadde217b98b7cf274f63c472c7",
-                      "bytes":  150
+                      "sha256":  "04f5c9c5d91e12c84b5519849fd37f51c5aa0e596bfebb3d477d7054851c6e78",
+                      "bytes":  214
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_known_issues.md",
-                      "sha256":  "be61c51591bf82ac5ce2babfa0c144e67ef5aae0b1db1331e57a0dbe9b0d247b",
-                      "bytes":  668
+                      "sha256":  "b18e41f0d9303936aadb22b3bcb70e062bc77627e0e2c9632d273db203d2fa30",
+                      "bytes":  836
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_manifest.json",
-                      "sha256":  "add6643e08664945d97588cc3a201013731427b71f4a8357ce4605912d3d6ab5",
-                      "bytes":  9673
+                      "sha256":  "0e086d18322a61f4347871d34b97f68ddadec0caa96522bb0eae645b79160640",
+                      "bytes":  17176
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_stage_plan.md",
@@ -259,8 +259,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_validation_report.md",
-                      "sha256":  "e44a6b026906d23f2d9b5f20ce3ebd515a12b3927ce03ce39735a28126b85168",
-                      "bytes":  3837
+                      "sha256":  "398f4d0eaca3544fde367bd03190e947551184f23bf5fac1cb13a0896c6263bb",
+                      "bytes":  4499
                   }
               ]
 }

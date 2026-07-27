@@ -10,5 +10,7 @@ Stage07 adds a new experiment directory only:
 - `results/`: committed small summary/progress/raw-result audit files; full `results/points/` remains local.
 - `logs/`: executed build/test/runner/plot/check logs.
 - root stage files: plan, acceptance matrix, frozen config/grid, validation report, known issues, manifest, commands, hashes, patch, and commit record.
+- Error-floor repair: plot/check scripts now mark zero-observed BER/FER points as censored and
+  publish `published_results/stage07_awgn_dense_formal_error_floor_analysis.csv`.
 
 No `Task/CC`, `Task/LDPC`, `main`, or Stage06 files are modified.

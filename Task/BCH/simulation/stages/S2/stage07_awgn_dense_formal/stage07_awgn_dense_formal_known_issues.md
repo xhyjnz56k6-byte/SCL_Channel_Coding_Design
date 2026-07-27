@@ -4,5 +4,7 @@
 - Runtime and decoder latency are machine-dependent for this Windows/MinGW run.
 - Stage07 uses one local runner process. Outputs are still separated by formal point, so the result is auditable and resumable by point.
 - `results/points/` contains full per-point checkpoints and logs for local audit continuity, but these large intermediate artifacts are not committed by default.
-- BER/FER zero values remain zero in raw CSV. Plot-only surrogates are documented in figure-data and the plot manifest.
+- BER/FER zero values remain zero in raw CSV. Zero-observed high-SNR points are censored in
+  figure-data and `published_results/stage07_awgn_dense_formal_error_floor_analysis.csv`; log plots
+  use the one-sided 95% upper bound `3/N`, so they must not be read as measured nonzero floors.
 - No exact waveform-SNR overlap with Stage06 was found because Stage06 used per-case Eb/N0 grids.
