@@ -1,4 +1,4 @@
 Traceback (most recent call last):
-  File "C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design_dense_snr\Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py", line 24, in <module>
-    assert a_rows == baseline_a
+  File "C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design_dense_snr\Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py", line 63, in <module>
+    assert hashlib.sha256(artifact.read_bytes()).hexdigest() == manifest[hash_key]
 AssertionError

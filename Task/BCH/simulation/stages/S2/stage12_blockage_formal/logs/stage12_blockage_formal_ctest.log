@@ -13,8 +13,8 @@ test 1
 1: Working Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design_dense_snr/Task/BCH/simulation/build/S2/stage12_blockage_formal
 1: Test timeout computed to be: 10000000
 1: BLOCKED_STAGE12_BLOCKAGE_FORMAL_RUNNER: usage: runner POINTS OUTPUT SEED GIT_COMMIT
-1/1 Test #1: stage12_blockage_formal_cli_reject ...   Passed    0.03 sec
+1/1 Test #1: stage12_blockage_formal_cli_reject ...   Passed    0.02 sec
 
 100% tests passed out of 1
 
-Total Test time (real) =   0.04 sec
+Total Test time (real) =   0.03 sec
