@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -174,6 +175,110 @@ std::set<std::string> completedKeys(const fs::path& output) {
     return keys;
 }
 
+std::string u64List(const std::vector<std::uint64_t>& values) {
+    std::ostringstream out;
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (i) out << ';';
+        out << values[i];
+    }
+    return out.str();
+}
+
+std::vector<std::uint64_t> parseU64List(const std::string& text) {
+    std::vector<std::uint64_t> values;
+    std::stringstream input(text);
+    for (std::string value; std::getline(input, value, ';');) {
+        if (!value.empty()) values.push_back(std::stoull(value));
+    }
+    return values;
+}
+
+fs::path checkpointPath(const fs::path& output, std::size_t shardIndex,
+                        const GridRow& grid) {
+    const fs::path stage = output.parent_path().parent_path();
+    return stage / "checkpoints" /
+        (output.stem().string() + "_shard" + std::to_string(shardIndex) + "_" +
+         grid.caseId + "_" + std::to_string(grid.ebn0Index) + ".chk");
+}
+
+void saveCheckpoint(const fs::path& path, const GridRow& grid,
+                    const std::string& gitCommit, const std::string& configHash,
+                    const Counts& counts) {
+    fs::create_directories(path.parent_path());
+    const fs::path temporary = path.string() + ".tmp";
+    std::ofstream out(temporary);
+    if (!out) throw std::runtime_error("cannot write formal checkpoint");
+    out << std::setprecision(17)
+        << "schemaVersion=stage08.point.checkpoint.v1\n"
+        << "caseId=" << grid.caseId << '\n'
+        << "ebn0Index=" << grid.ebn0Index << '\n'
+        << "ebn0Db=" << grid.ebn0Db << '\n'
+        << "gitCommit=" << gitCommit << '\n'
+        << "configHash=" << configHash << '\n'
+        << "totalFrames=" << counts.totalFrames << '\n'
+        << "totalPayloadBits=" << counts.totalPayloadBits << '\n'
+        << "payloadErrorBits=" << counts.payloadErrorBits << '\n'
+        << "payloadErrorFrames=" << counts.payloadErrorFrames << '\n'
+        << "decoderFailureFrames=" << counts.decoderFailureFrames << '\n'
+        << "miscorrectionFrames=" << counts.miscorrectionFrames << '\n'
+        << "undetectedErrorFrames=" << counts.undetectedErrorFrames << '\n'
+        << "trueSuccessFrames=" << counts.trueSuccessFrames << '\n'
+        << "encodeTimeTotalNs=" << counts.encodeTimeTotalNs << '\n'
+        << "channelTimeTotalNs=" << counts.channelTimeTotalNs << '\n'
+        << "equalizeTimeTotalNs=" << counts.equalizeTimeTotalNs << '\n'
+        << "hardDecisionTimeTotalNs=" << counts.hardDecisionTimeTotalNs << '\n'
+        << "decodeTimeTotalNs=" << counts.decodeTimeTotalNs << '\n'
+        << "solverResidualSum=" << counts.solverResidualSum << '\n'
+        << "solverResidualMax=" << counts.solverResidualMax << '\n'
+        << "decodeTimesNs=" << u64List(counts.decodeTimesNs) << '\n'
+        << "equalizeTimesNs=" << u64List(counts.equalizeTimesNs) << '\n';
+    out.close();
+    if (fs::exists(path)) fs::remove(path);
+    fs::rename(temporary, path);
+}
+
+std::map<std::string, std::string> readKeyValues(const fs::path& path) {
+    std::ifstream input(path);
+    if (!input) throw std::runtime_error("formal checkpoint missing");
+    std::map<std::string, std::string> values;
+    for (std::string line; std::getline(input, line);) {
+        const auto position = line.find('=');
+        if (position != std::string::npos) {
+            values[line.substr(0U, position)] = line.substr(position + 1U);
+        }
+    }
+    return values;
+}
+
+void restoreCheckpoint(const fs::path& path, const GridRow& grid,
+                       const std::string& gitCommit, const std::string& configHash,
+                       Counts& counts) {
+    const auto values = readKeyValues(path);
+    if (values.at("schemaVersion") != "stage08.point.checkpoint.v1" ||
+        values.at("caseId") != grid.caseId ||
+        std::stoull(values.at("ebn0Index")) != grid.ebn0Index ||
+        values.at("gitCommit") != gitCommit || values.at("configHash") != configHash) {
+        throw std::runtime_error("formal checkpoint identity mismatch");
+    }
+#define RESTORE_U64(name) counts.name = std::stoull(values.at(#name))
+    RESTORE_U64(totalFrames); RESTORE_U64(totalPayloadBits);
+    RESTORE_U64(payloadErrorBits); RESTORE_U64(payloadErrorFrames);
+    RESTORE_U64(decoderFailureFrames); RESTORE_U64(miscorrectionFrames);
+    RESTORE_U64(undetectedErrorFrames); RESTORE_U64(trueSuccessFrames);
+    RESTORE_U64(encodeTimeTotalNs); RESTORE_U64(channelTimeTotalNs);
+    RESTORE_U64(equalizeTimeTotalNs); RESTORE_U64(hardDecisionTimeTotalNs);
+    RESTORE_U64(decodeTimeTotalNs);
+#undef RESTORE_U64
+    counts.solverResidualSum = std::stod(values.at("solverResidualSum"));
+    counts.solverResidualMax = std::stod(values.at("solverResidualMax"));
+    counts.decodeTimesNs = parseU64List(values.at("decodeTimesNs"));
+    counts.equalizeTimesNs = parseU64List(values.at("equalizeTimesNs"));
+    if (counts.decodeTimesNs.size() != counts.totalFrames ||
+        counts.equalizeTimesNs.size() != counts.totalFrames) {
+        throw std::runtime_error("formal checkpoint timing length mismatch");
+    }
+}
+
 void writeResult(std::ofstream& output, const s2::CaseContract& contract,
                  const GridRow& grid, const Counts& counts,
                  const std::string& gitCommit, const std::string& configHash,
@@ -246,9 +351,9 @@ int main(int argc, char** argv) {
             std::cout << "PASS_STAGE08_MULTIPATH_FORMAL_SELF_TEST\n";
             return 0;
         }
-        if (argc != 7) {
+        if (argc != 7 && argc != 8) {
             throw std::invalid_argument(
-                "usage: runner GRID OUTPUT GIT_COMMIT CONFIG_HASH SHARD_INDEX SHARD_COUNT");
+                "usage: runner GRID OUTPUT GIT_COMMIT CONFIG_HASH SHARD_INDEX SHARD_COUNT [INTERRUPT_AFTER]");
         }
         const auto grid = readGrid(argv[1]);
         const fs::path outputPath(argv[2]);
@@ -256,6 +361,7 @@ int main(int argc, char** argv) {
         const std::string configHash(argv[4]);
         const std::size_t shardIndex = std::stoull(argv[5]);
         const std::size_t shardCount = std::stoull(argv[6]);
+        const std::uint64_t interruptAfter = argc == 8 ? std::stoull(argv[7]) : 0U;
         if (gitCommit.size() != 40U || configHash.size() != 64U ||
             shardCount == 0U || shardIndex >= shardCount) {
             throw std::invalid_argument("invalid runner identity or shard");
@@ -277,9 +383,21 @@ int main(int argc, char** argv) {
             }
             const auto& contract = contractByName(grid[point].caseId);
             Counts counts;
+            const auto checkpoint = checkpointPath(outputPath, shardIndex, grid[point]);
+            if (fs::exists(checkpoint)) {
+                restoreCheckpoint(checkpoint, grid[point], gitCommit, configHash, counts);
+            }
             std::string stopReason;
-            for (std::uint64_t frame = 0U; frame < kMaxFrames; ++frame) {
+            for (std::uint64_t frame = counts.totalFrames; frame < kMaxFrames; ++frame) {
                 runFrame(counts, contract, grid[point].ebn0Index, grid[point].ebn0Db, frame);
+                if (counts.totalFrames % 1000U == 0U) {
+                    saveCheckpoint(checkpoint, grid[point], gitCommit, configHash, counts);
+                }
+                if (interruptAfter != 0U && counts.totalFrames == interruptAfter) {
+                    saveCheckpoint(checkpoint, grid[point], gitCommit, configHash, counts);
+                    std::cout << "INTERRUPTED_AFTER_CHECKPOINT frames=" << counts.totalFrames << '\n';
+                    return 3;
+                }
                 if (counts.totalFrames >= kMinFrames &&
                     counts.payloadErrorFrames >= kTargetFrameErrors) {
                     stopReason = "TARGET_FRAME_ERRORS_REACHED";
@@ -290,6 +408,7 @@ int main(int argc, char** argv) {
             if (stopReason.empty()) throw std::logic_error("formal stop reason missing");
             writeResult(output, contract, grid[point], counts, gitCommit, configHash,
                         shardIndex, stopReason);
+            if (fs::exists(checkpoint)) fs::remove(checkpoint);
             ++executed;
             std::cout << "POINT_COMPLETE " << key << " frames=" << counts.totalFrames
                       << " errors=" << counts.payloadErrorFrames << '\n';

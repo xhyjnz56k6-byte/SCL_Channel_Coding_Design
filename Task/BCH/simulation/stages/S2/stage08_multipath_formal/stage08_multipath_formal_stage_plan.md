@@ -19,8 +19,9 @@
   index、frame index 与 PAYLOAD/AWGN 域。
 - 2 个 shard 按冻结 grid 行互斥分配，每个 point 的 frameIndex 从 0 开始，
   不同 shard 不包含相同 Case/Eb/N0 点。
-- 每完成一点立即刷新 shard CSV；重启时跳过已完成点，实现 point-level
-  checkpoint/resume。
+- 每 1000 帧保存完整点内 checkpoint（整数计数、累计时间、时延样本与 residual）；
+  重启从相同逻辑 frameIndex 继续。每完成一点刷新 shard CSV 并删除对应中间
+  checkpoint；已完成点在重启时跳过。
 
 ## 提交资产
 
