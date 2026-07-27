@@ -56,6 +56,24 @@
       "Task/BCH/simulation/stages/S2/stage12_blockage_formal/stage12_blockage_formal_known_issues.md",
       "Task/BCH/simulation/stages/S2/stage12_blockage_formal/stage12_blockage_formal_stage_plan.md"
     ]
+  }, {
+    "name": "sharedFormalMatlabRepair",
+    "baseCommit": "03e096c85b8afbbbfc8f74b9b161955c99ba0cea",
+    "contentCommit": "5df70f96983ce4c339f7254e299ddd752514e259",
+    "files": [
+      "Task/BCH/simulation/stages/S2/stage10_cfo_formal/cpp/stage10_cfo_formal_runner.cpp",
+      "Task/BCH/simulation/stages/S2/stage10_cfo_formal/logs/stage10_cfo_formal_matlab.log",
+      "Task/BCH/simulation/stages/S2/stage10_cfo_formal/matlab/stage10_cfo_formal_matlab_spotcheck.m",
+      "Task/BCH/simulation/stages/S2/stage10_cfo_formal/python/stage10_cfo_formal_matlab_spotcheck.py",
+      "Task/BCH/simulation/stages/S2/stage10_cfo_formal/results/stage10_cfo_formal_matlab_comparison.csv",
+      "Task/BCH/simulation/stages/S2/stage10_cfo_formal/results/stage10_cfo_formal_matlab_samples.csv",
+      "Task/BCH/simulation/stages/S2/stage12_blockage_formal/cpp/stage12_blockage_formal_runner.cpp",
+      "Task/BCH/simulation/stages/S2/stage12_blockage_formal/logs/stage12_blockage_formal_matlab.log",
+      "Task/BCH/simulation/stages/S2/stage12_blockage_formal/matlab/stage12_blockage_formal_matlab_spotcheck.m",
+      "Task/BCH/simulation/stages/S2/stage12_blockage_formal/python/stage12_blockage_formal_matlab_spotcheck.py",
+      "Task/BCH/simulation/stages/S2/stage12_blockage_formal/results/stage12_blockage_formal_matlab_comparison.csv",
+      "Task/BCH/simulation/stages/S2/stage12_blockage_formal/results/stage12_blockage_formal_matlab_samples.csv"
+    ]
   }],
   "formalPointCount": 104,
   "ratioPointCount": 64,
@@ -63,6 +81,7 @@
   "maxFramesReachedPointCount": 11,
   "zeroBerPointCount": 8,
   "zeroFerPointCount": 8,
+  "matlabFormalSpotcheckSamples": 12,
   "gate": "PASS_STAGE12_BLOCKAGE_FORMAL",
   "overallGate": "PASS_BCH_S2_CFO_BLOCKAGE_STAGE09_TO_STAGE12",
   "remoteVerification": "VERIFIED_ON_ORIGIN",
