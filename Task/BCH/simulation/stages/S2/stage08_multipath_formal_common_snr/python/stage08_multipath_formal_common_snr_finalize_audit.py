@@ -117,6 +117,8 @@ def main() -> int:
             handle.write(f"- 高 SNR error-floor-aware FER 候选组：{item['highSnrFerCensoredBestGroup']}，95% 上界约束 <= {item['highSnrFer95Upper']:.6g}。\n")
             handle.write(f"- 码率优先：{item['ratePriority']}；BCH 译码时延优先：{item['decodeLatencyPriority']}；MMSE 均衡时延优先：{item['equalizeLatencyPriority']}。\n")
             handle.write("- 不存在脱离 SNR 工作区间和有限样本 censoring 的单一绝对最优方案。\n\n")
+    conclusion_path = stage / f"{PREFIX}_conclusion.md"
+    conclusion_path.write_text(conclusion_path.read_text(encoding="utf-8").rstrip() + "\n", encoding="utf-8")
 
     (stage / f"{PREFIX}_known_issues.md").write_text(
         "# Known Issues\n\n"
