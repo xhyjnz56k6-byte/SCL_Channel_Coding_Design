@@ -1,0 +1,6 @@
+caseId,interleaverMode,interleaverDepth,burstLengthIndex,burstLengthBits,permutationSha256
+K200_S15,BLOCK,8,3,5,SMOKE
+K200_M255K207,ROW_COLUMN,8,5,10,SMOKE
+K300_S15,PSEUDORANDOM,4,4,8,SMOKE
+K300_M511K385,PSEUDORANDOM,16,6,30,SMOKE
+
