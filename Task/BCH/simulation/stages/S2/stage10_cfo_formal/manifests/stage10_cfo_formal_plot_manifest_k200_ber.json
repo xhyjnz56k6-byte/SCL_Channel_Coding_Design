@@ -1,7 +1,7 @@
 {
   "stageId": "stage10_cfo_formal",
   "sourceCsv": "results\\stage10_cfo_formal_result_summary.csv",
-  "sourceCsvSha256": "1f89f07b6ccf0648c22f52d77373b85b278cda73a49be1ff0c486e84b8a7efa8",
+  "sourceCsvSha256": "f37a39836651b7f757bdf0dc134002a4f88e55f66adc9456aebb7240ffc9adcf",
   "figureData": "results\\stage10_cfo_formal_figure_data_k200_ber.csv",
   "figureDataSha256": "4d8dfb770b1c18943418e8a54297095e2f46d7c2e8f7d38473451aebbaf6c3d6",
   "png": "plots\\stage10_cfo_formal_k200_ber.png",
@@ -64,5 +64,5 @@
       "marker": "D"
     }
   },
-  "generatedFromGitCommit": "8d555a744022a1690204ec9fca5fcbf42360064f"
+  "generatedFromGitCommit": "3768c26a3f2cab3bc6b71a55b67cd985f1f6257e"
 }
