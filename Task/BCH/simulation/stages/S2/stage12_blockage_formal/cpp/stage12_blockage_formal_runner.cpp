@@ -212,7 +212,7 @@ int main(int argc,char** argv){try{
  merge<<"experimentType,caseId,parameterIndex,totalFrames,integerAccountingPass,passed\n";
  for(const auto& p:points){BlockCounters c;std::string stop="CONTINUE";
   while(c.totalFrames<50000){auto n=std::min<std::uint64_t>(100,50000-c.totalFrames);addBlock(c,simulate(p,c.totalFrames,n,std::stoull(argv[3])));
-   if(c.totalFrames>=5000&&c.payloadErrorFrames>=200){stop="TARGET_FRAME_ERRORS_REACHED";break;}}
+   if(c.totalFrames>=1000&&c.payloadErrorFrames>=200){stop="TARGET_FRAME_ERRORS_REACHED";break;}}
   if(stop=="CONTINUE")stop="MAX_FRAMES_REACHED";const bool ok=c.trueSuccessFrames+c.payloadErrorFrames==c.totalFrames;
   require(ok&&c.totalFrames<=50000,"accounting/frame cap failed");row(raw,p,c,argv[4],stop);row(sum,p,c,argv[4],stop);
   merge<<p.experiment<<','<<p.awgn.caseId<<','<<p.parameterIndex<<','<<c.totalFrames<<','<<ok<<','<<ok<<'\n';
