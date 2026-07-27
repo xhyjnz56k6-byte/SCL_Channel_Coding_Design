@@ -139,8 +139,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_audit.py",
-                      "sha256":  "3a7c1ff337c69525bb6788cea05833bc5b008951c4bd3417e9f80a0e6f95114f",
-                      "bytes":  3066
+                      "sha256":  "036f661b6479144776f76c694dd654aa8299347980f346d5d35f386115cf5a72",
+                      "bytes":  2986
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py",
@@ -149,8 +149,8 @@
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py",
-                      "sha256":  "2c3afe6616ea2a54131eab6796321f34bb5ea3b4cc4f02fc4889b56a9266d00e",
-                      "bytes":  8008
+                      "sha256":  "90574ac690de75dc289c4e1cb280c43d66d8bfa445bd80a552d6633bea347baa",
+                      "bytes":  8673
                   },
                   {
                       "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_run.py",

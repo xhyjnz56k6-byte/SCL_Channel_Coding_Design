@@ -29,17 +29,13 @@ def main():
     req(manifest["gate"] == "PASS_STAGE07_AWGN_DENSE_FORMAL", "stage gate mismatch")
     req(manifest["overallGate"] == "PASS_BCH_S2_AWGN_DENSE_RERUN", "overall gate mismatch")
     req(manifest["mergeStatus"] == "NOT_MERGED", "merge status mismatch")
-    item = manifest["functionalRanges"][0]
-    actual = []
-    for line in git("diff", "--name-status", item["baseCommit"], item["contentCommit"]).splitlines():
-        fields = line.split("\t")
-        req(fields[0] == "A", "unexpected functional diff " + line)
-        actual.append(fields[-1])
-    req(actual == item["files"], "manifest differs from functional diff")
-    req(all(x.startswith("Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/")
-            for x in actual), "functional range escaped stage07")
-    req(not any("/results/points/" in x or x.endswith((".exe", ".obj", ".pdb")) or "/build/" in x
-                for x in actual), "forbidden generated artifact committed")
+    for item in manifest["functionalRanges"]:
+        actual = git("diff", "--name-only", item["baseCommit"], item["contentCommit"]).splitlines()
+        req(actual == item["files"], "manifest differs from functional diff: " + item["name"])
+        req(all(x.startswith("Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/")
+                for x in actual), "functional range escaped stage07: " + item["name"])
+        req(not any("/results/points/" in x or x.endswith((".exe", ".obj", ".pdb")) or "/build/" in x
+                    for x in actual), "forbidden generated artifact committed: " + item["name"])
     validation = (STAGE / "stage07_awgn_dense_formal_validation_report.md").read_text(encoding="utf-8")
     for token in ("Pending", "to be run", "NOT_PUSHED", "TO_VERIFY_AFTER_PUSH"):
         req(token not in validation, token)
