@@ -25,7 +25,10 @@ run(["cmake","-S",str(STAGE/"cpp"),"-B",str(BUILD),"-G","MinGW Makefiles","-DCMA
 run(["cmake","--build",str(BUILD),"--config","Release","-j","2"],"stage10_cfo_formal_build.log")
 run(["ctest","--test-dir",str(BUILD),"-C","Release","--output-on-failure","-V"],
     "stage10_cfo_formal_ctest.log")
-commit=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
+commit=subprocess.check_output([
+    "git", "log", "-n", "1", "--format=%H", "--",
+    "Task/BCH/simulation/stages/S2/stage10_cfo_formal/cpp/stage10_cfo_formal_runner.cpp"
+], cwd=ROOT, text=True).strip()
 with (RESULTS/"stage10_cfo_formal_result_summary.csv").open(encoding="utf-8",newline="") as stream:
     rates={row["caseId"]:float(row["actualRate"]) for row in csv.DictReader(stream)}
 grid=config["grids"]["targetSnrDb"]

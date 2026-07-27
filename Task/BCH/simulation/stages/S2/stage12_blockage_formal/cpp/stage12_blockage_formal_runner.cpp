@@ -3,6 +3,7 @@
 #undef main
 
 namespace {
+// Dense SNR code freeze: experiment B uses target waveform SNR and inverse Eb/N0.
 constexpr auto kStartDomain12=
  static_cast<scl::bch::s2::stage01::RandomDomain>(0x424c4f434b535452ULL);
 struct BlockPoint{
