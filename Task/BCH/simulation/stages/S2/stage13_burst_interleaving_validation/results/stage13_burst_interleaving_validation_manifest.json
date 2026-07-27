@@ -76,6 +76,6 @@
   ],
   "evidenceSha256File": "results/stage13_burst_interleaving_validation_sha256.csv",
   "gate": "PASS_STAGE13_BURST_INTERLEAVING_VALIDATION",
-  "remoteVerification": "DEFERRED_TO_AUTHORIZED_BATCH_PUSH",
+  "remoteVerification": "VERIFIED_ORIGIN_CONTAINS_FUNCTIONAL_COMMITS",
   "mergeStatus": "NOT_MERGED"
 }

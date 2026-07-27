@@ -260,6 +260,6 @@
   "pythonVersion": "3.11.0",
   "matlabVersion": "captured-in-matlab-log",
   "gate": "PASS_STAGE14_BURST_FORMAL",
-  "remoteVerification": "DEFERRED_TO_AUTHORIZED_BATCH_PUSH",
+  "remoteVerification": "VERIFIED_ORIGIN_CONTAINS_FUNCTIONAL_COMMITS",
   "mergeStatus": "NOT_MERGED"
 }

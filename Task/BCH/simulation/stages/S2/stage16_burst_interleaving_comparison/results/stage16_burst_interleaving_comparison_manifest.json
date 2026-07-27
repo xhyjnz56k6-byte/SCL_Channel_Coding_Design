@@ -1060,6 +1060,6 @@
   "matlabVersion": "captured-in-matlab-log",
   "gate": "PASS_STAGE16_BURST_INTERLEAVING_COMPARISON",
   "groupGate": "PASS_BCH_S2_BURST_INTERLEAVING_STAGE13_TO_STAGE16",
-  "remoteVerification": "DEFERRED_TO_AUTHORIZED_BATCH_PUSH",
+  "remoteVerification": "VERIFIED_ORIGIN_CONTAINS_FUNCTIONAL_COMMITS",
   "mergeStatus": "NOT_MERGED"
 }
