@@ -232,9 +232,20 @@ def run_formal(config, frozen, config_hash):
     status = subprocess.check_output(
         ["git", "status", "--porcelain"], cwd=ROOT, text=True
     )
-    if status.strip():
+    dirty_paths = [
+        line[3:].replace("\\", "/")
+        for line in status.splitlines()
+        if line.strip()
+    ]
+    allowed_log_prefix = (
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/logs/"
+    )
+    if any(
+        not path.startswith(allowed_log_prefix) for path in dirty_paths
+    ):
         raise SystemExit(
-            "formal run requires a clean worktree so gitCommit is immutable"
+            "formal run requires immutable source/config/test files; "
+            "only current Stage14 build logs may be dirty"
         )
     git_commit = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
@@ -276,4 +287,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

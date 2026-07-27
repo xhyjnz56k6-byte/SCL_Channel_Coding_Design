@@ -1,19 +1,4 @@
-[  6%] Building CXX object CMakeFiles/stage14_block_core.dir/0d55611bc8c9a9775050e0a7a3b72c7a/Task/BCH/block/current/src/bch_block.cpp.obj
-[ 13%] Building CXX object CMakeFiles/stage14_segmented_core.dir/0d55611bc8c9a9775050e0a7a3b72c7a/Task/BCH/segmented/current/src/bch15_encoder.cpp.obj
-[ 20%] Building CXX object CMakeFiles/stage14_segmented_core.dir/0d55611bc8c9a9775050e0a7a3b72c7a/Task/BCH/segmented/current/src/bch15_syndrome.cpp.obj
-[ 26%] Building CXX object CMakeFiles/stage14_segmented_core.dir/0d55611bc8c9a9775050e0a7a3b72c7a/Task/BCH/segmented/current/src/bch15_lookup_table.cpp.obj
-[ 33%] Linking CXX static library libstage14_block_core.a
-[ 40%] Building CXX object CMakeFiles/stage14_segmented_core.dir/7e8452de6867fc02e9bf796156caec98/BCH/segmented/current/src/bch15_lookup_decoder.cpp.obj
-[ 40%] Built target stage14_block_core
-[ 46%] Building CXX object CMakeFiles/stage14_segmented_core.dir/7e8452de6867fc02e9bf796156caec98/BCH/segmented/current/src/bch15_segmented_adapter.cpp.obj
-[ 53%] Linking CXX static library libstage14_segmented_core.a
+[ 13%] Built target stage14_block_core
 [ 53%] Built target stage14_segmented_core
-[ 60%] Building CXX object CMakeFiles/stage14_support.dir/20708e982ac96e64bf9381143929b812/stages/S2/stage01_foundation/cpp/stage01_foundation_awgn.cpp.obj
-[ 66%] Building CXX object CMakeFiles/stage14_support.dir/20708e982ac96e64bf9381143929b812/stages/S2/stage02_case_contract/cpp/stage02_case_contract.cpp.obj
-[ 73%] Building CXX object CMakeFiles/stage14_support.dir/2eb05a3a7d0fc36613651fd85e76ce2b/cpp/stage13_burst_interleaving_validation_core.cpp.obj
-[ 80%] Building CXX object CMakeFiles/stage14_support.dir/2eb05a3a7d0fc36613651fd85e76ce2b/cpp/stage13_burst_interleaving_validation_simulation.cpp.obj
-[ 86%] Linking CXX static library libstage14_support.a
 [ 86%] Built target stage14_support
-[ 93%] Building CXX object CMakeFiles/stage14_burst_formal_runner.dir/stage14_burst_formal_runner.cpp.obj
-[100%] Linking CXX executable stage14_burst_formal_runner.exe
 [100%] Built target stage14_burst_formal_runner
