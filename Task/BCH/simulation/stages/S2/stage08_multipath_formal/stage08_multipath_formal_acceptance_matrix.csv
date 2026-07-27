@@ -1,0 +1,8 @@
+requirement,implementation,positiveTest,negativeTest,gateCondition
+frozen formal grid,stage08_multipath_formal_frozen_grid.csv,8 cases and 24 unique points,duplicate or missing point blocks,grid unchanged during run
+stopping rule,cpp formal runner,min 5000 target 200 max 50000,illegal reason or frame count blocks,all rows legal
+random frame identity,stage01 deterministic generator,case ebn0 frame domain isolation,overlap blocks,independent AWGN per frame
+checkpoint resume shard,runner and merge script,completed point skip and two shards,duplicate point or config mismatch blocks,integer merge exact
+formal metrics,results checker,recompute rates sigma SNR BER FER,NaN Inf negative count blocks,all 24 rows pass
+formal plots,plot script and checker,8 PNG plus figure data manifest hash,non PNG or altered data blocks,PASS_STAGE08_PLOT_CHECK
+conclusions,summary script,200 and 300 recommendations,unsupported absolute-best claim blocks,evidence-backed tradeoffs
