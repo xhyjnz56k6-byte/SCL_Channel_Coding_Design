@@ -1,0 +1,13 @@
+{
+  "stageId": "stage12_blockage_formal",
+  "experimentId": "experiment_c_fixed_length",
+  "sourceCsv": "results\\stage12_blockage_formal_experiment_c_fixed_length_result_summary.csv",
+  "sourceCsvSha256": "793867c029abd9abc143686e85d60805bf3f6cea252d1ae2f706e5b840d23db7",
+  "figureData": "results\\stage12_blockage_formal_experiment_c_fixed_length_k300_miscorrection_vs_length_figure_data.csv",
+  "figureDataSha256": "1a6a7d945a5e13ef87988866d495d7b9c91edaf67a044dc36389c7e13d8c0603",
+  "png": "plots\\stage12_blockage_formal_experiment_c_fixed_length_k300_miscorrection_vs_length.png",
+  "pngSha256": "e1c3c1ac3d9c8fb01176857969d07d271d713619ec2dcb8581cb76fbadac865e",
+  "xAxis": "遮挡长度",
+  "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
+  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator only"
+}

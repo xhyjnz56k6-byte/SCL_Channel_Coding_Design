@@ -5,7 +5,10 @@
 namespace {
 constexpr auto kStartDomain12=
  static_cast<scl::bch::s2::stage01::RandomDomain>(0x424c4f434b535452ULL);
-struct BlockPoint{Point awgn;std::string experiment;std::size_t parameterIndex;double ratio;};
+struct BlockPoint{
+ Point awgn;std::string experiment;std::size_t parameterIndex;double ratio;
+ std::size_t absoluteLength=0;bool useAbsoluteLength=false;
+};
 struct BlockCounters: Counters{
  std::vector<std::uint64_t> latency;
  std::uint64_t totalBlockedSymbols=0,blockedRawErrorBits=0,nonBlockedRawErrorBits=0;
@@ -14,6 +17,11 @@ struct BlockCounters: Counters{
 std::size_t lengthFor(double rho,std::size_t n){
  require(std::isfinite(rho)&&rho>=0&&rho<=1,"invalid ratio");
  return rho==0?0:std::min(n,std::max<std::size_t>(1,static_cast<std::size_t>(std::floor(rho*n+.5))));
+}
+std::size_t pointLength(const BlockPoint& p,std::size_t n){
+ if(!p.useAbsoluteLength)return lengthFor(p.ratio,n);
+ require(p.absoluteLength<=n,"absolute blockage length exceeds encoded length");
+ return p.absoluteLength;
 }
 std::size_t startFor(const scl::bch::s2::stage01::RandomIdentity& base,std::size_t n,
                      std::size_t l,std::size_t p){
@@ -36,7 +44,7 @@ void addBlock(BlockCounters& a,const BlockCounters& b){
 }
 BlockCounters simulate(const BlockPoint& p,std::uint64_t first,std::uint64_t count,std::uint64_t seed){
  const auto& c=scl::bch::s2::stage02::caseContract(p.awgn.id);BlockCounters r;
- const auto l=lengthFor(p.ratio,c.totalEncodedLength);
+ const auto l=pointLength(p,c.totalEncodedLength);
  const double sigma=std::sqrt(scl::bch::s2::stage01::awgnSigma2(c.actualRate,p.awgn.ebn0Db));
  r.latency.reserve(static_cast<std::size_t>(count));
  for(std::uint64_t frame=first;frame<first+count;++frame){
@@ -69,8 +77,19 @@ std::vector<BlockPoint> readBlockPoints(const fs::path& path){
  std::vector<BlockPoint> out;while(std::getline(in,line)){if(line.empty())continue;std::istringstream s(line);
   std::string ex,id,ei,db,pi,rho;std::getline(s,ex,',');std::getline(s,id,',');std::getline(s,ei,',');
   std::getline(s,db,',');std::getline(s,pi,',');std::getline(s,rho,',');
-  out.push_back({{parseCase(id),id,std::stoull(ei),std::stod(db)},ex,std::stoull(pi),std::stod(rho)});}
+  out.push_back({{parseCase(id),id,std::stoull(ei),std::stod(db)},ex,std::stoull(pi),std::stod(rho),0,false});}
  require(out.size()==104,"formal blockage point count must be 104");return out;
+}
+std::vector<BlockPoint> readFixedLengthPoints(const fs::path& path){
+ std::ifstream in(path);require(bool(in),"cannot open fixed-length blockage points");std::string line;std::getline(in,line);
+ require(line=="experimentType,caseId,ebn0Index,ebn0Db,blockageParameterIndex,requestedBlockageLengthSymbols",
+         "fixed-length point header mismatch");
+ std::vector<BlockPoint> out;while(std::getline(in,line)){if(line.empty())continue;std::istringstream s(line);
+  std::string ex,id,ei,db,pi,length;std::getline(s,ex,',');std::getline(s,id,',');std::getline(s,ei,',');
+  std::getline(s,db,',');std::getline(s,pi,',');std::getline(s,length,',');
+  const auto absolute=std::stoull(length);require(absolute>0,"fixed blockage length must be positive");
+  out.push_back({{parseCase(id),id,std::stoull(ei),std::stod(db)},ex,std::stoull(pi),0.0,absolute,true});}
+ require(out.size()==32,"fixed-length formal blockage point count must be 32");return out;
 }
 void header(std::ostream& o){o<<"stageId,gitCommit,experimentType,caseId,legendLabel,payloadLength,encodedLength,actualRate,"
 "channelType,ebn0Db,snrDb,blockageAmplitude,requestedBlockageRatio,actualBlockageRatio,blockageLengthSymbols,"
@@ -81,7 +100,7 @@ void header(std::ostream& o){o<<"stageId,gitCommit,experimentType,caseId,legendL
 "decodeTimeP95Ns,decodeTimeP99Ns,ber,fer,decoderFailureRate,miscorrectionRate,undetectedErrorRate,trueSuccessRate,"
 "stopReason,checkpointId,shardId,blockageParameterIndex\n";}
 void row(std::ostream& o,const BlockPoint& p,const BlockCounters& c,const std::string& sha,const std::string& stop){
- const auto& x=scl::bch::s2::stage02::caseContract(p.awgn.id);const auto l=lengthFor(p.ratio,x.totalEncodedLength);
+ const auto& x=scl::bch::s2::stage02::caseContract(p.awgn.id);const auto l=pointLength(p,x.totalEncodedLength);
  auto rate=[](std::uint64_t a,std::uint64_t b){return b?double(a)/b:0.0;};
  const auto nonblocked=c.totalFrames*x.totalEncodedLength-c.totalBlockedSymbols;
  o<<std::setprecision(17)<<"stage12_blockage_formal,"<<sha<<','<<p.experiment<<','<<x.caseId<<','<<x.legendLabel<<','
@@ -98,6 +117,56 @@ void row(std::ostream& o,const BlockPoint& p,const BlockCounters& c,const std::s
  <<rate(c.decoderFailureFrames,c.totalFrames)<<','<<rate(c.miscorrectionFrames,c.totalFrames)<<','
  <<rate(c.undetectedErrorFrames,c.totalFrames)<<','<<rate(c.trueSuccessFrames,c.totalFrames)<<','<<stop
  <<",stage12_"<<p.experiment<<'_'<<x.caseId<<'_'<<p.parameterIndex<<",0,"<<p.parameterIndex<<'\n';
+}
+void fixedHeader(std::ostream& o){o<<"stageId,gitCommit,experimentType,caseId,legendLabel,payloadLength,encodedLength,actualRate,"
+"channelType,ebn0Db,snrDb,blockageAmplitude,requestedBlockageLengthSymbols,blockageLengthSymbols,actualBlockageRatio,"
+"blockageStartPolicy,meanBlockageStart,minBlockageStart,maxBlockageStart,totalBlockedSymbols,blockedRawErrorBits,"
+"nonBlockedRawErrorBits,blockedRawBer,nonBlockedRawBer,affectedCodeBlockCountTotal,meanAffectedCodeBlockCount,"
+"maxAffectedCodeBlockCount,totalFrames,totalPayloadBits,payloadErrorBits,payloadErrorFrames,decoderFailureFrames,"
+"miscorrectionFrames,undetectedErrorFrames,trueSuccessFrames,decodeTimeTotalNs,decodeTimeMeanNs,decodeTimeP50Ns,"
+"decodeTimeP95Ns,decodeTimeP99Ns,ber,fer,decoderFailureRate,miscorrectionRate,undetectedErrorRate,trueSuccessRate,"
+"stopReason,checkpointId,shardId,blockageParameterIndex\n";}
+void fixedRow(std::ostream& o,const BlockPoint& p,const BlockCounters& c,const std::string& sha,const std::string& stop){
+ const auto& x=scl::bch::s2::stage02::caseContract(p.awgn.id);const auto l=pointLength(p,x.totalEncodedLength);
+ auto rate=[](std::uint64_t a,std::uint64_t b){return b?double(a)/b:0.0;};
+ const auto nonblocked=c.totalFrames*x.totalEncodedLength-c.totalBlockedSymbols;
+ o<<std::setprecision(17)<<"stage12_blockage_formal,"<<sha<<','<<p.experiment<<','<<x.caseId<<','<<x.legendLabel<<','
+ <<x.payloadLength<<','<<x.totalEncodedLength<<','<<x.actualRate<<",BLOCKAGE_AWGN,"<<p.awgn.ebn0Db<<','
+ <<p.awgn.ebn0Db+10*std::log10(x.actualRate)<<",0,"<<p.absoluteLength<<','<<l<<','<<double(l)/x.totalEncodedLength
+ <<",RANDOM_PER_FRAME,"<<double(c.startSum)/c.totalFrames<<','<<c.minStart<<','<<c.maxStart<<','<<c.totalBlockedSymbols
+ <<','<<c.blockedRawErrorBits<<','<<c.nonBlockedRawErrorBits<<','<<rate(c.blockedRawErrorBits,c.totalBlockedSymbols)
+ <<','<<rate(c.nonBlockedRawErrorBits,nonblocked)<<','<<c.affectedBlocks<<','<<double(c.affectedBlocks)/c.totalFrames
+ <<','<<c.maxAffectedBlocks<<','<<c.totalFrames<<','<<c.totalPayloadBits<<','<<c.payloadErrorBits<<','
+ <<c.payloadErrorFrames<<','<<c.decoderFailureFrames<<','<<c.miscorrectionFrames<<','<<c.undetectedErrorFrames<<','
+ <<c.trueSuccessFrames<<','<<c.decodeTimeTotalNs<<','<<c.decodeTimeTotalNs/c.totalFrames<<','
+ <<percentile(c.latency,.5)<<','<<percentile(c.latency,.95)<<','<<percentile(c.latency,.99)<<','
+ <<rate(c.payloadErrorBits,c.totalPayloadBits)<<','<<rate(c.payloadErrorFrames,c.totalFrames)<<','
+ <<rate(c.decoderFailureFrames,c.totalFrames)<<','<<rate(c.miscorrectionFrames,c.totalFrames)<<','
+ <<rate(c.undetectedErrorFrames,c.totalFrames)<<','<<rate(c.trueSuccessFrames,c.totalFrames)<<','<<stop
+ <<",stage12_experiment_c_"<<x.caseId<<'_'<<p.parameterIndex<<",0,"<<p.parameterIndex<<'\n';
+}
+int runFixedLength(const fs::path& pointsPath,const fs::path& output,std::uint64_t seed,const std::string& sha){
+ auto points=readFixedLengthPoints(pointsPath);fs::create_directories(output/"checkpoints");
+ std::ofstream raw(output/"stage12_blockage_formal_experiment_c_fixed_length_result_raw.csv"),
+ sum(output/"stage12_blockage_formal_experiment_c_fixed_length_result_summary.csv"),
+ merge(output/"stage12_blockage_formal_experiment_c_fixed_length_merge_audit.csv");
+ require(raw&&sum&&merge,"cannot create fixed-length outputs");fixedHeader(raw);fixedHeader(sum);
+ merge<<"experimentType,caseId,parameterIndex,requestedBlockageLengthSymbols,totalFrames,integerAccountingPass,passed\n";
+ for(const auto& p:points){BlockCounters c;std::string stop="CONTINUE";
+  while(c.totalFrames<50000){auto n=std::min<std::uint64_t>(100,50000-c.totalFrames);
+   addBlock(c,simulate(p,c.totalFrames,n,seed));
+   if(c.totalFrames>=5000&&c.payloadErrorFrames>=200){stop="TARGET_FRAME_ERRORS_REACHED";break;}}
+  if(stop=="CONTINUE")stop="MAX_FRAMES_REACHED";
+  const bool ok=c.trueSuccessFrames+c.payloadErrorFrames==c.totalFrames;
+  require(ok&&c.totalFrames<=50000,"fixed-length accounting/frame cap failed");
+  fixedRow(raw,p,c,sha,stop);fixedRow(sum,p,c,sha,stop);
+  merge<<p.experiment<<','<<p.awgn.caseId<<','<<p.parameterIndex<<','<<p.absoluteLength<<','<<c.totalFrames<<','<<ok<<','<<ok<<'\n';
+  std::ofstream cp(output/"checkpoints"/("stage12_experiment_c_"+p.awgn.caseId+"_"+std::to_string(p.parameterIndex)+".json"));
+  cp<<"{\"nextFrameIndex\":"<<c.totalFrames<<",\"stopReason\":\""<<stop<<"\"}\n";
+  std::cout<<p.experiment<<' '<<p.awgn.caseId<<" L"<<p.absoluteLength<<" frames "<<c.totalFrames
+           <<" errors "<<c.payloadErrorFrames<<'\n';
+ }
+ std::cout<<"PASS_STAGE12_BLOCKAGE_FORMAL_EXPERIMENT_C_FIXED_LENGTH_RUNNER\n";return 0;
 }
 std::string bits12(const scl::common::BitVector& b){std::string s;s.reserve(b.size());for(auto x:b)s.push_back(x?'1':'0');return s;}
 template<class T>std::string values12(const std::vector<T>&v){std::ostringstream o;o<<std::setprecision(17);for(std::size_t i=0;i<v.size();++i){if(i)o<<';';o<<v[i];}return o.str();}
@@ -130,6 +199,8 @@ void spotcheck12(const fs::path& path){
 }
 int main(int argc,char** argv){try{
  if(argc==3&&std::string(argv[1])=="--spotcheck"){spotcheck12(argv[2]);std::cout<<"PASS_STAGE12_BLOCKAGE_FORMAL_SPOTCHECK_EXPORT\n";return 0;}
+ if(argc==6&&std::string(argv[1])=="--fixed-length")
+  return runFixedLength(argv[2],argv[3],std::stoull(argv[4]),argv[5]);
  if(argc!=5)throw std::invalid_argument("usage: runner POINTS OUTPUT SEED GIT_COMMIT");
  auto points=readBlockPoints(argv[1]);fs::path output(argv[2]);fs::create_directories(output/"checkpoints");
  std::ofstream raw(output/"stage12_blockage_formal_result_raw.csv"),sum(output/"stage12_blockage_formal_result_summary.csv"),
