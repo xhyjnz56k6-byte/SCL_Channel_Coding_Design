@@ -1,0 +1,32 @@
+{
+  "stage": "stage16_burst_interleaving_comparison",
+  "branch": "stage13-16-bch-s2-burst-interleaving",
+  "functionalRanges": [],
+  "codeCommit": "WORKTREE",
+  "resultCommit": "WORKTREE",
+  "formalPointCount": 888,
+  "totalFrames": 22013839,
+  "stopReasonCounts": {
+    "TARGET_FRAME_ERRORS_REACHED": 467,
+    "MAX_FRAMES_REACHED": 421
+  },
+  "snrGrid": {
+    "minimumDb": 0,
+    "maximumDb": 18,
+    "stepDb": 0.5,
+    "count": 37
+  },
+  "resultFile": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+  "resultSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+  "checkerVersion": "stage16-checker-v1",
+  "runnerVersion": "stage16-runner-v1",
+  "compiler": "GNU MinGW",
+  "buildType": "Release",
+  "os": "Windows-10-10.0.26200-SP0",
+  "pythonVersion": "3.11.0",
+  "matlabVersion": "captured-in-matlab-log",
+  "gate": "PASS_STAGE16_BURST_INTERLEAVING_COMPARISON_FUNCTIONAL",
+  "groupGate": "PASS_BCH_S2_BURST_INTERLEAVING_STAGE13_TO_STAGE16_FUNCTIONAL",
+  "remoteVerification": "DEFERRED_TO_AUTHORIZED_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,48 @@
+{
+  "plotId": "stage16_burst_interleaving_comparison_k300_m511k385_fer_vs_snr",
+  "stageId": "stage16_burst_interleaving_comparison",
+  "gitCommit": "8f2b806a78eeb27120a68310b09cea5d32f634d3",
+  "sourceFiles": [
+    "stage16_burst_interleaving_comparison_raw_results.csv"
+  ],
+  "sourceSha256": [
+    "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb"
+  ],
+  "figureDataFile": "results/figure_data/stage16_burst_interleaving_comparison_k300_m511k385_fer_vs_snr_figure_data.csv",
+  "figureDataSha256": "87ba660090a0f672f6dcec2659c8a4f1556cf6241844d8ca62e247fe2edabba4",
+  "pngFile": "results/plots/stage16_burst_interleaving_comparison_k300_m511k385_fer_vs_snr.png",
+  "pngSha256": "d33afea54376799c5d6e7a9b1a7eef6cb17f1ccb86817a8ac9e8f4dab54736a0",
+  "xSourceColumn": "targetSnrDb",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "SNR",
+  "xPhysicalQuantity": "waveform_snr",
+  "xUnit": "dB",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "fer",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "FER",
+  "yUnit": "1",
+  "yScale": "log",
+  "title": "385整块300突发信道适应性",
+  "legendLabels": [
+    "无突发",
+    "无交织突发",
+    "最佳交织突发"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {
+    "无突发": "-",
+    "无交织突发": "--",
+    "最佳交织突发": "-."
+  },
+  "markers": {
+    "无突发": "o",
+    "无交织突发": "s",
+    "最佳交织突发": "^"
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; figure-data uses 0.5/denominator only for logarithmic display.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T15:39:56.295162+00:00"
+}
