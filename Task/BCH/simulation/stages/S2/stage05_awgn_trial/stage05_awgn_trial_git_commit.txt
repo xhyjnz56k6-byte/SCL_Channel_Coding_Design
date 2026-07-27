@@ -1,0 +1,5 @@
+functional_base=264a6ac2827eb65f187ef7335c9af777a5af5d14
+functional_content=a5310744515a24d9e8d4736e5c71289c0df0b283
+branch=stage01-06-bch-s2-awgn
+gate=PASS_STAGE05_AWGN_TRIAL
+merge_status=NOT_MERGED
