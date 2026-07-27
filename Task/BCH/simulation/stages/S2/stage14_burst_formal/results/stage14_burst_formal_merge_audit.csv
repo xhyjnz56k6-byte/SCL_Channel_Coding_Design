@@ -1,0 +1,5 @@
+shardId,pointCount,resultFile,resultSha256,overlapCount,gapCount,configMatch,commitMatch,passed
+0,32,results/shards/stage14_burst_formal_shard_0_results.csv,88eb0347785ff165bda02d445ab0c532ed6581cab3801a15c3f4737bd7ec66e4,0,0,true,true,true
+1,32,results/shards/stage14_burst_formal_shard_1_results.csv,d82aecd8fbf3f5b48c2d8efb44cab3b170a7b74e35695d1e644d8ad7c052301a,0,0,true,true,true
+2,32,results/shards/stage14_burst_formal_shard_2_results.csv,3455c1a4c170b38b76dea1e4db59d48be03fb9281abc0e1b5a2944677eafa0dc,0,0,true,true,true
+3,32,results/shards/stage14_burst_formal_shard_3_results.csv,317c9c9ca3b786831102105c06024bfe5d840bcf4a8cf4ab876f4378ee10cf97,0,0,true,true,true

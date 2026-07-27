@@ -1,0 +1,55 @@
+{
+  "stage": "stage14_burst_formal",
+  "branch": "stage13-16-bch-s2-burst-interleaving",
+  "functionalRanges": [
+    {
+      "name": "implementation",
+      "baseCommit": "6770561e04a7f0c8527314568cdffde30603f030",
+      "contentCommit": "793f724",
+      "files": [
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/configs/stage14_burst_formal_config.json",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/cpp/CMakeLists.txt",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/cpp/stage14_burst_formal_runner.cpp",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/matlab/stage14_burst_formal_matlab_reference.m",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/python/stage14_burst_formal_check.py",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/python/stage14_burst_formal_finalize.py",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/python/stage14_burst_formal_plot.py",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/python/stage14_burst_formal_run.py",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/logs/stage14_burst_formal_build_debug.log",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/logs/stage14_burst_formal_build_release.log",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/logs/stage14_burst_formal_cmake_debug.log",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/logs/stage14_burst_formal_cmake_release.log",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/logs/stage14_burst_formal_ctest.log",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/logs/stage14_burst_formal_smoke.log",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/smoke/checkpoints/stage14_burst_formal_K200_M255K207_L6.json",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/smoke/checkpoints/stage14_burst_formal_K200_S15_L0.json",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/smoke/checkpoints/stage14_burst_formal_K300_M511K385_L15.json",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/smoke/checkpoints/stage14_burst_formal_K300_S15_L4.json",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/smoke/stage14_burst_formal_smoke_results.csv",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/stage14_burst_formal_stage_plan.md",
+        "Task/BCH/simulation/stages/S2/stage14_burst_formal/tests/stage14_burst_formal_smoke_points.csv"
+      ]
+    }
+  ],
+  "codeCommit": "793f724",
+  "resultCommit": "WORKTREE",
+  "formalPointCount": 128,
+  "totalFrames": 2872000,
+  "stopReasonCounts": {
+    "MAX_FRAMES_REACHED": 56,
+    "TARGET_FRAME_ERRORS_REACHED": 72
+  },
+  "configFile": "configs/stage14_burst_formal_config.json",
+  "resultFile": "results/stage14_burst_formal_raw_results.csv",
+  "resultSha256": "9d0f8694cb588914d76858c10f10168e25c96cc3ee9619b095cc6261e8403980",
+  "checkerVersion": "stage14-checker-v1",
+  "runnerVersion": "stage14-runner-v1",
+  "compiler": "GNU MinGW",
+  "buildType": "Release",
+  "os": "Windows-10-10.0.26200-SP0",
+  "pythonVersion": "3.11.0",
+  "matlabVersion": "captured-in-matlab-log",
+  "gate": "PASS_STAGE14_BURST_FORMAL_FUNCTIONAL",
+  "remoteVerification": "DEFERRED_TO_AUTHORIZED_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,51 @@
+{
+  "plotId": "stage14_burst_formal_k300_fer_vs_burst_ratio",
+  "stageId": "stage14_burst_formal",
+  "gitCommit": "793f7247491a6f3e44b22072722e1ca693f26cae",
+  "sourceFiles": [
+    "stage14_burst_formal_raw_results.csv"
+  ],
+  "sourceSha256": [
+    "9d0f8694cb588914d76858c10f10168e25c96cc3ee9619b095cc6261e8403980"
+  ],
+  "figureDataFile": "results/figure_data/stage14_burst_formal_k300_fer_vs_burst_ratio_figure_data.csv",
+  "figureDataSha256": "e49fa89a21ed9e49eed81ffc1c6d22fccba9867f9b1477abf1cdab66d691a64f",
+  "pngFile": "results/plots/stage14_burst_formal_k300_fer_vs_burst_ratio.png",
+  "pngSha256": "70f00b80fc71d550e5780408520ea0da4de32f6850fb9a1c2e52191ddee88449",
+  "xSourceColumn": "burstRatio",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发比例（%）",
+  "xPhysicalQuantity": "burst_ratio",
+  "xUnit": "%",
+  "xTransformFormula": "100*burstRatio",
+  "ySourceColumn": "fer",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "FER",
+  "yUnit": "1",
+  "yScale": "log",
+  "title": "300比特BCH归一化突发误帧率",
+  "legendLabels": [
+    "分块300",
+    "255双块300",
+    "421整块300",
+    "385整块300"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {
+    "K300_S15": "-",
+    "K300_M255K207": "-",
+    "K300_M511K421": "-",
+    "K300_M511K385": "-"
+  },
+  "markers": {
+    "K300_S15": "o",
+    "K300_M255K207": "o",
+    "K300_M511K421": "o",
+    "K300_M511K385": "o"
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; plot uses 0.5/denominator only in figure-data for logarithmic display.",
+  "missingValueHandling": "NO_INTERPOLATION",
+  "createdAt": "2026-07-27T14:11:22.651020+00:00"
+}
