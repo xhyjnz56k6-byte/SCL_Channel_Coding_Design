@@ -36,6 +36,93 @@ CHANNELS = {
     "BLOCKAGE_M": ("中度遮挡", (0, (5, 1, 1, 1))),
     "BLOCKAGE_H": ("重度遮挡", (0, (3, 1, 1, 1, 1, 1))),
 }
+CHANNEL_FER_STYLE_MAP = {
+    200: {
+        ("BCH-S200", "AWGN"): {
+            "color": "#0072B2", "linestyle": "-", "marker": "o",
+            "markerface": "#0072B2",
+        },
+        ("BCH-S200", "MULTIPATH_MMSE"): {
+            "color": "#D55E00", "linestyle": "--", "marker": "s",
+            "markerface": "none",
+        },
+        ("BCH-S200", "CFO_30_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#009E73", "linestyle": ":", "marker": "^",
+            "markerface": "#009E73",
+        },
+        ("BCH-S200", "CFO_60_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#CC79A7", "linestyle": "-.", "marker": "D",
+            "markerface": "none",
+        },
+        ("BCH-B200", "AWGN"): {
+            "color": "#E69F00", "linestyle": (0, (7, 2)), "marker": "v",
+            "markerface": "#E69F00",
+        },
+        ("BCH-B200", "MULTIPATH_MMSE"): {
+            "color": "#56B4E9", "linestyle": (0, (3, 1, 1, 1)),
+            "marker": "P", "markerface": "none",
+        },
+        ("BCH-B200", "CFO_30_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#000000", "linestyle": (0, (1, 1)), "marker": "X",
+            "markerface": "#000000",
+        },
+        ("BCH-B200", "CFO_60_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#882255", "linestyle": (0, (5, 1, 1, 1, 1, 1)),
+            "marker": "*", "markerface": "none",
+        },
+    },
+    300: {
+        ("BCH-S300", "AWGN"): {
+            "color": "#0072B2", "linestyle": "-", "marker": "o",
+            "markerface": "#0072B2",
+        },
+        ("BCH-S300", "MULTIPATH_MMSE"): {
+            "color": "#D55E00", "linestyle": "--", "marker": "s",
+            "markerface": "none",
+        },
+        ("BCH-S300", "CFO_30_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#009E73", "linestyle": ":", "marker": "^",
+            "markerface": "#009E73",
+        },
+        ("BCH-S300", "CFO_60_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#CC79A7", "linestyle": "-.", "marker": "D",
+            "markerface": "none",
+        },
+        ("BCH-B300", "AWGN"): {
+            "color": "#E69F00", "linestyle": (0, (7, 2)), "marker": "v",
+            "markerface": "#E69F00",
+        },
+        ("BCH-B300", "MULTIPATH_MMSE"): {
+            "color": "#56B4E9", "linestyle": (0, (3, 1, 1, 1)),
+            "marker": "P", "markerface": "none",
+        },
+        ("BCH-B300", "CFO_30_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#000000", "linestyle": (0, (1, 1)), "marker": "X",
+            "markerface": "#000000",
+        },
+        ("BCH-B300", "CFO_60_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#882255", "linestyle": (0, (5, 1, 1, 1, 1, 1)),
+            "marker": "*", "markerface": "none",
+        },
+        ("BCH-B300-426", "AWGN"): {
+            "color": "#44AA99", "linestyle": (0, (9, 2, 1, 2)),
+            "marker": "<", "markerface": "#44AA99",
+        },
+        ("BCH-B300-426", "MULTIPATH_MMSE"): {
+            "color": "#AA4499", "linestyle": (0, (2, 1, 2, 3)),
+            "marker": ">", "markerface": "none",
+        },
+        ("BCH-B300-426", "CFO_30_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#999933", "linestyle": (0, (4, 1, 1, 1, 1, 3)),
+            "marker": "h", "markerface": "#999933",
+        },
+        ("BCH-B300-426", "CFO_60_NO_COMPENSATION_PHI0_ZERO"): {
+            "color": "#117733", "linestyle": (0, (1, 1, 5, 1)),
+            "marker": "p", "markerface": "none",
+        },
+    },
+}
+
 STAGE_DIRS = {
     "s2-07a": "s2_07a_block_burst_correction_boundary",
     "s2-07b": "s2_07b_segmented_boundary_heatmap",
@@ -288,9 +375,22 @@ def plot_part_a(repo: Path, audit: PlotAudit) -> None:
                     if not values:
                         continue
                     values.sort(key=lambda row: float(row["snrDb"]))
-                    color, marker = CASES[case]
                     channel_label, linestyle = CHANNELS[channel]
-                    face = "none" if blocked and channel == "BLOCKAGE_H" else color
+                    markeredgewidth = 1.2
+                    linewidth = 1.5
+                    markersize = 5.0
+                    if blocked:
+                        color, marker = CASES[case]
+                        face = "none" if channel == "BLOCKAGE_H" else color
+                    else:
+                        style = CHANNEL_FER_STYLE_MAP[payload][(case, channel)]
+                        color = style["color"]
+                        marker = style["marker"]
+                        linestyle = style["linestyle"]
+                        face = style["markerface"]
+                        markeredgewidth = 1.35
+                        linewidth = 2.0
+                        markersize = 6.6
                     style_key = (color, repr(linestyle), marker, face)
                     if style_key in triples:
                         raise RuntimeError("duplicate visual style tuple")
@@ -310,13 +410,18 @@ def plot_part_a(repo: Path, audit: PlotAudit) -> None:
                             [float(row["snrDb"]) for row in plotted],
                             [float(row["FER"]) for row in plotted],
                             color=color, marker=marker, markerfacecolor=face,
-                            linestyle=linestyle, linewidth=1.5, markersize=5,
+                            markeredgecolor=color,
+                            markeredgewidth=markeredgewidth,
+                            linestyle=linestyle, linewidth=linewidth,
+                            markersize=markersize,
                             label=f"{case}，{channel_label}",
                         )
                     visual.append({
                         "caseName": case, "channelType": channel,
                         "color": color, "marker": marker,
                         "linestyle": repr(linestyle), "markerface": face,
+                        "linewidth": linewidth, "markersize": markersize,
+                        "markeredgewidth": markeredgewidth,
                     })
             if not figure_rows or len(visual) > 12:
                 raise RuntimeError("Part A split or point coverage failure")
@@ -325,7 +430,15 @@ def plot_part_a(repo: Path, audit: PlotAudit) -> None:
             ax.set_ylabel("误帧率 FER")
             ax.set_yscale("log")
             ax.grid(True, which="both", alpha=0.25)
-            ax.legend(fontsize=7.5, loc="best")
+            if blocked:
+                ax.legend(fontsize=7.5, loc="best")
+            else:
+                ax.legend(
+                    fontsize=7.0, ncol=(2 if payload == 200 else 3),
+                    loc="upper center", bbox_to_anchor=(0.5, -0.16),
+                    framealpha=0.95, columnspacing=0.9, handlelength=3.0,
+                )
+                fig.subplots_adjust(bottom=0.28)
             audit.save(
                 fig, f"bch_s2_{payload}bit_{slug}_fer_redesigned.png",
                 figure_rows, source, title, "SNR（dB）", "误帧率 FER",
