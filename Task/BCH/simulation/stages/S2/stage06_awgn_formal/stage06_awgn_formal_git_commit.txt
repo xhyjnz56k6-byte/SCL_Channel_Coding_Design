@@ -1,0 +1,6 @@
+functional_base=7c1f21fdbcca40e4248f7fd21c241078cd964357
+functional_content=0e622e850e545891253cc9b134f7a36a97f72dd2
+branch=stage01-06-bch-s2-awgn
+gate=PASS_STAGE06_AWGN_FORMAL
+overall_gate=PASS_BCH_S2_AWGN_STAGE01_TO_STAGE06
+merge_status=NOT_MERGED
