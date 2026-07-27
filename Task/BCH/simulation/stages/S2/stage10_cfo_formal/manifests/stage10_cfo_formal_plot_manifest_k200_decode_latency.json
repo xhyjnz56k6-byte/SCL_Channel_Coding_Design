@@ -1,11 +1,11 @@
 {
   "stageId": "stage10_cfo_formal",
   "sourceCsv": "results\\stage10_cfo_formal_result_summary.csv",
-  "sourceCsvSha256": "15850e10d5fa2d61e557cfb99437442559a775a48bfea1e4f27486400ff0cfcf",
+  "sourceCsvSha256": "1f89f07b6ccf0648c22f52d77373b85b278cda73a49be1ff0c486e84b8a7efa8",
   "figureData": "results\\stage10_cfo_formal_figure_data_k200_decode_latency.csv",
-  "figureDataSha256": "0d54feab1f2020f39569b22145bbde01b939506b2242be79f82879f290da7088",
+  "figureDataSha256": "ce19120ff81b53e0ce22e6540e4672c40a7ad372c09664b64eff3b5e5bcbcb11",
   "png": "plots\\stage10_cfo_formal_k200_decode_latency.png",
-  "pngSha256": "f8688d9599e46359b0cf925af4f9bda35179a3206d4fe0406febdd7940113ff5",
+  "pngSha256": "4c9c8c9fbb6029d049edbdfd44651ba1ac7c9a8acc3600793ffa9c25fcdd9535",
   "xAxis": "SNR",
   "targetSnrGridDb": [
     0.0,
@@ -64,5 +64,5 @@
       "marker": "D"
     }
   },
-  "generatedFromGitCommit": "27d1e572921b5fbae72f6579b184a623f2547554"
+  "generatedFromGitCommit": "8d555a744022a1690204ec9fca5fcbf42360064f"
 }

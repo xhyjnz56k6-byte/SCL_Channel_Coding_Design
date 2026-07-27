@@ -1,4 +1,6 @@
 [ 15%] Built target stage10_block_core
 [ 61%] Built target stage10_segmented_core
 [ 84%] Built target stage10_support
+[ 92%] Building CXX object CMakeFiles/stage10_cfo_formal_runner.dir/stage10_cfo_formal_runner.cpp.obj
+[100%] Linking CXX executable stage10_cfo_formal_runner.exe
 [100%] Built target stage10_cfo_formal_runner
