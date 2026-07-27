@@ -1,0 +1,11 @@
+{
+  "stageId": "stage07_awgn_dense_formal",
+  "results": "stage07_awgn_dense_formal_results.csv",
+  "resultsSha256": "337c1cb6f46dc8239482f9183738375dc5f7f1f8c9b320e03d5b238a310a6843",
+  "progress": "stage07_awgn_dense_formal_progress.csv",
+  "progressSha256": "95b126374492120f5d62fbfb7b85d1e4d89d5cb45637b38934d574b9c30aeba4",
+  "points": "stage07_awgn_dense_formal_points.csv",
+  "pointsSha256": "686fa29a0b9bc4a1e3bbb53ac2b5b7e69fc9f1ae9784aece1f28fcd682328ee8",
+  "formalPoints": 296,
+  "totalFrames": 8824146
+}

@@ -1,0 +1,2 @@
+caseId,snrIndex,continuousFrames,resumedFrames,continuousPayloadErrorBits,resumedPayloadErrorBits,continuousPayloadErrorFrames,resumedPayloadErrorFrames,continuousNoiseChecksum,resumedNoiseChecksum,passed
+K200_S15,4,3000,3000,66328,66328,3000,3000,9921429090616928612,9921429090616928612,true

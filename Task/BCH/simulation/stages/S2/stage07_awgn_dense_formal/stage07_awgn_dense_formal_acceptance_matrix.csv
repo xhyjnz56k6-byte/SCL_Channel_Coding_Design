@@ -1,0 +1,11 @@
+requirement,implementation,positiveTest,negativeTest,gate
+new_stage_without_overwriting_stage06,Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal,path and prefix audit,stage06 file overwrite detection,PASS_STAGE07_AWGN_DENSE_FORMAL
+reuse_8_stage02_cases,stage02 case contract API and case CSV,case count and case field audit,case mutation or missing case detection,PASS_STAGE07_AWGN_DENSE_FORMAL
+uniform_waveform_snr_grid,config plus frozen grid,37 points per case and 296 total points,missing duplicate or wrong snrIndex detection,PASS_STAGE07_AWGN_DENSE_FORMAL
+snr_ebn0_sigma_math,runner and checker,per-row formula recomputation,wrong rate ebn0 or sigma2 detection,PASS_STAGE07_AWGN_DENSE_FORMAL
+formal_stop_rule,runner and checker,min target max stop checks,early stop overrun or BER stop detection,PASS_STAGE07_AWGN_DENSE_FORMAL
+independent_random_identity,stage01 random identity with stage07 stageId,resume equivalence and deterministic rerun checks,stage06 stageId reuse detection,PASS_STAGE07_RESUME_EQUIVALENCE
+checkpoint_resume,runner resume equivalence test,3000 continuous equals 1000 plus resumed 2000 frames,counter or checksum mismatch detection,PASS_STAGE07_RESUME_EQUIVALENCE
+complete_raw_results,results CSV and point outputs,296 row aggregate and 296 point files,missing duplicate or unordered point detection,PASS_STAGE07_AWGN_DENSE_FORMAL_RUNNER
+png_plots_and_figure_data,matplotlib plot script,6 PNG and 888 aggregate figure-data rows,forbidden format or hash mismatch detection,PASS_STAGE07_AWGN_DENSE_PLOT_CHECK
+published_small_results,published_results directory,raw result summary stop audit manifest presence,missing publish artifact detection,PASS_BCH_S2_AWGN_DENSE_RERUN

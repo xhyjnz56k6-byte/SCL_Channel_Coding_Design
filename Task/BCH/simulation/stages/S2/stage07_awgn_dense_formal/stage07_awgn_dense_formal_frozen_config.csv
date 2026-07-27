@@ -1,0 +1,2 @@
+stageId,masterSeed,snrStartDb,snrStopDb,snrStepDb,snrInclusive,minFrames,targetFrameErrors,maxFrames,checkpointEveryFrames
+stage07_awgn_dense_formal,2026072707,0.0,18.0,0.5,True,1000,200,50000,1000
