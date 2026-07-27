@@ -1,0 +1,42 @@
+{
+  "stage": "stage02_case_contract",
+  "branch": "stage01-06-bch-s2-awgn",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "49f4007e282d6f5c55ba5c0e8a390cbf436f32ac",
+      "contentCommit": "0fdafb02418e7b090540f4c78f1a0c7a7aa0c62d",
+      "files": [
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/CMakeLists.txt",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.cpp",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.hpp",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_export.cpp",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_test.cpp",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_check.log",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_ctest.log",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_export.log",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_matlab.log",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/matlab/stage02_case_contract_matlab_reference.m",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_check.py",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_run.py",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_commands_used.md",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_frozen_config.csv",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_stage_plan.md",
+        "Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_test_summary.csv"
+      ]
+    }
+  ],
+  "generatedEvidence": [
+    "results/stage02_case_contract_cases.csv",
+    "results/stage02_case_contract_schema.json",
+    "results/stage02_case_contract_length_audit.csv",
+    "results/stage02_case_contract_rate_audit.csv",
+    "results/stage02_case_contract_legend_mapping.csv",
+    "results/stage02_case_contract_plot_style_mapping.csv",
+    "results/stage02_case_contract_cpp_matlab_compare.csv"
+  ],
+  "gate": "PASS_STAGE02_CASE_CONTRACT",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED"
+}
