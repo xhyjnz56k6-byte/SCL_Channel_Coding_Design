@@ -33,6 +33,17 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def error_floor_status(row: dict[str, str]) -> tuple[str, float, float]:
+    """Return censoring status and one-sided 95% upper bounds for zero-error rows."""
+    frames = int(row["totalFrames"])
+    bits = int(row["totalPayloadBits"])
+    frame_errors = int(row["payloadErrorFrames"])
+    bit_errors = int(row["payloadErrorBits"])
+    if frame_errors == 0 and bit_errors == 0:
+        return "ZERO_OBSERVED_CENSORED", 3.0 / bits, 3.0 / frames
+    return "OBSERVED_ERRORS", bit_errors / bits, frame_errors / frames
+
+
 def main() -> int:
     stage = Path(__file__).resolve().parents[1]
     results = stage / "results"
@@ -133,8 +144,56 @@ def main() -> int:
             for metric in METRICS:
                 ordered = sorted(selected, key=lambda row: float(row[metric]))
                 ranks[metric + "Ranking"] = ";".join(f"{rank + 1}:{row['caseId']}" for rank, row in enumerate(ordered))
+            ber_conservative = []
+            fer_conservative = []
+            for row in selected:
+                status, ber95, fer95 = error_floor_status(row)
+                ber_conservative.append((ber95, status, row["caseId"]))
+                fer_conservative.append((fer95, status, row["caseId"]))
+            ranks["berErrorFloorAwareRanking"] = ";".join(
+                f"{rank + 1}:{case_id}:{status}:upper={upper:.17g}"
+                for rank, (upper, status, case_id) in enumerate(sorted(ber_conservative))
+            )
+            ranks["ferErrorFloorAwareRanking"] = ";".join(
+                f"{rank + 1}:{case_id}:{status}:upper={upper:.17g}"
+                for rank, (upper, status, case_id) in enumerate(sorted(fer_conservative))
+            )
+            zero_cases = sorted(
+                row["caseId"] for row in selected
+                if row["payloadErrorBits"] == "0" and row["payloadErrorFrames"] == "0"
+            )
+            ranks["zeroObservedCensoredCases"] = ";".join(zero_cases) if zero_cases else "NONE"
+            ranks["errorFloorRankingNote"] = (
+                "zero-error cases are censored and not strictly ordered by observed zero"
+                if zero_cases else "all cases have observed errors"
+            )
             ranking.append({"payloadLength": payload, "waveformSnrIndex": idx, "waveformSnrDb": snr, **ranks})
     write(stage / f"{PREFIX}_pointwise_ranking.csv", ranking)
+
+    error_floor_rows = []
+    for row in rows:
+        status, ber95, fer95 = error_floor_status(row)
+        error_floor_rows.append({
+            "payloadLength": row["payloadLength"],
+            "caseId": row["caseId"],
+            "waveformSnrIndex": row["waveformSnrIndex"],
+            "waveformSnrDb": row["waveformSnrDb"],
+            "totalFrames": row["totalFrames"],
+            "totalPayloadBits": row["totalPayloadBits"],
+            "payloadErrorBits": row["payloadErrorBits"],
+            "payloadErrorFrames": row["payloadErrorFrames"],
+            "observedBer": row["ber"],
+            "observedFer": row["fer"],
+            "errorFloorCensoringStatus": status,
+            "berOneSided95Upper": f"{ber95:.17g}",
+            "ferOneSided95Upper": f"{fer95:.17g}",
+            "interpretation": (
+                "zero errors observed; treat as censored upper-bound evidence, not measured zero"
+                if status == "ZERO_OBSERVED_CENSORED"
+                else "errors observed; use measured rate with ordinary finite-sample uncertainty"
+            ),
+        })
+    write(stage / f"{PREFIX}_error_floor_analysis.csv", error_floor_rows)
 
     crossings = []
     for payload in (200, 300):

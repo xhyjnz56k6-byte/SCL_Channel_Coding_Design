@@ -1,5 +1,6 @@
 *
 !*/
+python/__pycache__/
 !.gitignore
 !cpp/CMakeLists.txt
 !cpp/stage08_multipath_formal_common_snr_runner.cpp

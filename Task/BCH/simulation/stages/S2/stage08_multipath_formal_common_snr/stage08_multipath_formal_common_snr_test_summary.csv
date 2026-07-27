@@ -6,3 +6,4 @@ merge,PASS,PASS_STAGE08_COMMON_SNR_SHARD_MERGE
 formula_recomputation,PASS,296/296 rows
 stop_rule,PASS,all rows legal
 finite_and_residual,PASS,no NaN Inf residual <= 1e-11
+error_floor_censoring,PASS,zero-error rows use 3/N one-sided 95% upper bounds

@@ -43,6 +43,7 @@ def main() -> int:
     stage = Path(__file__).resolve().parents[1]
     rows = read(stage / f"results/{PREFIX}_results.csv")
     grid = read(stage / f"{PREFIX}_frozen_grid.csv")
+    error_floor_rows = read(stage / f"{PREFIX}_error_floor_analysis.csv")
     require(len(rows) == len(grid) == 296, "ROW_COUNT")
     require({row["caseId"] for row in rows} == set(CASES), "CASE_SET")
     expected_grid = [i * 0.5 for i in range(37)]
@@ -61,6 +62,10 @@ def main() -> int:
     require(actual == expected and len(actual) == 296, "FROZEN_GRID_MISMATCH")
     require(len({row["gitCommit"] for row in rows}) == 1, "GIT_COMMIT")
     require(len({row["configHash"] for row in rows}) == 1, "CONFIG_HASH")
+    require(len(error_floor_rows) == 296, "ERROR_FLOOR_ROW_COUNT")
+    error_floor_by_key = {
+        (row["caseId"], row["waveformSnrIndex"]): row for row in error_floor_rows
+    }
     for row in rows:
         payload, encoded = CASES[row["caseId"]]
         rate = payload / encoded
@@ -107,6 +112,17 @@ def main() -> int:
         require(row["equalizerType"] == "BLOCK_LINEAR_MMSE", "EQUALIZER")
         require(row["solverType"] == "BANDED_CHOLESKY_NORMAL_EQUATIONS", "SOLVER")
         require(row["miscorrectionFrames"] == row["undetectedErrorFrames"], "SEMANTIC_ALIAS")
+        ef = error_floor_by_key[(row["caseId"], row["waveformSnrIndex"])]
+        ber95 = float(ef["berOneSided95Upper"])
+        fer95 = float(ef["ferOneSided95Upper"])
+        if bit_errors == 0 and frame_errors == 0:
+            require(ef["errorFloorCensoringStatus"] == "ZERO_OBSERVED_CENSORED", "ERROR_FLOOR_CENSOR_STATUS")
+            require(close(ber95, 3.0 / bits), "ERROR_FLOOR_BER95")
+            require(close(fer95, 3.0 / frames), "ERROR_FLOOR_FER95")
+        else:
+            require(ef["errorFloorCensoringStatus"] == "OBSERVED_ERRORS", "ERROR_FLOOR_OBSERVED_STATUS")
+            require(close(ber95, bit_errors / bits), "ERROR_FLOOR_BER_OBSERVED")
+            require(close(fer95, frame_errors / frames), "ERROR_FLOOR_FER_OBSERVED")
     summary = stage / f"{PREFIX}_test_summary.csv"
     total_frames = sum(int(row["totalFrames"]) for row in rows)
     summary.write_text(
@@ -117,7 +133,8 @@ def main() -> int:
         "merge,PASS,PASS_STAGE08_COMMON_SNR_SHARD_MERGE\n"
         "formula_recomputation,PASS,296/296 rows\n"
         "stop_rule,PASS,all rows legal\n"
-        "finite_and_residual,PASS,no NaN Inf residual <= 1e-11\n",
+        "finite_and_residual,PASS,no NaN Inf residual <= 1e-11\n"
+        "error_floor_censoring,PASS,zero-error rows use 3/N one-sided 95% upper bounds\n",
         encoding="utf-8",
     )
     print(f"PASS_STAGE08_COMMON_SNR_RESULTS_CHECK points=296 frames={total_frames}")
