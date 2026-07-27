@@ -19,6 +19,7 @@ STAGE_ID = "stage16_burst_interleaving_comparison"
 GATE = "PASS_STAGE16_BURST_INTERLEAVING_COMPARISON"
 GROUP_GATE = "PASS_BCH_S2_BURST_INTERLEAVING_STAGE13_TO_STAGE16"
 BASE_COMMIT = "985f439add2c9e82a69b199157bcba8327dd1871"
+ORIGINAL_CONTENT_COMMIT = "8f2b806a78eeb27120a68310b09cea5d32f634d3"
 CASES = {
     "K200_S15": (200, 285),
     "K200_M255K207": (200, 248),
@@ -467,13 +468,24 @@ def write_audit(rows, code_commit, result_commit):
     ranges = []
     if code_commit:
         ranges.append({
-            "name": "implementation",
+            "name": "originalContent",
             "baseCommit": BASE_COMMIT,
-            "contentCommit": code_commit,
+            "contentCommit": ORIGINAL_CONTENT_COMMIT,
             "files": git(
-                "diff", "--name-only", f"{BASE_COMMIT}...{code_commit}"
+                "diff", "--name-only",
+                f"{BASE_COMMIT}...{ORIGINAL_CONTENT_COMMIT}"
             ).splitlines(),
         })
+        if code_commit != ORIGINAL_CONTENT_COMMIT:
+            ranges.append({
+                "name": "repairContent",
+                "baseCommit": ORIGINAL_CONTENT_COMMIT,
+                "contentCommit": code_commit,
+                "files": git(
+                    "diff", "--name-only",
+                    f"{ORIGINAL_CONTENT_COMMIT}...{code_commit}",
+                ).splitlines(),
+            })
     if result_commit:
         ranges.append({
             "name": "formalResults",
