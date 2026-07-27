@@ -93,6 +93,7 @@ def none_row(source, template_fields, commit):
         "interleaverBufferBytes": "0",
         "interleaverStartupDelayBits": "0",
         "checkpointPath": source["checkpointPath"],
+        "sourceGitCommit": source["gitCommit"],
         "resultSha256": "",
     })
     return result
@@ -148,7 +149,9 @@ def add_improvement(data, none_lookup):
         row["L_tol_1e_1"], row["L_tol_1e_2"], row["toleranceStatus"] = tolerance[key]
         if row["interleaverMode"] == "NONE":
             row["sourceStage"] = "stage14_burst_formal"
-            row["sourceGitCommit"] = none["gitCommit"]
+            row["sourceGitCommit"] = (
+                row.get("sourceGitCommit") or none["gitCommit"]
+            )
             row["reuseStatus"] = "REUSED_STAGE14_CANONICAL"
         else:
             row["sourceStage"] = STAGE_ID
