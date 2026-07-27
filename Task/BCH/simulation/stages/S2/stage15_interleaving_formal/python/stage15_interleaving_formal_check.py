@@ -20,6 +20,7 @@ BASE_COMMIT = "311e9a38373fe0483f65b1fe027d39b9b8cbfadd"
 ORIGINAL_CONTENT_COMMIT = "c56ea139a842ce7156261a02174dba399024849b"
 FIRST_REPAIR_COMMIT = "5390b9e1e0d837a6738ad7b3bbafef11462bd6bc"
 SECOND_REPAIR_COMMIT = "33755851a1607a76b7868d454c428b00d4e2c36b"
+THIRD_REPAIR_COMMIT = "f17811ec36fc77bda2d035ec7968b419b9175c43"
 CASES = {
     "K200_S15": (200, 285),
     "K200_M255K207": (200, 248),
@@ -568,10 +569,30 @@ def write_audit(unique, selections, code_commit, result_commit):
             ranges.append({
                 "name": "provenanceRepairContent",
                 "baseCommit": SECOND_REPAIR_COMMIT,
+                "contentCommit": (
+                    THIRD_REPAIR_COMMIT
+                    if code_commit != THIRD_REPAIR_COMMIT
+                    else code_commit
+                ),
+                "files": git(
+                    "diff", "--name-only",
+                    (
+                        f"{SECOND_REPAIR_COMMIT}..."
+                        f"{THIRD_REPAIR_COMMIT if code_commit != THIRD_REPAIR_COMMIT else code_commit}"
+                    ),
+                ).splitlines(),
+            })
+        if code_commit not in {
+            ORIGINAL_CONTENT_COMMIT, FIRST_REPAIR_COMMIT,
+            SECOND_REPAIR_COMMIT, THIRD_REPAIR_COMMIT,
+        }:
+            ranges.append({
+                "name": "canonicalHeaderRepairContent",
+                "baseCommit": THIRD_REPAIR_COMMIT,
                 "contentCommit": code_commit,
                 "files": git(
                     "diff", "--name-only",
-                    f"{SECOND_REPAIR_COMMIT}...{code_commit}",
+                    f"{THIRD_REPAIR_COMMIT}...{code_commit}",
                 ).splitlines(),
             })
     if result_commit:

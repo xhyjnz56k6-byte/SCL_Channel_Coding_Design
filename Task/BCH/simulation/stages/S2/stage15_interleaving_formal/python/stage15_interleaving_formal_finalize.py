@@ -93,7 +93,7 @@ def none_row(source, template_fields, commit):
         "interleaverBufferBytes": "0",
         "interleaverStartupDelayBits": "0",
         "checkpointPath": source["checkpointPath"],
-        "sourceGitCommit": source["gitCommit"],
+        "_reusedSourceGitCommit": source["gitCommit"],
         "resultSha256": "",
     })
     return result
@@ -105,7 +105,9 @@ def add_improvement(data, none_lookup):
         "ratioStatus", "L_tol_1e_1", "L_tol_1e_2", "toleranceStatus",
         "sourceStage", "sourceGitCommit", "reuseStatus",
     ]
-    base_fields = list(data[0])
+    base_fields = [
+        field for field in data[0] if not field.startswith("_")
+    ]
     grouped = defaultdict(list)
     for row in data:
         grouped[(row["caseId"], row["interleaverMode"],
@@ -150,7 +152,7 @@ def add_improvement(data, none_lookup):
         if row["interleaverMode"] == "NONE":
             row["sourceStage"] = "stage14_burst_formal"
             row["sourceGitCommit"] = (
-                row.get("sourceGitCommit") or none["gitCommit"]
+                row.pop("_reusedSourceGitCommit", "") or none["gitCommit"]
             )
             row["reuseStatus"] = "REUSED_STAGE14_CANONICAL"
         else:
