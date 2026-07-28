@@ -1,0 +1,230 @@
+﻿diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/.gitignore b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/.gitignore
+new file mode 100644
+index 00000000..c18dd8d8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/.gitignore
+@@ -0,0 +1 @@
++__pycache__/
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/CMakeLists.txt
+new file mode 100644
+index 00000000..d7a6bcf9
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/CMakeLists.txt
+@@ -0,0 +1,12 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage12_continuous_encoder LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../..")
++set(CC_ROOT "${REPO_ROOT}/Task/CC")
++add_executable(stage12_tests tests/test_stage12.cpp src/continuous_encoder.cpp "${CC_ROOT}/shared/src/trellis.cpp" "${CC_ROOT}/shared/src/puncturing.cpp" "${CC_ROOT}/block/current/src/block_encoder.cpp")
++target_include_directories(stage12_tests PRIVATE include "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include" "${REPO_ROOT}/Task/Common/include")
++if(NOT MSVC)
++ target_compile_options(stage12_tests PRIVATE -O3 -Wall -Wextra -Wpedantic -Werror)
++endif()
++enable_testing()
++add_test(NAME stage12_continuous_encoder COMMAND stage12_tests "${CMAKE_CURRENT_LIST_DIR}/results")
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/commands_used.md b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/commands_used.md
+new file mode 100644
+index 00000000..e00df8bb
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/commands_used.md
+@@ -0,0 +1,3 @@
++# Stage12 命令
++
++`python Task/CC/simulation/stages/S3/stage12_continuous_encoder/scripts/run_stage12.py --clean`
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/frozen_config.csv b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/frozen_config.csv
+new file mode 100644
+index 00000000..2133123c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/frozen_config.csv
+@@ -0,0 +1,4 @@
++slotCandidateBits,slotCount,tailPolicy
++50,6,final_only
++100,3,final_only
++150,2,final_only
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/include/continuous_encoder.hpp b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/include/continuous_encoder.hpp
+new file mode 100644
+index 00000000..33e3ad37
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/include/continuous_encoder.hpp
+@@ -0,0 +1,19 @@
++#pragma once
++#include "cc/block_encoder.hpp"
++#include "cc/puncturing.hpp"
++#include <cstddef>
++#include <cstdint>
++#include <vector>
++namespace scl::cc::stage12 {
++struct ContinuousState{std::uint8_t encoder_state=0;std::size_t puncture_phase=0,slot_index=0,payload_bits=0,mother_bits=0,transmitted_bits=0;};
++struct SlotMetadata{std::size_t slot_index=0,payload_start=0,payload_count=0,mother_start=0,mother_count=0,transmitted_start=0,transmitted_count=0,initial_phase=0,final_phase=0;std::uint8_t initial_state=0,final_state=0;bool appended_tail=false;};
++struct SlotResult{std::vector<std::uint8_t> mother_bits,transmitted_bits;SlotMetadata metadata;};
++class ContinuousEncoder{
++public:
++ ContinuousEncoder(const Trellis&trellis,PuncturePattern pattern);
++ SlotResult encode_slot(const std::vector<std::uint8_t>&payload,bool final_slot,bool append_tail_on_final);
++ ContinuousState export_state()const;void import_state(const ContinuousState&state);void reset();
++private:
++ ConvolutionalEncoder encoder_;PuncturePattern pattern_;ContinuousState state_;
++};
++}
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/known_issues.md b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/known_issues.md
+new file mode 100644
+index 00000000..9bce7398
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/known_issues.md
+@@ -0,0 +1,3 @@
++# Stage12 已知问题
++
++本 Stage 只冻结连续编码和打孔相位；滑窗译码在 Stage13。
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_continuous_encoder_test_summary.csv b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_continuous_encoder_test_summary.csv
+new file mode 100644
+index 00000000..dd518a30
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_continuous_encoder_test_summary.csv
+@@ -0,0 +1,9 @@
++check,status
++segmented_equivalence,PASS
++state_export_import,PASS
++no_loss_or_duplicate,PASS
++final_zero_state,PASS
++puncture_phase_carry,PASS
++unterminated_stream,PASS
++negative_middle_tail,PASS
++stage_gate,PASS_STAGE12_CC_CONTINUOUS_ENCODER
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_slot_metadata.csv b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_slot_metadata.csv
+new file mode 100644
+index 00000000..6a31d964
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_slot_metadata.csv
+@@ -0,0 +1,34 @@
++pattern,slotSize,slotIndex,payloadStart,payloadCount,initialState,finalState,initialPhase,finalPhase,motherCount,transmittedCount,appendedTail
++R12,50,0,0,50,0,7,0,0,100,100,0
++R12,50,1,50,50,7,41,0,0,100,100,0
++R12,50,2,100,50,41,36,0,0,100,100,0
++R12,50,3,150,50,36,7,0,0,100,100,0
++R12,50,4,200,50,7,18,0,0,100,100,0
++R12,50,5,250,50,18,0,0,0,112,112,1
++R12,100,0,0,100,0,41,0,0,200,200,0
++R12,100,1,100,100,41,7,0,0,200,200,0
++R12,100,2,200,100,7,0,0,0,212,212,1
++R12,150,0,0,150,0,36,0,0,300,300,0
++R12,150,1,150,150,36,0,0,0,312,312,1
++R23,50,0,0,50,0,7,0,0,100,75,0
++R23,50,1,50,50,7,41,0,0,100,75,0
++R23,50,2,100,50,41,36,0,0,100,75,0
++R23,50,3,150,50,36,7,0,0,100,75,0
++R23,50,4,200,50,7,18,0,0,100,75,0
++R23,50,5,250,50,18,0,0,0,112,84,1
++R23,100,0,0,100,0,41,0,0,200,150,0
++R23,100,1,100,100,41,7,0,0,200,150,0
++R23,100,2,200,100,7,0,0,0,212,159,1
++R23,150,0,0,150,0,36,0,0,300,225,0
++R23,150,1,150,150,36,0,0,0,312,234,1
++R34,50,0,0,50,0,7,0,4,100,67,0
++R34,50,1,50,50,7,41,4,2,100,67,0
++R34,50,2,100,50,41,36,2,0,100,66,0
++R34,50,3,150,50,36,7,0,4,100,67,0
++R34,50,4,200,50,7,18,4,2,100,67,0
++R34,50,5,250,50,18,0,2,0,112,74,1
++R34,100,0,0,100,0,41,0,2,200,134,0
++R34,100,1,100,100,41,7,2,4,200,133,0
++R34,100,2,200,100,7,0,4,0,212,141,1
++R34,150,0,0,150,0,36,0,0,300,200,0
++R34,150,1,150,150,36,0,0,0,312,208,1
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/scripts/run_stage12.py b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/scripts/run_stage12.py
+new file mode 100644
+index 00000000..b1dba09f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/scripts/run_stage12.py
+@@ -0,0 +1,10 @@
++#!/usr/bin/env python3
++import shutil,subprocess,sys
++from pathlib import Path
++def main():
++ s=Path(__file__).resolve().parents[1];b=s/"build"
++ if "--clean" in sys.argv and b.exists():shutil.rmtree(b)
++ (s/"results").mkdir(exist_ok=True)
++ for c in (["cmake","-S",str(s),"-B",str(b),"-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=Release"],["cmake","--build",str(b),"--parallel"],["ctest","--test-dir",str(b),"--output-on-failure"]):print("+"," ".join(c));subprocess.run(c,cwd=s,check=True)
++ return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/src/continuous_encoder.cpp b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/src/continuous_encoder.cpp
+new file mode 100644
+index 00000000..49026b54
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/src/continuous_encoder.cpp
+@@ -0,0 +1,20 @@
++#include "continuous_encoder.hpp"
++#include "cc/trellis.hpp"
++#include <stdexcept>
++namespace scl::cc::stage12 {
++ContinuousEncoder::ContinuousEncoder(const Trellis&t,PuncturePattern p):encoder_(t),pattern_(std::move(p)){validate_puncture_pattern(pattern_);}
++SlotResult ContinuousEncoder::encode_slot(const std::vector<std::uint8_t>&payload,bool final_slot,bool append_tail){
++ if(append_tail&&!final_slot)throw std::invalid_argument("tail only allowed on final slot");
++ SlotResult r;r.metadata.slot_index=state_.slot_index;r.metadata.payload_start=state_.payload_bits;r.metadata.payload_count=payload.size();
++ r.metadata.mother_start=state_.mother_bits;r.metadata.transmitted_start=state_.transmitted_bits;r.metadata.initial_state=encoder_.state();r.metadata.initial_phase=state_.puncture_phase;
++ encoder_.encode_segment(payload,r.mother_bits);if(append_tail){encoder_.encode_segment(std::vector<std::uint8_t>(kMemory,0),r.mother_bits);r.metadata.appended_tail=true;}
++ auto p=puncture_bits(r.mother_bits,pattern_,state_.puncture_phase);r.transmitted_bits=std::move(p.bits);
++ r.metadata.mother_count=r.mother_bits.size();r.metadata.transmitted_count=r.transmitted_bits.size();r.metadata.final_state=encoder_.state();r.metadata.final_phase=p.final_phase;
++ state_.encoder_state=encoder_.state();state_.puncture_phase=p.final_phase;++state_.slot_index;state_.payload_bits+=payload.size();state_.mother_bits+=r.mother_bits.size();state_.transmitted_bits+=r.transmitted_bits.size();
++ if(final_slot&&append_tail&&state_.encoder_state!=0)throw std::logic_error("final zero tail did not terminate");
++ return r;
++}
++ContinuousState ContinuousEncoder::export_state()const{return state_;}
++void ContinuousEncoder::import_state(const ContinuousState&s){if(s.encoder_state>=kStateCount||s.puncture_phase>=pattern_.keep_mask.size())throw std::invalid_argument("invalid continuous state");state_=s;encoder_.import_state(s.encoder_state);}
++void ContinuousEncoder::reset(){state_={};encoder_.reset();}
++}
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/stage_plan.md b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/stage_plan.md
+new file mode 100644
+index 00000000..c6fa9305
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/stage_plan.md
+@@ -0,0 +1,15 @@
++# Stage12 规格冻结：连续编码器
++
++目标是在不重置中间时隙的前提下保持 encoder state 与 puncture phase；首 slot 从 state0 开始，中间不加尾比特，最后可统一加 6 个零尾，也支持完全不终止。只修改本 Stage。
++
++接口：`ContinuousEncoder::encode_slot(payload, finalSlot, appendTailOnFinal)`；状态导入导出同时包含 encoderState、puncturePhase、slotIndex、payloadBitsProcessed、motherBitsProcessed、transmittedBitsProcessed。每个 slot 返回完整元数据。
++
++| 需求 | 实现位置 | 正向测试 | 负向测试 | Gate 条件 |
++|---|---|---|---|---|
++| 状态跨 slot | continuous_encoder | 三种切分等于一次性编码 | 非法状态拒绝 | bit/state 一致 |
++| 统一尾终止 | encode_slot | 最后回 state0 | 中间加尾被接口禁止 | PASS |
++| puncture 相位 | 三码率 | 拼接等于一次性 puncture | 相位重启检测 | PASS |
++| export/import | state struct | 中途迁移后结果一致 | 非法 phase 拒绝 | PASS |
++| 不终止长流 | no-tail 路径 | 拼接等于 encode_segment | 丢/重 bit 检查 | PASS |
++
++Gate：`PASS_STAGE12_CC_CONTINUOUS_ENCODER`
+diff --git a/Task/CC/simulation/stages/S3/stage12_continuous_encoder/tests/test_stage12.cpp b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/tests/test_stage12.cpp
+new file mode 100644
+index 00000000..577dea3b
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage12_continuous_encoder/tests/test_stage12.cpp
+@@ -0,0 +1,28 @@
++#include "continuous_encoder.hpp"
++#include "cc/trellis.hpp"
++#include "common/frame_pool.hpp"
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <stdexcept>
++using namespace scl::cc;
++int main(int argc,char**argv){
++ try{if(argc!=2)throw std::invalid_argument("results dir");std::filesystem::create_directories(argv[1]);Trellis t;
++  const std::vector<PuncturePattern>patterns={{"R12",{1,1}},{"R23",{1,1,0,1}},{"R34",{1,1,0,1,1,0}}};
++  std::ofstream meta(std::filesystem::path(argv[1])/"stage12_slot_metadata.csv");meta<<"pattern,slotSize,slotIndex,payloadStart,payloadCount,initialState,finalState,initialPhase,finalPhase,motherCount,transmittedCount,appendedTail\n";
++  for(const auto&p:patterns)for(std::size_t slot:{50U,100U,150U})for(std::uint64_t frame=0;frame<100;++frame){
++   auto payload=scl::common::generatePayloadBits(2026072001,300,frame);ConvolutionalEncoder block(t);auto expected=block.encode_block(payload,true);auto expected_p=puncture_bits(expected.mother_bits,p);
++   scl::cc::stage12::ContinuousEncoder c(t,p);std::vector<std::uint8_t>mother,tx;
++   for(std::size_t start=0;start<payload.size();start+=slot){std::vector<std::uint8_t>part(payload.begin()+start,payload.begin()+start+slot);bool last=start+slot==payload.size();auto r=c.encode_slot(part,last,last);
++    mother.insert(mother.end(),r.mother_bits.begin(),r.mother_bits.end());tx.insert(tx.end(),r.transmitted_bits.begin(),r.transmitted_bits.end());
++    if(frame==0)meta<<p.id<<','<<slot<<','<<r.metadata.slot_index<<','<<r.metadata.payload_start<<','<<r.metadata.payload_count<<','<<int(r.metadata.initial_state)<<','<<int(r.metadata.final_state)<<','<<r.metadata.initial_phase<<','<<r.metadata.final_phase<<','<<r.metadata.mother_count<<','<<r.metadata.transmitted_count<<','<<r.metadata.appended_tail<<'\n';
++   }
++   auto state=c.export_state();if(mother!=expected.mother_bits||tx!=expected_p.bits||state.encoder_state!=0||state.payload_bits!=300)throw std::runtime_error("segmented equivalence");
++   scl::cc::stage12::ContinuousEncoder a(t,p),b(t,p);std::vector<std::uint8_t>x(payload.begin(),payload.begin()+100),y(payload.begin()+100,payload.end()),out1,out2;
++   auto r1=a.encode_slot(x,false,false);b.import_state(a.export_state());auto r2=b.encode_slot(y,true,true);out1=r1.transmitted_bits;out1.insert(out1.end(),r2.transmitted_bits.begin(),r2.transmitted_bits.end());if(out1!=expected_p.bits)throw std::runtime_error("state migration");
++   scl::cc::stage12::ContinuousEncoder stream(t,p);std::vector<std::uint8_t>stream_m;for(std::size_t start=0;start<300;start+=slot){std::vector<std::uint8_t>part(payload.begin()+start,payload.begin()+start+slot);auto r=stream.encode_slot(part,start+slot==300,false);stream_m.insert(stream_m.end(),r.mother_bits.begin(),r.mother_bits.end());}
++   ConvolutionalEncoder direct(t);std::vector<std::uint8_t>direct_m;direct.encode_segment(payload,direct_m);if(stream_m!=direct_m)throw std::runtime_error("unterminated stream");
++  }
++  bool rejected=false;try{scl::cc::stage12::ContinuousEncoder c(t,patterns[1]);c.encode_slot({1},false,true);}catch(const std::invalid_argument&){rejected=true;}if(!rejected)throw std::runtime_error("middle tail accepted");
++  std::ofstream summary(std::filesystem::path(argv[1])/"stage12_continuous_encoder_test_summary.csv");summary<<"check,status\nsegmented_equivalence,PASS\nstate_export_import,PASS\nno_loss_or_duplicate,PASS\nfinal_zero_state,PASS\npuncture_phase_carry,PASS\nunterminated_stream,PASS\nnegative_middle_tail,PASS\nstage_gate,PASS_STAGE12_CC_CONTINUOUS_ENCODER\n";
++  std::cout<<"PASS_STAGE12_CC_CONTINUOUS_ENCODER\n";return 0;}catch(const std::exception&e){std::cerr<<"FAIL_STAGE12: "<<e.what()<<'\n';return 1;}}

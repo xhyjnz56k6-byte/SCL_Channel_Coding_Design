@@ -1,0 +1,13 @@
+{"schemaVersion":"cc.stage.audit.v1","stage":"stage12_continuous_encoder","scenario":"S3","branch":"stage01-cc","gate":"PASS_STAGE12_CC_CONTINUOUS_ENCODER","gateStatus":"PASS","functionalRanges":[{"name":"content","baseCommit":"bd3db4ab9b7560829f1240dcbe86c76597dfb764","contentCommit":"85f70fcc6e30306eb1608da86116237af985585e","diffPaths":["Task/CC/simulation/stages/S3/stage12_continuous_encoder"],"files":[
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/.gitignore",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/CMakeLists.txt",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/commands_used.md",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/frozen_config.csv",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/include/continuous_encoder.hpp",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/known_issues.md",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_continuous_encoder_test_summary.csv",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/results/stage12_slot_metadata.csv",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/scripts/run_stage12.py",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/src/continuous_encoder.cpp",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/stage_plan.md",
+"Task/CC/simulation/stages/S3/stage12_continuous_encoder/tests/test_stage12.cpp"]}],"validation":{"patterns":3,"slotSizes":3,"framesPerCombination":100,"segmentedEquivalence":"PASS","stateExportImport":"PASS","puncturePhaseCarry":"PASS","unterminatedStream":"PASS","stage11AuditRegression":"PASS"},"changesPatch":{"semantic":"git diff --binary --unified=0 baseCommit..contentCommit over Stage12","sha256":"514140d98c921e1494d77af52f48e57e3af49e266ec9f8351064144865b622ab","includesAuditCommit":false},"scope":{"allowedPrefixes":["Task/CC/simulation/stages/S3/stage12_continuous_encoder/"],"outOfScopeChanges":[]},"remoteVerification":"DEFERRED_TO_BATCH_PUSH","mergeStatus":"NOT_MERGED"}
