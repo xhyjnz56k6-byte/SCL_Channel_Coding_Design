@@ -1,0 +1,1151 @@
+diff --git a/Task/CC/.gitignore b/Task/CC/.gitignore
+new file mode 100644
+index 00000000..5a4f98fc
+--- /dev/null
++++ b/Task/CC/.gitignore
+@@ -0,0 +1,12 @@
++# CC-local build and generated binary artifacts
++**/build/
++*.exe
++*.obj
++*.o
++*.a
++*.pdb
++
++# Runtime-only large experiment assets
++**/results/checkpoints/
++**/results/shards/
++**/results/runtime/
+diff --git a/Task/CC/block/current/include/cc/block_encoder.hpp b/Task/CC/block/current/include/cc/block_encoder.hpp
+new file mode 100644
+index 00000000..8dbe8666
+--- /dev/null
++++ b/Task/CC/block/current/include/cc/block_encoder.hpp
+@@ -0,0 +1,42 @@
++#pragma once
++
++#include "cc/trellis.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <vector>
++
++namespace scl::cc {
++
++struct EncodeResult {
++    std::vector<std::uint8_t> codec_input_bits;
++    std::vector<std::uint8_t> mother_bits;
++    std::uint8_t initial_state = kInitialState;
++    std::uint8_t final_state = kInitialState;
++    std::size_t payload_length = 0;
++    std::size_t tail_length = 0;
++};
++
++class ConvolutionalEncoder {
++public:
++    explicit ConvolutionalEncoder(const Trellis& trellis, std::uint8_t initial_state = kInitialState);
++
++    void reset(std::uint8_t initial_state = kInitialState);
++    std::uint8_t state() const;
++    void import_state(std::uint8_t state);
++
++    void encode_segment(
++        const std::vector<std::uint8_t>& input_bits,
++        std::vector<std::uint8_t>& output_bits);
++
++    EncodeResult encode_block(
++        const std::vector<std::uint8_t>& payload_bits,
++        bool append_zero_tail = true,
++        std::uint8_t initial_state = kInitialState);
++
++private:
++    const Trellis& trellis_;
++    std::uint8_t state_;
++};
++
++}  // namespace scl::cc
+diff --git a/Task/CC/block/current/src/block_encoder.cpp b/Task/CC/block/current/src/block_encoder.cpp
+new file mode 100644
+index 00000000..78cde13c
+--- /dev/null
++++ b/Task/CC/block/current/src/block_encoder.cpp
+@@ -0,0 +1,92 @@
++#include "cc/block_encoder.hpp"
++
++#include <stdexcept>
++
++namespace scl::cc {
++
++namespace {
++
++void validate_state(const std::uint8_t state) {
++    if (state >= kStateCount) {
++        throw std::invalid_argument("CC encoder state must be in [0, 63]");
++    }
++}
++
++void validate_bits(const std::vector<std::uint8_t>& bits) {
++    for (const std::uint8_t bit : bits) {
++        if (bit > 1) {
++            throw std::invalid_argument("CC encoder input contains a non-binary value");
++        }
++    }
++}
++
++}  // namespace
++
++ConvolutionalEncoder::ConvolutionalEncoder(
++    const Trellis& trellis,
++    const std::uint8_t initial_state)
++    : trellis_(trellis), state_(initial_state) {
++    validate_state(initial_state);
++}
++
++void ConvolutionalEncoder::reset(const std::uint8_t initial_state) {
++    validate_state(initial_state);
++    state_ = initial_state;
++}
++
++std::uint8_t ConvolutionalEncoder::state() const {
++    return state_;
++}
++
++void ConvolutionalEncoder::import_state(const std::uint8_t state) {
++    validate_state(state);
++    state_ = state;
++}
++
++void ConvolutionalEncoder::encode_segment(
++    const std::vector<std::uint8_t>& input_bits,
++    std::vector<std::uint8_t>& output_bits) {
++    validate_bits(input_bits);
++    output_bits.reserve(output_bits.size() + input_bits.size() * kOutputBitsPerInput);
++    for (const std::uint8_t bit : input_bits) {
++        const TrellisBranch& branch = trellis_.branch(state_, bit);
++        output_bits.push_back(branch.output_bits[0]);
++        output_bits.push_back(branch.output_bits[1]);
++        state_ = branch.next_state;
++    }
++}
++
++EncodeResult ConvolutionalEncoder::encode_block(
++    const std::vector<std::uint8_t>& payload_bits,
++    const bool append_zero_tail,
++    const std::uint8_t initial_state) {
++    validate_bits(payload_bits);
++    reset(initial_state);
++
++    EncodeResult result;
++    result.initial_state = initial_state;
++    result.payload_length = payload_bits.size();
++    result.tail_length = append_zero_tail ? kMemory : 0;
++    result.codec_input_bits.reserve(result.payload_length + result.tail_length);
++    result.codec_input_bits.insert(
++        result.codec_input_bits.end(),
++        payload_bits.begin(),
++        payload_bits.end());
++    result.codec_input_bits.insert(
++        result.codec_input_bits.end(),
++        result.tail_length,
++        static_cast<std::uint8_t>(0));
++    result.mother_bits.reserve(result.codec_input_bits.size() * kOutputBitsPerInput);
++    encode_segment(result.codec_input_bits, result.mother_bits);
++    result.final_state = state_;
++
++    if (result.mother_bits.size() != result.codec_input_bits.size() * 2) {
++        throw std::logic_error("CC encoder output length invariant failed");
++    }
++    if (append_zero_tail && result.final_state != 0) {
++        throw std::logic_error("CC zero-tail encoder did not terminate in state 0");
++    }
++    return result;
++}
++
++}  // namespace scl::cc
+diff --git a/Task/CC/shared/include/cc/trellis.hpp b/Task/CC/shared/include/cc/trellis.hpp
+new file mode 100644
+index 00000000..15f14790
+--- /dev/null
++++ b/Task/CC/shared/include/cc/trellis.hpp
+@@ -0,0 +1,35 @@
++#pragma once
++
++#include <array>
++#include <cstddef>
++#include <cstdint>
++
++namespace scl::cc {
++
++constexpr std::size_t kConstraintLength = 7;
++constexpr std::size_t kMemory = 6;
++constexpr std::size_t kStateCount = 64;
++constexpr std::size_t kOutputBitsPerInput = 2;
++constexpr std::uint8_t kInitialState = 0;
++
++struct TrellisBranch {
++    std::uint8_t input_bit = 0;
++    std::uint8_t next_state = 0;
++    std::array<std::uint8_t, kOutputBitsPerInput> output_bits{};
++};
++
++class Trellis {
++public:
++    Trellis();
++
++    const TrellisBranch& branch(std::uint8_t state, std::uint8_t input_bit) const;
++    const std::array<std::array<TrellisBranch, 2>, kStateCount>& branches() const;
++
++private:
++    std::array<std::array<TrellisBranch, 2>, kStateCount> branches_{};
++};
++
++std::uint8_t compute_next_state(std::uint8_t state, std::uint8_t input_bit);
++std::array<std::uint8_t, 2> compute_output_bits(std::uint8_t state, std::uint8_t input_bit);
++
++}  // namespace scl::cc
+diff --git a/Task/CC/shared/src/trellis.cpp b/Task/CC/shared/src/trellis.cpp
+new file mode 100644
+index 00000000..7918ed59
+--- /dev/null
++++ b/Task/CC/shared/src/trellis.cpp
+@@ -0,0 +1,63 @@
++#include "cc/trellis.hpp"
++
++#include <stdexcept>
++
++namespace scl::cc {
++
++std::uint8_t compute_next_state(const std::uint8_t state, const std::uint8_t input_bit) {
++    if (state >= kStateCount || input_bit > 1) {
++        throw std::invalid_argument("invalid CC state or input bit");
++    }
++    return static_cast<std::uint8_t>(((input_bit & 1U) << 5U) | (state >> 1U));
++}
++
++std::array<std::uint8_t, 2> compute_output_bits(
++    const std::uint8_t state,
++    const std::uint8_t input_bit) {
++    if (state >= kStateCount || input_bit > 1) {
++        throw std::invalid_argument("invalid CC state or input bit");
++    }
++
++    const std::uint8_t m1 = static_cast<std::uint8_t>((state >> 5U) & 1U);
++    const std::uint8_t m2 = static_cast<std::uint8_t>((state >> 4U) & 1U);
++    const std::uint8_t m3 = static_cast<std::uint8_t>((state >> 3U) & 1U);
++    const std::uint8_t m5 = static_cast<std::uint8_t>((state >> 1U) & 1U);
++    const std::uint8_t m6 = static_cast<std::uint8_t>(state & 1U);
++
++    const std::uint8_t g1 =
++        static_cast<std::uint8_t>(input_bit ^ m1 ^ m2 ^ m3 ^ m6);
++    const std::uint8_t g2 =
++        static_cast<std::uint8_t>(input_bit ^ m2 ^ m3 ^ m5 ^ m6);
++    return {g1, g2};
++}
++
++Trellis::Trellis() {
++    for (std::size_t state = 0; state < kStateCount; ++state) {
++        for (std::size_t input = 0; input < 2; ++input) {
++            auto& item = branches_[state][input];
++            item.input_bit = static_cast<std::uint8_t>(input);
++            item.next_state = compute_next_state(
++                static_cast<std::uint8_t>(state),
++                static_cast<std::uint8_t>(input));
++            item.output_bits = compute_output_bits(
++                static_cast<std::uint8_t>(state),
++                static_cast<std::uint8_t>(input));
++        }
++    }
++}
++
++const TrellisBranch& Trellis::branch(
++    const std::uint8_t state,
++    const std::uint8_t input_bit) const {
++    if (state >= kStateCount || input_bit > 1) {
++        throw std::out_of_range("invalid CC trellis lookup");
++    }
++    return branches_[state][input_bit];
++}
++
++const std::array<std::array<TrellisBranch, 2>, kStateCount>&
++Trellis::branches() const {
++    return branches_;
++}
++
++}  // namespace scl::cc
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/CMakeLists.txt
+new file mode 100644
+index 00000000..892bbdcc
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/CMakeLists.txt
+@@ -0,0 +1,29 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage02_trellis_encoder LANGUAGES CXX)
++
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++
++set(CC_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../..")
++
++add_library(cc_stage02 STATIC
++    "${CC_ROOT}/shared/src/trellis.cpp"
++    "${CC_ROOT}/block/current/src/block_encoder.cpp"
++)
++target_include_directories(cc_stage02 PUBLIC
++    "${CC_ROOT}/shared/include"
++    "${CC_ROOT}/block/current/include"
++)
++
++if(MSVC)
++    target_compile_options(cc_stage02 PRIVATE /W4 /permissive-)
++else()
++    target_compile_options(cc_stage02 PRIVATE -Wall -Wextra -Wpedantic -Werror)
++endif()
++
++add_executable(stage02_trellis_encoder_tests tests/test_stage02_trellis_encoder.cpp)
++target_link_libraries(stage02_trellis_encoder_tests PRIVATE cc_stage02)
++
++enable_testing()
++add_test(NAME stage02_trellis_encoder_tests COMMAND stage02_trellis_encoder_tests)
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/commands_used.md b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/commands_used.md
+new file mode 100644
+index 00000000..cd03ea9f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/commands_used.md
+@@ -0,0 +1,7 @@
++# Stage02 命令
++
++```powershell
++python Task/CC/simulation/stages/S3/stage02_trellis_encoder/scripts/build_and_test_stage02.py --clean
++matlab -batch "run('Task/CC/simulation/stages/S3/stage02_trellis_encoder/matlab/stage02_matlab_reference.m')"
++git diff --check
++```
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/config/stage02_config.json b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/config/stage02_config.json
+new file mode 100644
+index 00000000..8d0aec7f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/config/stage02_config.json
+@@ -0,0 +1,12 @@
++{
++  "schemaVersion": "cc.stage02.config.v1",
++  "payloadLength": 300,
++  "compatibilityPayloadLength": 200,
++  "appendZeroTail": true,
++  "tailLength": 6,
++  "expectedMotherLength": 612,
++  "initialState": 0,
++  "expectedFinalState": 0,
++  "randomTestSeed": 2026072001,
++  "randomTestFrames": 100
++}
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/frozen_config.csv b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/frozen_config.csv
+new file mode 100644
+index 00000000..9944c99e
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/frozen_config.csv
+@@ -0,0 +1,13 @@
++parameter,value,semantics
++constraintLength,7,bit
++memory,6,bit
++stateCount,64,state
++generator1,171,octal
++generator2,133,octal
++outputOrder,g1_then_g2,time_major
++initialState,0,state
++tailLength,6,zero_bit
++payloadLength,300,formal_bit
++compatibilityPayloadLength,200,non_formal_bit
++expectedMotherLengthK300,612,bit
++matlabReference,"poly2trellis(7,[171 133]); convenc",reference
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/include/README.md b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/include/README.md
+new file mode 100644
+index 00000000..c5557af3
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/include/README.md
+@@ -0,0 +1,3 @@
++# Stage02 include
++
++生产头文件位于 `Task/CC/shared/include/cc/` 和 `Task/CC/block/current/include/cc/`；本目录不复制同一份接口。
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/known_issues.md b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/known_issues.md
+new file mode 100644
+index 00000000..33963a6a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/known_issues.md
+@@ -0,0 +1,5 @@
++# Stage02 已知问题
++
++- 本阶段只实现母码编码，不实现 Viterbi、打孔或 AWGN。
++- 200 bit 仅用于兼容性测试，不形成正式性能结论。
++- 编译目录位于本 Stage 的 `build/`，属于生成资产，不提交 Git。
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/matlab/stage02_matlab_reference.m b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/matlab/stage02_matlab_reference.m
+new file mode 100644
+index 00000000..8998dc84
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/matlab/stage02_matlab_reference.m
+@@ -0,0 +1,63 @@
++stageDir = fileparts(fileparts(mfilename('fullpath')));
++inputPath = fullfile(stageDir, 'results', 'stage02_trellis_encoder_cpp_matlab_vectors.csv');
++outputPath = fullfile(stageDir, 'results', 'stage02_trellis_encoder_matlab_comparison.csv');
++trellisInputPath = fullfile(stageDir, 'results', 'stage02_trellis_encoder_cpp_trellis.csv');
++trellisOutputPath = fullfile(stageDir, 'results', 'stage02_trellis_encoder_matlab_trellis_comparison.csv');
++
++options = detectImportOptions(inputPath, 'TextType', 'string');
++options = setvartype(options, {'inputBits', 'cppMotherBits'}, 'string');
++inputTable = readtable(inputPath, options);
++trellis = poly2trellis(7, [171 133]);
++
++vectorId = inputTable.vectorId;
++bitMismatch = zeros(height(inputTable), 1);
++matlabMotherBits = strings(height(inputTable), 1);
++
++for row = 1:height(inputTable)
++    inputText = char(inputTable.inputBits(row));
++    cppText = char(inputTable.cppMotherBits(row));
++    inputBits = double(inputText) - double('0');
++    cppBits = double(cppText) - double('0');
++    encoded = convenc(inputBits, trellis);
++    bitMismatch(row) = sum(encoded ~= cppBits);
++    matlabMotherBits(row) = string(char(encoded + double('0')));
++end
++
++status = repmat("PASS", height(inputTable), 1);
++status(bitMismatch ~= 0) = "FAIL";
++comparison = table(vectorId, inputTable.inputBits, inputTable.cppMotherBits, ...
++    matlabMotherBits, bitMismatch, status, ...
++    'VariableNames', {'vectorId', 'inputBits', 'cppMotherBits', ...
++    'matlabMotherBits', 'bitMismatch', 'status'});
++writetable(comparison, outputPath);
++
++if any(bitMismatch ~= 0)
++    error('Stage02 MATLAB comparison mismatch');
++end
++
++cppTrellis = readtable(trellisInputPath);
++matlabNextState = zeros(height(cppTrellis), 1);
++matlabOutputDecimal = zeros(height(cppTrellis), 1);
++nextStateMismatch = zeros(height(cppTrellis), 1);
++outputMismatch = zeros(height(cppTrellis), 1);
++for row = 1:height(cppTrellis)
++    stateIndex = cppTrellis.state(row) + 1;
++    inputIndex = cppTrellis.inputBit(row) + 1;
++    matlabNextState(row) = trellis.nextStates(stateIndex, inputIndex);
++    matlabOutputDecimal(row) = trellis.outputs(stateIndex, inputIndex);
++    nextStateMismatch(row) = matlabNextState(row) ~= cppTrellis.nextState(row);
++    outputMismatch(row) = matlabOutputDecimal(row) ~= cppTrellis.outputDecimal(row);
++end
++trellisStatus = repmat("PASS", height(cppTrellis), 1);
++trellisStatus(nextStateMismatch ~= 0 | outputMismatch ~= 0) = "FAIL";
++trellisComparison = table(cppTrellis.state, cppTrellis.inputBit, ...
++    cppTrellis.nextState, matlabNextState, cppTrellis.outputDecimal, ...
++    matlabOutputDecimal, nextStateMismatch, outputMismatch, trellisStatus, ...
++    'VariableNames', {'state', 'inputBit', 'cppNextState', ...
++    'matlabNextState', 'cppOutputDecimal', 'matlabOutputDecimal', ...
++    'nextStateMismatch', 'outputMismatch', 'status'});
++writetable(trellisComparison, trellisOutputPath);
++if any(nextStateMismatch ~= 0) || any(outputMismatch ~= 0)
++    error('Stage02 MATLAB trellis table mismatch');
++end
++disp('PASS_STAGE02_MATLAB_POLY2TRELLIS_CONVENC');
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_matlab_vectors.csv b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_matlab_vectors.csv
+new file mode 100644
+index 00000000..b281b80b
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_matlab_vectors.csv
+@@ -0,0 +1,5 @@
++vectorId,inputBits,cppMotherBits,finalState
++0,00000000,0000000000000000,0
++1,1000000,11101111000111,0
++2,101101001,111000100110101010,37
++3,110100111001,110101110110101011010001,39
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_trellis.csv b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_trellis.csv
+new file mode 100644
+index 00000000..f065b221
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_trellis.csv
+@@ -0,0 +1,129 @@
++state,inputBit,nextState,g1,g2,outputDecimal
++0,0,0,0,0,0
++0,1,32,1,1,3
++1,0,0,1,1,3
++1,1,32,0,0,0
++2,0,1,0,1,1
++2,1,33,1,0,2
++3,0,1,1,0,2
++3,1,33,0,1,1
++4,0,2,0,0,0
++4,1,34,1,1,3
++5,0,2,1,1,3
++5,1,34,0,0,0
++6,0,3,0,1,1
++6,1,35,1,0,2
++7,0,3,1,0,2
++7,1,35,0,1,1
++8,0,4,1,1,3
++8,1,36,0,0,0
++9,0,4,0,0,0
++9,1,36,1,1,3
++10,0,5,1,0,2
++10,1,37,0,1,1
++11,0,5,0,1,1
++11,1,37,1,0,2
++12,0,6,1,1,3
++12,1,38,0,0,0
++13,0,6,0,0,0
++13,1,38,1,1,3
++14,0,7,1,0,2
++14,1,39,0,1,1
++15,0,7,0,1,1
++15,1,39,1,0,2
++16,0,8,1,1,3
++16,1,40,0,0,0
++17,0,8,0,0,0
++17,1,40,1,1,3
++18,0,9,1,0,2
++18,1,41,0,1,1
++19,0,9,0,1,1
++19,1,41,1,0,2
++20,0,10,1,1,3
++20,1,42,0,0,0
++21,0,10,0,0,0
++21,1,42,1,1,3
++22,0,11,1,0,2
++22,1,43,0,1,1
++23,0,11,0,1,1
++23,1,43,1,0,2
++24,0,12,0,0,0
++24,1,44,1,1,3
++25,0,12,1,1,3
++25,1,44,0,0,0
++26,0,13,0,1,1
++26,1,45,1,0,2
++27,0,13,1,0,2
++27,1,45,0,1,1
++28,0,14,0,0,0
++28,1,46,1,1,3
++29,0,14,1,1,3
++29,1,46,0,0,0
++30,0,15,0,1,1
++30,1,47,1,0,2
++31,0,15,1,0,2
++31,1,47,0,1,1
++32,0,16,1,0,2
++32,1,48,0,1,1
++33,0,16,0,1,1
++33,1,48,1,0,2
++34,0,17,1,1,3
++34,1,49,0,0,0
++35,0,17,0,0,0
++35,1,49,1,1,3
++36,0,18,1,0,2
++36,1,50,0,1,1
++37,0,18,0,1,1
++37,1,50,1,0,2
++38,0,19,1,1,3
++38,1,51,0,0,0
++39,0,19,0,0,0
++39,1,51,1,1,3
++40,0,20,0,1,1
++40,1,52,1,0,2
++41,0,20,1,0,2
++41,1,52,0,1,1
++42,0,21,0,0,0
++42,1,53,1,1,3
++43,0,21,1,1,3
++43,1,53,0,0,0
++44,0,22,0,1,1
++44,1,54,1,0,2
++45,0,22,1,0,2
++45,1,54,0,1,1
++46,0,23,0,0,0
++46,1,55,1,1,3
++47,0,23,1,1,3
++47,1,55,0,0,0
++48,0,24,0,1,1
++48,1,56,1,0,2
++49,0,24,1,0,2
++49,1,56,0,1,1
++50,0,25,0,0,0
++50,1,57,1,1,3
++51,0,25,1,1,3
++51,1,57,0,0,0
++52,0,26,0,1,1
++52,1,58,1,0,2
++53,0,26,1,0,2
++53,1,58,0,1,1
++54,0,27,0,0,0
++54,1,59,1,1,3
++55,0,27,1,1,3
++55,1,59,0,0,0
++56,0,28,1,0,2
++56,1,60,0,1,1
++57,0,28,0,1,1
++57,1,60,1,0,2
++58,0,29,1,1,3
++58,1,61,0,0,0
++59,0,29,0,0,0
++59,1,61,1,1,3
++60,0,30,1,0,2
++60,1,62,0,1,1
++61,0,30,0,1,1
++61,1,62,1,0,2
++62,0,31,1,1,3
++62,1,63,0,0,0
++63,0,31,0,0,0
++63,1,63,1,1,3
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_comparison.csv b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_comparison.csv
+new file mode 100644
+index 00000000..1dccc7e3
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_comparison.csv
+@@ -0,0 +1,5 @@
++vectorId,inputBits,cppMotherBits,matlabMotherBits,bitMismatch,status
++0,00000000,0000000000000000,0000000000000000,0,PASS
++1,1000000,11101111000111,11101111000111,0,PASS
++2,101101001,111000100110101010,111000100110101010,0,PASS
++3,110100111001,110101110110101011010001,110101110110101011010001,0,PASS
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_stderr.log b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_stderr.log
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_stdout.log b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_stdout.log
+new file mode 100644
+index 00000000..5eedd310
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_stdout.log
+@@ -0,0 +1 @@
++PASS_STAGE02_MATLAB_POLY2TRELLIS_CONVENC
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_trellis_comparison.csv b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_trellis_comparison.csv
+new file mode 100644
+index 00000000..c184a60d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_trellis_comparison.csv
+@@ -0,0 +1,129 @@
++state,inputBit,cppNextState,matlabNextState,cppOutputDecimal,matlabOutputDecimal,nextStateMismatch,outputMismatch,status
++0,0,0,0,0,0,0,0,PASS
++0,1,32,32,3,3,0,0,PASS
++1,0,0,0,3,3,0,0,PASS
++1,1,32,32,0,0,0,0,PASS
++2,0,1,1,1,1,0,0,PASS
++2,1,33,33,2,2,0,0,PASS
++3,0,1,1,2,2,0,0,PASS
++3,1,33,33,1,1,0,0,PASS
++4,0,2,2,0,0,0,0,PASS
++4,1,34,34,3,3,0,0,PASS
++5,0,2,2,3,3,0,0,PASS
++5,1,34,34,0,0,0,0,PASS
++6,0,3,3,1,1,0,0,PASS
++6,1,35,35,2,2,0,0,PASS
++7,0,3,3,2,2,0,0,PASS
++7,1,35,35,1,1,0,0,PASS
++8,0,4,4,3,3,0,0,PASS
++8,1,36,36,0,0,0,0,PASS
++9,0,4,4,0,0,0,0,PASS
++9,1,36,36,3,3,0,0,PASS
++10,0,5,5,2,2,0,0,PASS
++10,1,37,37,1,1,0,0,PASS
++11,0,5,5,1,1,0,0,PASS
++11,1,37,37,2,2,0,0,PASS
++12,0,6,6,3,3,0,0,PASS
++12,1,38,38,0,0,0,0,PASS
++13,0,6,6,0,0,0,0,PASS
++13,1,38,38,3,3,0,0,PASS
++14,0,7,7,2,2,0,0,PASS
++14,1,39,39,1,1,0,0,PASS
++15,0,7,7,1,1,0,0,PASS
++15,1,39,39,2,2,0,0,PASS
++16,0,8,8,3,3,0,0,PASS
++16,1,40,40,0,0,0,0,PASS
++17,0,8,8,0,0,0,0,PASS
++17,1,40,40,3,3,0,0,PASS
++18,0,9,9,2,2,0,0,PASS
++18,1,41,41,1,1,0,0,PASS
++19,0,9,9,1,1,0,0,PASS
++19,1,41,41,2,2,0,0,PASS
++20,0,10,10,3,3,0,0,PASS
++20,1,42,42,0,0,0,0,PASS
++21,0,10,10,0,0,0,0,PASS
++21,1,42,42,3,3,0,0,PASS
++22,0,11,11,2,2,0,0,PASS
++22,1,43,43,1,1,0,0,PASS
++23,0,11,11,1,1,0,0,PASS
++23,1,43,43,2,2,0,0,PASS
++24,0,12,12,0,0,0,0,PASS
++24,1,44,44,3,3,0,0,PASS
++25,0,12,12,3,3,0,0,PASS
++25,1,44,44,0,0,0,0,PASS
++26,0,13,13,1,1,0,0,PASS
++26,1,45,45,2,2,0,0,PASS
++27,0,13,13,2,2,0,0,PASS
++27,1,45,45,1,1,0,0,PASS
++28,0,14,14,0,0,0,0,PASS
++28,1,46,46,3,3,0,0,PASS
++29,0,14,14,3,3,0,0,PASS
++29,1,46,46,0,0,0,0,PASS
++30,0,15,15,1,1,0,0,PASS
++30,1,47,47,2,2,0,0,PASS
++31,0,15,15,2,2,0,0,PASS
++31,1,47,47,1,1,0,0,PASS
++32,0,16,16,2,2,0,0,PASS
++32,1,48,48,1,1,0,0,PASS
++33,0,16,16,1,1,0,0,PASS
++33,1,48,48,2,2,0,0,PASS
++34,0,17,17,3,3,0,0,PASS
++34,1,49,49,0,0,0,0,PASS
++35,0,17,17,0,0,0,0,PASS
++35,1,49,49,3,3,0,0,PASS
++36,0,18,18,2,2,0,0,PASS
++36,1,50,50,1,1,0,0,PASS
++37,0,18,18,1,1,0,0,PASS
++37,1,50,50,2,2,0,0,PASS
++38,0,19,19,3,3,0,0,PASS
++38,1,51,51,0,0,0,0,PASS
++39,0,19,19,0,0,0,0,PASS
++39,1,51,51,3,3,0,0,PASS
++40,0,20,20,1,1,0,0,PASS
++40,1,52,52,2,2,0,0,PASS
++41,0,20,20,2,2,0,0,PASS
++41,1,52,52,1,1,0,0,PASS
++42,0,21,21,0,0,0,0,PASS
++42,1,53,53,3,3,0,0,PASS
++43,0,21,21,3,3,0,0,PASS
++43,1,53,53,0,0,0,0,PASS
++44,0,22,22,1,1,0,0,PASS
++44,1,54,54,2,2,0,0,PASS
++45,0,22,22,2,2,0,0,PASS
++45,1,54,54,1,1,0,0,PASS
++46,0,23,23,0,0,0,0,PASS
++46,1,55,55,3,3,0,0,PASS
++47,0,23,23,3,3,0,0,PASS
++47,1,55,55,0,0,0,0,PASS
++48,0,24,24,1,1,0,0,PASS
++48,1,56,56,2,2,0,0,PASS
++49,0,24,24,2,2,0,0,PASS
++49,1,56,56,1,1,0,0,PASS
++50,0,25,25,0,0,0,0,PASS
++50,1,57,57,3,3,0,0,PASS
++51,0,25,25,3,3,0,0,PASS
++51,1,57,57,0,0,0,0,PASS
++52,0,26,26,1,1,0,0,PASS
++52,1,58,58,2,2,0,0,PASS
++53,0,26,26,2,2,0,0,PASS
++53,1,58,58,1,1,0,0,PASS
++54,0,27,27,0,0,0,0,PASS
++54,1,59,59,3,3,0,0,PASS
++55,0,27,27,3,3,0,0,PASS
++55,1,59,59,0,0,0,0,PASS
++56,0,28,28,2,2,0,0,PASS
++56,1,60,60,1,1,0,0,PASS
++57,0,28,28,1,1,0,0,PASS
++57,1,60,60,2,2,0,0,PASS
++58,0,29,29,3,3,0,0,PASS
++58,1,61,61,0,0,0,0,PASS
++59,0,29,29,0,0,0,0,PASS
++59,1,61,61,3,3,0,0,PASS
++60,0,30,30,2,2,0,0,PASS
++60,1,62,62,1,1,0,0,PASS
++61,0,30,30,1,1,0,0,PASS
++61,1,62,62,2,2,0,0,PASS
++62,0,31,31,3,3,0,0,PASS
++62,1,63,63,0,0,0,0,PASS
++63,0,31,31,0,0,0,0,PASS
++63,1,63,63,3,3,0,0,PASS
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_results_scope.md b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_results_scope.md
+new file mode 100644
+index 00000000..bd5fce68
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_results_scope.md
+@@ -0,0 +1,3 @@
++# Stage02 结果目录
++
++保存 Release/CTest 摘要、C++/MATLAB 固定向量和逐向量 mismatch 结果。不保存编译产物。
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_test_summary.csv b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_test_summary.csv
+new file mode 100644
+index 00000000..fb175661
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_test_summary.csv
+@@ -0,0 +1,8 @@
++check,status
++release_build,PASS
++ctest,PASS
++trellis_and_encoder_vectors,PASS
++matlab_poly2trellis_128_branches,PASS
++matlab_convenc_fixed_vectors,PASS
++cpp_matlab_bit_mismatch,0
++stage_gate,PASS_STAGE02_CC_TRELLIS_ENCODER
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/scripts/build_and_test_stage02.py b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/scripts/build_and_test_stage02.py
+new file mode 100644
+index 00000000..5ac78da8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/scripts/build_and_test_stage02.py
+@@ -0,0 +1,95 @@
++#!/usr/bin/env python3
++"""Configure, build and test Stage02 without writing outside Task/CC."""
++
++from __future__ import annotations
++
++import argparse
++import csv
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++
++def run(command: list[str], cwd: Path) -> None:
++    print("+", " ".join(command))
++    subprocess.run(command, cwd=cwd, check=True)
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--clean", action="store_true")
++    args = parser.parse_args()
++
++    stage = Path(__file__).resolve().parents[1]
++    build = stage / "build"
++    results = stage / "results"
++    if args.clean and build.exists():
++        shutil.rmtree(build)
++    build.mkdir(parents=True, exist_ok=True)
++    results.mkdir(parents=True, exist_ok=True)
++
++    configure = [
++        "cmake",
++        "-S",
++        str(stage),
++        "-B",
++        str(build),
++        "-G",
++        "MinGW Makefiles",
++        "-DCMAKE_BUILD_TYPE=Release",
++    ]
++    run(configure, stage)
++    run(["cmake", "--build", str(build), "--config", "Release", "--parallel"], stage)
++    run(["ctest", "--test-dir", str(build), "-C", "Release", "--output-on-failure"], stage)
++
++    candidates = [
++        build / "stage02_trellis_encoder_tests.exe",
++        build / "Release" / "stage02_trellis_encoder_tests.exe",
++        build / "stage02_trellis_encoder_tests",
++    ]
++    executable = next((item for item in candidates if item.is_file()), None)
++    if executable is None:
++        raise FileNotFoundError("Stage02 test executable not found")
++    vector_path = results / "stage02_trellis_encoder_cpp_matlab_vectors.csv"
++    run([str(executable), str(vector_path)], stage)
++
++    summary = results / "stage02_trellis_encoder_test_summary.csv"
++    with summary.open("w", encoding="utf-8", newline="") as handle:
++        writer = csv.writer(handle, lineterminator="\n")
++        writer.writerow(["check", "status"])
++        writer.writerow(["release_build", "PASS"])
++        writer.writerow(["ctest", "PASS"])
++        writer.writerow(["trellis_and_encoder_vectors", "PASS"])
++        matlab_vectors = results / "stage02_trellis_encoder_matlab_comparison.csv"
++        matlab_trellis = results / "stage02_trellis_encoder_matlab_trellis_comparison.csv"
++        if matlab_vectors.is_file() and matlab_trellis.is_file():
++            with matlab_vectors.open(encoding="utf-8", newline="") as source:
++                vector_rows = list(csv.DictReader(source))
++            with matlab_trellis.open(encoding="utf-8", newline="") as source:
++                trellis_rows = list(csv.DictReader(source))
++            matlab_pass = (
++                len(vector_rows) == 4
++                and len(trellis_rows) == 128
++                and all(row["status"] == "PASS" and int(row["bitMismatch"]) == 0 for row in vector_rows)
++                and all(
++                    row["status"] == "PASS"
++                    and int(row["nextStateMismatch"]) == 0
++                    and int(row["outputMismatch"]) == 0
++                    for row in trellis_rows
++                )
++            )
++            if not matlab_pass:
++                raise RuntimeError("existing MATLAB comparison does not pass")
++            writer.writerow(["matlab_poly2trellis_128_branches", "PASS"])
++            writer.writerow(["matlab_convenc_fixed_vectors", "PASS"])
++            writer.writerow(["cpp_matlab_bit_mismatch", "0"])
++            writer.writerow(["stage_gate", "PASS_STAGE02_CC_TRELLIS_ENCODER"])
++        else:
++            writer.writerow(["stage_gate_before_matlab", "PASS_CPP"])
++    print("PASS_CPP_STAGE02_CC_TRELLIS_ENCODER")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/src/README.md b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/src/README.md
+new file mode 100644
+index 00000000..0761b6ce
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/src/README.md
+@@ -0,0 +1,3 @@
++# Stage02 src
++
++生产源码位于 `Task/CC/shared/src/` 和 `Task/CC/block/current/src/`；本目录的 CMake 直接编译这些唯一实现。
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/stage_plan.md b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/stage_plan.md
+new file mode 100644
+index 00000000..5d41c6ed
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/stage_plan.md
+@@ -0,0 +1,35 @@
++# Stage02 Trellis 与编码器计划
++
++## 目标
++
++实现与 `poly2trellis(7,[171 133])` 对齐的 64×2 trellis、连续编码状态接口和 300 bit 整块零尾编码器。
++
++## 范围
++
++允许修改：
++
++```text
++Task/CC/shared/**
++Task/CC/block/current/**
++Task/CC/simulation/stages/S3/stage02_trellis_encoder/**
++```
++
++禁止修改 `Task/Common/**`、`Task/BCH/**`、`Task/LDPC/**` 和 Stage01 功能内容。
++
++## 验收矩阵
++
++| 需求 | 实现位置 | 正向测试 | 负向测试 | Gate 条件 |
++|---|---|---|---|---|
++| 64×2 trellis | `shared/` | 全状态、全输入遍历 | 非法 state/input 拒绝 | 转移确定且已知向量一致 |
++| 171/133 输出 | `shared/` | 独立移位寄存器参考 | bit 顺序反转对比 | C++ mismatch=0 |
++| 连续编码状态 | `block/current/` | 分段拼接与一次编码相同 | 非二进制输入拒绝 | 输出与状态一致 |
++| 300 bit 零尾 | `block/current/` | 随机 100 帧、全零/全一/脉冲 | 长度不变量 | 612 bit 且 final state=0 |
++| MATLAB 对比 | `matlab/` | `poly2trellis`、`convenc` | mismatch 触发错误 | bitMismatch=0 |
++
++## Gate
++
++```text
++PASS_STAGE02_CC_TRELLIS_ENCODER
++```
++
++只有 Release build、CTest、C++ 独立参考和 MATLAB 对比全部实际通过后才能声明。
+diff --git a/Task/CC/simulation/stages/S3/stage02_trellis_encoder/tests/test_stage02_trellis_encoder.cpp b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/tests/test_stage02_trellis_encoder.cpp
+new file mode 100644
+index 00000000..507d7983
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage02_trellis_encoder/tests/test_stage02_trellis_encoder.cpp
+@@ -0,0 +1,221 @@
++#include "cc/block_encoder.hpp"
++#include "cc/trellis.hpp"
++
++#include <algorithm>
++#include <array>
++#include <cstdint>
++#include <cstdlib>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <random>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++
++using scl::cc::ConvolutionalEncoder;
++using scl::cc::EncodeResult;
++using scl::cc::Trellis;
++
++void require(const bool condition, const std::string& message) {
++    if (!condition) {
++        throw std::runtime_error(message);
++    }
++}
++
++std::vector<std::uint8_t> reference_encode(
++    const std::vector<std::uint8_t>& input,
++    std::uint8_t initial_state,
++    std::uint8_t& final_state) {
++    std::vector<std::uint8_t> output;
++    output.reserve(input.size() * 2);
++    std::array<std::uint8_t, 6> memory{};
++    for (std::size_t index = 0; index < memory.size(); ++index) {
++        memory[index] = static_cast<std::uint8_t>((initial_state >> (5U - index)) & 1U);
++    }
++    for (const std::uint8_t bit : input) {
++        const std::uint8_t g1 =
++            static_cast<std::uint8_t>(bit ^ memory[0] ^ memory[1] ^ memory[2] ^ memory[5]);
++        const std::uint8_t g2 =
++            static_cast<std::uint8_t>(bit ^ memory[1] ^ memory[2] ^ memory[4] ^ memory[5]);
++        output.push_back(g1);
++        output.push_back(g2);
++        for (std::size_t index = memory.size() - 1; index > 0; --index) {
++            memory[index] = memory[index - 1];
++        }
++        memory[0] = bit;
++    }
++    final_state = 0;
++    for (std::size_t index = 0; index < memory.size(); ++index) {
++        final_state = static_cast<std::uint8_t>(
++            final_state | static_cast<std::uint8_t>(memory[index] << (5U - index)));
++    }
++    return output;
++}
++
++void check_trellis() {
++    const Trellis trellis;
++    require(trellis.branches().size() == 64, "trellis must have 64 states");
++    for (std::size_t state = 0; state < 64; ++state) {
++        for (std::size_t input = 0; input < 2; ++input) {
++            const auto& branch = trellis.branch(
++                static_cast<std::uint8_t>(state),
++                static_cast<std::uint8_t>(input));
++            require(branch.input_bit == input, "branch input mismatch");
++            require(branch.next_state == (((input & 1U) << 5U) | (state >> 1U)), "next state mismatch");
++            require(branch.output_bits[0] <= 1 && branch.output_bits[1] <= 1, "non-binary output");
++            const auto& repeated = trellis.branch(
++                static_cast<std::uint8_t>(state),
++                static_cast<std::uint8_t>(input));
++            require(
++                repeated.next_state == branch.next_state &&
++                    repeated.output_bits == branch.output_bits,
++                "trellis lookup is not deterministic");
++        }
++    }
++    require(trellis.branch(0, 1).next_state == 32, "known next state 0/1");
++    require(trellis.branch(0, 1).output_bits == std::array<std::uint8_t, 2>{1, 1}, "known output 0/1");
++    require(trellis.branch(32, 0).output_bits == std::array<std::uint8_t, 2>{1, 0}, "known output 32/0");
++}
++
++void check_vector(
++    ConvolutionalEncoder& encoder,
++    const std::vector<std::uint8_t>& payload,
++    const bool tail) {
++    const EncodeResult result = encoder.encode_block(payload, tail);
++    std::uint8_t expected_final = 0;
++    const auto expected = reference_encode(result.codec_input_bits, 0, expected_final);
++    require(result.mother_bits == expected, "reference encoder mismatch");
++    require(result.final_state == expected_final, "reference final state mismatch");
++    require(result.mother_bits.size() == 2 * (payload.size() + (tail ? 6 : 0)), "encoded length");
++    if (tail) {
++        require(result.final_state == 0, "tail termination");
++    }
++}
++
++void check_segments() {
++    const Trellis trellis;
++    ConvolutionalEncoder one_shot(trellis);
++    ConvolutionalEncoder segmented(trellis);
++    std::vector<std::uint8_t> input(300);
++    std::mt19937 rng(2026072001U);
++    for (auto& bit : input) {
++        bit = static_cast<std::uint8_t>(rng() & 1U);
++    }
++
++    std::vector<std::uint8_t> combined;
++    one_shot.encode_segment(input, combined);
++    const auto one_shot_state = one_shot.state();
++
++    std::vector<std::uint8_t> segmented_output;
++    segmented.encode_segment(
++        std::vector<std::uint8_t>(input.begin(), input.begin() + 73),
++        segmented_output);
++    const auto exported = segmented.state();
++    segmented.import_state(exported);
++    segmented.encode_segment(
++        std::vector<std::uint8_t>(input.begin() + 73, input.begin() + 201),
++        segmented_output);
++    segmented.encode_segment(
++        std::vector<std::uint8_t>(input.begin() + 201, input.end()),
++        segmented_output);
++
++    require(segmented_output == combined, "segmented encoding mismatch");
++    require(segmented.state() == one_shot_state, "segmented final state mismatch");
++}
++
++void write_matlab_vectors(
++    const std::filesystem::path& output_path,
++    ConvolutionalEncoder& encoder,
++    const Trellis& trellis) {
++    std::filesystem::create_directories(output_path.parent_path());
++    std::ofstream output(output_path);
++    require(output.good(), "cannot write MATLAB vectors");
++    output << "vectorId,inputBits,cppMotherBits,finalState\n";
++
++    const std::vector<std::vector<std::uint8_t>> vectors = {
++        {0, 0, 0, 0, 0, 0, 0, 0},
++        {1, 0, 0, 0, 0, 0, 0},
++        {1, 0, 1, 1, 0, 1, 0, 0, 1},
++        {1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1}
++    };
++
++    for (std::size_t vector_id = 0; vector_id < vectors.size(); ++vector_id) {
++        const auto result = encoder.encode_block(vectors[vector_id], false);
++        output << vector_id << ',';
++        for (const auto bit : vectors[vector_id]) {
++            output << static_cast<int>(bit);
++        }
++        output << ',';
++        for (const auto bit : result.mother_bits) {
++            output << static_cast<int>(bit);
++        }
++        output << ',' << static_cast<int>(result.final_state) << '\n';
++    }
++
++    const auto trellis_path =
++        output_path.parent_path() / "stage02_trellis_encoder_cpp_trellis.csv";
++    std::ofstream table(trellis_path);
++    require(table.good(), "cannot write C++ trellis table");
++    table << "state,inputBit,nextState,g1,g2,outputDecimal\n";
++    for (std::size_t state = 0; state < 64; ++state) {
++        for (std::size_t input = 0; input < 2; ++input) {
++            const auto& branch = trellis.branch(
++                static_cast<std::uint8_t>(state),
++                static_cast<std::uint8_t>(input));
++            const int output_decimal =
++                static_cast<int>(branch.output_bits[0]) * 2 +
++                static_cast<int>(branch.output_bits[1]);
++            table << state << ',' << input << ','
++                  << static_cast<int>(branch.next_state) << ','
++                  << static_cast<int>(branch.output_bits[0]) << ','
++                  << static_cast<int>(branch.output_bits[1]) << ','
++                  << output_decimal << '\n';
++        }
++    }
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        check_trellis();
++        const Trellis trellis;
++        ConvolutionalEncoder encoder(trellis);
++
++        check_vector(encoder, std::vector<std::uint8_t>(300, 0), true);
++        check_vector(encoder, std::vector<std::uint8_t>(300, 1), true);
++        check_vector(encoder, {1}, true);
++        check_vector(encoder, {1, 0, 1, 1, 0, 1, 0, 0, 1}, true);
++        check_vector(encoder, std::vector<std::uint8_t>(200, 1), true);
++
++        std::mt19937 rng(2026072001U);
++        for (int trial = 0; trial < 100; ++trial) {
++            std::vector<std::uint8_t> random_payload(300);
++            for (auto& bit : random_payload) {
++                bit = static_cast<std::uint8_t>(rng() & 1U);
++            }
++            check_vector(encoder, random_payload, true);
++        }
++        check_segments();
++
++        bool rejected = false;
++        try {
++            encoder.encode_block({0, 1, 2, 0}, false);
++        } catch (const std::invalid_argument&) {
++            rejected = true;
++        }
++        require(rejected, "non-binary input must be rejected");
++
++        if (argc == 2) {
++            write_matlab_vectors(argv[1], encoder, trellis);
++        }
++        std::cout << "PASS_STAGE02_CC_TRELLIS_ENCODER\n";
++        return EXIT_SUCCESS;
++    } catch (const std::exception& error) {
++        std::cerr << "FAIL_STAGE02_CC_TRELLIS_ENCODER: " << error.what() << '\n';
++        return EXIT_FAILURE;
++    }
++}

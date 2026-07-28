@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage02_trellis_encoder",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE02_CC_TRELLIS_ENCODER",
+  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "originalContent",
+      "baseCommit": "1cace054f06c0648bd6b2593c1b2430b92fd3d5f",
+      "contentCommit": "4b268e385eda34c79352ca186a57985b7d93869a",
+      "diffPaths": [
+        "Task/CC/.gitignore",
+        "Task/CC/shared",
+        "Task/CC/block/current",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder"
+      ],
+      "files": [
+        "Task/CC/.gitignore",
+        "Task/CC/block/current/include/cc/block_encoder.hpp",
+        "Task/CC/block/current/src/block_encoder.cpp",
+        "Task/CC/shared/include/cc/trellis.hpp",
+        "Task/CC/shared/src/trellis.cpp",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/commands_used.md",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/config/stage02_config.json",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/frozen_config.csv",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/include/README.md",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/known_issues.md",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/matlab/stage02_matlab_reference.m",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_matlab_vectors.csv",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_cpp_trellis.csv",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_comparison.csv",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_stderr.log",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_stdout.log",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_matlab_trellis_comparison.csv",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_results_scope.md",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/results/stage02_trellis_encoder_test_summary.csv",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/scripts/build_and_test_stage02.py",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/src/README.md",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/stage_plan.md",
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/tests/test_stage02_trellis_encoder.cpp"
+      ]
+    },
+    {
+      "name": "repairContent",
+      "baseCommit": "4b268e385eda34c79352ca186a57985b7d93869a",
+      "contentCommit": "b79749d6b4e6fc5ef97ade3ac226078494e834f2",
+      "diffPaths": [
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder"
+      ],
+      "files": [
+        "Task/CC/simulation/stages/S3/stage02_trellis_encoder/scripts/build_and_test_stage02.py"
+      ]
+    }
+  ],
+  "validation": {
+    "releaseBuild": "PASS",
+    "ctest": "1/1 PASS",
+    "randomFrames": 100,
+    "matlabTrellisBranches": 128,
+    "matlabFixedVectors": 4,
+    "cppMatlabBitMismatch": 0
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary baseCommit..contentCommit over diffPaths",
+    "sha256": "ea1d9a0dbfc1078c77679a06653ce825f64ee4b43d40c1c07a5644ec2ee3a2bb",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": [
+      "Task/CC/.gitignore",
+      "Task/CC/shared/",
+      "Task/CC/block/current/",
+      "Task/CC/simulation/stages/S3/stage02_trellis_encoder/"
+    ],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}

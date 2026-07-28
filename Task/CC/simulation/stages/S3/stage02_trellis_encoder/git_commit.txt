@@ -1,0 +1,9 @@
+stage=stage02_trellis_encoder
+branch=stage01-cc
+baseCommit=1cace054f06c0648bd6b2593c1b2430b92fd3d5f
+contentCommit=4b268e385eda34c79352ca186a57985b7d93869a
+contentCommitMessage=CC/阶段02：实现网格与零尾编码器
+repairCommit=b79749d6b4e6fc5ef97ade3ac226078494e834f2
+repairCommitMessage=CC/阶段02：修复验证摘要复现
+mergeStatus=NOT_MERGED
+remoteVerification=DEFERRED_TO_BATCH_PUSH
