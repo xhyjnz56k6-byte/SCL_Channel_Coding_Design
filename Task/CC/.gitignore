@@ -1,0 +1,12 @@
+# CC-local build and generated binary artifacts
+**/build/
+*.exe
+*.obj
+*.o
+*.a
+*.pdb
+
+# Runtime-only large experiment assets
+**/results/checkpoints/
+**/results/shards/
+**/results/runtime/

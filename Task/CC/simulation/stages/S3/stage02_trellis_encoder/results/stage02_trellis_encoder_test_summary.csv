@@ -1,0 +1,8 @@
+check,status
+release_build,PASS
+ctest,PASS
+trellis_and_encoder_vectors,PASS
+matlab_poly2trellis_128_branches,PASS
+matlab_convenc_fixed_vectors,PASS
+cpp_matlab_bit_mismatch,0
+stage_gate,PASS_STAGE02_CC_TRELLIS_ENCODER

@@ -1,0 +1,13 @@
+parameter,value,semantics
+constraintLength,7,bit
+memory,6,bit
+stateCount,64,state
+generator1,171,octal
+generator2,133,octal
+outputOrder,g1_then_g2,time_major
+initialState,0,state
+tailLength,6,zero_bit
+payloadLength,300,formal_bit
+compatibilityPayloadLength,200,non_formal_bit
+expectedMotherLengthK300,612,bit
+matlabReference,"poly2trellis(7,[171 133]); convenc",reference
