@@ -1,0 +1,7 @@
+stage=stage01_cc_contract
+branch=stage01-cc
+baseCommit=0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda
+contentCommit=df295c90a18d43762c6154b76d97b6f28d524062
+contentCommitMessage=CC/阶段01：冻结卷积码参数契约
+mergeStatus=NOT_MERGED
+remoteVerification=DEFERRED_TO_BATCH_PUSH

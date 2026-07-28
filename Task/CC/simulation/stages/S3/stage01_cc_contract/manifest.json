@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage01_cc_contract",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE01_CC_CONTRACT",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "df295c90a18d43762c6154b76d97b6f28d524062",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/cc_bit_order.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/cc_contract.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/cc_dependency_graph.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/cc_metric_definition.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/cc_result_schema.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/commands_used.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_contract.json",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_result_schema.json",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/frozen_config.csv",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/include/README.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/known_issues.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/matlab/README.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_check_results.csv",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_results_scope.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/scripts/check_stage01_contract.py",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/src/README.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/stage_plan.md",
+        "Task/CC/simulation/stages/S3/stage01_cc_contract/tests/test_stage01_contract.py"
+      ]
+    }
+  ],
+  "auditArtifacts": [
+    "Task/CC/simulation/stages/S3/stage01_cc_contract/changed_files.md",
+    "Task/CC/simulation/stages/S3/stage01_cc_contract/changes.patch",
+    "Task/CC/simulation/stages/S3/stage01_cc_contract/git_commit.txt",
+    "Task/CC/simulation/stages/S3/stage01_cc_contract/manifest.json",
+    "Task/CC/simulation/stages/S3/stage01_cc_contract/scripts/check_stage01_audit.py",
+    "Task/CC/simulation/stages/S3/stage01_cc_contract/validation_report.md"
+  ],
+  "validation": {
+    "positiveChecks": 1,
+    "negativeChecks": 5,
+    "requiredDocumentChecks": 1,
+    "allExecutedChecksPassed": true,
+    "matlabExecuted": false,
+    "cppBuildExecuted": false,
+    "formalExecuted": false
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary baseCommit..contentCommit restricted to the Stage01 directory",
+    "sha256": "993e8cb35a909e159155d00cb4aadf4144f76d1f003808d57d8c617c495b1c96",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowed": ["Task/CC/simulation/stages/S3/stage01_cc_contract/**"],
+    "forbidden": ["Task/Common/**", "Task/BCH/**", "Task/LDPC/**", "other stages"],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}

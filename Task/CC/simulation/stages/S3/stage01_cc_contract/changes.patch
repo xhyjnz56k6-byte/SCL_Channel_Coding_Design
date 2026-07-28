@@ -1,0 +1,1149 @@
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_bit_order.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_bit_order.md
+new file mode 100644
+index 00000000..1fd106b1
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_bit_order.md
+@@ -0,0 +1,110 @@
++# CC 位序与状态编号
++
++## 生成多项式
++
++MATLAB 对齐目标：
++
++```matlab
++poly2trellis(7, [171 133])
++```
++
++七位二进制展开固定为：
++
++```text
++171(oct) = 1111001(bin)
++133(oct) = 1011011(bin)
++```
++
++寄存器逻辑向量按从新到旧排列：
++
++```text
++[u(t), u(t-1), u(t-2), u(t-3), u(t-4), u(t-5), u(t-6)]
++```
++
++因此：
++
++```text
++g1 = u(t) xor u(t-1) xor u(t-2) xor u(t-3) xor u(t-6)
++g2 = u(t) xor u(t-2) xor u(t-3) xor u(t-5) xor u(t-6)
++```
++
++分支输出顺序固定为 `[g1, g2]`，母码串行化顺序固定为：
++
++```text
++g1(t0), g2(t0), g1(t1), g2(t1), ...
++```
++
++## 状态 bit 顺序
++
++状态逻辑向量固定为：
++
++```text
++[u(t-1), u(t-2), u(t-3), u(t-4), u(t-5), u(t-6)]
++```
++
++`u(t-1)` 是 state index 的 bit 5（MSB），`u(t-6)` 是 bit 0（LSB）：
++
++```text
++stateIndex =
++    u(t-1)*32 +
++    u(t-2)*16 +
++    u(t-3)*8 +
++    u(t-4)*4 +
++    u(t-5)*2 +
++    u(t-6)
++```
++
++输入 bit 从 MSB 端移入。状态转移：
++
++```text
++nextState = ((inputBit & 1) << 5) | (stateIndex >> 1)
++```
++
++初始化 state 0 表示六个记忆单元全为 0。
++
++## 分支输出计算
++
++对当前 `stateIndex` 和 `inputBit`：
++
++```text
++m1 = (stateIndex >> 5) & 1
++m2 = (stateIndex >> 4) & 1
++m3 = (stateIndex >> 3) & 1
++m4 = (stateIndex >> 2) & 1
++m5 = (stateIndex >> 1) & 1
++m6 = stateIndex & 1
++
++g1 = inputBit xor m1 xor m2 xor m3 xor m6
++g2 = inputBit xor m2 xor m3 xor m5 xor m6
++```
++
++冻结的最小已知向量：
++
++| state | input | nextState | g1 | g2 |
++|---:|---:|---:|---:|---:|
++| 0 | 0 | 0 | 0 | 0 |
++| 0 | 1 | 32 | 1 | 1 |
++| 32 | 0 | 16 | 1 | 0 |
++| 32 | 1 | 48 | 0 | 1 |
++| 1 | 0 | 0 | 1 | 1 |
++| 1 | 1 | 32 | 0 | 0 |
++
++Stage02 必须构造完整 64×2 表，并用这些向量、MATLAB `poly2trellis` 和 `convenc` 交叉验证。
++
++## 输入和输出顺序
++
++- payload 按容器索引 0 到 `K_payload-1` 依次进入编码器。
++- 零尾 6 bit 紧随 payload。
++- 译码输出先恢复 306 个 codec-input bit，再删除末尾 6 bit。
++- CSV 中 bit 串使用左到右时间顺序，不使用字节内反向显示。
++- MATLAB 向量与 C++ `std::vector<uint8_t>` 均按时间从索引 0 向后排列。
++
++## 打孔相位
++
++打孔 mask 的索引基于串行母码 bit 序列，而不是输入时刻：
++
++```text
++phase = motherBitIndex % patternLength
++```
++
++连续编码时相位跨 slot 保持；只有合同明确的新独立帧才可重置为 0。具体 2/3、3/4 图样在 Stage06 经验证后冻结。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_contract.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_contract.md
+new file mode 100644
+index 00000000..11d61848
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_contract.md
+@@ -0,0 +1,139 @@
++# CC S3 冻结合同
++
++## 基础参数
++
++正式主场景固定为 300 bit payload。200 bit 仅用于接口兼容和边界测试，不得用于正式性能结论。
++
++| 名称 | 冻结值 |
++|---|---:|
++| `payloadLength` | 300 bit |
++| `constraintLength` | 7 |
++| `memory` | 6 |
++| `stateCount` | 64 |
++| `motherRateNumerator` | 1 |
++| `motherRateDenominator` | 2 |
++| `generator1Octal` | 171 |
++| `generator2Octal` | 133 |
++| `initialState` | 0 |
++| `tailLength` | 6 |
++| `modulation` | BPSK |
++| `baselineChannel` | AWGN |
++
++## 长度定义
++
++- `K_payload`：原始 payload 长度，BER/FER 的唯一统计范围，也是实际码率的唯一分子。
++- `K_codec_input`：进入卷积编码器的输入长度。整块零尾场景为 `K_payload + tailLength`。
++- `N_mother`：未打孔母码输出 bit 数，等于 `2 * K_codec_input`。
++- `N_transmitted`：打孔后实际送入 BPSK 和信道的 bit 数，由程序逐 bit 统计。
++- `puncturedLength`：`N_mother - N_transmitted`。
++
++整块 300 bit 零尾基准：
++
++```text
++K_payload = 300
++tailLength = 6
++K_codec_input = 306
++N_mother = 612
++N_transmitted = 612
++actualRate = 300 / 612 = 0.49019607843137253
++```
++
++统一实际码率：
++
++```text
++actualRate = K_payload / N_transmitted
++codeRate = actualRate
++```
++
++`codeRate` 仅作为 `Task/Common` schema 兼容镜像，二者必须逐行相等。禁止用理论母码率 1/2 替代 `actualRate`。
++
++## 整块终止
++
++整块编码从 state 0 开始，在 payload 后追加恰好 6 个值为 0 的尾 bit。编码结束状态必须为 0。译码器对 306 个 trellis 输入时刻进行回溯，强制终止状态为 0，随后删除最后 6 个尾 bit，只输出 300 bit payload。
++
++## BPSK、硬判决和 LLR
++
++```text
++bit 0 -> +1.0
++bit 1 -> -1.0
++y >= 0 -> hard bit 0
++y <  0 -> hard bit 1
++LLR = 2*y/sigmaSquared
++LLR > 0 -> 倾向 bit 0
++LLR < 0 -> 倾向 bit 1
++```
++
++`y == 0` 必须硬判为 bit 0。
++
++## SNR 定义
++
++所有正式 AWGN 图横轴的 `SNR (dB)` 固定表示归一化 BPSK 发送符号的 `Es/N0`。对每个结果点：
++
++```text
++snrDb = ebN0Db + 10*log10(actualRate)
++ebN0Db = snrDb - 10*log10(actualRate)
++sigmaSquared = 1/(2*10^(snrDb/10))
++sigma = sqrt(sigmaSquared)
++```
++
++CSV/JSON 必须同时记录 `snrDb`、`ebN0Db`、`actualRate`、`sigmaSquared` 和 `sigma`。checker 必须逐点复算，禁止把 `snrDb` 同时当作 `Eb/N0`。
++
++## 公平随机链路
++
++同一公平组必须共享：
++
++```text
++payload
++-> mother codeword
++-> punctured codeword
++-> BPSK symbols
++-> standard Gaussian noise
++-> receivedSymbols
++   |-> hardBits -> hard Viterbi
++   `-> receivedSymbols/LLR -> soft Viterbi
++```
++
++相同 `masterSeed`、`noiseGroupId` 和 `frameIndex` 必须复现相同标准高斯噪声；不同 `frameIndex` 必须使用独立噪声向量。SNR 只改变 `sigma`，不改变标准高斯母噪声。不得为 hard/soft 单独生成噪声。
++
++## BER、FER 和停止规则
++
++```text
++BER = payloadBitErrors / (framesProcessed * K_payload)
++FER = payloadErrorFrames / framesProcessed
++payloadSuccessRate = 1 - FER
++normalizedGoodput = actualRate * (1 - FER)
++```
++
++只统计原始 payload，不统计 6 个尾 bit、打孔缺失位或内部状态。
++
++正式停止规则：
++
++```text
++minFrames = 5000
++targetFrameErrors = 200
++maxFrames = 50000
++checkpointIntervalFrames = 1000
++
++(framesProcessed >= minFrames AND payloadErrorFrames >= targetFrameErrors)
++OR
++framesProcessed >= maxFrames
++```
++
++允许的停止原因：
++
++```text
++TARGET_ERRORS_REACHED
++MAX_FRAMES_REACHED
++ERROR_ABORT
++MANUAL_STOP
++```
++
++prescan 固定默认值为 300、30、2000，SNR 步长 0.5 dB。
++
++## 计时边界
++
++正式计时使用 Release 构建、预热和 batch timing。编码、译码分别计时，不包含文件 IO、日志、CSV/JSON、绘图、配置读取、帧池读取、随机 payload 生成或噪声生成。
++
++## 防覆盖
++
++正式结果默认 `overwriteExistingResults=false`。checkpoint、分片和合并不得重复帧、跳帧或静默覆盖既有结果。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_dependency_graph.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_dependency_graph.md
+new file mode 100644
+index 00000000..03a22e9a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_dependency_graph.md
+@@ -0,0 +1,29 @@
++# CC S3 Stage 依赖图
++
++```text
++stage01_cc_contract
++  -> stage02_trellis_encoder
++     -> stage03_hard_viterbi
++     -> stage04_soft_viterbi
++        -> stage05_matlab_reference
++           -> stage06_puncturing
++              -> stage07_block_noiseless
++                 -> stage08_awgn_prescan
++                    -> stage09_awgn_formal
++                    -> stage10_traceback_study
++                    -> stage11_soft_quantization
++              -> stage12_continuous_encoder
++                 -> stage13_sliding_window_viterbi
++                    -> stage14_block_continuous_comparison
++
++stage01..stage14
++  -> stage15_cc_s3_integration
++```
++
++Gate 规则：
++
++- 任一前序 Gate 未 PASS，禁止开始依赖它的性能实验。
++- smoke 未通过，禁止 prescan。
++- prescan 未通过，禁止 formal。
++- mismatch、NaN、Inf、长度错误或 checker 失败时停止当前 Stage。
++- Stage15 必须重新执行总回归，不能只汇总历史 PASS 文本。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_metric_definition.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_metric_definition.md
+new file mode 100644
+index 00000000..1c0f5cf2
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_metric_definition.md
+@@ -0,0 +1,76 @@
++# CC Viterbi 度量定义
++
++## 硬判决分支度量
++
++未打孔母码的硬判决分支度量为观测 bit 与候选 `[g1,g2]` 的汉明距离：
++
++```text
++branchMetricHard =
++    observedMask[0] * (hardBit[0] != g1) +
++    observedMask[1] * (hardBit[1] != g2)
++```
++
++`observedMask=false` 的缺失位不参与度量，禁止把打孔缺失位当作真实 0 或 1。
++
++## 浮点软判决分支度量
++
++第一版正式浮点基准使用接收符号欧氏距离：
++
++```text
++x(0) = +1
++x(1) = -1
++
++branchMetricSoft =
++    observedMask[0] * (received[0] - x(g1))^2 +
++    observedMask[1] * (received[1] - x(g2))^2
++```
++
++允许使用数学上严格等价、不会改变 ACS 排序的 LLR 负对数似然度量，但实现必须记录所用形式。软去打孔的中性 LLR 为 0；若使用 received-symbol 欧氏形式，则必须以 mask 排除缺失位，不能把占位数值参与平方距离。
++
++## 初始化和终止
++
++- 时刻 0 只有 state 0 的路径度量为 0。
++- 其他 63 个状态使用安全有限哨兵 `INF`，其值必须留有累加余量。
++- 整块零尾译码强制从最终 state 0 回溯。
++- 连续/滑窗模式的终止策略由对应 Stage 冻结，不得误用整块零尾假设。
++
++## ACS tie-breaking
++
++所有实现使用同一确定性规则：
++
++1. 较小累积路径度量胜出；
++2. 度量完全相等时，较小的 predecessor state index 胜出；
++3. predecessor 仍相同时，较小 input bit 胜出。
++
++浮点相等按实际比较值判断，不引入随 SNR 改变的模糊 epsilon。测试必须构造精确 tie 并验证重复运行输出一致。
++
++## 路径度量归一化
++
++每个 trellis 输入时刻完成全部 64 状态 ACS 后：
++
++1. 在可达状态中求最小有限路径度量；
++2. 所有可达状态减去该最小值；
++3. 不可达状态保持 `INF`；
++4. 若不存在有限路径，立即报告 `ERROR_ABORT`；
++5. 任意 NaN、Inf（浮点实际值）或整数溢出计数非零时，Gate 失败。
++
++归一化仅减去所有候选共有的常数，不改变幸存路径选择。
++
++## 幸存路径
++
++每个 trellis 时刻、每个可达状态至少保存：
++
++```text
++predecessorState
++inputBit
++```
++
++整块译码保存 306 个时刻所需的完整幸存信息。Stage10 和 Stage13 可研究有限回溯或环形缓存，但不得改变本合同的 tie-breaking。
++
++## 去打孔中性语义
++
++- soft LLR：缺失位置写 0，且 mask=false；
++- soft received-symbol：占位值仅用于保持索引，mask=false 时不参与度量；
++- hard：缺失位置的占位 bit 无语义，必须由 mask=false 排除；
++- `observedMask` 的长度必须与恢复后的 `N_mother` 相同；
++- 实际消耗的观测数量必须恰好等于 `N_transmitted`。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_result_schema.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_result_schema.md
+new file mode 100644
+index 00000000..c8a7de22
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/cc_result_schema.md
+@@ -0,0 +1,74 @@
++# CC 结果与检查点 schema
++
++## 兼容策略
++
++CC 结果扩展 `Task/Common/config/result_schema.json`，不修改公共文件。公共字段 `codeRate` 在 CC 中必须等于主字段 `actualRate`。
++
++## 点级结果
++
++点级原始 CSV 必须包含机器可读 schema 中 `pointResultRequiredFields` 的全部字段。核心整数统计必须保留，BER/FER 必须由整数复算，不接受只有浮点比例而没有分子分母。
++
++时延字段单位统一为微秒，吞吐字段单位统一为 Mbit/s：
++
++```text
++avgEncodeTime_us
++maxEncodeTime_us
++avgDecodeTime_us
++p95DecodeTime_us
++maxDecodeTime_us
++rawDecodeThroughput_Mbps
++successfulDecodeThroughput_Mbps
++```
++
++```text
++normalizedGoodput = actualRate * (1 - FER)
++```
++
++## checkpoint/resume
++
++checkpoint 必须采用原子写入策略：先写同目录临时文件，完整 flush/close 并验证后再替换目标。必须保存：
++
++- Stage/run/experiment/case/SNR 身份；
++- `nextFrameIndex` 和累计整数统计；
++- 编码/译码计时累加器；
++- 配置、帧池、噪声策略、代码版本和功能提交 hash；
++- 连续模式所需的编码器状态、Viterbi 路径度量、幸存缓存和打孔相位。
++
++resume 必须逐项验证身份字段。任一 hash、case、SNR 或策略不一致时拒绝恢复。恢复后从 `nextFrameIndex` 继续，禁止重复或跳过帧。
++
++## shard/merge
++
++每个 shard 使用互不重叠的 `[frameBegin, frameEnd)`。合并器验证：
++
++- shard 配置 hash 相同；
++- frame 范围无重叠、无空洞；
++- 整数统计按加法合并；
++- P95 不能用 shard P95 再平均，必须由可合并样本/直方图重建；
++- 已存在正式目标文件时默认拒绝覆盖。
++
++## 图和文件命名
++
++所有 Stage 结果必须位于对应：
++
++```text
++Task/CC/simulation/stages/S3/stageXX_name/results/
++```
++
++文件名前缀必须为完整 Stage 名。禁止通用名称：
++
++```text
++result.csv
++results.csv
++figure1.png
++plot.png
++output.png
++test.csv
++```
++
++每张科研图必须同时发布 PNG、figure-data CSV 和 plot manifest。PNG 只从原始 CSV 逐点生成，不平滑、不插值、不删除坏点。
++
++零 BER/FER 在原始 CSV 中保持 0。绘图派生字段 `plotBER`、`plotFER` 和零错误标志单独记录；不得改写原始 BER/FER。
++
++## 发布检查
++
++plot checker 至少验证数据点数、有限性、公式、纵轴类型、图例唯一性、PNG 格式和 SHA256。失败时不得声明图形 Gate 通过。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/commands_used.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/commands_used.md
+new file mode 100644
+index 00000000..a1fe4849
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/commands_used.md
+@@ -0,0 +1,11 @@
++# Stage01 执行命令
++
++以下命令从仓库根目录执行；具体返回码和结果在 `validation_report.md` 中记录。
++
++```powershell
++python Task/CC/simulation/stages/S3/stage01_cc_contract/tests/test_stage01_contract.py
++python Task/CC/simulation/stages/S3/stage01_cc_contract/scripts/check_stage01_contract.py
++git diff --check
++git status --short
++git diff --name-only
++```
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_contract.json b/Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_contract.json
+new file mode 100644
+index 00000000..d9b58a90
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_contract.json
+@@ -0,0 +1,104 @@
++{
++  "schemaVersion": "cc.s3.contract.v1",
++  "stage": "stage01_cc_contract",
++  "mainScenario": {
++    "payloadLength": 300,
++    "compatibilityPayloadLengths": [200],
++    "constraintLength": 7,
++    "memory": 6,
++    "stateCount": 64,
++    "motherRateNumerator": 1,
++    "motherRateDenominator": 2,
++    "generator1Octal": "171",
++    "generator2Octal": "133",
++    "generator1Binary": "1111001",
++    "generator2Binary": "1011011",
++    "initialState": 0,
++    "tailLength": 6,
++    "modulation": "BPSK",
++    "baselineChannel": "AWGN"
++  },
++  "bitOrder": {
++    "registerVector": ["u(t)", "u(t-1)", "u(t-2)", "u(t-3)", "u(t-4)", "u(t-5)", "u(t-6)"],
++    "stateVector": ["u(t-1)", "u(t-2)", "u(t-3)", "u(t-4)", "u(t-5)", "u(t-6)"],
++    "stateMsb": "u(t-1)",
++    "stateLsb": "u(t-6)",
++    "inputShiftDirection": "INTO_STATE_BIT_5_MSB",
++    "nextStateFormula": "((inputBit & 1) << 5) | (stateIndex >> 1)",
++    "branchOutputOrder": ["g1_171", "g2_133"],
++    "motherSerialization": "TIME_MAJOR_G1_THEN_G2",
++    "matlabReference": "poly2trellis(7,[171 133])"
++  },
++  "blockZeroTail": {
++    "K_payload": 300,
++    "K_codec_input": 306,
++    "N_mother": 612,
++    "N_transmittedMother": 612,
++    "actualRateMother": 0.49019607843137253,
++    "terminationState": 0,
++    "tailBits": [0, 0, 0, 0, 0, 0]
++  },
++  "bpsk": {
++    "bit0Symbol": 1.0,
++    "bit1Symbol": -1.0,
++    "hardDecisionZeroInclusive": true,
++    "hardDecisionRule": "y >= 0 -> 0; y < 0 -> 1",
++    "llrFormula": "2*y/sigmaSquared",
++    "positiveLlrMeansBit": 0
++  },
++  "snr": {
++    "axisLabel": "SNR (dB)",
++    "definition": "BPSK_SYMBOL_ES_OVER_N0",
++    "snrDbFormula": "ebN0Db + 10*log10(actualRate)",
++    "ebN0DbFormula": "snrDb - 10*log10(actualRate)",
++    "sigmaSquaredFormula": "1/(2*10^(snrDb/10))"
++  },
++  "metrics": {
++    "hardBranchMetric": "MASKED_HAMMING_DISTANCE",
++    "softFloatBranchMetric": "MASKED_RECEIVED_SYMBOL_EUCLIDEAN_SQUARED",
++    "tieBreaking": ["LOWER_PATH_METRIC", "LOWER_PREDECESSOR_STATE", "LOWER_INPUT_BIT"],
++    "normalization": "SUBTRACT_MIN_FINITE_EVERY_TRELLIS_STEP",
++    "missingHardBitPolicy": "EXCLUDE_WITH_OBSERVED_MASK",
++    "missingSoftLlr": 0.0,
++    "nonFinitePolicy": "ERROR_ABORT"
++  },
++  "puncturingInterface": {
++    "maskIndexDomain": "SERIALIZED_MOTHER_BIT_INDEX",
++    "maskOrder": "TIME_MAJOR_G1_THEN_G2",
++    "phaseFormula": "motherBitIndex % patternLength",
++    "tailPolicy": "CONTINUE_CURRENT_PATTERN_PHASE",
++    "continuousSlotPolicy": "CARRY_PATTERN_PHASE",
++    "nTransmittedPolicy": "COUNT_RETAINED_BITS"
++  },
++  "statistics": {
++    "berNumerator": "payloadBitErrors",
++    "berDenominator": "framesProcessed*K_payload",
++    "ferNumerator": "payloadErrorFrames",
++    "ferDenominator": "framesProcessed",
++    "normalizedGoodputFormula": "actualRate*(1-FER)"
++  },
++  "stopRules": {
++    "prescan": {
++      "minFrames": 300,
++      "targetFrameErrors": 30,
++      "maxFrames": 2000,
++      "snrStepDb": 0.5
++    },
++    "formal": {
++      "minFrames": 5000,
++      "targetFrameErrors": 200,
++      "maxFrames": 50000,
++      "checkpointIntervalFrames": 1000
++    },
++    "expression": "(framesProcessed >= minFrames AND payloadErrorFrames >= targetFrameErrors) OR framesProcessed >= maxFrames",
++    "stopReasons": ["TARGET_ERRORS_REACHED", "MAX_FRAMES_REACHED", "ERROR_ABORT", "MANUAL_STOP"]
++  },
++  "randomness": {
++    "masterSeed": 2026072001,
++    "payloadSeedFields": ["masterSeed", "payloadLength", "frameIndex"],
++    "noiseSeedFields": ["masterSeed", "noiseGroupId", "frameIndex"],
++    "excludedNoiseSeedFields": ["snrIndex", "snrDb", "ebN0Db", "decoderType"],
++    "hardSoftShareReceivedSymbols": true
++  },
++  "overwriteExistingResults": false
++}
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_result_schema.json b/Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_result_schema.json
+new file mode 100644
+index 00000000..9ff66b87
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/config/cc_result_schema.json
+@@ -0,0 +1,129 @@
++{
++  "schemaVersion": "cc.s3.result_schema.v1",
++  "commonCompatibility": {
++    "source": "Task/Common/config/result_schema.json",
++    "codeRateRule": "codeRate == actualRate"
++  },
++  "pointResultRequiredFields": [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "codeType",
++    "decoderType",
++    "channelType",
++    "noiseGroupId",
++    "payloadLength",
++    "codecInputLength",
++    "N_mother",
++    "N_transmitted",
++    "tailLength",
++    "puncturedLength",
++    "actualRate",
++    "codeRate",
++    "snrDb",
++    "ebN0Db",
++    "sigmaSquared",
++    "sigma",
++    "framesProcessed",
++    "payloadBitsProcessed",
++    "payloadBitErrors",
++    "payloadErrorFrames",
++    "BER",
++    "FER",
++    "payloadSuccessRate",
++    "plotBER",
++    "plotFER",
++    "isZeroBitErrorPoint",
++    "isZeroFrameErrorPoint",
++    "avgEncodeTime_us",
++    "maxEncodeTime_us",
++    "avgDecodeTime_us",
++    "p95DecodeTime_us",
++    "maxDecodeTime_us",
++    "rawDecodeThroughput_Mbps",
++    "successfulDecodeThroughput_Mbps",
++    "normalizedGoodput",
++    "stopReason",
++    "masterSeed",
++    "framePoolId",
++    "configHash",
++    "functionalCommit"
++  ],
++  "checkpointRequiredFields": [
++    "stageId",
++    "runId",
++    "experimentId",
++    "caseId",
++    "snrIndex",
++    "snrDb",
++    "ebN0Db",
++    "nextFrameIndex",
++    "framesProcessed",
++    "payloadBitsProcessed",
++    "payloadBitErrors",
++    "payloadErrorFrames",
++    "payloadSuccessFrames",
++    "encodeTimingAccumulator",
++    "decodeTimingAccumulator",
++    "configHash",
++    "framePoolHash",
++    "noisePolicyVersion",
++    "codeVersion",
++    "functionalCommit",
++    "encoderState",
++    "puncturePhase",
++    "decoderStateMetricState",
++    "survivorBufferState"
++  ],
++  "checkpointResumeValidationFields": [
++    "stageId",
++    "experimentId",
++    "caseId",
++    "snrIndex",
++    "snrDb",
++    "configHash",
++    "framePoolHash",
++    "noisePolicyVersion",
++    "codeVersion"
++  ],
++  "stopReasonEnum": [
++    "TARGET_ERRORS_REACHED",
++    "MAX_FRAMES_REACHED",
++    "ERROR_ABORT",
++    "MANUAL_STOP"
++  ],
++  "decoderTypeEnum": [
++    "HARD",
++    "SOFT_FLOAT",
++    "SOFT_Q3",
++    "SOFT_Q4",
++    "SOFT_Q6"
++  ],
++  "forbiddenGenericResultNames": [
++    "result.csv",
++    "results.csv",
++    "figure1.png",
++    "plot.png",
++    "output.png",
++    "test.csv"
++  ],
++  "plotAssetRequiredFields": [
++    "sourceCsv",
++    "sourceSha256",
++    "figureDataCsv",
++    "figureDataSha256",
++    "xColumn",
++    "xLabel",
++    "xUnit",
++    "yColumn",
++    "yLabel",
++    "yUnit",
++    "yScale",
++    "zeroPolicy",
++    "missingValuePolicy",
++    "curveCount",
++    "legendLabels",
++    "pngSha256"
++  ]
++}
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/frozen_config.csv b/Task/CC/simulation/stages/S3/stage01_cc_contract/frozen_config.csv
+new file mode 100644
+index 00000000..4f62c99b
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/frozen_config.csv
+@@ -0,0 +1,34 @@
++parameter,value,unit_or_semantics
++stage,stage01_cc_contract,identifier
++payloadLength,300,bit
++compatibilityPayloadLength,200,bit_non_formal
++constraintLength,7,bit
++memory,6,bit
++stateCount,64,state
++generator1Octal,171,octal
++generator1Binary,1111001,MSB_to_LSB
++generator2Octal,133,octal
++generator2Binary,1011011,MSB_to_LSB
++initialState,0,state_index
++tailLength,6,zero_bit
++K_codec_input,306,bit_for_K_payload_300
++N_mother,612,bit_for_K_payload_300
++N_transmittedMother,612,bit
++actualRateMother,0.49019607843137253,K_payload_over_N_transmitted
++bpskBit0,1.0,symbol
++bpskBit1,-1.0,symbol
++snrDefinition,BPSK_SYMBOL_ES_OVER_N0,definition
++snrAxisLabel,SNR (dB),label
++sigmaSquaredFormula,1/(2*10^(snrDb/10)),formula
++llrFormula,2*y/sigmaSquared,formula
++tieBreaking,metric_then_predecessor_then_input,ascending
++metricNormalization,SUBTRACT_MIN_FINITE_EVERY_TRELLIS_STEP,policy
++prescanMinFrames,300,frame
++prescanTargetFrameErrors,30,frame
++prescanMaxFrames,2000,frame
++formalMinFrames,5000,frame
++formalTargetFrameErrors,200,frame
++formalMaxFrames,50000,frame
++checkpointIntervalFrames,1000,frame
++masterSeed,2026072001,unsigned_integer
++overwriteExistingResults,false,boolean
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/include/README.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/include/README.md
+new file mode 100644
+index 00000000..5c87f9c5
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/include/README.md
+@@ -0,0 +1,3 @@
++# include 目录说明
++
++Stage01 不提供 C++ 头文件。本目录保留用于审计目录结构；可执行合同位于 `../config/`，C++ trellis 接口从 Stage02 开始实现。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/known_issues.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/known_issues.md
+new file mode 100644
+index 00000000..14192447
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/known_issues.md
+@@ -0,0 +1,6 @@
++# Stage01 已知问题
++
++- Stage01 只冻结打孔接口，不冻结 2/3、3/4 的最终图样；该选择必须由 Stage06 的正确性和 prescan 数据完成。
++- 时隙长度、滑窗长度、滑动步长和回溯深度仍是后续实验参数，不在本阶段声称为业务给定值。
++- MATLAB 可执行对比尚未运行；本阶段只冻结与 `poly2trellis(7,[171 133])` 对齐的位序，实际对比属于 Stage02～Stage05。
++- 本阶段没有正式性能结果，不能据此给出编码增益或 hard/soft 性能结论。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/matlab/README.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/matlab/README.md
+new file mode 100644
+index 00000000..f671df1a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/matlab/README.md
+@@ -0,0 +1,3 @@
++# MATLAB 目录说明
++
++Stage01 只冻结 MATLAB 对齐目标 `poly2trellis(7,[171 133])`。可执行 MATLAB trellis/`convenc` 对比从 Stage02 开始，完整 hard/soft `vitdec` 对比属于 Stage03～Stage05。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_check_results.csv b/Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_check_results.csv
+new file mode 100644
+index 00000000..0721ff78
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_check_results.csv
+@@ -0,0 +1,9 @@
++check,status,detail
++positive_contract_validation,PASS,all frozen invariants matched
++reject_wrong_state_count,PASS,invalid mutation rejected
++reject_reversed_generator_bits,PASS,invalid mutation rejected
++reject_theoretical_rate_as_actual,PASS,invalid mutation rejected
++reject_missing_hard_as_zero,PASS,invalid mutation rejected
++reject_missing_sigma_squared,PASS,invalid mutation rejected
++required_documents,PASS,all present
++stage_gate,PASS,PASS_STAGE01_CC_CONTRACT
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_results_scope.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_results_scope.md
+new file mode 100644
+index 00000000..a0b50628
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/results/stage01_cc_contract_results_scope.md
+@@ -0,0 +1,3 @@
++# Stage01 结果目录说明
++
++本目录只保存由 Stage01 checker 生成的 `stage01_cc_contract_check_results.csv`。本阶段不生成 BER、FER、时延或科研图片。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/scripts/check_stage01_contract.py b/Task/CC/simulation/stages/S3/stage01_cc_contract/scripts/check_stage01_contract.py
+new file mode 100644
+index 00000000..c9800112
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/scripts/check_stage01_contract.py
+@@ -0,0 +1,214 @@
++#!/usr/bin/env python3
++"""Validate the frozen CC Stage01 contract using only the Python standard library."""
++
++from __future__ import annotations
++
++import argparse
++import copy
++import csv
++import json
++import math
++from pathlib import Path
++from typing import Any
++
++
++STAGE = "stage01_cc_contract"
++GATE = "PASS_STAGE01_CC_CONTRACT"
++
++
++def require(condition: bool, message: str) -> None:
++    if not condition:
++        raise ValueError(message)
++
++
++def output_bits(state: int, input_bit: int) -> tuple[int, int]:
++    m1 = (state >> 5) & 1
++    m2 = (state >> 4) & 1
++    m3 = (state >> 3) & 1
++    m5 = (state >> 1) & 1
++    m6 = state & 1
++    g1 = input_bit ^ m1 ^ m2 ^ m3 ^ m6
++    g2 = input_bit ^ m2 ^ m3 ^ m5 ^ m6
++    return g1, g2
++
++
++def validate_contract(contract: dict[str, Any], schema: dict[str, Any]) -> None:
++    main = contract["mainScenario"]
++    require(contract["schemaVersion"] == "cc.s3.contract.v1", "contract schema version")
++    require(contract["stage"] == STAGE, "stage id")
++    require(main["constraintLength"] == 7, "constraint length")
++    require(main["memory"] == main["constraintLength"] - 1 == 6, "memory")
++    require(main["stateCount"] == 2 ** main["memory"] == 64, "state count")
++    require(main["generator1Octal"] == "171", "generator1 octal")
++    require(main["generator2Octal"] == "133", "generator2 octal")
++    require(main["generator1Binary"] == format(int("171", 8), "07b") == "1111001", "generator1 binary")
++    require(main["generator2Binary"] == format(int("133", 8), "07b") == "1011011", "generator2 binary")
++    require(main["initialState"] == 0, "initial state")
++    require(main["tailLength"] == main["memory"] == 6, "tail length")
++
++    block = contract["blockZeroTail"]
++    require(block["K_payload"] == 300, "payload length")
++    require(block["K_codec_input"] == block["K_payload"] + main["tailLength"] == 306, "codec input")
++    require(block["N_mother"] == 2 * block["K_codec_input"] == 612, "mother length")
++    require(block["N_transmittedMother"] == 612, "mother transmitted length")
++    expected_rate = block["K_payload"] / block["N_transmittedMother"]
++    require(math.isclose(block["actualRateMother"], expected_rate, rel_tol=0.0, abs_tol=1e-15), "actual rate")
++    require(block["tailBits"] == [0] * 6, "zero tail")
++    require(block["terminationState"] == 0, "termination state")
++
++    bit_order = contract["bitOrder"]
++    require(bit_order["nextStateFormula"] == "((inputBit & 1) << 5) | (stateIndex >> 1)", "next-state formula")
++    require(bit_order["branchOutputOrder"] == ["g1_171", "g2_133"], "output order")
++    require(bit_order["motherSerialization"] == "TIME_MAJOR_G1_THEN_G2", "serialization")
++    expected_vectors = {
++        (0, 0): (0, 0, 0),
++        (0, 1): (32, 1, 1),
++        (32, 0): (16, 1, 0),
++        (32, 1): (48, 0, 1),
++        (1, 0): (0, 1, 1),
++        (1, 1): (32, 0, 0),
++    }
++    for (state, input_bit), (expected_next, expected_g1, expected_g2) in expected_vectors.items():
++        next_state = ((input_bit & 1) << 5) | (state >> 1)
++        g1, g2 = output_bits(state, input_bit)
++        require((next_state, g1, g2) == (expected_next, expected_g1, expected_g2), f"known vector {state}/{input_bit}")
++
++    bpsk = contract["bpsk"]
++    require(bpsk["bit0Symbol"] == 1.0 and bpsk["bit1Symbol"] == -1.0, "BPSK mapping")
++    require(bpsk["hardDecisionZeroInclusive"] is True, "hard zero decision")
++    require(bpsk["positiveLlrMeansBit"] == 0, "LLR sign")
++
++    snr = contract["snr"]
++    require(snr["definition"] == "BPSK_SYMBOL_ES_OVER_N0", "SNR definition")
++    require(snr["axisLabel"] == "SNR (dB)", "SNR label")
++    for snr_db in (-2.0, 0.0, 3.5):
++        sigma_squared = 1.0 / (2.0 * 10.0 ** (snr_db / 10.0))
++        ebn0_db = snr_db - 10.0 * math.log10(expected_rate)
++        reconstructed = ebn0_db + 10.0 * math.log10(expected_rate)
++        require(math.isfinite(sigma_squared) and sigma_squared > 0.0, "finite sigma squared")
++        require(math.isclose(reconstructed, snr_db, abs_tol=1e-12), "SNR/EbN0 conversion")
++
++    metrics = contract["metrics"]
++    require(metrics["hardBranchMetric"] == "MASKED_HAMMING_DISTANCE", "hard metric")
++    require(metrics["softFloatBranchMetric"] == "MASKED_RECEIVED_SYMBOL_EUCLIDEAN_SQUARED", "soft metric")
++    require(metrics["tieBreaking"] == ["LOWER_PATH_METRIC", "LOWER_PREDECESSOR_STATE", "LOWER_INPUT_BIT"], "tie breaking")
++    require(metrics["normalization"] == "SUBTRACT_MIN_FINITE_EVERY_TRELLIS_STEP", "normalization")
++    require(metrics["missingHardBitPolicy"] == "EXCLUDE_WITH_OBSERVED_MASK", "missing hard bit policy")
++    require(metrics["missingSoftLlr"] == 0.0, "neutral LLR")
++    require(metrics["nonFinitePolicy"] == "ERROR_ABORT", "non-finite policy")
++
++    puncture = contract["puncturingInterface"]
++    require(puncture["maskOrder"] == "TIME_MAJOR_G1_THEN_G2", "puncture order")
++    require(puncture["tailPolicy"] == "CONTINUE_CURRENT_PATTERN_PHASE", "tail puncture phase")
++    require(puncture["continuousSlotPolicy"] == "CARRY_PATTERN_PHASE", "slot puncture phase")
++    require(puncture["nTransmittedPolicy"] == "COUNT_RETAINED_BITS", "transmitted length policy")
++
++    stop = contract["stopRules"]
++    require(stop["formal"] == {
++        "minFrames": 5000,
++        "targetFrameErrors": 200,
++        "maxFrames": 50000,
++        "checkpointIntervalFrames": 1000,
++    }, "formal stop rules")
++    require("AND payloadErrorFrames" in stop["expression"], "stop-rule conjunction")
++
++    required_point = set(schema["pointResultRequiredFields"])
++    required_checkpoint = set(schema["checkpointRequiredFields"])
++    for field in (
++        "snrDb", "ebN0Db", "actualRate", "sigmaSquared", "framesProcessed",
++        "payloadBitErrors", "payloadErrorFrames", "BER", "FER",
++        "p95DecodeTime_us", "normalizedGoodput",
++    ):
++        require(field in required_point, f"point field {field}")
++    for field in ("nextFrameIndex", "configHash", "encoderState", "puncturePhase", "decoderStateMetricState"):
++        require(field in required_checkpoint, f"checkpoint field {field}")
++    require(schema["commonCompatibility"]["codeRateRule"] == "codeRate == actualRate", "common rate mirror")
++    require(set(schema["stopReasonEnum"]) == set(stop["stopReasons"]), "stop reason enum")
++    require(schema["forbiddenGenericResultNames"] == [
++        "result.csv", "results.csv", "figure1.png", "plot.png", "output.png", "test.csv"
++    ], "forbidden names")
++
++
++def run_negative_mutations(contract: dict[str, Any], schema: dict[str, Any]) -> list[tuple[str, bool]]:
++    mutations: list[tuple[str, dict[str, Any], dict[str, Any]]] = []
++
++    bad = copy.deepcopy(contract)
++    bad["mainScenario"]["stateCount"] = 32
++    mutations.append(("reject_wrong_state_count", bad, schema))
++
++    bad = copy.deepcopy(contract)
++    bad["mainScenario"]["generator1Binary"] = "1001111"
++    mutations.append(("reject_reversed_generator_bits", bad, schema))
++
++    bad = copy.deepcopy(contract)
++    bad["blockZeroTail"]["actualRateMother"] = 0.5
++    mutations.append(("reject_theoretical_rate_as_actual", bad, schema))
++
++    bad = copy.deepcopy(contract)
++    bad["metrics"]["missingHardBitPolicy"] = "FILL_ZERO_AS_OBSERVATION"
++    mutations.append(("reject_missing_hard_as_zero", bad, schema))
++
++    bad_schema = copy.deepcopy(schema)
++    bad_schema["pointResultRequiredFields"].remove("sigmaSquared")
++    mutations.append(("reject_missing_sigma_squared", contract, bad_schema))
++
++    results: list[tuple[str, bool]] = []
++    for name, mutated_contract, mutated_schema in mutations:
++        rejected = False
++        try:
++            validate_contract(mutated_contract, mutated_schema)
++        except (KeyError, TypeError, ValueError):
++            rejected = True
++        results.append((name, rejected))
++    return results
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--stage-dir", type=Path, default=Path(__file__).resolve().parents[1])
++    parser.add_argument("--output", type=Path)
++    args = parser.parse_args()
++
++    stage_dir = args.stage_dir.resolve()
++    contract = json.loads((stage_dir / "config" / "cc_contract.json").read_text(encoding="utf-8"))
++    schema = json.loads((stage_dir / "config" / "cc_result_schema.json").read_text(encoding="utf-8"))
++
++    rows: list[tuple[str, str, str]] = []
++    try:
++        validate_contract(contract, schema)
++        rows.append(("positive_contract_validation", "PASS", "all frozen invariants matched"))
++    except (KeyError, TypeError, ValueError) as exc:
++        rows.append(("positive_contract_validation", "FAIL", str(exc)))
++
++    for name, rejected in run_negative_mutations(contract, schema):
++        rows.append((name, "PASS" if rejected else "FAIL", "invalid mutation rejected" if rejected else "invalid mutation accepted"))
++
++    required_docs = [
++        "stage_plan.md",
++        "cc_contract.md",
++        "cc_bit_order.md",
++        "cc_metric_definition.md",
++        "cc_result_schema.md",
++        "cc_dependency_graph.md",
++        "frozen_config.csv",
++    ]
++    missing_docs = [name for name in required_docs if not (stage_dir / name).is_file()]
++    rows.append(("required_documents", "PASS" if not missing_docs else "FAIL", ",".join(missing_docs) or "all present"))
++
++    all_pass = all(status == "PASS" for _, status, _ in rows)
++    rows.append(("stage_gate", "PASS" if all_pass else "FAIL", GATE if all_pass else "GATE_BLOCKED"))
++
++    output = args.output or stage_dir / "results" / f"{STAGE}_check_results.csv"
++    output.parent.mkdir(parents=True, exist_ok=True)
++    with output.open("w", encoding="utf-8", newline="") as handle:
++        writer = csv.writer(handle, lineterminator="\n")
++        writer.writerow(["check", "status", "detail"])
++        writer.writerows(rows)
++
++    for name, status, detail in rows:
++        print(f"{status}: {name}: {detail}")
++    return 0 if all_pass else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/src/README.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/src/README.md
+new file mode 100644
+index 00000000..d881393d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/src/README.md
+@@ -0,0 +1,3 @@
++# src 目录说明
++
++Stage01 是规格冻结阶段，不包含生产源码。首个 C++ 实现属于 `stage02_trellis_encoder`。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/stage_plan.md b/Task/CC/simulation/stages/S3/stage01_cc_contract/stage_plan.md
+new file mode 100644
+index 00000000..3e8d41fb
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/stage_plan.md
+@@ -0,0 +1,70 @@
++# Stage01 CC 参数契约冻结计划
++
++## Stage
++
++`stage01_cc_contract`
++
++## 目标
++
++冻结后续 CC S3 实验共同使用的数学定义、位序、状态编号、度量、打孔接口、结果字段、检查点语义、命名规则和 Stage 依赖关系。
++
++## 非目标
++
++- 不实现 trellis、编码器或 Viterbi 译码器。
++- 不选择最终 2/3、3/4 打孔图样。
++- 不运行 AWGN 性能仿真或生成性能曲线。
++- 不修改 `Task/Common`、`Task/BCH` 或 `Task/LDPC`。
++
++## 允许范围
++
++仅允许新增或修改：
++
++```text
++Task/CC/simulation/stages/S3/stage01_cc_contract/**
++```
++
++## 禁止范围
++
++```text
++Task/BCH/**
++Task/LDPC/**
++Task/Common/**
++其他既有 Stage 和用户文件
++```
++
++## 接口与数据格式
++
++- 机器可读合同：`config/cc_contract.json`
++- 机器可读结果 schema：`config/cc_result_schema.json`
++- 冻结参数表：`frozen_config.csv`
++- 人工说明：`cc_contract.md`、`cc_bit_order.md`、`cc_metric_definition.md`、`cc_result_schema.md`
++- 自动检查：`scripts/check_stage01_contract.py`
++
++## 验收矩阵
++
++| 需求 | 实现位置 | 正向测试 | 负向测试 | Gate 条件 |
++|---|---|---|---|---|
++| K=7、64 状态、171/133 和零尾长度冻结 | `config/cc_contract.json` | 精确字段和值检查 | 修改状态数或多项式后必须失败 | 参数一致 |
++| MATLAB 位序和状态转移冻结 | `cc_bit_order.md`、合同 JSON | 已知转移向量检查 | 反转寄存器方向必须失败 | 64×2 定义唯一 |
++| 硬/软度量、tie-break 和归一化冻结 | `cc_metric_definition.md`、合同 JSON | 公式和策略检查 | 缺失位作为硬 0 必须失败 | 度量语义完整 |
++| 长度、actualRate 和 SNR 公式冻结 | `cc_contract.md`、`frozen_config.csv` | 300/612 及逐点公式检查 | 使用理论 1/2 替代实际码率必须失败 | 数学关系一致 |
++| CSV/JSON、checkpoint 和命名冻结 | `cc_result_schema.md`、schema JSON | 必需字段和枚举检查 | 删除必需字段必须失败 | schema 完整 |
++| Stage 依赖关系冻结 | `cc_dependency_graph.md` | 依赖顺序检查 | 缺失或逆序依赖必须失败 | Stage01～15 全覆盖 |
++
++## Gate
++
++只有以下检查全部实际通过，才允许声明：
++
++```text
++PASS_STAGE01_CC_CONTRACT
++```
++
++- checker 正向检查通过；
++- checker 内置负向变异检查全部被拒绝；
++- `git diff --check` 通过；
++- 修改范围未越过 Stage01；
++- 审计记录与实际 Git 状态一致。
++
++## 目录说明
++
++本 Stage 属于规格冻结，不含 C++ 生产实现。`include/`、`src/`、`matlab/` 和 `results/` 保留用途说明文件，避免用空目录或 `.gitkeep` 冒充内容。
+diff --git a/Task/CC/simulation/stages/S3/stage01_cc_contract/tests/test_stage01_contract.py b/Task/CC/simulation/stages/S3/stage01_cc_contract/tests/test_stage01_contract.py
+new file mode 100644
+index 00000000..4185aa56
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage01_cc_contract/tests/test_stage01_contract.py
+@@ -0,0 +1,24 @@
++#!/usr/bin/env python3
++"""Independent entry point for the Stage01 positive and negative contract checks."""
++
++from __future__ import annotations
++
++import subprocess
++import sys
++from pathlib import Path
++
++
++def main() -> int:
++    stage_dir = Path(__file__).resolve().parents[1]
++    checker = stage_dir / "scripts" / "check_stage01_contract.py"
++    completed = subprocess.run(
++        [sys.executable, str(checker), "--stage-dir", str(stage_dir)],
++        check=False,
++    )
++    if completed.returncode != 0:
++        raise SystemExit("Stage01 contract test failed")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
