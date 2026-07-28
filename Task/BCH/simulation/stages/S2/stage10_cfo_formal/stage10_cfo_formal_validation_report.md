@@ -1,18 +1,17 @@
-# stage10_cfo_formal 验证报告
+# stage10_cfo_formal 密集波形 SNR 验证报告
 
-Gate：`PASS_STAGE10_CFO_FORMAL`
+Gate：`PASS_STAGE10_CFO_FORMAL_DENSE_SNR_0_TO_8_STEP_0P5`
 
-- 24 个 trial 点与 40 个 formal 点均由当前 C++ runner 重新生成。
-- 18 点达到 200 错帧停止；22 点达到 50000 帧上限；没有点超过上限。
-- 14 点观测到原始零 BER/FER，CSV 保持 0；surrogate 仅用于对数图 `plotValue`。
-- 30°末相位、逐 Case 相位增量、BER/FER 整数计数、实际码率和 SNR 公式全部复算通过。
-- SNR 严格使用 `Eb/N0+10log10(payloadLength/encodedLength)`，未沿用 stage01 的 `2R` helper。
-- 8 张 300 dpi PNG、8 份 figure-data、8 份 plot manifest 和全部 SHA-256 通过。
-- MATLAB formal 抽查覆盖 K200/K300 的分块与整块/双块 Case，各取低/中/高点，共 12 样本；
-  连续量误差不超过 `1e-12`，hard/payload/status mismatch=0。
-- 图像目视抽查通过；中文字体为 Microsoft YaHei；无 PDF、NaN、Inf。
-- 功能范围已包含在远程分支，`main` 未合并。
+- 8 个 Case × 17 个 target waveform SNR，共 136 个正式点。
+- target SNR 严格为 `0.0, 0.5, ..., 8.0 dB`；每个 Case 通过 `Eb/N0=targetSNR-10log10(actualRate)` 反算内部 Eb/N0。
+- 停止规则：`minFrames=1000`、`targetFrameErrors=200`、`maxFrames=50000`。
+- 63 点在 1000 帧达到目标错帧，24 点在 1000 帧以上达到目标错帧，49 点运行至 50000 帧上限；无点超限。
+- 观测到 33 个零 BER、33 个零 FER；原始 CSV 保持零，log 图只对显示值使用 surrogate。
+- 30° 线性跨编码帧相位模型、实部硬判决、无 CFO 补偿均保持不变。
+- 8 张 PNG、8 份 figure-data、8 份 plot manifest 和 SHA-256 全部通过；无 PDF。
+- MATLAB 抽查覆盖 4 Case × target SNR `0/4/8 dB`，共 12 样本；continuous error ≤ `1e-12`，hard/payload/status mismatch=0。
+- Release 编译、CTest、checker 均 PASS。
 
-功能范围：`48ee1e8a71595dccc656a92576849fe03ff05467...3ec3e28cf6fe78f769a9878fe8683e634ed99217`。
+DENSE_SNR_CODE_COMMIT：`3768c26a3f2cab3bc6b71a55b67cd985f1f6257e`。
 
-共享 MATLAB repair 范围：`03e096c85b8afbbbfc8f74b9b161955c99ba0cea...5df70f96983ce4c339f7254e299ddd752514e259`。
+当前分支：`stage10-12-bch-s2-dense-snr-rerun`；未合并 `main`。

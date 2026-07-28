@@ -1,13 +1,42 @@
 {
   "stageId": "stage10_cfo_formal",
   "sourceCsv": "results\\stage10_cfo_formal_result_summary.csv",
-  "sourceCsvSha256": "d8436fa0be26c3583ad4fdc308c9d71c55c401783b34a52f9fb11c9b86df3537",
+  "sourceCsvSha256": "f37a39836651b7f757bdf0dc134002a4f88e55f66adc9456aebb7240ffc9adcf",
   "figureData": "results\\stage10_cfo_formal_figure_data_k200_miscorrection.csv",
-  "figureDataSha256": "599c9de97b854972105e14b981f6551f3a8ea9d67f2f6227b07958c279e79e58",
+  "figureDataSha256": "20078761664bfacce0d1c6299470c3dc657c79dcb1e4c938ff9659dfed399fa4",
   "png": "plots\\stage10_cfo_formal_k200_miscorrection.png",
-  "pngSha256": "6476ab778b62e11849a6d7aed0117e3a2574a79877152559470e354a6214f57c",
+  "pngSha256": "4e36236f1ea22cb0c6e5bda0c691b113b772f8cfeaf65cc28d0c5481dffc84e7",
   "xAxis": "SNR",
+  "targetSnrGridDb": [
+    0.0,
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    3.5,
+    4.0,
+    4.5,
+    5.0,
+    5.5,
+    6.0,
+    6.5,
+    7.0,
+    7.5,
+    8.0
+  ],
+  "snrStepDb": 0.5,
+  "snrMinDb": 0.0,
+  "snrMaxDb": 8.0,
+  "pointCountPerCase": 17,
   "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
+  "ebn0InverseFormula": "ebn0Db=targetSnrDb-10*log10(actualRate)",
+  "stopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000
+  },
   "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator for log display only",
   "caseStyles": {
     "K200_S15": {
@@ -34,5 +63,6 @@
       "lineStyle": ":",
       "marker": "D"
     }
-  }
+  },
+  "generatedFromGitCommit": "3768c26a3f2cab3bc6b71a55b67cd985f1f6257e"
 }

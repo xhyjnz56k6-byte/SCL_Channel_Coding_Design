@@ -33,7 +33,7 @@ for payload in (200,300):
       for r,v,p in zip(group,raw,plot):
         figure_rows.append({"caseId":case,"legendLabel":label,"payloadLength":payload,
           "encodedLength":r["encodedLength"],"actualRate":r["actualRate"],
-          "ebn0Db":r["ebn0Db"],"snrDb":r["snrDb"],"metricName":metric,
+          "ebn0Db":r["ebn0Db"],"snrDb":r["snrDb"],"targetSnrDb":r["snrDb"],"metricName":metric,
           "metricValue":f"{v:.17g}","totalFrames":r["totalFrames"],
           "errorCount":r["payloadErrorBits"] if metric=="ber" else
                        r["payloadErrorFrames"] if metric=="fer" else r["miscorrectionFrames"],
@@ -41,6 +41,7 @@ for payload in (200,300):
           "plotValue":f"{p:.17g}"})
     plt.xlabel("SNR"); plt.ylabel(ylabel); plt.title(f"{payload}比特BCH{title_labels[metric]}对比")
     if logy: plt.yscale("log")
+    plt.xlim(0.0,8.0); plt.xticks([0.5*i for i in range(17)])
     plt.grid(True,which="both",alpha=.3); plt.legend(loc="upper right"); plt.tight_layout()
     metric_stem={"decodeTimeMeanNs":"decode_latency","miscorrectionRate":"miscorrection"}.get(metric,metric)
     stem=f"stage10_cfo_formal_k{payload}_{metric_stem}"
@@ -52,10 +53,15 @@ for payload in (200,300):
       "sourceCsvSha256":hashlib.sha256(source.read_bytes()).hexdigest(),
       "figureData":str(fig.relative_to(STAGE)),"figureDataSha256":hashlib.sha256(fig.read_bytes()).hexdigest(),
       "png":str(png.relative_to(STAGE)),"pngSha256":hashlib.sha256(png.read_bytes()).hexdigest(),
-      "xAxis":"SNR","snrFormula":"snrDb=ebn0Db+10*log10(actualRate)",
+      "xAxis":"SNR","targetSnrGridDb":[0.5*i for i in range(17)],"snrStepDb":0.5,
+      "snrMinDb":0.0,"snrMaxDb":8.0,"pointCountPerCase":17,
+      "snrFormula":"snrDb=ebn0Db+10*log10(actualRate)",
+      "ebn0InverseFormula":"ebn0Db=targetSnrDb-10*log10(actualRate)",
+      "stopRule":{"minFrames":1000,"targetFrameErrors":200,"maxFrames":50000},
       "zeroValuePolicy":"raw zero retained; plotValue=0.5/denominator for log display only",
       "caseStyles":{c:{"legendLabel":styles[c][0],"color":styles[c][1],
-                      "lineStyle":styles[c][2],"marker":styles[c][3]} for c in styles if c.startswith(f"K{payload}")}}
+                      "lineStyle":styles[c][2],"marker":styles[c][3]} for c in styles if c.startswith(f"K{payload}")},
+      "generatedFromGitCommit":rows[0]["gitCommit"]}
     (MANIFESTS/f"stage10_cfo_formal_plot_manifest_k{payload}_{metric_stem}.json").write_text(
       json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf-8")
 print("PASS_STAGE10_CFO_FORMAL_PLOT")

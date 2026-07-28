@@ -1,0 +1,10 @@
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design_dense_snr/Task/BCH/simulation/build/S2/stage10_cfo_formal
+[ 15%] Built target stage10_block_core
+[ 61%] Built target stage10_segmented_core
+[ 84%] Built target stage10_support
+[100%] Built target stage10_cfo_formal_runner
+PASS_STAGE10_CFO_FORMAL_SPOTCHECK_EXPORT
+PASS_STAGE10_CFO_FORMAL_MATLAB_SPOTCHECK
+PASS_STAGE10_CFO_FORMAL_MATLAB_CHECKER

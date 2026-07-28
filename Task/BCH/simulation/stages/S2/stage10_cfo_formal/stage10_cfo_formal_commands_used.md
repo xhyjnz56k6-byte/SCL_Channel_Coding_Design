@@ -1,4 +1,9 @@
-# stage10_cfo_formal 实际命令
+# 密集波形 SNR 复现命令
 
-运行 `python/stage10_cfo_formal_run.py`，依次执行 Release 构建、CTest、trial、formal、绘图和 checker。
-标准输出保存在 `logs/`。
+```powershell
+python Task/BCH/simulation/stages/S2/stage10_cfo_formal/python/stage10_cfo_formal_run.py
+python Task/BCH/simulation/stages/S2/stage10_cfo_formal/python/stage10_cfo_formal_checker.py
+python Task/BCH/simulation/stages/S2/stage10_cfo_formal/python/stage10_cfo_formal_matlab_spotcheck.py
+```
+
+正式网格为 `0.0:0.5:8.0 dB`，8 Case 共 136 点；停止规则为 1000/200/50000 帧。

@@ -1,12 +1,68 @@
 {
   "stageId": "stage12_blockage_formal",
+  "experiment": "B_dense_snr",
+  "targetSnrGridDb": [
+    0.0,
+    0.5,
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    3.5,
+    4.0,
+    4.5,
+    5.0,
+    5.5,
+    6.0,
+    6.5,
+    7.0,
+    7.5,
+    8.0
+  ],
+  "snrStepDb": 0.5,
+  "snrMinDb": 0.0,
+  "snrMaxDb": 8.0,
+  "pointCountPerCase": 17,
+  "xTransformFormula": "targetSnrDb=snrDb",
+  "ebn0InverseFormula": "ebn0Db=targetSnrDb-10*log10(actualRate)",
+  "stopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000
+  },
   "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
-  "sourceCsvSha256": "c0473d5c4e4f6b109a384032f2e5e32e619392c7585ca706ec8d031810f77043",
+  "sourceCsvSha256": "e7020a8241cb4927046dbd8b4cae658b66635f917f12ec046aa3ca7a3ea64616",
   "figureData": "results\\stage12_blockage_formal_figure_data_k300_fer_vs_snr.csv",
-  "figureDataSha256": "0f2b7552ce9e5d79fbecdc4ad013341190156dcb9f6007128799a60e620b3a6c",
+  "figureDataSha256": "345c5737859d770097a7e092b4f33907897b6c4beb0a7ffd14aea294603ead7e",
   "png": "plots\\stage12_blockage_formal_k300_fer_vs_snr.png",
-  "pngSha256": "ba0b3fb336bbe72e13ea13f511993ac599335e4f8e1fef6d86c61ed201f660ef",
-  "xAxis": "SNR",
-  "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
-  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator only"
+  "pngSha256": "df99c741f28929db250639874e81f6b4620de5e377b8c7698f7ad87ae0ca58f4",
+  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator for log display only",
+  "generatedFromGitCommit": "3768c26a3f2cab3bc6b71a55b67cd985f1f6257e",
+  "caseIdToStyle": {
+    "K300_S15": {
+      "legendLabel": "分块",
+      "color": "#0072B2",
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "K300_M255K207": {
+      "legendLabel": "255双块",
+      "color": "#D55E00",
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "K300_M511K421": {
+      "legendLabel": "421整块",
+      "color": "#009E73",
+      "lineStyle": "-.",
+      "marker": "^"
+    },
+    "K300_M511K385": {
+      "legendLabel": "385整块",
+      "color": "#CC79A7",
+      "lineStyle": ":",
+      "marker": "D"
+    }
+  }
 }

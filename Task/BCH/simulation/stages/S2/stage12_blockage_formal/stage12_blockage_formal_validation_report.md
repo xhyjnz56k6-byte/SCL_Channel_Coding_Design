@@ -1,25 +1,17 @@
-# stage12_blockage_formal 验证报告
+# stage12_blockage_formal 密集波形 SNR 验证报告
 
-Gate：`PASS_STAGE12_BLOCKAGE_FORMAL`
+Gate：`PASS_STAGE12_BLOCKAGE_FORMAL_EXPERIMENT_B_DENSE_SNR_0_TO_8_STEP_0P5`
 
-总 Gate：`PASS_BCH_S2_CFO_BLOCKAGE_STAGE09_TO_STAGE12`
+- 实验 A 保留原 64 个比例扫描点，实验 C 保留原固定绝对长度结果；未重跑、未改动其数值和图。
+- 实验 B 重跑 8 个 Case × 17 个 target waveform SNR，共 136 点；A+B 正式点共 200 点。
+- target SNR 严格为 `0.0, 0.5, ..., 8.0 dB`；内部 Eb/N0 按每个 Case 的 actualRate 反算。
+- 遮挡模型保持 10%、零幅度、遮挡期间保留噪声、随机逐帧起点、非环绕、无交织。
+- 停止规则：`minFrames=1000`、`targetFrameErrors=200`、`maxFrames=50000`；实验 B 136 点均在 1000 帧达到目标错帧。
+- A 行与基线 92d3df7 中的原始 A 行逐字段一致；原始零值保持不变。
+- 4 张新 SNR PNG、4 份 figure-data、对应 plot manifest 和 SHA-256 全部通过；比例图未重绘。
+- MATLAB 抽查覆盖 4 Case × target SNR `0/4/8 dB`，共 12 样本；continuous error ≤ `1e-12`，hard/payload/status mismatch=0。
+- Release 编译、CTest、dense SNR checker 均 PASS。
 
-- 实验 A：64 个固定 SNR/比例点已完成。
-- 实验 B：40 个固定 10% 比例/SNR 点已完成。
-- 实验 C：32 个固定绝对遮挡长度点已完成，长度为 `5、10、20、30` 个调制符号。
-- A/B/C 合计 136 个正式点；20 点达到 50000 帧上限，其余点达到目标错帧停止条件，无点超过上限。
-- 合计 13 个零 BER、13 个零 FER 观测点；原始 CSV 保持零，绘图 surrogate 未反写。
-- 实验 C 的请求长度、实际长度、随机起点边界、实际比例和整数统计复算全部通过。
-- BER/FER/失败/误纠/未检出/真成功率均由整数计数复算通过。
-- SNR 使用 `Eb/N0+10log10(actualRate)` 逐点转换。
-- A/B 的 10 张 PNG 与 C 的 6 张 PNG 均具有 figure-data、plot manifest 和 SHA-256；无 PDF。
-- stage12 CTest、实验 C checker、原 stage12 checker 全部 PASS。
-- MATLAB formal 抽查继续覆盖已冻结的同一遮挡模型，共 12 样本；连续量误差不超过 `1e-12`，hard/payload/status mismatch=0。
-- stage01–04 的 Release、CTest、checker 与 MATLAB/reference 回归此前均已 PASS。
-- 功能范围均已存在于远程分支；`main` 未合并。
+DENSE_SNR_CODE_COMMIT：`3768c26a3f2cab3bc6b71a55b67cd985f1f6257e`。
 
-原 A/B 功能范围：`10d85af8b99aeb44c118a312104348190c1bc997...8571880bb502e963d69f92460a1d582326128f77`。
-
-共享 MATLAB repair 范围：`03e096c85b8afbbbfc8f74b9b161955c99ba0cea...5df70f96983ce4c339f7254e299ddd752514e259`。
-
-实验 C 功能范围：`530551cfe22815a38eacaa683e97c82949d51c4c...03555c8813ca3d90b0a160cc63354b19110aff1f`。
+当前分支：`stage10-12-bch-s2-dense-snr-rerun`；未合并 `main`。

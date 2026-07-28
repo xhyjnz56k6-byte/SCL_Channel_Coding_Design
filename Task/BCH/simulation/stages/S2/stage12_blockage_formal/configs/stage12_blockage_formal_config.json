@@ -3,9 +3,9 @@
   "model":{"blockageDomain":"MODULATED_SYMBOL","blockageShape":"RECTANGULAR_CONTIGUOUS",
     "blockageAmplitude":0,"noiseDuringBlockage":true,"blockageStartPolicy":"RANDOM_PER_FRAME",
     "blockageWrapAround":false,"interleaver":false},
-  "stopRule":{"minFrames":5000,"targetFrameErrors":200,"maxFrames":50000},
+  "stopRule":{"minFrames":1000,"targetFrameErrors":200,"maxFrames":50000},
   "ratioExperiment":{"K200Ebn0Db":7.5,"K300Ebn0Db":8.0,
     "requestedRatios":[0,0.02,0.05,0.08,0.10,0.12,0.15,0.20]},
   "snrExperiment":{"representativeRatio":0.10,
-    "K200Ebn0Db":[4.5,5.5,6.5,7.5,8.5],"K300Ebn0Db":[5,6,7,8,9]}
+    "targetSnrDb":[0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5,7.0,7.5,8.0]}
 }
