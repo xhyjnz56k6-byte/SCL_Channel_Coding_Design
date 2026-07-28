@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stage16 BCH S2 突发错误与交织结果图库</title>
+  <style>
+    :root { color-scheme: light; font-family: "Microsoft YaHei", "Segoe UI", sans-serif; }
+    body { margin: 0; background: #f4f6f8; color: #1f2937; }
+    header { padding: 24px 5vw 16px; background: #12304a; color: #fff; }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p { margin: 4px 0; color: #dbeafe; }
+    .toolbar { padding: 16px 5vw; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button { border: 1px solid #9ca3af; border-radius: 6px; padding: 7px 14px; background: #fff; cursor: pointer; }
+    button.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    #count { margin-left: 8px; color: #4b5563; }
+    main { padding: 0 5vw 32px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+    .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px #00000012; padding: 12px; }
+    .card h2 { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
+    .card img { display: block; width: 100%; height: auto; border: 1px solid #e5e7eb; cursor: zoom-in; }
+    .card a { display: inline-block; margin-top: 9px; color: #1d4ed8; text-decoration: none; font-size: 13px; }
+    .card a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Stage16 BCH S2 突发错误与交织结果图库</h1>
+    <p>正式实验：SNR 0–18 dB，步长 0.5 dB；共 20 张 PNG（BER/FER）。</p>
+    <p>点击缩略图或“打开原图”即可在新标签页查看高清图片。</p>
+  </header>
+  <div class="toolbar">
+    <button class="active" data-filter="all">全部</button>
+    <button data-filter="k200">K=200</button>
+    <button data-filter="k300">K=300</button>
+    <span id="count"></span>
+  </div>
+  <main><section id="grid" class="grid"></section></main>
+  <script>
+    const plots = [
+      ["k200", "K=200 汇总 BER", "stage16_burst_interleaving_comparison_k200_ber_vs_snr.png"],
+      ["k200", "K=200 汇总 FER", "stage16_burst_interleaving_comparison_k200_fer_vs_snr.png"],
+      ["k200", "K=200，M=255，K=207 BER", "stage16_burst_interleaving_comparison_k200_m255k207_ber_vs_snr.png"],
+      ["k200", "K=200，M=255，K=207 FER", "stage16_burst_interleaving_comparison_k200_m255k207_fer_vs_snr.png"],
+      ["k200", "K=200，M=511，K=385 BER", "stage16_burst_interleaving_comparison_k200_m511k385_ber_vs_snr.png"],
+      ["k200", "K=200，M=511，K=385 FER", "stage16_burst_interleaving_comparison_k200_m511k385_fer_vs_snr.png"],
+      ["k200", "K=200，M=511，K=421 BER", "stage16_burst_interleaving_comparison_k200_m511k421_ber_vs_snr.png"],
+      ["k200", "K=200，M=511，K=421 FER", "stage16_burst_interleaving_comparison_k200_m511k421_fer_vs_snr.png"],
+      ["k200", "K=200，交织深度 15 BER", "stage16_burst_interleaving_comparison_k200_s15_ber_vs_snr.png"],
+      ["k200", "K=200，交织深度 15 FER", "stage16_burst_interleaving_comparison_k200_s15_fer_vs_snr.png"],
+      ["k300", "K=300 汇总 BER", "stage16_burst_interleaving_comparison_k300_ber_vs_snr.png"],
+      ["k300", "K=300 汇总 FER", "stage16_burst_interleaving_comparison_k300_fer_vs_snr.png"],
+      ["k300", "K=300，M=255，K=207 BER", "stage16_burst_interleaving_comparison_k300_m255k207_ber_vs_snr.png"],
+      ["k300", "K=300，M=255，K=207 FER", "stage16_burst_interleaving_comparison_k300_m255k207_fer_vs_snr.png"],
+      ["k300", "K=300，M=511，K=385 BER", "stage16_burst_interleaving_comparison_k300_m511k385_ber_vs_snr.png"],
+      ["k300", "K=300，M=511，K=385 FER", "stage16_burst_interleaving_comparison_k300_m511k385_fer_vs_snr.png"],
+      ["k300", "K=300，M=511，K=421 BER", "stage16_burst_interleaving_comparison_k300_m511k421_ber_vs_snr.png"],
+      ["k300", "K=300，M=511，K=421 FER", "stage16_burst_interleaving_comparison_k300_m511k421_fer_vs_snr.png"],
+      ["k300", "K=300，交织深度 15 BER", "stage16_burst_interleaving_comparison_k300_s15_ber_vs_snr.png"],
+      ["k300", "K=300，交织深度 15 FER", "stage16_burst_interleaving_comparison_k300_s15_fer_vs_snr.png"]
+    ];
+    const grid = document.getElementById("grid");
+    const count = document.getElementById("count");
+    function render(filter = "all") {
+      const selected = plots.filter(p => filter === "all" || p[0] === filter);
+      grid.innerHTML = selected.map(p => `<article class="card"><h2>${p[1]}</h2><img src="${p[2]}" alt="${p[1]}" loading="lazy" onclick="window.open(this.src, '_blank')"><a href="${p[2]}" target="_blank" rel="noopener">打开原图</a></article>`).join("");
+      count.textContent = `显示 ${selected.length} / ${plots.length} 张`;
+    }
+    document.querySelectorAll("button[data-filter]").forEach(button => button.addEventListener("click", () => {
+      document.querySelectorAll("button[data-filter]").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      render(button.dataset.filter);
+    }));
+    render();
+  </script>
+</body>
+</html>
