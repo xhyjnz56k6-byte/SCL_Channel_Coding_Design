@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "cc.stage05.reference_hashes.v1",
+  "files": [
+    {
+      "path": "stage05_matlab_reference_cpp_vectors.csv",
+      "sha256": "1093599b6f4a6596232d0e7a61c926b187741ebcb88a33031e5c86bae8cf04a1",
+      "bytes": 215732
+    },
+    {
+      "path": "stage05_matlab_reference_cpp_trellis.csv",
+      "sha256": "57cab9832062c5d8fece1eaae3ae84d4d0fad63be0f928a121f4f19357e9bc6f",
+      "bytes": 1408
+    },
+    {
+      "path": "stage05_matlab_reference_comparison.csv",
+      "sha256": "48870a23c6be9e4235cd3861c8766f8b36cda6addb8f483afca104916569c2f5",
+      "bytes": 414
+    }
+  ]
+}
