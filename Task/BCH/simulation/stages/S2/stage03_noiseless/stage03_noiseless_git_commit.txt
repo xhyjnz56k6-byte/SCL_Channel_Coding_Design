@@ -1,0 +1,7 @@
+stage=stage03_noiseless
+branch=stage01-06-bch-s2-awgn
+baseCommit=be243bec3672584792c6486766a89b4795aa8cc3
+contentCommit=edca1e4886c926edcbb2bd788cb2f57acdffeeae
+contentCommitMessage=BCH/stage03：完成八种Case无噪声验证
+remoteVerification=NOT_REQUESTED
+mergeStatus=NOT_MERGED

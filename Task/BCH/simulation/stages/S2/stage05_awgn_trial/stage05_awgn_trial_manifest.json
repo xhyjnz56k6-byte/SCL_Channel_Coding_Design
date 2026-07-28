@@ -1,0 +1,52 @@
+{
+  "stage": "stage05_awgn_trial",
+  "branch": "stage01-06-bch-s2-awgn",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "264a6ac2827eb65f187ef7335c9af777a5af5d14",
+      "contentCommit": "a5310744515a24d9e8d4736e5c71289c0df0b283",
+      "files": [
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/configs/stage05_awgn_trial_config.json",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/cpp/CMakeLists.txt",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/cpp/stage05_awgn_trial_runner.cpp",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/logs/stage05_awgn_trial_check.log",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/logs/stage05_awgn_trial_ctest.log",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/logs/stage05_awgn_trial_plot.log",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/logs/stage05_awgn_trial_runner.log",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_figure_data.csv",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k200_ber.png",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k200_ber_figure_data.csv",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k200_fer.png",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k200_fer_figure_data.csv",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k300_ber.png",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k300_ber_figure_data.csv",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k300_fer.png",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_k300_fer_figure_data.csv",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/plots/stage05_awgn_trial_plot_manifest.json",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/python/stage05_awgn_trial_check.py",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/python/stage05_awgn_trial_plot.py",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/python/stage05_awgn_trial_run.py",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/stage05_awgn_trial_acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/stage05_awgn_trial_commands_used.md",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/stage05_awgn_trial_frozen_config.csv",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/stage05_awgn_trial_stage_plan.md",
+        "Task/BCH/simulation/stages/S2/stage05_awgn_trial/stage05_awgn_trial_test_summary.csv"
+      ]
+    }
+  ],
+  "generatedEvidence": [
+    "results/stage05_awgn_trial_points.csv",
+    "results/stage05_awgn_trial_results.csv",
+    "results/stage05_awgn_trial_resume_compare.csv",
+    "results/stage05_awgn_trial_shard_merge_compare.csv",
+    "results/stage05_awgn_trial_shard_manifest.csv",
+    "results/stage05_awgn_trial_runtime_estimate.csv",
+    "results/stage05_awgn_trial_formal_stop_rule_test.csv",
+    "results/checkpoints/stage05_awgn_trial_K200_S15_checkpoint.json",
+    "results/checkpoints/stage05_awgn_trial_K300_M511K385_checkpoint.json"
+  ],
+  "gate": "PASS_STAGE05_AWGN_TRIAL",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED"
+}

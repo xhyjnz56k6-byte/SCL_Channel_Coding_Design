@@ -1,0 +1,7 @@
+stage=stage02_case_contract
+branch=stage01-06-bch-s2-awgn
+baseCommit=49f4007e282d6f5c55ba5c0e8a390cbf436f32ac
+contentCommit=0fdafb02418e7b090540f4c78f1a0c7a7aa0c62d
+contentCommitMessage=BCH/stage02：冻结八种Case组帧契约
+remoteVerification=NOT_REQUESTED
+mergeStatus=NOT_MERGED

@@ -1,0 +1,8 @@
+test,executed,result,detail
+Release build,true,PASS,MinGW GCC 15.2.0
+CTest,true,PASS,1/1
+fixed and boundary payloads,true,PASS,7 per case
+random noiseless frames,true,PASS,1000 per case
+all noiseless frames,true,PASS,8056 total
+C++ MATLAB samples,true,PASS,8/8 encoded and recovered mismatch=0
+negative/error counters,true,PASS,all zero

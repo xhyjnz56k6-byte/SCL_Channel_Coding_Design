@@ -1,0 +1,52 @@
+{
+  "stage": "stage06_awgn_formal",
+  "branch": "stage01-06-bch-s2-awgn",
+  "functionalRanges": [{
+    "name": "content",
+    "baseCommit": "7c1f21fdbcca40e4248f7fd21c241078cd964357",
+    "contentCommit": "0e622e850e545891253cc9b134f7a36a97f72dd2",
+    "files": [
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/configs/stage06_awgn_formal_config.json",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/cpp/CMakeLists.txt",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/cpp/stage06_awgn_formal_runner.cpp",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/logs/stage06_awgn_formal_check.log",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/logs/stage06_awgn_formal_ctest.log",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/logs/stage06_awgn_formal_plot.log",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/logs/stage06_awgn_formal_runner.log",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_figure_data.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k200_ber.png",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k200_ber_figure_data.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k200_fer.png",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k200_fer_figure_data.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k200_latency.png",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k200_latency_figure_data.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k300_ber.png",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k300_ber_figure_data.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k300_fer.png",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k300_fer_figure_data.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k300_latency.png",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_k300_latency_figure_data.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/plots/stage06_awgn_formal_plot_manifest.json",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/python/stage06_awgn_formal_check.py",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/python/stage06_awgn_formal_plot.py",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/python/stage06_awgn_formal_run.py",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/stage06_awgn_formal_acceptance_matrix.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/stage06_awgn_formal_commands_used.md",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/stage06_awgn_formal_frozen_config.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/stage06_awgn_formal_result_summary.csv",
+      "Task/BCH/simulation/stages/S2/stage06_awgn_formal/stage06_awgn_formal_stage_plan.md"
+    ]
+  }],
+  "generatedEvidence": [
+    "results/stage06_awgn_formal_points.csv",
+    "results/stage06_awgn_formal_results.csv",
+    "results/stage06_awgn_formal_shard_manifest.csv",
+    "results/stage06_awgn_formal_merge_audit.csv",
+    "results/checkpoints/stage06_awgn_formal_K200_S15_0.json",
+    "results/checkpoints/stage06_awgn_formal_K300_M511K385_4.json"
+  ],
+  "gate": "PASS_STAGE06_AWGN_FORMAL",
+  "overallGate": "PASS_BCH_S2_AWGN_STAGE01_TO_STAGE06",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED"
+}

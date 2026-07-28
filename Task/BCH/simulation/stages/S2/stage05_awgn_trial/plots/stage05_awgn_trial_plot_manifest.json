@@ -1,0 +1,65 @@
+{
+  "stageId": "stage05_awgn_trial",
+  "sourceResults": "stage05_awgn_trial_results.csv",
+  "sourceResultsSha256": "20811c83a15f9e7937b9bf2e10e8bf4a131c819154c1999f458905bbe6544836",
+  "plotScriptSha256": "b906050a11b4e9f9320a292a7994de7c23882ff7e4b8dd118268023053894dc0",
+  "pythonVersion": "3.11.0",
+  "matplotlibVersion": "3.10.7",
+  "zeroSurrogateRule": "raw zero is plotted as 0.5/denominator; rawY remains zero",
+  "aggregateFigureData": "stage05_awgn_trial_figure_data.csv",
+  "aggregateFigureDataSha256": "6c5b7a3340ed4eef0a85d62c712d41efa95c0c496027cf029ee1e1c2a35d9e8e",
+  "figures": [
+    {
+      "figureId": "stage05_awgn_trial_k200_ber",
+      "png": "stage05_awgn_trial_k200_ber.png",
+      "figureData": "stage05_awgn_trial_k200_ber_figure_data.csv",
+      "payloadLength": 200,
+      "metric": "BER",
+      "title": "200比特BCH试运行误码率",
+      "xAxis": "SNR (dB)",
+      "yScale": "log",
+      "dpi": 300,
+      "pngSha256": "b799a43823370ab3eb2bda0c7f8086a492dd55878cfb33d4023c24eaafbefd7a",
+      "figureDataSha256": "9264301846c593f54c10a2e8afedde464f7e7a9c72ba00096a90b11ff1ade723"
+    },
+    {
+      "figureId": "stage05_awgn_trial_k200_fer",
+      "png": "stage05_awgn_trial_k200_fer.png",
+      "figureData": "stage05_awgn_trial_k200_fer_figure_data.csv",
+      "payloadLength": 200,
+      "metric": "FER",
+      "title": "200比特BCH试运行误帧率",
+      "xAxis": "SNR (dB)",
+      "yScale": "log",
+      "dpi": 300,
+      "pngSha256": "6c353cc5b79ac2feaa1ec88fb4cda56a79d3554d128b68b40acffc8200f3f0a1",
+      "figureDataSha256": "59f0500a23868a0f9bb92ca22756f5d40482bd89c54f632a136c405e4c0dc18f"
+    },
+    {
+      "figureId": "stage05_awgn_trial_k300_ber",
+      "png": "stage05_awgn_trial_k300_ber.png",
+      "figureData": "stage05_awgn_trial_k300_ber_figure_data.csv",
+      "payloadLength": 300,
+      "metric": "BER",
+      "title": "300比特BCH试运行误码率",
+      "xAxis": "SNR (dB)",
+      "yScale": "log",
+      "dpi": 300,
+      "pngSha256": "b131155acc60b9610b2e27c22d3e9a0ad35f292a1b2a97ff59a1e2d33aafcef7",
+      "figureDataSha256": "1c97ba9804e8ac50d394938d1717f6ed97f293606b37b8bc0850fb9557951d9f"
+    },
+    {
+      "figureId": "stage05_awgn_trial_k300_fer",
+      "png": "stage05_awgn_trial_k300_fer.png",
+      "figureData": "stage05_awgn_trial_k300_fer_figure_data.csv",
+      "payloadLength": 300,
+      "metric": "FER",
+      "title": "300比特BCH试运行误帧率",
+      "xAxis": "SNR (dB)",
+      "yScale": "log",
+      "dpi": 300,
+      "pngSha256": "e7085cfb392aa0a01d05c0c449dac87e34914d9cbc4f9c12c7c6bd977ebbbc35",
+      "figureDataSha256": "d10714c4043f018ff5ac3427bc901254213f1899a7effef4b3e9c2d80beebce8"
+    }
+  ]
+}

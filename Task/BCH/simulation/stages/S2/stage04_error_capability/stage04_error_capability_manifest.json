@@ -1,0 +1,36 @@
+{
+  "stage": "stage04_error_capability",
+  "branch": "stage01-06-bch-s2-awgn",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "acbebade03a99e1f2dfc5ff201dba3646381d130",
+      "contentCommit": "6e8841446a885f1c1a6a9fdb7214f2ed573fd9dd",
+      "files": [
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/CMakeLists.txt",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/cpp/stage04_error_capability_runner.cpp",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_check.log",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_ctest.log",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/logs/stage04_error_capability_matlab.log",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/matlab/stage04_error_capability_matlab_reference.m",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_check.py",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/python/stage04_error_capability_run.py",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_commands_used.md",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_frozen_config.csv",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_stage_plan.md",
+        "Task/BCH/simulation/stages/S2/stage04_error_capability/stage04_error_capability_test_summary.csv"
+      ]
+    }
+  ],
+  "generatedEvidence": [
+    "results/stage04_error_capability_cases.csv",
+    "results/stage04_error_capability_results.csv",
+    "results/stage04_error_capability_status_summary.csv",
+    "results/stage04_error_capability_cpp_matlab_samples.csv",
+    "results/stage04_error_capability_cpp_matlab_compare.csv"
+  ],
+  "gate": "PASS_STAGE04_ERROR_CAPABILITY",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,10 @@
+key,value
+caseCount,8
+fixedPatternsPerCase,7
+randomFramesPerCase,1000
+totalFramesPerCase,1007
+totalFramesAllCases,8056
+masterSeed,2026072703
+channel,y=x
+hardDecision,y>=0 maps to 0
+stopReason,NOISELESS_FIXED_FRAMES

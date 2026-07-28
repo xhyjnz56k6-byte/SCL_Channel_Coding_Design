@@ -1,0 +1,7 @@
+test,executed,result,detail
+fixed trial grid,true,PASS,8 cases x 3 points x 500 frames
+AWGN formulas and raw counters,true,PASS,24/24
+checkpoint resume,true,PASS,8/8 exact
+three-shard merge,true,PASS,8/8 exact
+formal stop rule,true,PASS,4 boundary decisions
+PNG plot contract,true,PASS,4/4 at 300 dpi

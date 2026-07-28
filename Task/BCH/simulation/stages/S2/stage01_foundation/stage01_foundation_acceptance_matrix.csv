@@ -1,0 +1,7 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+AWGN数学,cpp/stage01_foundation_awgn.cpp,C++公式与MATLAB向量逐行对照,拒绝非法码率和非有限输入,连续量在1e-12相对容差内
+随机身份,cpp/stage01_foundation_awgn.cpp,同一完整身份完全复现,改变stage/case/ebn0/frame/domain后结果不同,所有随机性测试PASS
+BPSK与硬判决,cpp/stage01_foundation_awgn.cpp,0映射+1且1映射-1,拒绝非二进制输入,离散mismatch为0
+checkpoint与shard,cpp/stage01_foundation_test.cpp,相同逻辑帧身份跨resume/shard一致,身份字段缺失必须拒绝,逐帧噪声完全一致
+真实CTest,python/stage01_foundation_run.py,Release构建与CTest执行,测试失败立即阻塞,日志非空且100%通过
+审计哈希,stage01_foundation_file_hashes.json,结果和日志逐文件SHA-256,缺失文件阻塞,哈希清单完整

@@ -1,0 +1,7 @@
+requirement,implementation,positiveTest,negativeTest,gate
+40 formal points,config and C++ runner,8 cases x 5 points,identity duplicate rejection,40/40 PASS
+formal stop rule,C++ runner,min target max recomputation,early/late stop rejection,40/40 PASS
+raw counters,C++ CSV and checker,BER FER accounting,NaN Inf mismatch rejection,40/40 PASS
+checkpoint,JSON per point,required provenance and counters,missing checkpoint rejection,40/40 PASS
+shard merge,manifest and merge audit,single-shard identity audit,accounting mismatch rejection,40/40 PASS
+formal plots,Python plotter,6 PNG plus independent data,format and row rejection,6/6 PASS

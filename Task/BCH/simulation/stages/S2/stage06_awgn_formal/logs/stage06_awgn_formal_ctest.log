@@ -1,0 +1,20 @@
+UpdateCTestConfiguration  from :C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage06_awgn_formal/DartConfiguration.tcl
+Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage06_awgn_formal
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: stage06_awgn_formal_cli_validation
+
+1: Test command: C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\BCH\simulation\build\S2\stage06_awgn_formal\stage06_awgn_formal_runner.exe
+1: Working Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage06_awgn_formal
+1: Test timeout computed to be: 10000000
+1: BLOCKED_STAGE06_AWGN_FORMAL_RUNNER: usage: stage06_awgn_formal_runner POINTS_CSV OUTPUT_DIR MASTER_SEED CONFIG_HASH GIT_COMMIT
+1/1 Test #1: stage06_awgn_formal_cli_validation ...   Passed    0.03 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.04 sec

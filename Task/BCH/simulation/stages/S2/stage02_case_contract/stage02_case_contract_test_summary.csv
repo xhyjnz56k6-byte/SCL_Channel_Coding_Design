@@ -1,0 +1,7 @@
+test,executed,result,detail
+Release build,true,PASS,MinGW GCC 15.2.0
+CTest,true,PASS,1/1 including 8-case encode/decode recovery
+length audit,true,PASS,54/54 blocks
+rate audit,true,PASS,8/8 cases
+MATLAB contract reference,true,PASS,8/8 cases
+negative configuration tests,true,PASS,invalid id/payload/received length rejected

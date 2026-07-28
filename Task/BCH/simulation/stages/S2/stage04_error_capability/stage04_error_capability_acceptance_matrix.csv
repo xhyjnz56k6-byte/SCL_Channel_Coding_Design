@@ -1,0 +1,7 @@
+需求,实现位置,正向测试,负向测试,Gate条件
+0..t保证区,cpp/stage04_error_capability_runner.cpp,每块六类位置模式,任一非TRUE_SUCCESS阻塞,保证区全部恢复
+t+1和t+2,results/stage04_error_capability_results.csv,真实执行并分类,不要求全部显式失败,无INVALID_CONFIGURATION
+BCH15全部单错,cpp/stage04_error_capability_runner.cpp,每个payload组覆盖15位置,任一单错恢复失败阻塞,30/30 PASS
+分块边界,cpp/stage04_error_capability_runner.cpp,同块双错与跨块每块单错,跨块保证区失败阻塞,边界分类可审计
+多块边界,cpp/stage04_error_capability_runner.cpp,K300_M255每块单错,任一块恢复失败阻塞,TRUE_SUCCESS
+MATLAB关键样本,matlab/stage04_error_capability_matlab_reference.m,每Case 0错和t错,任一恢复mismatch阻塞,16/16 PASS

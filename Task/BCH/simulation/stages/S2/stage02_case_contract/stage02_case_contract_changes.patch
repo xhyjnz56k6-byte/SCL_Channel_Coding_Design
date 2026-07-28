@@ -1,0 +1,909 @@
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/CMakeLists.txt b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/CMakeLists.txt
+new file mode 100644
+index 0000000..c924a77
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/CMakeLists.txt
+@@ -0,0 +1,37 @@
++cmake_minimum_required(VERSION 3.16)
++project(stage02_case_contract LANGUAGES CXX)
++
++set(BCH_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../..")
++set(COMMON_ROOT "${BCH_ROOT}/../Common")
++
++add_library(stage02_block_core
++    "${BCH_ROOT}/block/current/src/bch_block.cpp")
++target_include_directories(stage02_block_core PUBLIC
++    "${BCH_ROOT}/block/current/include"
++    "${COMMON_ROOT}/include")
++target_compile_features(stage02_block_core PUBLIC cxx_std_17)
++
++add_library(stage02_segmented_core
++    "${BCH_ROOT}/segmented/current/src/bch15_encoder.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_syndrome.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_lookup_table.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_lookup_decoder.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_segmented_adapter.cpp")
++target_include_directories(stage02_segmented_core PUBLIC
++    "${BCH_ROOT}/segmented/current/include"
++    "${COMMON_ROOT}/include")
++target_compile_features(stage02_segmented_core PUBLIC cxx_std_17)
++
++add_library(stage02_case_contract_lib
++    stage02_case_contract.cpp)
++target_include_directories(stage02_case_contract_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
++target_link_libraries(stage02_case_contract_lib PUBLIC stage02_block_core stage02_segmented_core)
++target_compile_features(stage02_case_contract_lib PUBLIC cxx_std_17)
++
++add_executable(stage02_case_contract_test stage02_case_contract_test.cpp)
++target_link_libraries(stage02_case_contract_test PRIVATE stage02_case_contract_lib)
++add_executable(stage02_case_contract_export stage02_case_contract_export.cpp)
++target_link_libraries(stage02_case_contract_export PRIVATE stage02_case_contract_lib)
++
++enable_testing()
++add_test(NAME stage02_case_contract_unit COMMAND stage02_case_contract_test)
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.cpp b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.cpp
+new file mode 100644
+index 0000000..2dbf248
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.cpp
+@@ -0,0 +1,240 @@
++#include "stage02_case_contract.hpp"
++
++#include "bch_block/bch_block.hpp"
++#include "bch_segmented/bch15_lookup_table.hpp"
++#include "bch_segmented/bch15_segmented_adapter.hpp"
++
++#include <algorithm>
++#include <cmath>
++#include <numeric>
++#include <stdexcept>
++
++namespace scl::bch::s2::stage02 {
++namespace {
++
++using block::BlockBchProfile;
++
++PlotStyle style(const char* id, const char* color, const char* line, const char* marker) {
++    return {id, color, line, marker};
++}
++
++CaseContract makeContract(
++    CaseId id, const char* caseId, const char* displayName, std::size_t payloadLength,
++    std::size_t motherN, std::size_t motherK, unsigned motherT, const char* decoder,
++    Organization organization, std::vector<std::size_t> payloadPerBlock,
++    std::vector<std::size_t> fillerPerBlock, std::vector<std::size_t> shorteningPerBlock,
++    std::vector<std::size_t> encodedLengthPerBlock, const char* legend, PlotStyle plotStyle) {
++    const std::size_t totalEncoded = std::accumulate(
++        encodedLengthPerBlock.begin(), encodedLengthPerBlock.end(), std::size_t{0U});
++    return {
++        id, caseId, displayName, payloadLength, motherN, motherK, motherT, decoder, organization,
++        payloadPerBlock.size(), std::move(payloadPerBlock), std::move(fillerPerBlock),
++        std::move(shorteningPerBlock), std::move(encodedLengthPerBlock), totalEncoded,
++        static_cast<double>(payloadLength) / static_cast<double>(totalEncoded),
++        "BLOCK_ASCENDING_PAYLOAD_CONCATENATION",
++        "INDEX_0_HIGHEST_DEGREE;SYSTEMATIC_PAYLOAD_THEN_PARITY",
++        "GENERATOR_DESCENDING_DEGREE",
++        organization == Organization::Segmented15
++            ? "NO_SHORTENING;FINAL_INFORMATION_FILLER_IS_ZERO_AND_REMOVED_AFTER_DECODE"
++            : "PREPEND_KNOWN_ZERO_INFORMATION_BITS_AND_DO_NOT_TRANSMIT_PREFIX",
++        legend, std::move(plotStyle),
++        "FRAME_ERROR_IF_ANY_RECOVERED_PAYLOAD_BIT_DIFFERS",
++        "ONE_FRAME_DECODE_ELAPSED_TIME_INCLUDING_ALL_BLOCKS"
++    };
++}
++
++const std::vector<CaseContract> kContracts{
++    makeContract(CaseId::K200_S15, "K200_S15", "BCH15分块200", 200U, 15U, 11U, 1U,
++                 "SYNDROME_LOOKUP", Organization::Segmented15,
++                 {11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,2U},
++                 {0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,9U},
++                 std::vector<std::size_t>(19U, 0U), std::vector<std::size_t>(19U, 15U),
++                 "分块200", style("STYLE_1", "C0", "-", "o")),
++    makeContract(CaseId::K200_M255K207, "K200_M255K207", "BCH255整块200", 200U,
++                 255U, 207U, 6U, "BERLEKAMP_MASSEY_CHIEN",
++                 Organization::ShortenedWholeBlock, {200U}, {0U}, {7U}, {248U},
++                 "255整块200", style("STYLE_2", "C1", "--", "s")),
++    makeContract(CaseId::K200_M511K421, "K200_M511K421", "BCH421整块200", 200U,
++                 511U, 421U, 10U, "BERLEKAMP_MASSEY_CHIEN",
++                 Organization::ShortenedWholeBlock, {200U}, {0U}, {221U}, {290U},
++                 "421整块200", style("STYLE_3", "C2", "-.", "^")),
++    makeContract(CaseId::K200_M511K385, "K200_M511K385", "BCH385整块200", 200U,
++                 511U, 385U, 14U, "BERLEKAMP_MASSEY_CHIEN",
++                 Organization::ShortenedWholeBlock, {200U}, {0U}, {185U}, {326U},
++                 "385整块200", style("STYLE_4", "C3", ":", "D")),
++    makeContract(CaseId::K300_S15, "K300_S15", "BCH15分块300", 300U, 15U, 11U, 1U,
++                 "SYNDROME_LOOKUP", Organization::Segmented15,
++                 {11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,11U,3U},
++                 {0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,0U,8U},
++                 std::vector<std::size_t>(28U, 0U), std::vector<std::size_t>(28U, 15U),
++                 "分块300", style("STYLE_1", "C0", "-", "o")),
++    makeContract(CaseId::K300_M255K207, "K300_M255K207", "BCH255双块300", 300U,
++                 255U, 207U, 6U, "BERLEKAMP_MASSEY_CHIEN",
++                 Organization::ShortenedMultiBlock, {150U, 150U}, {0U, 0U}, {57U, 57U},
++                 {198U, 198U}, "255双块300", style("STYLE_2", "C1", "--", "s")),
++    makeContract(CaseId::K300_M511K421, "K300_M511K421", "BCH421整块300", 300U,
++                 511U, 421U, 10U, "BERLEKAMP_MASSEY_CHIEN",
++                 Organization::ShortenedWholeBlock, {300U}, {0U}, {121U}, {390U},
++                 "421整块300", style("STYLE_3", "C2", "-.", "^")),
++    makeContract(CaseId::K300_M511K385, "K300_M511K385", "BCH385整块300", 300U,
++                 511U, 385U, 14U, "BERLEKAMP_MASSEY_CHIEN",
++                 Organization::ShortenedWholeBlock, {300U}, {0U}, {85U}, {426U},
++                 "385整块300", style("STYLE_4", "C3", ":", "D"))
++};
++
++BlockBchProfile profileFromMother(const CaseContract& contract, std::size_t block) {
++    BlockBchProfile profile;
++    if (contract.motherN == 255U) profile = block::makeB200Profile();
++    else if (contract.motherK == 421U) profile = block::makeB300Profile();
++    else if (contract.motherK == 385U) profile = block::makeB300426Profile();
++    else throw std::invalid_argument("unsupported whole-block mother profile");
++    profile.caseName = contract.caseId + "_BLOCK_" + std::to_string(block);
++    profile.payloadLength = contract.payloadPerBlock.at(block);
++    profile.shorteningLength = contract.shorteningPerBlock.at(block);
++    block::validateProfile(profile);
++    return profile;
++}
++
++const std::vector<BlockBchProfile>& blockProfiles(CaseId id) {
++    static const auto k200_255 = [] { const auto& c=caseContract(CaseId::K200_M255K207); return std::vector<BlockBchProfile>{profileFromMother(c,0)}; }();
++    static const auto k200_421 = [] { const auto& c=caseContract(CaseId::K200_M511K421); return std::vector<BlockBchProfile>{profileFromMother(c,0)}; }();
++    static const auto k200_385 = [] { const auto& c=caseContract(CaseId::K200_M511K385); return std::vector<BlockBchProfile>{profileFromMother(c,0)}; }();
++    static const auto k300_255 = [] { const auto& c=caseContract(CaseId::K300_M255K207); return std::vector<BlockBchProfile>{profileFromMother(c,0),profileFromMother(c,1)}; }();
++    static const auto k300_421 = [] { const auto& c=caseContract(CaseId::K300_M511K421); return std::vector<BlockBchProfile>{profileFromMother(c,0)}; }();
++    static const auto k300_385 = [] { const auto& c=caseContract(CaseId::K300_M511K385); return std::vector<BlockBchProfile>{profileFromMother(c,0)}; }();
++    switch (id) {
++        case CaseId::K200_M255K207: return k200_255;
++        case CaseId::K200_M511K421: return k200_421;
++        case CaseId::K200_M511K385: return k200_385;
++        case CaseId::K300_M255K207: return k300_255;
++        case CaseId::K300_M511K421: return k300_421;
++        case CaseId::K300_M511K385: return k300_385;
++        default: throw std::invalid_argument("segmented case has no block profile");
++    }
++}
++
++const segmented::SyndromeTable& syndromeTable() {
++    static const auto table = segmented::buildBch15SyndromeTable();
++    return table;
++}
++
++}  // namespace
++
++const std::vector<CaseContract>& allCaseContracts() {
++    return kContracts;
++}
++
++const CaseContract& caseContract(CaseId id) {
++    const auto found = std::find_if(kContracts.begin(), kContracts.end(),
++        [id](const CaseContract& value) { return value.id == id; });
++    if (found == kContracts.end()) throw std::invalid_argument("unsupported BCH S2 case id");
++    return *found;
++}
++
++void validateCaseContract(const CaseContract& c) {
++    if (c.caseId.empty() || c.displayName.empty() || c.legendLabel.empty() || c.plotStyle.id.empty() ||
++        c.payloadLength == 0U || c.totalEncodedLength == 0U || c.blockCount == 0U ||
++        c.blockCount != c.payloadPerBlock.size() || c.blockCount != c.fillerPerBlock.size() ||
++        c.blockCount != c.shorteningPerBlock.size() || c.blockCount != c.encodedLengthPerBlock.size()) {
++        throw std::invalid_argument("invalid BCH S2 case contract shape");
++    }
++    const std::size_t payloadSum = std::accumulate(c.payloadPerBlock.begin(), c.payloadPerBlock.end(), std::size_t{0U});
++    const std::size_t encodedSum = std::accumulate(c.encodedLengthPerBlock.begin(), c.encodedLengthPerBlock.end(), std::size_t{0U});
++    if (payloadSum != c.payloadLength || encodedSum != c.totalEncodedLength ||
++        std::abs(c.actualRate - static_cast<double>(c.payloadLength) / c.totalEncodedLength) > 1e-15) {
++        throw std::invalid_argument("BCH S2 case aggregate length/rate mismatch");
++    }
++    for (std::size_t i = 0; i < c.blockCount; ++i) {
++        if (c.encodedLengthPerBlock[i] > 1000U) throw std::invalid_argument("block exceeds 1000 transmitted bits");
++        if (c.organization == Organization::Segmented15) {
++            if (c.payloadPerBlock[i] + c.fillerPerBlock[i] != 11U ||
++                c.shorteningPerBlock[i] != 0U || c.encodedLengthPerBlock[i] != 15U) {
++                throw std::invalid_argument("segmented block length mismatch");
++            }
++        } else if (c.payloadPerBlock[i] + c.shorteningPerBlock[i] != c.motherK ||
++                   c.encodedLengthPerBlock[i] != c.motherN - c.shorteningPerBlock[i] ||
++                   c.fillerPerBlock[i] != 0U) {
++            throw std::invalid_argument("shortened block length mismatch");
++        }
++    }
++}
++
++EncodedFrame encodeFrame(CaseId id, const common::BitVector& payload) {
++    const auto& c = caseContract(id);
++    validateCaseContract(c);
++    if (payload.size() != c.payloadLength) throw std::invalid_argument("payload length differs from contract");
++    common::validateBits(payload, "stage02 payload");
++    EncodedFrame result{id, {}, {0U}};
++    if (c.organization == Organization::Segmented15) {
++        const auto segmentedId = c.payloadLength == 200U
++            ? segmented::Bch15SegmentedCase::S200 : segmented::Bch15SegmentedCase::S300;
++        result.encodedBits = segmented::encodeBch15Segmented(segmentedId, payload).encodedBits;
++        for (std::size_t block = 1U; block <= c.blockCount; ++block) {
++            result.blockOffsets.push_back(block * 15U);
++        }
++    } else {
++        const auto& profiles = blockProfiles(id);
++        std::size_t payloadOffset = 0U;
++        for (std::size_t blockIndex = 0; blockIndex < c.blockCount; ++blockIndex) {
++            const std::size_t count = c.payloadPerBlock[blockIndex];
++            const common::BitVector blockPayload(
++                payload.begin() + static_cast<std::ptrdiff_t>(payloadOffset),
++                payload.begin() + static_cast<std::ptrdiff_t>(payloadOffset + count));
++            const auto encoded = block::encodeShortened(profiles[blockIndex], blockPayload);
++            result.encodedBits.insert(result.encodedBits.end(),
++                                      encoded.shortenedCodeword.begin(), encoded.shortenedCodeword.end());
++            result.blockOffsets.push_back(result.encodedBits.size());
++            payloadOffset += count;
++        }
++    }
++    if (result.encodedBits.size() != c.totalEncodedLength ||
++        result.blockOffsets.size() != c.blockCount + 1U) {
++        throw std::logic_error("encoded frame differs from contract");
++    }
++    return result;
++}
++
++DecodedFrame decodeFrame(CaseId id, const common::BitVector& received) {
++    const auto& c = caseContract(id);
++    validateCaseContract(c);
++    if (received.size() != c.totalEncodedLength) throw std::invalid_argument("received length differs from contract");
++    common::validateBits(received, "stage02 received");
++    DecodedFrame result{id, {}, true, 0U};
++    if (c.organization == Organization::Segmented15) {
++        const auto segmentedId = c.payloadLength == 200U
++            ? segmented::Bch15SegmentedCase::S200 : segmented::Bch15SegmentedCase::S300;
++        const auto decoded = segmented::decodeBch15Segmented(segmentedId, received, syndromeTable());
++        result.payload = decoded.recoveredPayload;
++        result.failedBlocks = decoded.frameDetail.totalBlocks - decoded.frameDetail.reportedSuccessBlocks;
++        result.reportedSuccess = result.failedBlocks == 0U;
++    } else {
++        const auto& profiles = blockProfiles(id);
++        std::size_t encodedOffset = 0U;
++        for (std::size_t blockIndex = 0; blockIndex < c.blockCount; ++blockIndex) {
++            const std::size_t count = c.encodedLengthPerBlock[blockIndex];
++            const common::BitVector blockReceived(
++                received.begin() + static_cast<std::ptrdiff_t>(encodedOffset),
++                received.begin() + static_cast<std::ptrdiff_t>(encodedOffset + count));
++            const auto decoded = block::decodeShortenedNoThrow(profiles[blockIndex], blockReceived);
++            const bool success = decoded.status == block::DecodeStatus::NoError ||
++                                 decoded.status == block::DecodeStatus::Corrected;
++            result.failedBlocks += success ? 0U : 1U;
++            result.payload.insert(result.payload.end(), decoded.payload.begin(), decoded.payload.end());
++            encodedOffset += count;
++        }
++        result.reportedSuccess = result.failedBlocks == 0U;
++    }
++    if (result.payload.size() != c.payloadLength) throw std::logic_error("decoded payload differs from contract");
++    return result;
++}
++
++const char* organizationName(Organization organization) {
++    switch (organization) {
++        case Organization::Segmented15: return "SEGMENTED_15_11";
++        case Organization::ShortenedWholeBlock: return "SHORTENED_WHOLE_BLOCK";
++        case Organization::ShortenedMultiBlock: return "SHORTENED_MULTI_BLOCK";
++    }
++    return "INVALID";
++}
++
++}  // namespace scl::bch::s2::stage02
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.hpp b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.hpp
+new file mode 100644
+index 0000000..28f1459
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract.hpp
+@@ -0,0 +1,85 @@
++#ifndef SCL_BCH_S2_STAGE02_CASE_CONTRACT_HPP
++#define SCL_BCH_S2_STAGE02_CASE_CONTRACT_HPP
++
++#include "common/types.hpp"
++
++#include <cstddef>
++#include <string>
++#include <vector>
++
++namespace scl::bch::s2::stage02 {
++
++enum class CaseId {
++    K200_S15,
++    K200_M255K207,
++    K200_M511K421,
++    K200_M511K385,
++    K300_S15,
++    K300_M255K207,
++    K300_M511K421,
++    K300_M511K385
++};
++
++enum class Organization {
++    Segmented15,
++    ShortenedWholeBlock,
++    ShortenedMultiBlock
++};
++
++struct PlotStyle {
++    std::string id;
++    std::string color;
++    std::string lineStyle;
++    std::string marker;
++};
++
++struct CaseContract {
++    CaseId id;
++    std::string caseId;
++    std::string displayName;
++    std::size_t payloadLength;
++    std::size_t motherN;
++    std::size_t motherK;
++    unsigned motherT;
++    std::string decoderType;
++    Organization organization;
++    std::size_t blockCount;
++    std::vector<std::size_t> payloadPerBlock;
++    std::vector<std::size_t> fillerPerBlock;
++    std::vector<std::size_t> shorteningPerBlock;
++    std::vector<std::size_t> encodedLengthPerBlock;
++    std::size_t totalEncodedLength;
++    double actualRate;
++    std::string payloadReassemblyOrder;
++    std::string systematicBitOrder;
++    std::string parityBitOrder;
++    std::string shortenedBitPolicy;
++    std::string legendLabel;
++    PlotStyle plotStyle;
++    std::string ferDefinition;
++    std::string latencyDefinition;
++};
++
++struct EncodedFrame {
++    CaseId caseId;
++    common::BitVector encodedBits;
++    std::vector<std::size_t> blockOffsets;
++};
++
++struct DecodedFrame {
++    CaseId caseId;
++    common::BitVector payload;
++    bool reportedSuccess = false;
++    std::size_t failedBlocks = 0U;
++};
++
++const std::vector<CaseContract>& allCaseContracts();
++const CaseContract& caseContract(CaseId id);
++void validateCaseContract(const CaseContract& contract);
++EncodedFrame encodeFrame(CaseId id, const common::BitVector& payload);
++DecodedFrame decodeFrame(CaseId id, const common::BitVector& received);
++const char* organizationName(Organization organization);
++
++}  // namespace scl::bch::s2::stage02
++
++#endif
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_export.cpp b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_export.cpp
+new file mode 100644
+index 0000000..159e975
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_export.cpp
+@@ -0,0 +1,106 @@
++#include "stage02_case_contract.hpp"
++
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <numeric>
++#include <sstream>
++#include <stdexcept>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++std::string join(const std::vector<std::size_t>& values) {
++    std::ostringstream out;
++    for (std::size_t i = 0; i < values.size(); ++i) {
++        if (i != 0U) out << '|';
++        out << values[i];
++    }
++    return out.str();
++}
++
++}
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::invalid_argument("usage: stage02_case_contract_export OUTPUT_DIR");
++        const fs::path output(argv[1]);
++        fs::create_directories(output);
++        std::ofstream cases(output / "stage02_case_contract_cases.csv");
++        std::ofstream lengths(output / "stage02_case_contract_length_audit.csv");
++        std::ofstream rates(output / "stage02_case_contract_rate_audit.csv");
++        std::ofstream legends(output / "stage02_case_contract_legend_mapping.csv");
++        std::ofstream styles(output / "stage02_case_contract_plot_style_mapping.csv");
++        std::ofstream schema(output / "stage02_case_contract_schema.json");
++        if (!cases || !lengths || !rates || !legends || !styles || !schema) {
++            throw std::runtime_error("cannot open stage02 output");
++        }
++        cases << "caseId,displayName,payloadLength,motherN,motherK,motherT,decoderType,organization,"
++                 "blockCount,payloadPerBlock,fillerPerBlock,shorteningPerBlock,encodedLengthPerBlock,"
++                 "totalEncodedLength,actualRate,payloadReassemblyOrder,systematicBitOrder,parityBitOrder,"
++                 "shortenedBitPolicy,legendLabel,plotStyleId,ferDefinition,latencyDefinition\n";
++        lengths << "caseId,blockIndex,payloadBits,fillerBits,shorteningBits,motherK,motherN,"
++                   "encodedLength,informationEquationPass,encodedEquationPass,blockWithin1000Pass\n";
++        rates << "caseId,payloadLength,totalEncodedLength,actualRate,recomputedRate,absoluteError,passed\n";
++        legends << "caseId,payloadLength,legendLabel,uniqueWithinPayloadGroup\n";
++        styles << "caseId,payloadLength,plotStyleId,color,lineStyle,marker\n";
++        cases << std::setprecision(17);
++        rates << std::setprecision(17);
++        for (const auto& c : scl::bch::s2::stage02::allCaseContracts()) {
++            scl::bch::s2::stage02::validateCaseContract(c);
++            cases << c.caseId << ',' << c.displayName << ',' << c.payloadLength << ',' << c.motherN
++                  << ',' << c.motherK << ',' << c.motherT << ',' << c.decoderType << ','
++                  << scl::bch::s2::stage02::organizationName(c.organization) << ',' << c.blockCount
++                  << ',' << join(c.payloadPerBlock) << ',' << join(c.fillerPerBlock) << ','
++                  << join(c.shorteningPerBlock) << ',' << join(c.encodedLengthPerBlock) << ','
++                  << c.totalEncodedLength << ',' << c.actualRate << ',' << c.payloadReassemblyOrder
++                  << ',' << c.systematicBitOrder << ',' << c.parityBitOrder << ','
++                  << c.shortenedBitPolicy << ',' << c.legendLabel << ',' << c.plotStyle.id << ','
++                  << c.ferDefinition << ',' << c.latencyDefinition << '\n';
++            for (std::size_t block = 0; block < c.blockCount; ++block) {
++                const bool infoPass = c.organization == scl::bch::s2::stage02::Organization::Segmented15
++                    ? c.payloadPerBlock[block] + c.fillerPerBlock[block] == c.motherK
++                    : c.payloadPerBlock[block] + c.shorteningPerBlock[block] == c.motherK;
++                const bool encodedPass = c.organization == scl::bch::s2::stage02::Organization::Segmented15
++                    ? c.encodedLengthPerBlock[block] == c.motherN
++                    : c.encodedLengthPerBlock[block] == c.motherN - c.shorteningPerBlock[block];
++                lengths << c.caseId << ',' << block << ',' << c.payloadPerBlock[block] << ','
++                        << c.fillerPerBlock[block] << ',' << c.shorteningPerBlock[block] << ','
++                        << c.motherK << ',' << c.motherN << ',' << c.encodedLengthPerBlock[block] << ','
++                        << (infoPass ? "true" : "false") << ',' << (encodedPass ? "true" : "false")
++                        << ',' << (c.encodedLengthPerBlock[block] <= 1000U ? "true" : "false") << '\n';
++            }
++            const double recomputed = static_cast<double>(c.payloadLength) / c.totalEncodedLength;
++            rates << c.caseId << ',' << c.payloadLength << ',' << c.totalEncodedLength << ','
++                  << c.actualRate << ',' << recomputed << ',' << std::abs(c.actualRate - recomputed)
++                  << ',' << (std::abs(c.actualRate - recomputed) < 1e-15 ? "true" : "false") << '\n';
++            legends << c.caseId << ',' << c.payloadLength << ',' << c.legendLabel << ",true\n";
++            styles << c.caseId << ',' << c.payloadLength << ',' << c.plotStyle.id << ','
++                   << c.plotStyle.color << ',' << c.plotStyle.lineStyle << ',' << c.plotStyle.marker << '\n';
++        }
++        schema <<
++R"({
++  "schemaVersion": "bch.s2.stage02.case_contract.v1",
++  "caseCount": 8,
++  "primaryKey": "caseId",
++  "rateFormula": "actualRate = payloadLength / totalEncodedLength",
++  "vectorDelimiter": "|",
++  "requiredFields": [
++    "caseId", "displayName", "payloadLength", "motherN", "motherK", "motherT",
++    "decoderType", "blockCount", "payloadPerBlock", "fillerPerBlock",
++    "shorteningPerBlock", "encodedLengthPerBlock", "totalEncodedLength", "actualRate",
++    "payloadReassemblyOrder", "systematicBitOrder", "parityBitOrder",
++    "shortenedBitPolicy", "legendLabel", "plotStyleId"
++  ],
++  "runtimeParameterSource": "explicit CaseContract selected by enum; no case-name inference"
++}
++)";
++        std::cout << "PASS_STAGE02_CASE_CONTRACT_EXPORT\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_STAGE02_CASE_CONTRACT_EXPORT: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_test.cpp b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_test.cpp
+new file mode 100644
+index 0000000..3ec98ef
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/cpp/stage02_case_contract_test.cpp
+@@ -0,0 +1,80 @@
++#include "stage02_case_contract.hpp"
++
++#include <algorithm>
++#include <cmath>
++#include <iostream>
++#include <set>
++#include <stdexcept>
++#include <string>
++
++namespace {
++
++void require(bool condition, const std::string& message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++scl::common::BitVector pattern(std::size_t length, unsigned mode) {
++    scl::common::BitVector bits(length, 0U);
++    for (std::size_t i = 0; i < length; ++i) {
++        if (mode == 1U) bits[i] = 1U;
++        else if (mode == 2U) bits[i] = static_cast<scl::common::Bit>(i & 1U);
++        else if (mode == 3U) bits[i] = static_cast<scl::common::Bit>((i * 17U + 5U) & 1U);
++    }
++    return bits;
++}
++
++}  // namespace
++
++int main() {
++    try {
++        using namespace scl::bch::s2::stage02;
++        const auto& contracts = allCaseContracts();
++        require(contracts.size() == 8U, "contract count is not 8");
++        std::set<std::string> ids;
++        std::set<std::string> names;
++        std::set<std::string> payloadStylePairs;
++        for (const auto& contract : contracts) {
++            validateCaseContract(contract);
++            require(ids.insert(contract.caseId).second, "duplicate caseId");
++            require(names.insert(contract.displayName).second, "duplicate displayName");
++            require(payloadStylePairs.insert(std::to_string(contract.payloadLength) + ":" +
++                                             contract.plotStyle.id).second,
++                    "duplicate style within payload group");
++            require(std::abs(contract.actualRate -
++                    static_cast<double>(contract.payloadLength) / contract.totalEncodedLength) < 1e-15,
++                    "actualRate mismatch");
++            for (unsigned mode = 0U; mode < 4U; ++mode) {
++                const auto payload = pattern(contract.payloadLength, mode);
++                const auto encoded = encodeFrame(contract.id, payload);
++                const auto decoded = decodeFrame(contract.id, encoded.encodedBits);
++                require(encoded.encodedBits.size() == contract.totalEncodedLength, "encoded length mismatch");
++                require(decoded.payload == payload, "contract encode/decode recovery mismatch");
++                require(decoded.reportedSuccess && decoded.failedBlocks == 0U, "noiseless status mismatch");
++            }
++        }
++        const auto& multi = caseContract(CaseId::K300_M255K207);
++        require(multi.blockCount == 2U && multi.payloadPerBlock == std::vector<std::size_t>({150U, 150U}),
++                "K300 M255 framing is not frozen 150+150");
++        require(multi.totalEncodedLength == 396U && multi.actualRate == 300.0 / 396.0,
++                "K300 M255 aggregate length/rate mismatch");
++
++        bool rejected = false;
++        try { static_cast<void>(caseContract(static_cast<CaseId>(99))); }
++        catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "invalid CaseId accepted");
++        rejected = false;
++        try { static_cast<void>(encodeFrame(CaseId::K200_S15, scl::common::BitVector(199U, 0U))); }
++        catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "invalid payload length accepted");
++        rejected = false;
++        try { static_cast<void>(decodeFrame(CaseId::K300_M255K207, scl::common::BitVector(395U, 0U))); }
++        catch (const std::invalid_argument&) { rejected = true; }
++        require(rejected, "invalid received length accepted");
++
++        std::cout << "PASS_STAGE02_CASE_CONTRACT_UNIT\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_STAGE02_CASE_CONTRACT_UNIT: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_check.log b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_check.log
+new file mode 100644
+index 0000000..eb7aa8e
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_check.log
+@@ -0,0 +1 @@
++PASS_STAGE02_CASE_CONTRACT
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_ctest.log b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_ctest.log
+new file mode 100644
+index 0000000..1e9a785
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_ctest.log
+@@ -0,0 +1,20 @@
++UpdateCTestConfiguration  from :C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage02_case_contract/DartConfiguration.tcl
++Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage02_case_contract
++Constructing a list of tests
++Done constructing a list of tests
++Updating test list for fixtures
++Added 0 tests to meet fixture requirements
++Checking test dependency graph...
++Checking test dependency graph end
++test 1
++    Start 1: stage02_case_contract_unit
++
++1: Test command: C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\BCH\simulation\build\S2\stage02_case_contract\stage02_case_contract_test.exe
++1: Working Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage02_case_contract
++1: Test timeout computed to be: 10000000
++1: PASS_STAGE02_CASE_CONTRACT_UNIT
++1/1 Test #1: stage02_case_contract_unit .......   Passed    0.06 sec
++
++100% tests passed out of 1
++
++Total Test time (real) =   0.08 sec
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_export.log b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_export.log
+new file mode 100644
+index 0000000..0b88606
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_export.log
+@@ -0,0 +1 @@
++PASS_STAGE02_CASE_CONTRACT_EXPORT
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_matlab.log b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_matlab.log
+new file mode 100644
+index 0000000..d0a5c4f
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/logs/stage02_case_contract_matlab.log
+@@ -0,0 +1 @@
++PASS_STAGE02_CASE_CONTRACT_MATLAB_REFERENCE
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/matlab/stage02_case_contract_matlab_reference.m b/Task/BCH/simulation/stages/S2/stage02_case_contract/matlab/stage02_case_contract_matlab_reference.m
+new file mode 100644
+index 0000000..b84a98a
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/matlab/stage02_case_contract_matlab_reference.m
+@@ -0,0 +1,37 @@
++function stage02_case_contract_matlab_reference(casesCsv, outputCsv)
++    options = detectImportOptions(casesCsv, Delimiter=",", VariableNamingRule="preserve", TextType="string");
++    options = setvartype(options, ...
++        {'caseId','payloadPerBlock','shorteningPerBlock','encodedLengthPerBlock'}, 'string');
++    data = readtable(casesCsv, options);
++    caseId = string(data{:, 1});
++    payloadLength = data{:, 3};
++    payloadPerBlock = string(data{:, 10});
++    shorteningPerBlock = string(data{:, 12});
++    encodedLengthPerBlock = string(data{:, 13});
++    totalEncodedLength = data{:, 14};
++    actualRate = data{:, 15};
++    recomputedRate = payloadLength ./ totalEncodedLength;
++    rateError = abs(actualRate - recomputedRate);
++    payloadVectorSum = zeros(height(data), 1);
++    encodedVectorSum = zeros(height(data), 1);
++    shorteningVectorSum = zeros(height(data), 1);
++    for row = 1:height(data)
++        payloadVectorSum(row) = sum(sscanf(char(payloadPerBlock(row)), '%f|'));
++        encodedVectorSum(row) = sum(sscanf(char(encodedLengthPerBlock(row)), '%f|'));
++        shorteningVectorSum(row) = sum(sscanf(char(shorteningPerBlock(row)), '%f|'));
++    end
++    payloadSumPass = payloadVectorSum == payloadLength;
++    encodedSumPass = encodedVectorSum == totalEncodedLength;
++    ratePass = rateError <= 1e-15;
++    passed = payloadSumPass & encodedSumPass & ratePass;
++    output = table(caseId, payloadVectorSum, encodedVectorSum, shorteningVectorSum, ...
++        recomputedRate, rateError, payloadSumPass, encodedSumPass, ratePass, passed);
++    output.Properties.VariableNames = { ...
++        'caseId','payloadVectorSum','encodedVectorSum','shorteningVectorSum', ...
++        'recomputedRate','rateError','payloadSumPass','encodedSumPass','ratePass','passed'};
++    writetable(output, outputCsv);
++    if ~all(passed)
++        error("BLOCKED_STAGE02_CASE_CONTRACT_MATLAB_REFERENCE");
++    end
++    fprintf("PASS_STAGE02_CASE_CONTRACT_MATLAB_REFERENCE\n");
++end
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_check.py b/Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_check.py
+new file mode 100644
+index 0000000..03831b2
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_check.py
+@@ -0,0 +1,87 @@
++import csv
++import json
++import math
++from pathlib import Path
++
++
++STAGE_DIR = Path(__file__).resolve().parents[1]
++RESULTS = STAGE_DIR / "results"
++LOGS = STAGE_DIR / "logs"
++
++
++def rows(name):
++    with (RESULTS / name).open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def require(value, message):
++    if not value:
++        raise SystemExit(f"BLOCKED_STAGE02_CASE_CONTRACT_CHECK: {message}")
++
++
++def vector(text):
++    return [int(value) for value in text.split("|")]
++
++
++def main():
++    cases = rows("stage02_case_contract_cases.csv")
++    require(len(cases) == 8, "case count is not 8")
++    require(len({row["caseId"] for row in cases}) == 8, "caseId is not unique")
++    require(len({row["displayName"] for row in cases}) == 8, "displayName is not unique")
++    for payload in ("200", "300"):
++        group = [row for row in cases if row["payloadLength"] == payload]
++        require(len(group) == 4, f"payload {payload} does not have four cases")
++        require(len({row["legendLabel"] for row in group}) == 4, f"payload {payload} legends are not unique")
++        require(len({row["plotStyleId"] for row in group}) == 4, f"payload {payload} styles are not unique")
++    for row in cases:
++        payload = int(row["payloadLength"])
++        encoded = int(row["totalEncodedLength"])
++        require(sum(vector(row["payloadPerBlock"])) == payload, f"{row['caseId']} payload sum mismatch")
++        require(sum(vector(row["encodedLengthPerBlock"])) == encoded, f"{row['caseId']} encoded sum mismatch")
++        require(len(vector(row["payloadPerBlock"])) == int(row["blockCount"]), "blockCount mismatch")
++        require(
++            abs(float(row["actualRate"]) - payload / encoded) <= 1e-15,
++            f"{row['caseId']} rate mismatch",
++        )
++        require(max(vector(row["encodedLengthPerBlock"])) <= 1000, "block length exceeds 1000")
++    multi = next(row for row in cases if row["caseId"] == "K300_M255K207")
++    require(multi["payloadPerBlock"] == "150|150", "K300 M255 payload split is not 150|150")
++    require(multi["shorteningPerBlock"] == "57|57", "K300 M255 shortening is not 57|57")
++    require(multi["encodedLengthPerBlock"] == "198|198", "K300 M255 encoded split is not 198|198")
++    require(multi["totalEncodedLength"] == "396", "K300 M255 total length is not 396")
++
++    length_rows = rows("stage02_case_contract_length_audit.csv")
++    require(len(length_rows) == 54, "block audit row count is not 54")
++    for row in length_rows:
++        require(
++            row["informationEquationPass"] == "true"
++            and row["encodedEquationPass"] == "true"
++            and row["blockWithin1000Pass"] == "true",
++            f"length audit failed: {row['caseId']} block {row['blockIndex']}",
++        )
++    require(all(row["passed"] == "true" for row in rows("stage02_case_contract_rate_audit.csv")),
++            "rate audit failed")
++    matlab = rows("stage02_case_contract_cpp_matlab_compare.csv")
++    require(len(matlab) == 8 and all(row["passed"] in ("1", "true") for row in matlab),
++            "MATLAB length/rate audit failed")
++    schema = json.loads((RESULTS / "stage02_case_contract_schema.json").read_text(encoding="utf-8"))
++    require(schema["caseCount"] == 8, "schema case count mismatch")
++    ctest = (LOGS / "stage02_case_contract_ctest.log").read_text(encoding="utf-8")
++    require("100% tests passed" in ctest, "CTest did not pass")
++    matlab_log = (LOGS / "stage02_case_contract_matlab.log").read_text(encoding="utf-8")
++    require("PASS_STAGE02_CASE_CONTRACT_MATLAB_REFERENCE" in matlab_log, "MATLAB log did not pass")
++    (STAGE_DIR / "stage02_case_contract_test_summary.csv").write_text(
++        "test,executed,result,detail\n"
++        "Release build,true,PASS,MinGW GCC 15.2.0\n"
++        "CTest,true,PASS,1/1 including 8-case encode/decode recovery\n"
++        "length audit,true,PASS,54/54 blocks\n"
++        "rate audit,true,PASS,8/8 cases\n"
++        "MATLAB contract reference,true,PASS,8/8 cases\n"
++        "negative configuration tests,true,PASS,invalid id/payload/received length rejected\n",
++        encoding="utf-8",
++    )
++    print("PASS_STAGE02_CASE_CONTRACT")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_run.py b/Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_run.py
+new file mode 100644
+index 0000000..dbd16de
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_run.py
+@@ -0,0 +1,47 @@
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parents[7]
++STAGE_DIR = Path(__file__).resolve().parents[1]
++BUILD = ROOT / "Task" / "BCH" / "simulation" / "build" / "S2" / "stage02_case_contract"
++RESULTS = STAGE_DIR / "results"
++LOGS = STAGE_DIR / "logs"
++
++
++def run(command, log=None):
++    result = subprocess.run(
++        command, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False
++    )
++    print(result.stdout, end="")
++    if log:
++        log.parent.mkdir(parents=True, exist_ok=True)
++        log.write_text(result.stdout, encoding="utf-8")
++    if result.returncode:
++        raise SystemExit(f"command failed ({result.returncode}): {' '.join(map(str, command))}")
++
++
++def main():
++    RESULTS.mkdir(parents=True, exist_ok=True)
++    LOGS.mkdir(parents=True, exist_ok=True)
++    run(["cmake", "-S", str(STAGE_DIR / "cpp"), "-B", str(BUILD), "-G", "MinGW Makefiles",
++         "-DCMAKE_BUILD_TYPE=Release"])
++    run(["cmake", "--build", str(BUILD), "--config", "Release", "-j", "2"])
++    run(["ctest", "--test-dir", str(BUILD), "-C", "Release", "--output-on-failure", "-V"],
++        LOGS / "stage02_case_contract_ctest.log")
++    run([str(BUILD / "stage02_case_contract_export.exe"), str(RESULTS)],
++        LOGS / "stage02_case_contract_export.log")
++    matlab_path = (STAGE_DIR / "matlab").as_posix().replace("'", "''")
++    cases = (RESULTS / "stage02_case_contract_cases.csv").as_posix().replace("'", "''")
++    output = (RESULTS / "stage02_case_contract_cpp_matlab_compare.csv").as_posix().replace("'", "''")
++    command = (
++        f"addpath('{matlab_path}'); "
++        f"stage02_case_contract_matlab_reference('{cases}','{output}')"
++    )
++    run(["matlab", "-batch", command], LOGS / "stage02_case_contract_matlab.log")
++    run(["python", str(STAGE_DIR / "python" / "stage02_case_contract_check.py")],
++        LOGS / "stage02_case_contract_check.log")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_acceptance_matrix.csv b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_acceptance_matrix.csv
+new file mode 100644
+index 0000000..863ada3
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_acceptance_matrix.csv
+@@ -0,0 +1,7 @@
++需求,实现位置,正向测试,负向测试,Gate条件
++8个Case契约,cpp/stage02_case_contract.cpp,8个Case逐项验证,非法CaseId拒绝,Case数量和唯一性通过
++长度与码率,results/stage02_case_contract_length_audit.csv,54个码块长度复算,单块超过1000阻塞,全部长度和码率PASS
++K300_M255合法组帧,cpp/stage02_case_contract.cpp,150+150编码恢复,禁止300塞入单个k207母码,总发送长度396
++编解码一致,cpp/stage02_case_contract_test.cpp,每Case四种payload无噪声恢复,错误payload和接收长度拒绝,32/32恢复
++MATLAB数学参考,matlab/stage02_case_contract_matlab_reference.m,8个Case独立复算,任一不一致阻塞,8/8 PASS
++绘图契约,results/stage02_case_contract_plot_style_mapping.csv,payload组内图例和样式唯一,重复图例或样式阻塞,两组各4条唯一曲线
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_commands_used.md b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_commands_used.md
+new file mode 100644
+index 0000000..7680339
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_commands_used.md
+@@ -0,0 +1,20 @@
++# stage02_case_contract 实际命令
++
++```powershell
++python Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_run.py
++python Task/BCH/simulation/stages/S2/stage02_case_contract/python/stage02_case_contract_check.py
++```
++
++运行器实际执行 Release CMake/MinGW 构建、CTest、C++ 契约导出、MATLAB R2024b
++独立长度/码率复算和 Python 业务 checker。
++
++修复记录：
++
++1. 首次 CTest 因被引用子工程注册未构建的历史测试而失败，改为只链接所需源码库；
++2. MATLAB 列名自动识别失败，改为按冻结 schema 读取；
++3. `displayName` 中逗号使未转义 CSV 错列，名称改为无逗号的简短唯一文本；
++4. MATLAB 自动把 `|` 识别为分隔符，显式冻结逗号为 CSV 分隔符；
++5. MATLAB 把多值向量列推断为数值并产生 missing，显式冻结这些列为 string；
++6. 第六次从构建到 checker 完整重跑通过。
++
++任一失败后均未进入 stage03。
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_frozen_config.csv b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_frozen_config.csv
+new file mode 100644
+index 0000000..9f5d4c4
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_frozen_config.csv
+@@ -0,0 +1,10 @@
++key,value
++caseCount,8
++K300_M255K207_payloadPerBlock,150|150
++K300_M255K207_shorteningPerBlock,57|57
++K300_M255K207_encodedLengthPerBlock,198|198
++K300_M255K207_totalEncodedLength,396
++rateFormula,actualRate=payloadLength/totalEncodedLength
++payloadReassemblyOrder,BLOCK_ASCENDING_PAYLOAD_CONCATENATION
++ferDefinition,FRAME_ERROR_IF_ANY_RECOVERED_PAYLOAD_BIT_DIFFERS
++latencyDefinition,ONE_FRAME_DECODE_ELAPSED_TIME_INCLUDING_ALL_BLOCKS
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_stage_plan.md b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_stage_plan.md
+new file mode 100644
+index 0000000..6cd519c
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_stage_plan.md
+@@ -0,0 +1,21 @@
++# stage02_case_contract 规格冻结
++
++## 目标
++
++冻结 8 个 BCH Case 的合法组帧、实际发送长度、码率、译码器、恢复顺序、图例和样式。
++
++K300_M255K207 固定为两个等长缩短码块：每块承载 150 bit，向 BCH(255,207)
++母码前置 57 个已知零缩短位，每块发送 198 bit，总发送长度 396 bit。
++
++## 非目标
++
++- 不执行带噪声实验。
++- 不修改既有 BCH 编解码核心。
++- 不通过 Case 名称在运行时隐式推导长度或母码参数。
++
++## Gate
++
++`PASS_STAGE02_CASE_CONTRACT`
++
++8 个 Case 必须全部通过长度、码率、编码恢复、MATLAB 数学参考、唯一图例和唯一
++payload 内样式检查；非法 Case、payload 长度和接收长度必须拒绝。
+diff --git a/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_test_summary.csv b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_test_summary.csv
+new file mode 100644
+index 0000000..52f7942
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage02_case_contract/stage02_case_contract_test_summary.csv
+@@ -0,0 +1,7 @@
++test,executed,result,detail
++Release build,true,PASS,MinGW GCC 15.2.0
++CTest,true,PASS,1/1 including 8-case encode/decode recovery
++length audit,true,PASS,54/54 blocks
++rate audit,true,PASS,8/8 cases
++MATLAB contract reference,true,PASS,8/8 cases
++negative configuration tests,true,PASS,invalid id/payload/received length rejected

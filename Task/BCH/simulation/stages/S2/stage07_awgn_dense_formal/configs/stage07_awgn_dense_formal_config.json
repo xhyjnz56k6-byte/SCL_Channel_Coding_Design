@@ -1,0 +1,16 @@
+{
+  "stageId": "stage07_awgn_dense_formal",
+  "masterSeed": 2026072707,
+  "waveformSnrGridDb": {
+    "start": 0.0,
+    "stop": 18.0,
+    "step": 0.5,
+    "inclusive": true
+  },
+  "stopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000
+  },
+  "checkpointEveryFrames": 1000
+}

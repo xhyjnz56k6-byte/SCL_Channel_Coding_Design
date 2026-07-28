@@ -1,0 +1,524 @@
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/CMakeLists.txt b/Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/CMakeLists.txt
+new file mode 100644
+index 0000000..15873af
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/CMakeLists.txt
+@@ -0,0 +1,36 @@
++cmake_minimum_required(VERSION 3.16)
++project(stage03_noiseless LANGUAGES CXX)
++
++set(BCH_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../..")
++set(COMMON_ROOT "${BCH_ROOT}/../Common")
++set(STAGE01_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../stage01_foundation/cpp")
++set(STAGE02_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../stage02_case_contract/cpp")
++
++add_library(stage03_block_core "${BCH_ROOT}/block/current/src/bch_block.cpp")
++target_include_directories(stage03_block_core PUBLIC "${BCH_ROOT}/block/current/include" "${COMMON_ROOT}/include")
++target_compile_features(stage03_block_core PUBLIC cxx_std_17)
++
++add_library(stage03_segmented_core
++    "${BCH_ROOT}/segmented/current/src/bch15_encoder.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_syndrome.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_lookup_table.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_lookup_decoder.cpp"
++    "${BCH_ROOT}/segmented/current/src/bch15_segmented_adapter.cpp")
++target_include_directories(stage03_segmented_core PUBLIC "${BCH_ROOT}/segmented/current/include" "${COMMON_ROOT}/include")
++target_compile_features(stage03_segmented_core PUBLIC cxx_std_17)
++
++add_library(stage03_support
++    "${STAGE01_ROOT}/stage01_foundation_awgn.cpp"
++    "${STAGE02_ROOT}/stage02_case_contract.cpp")
++target_include_directories(stage03_support PUBLIC "${STAGE01_ROOT}" "${STAGE02_ROOT}")
++target_link_libraries(stage03_support PUBLIC stage03_block_core stage03_segmented_core)
++target_compile_features(stage03_support PUBLIC cxx_std_17)
++
++add_executable(stage03_noiseless_runner stage03_noiseless_runner.cpp)
++target_link_libraries(stage03_noiseless_runner PRIVATE stage03_support)
++
++if (NOT DEFINED STAGE03_OUTPUT_DIR)
++    set(STAGE03_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/stage03_noiseless_results")
++endif()
++enable_testing()
++add_test(NAME stage03_noiseless_gate COMMAND stage03_noiseless_runner "${STAGE03_OUTPUT_DIR}")
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/stage03_noiseless_runner.cpp b/Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/stage03_noiseless_runner.cpp
+new file mode 100644
+index 0000000..0abf609
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/stage03_noiseless_runner.cpp
+@@ -0,0 +1,158 @@
++#include "stage01_foundation_awgn.hpp"
++#include "stage02_case_contract.hpp"
++
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace fs = std::filesystem;
++
++namespace {
++
++using scl::bch::s2::stage02::CaseContract;
++using scl::bch::s2::stage02::CaseId;
++
++struct Counts {
++    std::uint64_t totalFrames = 0U;
++    std::uint64_t totalPayloadBits = 0U;
++    std::uint64_t payloadErrorBits = 0U;
++    std::uint64_t payloadErrorFrames = 0U;
++    std::uint64_t decoderFailureFrames = 0U;
++    std::uint64_t miscorrectionFrames = 0U;
++    std::uint64_t undetectedErrorFrames = 0U;
++    std::uint64_t trueSuccessFrames = 0U;
++};
++
++void require(bool value, const std::string& message) {
++    if (!value) throw std::runtime_error(message);
++}
++
++std::string bitsText(const scl::common::BitVector& bits) {
++    std::string text;
++    text.reserve(bits.size());
++    for (auto bit : bits) text.push_back(bit == 0U ? '0' : '1');
++    return text;
++}
++
++scl::common::BitVector fixedPattern(std::size_t length, unsigned pattern) {
++    scl::common::BitVector bits(length, 0U);
++    if (pattern == 1U) std::fill(bits.begin(), bits.end(), 1U);
++    if (pattern == 2U || pattern == 3U) {
++        for (std::size_t i = 0; i < length; ++i) bits[i] = static_cast<scl::common::Bit>((i + pattern) & 1U);
++    }
++    if (pattern == 4U) bits.front() = 1U;
++    if (pattern == 5U) bits.back() = 1U;
++    return bits;
++}
++
++scl::common::BitVector randomPayload(
++    const scl::bch::s2::stage01::RandomIdentity& identity,
++    std::size_t length) {
++    const auto source = scl::bch::s2::stage01::payloadFrame(identity, length);
++    return scl::common::BitVector(source.begin(), source.end());
++}
++
++std::uint64_t bitErrors(const scl::common::BitVector& left, const scl::common::BitVector& right) {
++    require(left.size() == right.size(), "payload comparison length mismatch");
++    std::uint64_t count = 0U;
++    for (std::size_t i = 0; i < left.size(); ++i) count += left[i] != right[i];
++    return count;
++}
++
++void exercise(const CaseContract& contract,
++              const scl::common::BitVector& payload,
++              const std::string& source,
++              std::uint64_t frameIndex,
++              Counts& counts,
++              std::ofstream& results,
++              std::ofstream& samples) {
++    const auto encoded = scl::bch::s2::stage02::encodeFrame(contract.id, payload);
++    std::vector<double> symbols(encoded.encodedBits.size());
++    scl::common::BitVector hard(encoded.encodedBits.size(), 0U);
++    for (std::size_t i = 0; i < encoded.encodedBits.size(); ++i) {
++        symbols[i] = scl::bch::s2::stage01::bpsk(encoded.encodedBits[i]);
++        hard[i] = static_cast<scl::common::Bit>(scl::bch::s2::stage01::hardDecision(symbols[i]));
++    }
++    const auto decoded = scl::bch::s2::stage02::decodeFrame(contract.id, hard);
++    const std::uint64_t errors = bitErrors(payload, decoded.payload);
++    const bool trueSuccess = errors == 0U;
++    const bool miscorrection = decoded.reportedSuccess && !trueSuccess;
++    const bool decoderFailure = !decoded.reportedSuccess;
++    const bool undetected = miscorrection;
++    ++counts.totalFrames;
++    counts.totalPayloadBits += payload.size();
++    counts.payloadErrorBits += errors;
++    counts.payloadErrorFrames += !trueSuccess;
++    counts.decoderFailureFrames += decoderFailure;
++    counts.miscorrectionFrames += miscorrection;
++    counts.undetectedErrorFrames += undetected;
++    counts.trueSuccessFrames += trueSuccess;
++    results << contract.caseId << ',' << source << ',' << frameIndex << ',' << errors << ','
++            << (!trueSuccess) << ',' << decoderFailure << ',' << miscorrection << ',' << undetected << ','
++            << trueSuccess << '\n';
++    if (source == "FIXED_SEED_SAMPLE") {
++        samples << contract.caseId << ',' << frameIndex << ',' << bitsText(payload) << ','
++                << bitsText(encoded.encodedBits) << ',' << bitsText(decoded.payload) << '\n';
++    }
++    require(hard == encoded.encodedBits, "noiseless hard decision changed codeword");
++    require(trueSuccess && decoded.reportedSuccess, "noiseless payload recovery failed");
++    require(!miscorrection && !decoderFailure && !undetected, "noiseless status classification failed");
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::invalid_argument("usage: stage03_noiseless_runner OUTPUT_DIR");
++        const fs::path output(argv[1]);
++        fs::create_directories(output);
++        std::ofstream results(output / "stage03_noiseless_results.csv");
++        std::ofstream summary(output / "stage03_noiseless_case_summary.csv");
++        std::ofstream samples(output / "stage03_noiseless_cpp_matlab_samples.csv");
++        if (!results || !summary || !samples) throw std::runtime_error("cannot open stage03 output");
++        results << "caseId,source,frameIndex,payloadErrorBits,payloadErrorFrame,decoderFailure,"
++                   "miscorrection,undetectedError,trueSuccess\n";
++        summary << "caseId,totalFrames,totalPayloadBits,payloadErrorBits,payloadErrorFrames,"
++                   "decoderFailureFrames,miscorrectionFrames,undetectedErrorFrames,trueSuccessFrames,ber,fer,stopReason\n";
++        samples << "caseId,sampleId,payloadBits,cppEncodedBits,cppRecoveredBits\n";
++
++        for (const auto& contract : scl::bch::s2::stage02::allCaseContracts()) {
++            Counts counts;
++            for (unsigned pattern = 0U; pattern < 6U; ++pattern) {
++                static const char* names[] = {"ALL_ZERO","ALL_ONE","ALT_0101","ALT_1010","FIRST_ONE","LAST_ONE"};
++                exercise(contract, fixedPattern(contract.payloadLength, pattern), names[pattern], pattern,
++                         counts, results, samples);
++            }
++            scl::bch::s2::stage01::RandomIdentity sampleIdentity{
++                2026072703ULL, "stage03_noiseless", contract.caseId, 0U, 1000000U};
++            exercise(contract,
++                     randomPayload(sampleIdentity, contract.payloadLength),
++                     "FIXED_SEED_SAMPLE", sampleIdentity.frameIndex, counts, results, samples);
++            for (std::uint64_t frame = 0U; frame < 1000U; ++frame) {
++                scl::bch::s2::stage01::RandomIdentity identity{
++                    2026072703ULL, "stage03_noiseless", contract.caseId, 0U, frame};
++                exercise(contract,
++                         randomPayload(identity, contract.payloadLength),
++                         "RANDOM", frame, counts, results, samples);
++            }
++            require(counts.totalFrames == 1007U, "stage03 frame count mismatch");
++            require(counts.payloadErrorBits == 0U && counts.payloadErrorFrames == 0U &&
++                    counts.decoderFailureFrames == 0U && counts.miscorrectionFrames == 0U &&
++                    counts.undetectedErrorFrames == 0U && counts.trueSuccessFrames == counts.totalFrames,
++                    "stage03 zero-error Gate mismatch");
++            summary << contract.caseId << ',' << counts.totalFrames << ',' << counts.totalPayloadBits << ','
++                    << counts.payloadErrorBits << ',' << counts.payloadErrorFrames << ','
++                    << counts.decoderFailureFrames << ',' << counts.miscorrectionFrames << ','
++                    << counts.undetectedErrorFrames << ',' << counts.trueSuccessFrames
++                    << ",0,0,NOISELESS_FIXED_FRAMES\n";
++        }
++        std::cout << "PASS_STAGE03_NOISELESS\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "BLOCKED_STAGE03_NOISELESS: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_check.log b/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_check.log
+new file mode 100644
+index 0000000..6cf4603
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_check.log
+@@ -0,0 +1 @@
++PASS_STAGE03_NOISELESS_CHECK
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_ctest.log b/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_ctest.log
+new file mode 100644
+index 0000000..1eb675e
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_ctest.log
+@@ -0,0 +1,20 @@
++UpdateCTestConfiguration  from :C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage03_noiseless/DartConfiguration.tcl
++Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage03_noiseless
++Constructing a list of tests
++Done constructing a list of tests
++Updating test list for fixtures
++Added 0 tests to meet fixture requirements
++Checking test dependency graph...
++Checking test dependency graph end
++test 1
++    Start 1: stage03_noiseless_gate
++
++1: Test command: C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\BCH\simulation\build\S2\stage03_noiseless\stage03_noiseless_runner.exe "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/stages/S2/stage03_noiseless/results"
++1: Working Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/S2/stage03_noiseless
++1: Test timeout computed to be: 10000000
++1: PASS_STAGE03_NOISELESS
++1/1 Test #1: stage03_noiseless_gate ...........   Passed    0.31 sec
++
++100% tests passed out of 1
++
++Total Test time (real) =   0.32 sec
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_matlab.log b/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_matlab.log
+new file mode 100644
+index 0000000..e181083
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_matlab.log
+@@ -0,0 +1 @@
++PASS_STAGE03_NOISELESS_MATLAB_REFERENCE
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/matlab/stage03_noiseless_matlab_reference.m b/Task/BCH/simulation/stages/S2/stage03_noiseless/matlab/stage03_noiseless_matlab_reference.m
+new file mode 100644
+index 0000000..d35b188
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/matlab/stage03_noiseless_matlab_reference.m
+@@ -0,0 +1,67 @@
++function stage03_noiseless_matlab_reference(samplesCsv, outputCsv, segmentedReferencePath)
++    addpath(segmentedReferencePath);
++    options = detectImportOptions(samplesCsv, Delimiter=",", TextType="string");
++    options = setvartype(options, {'caseId','payloadBits','cppEncodedBits','cppRecoveredBits'}, 'string');
++    data = readtable(samplesCsv, options);
++    table15 = bch15_build_lookup_reference();
++    encodedMismatchBits = zeros(height(data),1);
++    recoveredMismatchBits = zeros(height(data),1);
++    matlabRecoveredMatchesPayload = false(height(data),1);
++    for row = 1:height(data)
++        id = char(data.caseId(row));
++        payload = double(char(data.payloadBits(row))) - double('0');
++        cppEncoded = double(char(data.cppEncodedBits(row))) - double('0');
++        if contains(id, '_S15')
++            oldId = 'BCH-S200';
++            if startsWith(id, 'K300'), oldId = 'BCH-S300'; end
++            encodedResult = bch15_segmented_encode_reference(oldId, payload);
++            matlabEncoded = encodedResult.encodedBits;
++            decodedResult = bch15_segmented_decode_reference(oldId, matlabEncoded, table15);
++            matlabRecovered = decodedResult.recoveredPayload;
++        else
++            [n,k,blockPayloads,shortening] = blockContract(id);
++            matlabEncoded = [];
++            matlabRecovered = [];
++            offset = 0;
++            for block = 1:numel(blockPayloads)
++                count = blockPayloads(block);
++                blockPayload = payload(offset+1:offset+count);
++                info = [zeros(1,shortening(block)), blockPayload];
++                codeword = double(bchenc(gf(info),n,k).x);
++                shortened = codeword(shortening(block)+1:end);
++                matlabEncoded = [matlabEncoded shortened]; %#ok<AGROW>
++                decoded = double(bchdec(gf([zeros(1,shortening(block)),shortened]),n,k).x);
++                matlabRecovered = [matlabRecovered decoded(shortening(block)+1:k)]; %#ok<AGROW>
++                offset = offset + count;
++            end
++        end
++        encodedMismatchBits(row) = sum(matlabEncoded ~= cppEncoded);
++        recoveredMismatchBits(row) = sum(matlabRecovered ~= payload);
++        matlabRecoveredMatchesPayload(row) = isequal(matlabRecovered,payload);
++    end
++    caseId = data.caseId;
++    sampleId = data.sampleId;
++    passed = encodedMismatchBits == 0 & recoveredMismatchBits == 0 & matlabRecoveredMatchesPayload;
++    output = table(caseId,sampleId,encodedMismatchBits,recoveredMismatchBits,matlabRecoveredMatchesPayload,passed);
++    writetable(output,outputCsv);
++    if ~all(passed), error("BLOCKED_STAGE03_NOISELESS_MATLAB_REFERENCE"); end
++    fprintf("PASS_STAGE03_NOISELESS_MATLAB_REFERENCE\n");
++end
++
++function [n,k,payloads,shortening] = blockContract(id)
++    if contains(id,'M255K207')
++        n=255;k=207;
++        if startsWith(id,'K300'),payloads=[150 150];shortening=[57 57];
++        else,payloads=200;shortening=7;end
++    elseif contains(id,'M511K421')
++        n=511;k=421;
++        if startsWith(id,'K300'),payloads=300;shortening=121;
++        else,payloads=200;shortening=221;end
++    elseif contains(id,'M511K385')
++        n=511;k=385;
++        if startsWith(id,'K300'),payloads=300;shortening=85;
++        else,payloads=200;shortening=185;end
++    else
++        error("unsupported block case");
++    end
++end
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_check.py b/Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_check.py
+new file mode 100644
+index 0000000..1e88c8a
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_check.py
+@@ -0,0 +1,66 @@
++import csv
++from pathlib import Path
++
++
++STAGE = Path(__file__).resolve().parents[1]
++RESULTS = STAGE / "results"
++LOGS = STAGE / "logs"
++
++
++def rows(name):
++    with (RESULTS / name).open(newline="", encoding="utf-8-sig") as stream:
++        return list(csv.DictReader(stream))
++
++
++def require(value, message):
++    if not value:
++        raise SystemExit(f"BLOCKED_STAGE03_NOISELESS_CHECK: {message}")
++
++
++def main():
++    summary = rows("stage03_noiseless_case_summary.csv")
++    require(len(summary) == 8, "case summary count is not 8")
++    for row in summary:
++        require(int(row["totalFrames"]) == 1007, f"{row['caseId']} frame count mismatch")
++        require(int(row["totalPayloadBits"]) == 1007 * int(row["caseId"][1:4]),
++                f"{row['caseId']} payload bit denominator mismatch")
++        for field in (
++            "payloadErrorBits", "payloadErrorFrames", "decoderFailureFrames",
++            "miscorrectionFrames", "undetectedErrorFrames",
++        ):
++            require(int(row[field]) == 0, f"{row['caseId']} {field} is nonzero")
++        require(int(row["trueSuccessFrames"]) == int(row["totalFrames"]),
++                f"{row['caseId']} true success mismatch")
++        require(float(row["ber"]) == 0.0 and float(row["fer"]) == 0.0,
++                f"{row['caseId']} BER/FER is nonzero")
++        require(row["stopReason"] == "NOISELESS_FIXED_FRAMES", "stop reason mismatch")
++
++    detail = rows("stage03_noiseless_results.csv")
++    require(len(detail) == 8056, "detail row count is not 8056")
++    require(all(row["payloadErrorBits"] == "0" and row["trueSuccess"] == "1" for row in detail),
++            "detail contains mismatch")
++    matlab = rows("stage03_noiseless_cpp_matlab_compare.csv")
++    require(len(matlab) == 8, "MATLAB sample count is not 8")
++    require(all(row["passed"] in ("1", "true") and row["encodedMismatchBits"] == "0"
++                and row["recoveredMismatchBits"] == "0" for row in matlab),
++            "MATLAB sample comparison failed")
++    ctest = (LOGS / "stage03_noiseless_ctest.log").read_text(encoding="utf-8")
++    require("100% tests passed" in ctest and "PASS_STAGE03_NOISELESS" in ctest, "CTest Gate failed")
++    matlab_log = (LOGS / "stage03_noiseless_matlab.log").read_text(encoding="utf-8")
++    require("PASS_STAGE03_NOISELESS_MATLAB_REFERENCE" in matlab_log, "MATLAB Gate failed")
++    (STAGE / "stage03_noiseless_test_summary.csv").write_text(
++        "test,executed,result,detail\n"
++        "Release build,true,PASS,MinGW GCC 15.2.0\n"
++        "CTest,true,PASS,1/1\n"
++        "fixed and boundary payloads,true,PASS,7 per case\n"
++        "random noiseless frames,true,PASS,1000 per case\n"
++        "all noiseless frames,true,PASS,8056 total\n"
++        "C++ MATLAB samples,true,PASS,8/8 encoded and recovered mismatch=0\n"
++        "negative/error counters,true,PASS,all zero\n",
++        encoding="utf-8",
++    )
++    print("PASS_STAGE03_NOISELESS_CHECK")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_run.py b/Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_run.py
+new file mode 100644
+index 0000000..2092ec9
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_run.py
+@@ -0,0 +1,45 @@
++import subprocess
++from pathlib import Path
++
++
++ROOT = Path(__file__).resolve().parents[7]
++STAGE = Path(__file__).resolve().parents[1]
++BUILD = ROOT / "Task" / "BCH" / "simulation" / "build" / "S2" / "stage03_noiseless"
++RESULTS = STAGE / "results"
++LOGS = STAGE / "logs"
++
++
++def run(command, log=None):
++    result = subprocess.run(command, cwd=ROOT, text=True, stdout=subprocess.PIPE,
++                            stderr=subprocess.STDOUT, check=False)
++    print(result.stdout, end="")
++    if log:
++        log.parent.mkdir(parents=True, exist_ok=True)
++        log.write_text(result.stdout, encoding="utf-8")
++    if result.returncode:
++        raise SystemExit(f"command failed ({result.returncode}): {' '.join(map(str, command))}")
++
++
++def main():
++    RESULTS.mkdir(parents=True, exist_ok=True)
++    LOGS.mkdir(parents=True, exist_ok=True)
++    run(["cmake", "-S", str(STAGE / "cpp"), "-B", str(BUILD), "-G", "MinGW Makefiles",
++         "-DCMAKE_BUILD_TYPE=Release", f"-DSTAGE03_OUTPUT_DIR={RESULTS.as_posix()}"])
++    run(["cmake", "--build", str(BUILD), "--config", "Release", "-j", "2"])
++    run(["ctest", "--test-dir", str(BUILD), "-C", "Release", "--output-on-failure", "-V"],
++        LOGS / "stage03_noiseless_ctest.log")
++    matlab_path = (STAGE / "matlab").as_posix().replace("'", "''")
++    segmented = (ROOT / "Task" / "BCH" / "segmented" / "matlab").as_posix().replace("'", "''")
++    samples = (RESULTS / "stage03_noiseless_cpp_matlab_samples.csv").as_posix().replace("'", "''")
++    compare = (RESULTS / "stage03_noiseless_cpp_matlab_compare.csv").as_posix().replace("'", "''")
++    batch = (
++        f"addpath('{matlab_path}'); "
++        f"stage03_noiseless_matlab_reference('{samples}','{compare}','{segmented}')"
++    )
++    run(["matlab", "-batch", batch], LOGS / "stage03_noiseless_matlab.log")
++    run(["python", str(STAGE / "python" / "stage03_noiseless_check.py")],
++        LOGS / "stage03_noiseless_check.log")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_acceptance_matrix.csv b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_acceptance_matrix.csv
+new file mode 100644
+index 0000000..e201eba
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_acceptance_matrix.csv
+@@ -0,0 +1,7 @@
++需求,实现位置,正向测试,负向测试,Gate条件
++固定边界payload,cpp/stage03_noiseless_runner.cpp,每Case七类固定样本,硬判决改变码字即阻塞,56/56 PASS
++随机帧,cpp/stage03_noiseless_runner.cpp,每Case1000帧完整链路,任何payload mismatch阻塞,8000/8000 PASS
++filler与多块边界,stage02统一适配器,S15末块和K300_M255双块恢复,错误长度由stage02拒绝,恢复mismatch为0
++缩短恢复,stage02统一适配器,六个缩短Case恢复,虚拟缩短位不发送,恢复mismatch为0
++MATLAB对照,matlab/stage03_noiseless_matlab_reference.m,8个固定样本官方或独立参考,任一编码或恢复mismatch阻塞,8/8 PASS
++统计恒等式,python/stage03_noiseless_check.py,8056帧逐行复核,非零错误或失败计数阻塞,trueSuccess等于totalFrames
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_commands_used.md b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_commands_used.md
+new file mode 100644
+index 0000000..cb3e1c6
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_commands_used.md
+@@ -0,0 +1,13 @@
++# stage03_noiseless 实际命令
++
++```powershell
++python Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_run.py
++python Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_check.py
++```
++
++运行器执行 Release CMake/MinGW 构建、CTest（8056 帧完整链路）、MATLAB R2024b
++8 Case 样本编码/恢复参考和 Python 业务 checker。
++
++首次执行在编译阶段发现 stage01 `vector<unsigned>` 与 BCH `vector<uint8_t>` 的接口
++类型不一致。stage03 增加显式二进制转换后，第二次完整重跑通过。首次失败没有执行
++stage03 测试，也没有进入 stage04。
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_frozen_config.csv b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_frozen_config.csv
+new file mode 100644
+index 0000000..7ce95e9
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_frozen_config.csv
+@@ -0,0 +1,10 @@
++key,value
++caseCount,8
++fixedPatternsPerCase,7
++randomFramesPerCase,1000
++totalFramesPerCase,1007
++totalFramesAllCases,8056
++masterSeed,2026072703
++channel,y=x
++hardDecision,y>=0 maps to 0
++stopReason,NOISELESS_FIXED_FRAMES
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_stage_plan.md b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_stage_plan.md
+new file mode 100644
+index 0000000..e5b622f
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_stage_plan.md
+@@ -0,0 +1,14 @@
++# stage03_noiseless 规格冻结
++
++8 个 Case 分别覆盖全 0、全 1、0101、1010、首位单 1、末位单 1、固定 seed
++样本和 1000 个随机帧。链路固定为编码、BPSK、`y=x`、硬判决、译码和 payload
++恢复。
++
++每 Case 共 1007 帧，总计 8056 帧。分块 filler、多码块边界和缩短位恢复由对应
++Case 的完整编码/恢复路径覆盖。
++
++Gate：`PASS_STAGE03_NOISELESS`
++
++BER、FER、payload mismatch、decoder failure、miscorrection 和 undetected error
++必须全部为零；`trueSuccessFrames=totalFrames`；8 个 C++/MATLAB 样本编码和恢复
++mismatch 必须为零。
+diff --git a/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_test_summary.csv b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_test_summary.csv
+new file mode 100644
+index 0000000..284fd6b
+--- /dev/null
++++ b/Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_test_summary.csv
+@@ -0,0 +1,8 @@
++test,executed,result,detail
++Release build,true,PASS,MinGW GCC 15.2.0
++CTest,true,PASS,1/1
++fixed and boundary payloads,true,PASS,7 per case
++random noiseless frames,true,PASS,1000 per case
++all noiseless frames,true,PASS,8056 total
++C++ MATLAB samples,true,PASS,8/8 encoded and recovered mismatch=0
++negative/error counters,true,PASS,all zero

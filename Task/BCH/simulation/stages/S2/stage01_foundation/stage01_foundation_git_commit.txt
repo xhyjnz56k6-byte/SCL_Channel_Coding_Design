@@ -1,0 +1,7 @@
+stage=stage01_foundation
+branch=stage01-06-bch-s2-awgn
+baseCommit=069373b02401ad0acc10d96eb4e63bad8763c64c
+contentCommit=3c41bc7194ff16547f8d6f12d5e21c2d1e2074f9
+contentCommitMessage=BCH/stage01：完成AWGN基础与随机性验证
+remoteVerification=NOT_REQUESTED
+mergeStatus=NOT_MERGED

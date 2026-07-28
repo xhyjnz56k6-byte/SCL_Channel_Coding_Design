@@ -1,0 +1,7 @@
+test,executed,result,detail
+0..t guaranteed recovery,true,PASS,767 patterns
+t+1 and t+2 classification,true,PASS,650 patterns;DETECTED_FAILURE:70|INVALID_CONFIGURATION:0|MISCORRECTION:552|TRUE_SUCCESS:28|UNDETECTED_ERROR:0
+BCH15 all single positions,true,PASS,30 patterns
+BCH15 same/cross/multi-block,true,PASS,6 patterns
+K300 M255 cross-block,true,PASS,1 pattern
+C++ MATLAB key samples,true,PASS,16/16

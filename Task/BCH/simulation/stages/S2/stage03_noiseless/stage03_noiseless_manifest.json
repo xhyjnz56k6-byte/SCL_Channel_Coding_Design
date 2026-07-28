@@ -1,0 +1,35 @@
+{
+  "stage": "stage03_noiseless",
+  "branch": "stage01-06-bch-s2-awgn",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "be243bec3672584792c6486766a89b4795aa8cc3",
+      "contentCommit": "edca1e4886c926edcbb2bd788cb2f57acdffeeae",
+      "files": [
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/CMakeLists.txt",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/cpp/stage03_noiseless_runner.cpp",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_check.log",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_ctest.log",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/logs/stage03_noiseless_matlab.log",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/matlab/stage03_noiseless_matlab_reference.m",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_check.py",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/python/stage03_noiseless_run.py",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_acceptance_matrix.csv",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_commands_used.md",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_frozen_config.csv",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_stage_plan.md",
+        "Task/BCH/simulation/stages/S2/stage03_noiseless/stage03_noiseless_test_summary.csv"
+      ]
+    }
+  ],
+  "generatedEvidence": [
+    "results/stage03_noiseless_results.csv",
+    "results/stage03_noiseless_case_summary.csv",
+    "results/stage03_noiseless_cpp_matlab_samples.csv",
+    "results/stage03_noiseless_cpp_matlab_compare.csv"
+  ],
+  "gate": "PASS_STAGE03_NOISELESS",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED"
+}

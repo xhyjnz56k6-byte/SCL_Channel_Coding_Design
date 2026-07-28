@@ -1,0 +1,11 @@
+key,value
+stageId,stage06_awgn_formal
+masterSeed,2026072706
+pointsPerCase,5
+formalMinFrames,5000
+formalTargetFrameErrors,200
+formalMaxFrames,50000
+checkpointEveryFrames,1000
+plotDpi,300
+plotXAxis,SNR (dB)
+zeroSurrogate,0.5/denominator
