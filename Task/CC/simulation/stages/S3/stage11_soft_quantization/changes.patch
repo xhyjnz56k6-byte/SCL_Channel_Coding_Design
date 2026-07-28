@@ -1,0 +1,411 @@
+﻿diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/.gitignore b/Task/CC/simulation/stages/S3/stage11_soft_quantization/.gitignore
+new file mode 100644
+index 00000000..5b478e6e
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/.gitignore
+@@ -0,0 +1,2 @@
++__pycache__/
++*.log
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage11_soft_quantization/CMakeLists.txt
+new file mode 100644
+index 00000000..3cd32e05
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/CMakeLists.txt
+@@ -0,0 +1,21 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage11_soft_quantization LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++set(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../..")
++set(CC_ROOT "${REPO_ROOT}/Task/CC")
++add_executable(stage11_soft_quantization_runner
++    src/stage11_soft_quantization_runner.cpp
++    "${CC_ROOT}/shared/src/trellis.cpp"
++    "${CC_ROOT}/shared/src/puncturing.cpp"
++    "${CC_ROOT}/block/current/src/block_encoder.cpp"
++    "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
++    "${REPO_ROOT}/Task/Common/src/random_policy.cpp"
++    "${REPO_ROOT}/Task/Common/src/gaussian_noise.cpp")
++target_include_directories(stage11_soft_quantization_runner PRIVATE
++    "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include"
++    "${REPO_ROOT}/Task/Common/include")
++if(NOT MSVC)
++  target_compile_options(stage11_soft_quantization_runner PRIVATE -O3 -Wall -Wextra -Wpedantic -Werror)
++endif()
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/commands_used.md b/Task/CC/simulation/stages/S3/stage11_soft_quantization/commands_used.md
+new file mode 100644
+index 00000000..a92de1be
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/commands_used.md
+@@ -0,0 +1,7 @@
++# Stage11 命令
++
++```powershell
++python Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/run_stage11.py --clean
++python Task/CC/shared/scripts/cc_stage_audit.py Task/CC/simulation/stages/S3/stage10_traceback_study/manifest.json
++git diff --check
++```
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/config/stage11_config.json b/Task/CC/simulation/stages/S3/stage11_soft_quantization/config/stage11_config.json
+new file mode 100644
+index 00000000..640458e0
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/config/stage11_config.json
+@@ -0,0 +1 @@
++{"schemaVersion":"cc.stage11.config.v1","input":"receivedSymbols","bits":[3,4,6],"clipCandidates":[2,3,4,6],"prescanFramesPerScenario":200,"formalFramesPerScenario":1000,"pathMetricType":"int32","pathMetricSaturation":1000000000,"normalization":"subtract_min_each_step"}
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/frozen_config.csv b/Task/CC/simulation/stages/S3/stage11_soft_quantization/frozen_config.csv
+new file mode 100644
+index 00000000..49eb44f8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/frozen_config.csv
+@@ -0,0 +1,15 @@
++parameter,value
++input,receivedSymbols
++quantizer,symmetric_mid_tread
++zeroPoint,0
++bits,3|4|6
++clipCandidates,2|3|4|6
++puncturedNeutralCode,0
++pathMetricType,int32_t
++pathMetricSaturation,1000000000
++normalization,subtract_min_each_step
++prescanFramesPerScenario,200
++formalFramesPerScenario,1000
++selectedClipMax,2
++selectedClipBasis,Q4_global_minimum_float_mismatch_frames
++recommendedBits,6
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/known_issues.md b/Task/CC/simulation/stages/S3/stage11_soft_quantization/known_issues.md
+new file mode 100644
+index 00000000..dc1ef7d7
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/known_issues.md
+@@ -0,0 +1,4 @@
++# Stage11 已知问题
++
++- 推荐只针对当前 300 bit、当前代表 SNR 与整数平方欧氏度量。
++- 软件时延不能直接等同于硬件资源或 ASIC 时序。
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_comparison_summary.csv b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_comparison_summary.csv
+new file mode 100644
+index 00000000..b6dc9bb7
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_comparison_summary.csv
+@@ -0,0 +1,4 @@
++bits,worstBerIncrease,worstFerIncrease,qualified
++3,1.8529411764705883,1.9375,NO
++4,0.28,0.28409090909090917,NO
++6,0.09803921568627438,0.06779661016949157,YES
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_prescan.csv b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_prescan.csv
+new file mode 100644
+index 00000000..975adf34
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_prescan.csv
+@@ -0,0 +1,5 @@
++clipMax,q4FloatMismatchFrames,inputSaturations,observedSymbols,selected
++2,51,21045,428400,YES
++3,78,364,428400,NO
++4,106,0,428400,NO
++6,197,0,428400,NO
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_recommendation.csv b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_recommendation.csv
+new file mode 100644
+index 00000000..62a4d228
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_recommendation.csv
+@@ -0,0 +1,2 @@
++recommendedBits,qualifiedBits,rule
++6,6,minimum width with <=10% BER/FER increase at every scenario and zero overflow
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_report.md b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_report.md
+new file mode 100644
+index 00000000..7f8d4218
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_report.md
+@@ -0,0 +1,7 @@
++# Stage11 软信息量化报告
++
++Q4 在四个场景合计 800 帧的 clipping prescan 中，`clipMax={2,3,4,6}` 对 float 的 mismatch frames 分别为 51、78、106、197，因此全局选择 clipMax=2；该范围用于全部 SNR 和全部正式位宽。
++
++正式 4000 帧结果中，Q3/Q4 的最坏 BER/FER 增幅分别为约 185.29%/193.75% 和 28.00%/28.41%，均不满足门限。Q6 的最坏 BER 增幅为 9.804%，最坏 FER 增幅为 6.780%，整数 overflow=0、路径度量 saturation=0，满足每点不超过 10% 的门限，推荐 `SOFT_Q6`。
++
++四场景平均译码时延约为 float 280.24 us、Q3 274.71 us、Q4 262.91 us、Q6 253.53 us。输入存储以 R12 单帧为例由 float 的 4896 bytes 降为 Q6 的 459 bytes。软件结果表明 Q6 在当前实现中兼顾性能和输入带宽，但结论仅适用于当前量化合同与代表点。
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_test_summary.csv b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_test_summary.csv
+new file mode 100644
+index 00000000..35f4e3ba
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_test_summary.csv
+@@ -0,0 +1,6 @@
++check,status
++global_clip_prescan,PASS
++formal_matrix,PASS
++integer_overflow,PASS_ZERO
++recommended_bits,PASS_Q6
++stage_gate,PASS_STAGE11_CC_SOFT_QUANTIZATION
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_soft_quantization_results.csv b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_soft_quantization_results.csv
+new file mode 100644
+index 00000000..de081078
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_soft_quantization_results.csv
+@@ -0,0 +1,17 @@
++caseId,snrDb,mode,bits,clipMax,step,frames,payloadBitErrors,payloadErrorFrames,BER,FER,floatMismatchBits,floatMismatchFrames,avgDecodeTime_us,p95DecodeTime_us,maxDecodeTime_us,rawThroughput_Mbps,inputSaturationCount,inputObservedCount,inputMemoryBytes,pathMetricMemoryBytes,survivorMemoryBytes,pathMetricSaturationCount,integerOverflowCount
++CC-B-R12-S,-0.5,SOFT_FLOAT,64,2,0,1000,450,59,0.0015,0.058999999999999997,0,0,265.34189999999961,369.10000000000002,671.79999999999995,1.1306167627502495,0,612000,4896,1024,58752,0,0
++CC-B-R12-S,-0.5,SOFT_Q3,3,2,0.66666666666666663,1000,1095,138,0.00365,0.13800000000000001,811,113,270.11349999999982,358.39999999999998,653.20000000000005,1.1106442291851395,23041,612000,230,512,58752,0,0
++CC-B-R12-S,-0.5,SOFT_Q4,4,2,0.2857142857142857,1000,576,73,0.00192,0.072999999999999995,212,34,257.33190000000002,341.80000000000001,685,1.1658096023073703,38948,612000,306,512,58752,0,0
++CC-B-R12-S,-0.5,SOFT_Q6,6,2,0.064516129032258063,1000,466,63,0.0015533333333333334,0.063,66,12,249.45210000000009,336.10000000000002,534,1.2026356963922127,51672,612000,459,512,58752,0,0
++CC-B-R12-S,0,SOFT_FLOAT,64,2,0,1000,102,16,0.00034000000000000002,0.016,0,0,280.57339999999965,394.60000000000002,2455.6999999999998,1.0692389228629668,0,612000,4896,1024,58752,0,0
++CC-B-R12-S,0,SOFT_Q3,3,2,0.66666666666666663,1000,291,47,0.00097000000000000005,0.047,275,45,281.64449999999982,385.89999999999998,1353.8,1.0651725845880184,18272,612000,230,512,58752,0,0
++CC-B-R12-S,0,SOFT_Q4,4,2,0.2857142857142857,1000,116,18,0.00038666666666666667,0.017999999999999999,100,12,269.20109999999977,370.39999999999998,987.60000000000002,1.1144085221048512,32449,612000,306,512,58752,0,0
++CC-B-R12-S,0,SOFT_Q6,6,2,0.064516129032258063,1000,112,17,0.00037333333333333332,0.017000000000000001,10,1,260.67660000000006,353.5,822.20000000000005,1.1508512846952887,44299,612000,459,512,58752,0,0
++CC-B-R23-S,0.5,SOFT_FLOAT,64,2,0,1000,3160,231,0.010533333333333334,0.23100000000000001,0,0,292.33380000000011,401.39999999999998,840.5,1.0262241314552059,0,459000,3672,1024,58752,0,0
++CC-B-R23-S,0.5,SOFT_Q3,3,2,0.66666666666666663,1000,7329,409,0.02443,0.40899999999999997,6453,371,277.38980000000021,355.5,768,1.0815105674397536,10311,459000,173,512,58752,0,0
++CC-B-R23-S,0.5,SOFT_Q4,4,2,0.2857142857142857,1000,3606,257,0.012019999999999999,0.25700000000000001,2138,139,267.02219999999977,365.60000000000002,773.20000000000005,1.1235020908373921,19671,459000,230,512,58752,0,0
++CC-B-R23-S,0.5,SOFT_Q6,6,2,0.064516129032258063,1000,3226,231,0.010753333333333333,0.23100000000000001,454,28,256.51880000000017,340.60000000000002,647.10000000000002,1.1695049251750742,27655,459000,345,512,58752,0,0
++CC-B-R23-S,1,SOFT_FLOAT,64,2,0,1000,1042,88,0.0034733333333333335,0.087999999999999995,0,0,282.70059999999984,409.10000000000002,866.5,1.0611933614573161,0,459000,3672,1024,58752,0,0
++CC-B-R23-S,1,SOFT_Q3,3,2,0.66666666666666663,1000,2753,210,0.0091766666666666663,0.20999999999999999,2367,186,269.68400000000003,378.19999999999999,667.89999999999998,1.1124130463802078,7753,459000,173,512,58752,0,0
++CC-B-R23-S,1,SOFT_Q4,4,2,0.2857142857142857,1000,1320,113,0.0044000000000000003,0.113,656,56,258.09579999999971,363.69999999999999,761.89999999999998,1.16235909301895,15824,459000,230,512,58752,0,0
++CC-B-R23-S,1,SOFT_Q6,6,2,0.064516129032258063,1000,1034,87,0.0034466666666666665,0.086999999999999994,60,5,247.4595000000003,351.69999999999999,566.70000000000005,1.2123195916907601,23015,459000,345,512,58752,0,0
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/check_stage11.py b/Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/check_stage11.py
+new file mode 100644
+index 00000000..50aea0f1
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/check_stage11.py
+@@ -0,0 +1,40 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++import csv,math,sys
++from collections import defaultdict
++from pathlib import Path
++
++def main():
++ stage=Path(__file__).resolve().parents[1];res=stage/"results"
++ with (res/"stage11_soft_quantization_results.csv").open(encoding="utf-8",newline="") as h:rows=list(csv.DictReader(h))
++ if len(rows)!=16:raise RuntimeError("expected 16 formal rows")
++ groups=defaultdict(list)
++ for r in rows:
++  key=(r["caseId"],float(r["snrDb"]));groups[key].append(r);f=int(r["frames"]);be=int(r["payloadBitErrors"]);fe=int(r["payloadErrorFrames"])
++  nums=["BER","FER","avgDecodeTime_us","p95DecodeTime_us","maxDecodeTime_us","rawThroughput_Mbps"]
++  if not all(math.isfinite(float(r[x])) for x in nums):raise RuntimeError("non-finite")
++  if f!=1000 or not math.isclose(float(r["BER"]),be/(300*f),rel_tol=1e-12) or not math.isclose(float(r["FER"]),fe/f,rel_tol=1e-12):raise RuntimeError("formula")
++  if int(r["integerOverflowCount"])!=0 or int(r["pathMetricSaturationCount"])!=0:raise RuntimeError("integer metric saturation/overflow")
++  if r["mode"]=="SOFT_FLOAT" and (int(r["floatMismatchBits"]) or int(r["floatMismatchFrames"])):raise RuntimeError("float mismatch")
++ if len(groups)!=4 or any(len(v)!=4 for v in groups.values()):raise RuntimeError("matrix")
++ qualified=[];summary=[]
++ for bits in (3,4,6):
++  worst_ber=worst_fer=0
++  for key,items in groups.items():
++   by={r["mode"]:r for r in items};base=by["SOFT_FLOAT"];q=by[f"SOFT_Q{bits}"]
++   br=float(q["BER"])/float(base["BER"]);fr=float(q["FER"])/float(base["FER"])
++   worst_ber=max(worst_ber,br-1);worst_fer=max(worst_fer,fr-1)
++  ok=worst_ber<=.10 and worst_fer<=.10
++  summary.append({"bits":bits,"worstBerIncrease":worst_ber,"worstFerIncrease":worst_fer,"qualified":"YES" if ok else "NO"})
++  if ok:qualified.append(bits)
++ if not qualified:raise RuntimeError("no quantization width meets threshold")
++ recommended=min(qualified)
++ with (res/"stage11_quantization_comparison_summary.csv").open("w",encoding="utf-8",newline="") as h:
++  w=csv.DictWriter(h,fieldnames=list(summary[0]),lineterminator="\n");w.writeheader();w.writerows(summary)
++ with (res/"stage11_quantization_recommendation.csv").open("w",encoding="utf-8",newline="") as h:
++  w=csv.writer(h,lineterminator="\n");w.writerow(["recommendedBits","qualifiedBits","rule"]);w.writerow([recommended,"|".join(map(str,qualified)),"minimum width with <=10% BER/FER increase at every scenario and zero overflow"])
++ with (res/"stage11_quantization_test_summary.csv").open("w",encoding="utf-8",newline="") as h:
++  w=csv.writer(h,lineterminator="\n");w.writerow(["check","status"]);w.writerow(["global_clip_prescan","PASS"]);w.writerow(["formal_matrix","PASS"]);w.writerow(["integer_overflow","PASS_ZERO"]);w.writerow(["recommended_bits",f"PASS_Q{recommended}"]);w.writerow(["stage_gate","PASS_STAGE11_CC_SOFT_QUANTIZATION"])
++ print(f"PASS_STAGE11_CC_SOFT_QUANTIZATION recommended=Q{recommended}")
++ return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/run_stage11.py b/Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/run_stage11.py
+new file mode 100644
+index 00000000..8aa3e95a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/run_stage11.py
+@@ -0,0 +1,14 @@
++#!/usr/bin/env python3
++import shutil,subprocess,sys
++from pathlib import Path
++def run(c,cwd):print("+"," ".join(c));subprocess.run(c,cwd=cwd,check=True)
++def main():
++ s=Path(__file__).resolve().parents[1];b=s/"build";r=s/"results"
++ if "--clean" in sys.argv and b.exists():shutil.rmtree(b)
++ r.mkdir(parents=True,exist_ok=True)
++ run(["cmake","-S",str(s),"-B",str(b),"-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=Release"],s)
++ run(["cmake","--build",str(b),"--parallel"],s)
++ run([str(b/"stage11_soft_quantization_runner.exe"),str(r)],s)
++ run([sys.executable,str(s/"scripts"/"check_stage11.py")],s)
++ return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/src/stage11_soft_quantization_runner.cpp b/Task/CC/simulation/stages/S3/stage11_soft_quantization/src/stage11_soft_quantization_runner.cpp
+new file mode 100644
+index 00000000..067ec96f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/src/stage11_soft_quantization_runner.cpp
+@@ -0,0 +1,141 @@
++#include "cc/block_encoder.hpp"
++#include "cc/puncturing.hpp"
++#include "cc/soft_viterbi.hpp"
++#include "cc/trellis.hpp"
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++
++#include <algorithm>
++#include <array>
++#include <chrono>
++#include <cmath>
++#include <cstdint>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++using Clock=std::chrono::steady_clock;
++constexpr std::uint64_t kSeed=2026072001ULL;
++constexpr std::size_t kL=306,kPayload=300;
++constexpr std::int32_t kMetricCap=1000000000;
++struct Survivor{std::uint8_t predecessor=0,input=0;bool valid=false;};
++struct Scenario{std::string id;double snr;scl::cc::PuncturePattern pattern;std::uint64_t group;};
++struct QuantResult{std::vector<std::uint8_t> payload;std::uint64_t input_saturations=0,metric_saturations=0,overflows=0;};
++struct Acc{std::uint64_t frames=0,be=0,fe=0,mb=0,mf=0,input_sat=0,metric_sat=0,overflow=0;
++ double time_sum=0,time_max=0;std::vector<double> samples;};
++std::uint64_t err(const std::vector<std::uint8_t>&a,const std::vector<std::uint8_t>&b){
++ if(a.size()!=b.size())throw std::runtime_error("length mismatch");
++ std::uint64_t n=0;
++ for(std::size_t i=0;i<a.size();++i)n+=a[i]!=b[i];
++ return n;}
++bool better(std::int32_t c,std::uint8_t p,std::uint8_t u,std::int32_t old,const Survivor&s){
++ if(!s.valid||c<old)return true;
++ if(c>old)return false;
++ if(p!=s.predecessor)return p<s.predecessor;
++ return u<s.input;}
++
++QuantResult decode_quantized(const scl::cc::Trellis&trellis,const std::vector<double>&received,
++ const std::vector<std::uint8_t>&mask,int bits,double clip){
++ if(bits<2||bits>8||!(clip>0)||received.size()!=2*kL||mask.size()!=received.size())
++  throw std::invalid_argument("invalid quantized decoder configuration/input");
++ const int qmax=(1<<(bits-1))-1;const double step=clip/qmax;
++ std::vector<std::int16_t> q(received.size());QuantResult result;
++ for(std::size_t i=0;i<received.size();++i){
++  if(!std::isfinite(received[i]))throw std::invalid_argument("non-finite received symbol");
++  long code=std::lround(received[i]/step);
++  if(code>qmax){code=qmax;if(mask[i])++result.input_saturations;}
++  if(code<-qmax){code=-qmax;if(mask[i])++result.input_saturations;}
++  q[i]=static_cast<std::int16_t>(code);
++ }
++ const int expected0=static_cast<int>(std::lround(1.0/step));
++ const int expected1=-expected0;
++ std::array<std::int32_t,scl::cc::kStateCount> metric{},next{};
++ metric.fill(kMetricCap);metric[0]=0;
++ std::vector<Survivor> survivors(kL*scl::cc::kStateCount);
++ for(std::size_t t=0;t<kL;++t){
++  next.fill(kMetricCap);Survivor*st=survivors.data()+t*scl::cc::kStateCount;
++  std::fill(st,st+scl::cc::kStateCount,Survivor{});
++  for(std::size_t s=0;s<scl::cc::kStateCount;++s){if(metric[s]>=kMetricCap)continue;
++   for(std::uint8_t u=0;u<2;++u){const auto&br=trellis.branch(static_cast<std::uint8_t>(s),u);
++    const int d0=static_cast<int>(q[2*t])-(br.output_bits[0]?expected1:expected0);
++    const int d1=static_cast<int>(q[2*t+1])-(br.output_bits[1]?expected1:expected0);
++    std::int64_t candidate=metric[s]+(mask[2*t]?d0*d0:0)+(mask[2*t+1]?d1*d1:0);
++    if(candidate>std::numeric_limits<std::int32_t>::max()){++result.overflows;candidate=kMetricCap;}
++    if(candidate>kMetricCap){++result.metric_saturations;candidate=kMetricCap;}
++    auto&sv=st[br.next_state];
++    if(better(static_cast<std::int32_t>(candidate),static_cast<std::uint8_t>(s),u,next[br.next_state],sv)){
++     next[br.next_state]=static_cast<std::int32_t>(candidate);sv={static_cast<std::uint8_t>(s),u,true};}
++   }
++  }
++  const auto minimum=*std::min_element(next.begin(),next.end());
++  if(minimum>=kMetricCap)throw std::runtime_error("no reachable quantized state");
++  for(auto&v:next)if(v<kMetricCap)v-=minimum;
++  metric=next;
++ }
++ std::vector<std::uint8_t> decoded(kL);std::uint8_t state=0;
++ for(std::size_t t=kL;t>0;--t){const auto&sv=survivors[(t-1)*scl::cc::kStateCount+state];
++  if(!sv.valid)throw std::runtime_error("invalid quantized survivor");
++  decoded[t-1]=sv.input;state=sv.predecessor;}
++ result.payload.assign(decoded.begin(),decoded.begin()+kPayload);return result;
++}
++double p95(std::vector<double>v){std::sort(v.begin(),v.end());return v[static_cast<std::size_t>(std::ceil(.95*v.size()))-1];}
++void add(Acc&a,const std::vector<std::uint8_t>&payload,const std::vector<std::uint8_t>&decoded,
++ const std::vector<std::uint8_t>&base,double us,const QuantResult*q=nullptr){
++ auto e=err(payload,decoded),m=err(base,decoded);++a.frames;a.be+=e;a.fe+=e!=0;a.mb+=m;a.mf+=m!=0;
++ a.time_sum+=us;a.time_max=std::max(a.time_max,us);a.samples.push_back(us);
++ if(q){a.input_sat+=q->input_saturations;a.metric_sat+=q->metric_saturations;a.overflow+=q->overflows;}}
++}
++
++int main(int argc,char**argv){
++ try{
++  if(argc!=2)throw std::invalid_argument("expected results directory");
++  const std::filesystem::path results(argv[1]);std::filesystem::create_directories(results);
++  const std::vector<Scenario>scenarios={{"CC-B-R12-S",-0.5,{"R12_11",{1,1}},1200},
++   {"CC-B-R12-S",0,{"R12_11",{1,1}},1200},{"CC-B-R23-S",0.5,{"R23_B_1101",{1,1,0,1}},2300},
++   {"CC-B-R23-S",1,{"R23_B_1101",{1,1,0,1}},2300}};
++  const scl::cc::Trellis trellis;scl::cc::ConvolutionalEncoder encoder(trellis);
++  const scl::cc::SoftViterbiDecoder float_decoder(trellis);
++  const std::vector<double>clips={2,3,4,6};std::array<std::uint64_t,4>pm{},ps{},po{};
++  for(const auto&sc:scenarios){double sigma=std::sqrt(1/(2*std::pow(10.0,sc.snr/10)));
++   for(std::uint64_t frame=0;frame<200;++frame){auto cp=scl::common::generatePayloadBits(kSeed,kPayload,frame);
++    std::vector<std::uint8_t>payload(cp.begin(),cp.end());auto enc=encoder.encode_block(payload,true);
++    auto punct=scl::cc::puncture_bits(enc.mother_bits,sc.pattern);auto noise=scl::common::generateStandardGaussianFrame(kSeed,sc.group,frame,punct.bits.size());
++    std::vector<double>rx(punct.bits.size());for(std::size_t i=0;i<rx.size();++i)rx[i]=(punct.bits[i]? -1.0:1.0)+sigma*noise[i];
++    auto dep=scl::cc::depuncture_soft(rx,2*kL,sc.pattern);
++    auto base=float_decoder.decode_terminated_masked_symbols(dep.expanded_values,dep.observed_mask,kL).payload_bits;
++    for(std::size_t c=0;c<clips.size();++c){auto q=decode_quantized(trellis,dep.expanded_values,dep.observed_mask,4,clips[c]);
++     pm[c]+=q.payload!=base;ps[c]+=q.input_saturations;po[c]+=std::count(dep.observed_mask.begin(),dep.observed_mask.end(),1);}
++   }
++  }
++  std::size_t selected=0;for(std::size_t c=1;c<clips.size();++c)
++   if(pm[c]<pm[selected]||(pm[c]==pm[selected]&&ps[c]<ps[selected]))selected=c;
++  std::ofstream pre(results/"stage11_quantization_prescan.csv");pre<<"clipMax,q4FloatMismatchFrames,inputSaturations,observedSymbols,selected\n";
++  for(std::size_t c=0;c<clips.size();++c)pre<<clips[c]<<','<<pm[c]<<','<<ps[c]<<','<<po[c]<<','<<(c==selected?"YES":"NO")<<'\n';
++  const double clip=clips[selected];const std::vector<int>bits={3,4,6};
++  std::ofstream out(results/"stage11_soft_quantization_results.csv");
++  out<<"caseId,snrDb,mode,bits,clipMax,step,frames,payloadBitErrors,payloadErrorFrames,BER,FER,floatMismatchBits,floatMismatchFrames,avgDecodeTime_us,p95DecodeTime_us,maxDecodeTime_us,rawThroughput_Mbps,inputSaturationCount,inputObservedCount,inputMemoryBytes,pathMetricMemoryBytes,survivorMemoryBytes,pathMetricSaturationCount,integerOverflowCount\n";
++  out<<std::setprecision(17);
++  for(const auto&sc:scenarios){std::array<Acc,4>a;double sigma=std::sqrt(1/(2*std::pow(10.0,sc.snr/10)));std::size_t n=0,observed=0;
++   for(std::uint64_t frame=0;frame<1000;++frame){auto cp=scl::common::generatePayloadBits(kSeed,kPayload,frame);
++    std::vector<std::uint8_t>payload(cp.begin(),cp.end());auto enc=encoder.encode_block(payload,true);
++    auto punct=scl::cc::puncture_bits(enc.mother_bits,sc.pattern);n=punct.bits.size();auto noise=scl::common::generateStandardGaussianFrame(kSeed,sc.group,frame,n);
++    std::vector<double>rx(n);for(std::size_t i=0;i<n;++i)rx[i]=(punct.bits[i]?-1.0:1.0)+sigma*noise[i];
++    auto dep=scl::cc::depuncture_soft(rx,2*kL,sc.pattern);observed=std::count(dep.observed_mask.begin(),dep.observed_mask.end(),1);
++    auto s=Clock::now();auto base=float_decoder.decode_terminated_masked_symbols(dep.expanded_values,dep.observed_mask,kL);auto e=Clock::now();
++    add(a[0],payload,base.payload_bits,base.payload_bits,std::chrono::duration<double,std::micro>(e-s).count());
++    for(std::size_t b=0;b<bits.size();++b){s=Clock::now();auto qr=decode_quantized(trellis,dep.expanded_values,dep.observed_mask,bits[b],clip);e=Clock::now();
++     add(a[b+1],payload,qr.payload,base.payload_bits,std::chrono::duration<double,std::micro>(e-s).count(),&qr);}
++   }
++   for(std::size_t m=0;m<a.size();++m){const bool fl=m==0;int b=fl?64:bits[m-1];double step=fl?0:clip/((1<<(b-1))-1);const auto&v=a[m];
++    out<<sc.id<<','<<sc.snr<<','<<(fl?"SOFT_FLOAT":"SOFT_Q"+std::to_string(b))<<','<<b<<','<<clip<<','<<step<<','<<v.frames<<','<<v.be<<','<<v.fe<<','<<double(v.be)/(v.frames*kPayload)<<','<<double(v.fe)/v.frames<<','<<v.mb<<','<<v.mf<<','<<v.time_sum/v.frames<<','<<p95(v.samples)<<','<<v.time_max<<','<<300/(v.time_sum/v.frames)<<','<<v.input_sat<<','<<observed*v.frames<<','<<(fl?n*8:(n*b+7)/8)<<','<<(fl?2*64*8:2*64*4)<<','<<kL*64*sizeof(Survivor)<<','<<v.metric_sat<<','<<v.overflow<<'\n';
++   }
++  }
++  std::cout<<"PASS_STAGE11_CC_SOFT_QUANTIZATION_RUNNER clip="<<clip<<'\n';return 0;
++ }catch(const std::exception&e){std::cerr<<"FAIL_STAGE11: "<<e.what()<<'\n';return 1;}
++}
+diff --git a/Task/CC/simulation/stages/S3/stage11_soft_quantization/stage_plan.md b/Task/CC/simulation/stages/S3/stage11_soft_quantization/stage_plan.md
+new file mode 100644
+index 00000000..6953c6ae
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage11_soft_quantization/stage_plan.md
+@@ -0,0 +1,29 @@
++# Stage11 规格冻结：软信息量化
++
++## 目标与范围
++
++在 R12/R23 soft 的四个 Stage10 代表点比较 `SOFT_FLOAT/Q3/Q4/Q6`，先用全局 clipping prescan 冻结单一范围，再给出性能与复杂度推荐。只修改本 Stage 目录。
++
++## 量化合同
++
++- 输入：BPSK `receivedSymbols`，不是 LLR。
++- 对称 mid-tread 有符号码，零点为 0。
++- b bit 的代码范围 `[-(2^(b-1)-1), +(2^(b-1)-1)]`，保留对称性。
++- 步长 `clipMax / codeMax`，舍入到最近整数，饱和上下限为 `±clipMax`。
++- punctured bit 使用中性 code=0 且 observedMask=0，不贡献分支度量。
++- 分支度量为量化 code 与量化 `±1` 之差平方和。
++- 路径度量为 `int32_t`，候选先用 `int64_t` 检测；上限 `1,000,000,000`，每步减去最小有限度量归一化。
++- clipping 候选 `{2,3,4,6}`，Q4 在全部四场景各 200 帧联合 prescan；按 float mismatch frames 最少选择，平局取饱和率更低者，不允许逐 SNR 调参。
++- 正式：四场景各 1000 帧。
++- 推荐：选择所有点 BER/FER 相对 float 增幅均不超过 10%、整数 overflow=0 的最小位宽。
++
++## 验收矩阵
++
++| 需求 | 实现位置 | 正向测试 | 负向测试 | Gate 条件 |
++|---|---|---|---|---|
++| clipping prescan | C++ runner | 四候选联合比较 | 单点调参禁止 | 单一 clip 冻结 |
++| Q3/Q4/Q6 整数 ACS | C++ runner | 无噪声与正式矩阵 | 非法位宽/clip 拒绝 | 无 overflow |
++| 性能/复杂度 | checker | BER/FER/时延/吞吐/饱和/内存 | 公式和有限值 mutation | 指标 PASS |
++| 推荐位宽 | checker | 最小合格位宽 | 无合格项时拒绝 | 数据化推荐 |
++
++Gate：`PASS_STAGE11_CC_SOFT_QUANTIZATION`
