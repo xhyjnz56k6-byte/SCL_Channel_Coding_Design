@@ -155,3 +155,44 @@ Generated step Gate:
 ```text
 PASS_STAGE17_AFTER_MULTIPATH_MERGE
 ```
+
+## CFO And Blockage Base Merge
+
+Merged branch:
+
+```text
+origin/stage09-12-bch-s2-cfo-blockage
+```
+
+The first merge attempt was blocked by Windows long path handling for two Stage12 Experiment C manifest filenames. The failed merge did not create `MERGE_HEAD`; the four untracked Stage09-12 directories created by that failed attempt were removed after path verification, `core.longpaths=true` was set for this repository, and the merge was retried successfully.
+
+Merge commit:
+
+```text
+f2263c06ac5a663d3b46efb0ea8f46b446b07b67
+```
+
+Executed regressions:
+
+```text
+python Task\BCH\simulation\stages\S2\stage09_cfo_validation\python\stage09_cfo_validation_checker.py
+PASS_STAGE09_CFO_VALIDATION
+
+python Task\BCH\simulation\stages\S2\stage10_cfo_formal\python\stage10_cfo_formal_checker.py
+PASS_STAGE10_CFO_FORMAL
+
+python Task\BCH\simulation\stages\S2\stage11_blockage_validation\python\stage11_blockage_validation_checker.py
+PASS_STAGE11_BLOCKAGE_VALIDATION
+
+python Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py
+PASS_STAGE12_BLOCKAGE_FORMAL
+
+python \\?\C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design_stage17_integration\Task\BCH\simulation\stages\S2\stage12_blockage_formal\experiment_c_fixed_length\python\stage12_blockage_formal_experiment_c_fixed_length_checker.py
+PASS_STAGE12_BLOCKAGE_FORMAL_EXPERIMENT_C_FIXED_LENGTH
+```
+
+Generated step Gate:
+
+```text
+PASS_STAGE17_AFTER_CFO_BLOCKAGE_BASE_MERGE
+```

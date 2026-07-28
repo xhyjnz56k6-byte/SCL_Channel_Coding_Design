@@ -14,4 +14,12 @@ python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\
 python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_plot_check.py
 python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_finalize_audit.py
 git restore -- Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md
+git merge --no-ff origin/stage09-12-bch-s2-cfo-blockage -m "BCH/stage17：合并CFO与短时遮挡基础线路"
+git config core.longpaths true
+git merge --no-ff origin/stage09-12-bch-s2-cfo-blockage -m "BCH/stage17：合并CFO与短时遮挡基础线路"
+python Task\BCH\simulation\stages\S2\stage09_cfo_validation\python\stage09_cfo_validation_checker.py
+python Task\BCH\simulation\stages\S2\stage10_cfo_formal\python\stage10_cfo_formal_checker.py
+python Task\BCH\simulation\stages\S2\stage11_blockage_validation\python\stage11_blockage_validation_checker.py
+python Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py
+python \\?\C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design_stage17_integration\Task\BCH\simulation\stages\S2\stage12_blockage_formal\experiment_c_fixed_length\python\stage12_blockage_formal_experiment_c_fixed_length_checker.py
 ```
