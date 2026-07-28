@@ -22,4 +22,7 @@ python Task\BCH\simulation\stages\S2\stage10_cfo_formal\python\stage10_cfo_forma
 python Task\BCH\simulation\stages\S2\stage11_blockage_validation\python\stage11_blockage_validation_checker.py
 python Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py
 python \\?\C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design_stage17_integration\Task\BCH\simulation\stages\S2\stage12_blockage_formal\experiment_c_fixed_length\python\stage12_blockage_formal_experiment_c_fixed_length_checker.py
+git merge --no-ff origin/stage10-12-bch-s2-dense-snr-rerun -m "BCH/stage17：合并CFO遮挡高密度线路"
+python Task\BCH\simulation\stages\S2\stage10_cfo_formal\python\stage10_cfo_formal_checker.py
+python Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py
 ```

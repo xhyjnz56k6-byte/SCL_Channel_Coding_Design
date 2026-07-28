@@ -196,3 +196,33 @@ Generated step Gate:
 ```text
 PASS_STAGE17_AFTER_CFO_BLOCKAGE_BASE_MERGE
 ```
+
+## CFO And Blockage Dense-SNR Merge
+
+Merged branch:
+
+```text
+origin/stage10-12-bch-s2-dense-snr-rerun
+```
+
+Merge commit:
+
+```text
+b0fce2e163b8ce4964d4e8c1e411130a2c45f9ca
+```
+
+Executed regressions:
+
+```text
+python Task\BCH\simulation\stages\S2\stage10_cfo_formal\python\stage10_cfo_formal_checker.py
+PASS_STAGE10_CFO_FORMAL
+
+python Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py
+PASS_STAGE12_BLOCKAGE_FORMAL_DENSE_SNR
+```
+
+Generated step Gate:
+
+```text
+PASS_STAGE17_AFTER_CFO_BLOCKAGE_DENSE_MERGE
+```
