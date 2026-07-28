@@ -1,0 +1,7 @@
+parameter,value,semantics
+decoderType,SOFT_FLOAT,received_symbols
+branchMetric,SQUARED_EUCLIDEAN,bpsk_candidate
+normalization,SUBTRACT_MIN_EVERY_STEP,double
+nonFinitePolicy,REJECT_OR_ERROR_ABORT,strict
+matlabDecisionType,unquant,vitdec
+matlabTracebackDepth,35,terminated
