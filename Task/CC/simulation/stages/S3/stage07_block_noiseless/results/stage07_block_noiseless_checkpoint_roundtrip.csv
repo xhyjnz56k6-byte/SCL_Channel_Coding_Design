@@ -1,0 +1,2 @@
+caseId,nextFrameIndex,framesProcessed,payloadBitErrors,payloadErrorFrames,configHash,status
+CC-B-R12-S,1000,1000,0,0,stage07_fixture_hash,PASS

@@ -1,0 +1,7 @@
+check,status
+six_cases_100_frames_each,PASS
+payloadBitMismatch,0
+payloadFrameMismatch,0
+nonFiniteMetricCount,0
+checkpoint_basic_roundtrip,PASS
+stage_gate,PASS_STAGE07_CC_BLOCK_NOISELESS
