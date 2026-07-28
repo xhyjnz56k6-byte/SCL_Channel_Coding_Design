@@ -1,0 +1,2 @@
+recommendedDtb,recommendationTier,qualifiedDepths,worstBerIncrease,worstFerIncrease,survivorMemoryReduction,decisionRule,usage
+70,FALLBACK,70,0.05696202531645578,0.1298701298701299,0.7712418300653595,"preferred <=5% BER/FER; fallback <=10% BER, <=15% FER, >=50% memory reduction",Stage12 sliding-window candidate
