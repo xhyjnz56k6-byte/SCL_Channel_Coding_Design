@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage08_awgn_prescan",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE08_CC_AWGN_PRESCAN",
+  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "originalContent",
+      "baseCommit": "a80e3b96fcc4e68314a47070f5a4a7c08e43349c",
+      "contentCommit": "6af44b8cee354cdbd49a2abc0ef5befed22995a4",
+      "diffPaths": ["Task/CC/simulation/stages/S3/stage08_awgn_prescan"],
+      "files": [
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/commands_used.md",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/config/stage08_config.json",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/frozen_config.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/include/README.md",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/known_issues.md",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/matlab/README.md",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_ber.png",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_ber_figure_data.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_fer.png",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_fer_figure_data.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_formal_case_ranges.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_formal_recommendations.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_plot_check.md",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_point_results.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_results_scope.md",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_smoke_results.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_test_summary.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/scripts/plot_and_check_stage08.py",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/scripts/run_stage08.py",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/src/stage08_awgn_prescan_runner.cpp",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/stage_plan.md",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/tests/README.md"
+      ]
+    },
+    {
+      "name": "validationRefresh",
+      "baseCommit": "6af44b8cee354cdbd49a2abc0ef5befed22995a4",
+      "contentCommit": "e9e132f6de01ab512a2f310ad84b96f917b27dfe",
+      "diffPaths": ["Task/CC/simulation/stages/S3/stage08_awgn_prescan"],
+      "files": [
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_ber_figure_data.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_fer_figure_data.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_point_results.csv",
+        "Task/CC/simulation/stages/S3/stage08_awgn_prescan/results/stage08_awgn_prescan_smoke_results.csv"
+      ]
+    }
+  ],
+  "validation": {
+    "caseCount": 6,
+    "figureCount": 2,
+    "pointFormulaCheck": "PASS",
+    "softNotWorseThanHard": "PASS",
+    "stage07Regression": "PASS"
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary --unified=0 baseCommit..validationRefresh over Stage08",
+    "sha256": "7c99bd5c111dc961547ab75e9a30b81f89cb80f02f07e8127946d5f17d259a8d",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage08_awgn_prescan/"],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}
