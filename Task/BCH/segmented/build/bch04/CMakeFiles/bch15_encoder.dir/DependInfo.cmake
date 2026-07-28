@@ -1,0 +1,26 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
+# The set of languages for which implicit dependencies are needed:
+set(CMAKE_DEPENDS_LANGUAGES
+  )
+
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/src/bch15_encoder.cpp" "CMakeFiles/bch15_encoder.dir/src/bch15_encoder.cpp.obj" "gcc" "CMakeFiles/bch15_encoder.dir/src/bch15_encoder.cpp.obj.d"
+  "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/src/bch15_lookup_decoder.cpp" "CMakeFiles/bch15_encoder.dir/src/bch15_lookup_decoder.cpp.obj" "gcc" "CMakeFiles/bch15_encoder.dir/src/bch15_lookup_decoder.cpp.obj.d"
+  "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/src/bch15_lookup_table.cpp" "CMakeFiles/bch15_encoder.dir/src/bch15_lookup_table.cpp.obj" "gcc" "CMakeFiles/bch15_encoder.dir/src/bch15_lookup_table.cpp.obj.d"
+  "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/src/bch15_syndrome.cpp" "CMakeFiles/bch15_encoder.dir/src/bch15_syndrome.cpp.obj" "gcc" "CMakeFiles/bch15_encoder.dir/src/bch15_syndrome.cpp.obj.d"
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

@@ -1,0 +1,54 @@
+[
+  {
+    "filename": "bch12_smoke_ber.png",
+    "sourceCsv": "awgn_smoke_summary.csv",
+    "figureDataCsv": "figure_data_bch12_smoke_ber.csv",
+    "sha256": "0468f49758672bd6830b4d9ed3d5a0a39a2d2ecb7f299e2fdc38283d83762999",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "BER",
+    "logScale": true,
+    "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO",
+    "generatedBy": "plot_bch_smoke.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch12_smoke_fer.png",
+    "sourceCsv": "awgn_smoke_summary.csv",
+    "figureDataCsv": "figure_data_bch12_smoke_fer.csv",
+    "sha256": "5fda6eb31139a92fb285377c5aefd3f9dc8a6e4e12ebb30b661d75ab4ee94918",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "FER",
+    "logScale": true,
+    "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO",
+    "generatedBy": "plot_bch_smoke.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch12_smoke_true_success.png",
+    "sourceCsv": "awgn_smoke_summary.csv",
+    "figureDataCsv": "figure_data_bch12_smoke_true_success.csv",
+    "sha256": "92995ba5645272ca28b5d95e9ae687afa02118a1b3ec2933c472ffde4bd2031b",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "trueSuccessRate",
+    "logScale": false,
+    "zeroHandlingPolicy": "RAW_LINEAR",
+    "generatedBy": "plot_bch_smoke.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch12_smoke_status.png",
+    "sourceCsv": "awgn_smoke_summary.csv",
+    "figureDataCsv": "figure_data_bch12_smoke_status.csv",
+    "sha256": "434856c36f84c211b707264d6e8517deee32d5e60de56983cdf4241f6c185e99",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "reportedSuccessRate;miscorrectionRate;decoderFailureRate",
+    "logScale": false,
+    "zeroHandlingPolicy": "RAW_LINEAR",
+    "generatedBy": "plot_bch_smoke.py",
+    "matplotlibVersion": "3.10.7"
+  }
+]

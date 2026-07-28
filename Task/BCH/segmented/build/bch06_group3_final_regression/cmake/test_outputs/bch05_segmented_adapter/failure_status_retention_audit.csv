@@ -1,0 +1,5 @@
+caseName,injectedFailure,reportedStatus,postCheckFailedBlocks,unrecognizedSyndromeBlocks,lookupHitBlocks,lookupMissBlocks,recoveredPaddedMessagePreserved,pass
+BCH-S200,POST_CHECK_FAILED,POST_CHECK_FAILED,1,0,1,0,true,true
+BCH-S200,UNRECOGNIZED_SYNDROME,UNRECOGNIZED_SYNDROME,0,1,0,1,true,true
+BCH-S300,POST_CHECK_FAILED,POST_CHECK_FAILED,1,0,1,0,true,true
+BCH-S300,UNRECOGNIZED_SYNDROME,UNRECOGNIZED_SYNDROME,0,1,0,1,true,true

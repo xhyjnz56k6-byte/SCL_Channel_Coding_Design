@@ -1,0 +1,26 @@
+{
+  "bitOrderWithinByte": "lsb_first",
+  "bitStorageFormat": "packed_bits",
+  "bytesPerFrame": 25,
+  "framePoolId": "payload_k200_seed2026072001_policy1_frames200",
+  "generationAlgorithm": "splitmix64_payload_v2",
+  "generatorVersion": "common03.frame_pool.v2",
+  "integerByteOrder": "not_applicable",
+  "masterSeed": 2026072001,
+  "overallHash": "cd4e9640ee51390fc8f7a81462650d65c9e44e9bcef9adcc655cc54200d11c99",
+  "payloadLength": 200,
+  "payloadPolicyVersion": 1,
+  "payloadSeed": 2026072001,
+  "schemaVersion": "common03.frame_pool_manifest.v2",
+  "shardSize": 200,
+  "shards": [
+    {
+      "fileName": "frames_000000_000199.bin",
+      "frameCount": 200,
+      "sha256": "b57540d3a6d5daf2583862172bd8c95258659e458236e6d24ed557af343267ff",
+      "sizeBytes": 5000,
+      "startFrame": 0
+    }
+  ],
+  "totalFrames": 200
+}

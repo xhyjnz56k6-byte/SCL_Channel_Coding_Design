@@ -1,0 +1,13 @@
+Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/simulation/build/burst_redesign_mingw
+    Start 1: bch12_awgn_unit
+1/4 Test #1: bch12_awgn_unit ..................   Passed    0.03 sec
+    Start 2: bch_s2_mmse_unit
+2/4 Test #2: bch_s2_mmse_unit .................   Passed    0.02 sec
+    Start 3: bch_s2_impairments_unit
+3/4 Test #3: bch_s2_impairments_unit ..........   Passed    0.02 sec
+    Start 4: bch_s2_burst_redesign_unit
+4/4 Test #4: bch_s2_burst_redesign_unit .......   Passed    0.04 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =   0.13 sec

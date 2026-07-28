@@ -1,0 +1,1 @@
+{"timestamp":"2026-07-22T14:46:56Z","stage":"BCH14_RESUME","caseName":"BCH-S300","ebn0Db":6.5,"processedFrames":2500,"frameErrors":217,"bitErrors":523,"elapsedSeconds":0.406479,"framesPerSecond":6150.38,"etaSeconds":0.569071,"checkpointCount":3,"shardIndex":0,"shardCount":1,"status":"COMPLETE"}

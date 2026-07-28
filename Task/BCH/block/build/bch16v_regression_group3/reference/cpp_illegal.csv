@@ -1,0 +1,11 @@
+category,status
+decoder_short,INVALID_INPUT_LENGTH
+decoder_long,INVALID_INPUT_LENGTH
+decoder_nonbinary,INVALID_INPUT_BITS
+decoder_invalid_profile,INVALID_CONFIGURATION
+gf_divide_zero,EXCEPTION
+gf_inverse_zero,EXCEPTION
+gf_log_zero,EXCEPTION
+gf_element_range,EXCEPTION
+gf_zero_negative_power,EXCEPTION
+gf_nonprimitive,EXCEPTION

@@ -1,0 +1,576 @@
+{
+  "schemaVersion": "common04.noise_pool_manifest.v1",
+  "noisePoolId": "276d5f7a493a341c",
+  "masterNoiseSeed": 2026072101,
+  "noiseGroupId": 0,
+  "noisePolicyVersion": 1,
+  "totalFrames": 2000,
+  "symbolsPerFrame": 300,
+  "framesPerShard": 25,
+  "samplePrecision": "float64",
+  "sampleByteOrder": "little_endian",
+  "generationAlgorithm": "splitmix64_box_muller_v1",
+  "shards": [
+    {
+      "fileName": "noise_000000_000024.bin",
+      "firstFrameIndex": 0,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "43770b405232ce4eb7436c99e1d1801e9edaaaaf10d1f1c647dfa38c276a041e"
+    },
+    {
+      "fileName": "noise_000025_000049.bin",
+      "firstFrameIndex": 25,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "a719ce3161cd00419ca56926b4d71ccf3dbe6c56684869bfe38ac43ef5a6df23"
+    },
+    {
+      "fileName": "noise_000050_000074.bin",
+      "firstFrameIndex": 50,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "e4340349c798e028f19c48b9773fa6ea2ddbdad137a5bd6e67a2037d9cd8dd87"
+    },
+    {
+      "fileName": "noise_000075_000099.bin",
+      "firstFrameIndex": 75,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "20b78a69d3460c252d4214bbfd8d4d421589fdaa9167e1945b2ea386bcc30815"
+    },
+    {
+      "fileName": "noise_000100_000124.bin",
+      "firstFrameIndex": 100,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "38954be76273d38524074ee599a4de6048553f843f25903298f4ec3c7e554ebe"
+    },
+    {
+      "fileName": "noise_000125_000149.bin",
+      "firstFrameIndex": 125,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "9f50a00c9b84788fa8b66cc38a9bf6420d56f44ecd967b8c39166f7d019dcf60"
+    },
+    {
+      "fileName": "noise_000150_000174.bin",
+      "firstFrameIndex": 150,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "d516d04a471cb7259c2e9bb90fba9e8d2d539d0a7e032c04a28005471cf851a7"
+    },
+    {
+      "fileName": "noise_000175_000199.bin",
+      "firstFrameIndex": 175,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "567152f56e993331550991709be9352deea661b70c08f8276c7cf547411d09b1"
+    },
+    {
+      "fileName": "noise_000200_000224.bin",
+      "firstFrameIndex": 200,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "8dd822c5e4cdef4bc892719f4824e3a2c10dd9e09c457f326710790c43a2e2a3"
+    },
+    {
+      "fileName": "noise_000225_000249.bin",
+      "firstFrameIndex": 225,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "30c500c7e1513cc3da7feb8bb57e69c0d45d2713265af0a7d95c6bf9ff72f216"
+    },
+    {
+      "fileName": "noise_000250_000274.bin",
+      "firstFrameIndex": 250,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "e86e75d99a335b38ed7b34d418cc0b06ccbe36cc6efc6eb548fa6b85b7b42d40"
+    },
+    {
+      "fileName": "noise_000275_000299.bin",
+      "firstFrameIndex": 275,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "83133fabd4ee22aecea2a2b3af748c8522e641bb9566a712720f79a577aaca81"
+    },
+    {
+      "fileName": "noise_000300_000324.bin",
+      "firstFrameIndex": 300,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "45acf704102b86e8369cd064fa600c63e1b72a53ec991a056c0e0a1f88693b52"
+    },
+    {
+      "fileName": "noise_000325_000349.bin",
+      "firstFrameIndex": 325,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "aa744120a7287c3991a151c6a9c147d0d0d92ed2d221a9639c53991e33b46200"
+    },
+    {
+      "fileName": "noise_000350_000374.bin",
+      "firstFrameIndex": 350,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "373e3e30abcd4f5dcee95899a5ee1093041fc99e5cb4fd3f92bb915c97f08387"
+    },
+    {
+      "fileName": "noise_000375_000399.bin",
+      "firstFrameIndex": 375,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "8955ceb85b562acdf411e50961d44cd51e3d71cb8053aa8d9362a6927b40097f"
+    },
+    {
+      "fileName": "noise_000400_000424.bin",
+      "firstFrameIndex": 400,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "e3d169756a12e147fb651cd87bd6a15d512a82a157b9d6ef8c8998c6bd118f02"
+    },
+    {
+      "fileName": "noise_000425_000449.bin",
+      "firstFrameIndex": 425,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "3e43e0c6a645a627cae975bd995e2b785364ed8717902ce97471d0732f2055e3"
+    },
+    {
+      "fileName": "noise_000450_000474.bin",
+      "firstFrameIndex": 450,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "658193db2f510d83c5d777ba68c1090915683b4a4e2bd7fadc1d3e2532a8169b"
+    },
+    {
+      "fileName": "noise_000475_000499.bin",
+      "firstFrameIndex": 475,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "b39369590a17cb6e2ed0089cfb901bcde3aec07f7089ccaa0d8a0ba953ed0341"
+    },
+    {
+      "fileName": "noise_000500_000524.bin",
+      "firstFrameIndex": 500,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "18cb0a39f6ce769904acbbb6c809ae0fb0c234c38ded7ca42385ebcedecd7af4"
+    },
+    {
+      "fileName": "noise_000525_000549.bin",
+      "firstFrameIndex": 525,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "a7d4f9ddfff143044ce430b35c67bd5f82ad4f935840494e5b3efe1d8f56c18f"
+    },
+    {
+      "fileName": "noise_000550_000574.bin",
+      "firstFrameIndex": 550,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "cf9c4be8ee34c5041d433493c896762b4faeabab3ab329d83b5e73fb78342d89"
+    },
+    {
+      "fileName": "noise_000575_000599.bin",
+      "firstFrameIndex": 575,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "bb53453998994649013cb8e67bb70ffa2d6ba3ba4bf55493507279da1a86bf92"
+    },
+    {
+      "fileName": "noise_000600_000624.bin",
+      "firstFrameIndex": 600,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "7bf59749016312cae77b31b4cf8f95e4236624d27d4c398f3e840cd7e32a2403"
+    },
+    {
+      "fileName": "noise_000625_000649.bin",
+      "firstFrameIndex": 625,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "e272ebe1d06c23e03b0d32e3a9229c8fdfdb8e3aa31c9491ab40553044a4a273"
+    },
+    {
+      "fileName": "noise_000650_000674.bin",
+      "firstFrameIndex": 650,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "0988f4f742c682594191d5411227a8e4cae9cd050d7728df99e6555933d3eb96"
+    },
+    {
+      "fileName": "noise_000675_000699.bin",
+      "firstFrameIndex": 675,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "5c58da7cdf429719d2d8b060c90d1af3b6c34a2ae338180411a8e7d3210e6230"
+    },
+    {
+      "fileName": "noise_000700_000724.bin",
+      "firstFrameIndex": 700,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "d2a2aa1d4d02c16371a917756777855c41e4bce736a203ce7cab1b0b74053fac"
+    },
+    {
+      "fileName": "noise_000725_000749.bin",
+      "firstFrameIndex": 725,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "2051b30697b9f6e38261032ebe38d7f0fb4e64326db931be12001aa75b8a8d3f"
+    },
+    {
+      "fileName": "noise_000750_000774.bin",
+      "firstFrameIndex": 750,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "438626fc16213c1fe0bea0f1c6a47cf174429b561c3eb98f12e998ae3a5b2e2d"
+    },
+    {
+      "fileName": "noise_000775_000799.bin",
+      "firstFrameIndex": 775,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "29985058aad6926be8437bffd279d575a1ccd37e8da3ccee91806bf0e3863aea"
+    },
+    {
+      "fileName": "noise_000800_000824.bin",
+      "firstFrameIndex": 800,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "07ccc757a8e253eb135e785fb916f6d34661a30c681e23bd6191df4c959eb6f5"
+    },
+    {
+      "fileName": "noise_000825_000849.bin",
+      "firstFrameIndex": 825,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "c739f581996f53fdc802191326077adef4e3ea02b6296259d1258ec93068c4f6"
+    },
+    {
+      "fileName": "noise_000850_000874.bin",
+      "firstFrameIndex": 850,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "cad2d4f2ab0da8235a2b147dcefbffd7c70ac5f508b0094a8f7f90081b77e832"
+    },
+    {
+      "fileName": "noise_000875_000899.bin",
+      "firstFrameIndex": 875,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "803e1dcec8e32f88dc22e8ade97fc2df82eb406e9c466b4883da4e8817be04c5"
+    },
+    {
+      "fileName": "noise_000900_000924.bin",
+      "firstFrameIndex": 900,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "31dea6745b10e6f8a1628cd44dff60efcfb31e032a886a291e117df8a8e9ff65"
+    },
+    {
+      "fileName": "noise_000925_000949.bin",
+      "firstFrameIndex": 925,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "826829d110b5ff11c8597c7a21b3845de4b687fc2c27eb387672eb3c06bf02fe"
+    },
+    {
+      "fileName": "noise_000950_000974.bin",
+      "firstFrameIndex": 950,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "b7eeecbff3673505b61b72965175be0c5beda9c03f10c1801d8e11d74475b28e"
+    },
+    {
+      "fileName": "noise_000975_000999.bin",
+      "firstFrameIndex": 975,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "ea08f4c8ac64c7b7c404c664f8490219c5eb9cf2621ee53c2ad5fab7f1a6aec4"
+    },
+    {
+      "fileName": "noise_001000_001024.bin",
+      "firstFrameIndex": 1000,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "ba9b60d1d79f84300e8e33e36130a7fd2cdd292b7de5e7b160649bee2685e3f5"
+    },
+    {
+      "fileName": "noise_001025_001049.bin",
+      "firstFrameIndex": 1025,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "038fd0d75c2733674773434f54c8bf406c9eb6112264a6b0f30f346d2013a5f7"
+    },
+    {
+      "fileName": "noise_001050_001074.bin",
+      "firstFrameIndex": 1050,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "99957608e1aff1b0ea3d84e3492c80fa66e7c11680676787e8d20be091cbc4b2"
+    },
+    {
+      "fileName": "noise_001075_001099.bin",
+      "firstFrameIndex": 1075,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "87391039261ae9c171496388b24b8fad2db9c301e3fc1f1ab10ef36b9e838859"
+    },
+    {
+      "fileName": "noise_001100_001124.bin",
+      "firstFrameIndex": 1100,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "23df15f9f9986e3a1267f9ef1cd08ee7a4929354c667affc883dca25fa5b5ac7"
+    },
+    {
+      "fileName": "noise_001125_001149.bin",
+      "firstFrameIndex": 1125,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "dc1ddef5b84c90226aae4c8af6ec66e0933843bc6b180e8560dbe2ab4b507bd4"
+    },
+    {
+      "fileName": "noise_001150_001174.bin",
+      "firstFrameIndex": 1150,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "7f96a92c0e8086ee709cb2f4f6c5e2c63b3f1a7afdf8cfc89afdb7e8c4468392"
+    },
+    {
+      "fileName": "noise_001175_001199.bin",
+      "firstFrameIndex": 1175,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "314d5b591785b06965a10426cfc7c9f167e14374d654b63005476d01dd399417"
+    },
+    {
+      "fileName": "noise_001200_001224.bin",
+      "firstFrameIndex": 1200,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "e0ffc59656c2a28fd6d0990bc144e1ffa02e44c1747016fabb43f37c085ed716"
+    },
+    {
+      "fileName": "noise_001225_001249.bin",
+      "firstFrameIndex": 1225,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "7c791f0682bad80af459d0bbf196166fc505df277ef749e0ec58af9f50197ee2"
+    },
+    {
+      "fileName": "noise_001250_001274.bin",
+      "firstFrameIndex": 1250,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "cbdffe54574b494501de82b6d2b11e6e611849a594d9178af94c9b16e9389274"
+    },
+    {
+      "fileName": "noise_001275_001299.bin",
+      "firstFrameIndex": 1275,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "59b61e6571f694fb82dd2404bbd10899c418a83a222ba9a63ea47bfd26fb9f97"
+    },
+    {
+      "fileName": "noise_001300_001324.bin",
+      "firstFrameIndex": 1300,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "b3c31e571da845d186737c7f2018d7ae089de2c75302b080b673d694e52eff5b"
+    },
+    {
+      "fileName": "noise_001325_001349.bin",
+      "firstFrameIndex": 1325,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "2a9e26b61b7570cab08fb22ca59aec73b607f2db5cf34b5a7ca38d755c460890"
+    },
+    {
+      "fileName": "noise_001350_001374.bin",
+      "firstFrameIndex": 1350,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "ed769c2f10e0d65ff845171e1101992ceb880adeca9cefc6e9bdfde9971c158e"
+    },
+    {
+      "fileName": "noise_001375_001399.bin",
+      "firstFrameIndex": 1375,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "575c3054c53d46dca736b2d69c7861db3825efefb8722c0b41632e9b18577a5a"
+    },
+    {
+      "fileName": "noise_001400_001424.bin",
+      "firstFrameIndex": 1400,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "5b1120471f3f98ecff134c76f2fb381b1061c2d8f5c9adb625a7ece7698c7b76"
+    },
+    {
+      "fileName": "noise_001425_001449.bin",
+      "firstFrameIndex": 1425,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "13c33050ba69b7ddb9d83300d75753d12d0f5a0741fd672ddb53bd9372229ede"
+    },
+    {
+      "fileName": "noise_001450_001474.bin",
+      "firstFrameIndex": 1450,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "1efc88892e64672f48ce4aec72cb367a9ff9351baa913c92912c80e89880f68b"
+    },
+    {
+      "fileName": "noise_001475_001499.bin",
+      "firstFrameIndex": 1475,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "92d641978b81863c562ad7a5369129338ed8ad90a021b480378d6f9a9203a5e5"
+    },
+    {
+      "fileName": "noise_001500_001524.bin",
+      "firstFrameIndex": 1500,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "faeda40f0fe610823eb98fe8c5a5605b37bea1b2ed661fceadc3e97220d753b0"
+    },
+    {
+      "fileName": "noise_001525_001549.bin",
+      "firstFrameIndex": 1525,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "9462ef90cda90a82d7298f7b1a9c3c837e7235aab4c2baa6ccdada40bb297936"
+    },
+    {
+      "fileName": "noise_001550_001574.bin",
+      "firstFrameIndex": 1550,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "18af6d15be1348ec833ce88809ed01b307c2291cfbcb1bdeeb0c18936190892a"
+    },
+    {
+      "fileName": "noise_001575_001599.bin",
+      "firstFrameIndex": 1575,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "a64f50fe8cf1ed947614c51c1b6e482348b78c8804c753e2b7d2afc37ede1e4e"
+    },
+    {
+      "fileName": "noise_001600_001624.bin",
+      "firstFrameIndex": 1600,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "c52635464a8b2aa198259f11d2953f04b4ca3121e23b2a44af0ca5d088f905f3"
+    },
+    {
+      "fileName": "noise_001625_001649.bin",
+      "firstFrameIndex": 1625,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "6a35315e4b3bdf3147e10964579f18a951d0a6ce29f71d52b9879e104f88b8d2"
+    },
+    {
+      "fileName": "noise_001650_001674.bin",
+      "firstFrameIndex": 1650,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "caedac4ef86d3d6aeb1b20b7f6cc70c10713a95d24eb395ca3d7bf103c1e7713"
+    },
+    {
+      "fileName": "noise_001675_001699.bin",
+      "firstFrameIndex": 1675,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "b6a27af41a467d7eda6576882bef48149844541f373a46da4a461bea908435b7"
+    },
+    {
+      "fileName": "noise_001700_001724.bin",
+      "firstFrameIndex": 1700,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "cc670ed3487628cf6aad7fb6fb261f709f60658d3f44a526c7c165921d82faf7"
+    },
+    {
+      "fileName": "noise_001725_001749.bin",
+      "firstFrameIndex": 1725,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "a35405d5faea9d92f17a274003b77138604682f325406bdbb50004ea3bbafbc1"
+    },
+    {
+      "fileName": "noise_001750_001774.bin",
+      "firstFrameIndex": 1750,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "44977ea2e6ce41cf8df6476baa69de3d4d31a5b11e458b6534ebc94fcccf9114"
+    },
+    {
+      "fileName": "noise_001775_001799.bin",
+      "firstFrameIndex": 1775,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "f705643663e3f5d93ea043275dc0e91e524111ce4cc18a7c489a078d71d7454e"
+    },
+    {
+      "fileName": "noise_001800_001824.bin",
+      "firstFrameIndex": 1800,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "4cfd677df2049bc7f19f25a569d8c70b6006a96cd9cb6ec75a59b5e0c6d60cd4"
+    },
+    {
+      "fileName": "noise_001825_001849.bin",
+      "firstFrameIndex": 1825,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "8d8e8c542445223082b6714024d8278c557de8252112d98015a1c4b8da2d45f8"
+    },
+    {
+      "fileName": "noise_001850_001874.bin",
+      "firstFrameIndex": 1850,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "3c84c1e6f6253793d05a50a4defa39cba71f5b537da191932e2eacd32de26aca"
+    },
+    {
+      "fileName": "noise_001875_001899.bin",
+      "firstFrameIndex": 1875,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "5df32174f884b9bbc7f8a1a4da7273cf46ef30f57bd46bfbd951d31a4238f8cd"
+    },
+    {
+      "fileName": "noise_001900_001924.bin",
+      "firstFrameIndex": 1900,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "69b75fef537df86adc597f1270d2018d127243ed2aed425fef01c9ea78b68181"
+    },
+    {
+      "fileName": "noise_001925_001949.bin",
+      "firstFrameIndex": 1925,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "49a843482adbcc543070198026d5d932c55afdfc0889f8b9db322e3584652118"
+    },
+    {
+      "fileName": "noise_001950_001974.bin",
+      "firstFrameIndex": 1950,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "e50889eb606b3a2788c623f70c4536e1f94b765e937c8bb721189697d84f6b68"
+    },
+    {
+      "fileName": "noise_001975_001999.bin",
+      "firstFrameIndex": 1975,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "d959c6a87998d48390db2000fc73cd10d3cc7a825647696d5fbdae0050412d25"
+    }
+  ],
+  "overallHash": "276d5f7a493a341c9915917b370619564f3cf63d255e7d78453766d33cfd2ed7"
+}

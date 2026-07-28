@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "common04.noise_pool_manifest.v1",
+  "noisePoolId": "74b47e4c4340fe14",
+  "masterNoiseSeed": 2026072101,
+  "noiseGroupId": 0,
+  "noisePolicyVersion": 1,
+  "totalFrames": 10,
+  "symbolsPerFrame": 200,
+  "framesPerShard": 5,
+  "samplePrecision": "float64",
+  "sampleByteOrder": "little_endian",
+  "generationAlgorithm": "splitmix64_box_muller_v1",
+  "shards": [
+    {
+      "fileName": "noise_000000_000004.bin",
+      "firstFrameIndex": 0,
+      "frameCount": 5,
+      "sizeBytes": 8058,
+      "sha256": "82d58218188e67a3cb320c40c7010c037810fa20ca97e4b94f77b0b5bf7f6daf"
+    },
+    {
+      "fileName": "noise_000005_000009.bin",
+      "firstFrameIndex": 5,
+      "frameCount": 5,
+      "sizeBytes": 8058,
+      "sha256": "439a1c67a33bf2a9333f3044038a8f48b1a45273179d7804099c712e92af4b88"
+    }
+  ],
+  "overallHash": "74b47e4c4340fe1494f5fac10a533b74500b49100d877db8f9c66c44262c5ff0"
+}

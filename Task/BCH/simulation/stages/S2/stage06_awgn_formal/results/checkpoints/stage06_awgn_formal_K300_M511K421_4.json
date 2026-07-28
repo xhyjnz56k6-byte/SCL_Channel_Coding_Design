@@ -1,0 +1,20 @@
+{
+  "stageId": "stage06_awgn_formal",
+  "caseId": "K300_M511K421",
+  "ebn0Index": 4,
+  "ebn0Db": 5.5,
+  "nextFrameIndex": 50000,
+  "masterSeed": 2026072706,
+  "configHash": "9a91f87c7ab562d740695d5222d00e0fc15dfef346623dfe61a2962439dfbdcb",
+  "gitCommit": "7c1f21fdbcca40e4248f7fd21c241078cd964357",
+  "totalFrames": 50000,
+  "totalPayloadBits": 15000000,
+  "payloadErrorBits": 856,
+  "payloadErrorFrames": 96,
+  "decoderFailureFrames": 96,
+  "miscorrectionFrames": 0,
+  "undetectedErrorFrames": 0,
+  "trueSuccessFrames": 49904,
+  "noiseChecksum": 10339475474056528832,
+  "stopReason": "MAX_FRAMES_REACHED"
+}

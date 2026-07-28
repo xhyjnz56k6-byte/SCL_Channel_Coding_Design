@@ -1,0 +1,3 @@
+C:\Users\V3169\AppData\Roaming\Python\Python311\site-packages\cmake\data\bin\cmake.exe -E rm -f CMakeFiles\export_bch_block_detail.dir/objects.a
+D:\Apps\MinGW\ucrt64\bin\ar.exe qc CMakeFiles\export_bch_block_detail.dir/objects.a @CMakeFiles\export_bch_block_detail.dir\objects1.rsp
+D:\Apps\MinGW\ucrt64\bin\c++.exe -Wl,--whole-archive CMakeFiles\export_bch_block_detail.dir/objects.a -Wl,--no-whole-archive -o export_bch_block_detail.exe -Wl,--out-implib,libexport_bch_block_detail.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\export_bch_block_detail.dir\linkLibs.rsp

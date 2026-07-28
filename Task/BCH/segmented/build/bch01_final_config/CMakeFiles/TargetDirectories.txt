@@ -1,0 +1,9 @@
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/common02_types_interfaces_tests.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/test_common04_random_policy.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/test_common04_gaussian_noise.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/test_common04_modulation_awgn.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/test_common04_metrics_control.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/test_common04_checkpoint.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/test_common04_integration.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/edit_cache.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch01_final_config/CMakeFiles/rebuild_cache.dir

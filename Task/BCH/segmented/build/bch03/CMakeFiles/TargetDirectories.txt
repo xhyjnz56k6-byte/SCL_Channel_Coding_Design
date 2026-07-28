@@ -1,0 +1,6 @@
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/CMakeFiles/bch15_encoder.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/CMakeFiles/test_bch15_encoder.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/CMakeFiles/test_bch15_syndrome_table.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/CMakeFiles/test.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/CMakeFiles/edit_cache.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/CMakeFiles/rebuild_cache.dir

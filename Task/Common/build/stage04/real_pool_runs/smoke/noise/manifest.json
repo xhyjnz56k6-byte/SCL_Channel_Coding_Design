@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "common04.noise_pool_manifest.v1",
+  "noisePoolId": "e81b6dae0d027ca6",
+  "masterNoiseSeed": 2026072101,
+  "noiseGroupId": 0,
+  "noisePolicyVersion": 1,
+  "totalFrames": 100,
+  "symbolsPerFrame": 300,
+  "framesPerShard": 25,
+  "samplePrecision": "float64",
+  "sampleByteOrder": "little_endian",
+  "generationAlgorithm": "splitmix64_box_muller_v1",
+  "shards": [
+    {
+      "fileName": "noise_000000_000024.bin",
+      "firstFrameIndex": 0,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "43770b405232ce4eb7436c99e1d1801e9edaaaaf10d1f1c647dfa38c276a041e"
+    },
+    {
+      "fileName": "noise_000025_000049.bin",
+      "firstFrameIndex": 25,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "a719ce3161cd00419ca56926b4d71ccf3dbe6c56684869bfe38ac43ef5a6df23"
+    },
+    {
+      "fileName": "noise_000050_000074.bin",
+      "firstFrameIndex": 50,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "e4340349c798e028f19c48b9773fa6ea2ddbdad137a5bd6e67a2037d9cd8dd87"
+    },
+    {
+      "fileName": "noise_000075_000099.bin",
+      "firstFrameIndex": 75,
+      "frameCount": 25,
+      "sizeBytes": 60058,
+      "sha256": "20b78a69d3460c252d4214bbfd8d4d421589fdaa9167e1945b2ea386bcc30815"
+    }
+  ],
+  "overallHash": "e81b6dae0d027ca6a6e84cbd8d75a36ae4300ca645ff5f7d1beaa7b64ee1a022"
+}

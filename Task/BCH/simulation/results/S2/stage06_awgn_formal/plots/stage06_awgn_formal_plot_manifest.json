@@ -1,0 +1,66 @@
+{
+  "stageId": "stage06_awgn_formal",
+  "sourceResultsSha256": "4244d11833508ac7a1b4afd3b21605eb2c63a807fa1c5609c4b40a31a4219d39",
+  "plotScriptSha256": "815ef20a15d2f588fcb5c2a5c3839ec6560560f4444cea9e345d99f32f7edbde",
+  "pythonVersion": "3.11.0",
+  "matplotlibVersion": "3.10.7",
+  "zeroSurrogateRule": "0.5/denominator",
+  "aggregateFigureData": "stage06_awgn_formal_figure_data.csv",
+  "aggregateFigureDataSha256": "a7e04300174c7748c5ceff6adbfa682ea141e930b92e1dd9392a8cfe37250400",
+  "figures": [
+    {
+      "figureId": "stage06_awgn_formal_k200_ber",
+      "png": "stage06_awgn_formal_k200_ber.png",
+      "figureData": "stage06_awgn_formal_k200_ber_figure_data.csv",
+      "dpi": 300,
+      "xAxis": "SNR (dB)",
+      "pngSha256": "b4b30872af6865349309bf15ff232d0f1b1e2bdeedc88f387b05dbc87e66f169",
+      "figureDataSha256": "6d369a9af515498cb9ea2709d320520e4546e7c98380367620f953483d550182"
+    },
+    {
+      "figureId": "stage06_awgn_formal_k200_fer",
+      "png": "stage06_awgn_formal_k200_fer.png",
+      "figureData": "stage06_awgn_formal_k200_fer_figure_data.csv",
+      "dpi": 300,
+      "xAxis": "SNR (dB)",
+      "pngSha256": "2702b1579d2b7296c6d7f21afc371c5193c24ed7671da13203ff34386a4d2af2",
+      "figureDataSha256": "bd9e9dd827d3dd7bc3616e44b2d041a8f9ef7e76d1b980e41fcd82876beb4183"
+    },
+    {
+      "figureId": "stage06_awgn_formal_k200_latency",
+      "png": "stage06_awgn_formal_k200_latency.png",
+      "figureData": "stage06_awgn_formal_k200_latency_figure_data.csv",
+      "dpi": 300,
+      "xAxis": "SNR (dB)",
+      "pngSha256": "4b0b213a35e8e5b98c2739f4f5785cf7da6bbe5b80d16466434a3080928884a7",
+      "figureDataSha256": "80e258847d5b9d9f1217ffa0752b96e4155626691c8aecf62993fa7fa78875d6"
+    },
+    {
+      "figureId": "stage06_awgn_formal_k300_ber",
+      "png": "stage06_awgn_formal_k300_ber.png",
+      "figureData": "stage06_awgn_formal_k300_ber_figure_data.csv",
+      "dpi": 300,
+      "xAxis": "SNR (dB)",
+      "pngSha256": "9ba0d30235d4187fb3581047a0dd59fa9012bc7d2c01ecc75ed7f99b87fbda7b",
+      "figureDataSha256": "d98ffe9b2b51e5a6c70edd73597f2b9d9cc1ff664625d5bfd83342e44b4e5630"
+    },
+    {
+      "figureId": "stage06_awgn_formal_k300_fer",
+      "png": "stage06_awgn_formal_k300_fer.png",
+      "figureData": "stage06_awgn_formal_k300_fer_figure_data.csv",
+      "dpi": 300,
+      "xAxis": "SNR (dB)",
+      "pngSha256": "a0034954d14630129759cd7ccc00bdf0e0f691a278c189256943897bc6ec9c9e",
+      "figureDataSha256": "619162598b6e00135d8adfb9ce617e8fea5b4403f461eabc6858ae8db0e7017a"
+    },
+    {
+      "figureId": "stage06_awgn_formal_k300_latency",
+      "png": "stage06_awgn_formal_k300_latency.png",
+      "figureData": "stage06_awgn_formal_k300_latency_figure_data.csv",
+      "dpi": 300,
+      "xAxis": "SNR (dB)",
+      "pngSha256": "733b6c236e9dae65538eaf6ee1b7dc07cc3fd880613cee7a9c201f1dd7f0d928",
+      "figureDataSha256": "033822c6c70b07d87e0399c70df42454e42f3abf301ba99f861b1c2d709bcdfb"
+    }
+  ]
+}

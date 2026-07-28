@@ -1,0 +1,16 @@
+{
+  "stageId": "stage05_awgn_trial",
+  "caseId": "K200_S15",
+  "ebn0Index": 1,
+  "ebn0Db": 6.5,
+  "nextFrameIndex": 211,
+  "totalFrames": 211,
+  "totalPayloadBits": 42200,
+  "payloadErrorBits": 45,
+  "payloadErrorFrames": 18,
+  "decoderFailureFrames": 0,
+  "miscorrectionFrames": 18,
+  "undetectedErrorFrames": 0,
+  "trueSuccessFrames": 193,
+  "noiseChecksum": 1495702647827884329
+}

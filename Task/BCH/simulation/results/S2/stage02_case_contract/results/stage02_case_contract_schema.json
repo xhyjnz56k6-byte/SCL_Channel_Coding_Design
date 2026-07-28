@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "bch.s2.stage02.case_contract.v1",
+  "caseCount": 8,
+  "primaryKey": "caseId",
+  "rateFormula": "actualRate = payloadLength / totalEncodedLength",
+  "vectorDelimiter": "|",
+  "requiredFields": [
+    "caseId", "displayName", "payloadLength", "motherN", "motherK", "motherT",
+    "decoderType", "blockCount", "payloadPerBlock", "fillerPerBlock",
+    "shorteningPerBlock", "encodedLengthPerBlock", "totalEncodedLength", "actualRate",
+    "payloadReassemblyOrder", "systematicBitOrder", "parityBitOrder",
+    "shortenedBitPolicy", "legendLabel", "plotStyleId"
+  ],
+  "runtimeParameterSource": "explicit CaseContract selected by enum; no case-name inference"
+}

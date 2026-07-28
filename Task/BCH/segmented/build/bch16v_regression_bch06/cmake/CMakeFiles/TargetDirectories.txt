@@ -1,0 +1,9 @@
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/bch15_encoder.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/test_bch15_encoder.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/test_bch15_syndrome_table.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/test_bch15_lookup_decoder.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/test_bch15_segmented_adapter.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/export_bch06_cpp_reference.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/test.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/edit_cache.dir
+C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/CMakeFiles/rebuild_cache.dir

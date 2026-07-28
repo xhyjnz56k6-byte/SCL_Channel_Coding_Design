@@ -1,0 +1,80 @@
+[
+  {
+    "filename": "bch13_prescan_200bit_ber.png",
+    "sourceCsv": "prescan_summary.csv",
+    "figureDataCsv": "figure_data_bch13_prescan_200bit_ber.csv",
+    "sha256": "55c37f5543a3539d76326a931e5b5b94690b994dda29df503631debe6c41f2d4",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "BER",
+    "logScale": true,
+    "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO",
+    "generatedBy": "plot_bch_prescan.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch13_prescan_200bit_fer.png",
+    "sourceCsv": "prescan_summary.csv",
+    "figureDataCsv": "figure_data_bch13_prescan_200bit_fer.csv",
+    "sha256": "5dd4ba2490b1030c38a052b54eb5f22ce70931824d66439019dd3400b32bbcac",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "FER",
+    "logScale": true,
+    "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO",
+    "generatedBy": "plot_bch_prescan.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch13_prescan_300bit_ber.png",
+    "sourceCsv": "prescan_summary.csv",
+    "figureDataCsv": "figure_data_bch13_prescan_300bit_ber.csv",
+    "sha256": "accbe9a1d2c82246b25f8db0df65d60987279bd792dedaf5eb451a497a6a7a60",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "BER",
+    "logScale": true,
+    "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO",
+    "generatedBy": "plot_bch_prescan.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch13_prescan_300bit_fer.png",
+    "sourceCsv": "prescan_summary.csv",
+    "figureDataCsv": "figure_data_bch13_prescan_300bit_fer.csv",
+    "sha256": "444c7beff4fc9fce0e2ccde50d3026fdd9021dd2d8e86fc581f2076300b5564e",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "FER",
+    "logScale": true,
+    "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO",
+    "generatedBy": "plot_bch_prescan.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch13_prescan_miscorrection.png",
+    "sourceCsv": "prescan_summary.csv",
+    "figureDataCsv": "figure_data_bch13_prescan_miscorrection.csv",
+    "sha256": "c581e0995112b37cf6f12d3c1899b47f655f85a3b12e897ba98a3bca9afabc29",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "miscorrectionRate",
+    "logScale": true,
+    "zeroHandlingPolicy": "RULE_OF_THREE_IF_ZERO",
+    "generatedBy": "plot_bch_prescan.py",
+    "matplotlibVersion": "3.10.7"
+  },
+  {
+    "filename": "bch13_prescan_decode_time.png",
+    "sourceCsv": "prescan_summary.csv",
+    "figureDataCsv": "figure_data_bch13_prescan_decode_time.csv",
+    "sha256": "9b3f3ece0840bb3450ab0abdcd820d624a625e1aa179c673072e40b77b9d783f",
+    "dpi": 220,
+    "xColumn": "ebn0Db",
+    "yColumn": "avgDecodeTimeUs",
+    "logScale": false,
+    "zeroHandlingPolicy": "RAW_LINEAR",
+    "generatedBy": "plot_bch_prescan.py",
+    "matplotlibVersion": "3.10.7"
+  }
+]

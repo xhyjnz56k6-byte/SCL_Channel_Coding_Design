@@ -1,0 +1,13 @@
+caseName,category,value
+BCH-S200,noErrorStatusFrames,174925
+BCH-B200,noErrorStatusFrames,39255
+BCH-S300,noErrorStatusFrames,237017
+BCH-B300,noErrorStatusFrames,2170
+BCH-S200,correctedStatusFrames,146510
+BCH-B200,correctedStatusFrames,202945
+BCH-S300,correctedStatusFrames,163959
+BCH-B300,correctedStatusFrames,151762
+BCH-S200,failedStatusFrames,0
+BCH-B200,failedStatusFrames,11108
+BCH-S300,failedStatusFrames,0
+BCH-B300,failedStatusFrames,5067

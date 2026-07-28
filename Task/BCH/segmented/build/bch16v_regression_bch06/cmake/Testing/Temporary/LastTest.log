@@ -1,0 +1,65 @@
+Start testing: Jul 23 16:55 中国标准时间
+----------------------------------------------------------
+1/4 Testing: bch15_encoder
+1/4 Test: bch15_encoder
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_bch15_encoder.exe" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_outputs/bch02_encoder" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/../config/bch15_reference_vectors.csv"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake
+"bch15_encoder" start time: Jul 23 16:55 中国标准时间
+Output:
+----------------------------------------------------------
+BCH15 encoder PASS: 2048/2048
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"bch15_encoder" end time: Jul 23 16:55 中国标准时间
+"bch15_encoder" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/4 Testing: bch15_syndrome_table
+2/4 Test: bch15_syndrome_table
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_bch15_syndrome_table.exe" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_outputs/bch03_syndrome_table"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake
+"bch15_syndrome_table" start time: Jul 23 16:55 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"bch15_syndrome_table" end time: Jul 23 16:55 中国标准时间
+"bch15_syndrome_table" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/4 Testing: bch15_lookup_decoder
+3/4 Test: bch15_lookup_decoder
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_bch15_lookup_decoder.exe" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_outputs/bch04_lookup_decoder" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/../config/bch15_multi_error_seeds.csv"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake
+"bch15_lookup_decoder" start time: Jul 23 16:55 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.25 sec
+----------------------------------------------------------
+Test Passed.
+"bch15_lookup_decoder" end time: Jul 23 16:55 中国标准时间
+"bch15_lookup_decoder" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/4 Testing: bch15_segmented_adapter
+4/4 Test: bch15_segmented_adapter
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_bch15_segmented_adapter.exe" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake/test_outputs/bch05_segmented_adapter" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/../../../Common/build/stage04/real_pool_runs/smoke/frames/k200/manifest.json" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/../../../Common/build/stage04/real_pool_runs/smoke/frames/k300/manifest.json"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch16v_regression_bch06/cmake
+"bch15_segmented_adapter" start time: Jul 23 16:55 中国标准时间
+Output:
+----------------------------------------------------------
+BCH15 segmented adapter PASS
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"bch15_segmented_adapter" end time: Jul 23 16:55 中国标准时间
+"bch15_segmented_adapter" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 23 16:55 中国标准时间

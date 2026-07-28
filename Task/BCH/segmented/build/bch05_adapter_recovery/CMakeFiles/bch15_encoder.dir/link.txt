@@ -1,0 +1,2 @@
+D:\Apps\MinGW\ucrt64\bin\ar.exe qc libbch15_encoder.a CMakeFiles/bch15_encoder.dir/src/bch15_encoder.cpp.obj CMakeFiles/bch15_encoder.dir/src/bch15_syndrome.cpp.obj CMakeFiles/bch15_encoder.dir/src/bch15_lookup_table.cpp.obj CMakeFiles/bch15_encoder.dir/src/bch15_lookup_decoder.cpp.obj CMakeFiles/bch15_encoder.dir/src/bch15_segmented_adapter.cpp.obj
+D:\Apps\MinGW\ucrt64\bin\ranlib.exe libbch15_encoder.a

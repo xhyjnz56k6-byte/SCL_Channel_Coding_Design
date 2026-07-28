@@ -1,0 +1,24 @@
+-- Configuring done (0.2s)
+-- Generating done (0.3s)
+-- Build files have been written to: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/block/build/group3
+[ 14%] Built target bch_block
+[ 28%] Built target test_bch_block
+[ 42%] Built target export_bch_block_reference
+[ 57%] Built target export_bch_block_detail
+[ 71%] Built target export_bch_block_pool_encoder
+[ 85%] Built target export_bch_block_gf_detail
+[100%] Built target export_bch_block_illegal
+Test project C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/block/build/group3
+    Start 1: bch_block
+1/1 Test #1: bch_block ........................   Passed   26.41 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =  26.42 sec
+PASS_BCH07_CPP_MATLAB_PARAMETER_REFERENCE
+PASS_BCH07_TOOLBOX_PARAMETER_REFERENCE
+PASS_BCH07_GF_CPP_MATLAB_DETAIL rows=3834
+PASS_BCH08_POOL_ENCODER_REFERENCE
+PASS_BCH10_CPP_MATLAB_DETAIL_REFERENCE
+PASS_BCH10_ILLEGAL_INPUT_REFERENCE rows=10
+PASS_BCH10_TOOLBOX_CODEC_REFERENCE singleErrorCases=5104

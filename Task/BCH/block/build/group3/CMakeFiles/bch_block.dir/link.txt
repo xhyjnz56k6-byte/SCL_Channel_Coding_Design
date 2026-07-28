@@ -1,0 +1,2 @@
+D:\Apps\MinGW\ucrt64\bin\ar.exe qc libbch_block.a CMakeFiles/bch_block.dir/src/bch_block.cpp.obj
+D:\Apps\MinGW\ucrt64\bin\ranlib.exe libbch_block.a

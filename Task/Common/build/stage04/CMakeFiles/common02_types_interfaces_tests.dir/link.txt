@@ -1,0 +1,3 @@
+C:\Users\V3169\AppData\Roaming\Python\Python311\site-packages\cmake\data\bin\cmake.exe -E rm -f CMakeFiles\common02_types_interfaces_tests.dir/objects.a
+D:\Apps\MinGW\ucrt64\bin\ar.exe qc CMakeFiles\common02_types_interfaces_tests.dir/objects.a @CMakeFiles\common02_types_interfaces_tests.dir\objects1.rsp
+D:\Apps\MinGW\ucrt64\bin\c++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\common02_types_interfaces_tests.dir/objects.a -Wl,--no-whole-archive -o common02_types_interfaces_tests.exe -Wl,--out-implib,libcommon02_types_interfaces_tests.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\common02_types_interfaces_tests.dir\linkLibs.rsp

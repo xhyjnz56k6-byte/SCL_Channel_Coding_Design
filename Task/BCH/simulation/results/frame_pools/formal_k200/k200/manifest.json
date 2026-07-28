@@ -1,0 +1,369 @@
+{
+  "bitOrderWithinByte": "lsb_first",
+  "bitStorageFormat": "packed_bits",
+  "bytesPerFrame": 25,
+  "framePoolId": "payload_k200_seed2026072001_policy1_frames50000",
+  "generationAlgorithm": "splitmix64_payload_v2",
+  "generatorVersion": "common03.frame_pool.v2",
+  "integerByteOrder": "not_applicable",
+  "masterSeed": 2026072001,
+  "overallHash": "b1b0d61565e4234cd8585110940c6f646d42beca0abc0cbb048ba0368bb50805",
+  "payloadLength": 200,
+  "payloadPolicyVersion": 1,
+  "payloadSeed": 2026072001,
+  "schemaVersion": "common03.frame_pool_manifest.v2",
+  "shardSize": 1000,
+  "shards": [
+    {
+      "fileName": "frames_000000_000999.bin",
+      "frameCount": 1000,
+      "sha256": "dfde1e1c6b72fbdd58ac04526b85257a89671df3c1eaa7254f2ce490dea08e39",
+      "sizeBytes": 25000,
+      "startFrame": 0
+    },
+    {
+      "fileName": "frames_001000_001999.bin",
+      "frameCount": 1000,
+      "sha256": "75e227d44b5ae6f625aaa50ed37bf09405a1091e65a4e6102a5093541d2a032b",
+      "sizeBytes": 25000,
+      "startFrame": 1000
+    },
+    {
+      "fileName": "frames_002000_002999.bin",
+      "frameCount": 1000,
+      "sha256": "2c220552f3cfcc1709e9a0a20d99e58a99422876258f9be64717e8c0a10a0336",
+      "sizeBytes": 25000,
+      "startFrame": 2000
+    },
+    {
+      "fileName": "frames_003000_003999.bin",
+      "frameCount": 1000,
+      "sha256": "3b535faae509bd9db703c190a6a36669b414e5cd564ccea885799abf28c24bec",
+      "sizeBytes": 25000,
+      "startFrame": 3000
+    },
+    {
+      "fileName": "frames_004000_004999.bin",
+      "frameCount": 1000,
+      "sha256": "a4a5277ef7d2420a6b397f67daa07c03524975cd8ed5c50703c8e64d89f03957",
+      "sizeBytes": 25000,
+      "startFrame": 4000
+    },
+    {
+      "fileName": "frames_005000_005999.bin",
+      "frameCount": 1000,
+      "sha256": "ff9d3d2fa0be339c704b79fe8c06846678864eefe0e1e74ee47afe7b6c78c587",
+      "sizeBytes": 25000,
+      "startFrame": 5000
+    },
+    {
+      "fileName": "frames_006000_006999.bin",
+      "frameCount": 1000,
+      "sha256": "9de1b3095c95b6247c7b69150e98eb23b699e847d98cb5a08c418db6b281a3e3",
+      "sizeBytes": 25000,
+      "startFrame": 6000
+    },
+    {
+      "fileName": "frames_007000_007999.bin",
+      "frameCount": 1000,
+      "sha256": "d6cb787491b403f5a329ff089c7ed01f06d7a8abaea7ae3e2745588b0af1ffef",
+      "sizeBytes": 25000,
+      "startFrame": 7000
+    },
+    {
+      "fileName": "frames_008000_008999.bin",
+      "frameCount": 1000,
+      "sha256": "43089f7882b20c415ee5adcad4f65bd964268a23fe76f815f62923a01e130a3b",
+      "sizeBytes": 25000,
+      "startFrame": 8000
+    },
+    {
+      "fileName": "frames_009000_009999.bin",
+      "frameCount": 1000,
+      "sha256": "7c81805f1ce70ac23b007deeb2f6d6f7593f88c74fdc08de376a8327396b07de",
+      "sizeBytes": 25000,
+      "startFrame": 9000
+    },
+    {
+      "fileName": "frames_010000_010999.bin",
+      "frameCount": 1000,
+      "sha256": "fd8e3e1891af6127003227272e789b9806bb221ad93cc5c5681cd876e8b048b9",
+      "sizeBytes": 25000,
+      "startFrame": 10000
+    },
+    {
+      "fileName": "frames_011000_011999.bin",
+      "frameCount": 1000,
+      "sha256": "3807fc16f2fb3e510066d738b5f0a2e7cd951249a25e00f514a4c7c5f2bb3ad6",
+      "sizeBytes": 25000,
+      "startFrame": 11000
+    },
+    {
+      "fileName": "frames_012000_012999.bin",
+      "frameCount": 1000,
+      "sha256": "8570c2674e466656a8c0151596cbdd35fdd163305e2c35715b9c75951d524eac",
+      "sizeBytes": 25000,
+      "startFrame": 12000
+    },
+    {
+      "fileName": "frames_013000_013999.bin",
+      "frameCount": 1000,
+      "sha256": "3f6f08d829ef6e7891bebdc959f901b412aedbac068123a61dd1712f7266d1c7",
+      "sizeBytes": 25000,
+      "startFrame": 13000
+    },
+    {
+      "fileName": "frames_014000_014999.bin",
+      "frameCount": 1000,
+      "sha256": "c3554df35b4227e839990221b755e346451fa15f57ecb61047260f2e6c8ba6ae",
+      "sizeBytes": 25000,
+      "startFrame": 14000
+    },
+    {
+      "fileName": "frames_015000_015999.bin",
+      "frameCount": 1000,
+      "sha256": "67b7a1f4d7cc7e68b64542c49043b844669e1b68840ce84044f3090073da8688",
+      "sizeBytes": 25000,
+      "startFrame": 15000
+    },
+    {
+      "fileName": "frames_016000_016999.bin",
+      "frameCount": 1000,
+      "sha256": "1c79b7a300f90a162ceadf49891b6dda874d0b344a1869706e691db987a649cb",
+      "sizeBytes": 25000,
+      "startFrame": 16000
+    },
+    {
+      "fileName": "frames_017000_017999.bin",
+      "frameCount": 1000,
+      "sha256": "891abfacb1ed01f18e1adf41ed65e5d3d20327b6a4bb5d5f4e645385138ba60c",
+      "sizeBytes": 25000,
+      "startFrame": 17000
+    },
+    {
+      "fileName": "frames_018000_018999.bin",
+      "frameCount": 1000,
+      "sha256": "7f1a13ebcef3981ad9039842737b0656474f098327495255de99318d2141d832",
+      "sizeBytes": 25000,
+      "startFrame": 18000
+    },
+    {
+      "fileName": "frames_019000_019999.bin",
+      "frameCount": 1000,
+      "sha256": "d769c9d3ebc2a86fd20be39d6efff0f349ef699cb5080b4939d4ac94c81fd38f",
+      "sizeBytes": 25000,
+      "startFrame": 19000
+    },
+    {
+      "fileName": "frames_020000_020999.bin",
+      "frameCount": 1000,
+      "sha256": "9e17e1490df518e6e73333fa0e91aa228e46ea75f092f6dcb344a31dd76d46e1",
+      "sizeBytes": 25000,
+      "startFrame": 20000
+    },
+    {
+      "fileName": "frames_021000_021999.bin",
+      "frameCount": 1000,
+      "sha256": "2a405904eaba18ea67bb86b2b03f4f3c8222606ec02b3b93ddc2f20688e3f63f",
+      "sizeBytes": 25000,
+      "startFrame": 21000
+    },
+    {
+      "fileName": "frames_022000_022999.bin",
+      "frameCount": 1000,
+      "sha256": "2af354d13b9905dbec5ff08845d75c92d33cce603c224e29ed5d6cfe6a39d051",
+      "sizeBytes": 25000,
+      "startFrame": 22000
+    },
+    {
+      "fileName": "frames_023000_023999.bin",
+      "frameCount": 1000,
+      "sha256": "d98276847d9d1ea6d7f0f8a22ada06a759f23a247f1ec5bbb66121cfc85890bc",
+      "sizeBytes": 25000,
+      "startFrame": 23000
+    },
+    {
+      "fileName": "frames_024000_024999.bin",
+      "frameCount": 1000,
+      "sha256": "fd9b517c28b45c3d1cf073583dbb0bdc0b5fc3287245e03e9c9bf22f7f45e515",
+      "sizeBytes": 25000,
+      "startFrame": 24000
+    },
+    {
+      "fileName": "frames_025000_025999.bin",
+      "frameCount": 1000,
+      "sha256": "7ebeba81c6b59ba63bc98d0bccab259a03e0266e18ce3da54c7971f4f9b06798",
+      "sizeBytes": 25000,
+      "startFrame": 25000
+    },
+    {
+      "fileName": "frames_026000_026999.bin",
+      "frameCount": 1000,
+      "sha256": "d18b85f8791f3f007449f52c5afd0c58cba6aa19740205a4f3de5f7829fa3f02",
+      "sizeBytes": 25000,
+      "startFrame": 26000
+    },
+    {
+      "fileName": "frames_027000_027999.bin",
+      "frameCount": 1000,
+      "sha256": "649b941517464332659283246b663a56253322e0e70521fd1c41d89f6a96196f",
+      "sizeBytes": 25000,
+      "startFrame": 27000
+    },
+    {
+      "fileName": "frames_028000_028999.bin",
+      "frameCount": 1000,
+      "sha256": "201c3288949933cf096f1bd68b140cb6f5c7ca8b65f90d7eeb6915cd32f0bc6a",
+      "sizeBytes": 25000,
+      "startFrame": 28000
+    },
+    {
+      "fileName": "frames_029000_029999.bin",
+      "frameCount": 1000,
+      "sha256": "edb0c439e47c2ee0892108a04c58abda45a2dba0d31ff70e2b68613edfe02b2d",
+      "sizeBytes": 25000,
+      "startFrame": 29000
+    },
+    {
+      "fileName": "frames_030000_030999.bin",
+      "frameCount": 1000,
+      "sha256": "06e8b1b01079fb9fd7e33e645c596ff0e0b042dca8891b14f799247f9fee246c",
+      "sizeBytes": 25000,
+      "startFrame": 30000
+    },
+    {
+      "fileName": "frames_031000_031999.bin",
+      "frameCount": 1000,
+      "sha256": "ad6249d6c206af774c283dbe8e60b47dfac5a3591e14bc8606afaf9f21dafc6d",
+      "sizeBytes": 25000,
+      "startFrame": 31000
+    },
+    {
+      "fileName": "frames_032000_032999.bin",
+      "frameCount": 1000,
+      "sha256": "63340d4832b1032bd9cf588c032507d40297e96efcfb4d8ac2d424a7c673e7fe",
+      "sizeBytes": 25000,
+      "startFrame": 32000
+    },
+    {
+      "fileName": "frames_033000_033999.bin",
+      "frameCount": 1000,
+      "sha256": "52b0ea9acdb1d3235171a199c89dd81960d0b042881e9a67edfe532e76bbe3c8",
+      "sizeBytes": 25000,
+      "startFrame": 33000
+    },
+    {
+      "fileName": "frames_034000_034999.bin",
+      "frameCount": 1000,
+      "sha256": "6af4339144f73d20e19be6ec8f89eccbc56aec213dd62773f319498290a1478f",
+      "sizeBytes": 25000,
+      "startFrame": 34000
+    },
+    {
+      "fileName": "frames_035000_035999.bin",
+      "frameCount": 1000,
+      "sha256": "7016298dfb3511f5d640d715efa63029355af1ef7ac82f257104552aba68ea7e",
+      "sizeBytes": 25000,
+      "startFrame": 35000
+    },
+    {
+      "fileName": "frames_036000_036999.bin",
+      "frameCount": 1000,
+      "sha256": "473561cca14deb00bd4df49cd6dc212d0867d962dd950aa03faa28bfb5fab6b3",
+      "sizeBytes": 25000,
+      "startFrame": 36000
+    },
+    {
+      "fileName": "frames_037000_037999.bin",
+      "frameCount": 1000,
+      "sha256": "994375b7240b201874a46b3ee61c2c9faf7409b12bddeb6694b39528e76a67b6",
+      "sizeBytes": 25000,
+      "startFrame": 37000
+    },
+    {
+      "fileName": "frames_038000_038999.bin",
+      "frameCount": 1000,
+      "sha256": "74cc8a48582fb124315a5345373d359ce74387c8846f43fd7476d6eb9567726d",
+      "sizeBytes": 25000,
+      "startFrame": 38000
+    },
+    {
+      "fileName": "frames_039000_039999.bin",
+      "frameCount": 1000,
+      "sha256": "62f8791be7e740b92a635bb6a44b4e32275468fb35cfec8137d11dc2b96a1833",
+      "sizeBytes": 25000,
+      "startFrame": 39000
+    },
+    {
+      "fileName": "frames_040000_040999.bin",
+      "frameCount": 1000,
+      "sha256": "b4ec17352a4d079b6effc378baaec9a8ebfbe8524b86b8c5569ea600cd92b5af",
+      "sizeBytes": 25000,
+      "startFrame": 40000
+    },
+    {
+      "fileName": "frames_041000_041999.bin",
+      "frameCount": 1000,
+      "sha256": "3753edb012077fa629f4d4a3ec388a4de485bc8e24580e325a64fcfd8ed8f1b6",
+      "sizeBytes": 25000,
+      "startFrame": 41000
+    },
+    {
+      "fileName": "frames_042000_042999.bin",
+      "frameCount": 1000,
+      "sha256": "5c0de1b35063f15f4191516b82e45f755f06552e227a5d4e6cb7d12d08ff1cd5",
+      "sizeBytes": 25000,
+      "startFrame": 42000
+    },
+    {
+      "fileName": "frames_043000_043999.bin",
+      "frameCount": 1000,
+      "sha256": "57953c11c307f56fec9bb28686025661645a5b91374ef611cb67a9f385ff8461",
+      "sizeBytes": 25000,
+      "startFrame": 43000
+    },
+    {
+      "fileName": "frames_044000_044999.bin",
+      "frameCount": 1000,
+      "sha256": "1c56e19830a1fcd801713c58a159b37425cdc1756f2acb15045e2642694265e3",
+      "sizeBytes": 25000,
+      "startFrame": 44000
+    },
+    {
+      "fileName": "frames_045000_045999.bin",
+      "frameCount": 1000,
+      "sha256": "c590e2fb8e761796b6248adfc4babb9063aa69f558a0b78f8ed7df885f5da13b",
+      "sizeBytes": 25000,
+      "startFrame": 45000
+    },
+    {
+      "fileName": "frames_046000_046999.bin",
+      "frameCount": 1000,
+      "sha256": "9199d0f3432166ad0c58f703b066c02af2e8f93c0c82d1395a8780f765a4c691",
+      "sizeBytes": 25000,
+      "startFrame": 46000
+    },
+    {
+      "fileName": "frames_047000_047999.bin",
+      "frameCount": 1000,
+      "sha256": "42591be01ea384b0a224bf57b50ca5628e31eb34e602acbb3b284fc395038ecb",
+      "sizeBytes": 25000,
+      "startFrame": 47000
+    },
+    {
+      "fileName": "frames_048000_048999.bin",
+      "frameCount": 1000,
+      "sha256": "08223a4b75b6eb3e46c13b8ef0461f208003d6d73639eded0ac7316e12fc5d7c",
+      "sizeBytes": 25000,
+      "startFrame": 48000
+    },
+    {
+      "fileName": "frames_049000_049999.bin",
+      "frameCount": 1000,
+      "sha256": "e520a6deafd0404b488365aa0615af8512de035e87094c9c03cd65f77af09e1a",
+      "sizeBytes": 25000,
+      "startFrame": 49000
+    }
+  ],
+  "totalFrames": 50000
+}

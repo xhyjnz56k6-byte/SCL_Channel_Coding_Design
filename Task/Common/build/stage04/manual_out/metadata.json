@@ -1,0 +1,10 @@
+{
+"schemaVersion":"common04.metadata.v1",
+"experimentId":"test",
+"stage":"stage04_common_simulation_foundation",
+"codeType":"IDENTITY",
+"configHash":"14dd871d494aa385d501409068e41ee87896ce25ef79f696bca67f93b2059552",
+"framePoolId":"payload_k200_seed2026072001_policy1_frames10",
+"noisePoolId":"74b47e4c4340fe14",
+"createdTime":"runtime_metadata_only"
+}

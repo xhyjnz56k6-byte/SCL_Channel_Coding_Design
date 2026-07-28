@@ -1,0 +1,5 @@
+bch15_encoder 5 0.0559759
+bch15_syndrome_table 5 0.0508525
+bch15_lookup_decoder 5 0.0916848
+bch15_segmented_adapter 5 0.082488
+---

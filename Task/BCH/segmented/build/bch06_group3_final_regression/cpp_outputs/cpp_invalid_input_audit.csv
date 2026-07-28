@@ -1,0 +1,2 @@
+testId,functionName,expectedErrorId,actualErrorId,expectedMessageKeyword,actualMessage,caught,pass
+cpp_01,encodeBch15Systematic,invalid_argument,invalid_argument,length,length,true,true

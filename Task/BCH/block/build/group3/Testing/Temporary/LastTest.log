@@ -1,0 +1,19 @@
+Start testing: Jul 24 17:10 中国标准时间
+----------------------------------------------------------
+1/1 Testing: bch_block
+1/1 Test: bch_block
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/block/build/group3/test_bch_block.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/block/build/group3
+"bch_block" start time: Jul 24 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+PASS_BCH_BLOCK_CORE_TEST
+<end of output>
+Test time =  30.65 sec
+----------------------------------------------------------
+Test Passed.
+"bch_block" end time: Jul 24 17:11 中国标准时间
+"bch_block" time elapsed: 00:00:30
+----------------------------------------------------------
+
+End testing: Jul 24 17:11 中国标准时间

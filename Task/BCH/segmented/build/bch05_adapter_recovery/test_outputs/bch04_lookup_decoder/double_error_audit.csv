@@ -1,0 +1,12 @@
+metric,value
+doubleErrorCaseCount,215040
+doubleErrorCorrectedStatusCount,215040
+doubleErrorNoErrorStatusCount,0
+doubleErrorPostCheckFailedCount,0
+doubleErrorUnrecognizedCount,0
+doubleErrorLookupHitCount,215040
+doubleErrorPostSyndromeZeroCount,215040
+decodedToOriginalCodeword,0
+decodedToOriginalPayload,0
+miscorrectedToAnotherValidCodeword,215040
+reportedCorrectedButPayloadWrong,215040

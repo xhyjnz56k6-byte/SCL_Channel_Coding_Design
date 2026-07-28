@@ -1,0 +1,109 @@
+Start testing: Jul 26 17:10 中国标准时间
+----------------------------------------------------------
+1/7 Testing: common02_types_interfaces
+1/7 Test: common02_types_interfaces
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04/common02_types_interfaces_tests.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04
+"common02_types_interfaces" start time: Jul 26 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+COMMON-02 TEST PASS
+<end of output>
+Test time =   0.23 sec
+----------------------------------------------------------
+Test Passed.
+"common02_types_interfaces" end time: Jul 26 17:10 中国标准时间
+"common02_types_interfaces" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/7 Testing: test_common04_random_policy
+2/7 Test: test_common04_random_policy
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04/test_common04_random_policy.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04
+"test_common04_random_policy" start time: Jul 26 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.42 sec
+----------------------------------------------------------
+Test Passed.
+"test_common04_random_policy" end time: Jul 26 17:10 中国标准时间
+"test_common04_random_policy" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/7 Testing: test_common04_gaussian_noise
+3/7 Test: test_common04_gaussian_noise
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04/test_common04_gaussian_noise.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04
+"test_common04_gaussian_noise" start time: Jul 26 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.44 sec
+----------------------------------------------------------
+Test Passed.
+"test_common04_gaussian_noise" end time: Jul 26 17:10 中国标准时间
+"test_common04_gaussian_noise" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/7 Testing: test_common04_modulation_awgn
+4/7 Test: test_common04_modulation_awgn
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04/test_common04_modulation_awgn.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04
+"test_common04_modulation_awgn" start time: Jul 26 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"test_common04_modulation_awgn" end time: Jul 26 17:10 中国标准时间
+"test_common04_modulation_awgn" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/7 Testing: test_common04_metrics_control
+5/7 Test: test_common04_metrics_control
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04/test_common04_metrics_control.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04
+"test_common04_metrics_control" start time: Jul 26 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.41 sec
+----------------------------------------------------------
+Test Passed.
+"test_common04_metrics_control" end time: Jul 26 17:10 中国标准时间
+"test_common04_metrics_control" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/7 Testing: test_common04_checkpoint
+6/7 Test: test_common04_checkpoint
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04/test_common04_checkpoint.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04
+"test_common04_checkpoint" start time: Jul 26 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.44 sec
+----------------------------------------------------------
+Test Passed.
+"test_common04_checkpoint" end time: Jul 26 17:10 中国标准时间
+"test_common04_checkpoint" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/7 Testing: test_common04_integration
+7/7 Test: test_common04_integration
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04/test_common04_integration.exe"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/Common/build/stage04
+"test_common04_integration" start time: Jul 26 17:10 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.47 sec
+----------------------------------------------------------
+Test Passed.
+"test_common04_integration" end time: Jul 26 17:10 中国标准时间
+"test_common04_integration" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 26 17:10 中国标准时间

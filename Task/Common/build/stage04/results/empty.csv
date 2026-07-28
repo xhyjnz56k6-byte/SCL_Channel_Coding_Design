@@ -1,0 +1,1 @@
+schemaVersion,experimentId,stage,codeType,caseName,payloadLength,encodedLength,codeRate,ebN0_dB,snrIndex,processedFrames,totalPayloadBits,bitErrors,frameErrors,successfulFrames,ber,fer,successRate,avgEncodeTimeUs,avgChannelTimeUs,avgDecodeTimeUs,maxDecodeTimeUs,avgRecoveryTimeUs,avgTotalTimeUs,maxTotalTimeUs,stopReason,framePoolId,noisePoolId,configHash

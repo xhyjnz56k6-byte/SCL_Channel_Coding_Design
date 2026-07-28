@@ -1,0 +1,5 @@
+caseName,ebn0Db,continuousFrames,resumedFrames,counterMismatches,noiseHashMismatches,checkpointCount,status
+BCH-S200,6.0,6000,6000,0,0,8,PASS
+BCH-B200,4.5,6000,6000,0,0,8,PASS
+BCH-S300,6.5,6000,6000,0,0,8,PASS
+BCH-B300,4.5,6000,6000,0,0,8,PASS

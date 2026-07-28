@@ -1,0 +1,579 @@
+{
+  "bitOrderWithinByte": "lsb_first",
+  "bitStorageFormat": "packed_bits",
+  "bytesPerFrame": 38,
+  "framePoolId": "payload_k300_seed2026072001_policy1_frames2000",
+  "generationAlgorithm": "splitmix64_payload_v2",
+  "generatorVersion": "common03.frame_pool.v2",
+  "integerByteOrder": "not_applicable",
+  "masterSeed": 2026072001,
+  "overallHash": "772de5f20b7277e06a59c11d5ce3b5be7750f14c133d55019153994b1bd708fc",
+  "payloadLength": 300,
+  "payloadPolicyVersion": 1,
+  "payloadSeed": 2026072001,
+  "schemaVersion": "common03.frame_pool_manifest.v2",
+  "shardSize": 25,
+  "shards": [
+    {
+      "fileName": "frames_000000_000024.bin",
+      "frameCount": 25,
+      "sha256": "9f54226417c461624dd052e04887a3d30e9049846405ea2e1796ea083fdcd6da",
+      "sizeBytes": 950,
+      "startFrame": 0
+    },
+    {
+      "fileName": "frames_000025_000049.bin",
+      "frameCount": 25,
+      "sha256": "805199557f613c202a0e30f99538aeda36e101f55db70093b6fdd8433034e218",
+      "sizeBytes": 950,
+      "startFrame": 25
+    },
+    {
+      "fileName": "frames_000050_000074.bin",
+      "frameCount": 25,
+      "sha256": "01d2ba7e25b9b9abf947720aa013c03d643359c837a7cdba84aa8752f908c410",
+      "sizeBytes": 950,
+      "startFrame": 50
+    },
+    {
+      "fileName": "frames_000075_000099.bin",
+      "frameCount": 25,
+      "sha256": "2b1a7490fe6799b9ab40ea5bc13f3b13096c9be03801a4a5351d6f424de2d3bb",
+      "sizeBytes": 950,
+      "startFrame": 75
+    },
+    {
+      "fileName": "frames_000100_000124.bin",
+      "frameCount": 25,
+      "sha256": "c05e3d873ee9c1108c8987d36015343ddd714b01ae94a91f006bce109f7d7270",
+      "sizeBytes": 950,
+      "startFrame": 100
+    },
+    {
+      "fileName": "frames_000125_000149.bin",
+      "frameCount": 25,
+      "sha256": "02b537ab5f9ddc70fb7b3822a43f0618bd9c900eb261610c445e9eb42317ab6c",
+      "sizeBytes": 950,
+      "startFrame": 125
+    },
+    {
+      "fileName": "frames_000150_000174.bin",
+      "frameCount": 25,
+      "sha256": "e288a650a9661aa150d658c91e9775262d59c289f46f9c896539dceb57f4f8a4",
+      "sizeBytes": 950,
+      "startFrame": 150
+    },
+    {
+      "fileName": "frames_000175_000199.bin",
+      "frameCount": 25,
+      "sha256": "6b5f58df40093e36aeb289d0b7fba4312e144afec50aa82a5707c6e73382fbe6",
+      "sizeBytes": 950,
+      "startFrame": 175
+    },
+    {
+      "fileName": "frames_000200_000224.bin",
+      "frameCount": 25,
+      "sha256": "3c4176dcf6914aa0a2aa4e6dd012032e3732c0f8c9ab51a222ab0b6df1eef19c",
+      "sizeBytes": 950,
+      "startFrame": 200
+    },
+    {
+      "fileName": "frames_000225_000249.bin",
+      "frameCount": 25,
+      "sha256": "2662394721619ffa4ce47b4be995ff3d404cd466c34c76540fe683433475d37a",
+      "sizeBytes": 950,
+      "startFrame": 225
+    },
+    {
+      "fileName": "frames_000250_000274.bin",
+      "frameCount": 25,
+      "sha256": "164a91cee391f771a9c38a82e2538244083692faca06816daaae65b2d628d47e",
+      "sizeBytes": 950,
+      "startFrame": 250
+    },
+    {
+      "fileName": "frames_000275_000299.bin",
+      "frameCount": 25,
+      "sha256": "9dc967ce6aeb6b2bacdf4da8eebb546836e912481d0f154f6c7107067878c58e",
+      "sizeBytes": 950,
+      "startFrame": 275
+    },
+    {
+      "fileName": "frames_000300_000324.bin",
+      "frameCount": 25,
+      "sha256": "819d17424008dd223907a407e7ffb3303b647903ab8f93c811e3f0303c0f368b",
+      "sizeBytes": 950,
+      "startFrame": 300
+    },
+    {
+      "fileName": "frames_000325_000349.bin",
+      "frameCount": 25,
+      "sha256": "0014b78b701b6399477acf5fdaa5396681a20b84d8f2ad6e3052933482b9091e",
+      "sizeBytes": 950,
+      "startFrame": 325
+    },
+    {
+      "fileName": "frames_000350_000374.bin",
+      "frameCount": 25,
+      "sha256": "797a45e4cfd657db0eb69bfc3560da58c01d826ed193f69b0fc635356b54186d",
+      "sizeBytes": 950,
+      "startFrame": 350
+    },
+    {
+      "fileName": "frames_000375_000399.bin",
+      "frameCount": 25,
+      "sha256": "d5df7f6ef94f473b94e23a0f73a52cbf0bcd2ede53a5a9463f826b384a080deb",
+      "sizeBytes": 950,
+      "startFrame": 375
+    },
+    {
+      "fileName": "frames_000400_000424.bin",
+      "frameCount": 25,
+      "sha256": "a02dc4390e6dee6119cedaca825bc6ce38ce1b8f1b17d66ade9bef1831870ec5",
+      "sizeBytes": 950,
+      "startFrame": 400
+    },
+    {
+      "fileName": "frames_000425_000449.bin",
+      "frameCount": 25,
+      "sha256": "2ef458fe10c9b28f235c2d2c8532600f51a2d12fdff758d37dd8c14cbee906fc",
+      "sizeBytes": 950,
+      "startFrame": 425
+    },
+    {
+      "fileName": "frames_000450_000474.bin",
+      "frameCount": 25,
+      "sha256": "d8dd09fb70cdad21db631c4d5e81393374b1ec413e073584a1e17a45fe15dd75",
+      "sizeBytes": 950,
+      "startFrame": 450
+    },
+    {
+      "fileName": "frames_000475_000499.bin",
+      "frameCount": 25,
+      "sha256": "d3e6899347a6cea5ce1f11c570e9149cd62d1b1a25d5d719686add17368de09d",
+      "sizeBytes": 950,
+      "startFrame": 475
+    },
+    {
+      "fileName": "frames_000500_000524.bin",
+      "frameCount": 25,
+      "sha256": "f6e0c0db6e4be4b84422f3f8dbdfd4bcf8db51e1a332a037833ab913da669b06",
+      "sizeBytes": 950,
+      "startFrame": 500
+    },
+    {
+      "fileName": "frames_000525_000549.bin",
+      "frameCount": 25,
+      "sha256": "314009f8ebab91741c06338bc7e1da9775c3392a5c7410620e165461b77834cf",
+      "sizeBytes": 950,
+      "startFrame": 525
+    },
+    {
+      "fileName": "frames_000550_000574.bin",
+      "frameCount": 25,
+      "sha256": "8a0202197a08270326b0ec6088248059df43366cb5a298f9cf6d2b64642eb342",
+      "sizeBytes": 950,
+      "startFrame": 550
+    },
+    {
+      "fileName": "frames_000575_000599.bin",
+      "frameCount": 25,
+      "sha256": "3a4f9f149ad09f5c2c6a5b097c7cca2970284783a2b0bf4b21226586b0478daa",
+      "sizeBytes": 950,
+      "startFrame": 575
+    },
+    {
+      "fileName": "frames_000600_000624.bin",
+      "frameCount": 25,
+      "sha256": "c6020ea3703aa91ffd7a1a63359bb142356c88d7857352fffbeb1583a0f03a3f",
+      "sizeBytes": 950,
+      "startFrame": 600
+    },
+    {
+      "fileName": "frames_000625_000649.bin",
+      "frameCount": 25,
+      "sha256": "25043338feaa96a6881812907d46b49b14dc8c2189e83086533c4dd31e477343",
+      "sizeBytes": 950,
+      "startFrame": 625
+    },
+    {
+      "fileName": "frames_000650_000674.bin",
+      "frameCount": 25,
+      "sha256": "9903b82ac07088a88f417161aa5338ebd30c0b024b102fe41bbd19892fbf6403",
+      "sizeBytes": 950,
+      "startFrame": 650
+    },
+    {
+      "fileName": "frames_000675_000699.bin",
+      "frameCount": 25,
+      "sha256": "1f4d576445b0f6fd5eef9fb4cac14b1874524a0916cdf2efec638f7219deece4",
+      "sizeBytes": 950,
+      "startFrame": 675
+    },
+    {
+      "fileName": "frames_000700_000724.bin",
+      "frameCount": 25,
+      "sha256": "b58984d011fd258e3dfc5b30940ccda43f9aed0934d1d6530051f44e7c3ddb63",
+      "sizeBytes": 950,
+      "startFrame": 700
+    },
+    {
+      "fileName": "frames_000725_000749.bin",
+      "frameCount": 25,
+      "sha256": "0859321381b16f55b701227865acb7d64ec88bcde2ac68125d236af74afc57cf",
+      "sizeBytes": 950,
+      "startFrame": 725
+    },
+    {
+      "fileName": "frames_000750_000774.bin",
+      "frameCount": 25,
+      "sha256": "ba1c42569b8798d9b10dcd8fa61d705c27e1acea71a1432a64de23896995f884",
+      "sizeBytes": 950,
+      "startFrame": 750
+    },
+    {
+      "fileName": "frames_000775_000799.bin",
+      "frameCount": 25,
+      "sha256": "223cae655257b04a2df8cbfd2ac97255ee044659a7fecbd62ce39bb692128fce",
+      "sizeBytes": 950,
+      "startFrame": 775
+    },
+    {
+      "fileName": "frames_000800_000824.bin",
+      "frameCount": 25,
+      "sha256": "f7c94aa5cba0ecf977fe490379c43f30da84c15dd1c76cb37bd70238a336078e",
+      "sizeBytes": 950,
+      "startFrame": 800
+    },
+    {
+      "fileName": "frames_000825_000849.bin",
+      "frameCount": 25,
+      "sha256": "80309d32c6ea0e4662a7d0b3c029d3b88c3f58db485c93e446c7572461005d22",
+      "sizeBytes": 950,
+      "startFrame": 825
+    },
+    {
+      "fileName": "frames_000850_000874.bin",
+      "frameCount": 25,
+      "sha256": "67f44e2c371c06a5bbea8994a86a01e3cc7e90269c8b9aab79c3715440986282",
+      "sizeBytes": 950,
+      "startFrame": 850
+    },
+    {
+      "fileName": "frames_000875_000899.bin",
+      "frameCount": 25,
+      "sha256": "1e8adc2f2285691a7427a387f7ebb48dfd0ec49b06fafd1b72296fe134822eb7",
+      "sizeBytes": 950,
+      "startFrame": 875
+    },
+    {
+      "fileName": "frames_000900_000924.bin",
+      "frameCount": 25,
+      "sha256": "8a77ddcc5dfc697402cc6115d9c0ee61b49ba7b6c5e34fe8e63c951e4e28efa4",
+      "sizeBytes": 950,
+      "startFrame": 900
+    },
+    {
+      "fileName": "frames_000925_000949.bin",
+      "frameCount": 25,
+      "sha256": "e15e9662313c9789e41880cf276980594d483220700f6c09f184949224510092",
+      "sizeBytes": 950,
+      "startFrame": 925
+    },
+    {
+      "fileName": "frames_000950_000974.bin",
+      "frameCount": 25,
+      "sha256": "3668abff25a88d567cde10b0c035ac1f1c75f053afd575a5f38bd9dd7b2855c1",
+      "sizeBytes": 950,
+      "startFrame": 950
+    },
+    {
+      "fileName": "frames_000975_000999.bin",
+      "frameCount": 25,
+      "sha256": "7df2d3cf4d2752c75adf42a75570d34a7b323b4888397884b8182ee0058a5e21",
+      "sizeBytes": 950,
+      "startFrame": 975
+    },
+    {
+      "fileName": "frames_001000_001024.bin",
+      "frameCount": 25,
+      "sha256": "245bfe50b0b4421bb44450c44b63f3e58fb3fe5ca40402bf5a2eecf74fff81d3",
+      "sizeBytes": 950,
+      "startFrame": 1000
+    },
+    {
+      "fileName": "frames_001025_001049.bin",
+      "frameCount": 25,
+      "sha256": "a8b21ad8a46a0e1e9405c73c4b384b81560fba593e197d382fa8f77893acfabb",
+      "sizeBytes": 950,
+      "startFrame": 1025
+    },
+    {
+      "fileName": "frames_001050_001074.bin",
+      "frameCount": 25,
+      "sha256": "655ad680684aeb9e37e7d716135587eb7cf7d48034f30a88ba507e0312c1eca2",
+      "sizeBytes": 950,
+      "startFrame": 1050
+    },
+    {
+      "fileName": "frames_001075_001099.bin",
+      "frameCount": 25,
+      "sha256": "ac473fa70da65da650a6a6e31a6ab2065a7d0d0c5bffe51f5201df5af4fe1e85",
+      "sizeBytes": 950,
+      "startFrame": 1075
+    },
+    {
+      "fileName": "frames_001100_001124.bin",
+      "frameCount": 25,
+      "sha256": "577b19bb6b2aa180fa16b6a0a42d3682d4e23db2ebf05f97fe4f8faf4b4ae314",
+      "sizeBytes": 950,
+      "startFrame": 1100
+    },
+    {
+      "fileName": "frames_001125_001149.bin",
+      "frameCount": 25,
+      "sha256": "866b2f114fc57e0968e54ee480ade098281499a0fe6bf7642b1a94870e0d11d1",
+      "sizeBytes": 950,
+      "startFrame": 1125
+    },
+    {
+      "fileName": "frames_001150_001174.bin",
+      "frameCount": 25,
+      "sha256": "d73f194ce2638eec21d49e4391d202f0de073133fcec1ef5713fe5987a5bdd42",
+      "sizeBytes": 950,
+      "startFrame": 1150
+    },
+    {
+      "fileName": "frames_001175_001199.bin",
+      "frameCount": 25,
+      "sha256": "667b549ceb4b2c2755c3bab82401733fac9a43424383b3a8a38427f3341c9478",
+      "sizeBytes": 950,
+      "startFrame": 1175
+    },
+    {
+      "fileName": "frames_001200_001224.bin",
+      "frameCount": 25,
+      "sha256": "8ee4028c0fe718f1b76fbf884155cc4e49579b5280c3ab14d2c0d0fac7184300",
+      "sizeBytes": 950,
+      "startFrame": 1200
+    },
+    {
+      "fileName": "frames_001225_001249.bin",
+      "frameCount": 25,
+      "sha256": "5e6d4c6238a5939f1fd37ea1ae4649a40447b6d86d8d73fee173c4ef08b13560",
+      "sizeBytes": 950,
+      "startFrame": 1225
+    },
+    {
+      "fileName": "frames_001250_001274.bin",
+      "frameCount": 25,
+      "sha256": "bdc4077524a50742140594ded5eb7fb8cfed60af3e1ba74185d4cf50048e2abe",
+      "sizeBytes": 950,
+      "startFrame": 1250
+    },
+    {
+      "fileName": "frames_001275_001299.bin",
+      "frameCount": 25,
+      "sha256": "67de3582089a1718ae29cad440af95bfac5e557bf04ceed4683205554cd38f81",
+      "sizeBytes": 950,
+      "startFrame": 1275
+    },
+    {
+      "fileName": "frames_001300_001324.bin",
+      "frameCount": 25,
+      "sha256": "a5be606d8c5313bebfa4f8625c0a58e107aa456ecf5cebb49bc1dbbfe2d5c57c",
+      "sizeBytes": 950,
+      "startFrame": 1300
+    },
+    {
+      "fileName": "frames_001325_001349.bin",
+      "frameCount": 25,
+      "sha256": "22a8c87aea11f476a72ca63d763f33153c2e27eeff4eb8afbe1657a81c295820",
+      "sizeBytes": 950,
+      "startFrame": 1325
+    },
+    {
+      "fileName": "frames_001350_001374.bin",
+      "frameCount": 25,
+      "sha256": "9579e6a219bb3b2edbfae0a14e785cebcfe813be73e52e1f6b4a93035440b42e",
+      "sizeBytes": 950,
+      "startFrame": 1350
+    },
+    {
+      "fileName": "frames_001375_001399.bin",
+      "frameCount": 25,
+      "sha256": "ecd1cd40790d52f2185041180643b2ae411916df13a8d4af43eaf4b5cf20b414",
+      "sizeBytes": 950,
+      "startFrame": 1375
+    },
+    {
+      "fileName": "frames_001400_001424.bin",
+      "frameCount": 25,
+      "sha256": "0dba3fa70c4bfb7e1149320c764cb3d81828f775771dc795796dec18de5e0859",
+      "sizeBytes": 950,
+      "startFrame": 1400
+    },
+    {
+      "fileName": "frames_001425_001449.bin",
+      "frameCount": 25,
+      "sha256": "aeb2e0b442dc6eb2a17e37a1f666e4351d342b5728cf862fad6c850ee4f194f8",
+      "sizeBytes": 950,
+      "startFrame": 1425
+    },
+    {
+      "fileName": "frames_001450_001474.bin",
+      "frameCount": 25,
+      "sha256": "0567095e84ce7c51e5f69a49b4343ad37993dd1c4357af6fdf9b4a179396b7ce",
+      "sizeBytes": 950,
+      "startFrame": 1450
+    },
+    {
+      "fileName": "frames_001475_001499.bin",
+      "frameCount": 25,
+      "sha256": "70d947f8a3c56ebbf3cf5d05baa06aa708f37f64b7852f45fe1351c2af5f4257",
+      "sizeBytes": 950,
+      "startFrame": 1475
+    },
+    {
+      "fileName": "frames_001500_001524.bin",
+      "frameCount": 25,
+      "sha256": "54428fa1424534985deee3281a6976dc592f9cdc9f53619ce4517c15f72666a0",
+      "sizeBytes": 950,
+      "startFrame": 1500
+    },
+    {
+      "fileName": "frames_001525_001549.bin",
+      "frameCount": 25,
+      "sha256": "8147e62a1284c2f6dbeecd8f0e2b7d60c2f19ab8f6d19284e68c0f2e085739cd",
+      "sizeBytes": 950,
+      "startFrame": 1525
+    },
+    {
+      "fileName": "frames_001550_001574.bin",
+      "frameCount": 25,
+      "sha256": "d364a75ad63c7681182f672496e97322984b2dce947ab409e88234fb2754796c",
+      "sizeBytes": 950,
+      "startFrame": 1550
+    },
+    {
+      "fileName": "frames_001575_001599.bin",
+      "frameCount": 25,
+      "sha256": "7cae411ada7daa919de16dd2cbd7b1d244f0877e763806b2c3c7c267fd9854ec",
+      "sizeBytes": 950,
+      "startFrame": 1575
+    },
+    {
+      "fileName": "frames_001600_001624.bin",
+      "frameCount": 25,
+      "sha256": "3ead6f0b1295c1902959f556ae664c4b45ad873f9feefbcc5e9e5691180125b9",
+      "sizeBytes": 950,
+      "startFrame": 1600
+    },
+    {
+      "fileName": "frames_001625_001649.bin",
+      "frameCount": 25,
+      "sha256": "b83118d561387979d6eadeee1c2b2ef0536e77d57f96d56a64b58a615402d99c",
+      "sizeBytes": 950,
+      "startFrame": 1625
+    },
+    {
+      "fileName": "frames_001650_001674.bin",
+      "frameCount": 25,
+      "sha256": "8ae1fec4cd00b48e37f19a1a4b8ac43fde8542973851fdd881cc8660b7703369",
+      "sizeBytes": 950,
+      "startFrame": 1650
+    },
+    {
+      "fileName": "frames_001675_001699.bin",
+      "frameCount": 25,
+      "sha256": "3099879f7b00fbea9329371525ddb80ce39e3a0ab5c1ff7ba85be55ed81f473c",
+      "sizeBytes": 950,
+      "startFrame": 1675
+    },
+    {
+      "fileName": "frames_001700_001724.bin",
+      "frameCount": 25,
+      "sha256": "570e8564f3ab9c57da63b6305c1ce66d5ca87d7df244b7994ed408f22bf059eb",
+      "sizeBytes": 950,
+      "startFrame": 1700
+    },
+    {
+      "fileName": "frames_001725_001749.bin",
+      "frameCount": 25,
+      "sha256": "bb6b7c9bbbfecb56432b5697e81da55b846918469f9cbec07107bf73232ca681",
+      "sizeBytes": 950,
+      "startFrame": 1725
+    },
+    {
+      "fileName": "frames_001750_001774.bin",
+      "frameCount": 25,
+      "sha256": "7d47cf2a959952e4b340701cad86c69372c9ee21cf18502c34f7f6f723ca8862",
+      "sizeBytes": 950,
+      "startFrame": 1750
+    },
+    {
+      "fileName": "frames_001775_001799.bin",
+      "frameCount": 25,
+      "sha256": "9f816178af08ed8af3a84be76e26109abc0ce844bf4a98c2d2d76c0ace00c363",
+      "sizeBytes": 950,
+      "startFrame": 1775
+    },
+    {
+      "fileName": "frames_001800_001824.bin",
+      "frameCount": 25,
+      "sha256": "7f7a915571a9885b90ac0709232f8aaa35f6ff342d8522bd73858a440c046707",
+      "sizeBytes": 950,
+      "startFrame": 1800
+    },
+    {
+      "fileName": "frames_001825_001849.bin",
+      "frameCount": 25,
+      "sha256": "d384c20d91198c30bd2225d3e3712476535ab69e5eb8a91a122990837cfc35df",
+      "sizeBytes": 950,
+      "startFrame": 1825
+    },
+    {
+      "fileName": "frames_001850_001874.bin",
+      "frameCount": 25,
+      "sha256": "a7428cef54dc75e464a282ad6a60b3d1236662bdcbc4e2faa34c24f6b0f3cfcf",
+      "sizeBytes": 950,
+      "startFrame": 1850
+    },
+    {
+      "fileName": "frames_001875_001899.bin",
+      "frameCount": 25,
+      "sha256": "c2f86365132fbe00a33cd609feb78dd128123ea653c2878c1750a5bbdef8a576",
+      "sizeBytes": 950,
+      "startFrame": 1875
+    },
+    {
+      "fileName": "frames_001900_001924.bin",
+      "frameCount": 25,
+      "sha256": "3929fc15510efd24311e87b64f255c9aeaec11a5c1b129551d3ce54d2104998c",
+      "sizeBytes": 950,
+      "startFrame": 1900
+    },
+    {
+      "fileName": "frames_001925_001949.bin",
+      "frameCount": 25,
+      "sha256": "b4d5fb735de251d64766e5f50763ba4428ded10e32266611185ac836e8dfd4e7",
+      "sizeBytes": 950,
+      "startFrame": 1925
+    },
+    {
+      "fileName": "frames_001950_001974.bin",
+      "frameCount": 25,
+      "sha256": "391caf9b96c0d8fa05f61d8320cc126137cca5af4a8cc405ebd6d4b952b99974",
+      "sizeBytes": 950,
+      "startFrame": 1950
+    },
+    {
+      "fileName": "frames_001975_001999.bin",
+      "frameCount": 25,
+      "sha256": "46730dc6eb71739225b7872425bc4b50bc97b0804d92c0666d4503a4910518a3",
+      "sizeBytes": 950,
+      "startFrame": 1975
+    }
+  ],
+  "totalFrames": 2000
+}

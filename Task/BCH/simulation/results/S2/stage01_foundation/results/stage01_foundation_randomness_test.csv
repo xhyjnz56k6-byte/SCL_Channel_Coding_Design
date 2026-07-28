@@ -1,0 +1,7 @@
+testName,passed,detail
+same_identity_rerun,true,complete identity reproduced exactly
+frame_index_changes_noise,true,frameIndex participates in identity
+case_id_changes_noise,true,caseId participates in identity
+payload_awgn_domain_separation,true,PAYLOAD and AWGN domains are independent
+checkpoint_resume_identity,true,resume reconstructs the same complete identity
+shard_identity,true,shard ownership does not alter frame identity

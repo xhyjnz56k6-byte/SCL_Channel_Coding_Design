@@ -1,0 +1,34 @@
+Start testing: Jul 23 16:53 中国标准时间
+----------------------------------------------------------
+1/2 Testing: bch15_encoder
+1/2 Test: bch15_encoder
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/test_bch15_encoder.exe" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/../stages/bch02_bch15_encoder" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/../config/bch15_reference_vectors.csv"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03
+"bch15_encoder" start time: Jul 23 16:53 中国标准时间
+Output:
+----------------------------------------------------------
+BCH15 encoder PASS: 2048/2048
+<end of output>
+Test time =   0.36 sec
+----------------------------------------------------------
+Test Passed.
+"bch15_encoder" end time: Jul 23 16:53 中国标准时间
+"bch15_encoder" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/2 Testing: bch15_syndrome_table
+2/2 Test: bch15_syndrome_table
+Command: "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03/test_bch15_syndrome_table.exe" "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/current/../stages/bch03_bch15_syndrome_table"
+Directory: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Task/BCH/segmented/build/bch03
+"bch15_syndrome_table" start time: Jul 23 16:53 中国标准时间
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.32 sec
+----------------------------------------------------------
+Test Passed.
+"bch15_syndrome_table" end time: Jul 23 16:53 中国标准时间
+"bch15_syndrome_table" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 23 16:53 中国标准时间

@@ -1,0 +1,13 @@
+finding,repairEvidence,actualCheck,status
+resume未生效,resume_shard_audit.csv,中断113帧后恢复与连续300帧原始计数和frame index一致,PASS
+输出被截断,bch_burst_audit_runner.cpp,checkpoint临时文件原子替换且结果原子发布,PASS
+假shard计数,resume_shard_audit.csv,真实执行三个互斥shard并合并,PASS
+硬编码resume PASS,resume_shard_log.txt,checker调用可执行文件并比较13项原始计数,PASS
+驱动伪造审计CSV,run_bch_s2_burst_redesign.py,derive阶段不再写固定PASS记录,PASS
+matlab-only未执行,matlab_execution.json,真实MATLAB命令returnCode=0且保存日志哈希,PASS
+all未执行MATLAB,run_bch_s2_burst_redesign.py,--all调用MATLAB且不可用时阻断总Gate,PASS
+checker未查MATLAB,check_bch_s2_burst_redesign.py,核验15组9040帧8类mismatch为0,PASS
+checker未跑CTest,ctest_summary.csv,现场执行4项CTest并保存HEAD和日志SHA-256,PASS
+绘图审计不严格,plot_manifest.json,逐图校验source映射和视觉编码,PASS
+随机起点取模偏差,unbiased_random_start.md,rejection sampling与170000样本卡方sanity test,PASS
+局部可视化缺失,plot_manifest.json,新增6张S2-07B/D结构解释图且总数18,PASS

@@ -1,0 +1,16 @@
+{
+  "stageId": "stage05_awgn_trial",
+  "caseId": "K300_M511K421",
+  "ebn0Index": 1,
+  "ebn0Db": 4.8,
+  "nextFrameIndex": 211,
+  "totalFrames": 211,
+  "totalPayloadBits": 63300,
+  "payloadErrorBits": 85,
+  "payloadErrorFrames": 9,
+  "decoderFailureFrames": 9,
+  "miscorrectionFrames": 0,
+  "undetectedErrorFrames": 0,
+  "trueSuccessFrames": 202,
+  "noiseChecksum": 2153790247953080543
+}

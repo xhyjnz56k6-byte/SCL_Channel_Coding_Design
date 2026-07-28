@@ -1,0 +1,11 @@
+configHash=6324c47d384e5f31be56181da7fe33cb38a0ff9428cd7e550108c8c5c8e1ad40
+processedFrames=600
+processedPayloadBits=120000
+channelHardBitErrors=1689
+channelHardFrameErrors=578
+decodedBitErrors=1204
+decodedFrameErrors=414
+trueSuccessFrames=186
+reportedSuccessFrames=600
+miscorrectedFrames=414
+decoderFailureFrames=0

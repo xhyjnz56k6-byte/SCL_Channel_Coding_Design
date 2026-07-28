@@ -1,0 +1,2 @@
+schemaVersion,experimentId,stage,codeType,caseName,payloadLength,encodedLength,ebN0_dB,snrIndex,framePoolId,noisePoolId,configHash,shardIndex,frameStart,frameCount,processedFrames,totalPayloadBits,bitErrors,frameErrors,successfulFrames,encodeTimeNsSum,channelTimeNsSum,decodeTimeNsSum,recoveryTimeNsSum,totalTimeNsSum,maxDecodeTimeNs,maxTotalTimeNs
+common04.result_summary.v1,merge,stage04_common_simulation_foundation,IDENTITY,k200,200,200,2,1,frame,noise,hash,0,0,40,40,8000,40,40,0,400,800,1200,1600,4000,30,100

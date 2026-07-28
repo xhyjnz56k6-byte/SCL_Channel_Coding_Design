@@ -1,0 +1,21 @@
+testId,functionName,expectedErrorId,actualErrorId,expectedMessageKeyword,actualMessage,caught,pass
+MI_01,bch15_encode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,message must be a 1-by-11 binary row vector.,true,true
+MI_02,bch15_encode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,message must be a 1-by-11 binary row vector.,true,true
+MI_03,bch15_encode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,message must be a 1-by-11 binary row vector.,true,true
+MI_04,bch15_encode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,message must be a 1-by-11 binary row vector.,true,true
+MI_05,bch15_encode_reference,BCH06:InvalidBits,BCH06:InvalidBits,row vector,message must be a 1-by-11 binary row vector.,true,true
+RI_01,bch15_lookup_decode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,received must be a 1-by-15 binary row vector.,true,true
+RI_02,bch15_lookup_decode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,received must be a 1-by-15 binary row vector.,true,true
+RI_03,bch15_lookup_decode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,received must be a 1-by-15 binary row vector.,true,true
+RI_04,bch15_lookup_decode_reference,BCH06:InvalidBits,BCH06:InvalidBits,binary,received must be a 1-by-15 binary row vector.,true,true
+RI_05,bch15_lookup_decode_reference,BCH06:InvalidBits,BCH06:InvalidBits,row vector,received must be a 1-by-15 binary row vector.,true,true
+TI_01,bch15_lookup_decode_reference,MATLAB:nonExistentField,MATLAB:nonExistentField,syndrome,????????? "syndrome"?,true,true
+TI_02,bch15_lookup_decode_reference,MATLAB:nonExistentField,MATLAB:nonExistentField,errorPosition,????????? "errorPosition"?,true,true
+TI_03,local_validate_table,BCH06:InvalidTable,BCH06:InvalidTable,syndrome,syndrome must be integer 0..15,true,true
+TI_04,local_validate_table,BCH06:InvalidTable,BCH06:InvalidTable,syndrome,syndrome must be integer 0..15,true,true
+TI_05,local_validate_table,BCH06:InvalidTable,BCH06:InvalidTable,syndrome,syndrome must be integer 0..15,true,true
+TI_06,local_validate_table,BCH06:InvalidTable,BCH06:InvalidTable,errorPosition,errorPosition must be integer,true,true
+TI_07,local_validate_table,BCH06:InvalidTable,BCH06:InvalidTable,errorPosition,errorPosition must be integer,true,true
+DI_01,local_divisor_check,BCH06:InvalidDivisor,BCH06:InvalidDivisor,divisor,divisor must start with one and be nonzero,true,true
+DI_02,local_divisor_check,BCH06:InvalidDivisor,BCH06:InvalidDivisor,divisor,divisor must start with one and be nonzero,true,true
+BI_01,local_bit_string_check,BCH06:InvalidBitString,BCH06:InvalidBitString,0/1,bit string must contain only 0/1,true,true

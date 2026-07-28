@@ -1,0 +1,2 @@
+{"timestamp":"2026-07-22T14:57:37Z","stage":"BCH15","caseName":"BCH-B300","ebn0Db":4.6,"processedFrames":2901,"frameErrors":256,"bitErrors":2346,"elapsedSeconds":1.00029,"framesPerSecond":2900.17,"etaSeconds":16.2401,"checkpointCount":1,"shardIndex":0,"shardCount":1,"status":"RUNNING"}
+{"timestamp":"2026-07-22T14:57:38Z","stage":"BCH15","caseName":"BCH-B300","ebn0Db":4.6,"processedFrames":5000,"frameErrors":431,"bitErrors":4007,"elapsedSeconds":1.67987,"framesPerSecond":2976.43,"etaSeconds":15.1188,"checkpointCount":3,"shardIndex":0,"shardCount":1,"status":"COMPLETE"}

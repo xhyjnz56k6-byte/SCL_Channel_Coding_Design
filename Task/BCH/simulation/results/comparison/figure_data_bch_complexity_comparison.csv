@@ -1,0 +1,17 @@
+caseName,metric,value
+BCH-S200,segmentCount,19.0
+BCH-B200,segmentCount,0.0
+BCH-S300,segmentCount,28.0
+BCH-B300,segmentCount,0.0
+BCH-S200,syndromeCount,0.0
+BCH-B200,syndromeCount,12.0
+BCH-S300,syndromeCount,0.0
+BCH-B300,syndromeCount,20.0
+BCH-S200,bmIterationCount,0.0
+BCH-B200,bmIterationCount,12.0
+BCH-S300,bmIterationCount,0.0
+BCH-B300,bmIterationCount,20.0
+BCH-S200,chienSearchLength,0.0
+BCH-B200,chienSearchLength,255.0
+BCH-S300,chienSearchLength,0.0
+BCH-B300,chienSearchLength,511.0
