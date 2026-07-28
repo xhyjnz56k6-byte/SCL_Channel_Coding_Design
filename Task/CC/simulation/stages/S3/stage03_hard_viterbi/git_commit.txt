@@ -1,0 +1,7 @@
+stage=stage03_hard_viterbi
+branch=stage01-cc
+baseCommit=955cbb0ad2ad9e601e142b354c0405512497fdee
+contentCommit=b43def06a5b325790f34107751cb732a0dcb72b0
+contentCommitMessage=CC/阶段03：实现硬判决维特比译码
+mergeStatus=NOT_MERGED
+remoteVerification=DEFERRED_TO_BATCH_PUSH

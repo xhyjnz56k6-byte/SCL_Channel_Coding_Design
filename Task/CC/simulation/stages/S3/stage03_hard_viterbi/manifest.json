@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage03_hard_viterbi",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE03_CC_HARD_VITERBI",
+  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "955cbb0ad2ad9e601e142b354c0405512497fdee",
+      "contentCommit": "b43def06a5b325790f34107751cb732a0dcb72b0",
+      "diffPaths": [
+        "Task/CC/block/current/include/cc/hard_viterbi.hpp",
+        "Task/CC/block/current/src/hard_viterbi.cpp",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi"
+      ],
+      "files": [
+        "Task/CC/block/current/include/cc/hard_viterbi.hpp",
+        "Task/CC/block/current/src/hard_viterbi.cpp",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/commands_used.md",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/config/stage03_config.json",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/frozen_config.csv",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/include/README.md",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/known_issues.md",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/matlab/stage03_matlab_reference.m",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_cpp_matlab_vectors.csv",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_matlab_comparison.csv",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_results_scope.md",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_test_summary.csv",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/scripts/build_and_test_stage03.py",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/src/README.md",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/stage_plan.md",
+        "Task/CC/simulation/stages/S3/stage03_hard_viterbi/tests/test_stage03_hard_viterbi.cpp"
+      ]
+    }
+  ],
+  "validation": {
+    "releaseBuild": "PASS",
+    "ctest": "1/1 PASS",
+    "randomNoiselessFrames": 100,
+    "matlabVectors": 5,
+    "payloadMismatch": 0,
+    "overflowCount": 0,
+    "stage02Regression": "PASS"
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary baseCommit..contentCommit over diffPaths",
+    "sha256": "04e57832af49e21ec948c286073332f9ca89a7e2526200c73b87861d1584dea7",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": [
+      "Task/CC/block/current/include/cc/hard_viterbi.hpp",
+      "Task/CC/block/current/src/hard_viterbi.cpp",
+      "Task/CC/simulation/stages/S3/stage03_hard_viterbi/"
+    ],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}

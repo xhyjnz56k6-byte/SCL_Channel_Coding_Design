@@ -1,0 +1,624 @@
+diff --git a/Task/CC/block/current/include/cc/hard_viterbi.hpp b/Task/CC/block/current/include/cc/hard_viterbi.hpp
+new file mode 100644
+index 00000000..78b2df89
+--- /dev/null
++++ b/Task/CC/block/current/include/cc/hard_viterbi.hpp
+@@ -0,0 +1,36 @@
++#pragma once
++
++#include "cc/trellis.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <vector>
++
++namespace scl::cc {
++
++struct HardViterbiResult {
++    std::vector<std::uint8_t> codec_input_bits;
++    std::vector<std::uint8_t> payload_bits;
++    std::int32_t final_path_metric = 0;
++    std::size_t normalization_count = 0;
++    std::size_t tie_count = 0;
++    std::size_t overflow_count = 0;
++    std::uint8_t traceback_final_state = 0;
++};
++
++class HardViterbiDecoder {
++public:
++    explicit HardViterbiDecoder(const Trellis& trellis);
++
++    HardViterbiResult decode_terminated_mother(
++        const std::vector<std::uint8_t>& received_bits,
++        std::size_t codec_input_length,
++        std::size_t tail_length = kMemory,
++        std::uint8_t initial_state = 0,
++        std::uint8_t final_state = 0) const;
++
++private:
++    const Trellis& trellis_;
++};
++
++}  // namespace scl::cc
+diff --git a/Task/CC/block/current/src/hard_viterbi.cpp b/Task/CC/block/current/src/hard_viterbi.cpp
+new file mode 100644
+index 00000000..4e10cdb4
+--- /dev/null
++++ b/Task/CC/block/current/src/hard_viterbi.cpp
+@@ -0,0 +1,147 @@
++#include "cc/hard_viterbi.hpp"
++
++#include <algorithm>
++#include <array>
++#include <limits>
++#include <stdexcept>
++
++namespace scl::cc {
++
++namespace {
++
++constexpr std::int32_t kInfiniteMetric = std::numeric_limits<std::int32_t>::max() / 8;
++
++struct Survivor {
++    std::uint8_t predecessor = 0;
++    std::uint8_t input_bit = 0;
++    bool valid = false;
++};
++
++bool better_candidate(
++    const std::int32_t candidate_metric,
++    const std::uint8_t candidate_predecessor,
++    const std::uint8_t candidate_input,
++    const std::int32_t incumbent_metric,
++    const Survivor& incumbent) {
++    if (!incumbent.valid || candidate_metric < incumbent_metric) {
++        return true;
++    }
++    if (candidate_metric > incumbent_metric) {
++        return false;
++    }
++    if (candidate_predecessor != incumbent.predecessor) {
++        return candidate_predecessor < incumbent.predecessor;
++    }
++    return candidate_input < incumbent.input_bit;
++}
++
++}  // namespace
++
++HardViterbiDecoder::HardViterbiDecoder(const Trellis& trellis)
++    : trellis_(trellis) {}
++
++HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
++    const std::vector<std::uint8_t>& received_bits,
++    const std::size_t codec_input_length,
++    const std::size_t tail_length,
++    const std::uint8_t initial_state,
++    const std::uint8_t final_state) const {
++    if (initial_state >= kStateCount || final_state >= kStateCount) {
++        throw std::invalid_argument("Viterbi state is outside [0, 63]");
++    }
++    if (codec_input_length < tail_length) {
++        throw std::invalid_argument("codec input length is smaller than tail length");
++    }
++    if (received_bits.size() != codec_input_length * kOutputBitsPerInput) {
++        throw std::invalid_argument("hard Viterbi input length mismatch");
++    }
++    for (const auto bit : received_bits) {
++        if (bit > 1) {
++            throw std::invalid_argument("hard Viterbi input is not binary");
++        }
++    }
++
++    std::array<std::int32_t, kStateCount> metrics{};
++    std::array<std::int32_t, kStateCount> next_metrics{};
++    metrics.fill(kInfiniteMetric);
++    metrics[initial_state] = 0;
++    std::vector<Survivor> survivors(codec_input_length * kStateCount);
++
++    HardViterbiResult result;
++    for (std::size_t time = 0; time < codec_input_length; ++time) {
++        next_metrics.fill(kInfiniteMetric);
++        auto* step_survivors = survivors.data() + time * kStateCount;
++        std::fill(step_survivors, step_survivors + kStateCount, Survivor{});
++
++        const std::uint8_t observed0 = received_bits[2 * time];
++        const std::uint8_t observed1 = received_bits[2 * time + 1];
++        for (std::size_t state = 0; state < kStateCount; ++state) {
++            if (metrics[state] >= kInfiniteMetric) {
++                continue;
++            }
++            for (std::uint8_t input = 0; input < 2; ++input) {
++                const auto& branch = trellis_.branch(static_cast<std::uint8_t>(state), input);
++                const std::int32_t branch_metric =
++                    static_cast<std::int32_t>(observed0 != branch.output_bits[0]) +
++                    static_cast<std::int32_t>(observed1 != branch.output_bits[1]);
++                if (metrics[state] > kInfiniteMetric - branch_metric) {
++                    ++result.overflow_count;
++                    continue;
++                }
++                const std::int32_t candidate = metrics[state] + branch_metric;
++                auto& survivor = step_survivors[branch.next_state];
++                if (survivor.valid && candidate == next_metrics[branch.next_state]) {
++                    ++result.tie_count;
++                }
++                if (better_candidate(
++                        candidate,
++                        static_cast<std::uint8_t>(state),
++                        input,
++                        next_metrics[branch.next_state],
++                        survivor)) {
++                    next_metrics[branch.next_state] = candidate;
++                    survivor.predecessor = static_cast<std::uint8_t>(state);
++                    survivor.input_bit = input;
++                    survivor.valid = true;
++                }
++            }
++        }
++
++        const auto minimum = *std::min_element(next_metrics.begin(), next_metrics.end());
++        if (minimum >= kInfiniteMetric) {
++            throw std::runtime_error("hard Viterbi has no reachable state");
++        }
++        for (auto& metric : next_metrics) {
++            if (metric < kInfiniteMetric) {
++                metric -= minimum;
++            }
++        }
++        ++result.normalization_count;
++        metrics = next_metrics;
++    }
++
++    if (metrics[final_state] >= kInfiniteMetric) {
++        throw std::runtime_error("requested hard Viterbi final state is unreachable");
++    }
++    result.final_path_metric = metrics[final_state];
++    result.traceback_final_state = final_state;
++    result.codec_input_bits.resize(codec_input_length);
++    std::uint8_t state = final_state;
++    for (std::size_t time = codec_input_length; time > 0; --time) {
++        const Survivor& survivor = survivors[(time - 1) * kStateCount + state];
++        if (!survivor.valid) {
++            throw std::runtime_error("invalid survivor during hard Viterbi traceback");
++        }
++        result.codec_input_bits[time - 1] = survivor.input_bit;
++        state = survivor.predecessor;
++    }
++    if (state != initial_state) {
++        throw std::runtime_error("hard Viterbi traceback did not reach initial state");
++    }
++    result.payload_bits.assign(
++        result.codec_input_bits.begin(),
++        result.codec_input_bits.end() - static_cast<std::ptrdiff_t>(tail_length));
++    return result;
++}
++
++}  // namespace scl::cc
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/CMakeLists.txt
+new file mode 100644
+index 00000000..11ef7440
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/CMakeLists.txt
+@@ -0,0 +1,27 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage03_hard_viterbi LANGUAGES CXX)
++
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++set(CC_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../..")
++
++add_library(cc_stage03 STATIC
++    "${CC_ROOT}/shared/src/trellis.cpp"
++    "${CC_ROOT}/block/current/src/block_encoder.cpp"
++    "${CC_ROOT}/block/current/src/hard_viterbi.cpp"
++)
++target_include_directories(cc_stage03 PUBLIC
++    "${CC_ROOT}/shared/include"
++    "${CC_ROOT}/block/current/include"
++)
++if(MSVC)
++    target_compile_options(cc_stage03 PRIVATE /W4 /permissive-)
++else()
++    target_compile_options(cc_stage03 PRIVATE -Wall -Wextra -Wpedantic -Werror)
++endif()
++
++add_executable(stage03_hard_viterbi_tests tests/test_stage03_hard_viterbi.cpp)
++target_link_libraries(stage03_hard_viterbi_tests PRIVATE cc_stage03)
++enable_testing()
++add_test(NAME stage03_hard_viterbi_tests COMMAND stage03_hard_viterbi_tests)
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/commands_used.md b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/commands_used.md
+new file mode 100644
+index 00000000..5514f47a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/commands_used.md
+@@ -0,0 +1,8 @@
++# Stage03 命令
++
++```powershell
++python Task/CC/simulation/stages/S3/stage03_hard_viterbi/scripts/build_and_test_stage03.py --clean
++matlab -batch "run('.../stage03_hard_viterbi/matlab/stage03_matlab_reference.m')"
++python Task/CC/simulation/stages/S3/stage02_trellis_encoder/scripts/build_and_test_stage02.py
++git diff --check
++```
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/config/stage03_config.json b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/config/stage03_config.json
+new file mode 100644
+index 00000000..15b66941
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/config/stage03_config.json
+@@ -0,0 +1,12 @@
++{
++  "schemaVersion": "cc.stage03.config.v1",
++  "payloadLength": 300,
++  "codecInputLength": 306,
++  "motherLength": 612,
++  "initialState": 0,
++  "finalState": 0,
++  "tailLength": 6,
++  "randomNoiselessFrames": 100,
++  "randomSeed": 2026072002,
++  "matlabTracebackDepth": 35
++}
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/frozen_config.csv b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/frozen_config.csv
+new file mode 100644
+index 00000000..1210369c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/frozen_config.csv
+@@ -0,0 +1,9 @@
++parameter,value,semantics
++decoderType,HARD,hard_bit_input
++branchMetric,HAMMING_DISTANCE,integer
++initialState,0,known
++finalState,0,known_zero_tail
++tracebackMode,FULL_BLOCK,306_input_bits
++tieBreaking,metric_predecessor_input,ascending
++normalization,SUBTRACT_MIN_EVERY_STEP,integer
++matlabTracebackDepth,35,vitdec_term_reference
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/include/README.md b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/include/README.md
+new file mode 100644
+index 00000000..a3e7a40a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/include/README.md
+@@ -0,0 +1,3 @@
++# Stage03 include
++
++生产接口位于 `Task/CC/block/current/include/cc/hard_viterbi.hpp`。
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/known_issues.md b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/known_issues.md
+new file mode 100644
+index 00000000..f79d540b
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/known_issues.md
+@@ -0,0 +1,5 @@
++# Stage03 已知问题
++
++- 仅支持完整 1/2 母码；打孔 hard mask 在 Stage06 实现。
++- 本阶段是完整块回溯，不代表 Stage10 有限回溯或 Stage13 滑窗结果。
++- 未运行 AWGN 性能曲线。
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/matlab/stage03_matlab_reference.m b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/matlab/stage03_matlab_reference.m
+new file mode 100644
+index 00000000..361023de
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/matlab/stage03_matlab_reference.m
+@@ -0,0 +1,32 @@
++stageDir = fileparts(fileparts(mfilename('fullpath')));
++inputPath = fullfile(stageDir, 'results', 'stage03_hard_viterbi_cpp_matlab_vectors.csv');
++outputPath = fullfile(stageDir, 'results', 'stage03_hard_viterbi_matlab_comparison.csv');
++options = detectImportOptions(inputPath, 'TextType', 'string');
++options = setvartype(options, {'receivedMotherBits', 'cppCodecInputBits', 'cppPayloadBits'}, 'string');
++inputTable = readtable(inputPath, options);
++trellis = poly2trellis(7, [171 133]);
++
++codecInputMismatch = zeros(height(inputTable), 1);
++payloadMismatch = zeros(height(inputTable), 1);
++matlabCodecInputBits = strings(height(inputTable), 1);
++for row = 1:height(inputTable)
++    receivedText = char(inputTable.receivedMotherBits(row));
++    cppCodecText = char(inputTable.cppCodecInputBits(row));
++    cppPayloadText = char(inputTable.cppPayloadBits(row));
++    received = double(receivedText) - double('0');
++    decoded = vitdec(received, trellis, 35, 'term', 'hard');
++    matlabCodecInputBits(row) = string(char(decoded + double('0')));
++    codecInputMismatch(row) = sum(decoded ~= (double(cppCodecText) - double('0')));
++    payloadMismatch(row) = sum(decoded(1:300) ~= (double(cppPayloadText) - double('0')));
++end
++status = repmat("PASS", height(inputTable), 1);
++status(codecInputMismatch ~= 0 | payloadMismatch ~= 0) = "FAIL";
++comparison = table(inputTable.vectorId, matlabCodecInputBits, ...
++    codecInputMismatch, payloadMismatch, status, ...
++    'VariableNames', {'vectorId', 'matlabCodecInputBits', ...
++    'codecInputMismatch', 'payloadMismatch', 'status'});
++writetable(comparison, outputPath);
++if any(codecInputMismatch ~= 0) || any(payloadMismatch ~= 0)
++    error('Stage03 MATLAB vitdec hard mismatch');
++end
++disp('PASS_STAGE03_MATLAB_VITDEC_HARD');
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_cpp_matlab_vectors.csv b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_cpp_matlab_vectors.csv
+new file mode 100644
+index 00000000..1c5031f3
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_cpp_matlab_vectors.csv
+@@ -0,0 +1,6 @@
++vectorId,receivedMotherBits,cppCodecInputBits,cppPayloadBits,tieCount
++0,000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,8087
++1,110110010100111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111001001101011,111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111000000,111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111,8087
++2,111000011101010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000010110111,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101000000,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101,8087
++3,111000011101010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110100010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000010110111,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101000000,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101,7978
++4,111000011101010111100011001100000101011000001100110000010101100000110011000001010110000011001100000100011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001011110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000001010110000011001100000101011000001100110000010101100000110011000010110111,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101000000,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101,7782
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_matlab_comparison.csv b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_matlab_comparison.csv
+new file mode 100644
+index 00000000..d0cfe1df
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_matlab_comparison.csv
+@@ -0,0 +1,6 @@
++vectorId,matlabCodecInputBits,codecInputMismatch,payloadMismatch,status
++0,000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,0,0,PASS
++1,111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111000000,0,0,PASS
++2,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101000000,0,0,PASS
++3,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101000000,0,0,PASS
++4,101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101001010101010010101010100101010101000000,0,0,PASS
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_results_scope.md b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_results_scope.md
+new file mode 100644
+index 00000000..25626660
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_results_scope.md
+@@ -0,0 +1,3 @@
++# Stage03 结果目录
++
++保存 C++/MATLAB 固定接收向量、payload mismatch 和测试摘要；不保存 build 产物或性能曲线。
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_test_summary.csv b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_test_summary.csv
+new file mode 100644
+index 00000000..a4f30fa7
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/results/stage03_hard_viterbi_test_summary.csv
+@@ -0,0 +1,8 @@
++check,status
++release_build,PASS
++ctest,PASS
++noiseless_random_100,PASS
++invalid_input_negative,PASS
++matlab_vitdec_vectors,PASS
++payload_mismatch,0
++stage_gate,PASS_STAGE03_CC_HARD_VITERBI
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/scripts/build_and_test_stage03.py b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/scripts/build_and_test_stage03.py
+new file mode 100644
+index 00000000..ca00401c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/scripts/build_and_test_stage03.py
+@@ -0,0 +1,62 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import csv
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++
++def run(command: list[str], cwd: Path) -> None:
++    print("+", " ".join(command))
++    subprocess.run(command, cwd=cwd, check=True)
++
++
++def main() -> int:
++    stage = Path(__file__).resolve().parents[1]
++    build = stage / "build"
++    results = stage / "results"
++    if "--clean" in sys.argv and build.exists():
++        shutil.rmtree(build)
++    results.mkdir(parents=True, exist_ok=True)
++    run([
++        "cmake", "-S", str(stage), "-B", str(build), "-G", "MinGW Makefiles",
++        "-DCMAKE_BUILD_TYPE=Release",
++    ], stage)
++    run(["cmake", "--build", str(build), "--parallel"], stage)
++    run(["ctest", "--test-dir", str(build), "--output-on-failure"], stage)
++    executable = build / "stage03_hard_viterbi_tests.exe"
++    vectors = results / "stage03_hard_viterbi_cpp_matlab_vectors.csv"
++    run([str(executable), str(vectors)], stage)
++
++    comparison = results / "stage03_hard_viterbi_matlab_comparison.csv"
++    summary = results / "stage03_hard_viterbi_test_summary.csv"
++    with summary.open("w", encoding="utf-8", newline="") as handle:
++        writer = csv.writer(handle, lineterminator="\n")
++        writer.writerow(["check", "status"])
++        writer.writerow(["release_build", "PASS"])
++        writer.writerow(["ctest", "PASS"])
++        writer.writerow(["noiseless_random_100", "PASS"])
++        writer.writerow(["invalid_input_negative", "PASS"])
++        if comparison.is_file():
++            with comparison.open(encoding="utf-8", newline="") as source:
++                rows = list(csv.DictReader(source))
++            passed = len(rows) == 5 and all(
++                row["status"] == "PASS"
++                and int(row["codecInputMismatch"]) == 0
++                and int(row["payloadMismatch"]) == 0
++                for row in rows
++            )
++            if not passed:
++                raise RuntimeError("MATLAB hard Viterbi comparison failed")
++            writer.writerow(["matlab_vitdec_vectors", "PASS"])
++            writer.writerow(["payload_mismatch", "0"])
++            writer.writerow(["stage_gate", "PASS_STAGE03_CC_HARD_VITERBI"])
++        else:
++            writer.writerow(["stage_gate_before_matlab", "PASS_CPP"])
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/src/README.md b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/src/README.md
+new file mode 100644
+index 00000000..5c29f13f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/src/README.md
+@@ -0,0 +1,3 @@
++# Stage03 src
++
++生产实现位于 `Task/CC/block/current/src/hard_viterbi.cpp`。
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/stage_plan.md b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/stage_plan.md
+new file mode 100644
+index 00000000..94dac5f6
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/stage_plan.md
+@@ -0,0 +1,18 @@
++# Stage03 硬判决 Viterbi 计划
++
++## 目标与范围
++
++实现 64 状态整块、已知零终止的硬判决 Viterbi。允许修改 `Task/CC/block/current/**` 与本 Stage；禁止修改其他编码目录。
++
++## 验收矩阵
++
++| 需求 | 实现位置 | 正向测试 | 负向测试 | Gate |
++|---|---|---|---|---|
++| 汉明度量和 64-state ACS | `hard_viterbi.cpp` | 无噪声与固定错误 | 非二进制拒绝 | payload 正确 |
++| tie-break 和逐步归一化 | decoder/result | 重复运行与 tie 计数 | 无可达路径报错 | 确定性一致 |
++| 零状态回溯和去尾 | decoder | 306→300 | 长度错误拒绝 | tail 正确 |
++| MATLAB hard `vitdec` | MATLAB/CSV | 5 固定接收向量 | mismatch 触发失败 | mismatch=0 |
++
++## Gate
++
++`PASS_STAGE03_CC_HARD_VITERBI`
+diff --git a/Task/CC/simulation/stages/S3/stage03_hard_viterbi/tests/test_stage03_hard_viterbi.cpp b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/tests/test_stage03_hard_viterbi.cpp
+new file mode 100644
+index 00000000..a2a46b0c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage03_hard_viterbi/tests/test_stage03_hard_viterbi.cpp
+@@ -0,0 +1,137 @@
++#include "cc/block_encoder.hpp"
++#include "cc/hard_viterbi.hpp"
++#include "cc/trellis.hpp"
++
++#include <algorithm>
++#include <cstdint>
++#include <cstdlib>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <random>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++
++void require(bool condition, const std::string& message) {
++    if (!condition) {
++        throw std::runtime_error(message);
++    }
++}
++
++std::string bits_to_string(const std::vector<std::uint8_t>& bits) {
++    std::string text;
++    text.reserve(bits.size());
++    for (const auto bit : bits) {
++        text.push_back(static_cast<char>('0' + bit));
++    }
++    return text;
++}
++
++void run_case(
++    scl::cc::ConvolutionalEncoder& encoder,
++    const scl::cc::HardViterbiDecoder& decoder,
++    const std::vector<std::uint8_t>& payload,
++    const std::vector<std::size_t>& flips,
++    bool require_recovery,
++    std::ofstream* matlab_vectors,
++    std::size_t vector_id) {
++    const auto encoded = encoder.encode_block(payload, true);
++    auto received = encoded.mother_bits;
++    for (const auto index : flips) {
++        require(index < received.size(), "flip index");
++        received[index] ^= 1U;
++    }
++    const auto decoded = decoder.decode_terminated_mother(
++        received, encoded.codec_input_bits.size(), encoded.tail_length);
++    require(decoded.codec_input_bits.size() == 306, "codec output length");
++    require(decoded.payload_bits.size() == payload.size(), "payload output length");
++    require(decoded.normalization_count == 306, "normalization count");
++    require(decoded.traceback_final_state == 0, "traceback final state");
++    require(decoded.overflow_count == 0, "integer overflow");
++    if (require_recovery) {
++        require(decoded.payload_bits == payload, "payload mismatch");
++        require(
++            std::all_of(
++                decoded.codec_input_bits.end() - 6,
++                decoded.codec_input_bits.end(),
++                [](std::uint8_t bit) { return bit == 0; }),
++            "decoded tail is not zero");
++    }
++    const auto repeated = decoder.decode_terminated_mother(
++        received, encoded.codec_input_bits.size(), encoded.tail_length);
++    require(repeated.payload_bits == decoded.payload_bits, "non-deterministic decoded payload");
++    require(repeated.tie_count == decoded.tie_count, "non-deterministic tie count");
++
++    if (matlab_vectors != nullptr) {
++        *matlab_vectors << vector_id << ','
++                        << bits_to_string(received) << ','
++                        << bits_to_string(decoded.codec_input_bits) << ','
++                        << bits_to_string(decoded.payload_bits) << ','
++                        << decoded.tie_count << '\n';
++    }
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        const scl::cc::Trellis trellis;
++        scl::cc::ConvolutionalEncoder encoder(trellis);
++        const scl::cc::HardViterbiDecoder decoder(trellis);
++
++        std::ofstream matlab_vectors;
++        if (argc == 2) {
++            const std::filesystem::path path(argv[1]);
++            std::filesystem::create_directories(path.parent_path());
++            matlab_vectors.open(path);
++            require(matlab_vectors.good(), "cannot write MATLAB vectors");
++            matlab_vectors << "vectorId,receivedMotherBits,cppCodecInputBits,cppPayloadBits,tieCount\n";
++        }
++        std::ofstream* output = matlab_vectors.is_open() ? &matlab_vectors : nullptr;
++
++        run_case(encoder, decoder, std::vector<std::uint8_t>(300, 0), {}, true, output, 0);
++        run_case(encoder, decoder, std::vector<std::uint8_t>(300, 1), {}, true, output, 1);
++
++        std::vector<std::uint8_t> fixed(300);
++        for (std::size_t index = 0; index < fixed.size(); ++index) {
++            fixed[index] = static_cast<std::uint8_t>(((index * 17U + 3U) % 11U) < 5U);
++        }
++        run_case(encoder, decoder, fixed, {}, true, output, 2);
++        run_case(encoder, decoder, fixed, {117}, true, output, 3);
++        run_case(encoder, decoder, fixed, {17, 18, 101, 344}, false, output, 4);
++
++        std::mt19937 rng(2026072002U);
++        for (int frame = 0; frame < 100; ++frame) {
++            std::vector<std::uint8_t> payload(300);
++            for (auto& bit : payload) {
++                bit = static_cast<std::uint8_t>(rng() & 1U);
++            }
++            run_case(encoder, decoder, payload, {}, true, nullptr, 0);
++        }
++
++        bool rejected_length = false;
++        try {
++            decoder.decode_terminated_mother({0, 0, 0}, 2);
++        } catch (const std::invalid_argument&) {
++            rejected_length = true;
++        }
++        require(rejected_length, "invalid length was not rejected");
++
++        bool rejected_value = false;
++        try {
++            decoder.decode_terminated_mother({0, 2}, 1, 0);
++        } catch (const std::invalid_argument&) {
++            rejected_value = true;
++        }
++        require(rejected_value, "non-binary hard input was not rejected");
++
++        std::cout << "PASS_STAGE03_CC_HARD_VITERBI\n";
++        return EXIT_SUCCESS;
++    } catch (const std::exception& error) {
++        std::cerr << "FAIL_STAGE03_CC_HARD_VITERBI: " << error.what() << '\n';
++        return EXIT_FAILURE;
++    }
++}
