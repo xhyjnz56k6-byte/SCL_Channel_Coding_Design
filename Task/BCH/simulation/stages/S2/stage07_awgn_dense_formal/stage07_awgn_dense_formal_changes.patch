@@ -1617,7 +1617,7 @@ index 0000000..07f4b60
 +stage07_awgn_dense_formal_k300_latency,stage07_awgn_dense_formal_results.csv,185,e4df5ebb3b4ec7fb5c59e263fbfdbccd19fb8e4af4ec34be07c225d670010ea4,K300_S15,300,分块300,STYLE_1,36,18,63.095734448019329,16.450980400142569,0.7142857142857143,420,decodeTimeMeanNs,850689800,50000,17.013000000000002,17.013000000000002,false,OBSERVED_ERROR_RATE,false,none,none,50000,MAX_FRAMES_REACHED
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png
 new file mode 100644
-index 0000000..debe7ea
+index 0000000..d2d9dd1
 Binary files /dev/null and b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png differ
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber_figure_data.csv b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber_figure_data.csv
 new file mode 100644
@@ -1776,7 +1776,7 @@ index 0000000..a4fa55d
 +stage07_awgn_dense_formal_k200_ber,stage07_awgn_dense_formal_results.csv,37,c1ac0944ac68cce9d6641779c42cd4cb261166fa681f8e0532fa1d6543902709,K200_S15,200,分块200,STYLE_1,36,18,63.095734448019329,16.527848686805477,0.70175438596491224,285,ber,0,10000000,0,2.9999999999999999e-07,true,ZERO_OBSERVED_CENSORED,true,3/totalPayloadBits,2.9999999999999999e-07,50000,MAX_FRAMES_REACHED
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png
 new file mode 100644
-index 0000000..97cc361
+index 0000000..a1bda99
 Binary files /dev/null and b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png differ
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer_figure_data.csv b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer_figure_data.csv
 new file mode 100644
@@ -2094,7 +2094,7 @@ index 0000000..7524b30
 +stage07_awgn_dense_formal_k200_latency,stage07_awgn_dense_formal_results.csv,37,c1ac0944ac68cce9d6641779c42cd4cb261166fa681f8e0532fa1d6543902709,K200_S15,200,分块200,STYLE_1,36,18,63.095734448019329,16.527848686805477,0.70175438596491224,285,decodeTimeMeanNs,870770500,50000,17.414999999999999,17.414999999999999,false,OBSERVED_ERROR_RATE,false,none,none,50000,MAX_FRAMES_REACHED
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png
 new file mode 100644
-index 0000000..77f1158
+index 0000000..79e0268
 Binary files /dev/null and b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png differ
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber_figure_data.csv b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber_figure_data.csv
 new file mode 100644
@@ -2253,7 +2253,7 @@ index 0000000..6d21b06
 +stage07_awgn_dense_formal_k300_ber,stage07_awgn_dense_formal_results.csv,185,e4df5ebb3b4ec7fb5c59e263fbfdbccd19fb8e4af4ec34be07c225d670010ea4,K300_S15,300,分块300,STYLE_1,36,18,63.095734448019329,16.450980400142569,0.7142857142857143,420,ber,0,15000000,0,1.9999999999999999e-07,true,ZERO_OBSERVED_CENSORED,true,3/totalPayloadBits,1.9999999999999999e-07,50000,MAX_FRAMES_REACHED
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png
 new file mode 100644
-index 0000000..8166358
+index 0000000..2d1694e
 Binary files /dev/null and b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png differ
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer_figure_data.csv b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer_figure_data.csv
 new file mode 100644
@@ -2571,7 +2571,7 @@ index 0000000..96ad706
 +stage07_awgn_dense_formal_k300_latency,stage07_awgn_dense_formal_results.csv,185,e4df5ebb3b4ec7fb5c59e263fbfdbccd19fb8e4af4ec34be07c225d670010ea4,K300_S15,300,分块300,STYLE_1,36,18,63.095734448019329,16.450980400142569,0.7142857142857143,420,decodeTimeMeanNs,850689800,50000,17.013000000000002,17.013000000000002,false,OBSERVED_ERROR_RATE,false,none,none,50000,MAX_FRAMES_REACHED
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json
 new file mode 100644
-index 0000000..83ddd51
+index 0000000..76f6726
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json
 @@ -0,0 +1,239 @@
@@ -2580,7 +2580,7 @@ index 0000000..83ddd51
 +  "sourceResultsFile": "stage07_awgn_dense_formal_results.csv",
 +  "sourceResultsSha256": "337c1cb6f46dc8239482f9183738375dc5f7f1f8c9b320e03d5b238a310a6843",
 +  "plotScript": "stage07_awgn_dense_formal_plot.py",
-+  "plotScriptSha256": "90574ac690de75dc289c4e1cb280c43d66d8bfa445bd80a552d6633bea347baa",
++  "plotScriptSha256": "134e64dd967ee295554e47af1c7e612120dde52cab3edb6cde3815beb8358dd7",
 +  "configFile": "stage07_awgn_dense_formal_config.json",
 +  "configSha256": "06c0a60191fbbad29be0c8054a0f2f0e1a2a41ec8a64c125eb84b9670f0ea338",
 +  "configHash": "06c0a60191fbbad29be0c8054a0f2f0e1a2a41ec8a64c125eb84b9670f0ea338",
@@ -2588,7 +2588,7 @@ index 0000000..83ddd51
 +  "pythonVersion": "3.11.0",
 +  "matplotlibVersion": "3.10.7",
 +  "createdAt": "ZiHua",
-+  "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored and log plots use one-sided 95% upper bound 3/raw denominator",
++  "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored; log plots omit censored zero-observed points from the main curve to avoid a false error floor; 3/raw denominator upper bounds remain in figure-data and published error-floor analysis",
 +  "zeroObservedUpperBoundFactor": 3.0,
 +  "xTransformFormula": "EbN0_dB = SNR_dB - 10*log10(2*R); sigma2 = 1/10^(SNR_dB/10)",
 +  "legendMapping": {
@@ -2629,7 +2629,7 @@ index 0000000..83ddd51
 +    {
 +      "figureId": "stage07_awgn_dense_formal_k200_ber",
 +      "png": "stage07_awgn_dense_formal_k200_ber.png",
-+      "pngSha256": "3e11346a0dbee0af091729944c806d4bd045c8a07533535ca55e5586763983c7",
++      "pngSha256": "4a0ae95e64b23f9e473aa5a3dc12f5263fd596a5395cdbe26a71381893b9edb2",
 +      "figureData": "stage07_awgn_dense_formal_k200_ber_figure_data.csv",
 +      "figureDataSha256": "6930feda89bbfc926f57598ceed9b9bb6838e9af8c9786f7cfe6830d7a4fdf08",
 +      "title": "200比特BCH误码率对比",
@@ -2655,12 +2655,12 @@ index 0000000..83ddd51
 +      "xMax": 18.0,
 +      "xStep": 0.5,
 +      "markEvery": 2,
-+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
++      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
 +    },
 +    {
 +      "figureId": "stage07_awgn_dense_formal_k200_fer",
 +      "png": "stage07_awgn_dense_formal_k200_fer.png",
-+      "pngSha256": "7ac0c9ea5da9eb5d88047654c5dd3681398ca7f281034c90075dfba64e81b753",
++      "pngSha256": "97da4a5ffb6cb56872df771284eec3c66e1d8e4fde6dabb8a3a3fe7babb28e4c",
 +      "figureData": "stage07_awgn_dense_formal_k200_fer_figure_data.csv",
 +      "figureDataSha256": "49fc52dbb93a1bea3124a755f4f85ff5dbb2bfab2d88b526471ca19bb1a631ce",
 +      "title": "200比特BCH误帧率对比",
@@ -2686,7 +2686,7 @@ index 0000000..83ddd51
 +      "xMax": 18.0,
 +      "xStep": 0.5,
 +      "markEvery": 2,
-+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
++      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
 +    },
 +    {
 +      "figureId": "stage07_awgn_dense_formal_k200_latency",
@@ -2717,12 +2717,12 @@ index 0000000..83ddd51
 +      "xMax": 18.0,
 +      "xStep": 0.5,
 +      "markEvery": 2,
-+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
++      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
 +    },
 +    {
 +      "figureId": "stage07_awgn_dense_formal_k300_ber",
 +      "png": "stage07_awgn_dense_formal_k300_ber.png",
-+      "pngSha256": "56fdcefbdcc62064979593c10f7186a3503f1098991d8ba717ccd42ffa29c8c7",
++      "pngSha256": "3ccb29c8aaacbca1ad522dac00458610914673eada2b96d550b036eba512f172",
 +      "figureData": "stage07_awgn_dense_formal_k300_ber_figure_data.csv",
 +      "figureDataSha256": "f61a8b84a648aa5afedbbcc3933f6e6c00e8684e631a1fe2db08d1adfb6d4baf",
 +      "title": "300比特BCH误码率对比",
@@ -2748,12 +2748,12 @@ index 0000000..83ddd51
 +      "xMax": 18.0,
 +      "xStep": 0.5,
 +      "markEvery": 2,
-+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
++      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
 +    },
 +    {
 +      "figureId": "stage07_awgn_dense_formal_k300_fer",
 +      "png": "stage07_awgn_dense_formal_k300_fer.png",
-+      "pngSha256": "53c72a7a4ce15d2f50a9c69d29793c5f0724d9d6020089841bfec30c45a186ac",
++      "pngSha256": "0d031eb8a1337c4bfe90b782c5f1c43572451910ef3a9cabaa66d58974277c80",
 +      "figureData": "stage07_awgn_dense_formal_k300_fer_figure_data.csv",
 +      "figureDataSha256": "3da1042e9944e18103ee2def376a6dd4e44c1cfa272c57182c2793fdbd481350",
 +      "title": "300比特BCH误帧率对比",
@@ -2779,7 +2779,7 @@ index 0000000..83ddd51
 +      "xMax": 18.0,
 +      "xStep": 0.5,
 +      "markEvery": 2,
-+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
++      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
 +    },
 +    {
 +      "figureId": "stage07_awgn_dense_formal_k300_latency",
@@ -2810,7 +2810,7 @@ index 0000000..83ddd51
 +      "xMax": 18.0,
 +      "xStep": 0.5,
 +      "markEvery": 2,
-+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
++      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
 +    }
 +  ]
 +}
@@ -4126,10 +4126,10 @@ index 0000000..6047f34
 +    main()
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py
 new file mode 100644
-index 0000000..0eb640f
+index 0000000..185a139
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py
-@@ -0,0 +1,339 @@
+@@ -0,0 +1,342 @@
 +import csv
 +import hashlib
 +import json
@@ -4288,6 +4288,9 @@ index 0000000..0eb640f
 +            "x-axis contract mismatch")
 +        req(fig["legendLocation"] == "upper right", "legend location mismatch")
 +        req(fig["yScale"] in ("log", "linear"), "unknown y scale")
++        if fig["yScale"] == "log":
++            req("omit censored zero-observed points" in fig["zeroObservedPointRule"],
++                "zero-observed plot rule mismatch")
 +        fd = rows(PLOTS / fig["figureData"])
 +        req(len(fd) == 148, "per-figure data row count mismatch")
 +        req(fig["figureDataSha256"] == sha(PLOTS / fig["figureData"]), "figure-data hash mismatch")
@@ -4471,10 +4474,10 @@ index 0000000..0eb640f
 +    main()
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py
 new file mode 100644
-index 0000000..a0992fe
+index 0000000..2dacb2c
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py
-@@ -0,0 +1,215 @@
+@@ -0,0 +1,222 @@
 +import csv
 +import hashlib
 +import json
@@ -4615,9 +4618,16 @@ index 0000000..a0992fe
 +        for case_id in dict.fromkeys(x["caseId"] for x in data):
 +            pts = [x for x in data if x["caseId"] == case_id]
 +            color, line, marker = STYLE[pts[0]["styleId"]]
-+            ax.plot([float(x["snrDb"]) for x in pts], [float(x["plotY"]) for x in pts],
-+                    color=color, linestyle=line, marker=marker, markevery=2,
-+                    label=pts[0]["legendLabel"])
++            if yscale == "log":
++                observed = [x for x in pts if x["isZeroObserved"] != "true"]
++                if observed:
++                    ax.plot([float(x["snrDb"]) for x in observed], [float(x["plotY"]) for x in observed],
++                            color=color, linestyle=line, marker=marker, markevery=2,
++                            label=pts[0]["legendLabel"])
++            else:
++                ax.plot([float(x["snrDb"]) for x in pts], [float(x["plotY"]) for x in pts],
++                        color=color, linestyle=line, marker=marker, markevery=2,
++                        label=pts[0]["legendLabel"])
 +        ax.set_xlabel("SNR (dB)")
 +        ax.set_ylabel(ylabel)
 +        ax.set_title(title)
@@ -4657,7 +4667,7 @@ index 0000000..a0992fe
 +            "xMax": 18.0,
 +            "xStep": 0.5,
 +            "markEvery": 2,
-+            "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N.",
++            "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor.",
 +        })
 +    aggregate_path = PLOTS / "stage07_awgn_dense_formal_figure_data.csv"
 +    write(aggregate_path, aggregate, FIGURE_FIELDS)
@@ -4674,7 +4684,7 @@ index 0000000..a0992fe
 +        "pythonVersion": platform.python_version(),
 +        "matplotlibVersion": matplotlib.__version__,
 +        "createdAt": platform.node(),
-+        "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored and log plots use one-sided 95% upper bound 3/raw denominator",
++        "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored; log plots omit censored zero-observed points from the main curve to avoid a false error floor; 3/raw denominator upper bounds remain in figure-data and published error-floor analysis",
 +        "zeroObservedUpperBoundFactor": ZERO_OBSERVED_UPPER_BOUND_FACTOR,
 +        "xTransformFormula": "EbN0_dB = SNR_dB - 10*log10(2*R); sigma2 = 1/10^(SNR_dB/10)",
 +        "legendMapping": {r["caseId"]: r["legendLabel"] for r in raw},
@@ -6126,10 +6136,10 @@ index 0000000..d64506e
 +published_small_results,published_results directory,raw result summary stop audit manifest presence,missing publish artifact detection,PASS_BCH_S2_AWGN_DENSE_RERUN
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changed_files.md b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changed_files.md
 new file mode 100644
-index 0000000..f0039c6
+index 0000000..c933471
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changed_files.md
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,16 @@
 +# Stage07 BCH S2 AWGN Dense Formal Changed Files
 +
 +Stage07 adds a new experiment directory only:
@@ -6142,14 +6152,16 @@ index 0000000..f0039c6
 +- `results/`: committed small summary/progress/raw-result audit files; full `results/points/` remains local.
 +- `logs/`: executed build/test/runner/plot/check logs.
 +- root stage files: plan, acceptance matrix, frozen config/grid, validation report, known issues, manifest, commands, hashes, patch, and commit record.
++- Error-floor repair: plot/check scripts now mark zero-observed BER/FER points as censored and
++  publish `published_results/stage07_awgn_dense_formal_error_floor_analysis.csv`.
 +
 +No `Task/CC`, `Task/LDPC`, `main`, or Stage06 files are modified.
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_commands_used.md b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_commands_used.md
 new file mode 100644
-index 0000000..bd347df
+index 0000000..6c0ec9f
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_commands_used.md
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,30 @@
 +# Stage07 BCH S2 AWGN Dense Formal Commands Used
 +
 +```powershell
@@ -6168,15 +6180,27 @@ index 0000000..bd347df
 +
 +The initial Python command was interrupted by the Codex tool timeout, but its child runner continued
 +and completed. The parent Python process then completed plot and checker generation.
++
++Final error-floor repair commands:
++
++```powershell
++python Task\BCH\simulation\stages\S2\stage07_awgn_dense_formal\python\stage07_awgn_dense_formal_plot.py
++python Task\BCH\simulation\stages\S2\stage07_awgn_dense_formal\python\stage07_awgn_dense_formal_check.py
++git commit -m "BCH/stage07：修复高SNR零错误点上界处理"
++```
++
++The repair reran plot/check on the Stage07 rerun result CSV and changed only the high-SNR
++zero-observed BER/FER display and audit handling: raw CSV zeros remain unchanged, figure-data uses
++`ZERO_OBSERVED_CENSORED`, and log plots use the one-sided 95% upper bound `3/N`.
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_file_hashes.json b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_file_hashes.json
 new file mode 100644
-index 0000000..c549abf
+index 0000000..761c83f
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_file_hashes.json
-@@ -0,0 +1,266 @@
-+{
+@@ -0,0 +1,261 @@
++﻿{
 +    "stage":  "stage07_awgn_dense_formal",
-+    "note":  "Self file excluded to avoid recursive hash instability",
++    "note":  "Self file and recursive patch excluded; ignored local-only results are excluded",
 +    "files":  [
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/configs/stage07_awgn_dense_formal_config.json",
@@ -6195,8 +6219,8 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_check.log",
-+                      "sha256":  "16ee263a41151862529705686780d23f96e176c3e4845162f78340f810461a69",
-+                      "bytes":  98
++                      "sha256":  "5dae2e0bd49c27bd13e0b313727724fa0ae81afd0f6a3a340f2247237069675d",
++                      "bytes":  101
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_ctest.log",
@@ -6205,8 +6229,8 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_plot.log",
-+                      "sha256":  "727e82a83d9f849f6b4f3f1db0942a477b40724f051bffce09abf8d42ade940d",
-+                      "bytes":  37
++                      "sha256":  "c014b963dfe92f2d53beea3e6cfd77ec622719100d822c49464027121e1bee2d",
++                      "bytes":  40
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_resume_test.log",
@@ -6220,28 +6244,28 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_figure_data.csv",
-+                      "sha256":  "17e27990cc2d29620730152000df70d7ee11fd6fd1948bacee3fd7bafb46aae8",
-+                      "bytes":  308964
++                      "sha256":  "3aff4b3ec4993321bd7bc0d1a7e815d928bc0a9d774b8402098531036f93dd96",
++                      "bytes":  341272
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png",
-+                      "sha256":  "629a886891455c688debe6e94c2a2bd56cab85eded78aac7b7c1a43848c6c58c",
-+                      "bytes":  286955
++                      "sha256":  "3e11346a0dbee0af091729944c806d4bd045c8a07533535ca55e5586763983c7",
++                      "bytes":  273644
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber_figure_data.csv",
-+                      "sha256":  "cc99fc6950f251d35d54fc7d6fac2efc3dd33b656633217641489088f6723cc7",
-+                      "bytes":  51232
++                      "sha256":  "6930feda89bbfc926f57598ceed9b9bb6838e9af8c9786f7cfe6830d7a4fdf08",
++                      "bytes":  56945
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png",
-+                      "sha256":  "7ea91402ef868e9c468b0b011ec38d0992063d2ea238b1a88a9ddef41a98b1a5",
-+                      "bytes":  266524
++                      "sha256":  "7ac0c9ea5da9eb5d88047654c5dd3681398ca7f281034c90075dfba64e81b753",
++                      "bytes":  258659
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer_figure_data.csv",
-+                      "sha256":  "dae12e7e250d70725d507a9435992b98ee271b9b21d612c5b0055145fbef5193",
-+                      "bytes":  49817
++                      "sha256":  "49fc52dbb93a1bea3124a755f4f85ff5dbb2bfab2d88b526471ca19bb1a631ce",
++                      "bytes":  56239
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_latency.png",
@@ -6250,28 +6274,28 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_latency_figure_data.csv",
-+                      "sha256":  "a364fb487575079d9998eb042c7fa9897a576a8e9427cfcd86a665bd1da3b114",
-+                      "bytes":  53813
++                      "sha256":  "878565d17d238646dfc03a285fcb71b20a14a81b37693bc4b2d9b2402e1c00b0",
++                      "bytes":  57553
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png",
-+                      "sha256":  "841719a7e9b5d9ba4c04fda355cfc3d79d0fdf80149f83b2c9196e9153d799ea",
-+                      "bytes":  287108
++                      "sha256":  "56fdcefbdcc62064979593c10f7186a3503f1098991d8ba717ccd42ffa29c8c7",
++                      "bytes":  274441
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber_figure_data.csv",
-+                      "sha256":  "8830dc412c2dd34e501dc8740e212d9cd11931ea49a05b1fd09b222766ba1915",
-+                      "bytes":  51926
++                      "sha256":  "f61a8b84a648aa5afedbbcc3933f6e6c00e8684e631a1fe2db08d1adfb6d4baf",
++                      "bytes":  58401
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png",
-+                      "sha256":  "c07723e2cc42b80a9b18bd9cbc6ef4ec856daf8b3671e7ed0f77d4c7091049cb",
-+                      "bytes":  265331
++                      "sha256":  "53c72a7a4ce15d2f50a9c69d29793c5f0724d9d6020089841bfec30c45a186ac",
++                      "bytes":  261995
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer_figure_data.csv",
-+                      "sha256":  "9c221d31d5d643aae0c3ab70b21d69b70d7b8702cb81bdcab4b9e28622d2b827",
-+                      "bytes":  49607
++                      "sha256":  "3da1042e9944e18103ee2def376a6dd4e44c1cfa272c57182c2793fdbd481350",
++                      "bytes":  56025
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_latency.png",
@@ -6280,13 +6304,18 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_latency_figure_data.csv",
-+                      "sha256":  "6ab156e9d9f048643127104e000835a2eb1ad3eb080e22b9b23f448e96c2cef3",
-+                      "bytes":  53914
++                      "sha256":  "a8a2a2dc0352e6729d26bdb8f336d9a63a2e3b493375fe7fd9adcf5d8d474238",
++                      "bytes":  57654
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json",
-+                      "sha256":  "49b68fafc09e4478e8d090b4ca78e834e9aeabc0f75c326b7e495a8c50e8319c",
-+                      "bytes":  7654
++                      "sha256":  "b525314cfd4bfc8c31805889df70076e32b59d2883c5edc6479ca80e07fab194",
++                      "bytes":  8646
++                  },
++                  {
++                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/published_results/stage07_awgn_dense_formal_error_floor_analysis.csv",
++                      "sha256":  "639cf3222eda2e779fc6d1248b0e63cfc6a830d85e0f6609dafe7836c34ea39e",
++                      "bytes":  77850
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/published_results/stage07_awgn_dense_formal_point_audit.csv",
@@ -6320,8 +6349,8 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py",
-+                      "sha256":  "9d6ce129798e1bcb8a1cae1a754f1fd10a547f1d3357dfe1ef2c554aac4be7a9",
-+                      "bytes":  14600
++                      "sha256":  "a3c29e7397dc513fe59e031d81f8e628836ae023b9a4b1e31a4a474eb2e038bb",
++                      "bytes":  16780
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py",
@@ -6332,11 +6361,6 @@ index 0000000..c549abf
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_run.py",
 +                      "sha256":  "07dea96d9b23430476ea6587156f38c039f24d963a420cc8875a26ddc12aa6bb",
 +                      "bytes":  5500
-+                  },
-+                  {
-+                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/resume_test/stage07_awgn_dense_formal_K200_S15_004_checkpoint.json",
-+                      "sha256":  "10254616c20b633f4959617e78fedcf4f5492e26dd21b5cfc54fa4509d4064e1",
-+                      "bytes":  751
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/stage07_awgn_dense_formal_point_audit.csv",
@@ -6390,18 +6414,13 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changed_files.md",
-+                      "sha256":  "dc052395f93e2049d9306249c62f09db9b00bf3887fde20066382d879dba68e8",
-+                      "bytes":  801
-+                  },
-+                  {
-+                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_changes.patch",
-+                      "sha256":  "630da4cf24573fa08001fdd6fdf54acb569ce2c1f527dc138a531aca9da9892f",
-+                      "bytes":  2376442
++                      "sha256":  "f283a70a822e12b85a03493242f9f1873e2291c36079040a56ea0b51448495e1",
++                      "bytes":  978
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_commands_used.md",
-+                      "sha256":  "05c88666d5655d3e0f98310f9cf0c9b0ffe20ebbb1d586d9be80dfb893942ae5",
-+                      "bytes":  1455
++                      "sha256":  "45e2d04fbbb47bb47e96d801469a23a29f67c4b520ec3655e99fbd80fb881aec",
++                      "bytes":  2057
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_frozen_config.csv",
@@ -6415,18 +6434,18 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_git_commit.txt",
-+                      "sha256":  "786cedc4d7dfada0268e58e71e3ff1d49b3f2eadde217b98b7cf274f63c472c7",
-+                      "bytes":  150
++                      "sha256":  "8863cf8a70d324607a3ea535de0f0276489426c3b849d38ddbb855a0a81363fb",
++                      "bytes":  279
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_known_issues.md",
-+                      "sha256":  "be61c51591bf82ac5ce2babfa0c144e67ef5aae0b1db1331e57a0dbe9b0d247b",
-+                      "bytes":  668
++                      "sha256":  "b18e41f0d9303936aadb22b3bcb70e062bc77627e0e2c9632d273db203d2fa30",
++                      "bytes":  836
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_manifest.json",
-+                      "sha256":  "add6643e08664945d97588cc3a201013731427b71f4a8357ce4605912d3d6ab5",
-+                      "bytes":  9673
++                      "sha256":  "0e086d18322a61f4347871d34b97f68ddadec0caa96522bb0eae645b79160640",
++                      "bytes":  17176
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_stage_plan.md",
@@ -6435,8 +6454,8 @@ index 0000000..c549abf
 +                  },
 +                  {
 +                      "path":  "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_validation_report.md",
-+                      "sha256":  "e44a6b026906d23f2d9b5f20ce3ebd515a12b3927ce03ce39735a28126b85168",
-+                      "bytes":  3837
++                      "sha256":  "398f4d0eaca3544fde367bd03190e947551184f23bf5fac1cb13a0896c6263bb",
++                      "bytes":  4499
 +                  }
 +              ]
 +}
@@ -6753,33 +6772,37 @@ index 0000000..384332a
 +K300_M511K385,36,18.0,0.70422535211267601,16.512583487190753,0.015848931924611134
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_git_commit.txt b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_git_commit.txt
 new file mode 100644
-index 0000000..696cac1
+index 0000000..4786a66
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_git_commit.txt
-@@ -0,0 +1,3 @@
+@@ -0,0 +1,5 @@
 +functionalCommit=f3c03718a69a41aeb72e9b7b6a2d9e017930bb19
++auditScriptRepairCommit=a34c16d430fa25f436e8f1baaf3b7d8d4b6c4969
++errorFloorRepairCommit=3410ec1fcd9679d242768f55c535305f5431580a
 +baseCommit=8bd58cf80c60f2d373d479b9d8e02a1919fdca8d
 +branch=stage07-bch-s2-awgn-dense-formal
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_known_issues.md b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_known_issues.md
 new file mode 100644
-index 0000000..8512ceb
+index 0000000..725ee9a
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_known_issues.md
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,10 @@
 +# Stage07 BCH S2 AWGN Dense Formal Known Issues
 +
 +- No blocking issues.
 +- Runtime and decoder latency are machine-dependent for this Windows/MinGW run.
 +- Stage07 uses one local runner process. Outputs are still separated by formal point, so the result is auditable and resumable by point.
 +- `results/points/` contains full per-point checkpoints and logs for local audit continuity, but these large intermediate artifacts are not committed by default.
-+- BER/FER zero values remain zero in raw CSV. Plot-only surrogates are documented in figure-data and the plot manifest.
++- BER/FER zero values remain zero in raw CSV. Zero-observed high-SNR points are censored in
++  figure-data and `published_results/stage07_awgn_dense_formal_error_floor_analysis.csv`; log plots
++  use the one-sided 95% upper bound `3/N`, so they must not be read as measured nonzero floors.
 +- No exact waveform-SNR overlap with Stage06 was found because Stage06 used per-case Eb/N0 grids.
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_manifest.json b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_manifest.json
 new file mode 100644
-index 0000000..3a62422
+index 0000000..cd76af5
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_manifest.json
-@@ -0,0 +1,98 @@
+@@ -0,0 +1,158 @@
 +{
 +    "stage":  "stage07_awgn_dense_formal",
 +    "branch":  "stage07-bch-s2-awgn-dense-formal",
@@ -6840,6 +6863,56 @@ index 0000000..3a62422
 +                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_frozen_grid.csv",
 +                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_stage_plan.md"
 +                                           ]
++                             },
++                             {
++                                 "name":  "error_floor_repair",
++                                 "baseCommit":  "0453dbf7363a54c06a91da9b450e227bdf1587ed",
++                                 "contentCommit":  "3410ec1fcd9679d242768f55c535305f5431580a",
++                                 "files":  [
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_check.log",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_plot.log",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_latency_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_latency_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/published_results/stage07_awgn_dense_formal_error_floor_analysis.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_audit.py",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_file_hashes.json"
++                                           ]
++                             },
++                             {
++                                 "name":  "error_floor_zero_observation_repair",
++                                 "baseCommit":  "a34c16d430fa25f436e8f1baaf3b7d8d4b6c4969",
++                                 "contentCommit":  "3410ec1fcd9679d242768f55c535305f5431580a",
++                                 "files":  [
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_check.log",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/logs/stage07_awgn_dense_formal_plot.log",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_latency_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_latency_figure_data.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/published_results/stage07_awgn_dense_formal_error_floor_analysis.csv",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py",
++                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py"
++                                           ]
 +                             }
 +                         ],
 +    "formalExperiment":  {
@@ -6856,8 +6929,19 @@ index 0000000..3a62422
 +                             "targetStops":  127,
 +                             "maxFrameStops":  169,
 +                             "zeroBerPoints":  147,
-+                             "zeroFerPoints":  147
++                             "zeroFerPoints":  147,
++                             "zeroObservedTreatment":  "RAW_ZERO_RETAINED;LOG_PLOT_ONE_SIDED_95_UPPER_BOUND_3_OVER_N"
 +                         },
++    "errorFloorHandling":  {
++                               "sourceResults":  "published_results/stage07_awgn_dense_formal_results.csv",
++                               "analysisCsv":  "published_results/stage07_awgn_dense_formal_error_floor_analysis.csv",
++                               "zeroObservedStatus":  "ZERO_OBSERVED_CENSORED",
++                               "plotRule":  "raw BER/FER remain zero; log plots use one-sided 95% upper bound 3/raw denominator for zero-observed points",
++                               "k200BerUpperAt18Db":  0.0000003,
++                               "k200FerUpperAt18Db":  0.00006,
++                               "k300BerUpperAt18Db":  0.0000002,
++                               "k300FerUpperAt18Db":  0.00006
++                           },
 +    "generatedEvidence":  [
 +                              "stage07_awgn_dense_formal_stage_plan.md",
 +                              "stage07_awgn_dense_formal_acceptance_matrix.csv",
@@ -6871,13 +6955,12 @@ index 0000000..3a62422
 +                              "stage07_awgn_dense_formal_changes.patch",
 +                              "stage07_awgn_dense_formal_git_commit.txt",
 +                              "published_results/stage07_awgn_dense_formal_results.csv",
++                              "published_results/stage07_awgn_dense_formal_error_floor_analysis.csv",
 +                              "published_results/stage07_awgn_dense_formal_summary.csv",
 +                              "plots/stage07_awgn_dense_formal_plot_manifest.json",
 +                              "logs/stage07_awgn_dense_formal_check.log"
 +                          ]
 +}
-+
-+
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_stage_plan.md b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_stage_plan.md
 new file mode 100644
 index 0000000..9ec50a3
@@ -6936,10 +7019,10 @@ index 0000000..9ec50a3
 +- `PASS_BCH_S2_AWGN_DENSE_RERUN`
 diff --git a/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_validation_report.md b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_validation_report.md
 new file mode 100644
-index 0000000..0477d5b
+index 0000000..b02b6df
 --- /dev/null
 +++ b/Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/stage07_awgn_dense_formal_validation_report.md
-@@ -0,0 +1,97 @@
+@@ -0,0 +1,105 @@
 +# Stage07 BCH S2 AWGN Dense Formal Validation Report
 +
 +## Scope
@@ -6956,6 +7039,7 @@ index 0000000..0477d5b
 +- Branch: `stage07-bch-s2-awgn-dense-formal`
 +- Baseline commit: `8bd58cf80c60f2d373d479b9d8e02a1919fdca8d`
 +- Functional commit: `f3c03718a69a41aeb72e9b7b6a2d9e017930bb19`
++- Error-floor repair commit: `3410ec1fcd9679d242768f55c535305f5431580a`
 +- Master seed: `2026072707`
 +- Cases: 8
 +- SNR grid: `0.0:0.5:18.0` dB
@@ -6967,6 +7051,10 @@ index 0000000..0477d5b
 +- Max-frame stops: 169
 +- Zero BER points: 147
 +- Zero FER points: 147
++- Zero-observed BER/FER treatment: raw CSV keeps `0`; plot data marks these points as
++  `ZERO_OBSERVED_CENSORED` and uses the one-sided 95% upper bound `3/N` for log-scale drawing.
++- At 18 dB, censored upper bounds are `3e-7` BER and `6e-5` FER for K=200, and `2e-7`
++  BER and `6e-5` FER for K=300.
 +- Parallelism: one local runner process; independent per-point output directories
 +
 +## Case Rates
@@ -6992,6 +7080,7 @@ index 0000000..0477d5b
 +| Formal runner, 296 points | `logs/stage07_awgn_dense_formal_runner.log` | PASS_STAGE07_AWGN_DENSE_FORMAL_RUNNER |
 +| Matplotlib PNG and figure-data generation | `logs/stage07_awgn_dense_formal_plot.log` | PASS_STAGE07_AWGN_DENSE_FORMAL_PLOT |
 +| Strict checker | `logs/stage07_awgn_dense_formal_check.log` | PASS_STAGE07_AWGN_DENSE_PLOT_CHECK |
++| High-SNR zero-observed error-floor handling | `published_results/stage07_awgn_dense_formal_error_floor_analysis.csv` | PASS |
 +| Stage audit script | `python/stage07_awgn_dense_formal_audit.py` | PASS_STAGE07_AWGN_DENSE_FORMAL_AUDIT |
 +
 +## Checker Coverage
@@ -7010,6 +7099,7 @@ index 0000000..0477d5b
 +- 6 PNG files only; no PDF/SVG/EPS/JPG/JPEG.
 +- 6 figure-data CSV files with 148 rows each and aggregate figure-data with 888 rows.
 +- Plot manifest and all referenced hashes verified.
++- Zero-observed BER/FER rows verified as censored, with `plotY = oneSided95UpperBound = 3/rawDenominator`.
 +
 +## Stage06 Comparison
 +
@@ -7036,4 +7126,5 @@ index 0000000..0477d5b
 +## Notes
 +
 +Decoder latency is machine-dependent and represents this local Windows/MinGW environment. Raw CSV
-+BER and FER retain observed zero values; log-scale plots use only the documented display surrogate.
++BER and FER retain observed zero values; log-scale plots use only the documented censored
++zero-observation upper bound, not a measured nonzero error floor.

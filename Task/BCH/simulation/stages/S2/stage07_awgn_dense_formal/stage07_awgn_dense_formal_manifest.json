@@ -108,6 +108,20 @@
                                                "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py",
                                                "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py"
                                            ]
+                             },
+                             {
+                                 "name":  "false_error_floor_plot_repair",
+                                 "baseCommit":  "7d2bfb9ef812d40b95af27cf7dd5b0153284c7a5",
+                                 "contentCommit":  "c9e182338738b8ecca8e1c2735765d4b8be32506",
+                                 "files":  [
+                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_ber.png",
+                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k200_fer.png",
+                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_ber.png",
+                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_k300_fer.png",
+                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/plots/stage07_awgn_dense_formal_plot_manifest.json",
+                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_check.py",
+                                               "Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/python/stage07_awgn_dense_formal_plot.py"
+                                           ]
                              }
                          ],
     "formalExperiment":  {
@@ -125,13 +139,13 @@
                              "maxFrameStops":  169,
                              "zeroBerPoints":  147,
                              "zeroFerPoints":  147,
-                             "zeroObservedTreatment":  "RAW_ZERO_RETAINED;LOG_PLOT_ONE_SIDED_95_UPPER_BOUND_3_OVER_N"
+                             "zeroObservedTreatment":  "RAW_ZERO_RETAINED;ZERO_OBSERVED_CENSORED;LOG_PLOT_OMITS_CENSORED_POINTS_FROM_MAIN_CURVE"
                          },
     "errorFloorHandling":  {
                                "sourceResults":  "published_results/stage07_awgn_dense_formal_results.csv",
                                "analysisCsv":  "published_results/stage07_awgn_dense_formal_error_floor_analysis.csv",
                                "zeroObservedStatus":  "ZERO_OBSERVED_CENSORED",
-                               "plotRule":  "raw BER/FER remain zero; log plots use one-sided 95% upper bound 3/raw denominator for zero-observed points",
+                               "plotRule":  "raw BER/FER remain zero; zero-observed upper bounds remain in CSV audit data; BER/FER log plots omit censored zero-observed points from the main curve to avoid a false high-SNR error floor",
                                "k200BerUpperAt18Db":  0.0000003,
                                "k200FerUpperAt18Db":  0.00006,
                                "k300BerUpperAt18Db":  0.0000002,

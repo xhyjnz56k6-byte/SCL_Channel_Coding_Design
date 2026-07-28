@@ -23,8 +23,14 @@ Final error-floor repair commands:
 python Task\BCH\simulation\stages\S2\stage07_awgn_dense_formal\python\stage07_awgn_dense_formal_plot.py
 python Task\BCH\simulation\stages\S2\stage07_awgn_dense_formal\python\stage07_awgn_dense_formal_check.py
 git commit -m "BCH/stage07：修复高SNR零错误点上界处理"
+python Task\BCH\simulation\stages\S2\stage07_awgn_dense_formal\python\stage07_awgn_dense_formal_plot.py
+python Task\BCH\simulation\stages\S2\stage07_awgn_dense_formal\python\stage07_awgn_dense_formal_check.py
+git commit -m "BCH/stage07：修复FER高SNR假平台绘图"
 ```
 
 The repair reran plot/check on the Stage07 rerun result CSV and changed only the high-SNR
 zero-observed BER/FER display and audit handling: raw CSV zeros remain unchanged, figure-data uses
 `ZERO_OBSERVED_CENSORED`, and log plots use the one-sided 95% upper bound `3/N`.
+
+The final plot repair keeps the `3/N` upper bounds in CSV audit data, but omits censored
+zero-observed points from the BER/FER log-plot main curves to avoid a false high-SNR error floor.

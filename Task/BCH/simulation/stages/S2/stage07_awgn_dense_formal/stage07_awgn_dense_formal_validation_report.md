@@ -15,6 +15,7 @@ low-density baseline.
 - Baseline commit: `8bd58cf80c60f2d373d479b9d8e02a1919fdca8d`
 - Functional commit: `f3c03718a69a41aeb72e9b7b6a2d9e017930bb19`
 - Error-floor repair commit: `3410ec1fcd9679d242768f55c535305f5431580a`
+- False error-floor plot repair commit: `c9e182338738b8ecca8e1c2735765d4b8be32506`
 - Master seed: `2026072707`
 - Cases: 8
 - SNR grid: `0.0:0.5:18.0` dB
@@ -26,8 +27,9 @@ low-density baseline.
 - Max-frame stops: 169
 - Zero BER points: 147
 - Zero FER points: 147
-- Zero-observed BER/FER treatment: raw CSV keeps `0`; plot data marks these points as
-  `ZERO_OBSERVED_CENSORED` and uses the one-sided 95% upper bound `3/N` for log-scale drawing.
+- Zero-observed BER/FER treatment: raw CSV keeps `0`; figure-data marks these points as
+  `ZERO_OBSERVED_CENSORED` and records the one-sided 95% upper bound `3/N`; BER/FER log plots omit
+  these censored points from the main curve so the figure does not show a false high-SNR error floor.
 - At 18 dB, censored upper bounds are `3e-7` BER and `6e-5` FER for K=200, and `2e-7`
   BER and `6e-5` FER for K=300.
 - Parallelism: one local runner process; independent per-point output directories
@@ -56,6 +58,7 @@ low-density baseline.
 | Matplotlib PNG and figure-data generation | `logs/stage07_awgn_dense_formal_plot.log` | PASS_STAGE07_AWGN_DENSE_FORMAL_PLOT |
 | Strict checker | `logs/stage07_awgn_dense_formal_check.log` | PASS_STAGE07_AWGN_DENSE_PLOT_CHECK |
 | High-SNR zero-observed error-floor handling | `published_results/stage07_awgn_dense_formal_error_floor_analysis.csv` | PASS |
+| False FER/BER high-SNR floor removal in plots | `plots/stage07_awgn_dense_formal_k200_fer.png`, `plots/stage07_awgn_dense_formal_k300_fer.png` | PASS |
 | Stage audit script | `python/stage07_awgn_dense_formal_audit.py` | PASS_STAGE07_AWGN_DENSE_FORMAL_AUDIT |
 
 ## Checker Coverage
@@ -75,6 +78,7 @@ low-density baseline.
 - 6 figure-data CSV files with 148 rows each and aggregate figure-data with 888 rows.
 - Plot manifest and all referenced hashes verified.
 - Zero-observed BER/FER rows verified as censored, with `plotY = oneSided95UpperBound = 3/rawDenominator`.
+- Log-plot manifest verified to omit censored zero-observed points from the main curve.
 
 ## Stage06 Comparison
 
@@ -102,4 +106,5 @@ PASS_BCH_S2_AWGN_DENSE_RERUN
 
 Decoder latency is machine-dependent and represents this local Windows/MinGW environment. Raw CSV
 BER and FER retain observed zero values; log-scale plots use only the documented censored
-zero-observation upper bound, not a measured nonzero error floor.
+zero-observation upper bound in CSV audit data and omit those censored points from the main curve,
+not a measured nonzero error floor.

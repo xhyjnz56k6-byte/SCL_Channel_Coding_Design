@@ -6,5 +6,6 @@
 - `results/points/` contains full per-point checkpoints and logs for local audit continuity, but these large intermediate artifacts are not committed by default.
 - BER/FER zero values remain zero in raw CSV. Zero-observed high-SNR points are censored in
   figure-data and `published_results/stage07_awgn_dense_formal_error_floor_analysis.csv`; log plots
-  use the one-sided 95% upper bound `3/N`, so they must not be read as measured nonzero floors.
+  omit those censored points from the main curve, so the FER/BER figures no longer show a false
+  measured nonzero floor.
 - No exact waveform-SNR overlap with Stage06 was found because Stage06 used per-case Eb/N0 grids.
