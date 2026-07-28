@@ -1,0 +1,771 @@
+﻿diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/.gitignore b/Task/CC/simulation/stages/S3/stage10_traceback_study/.gitignore
+new file mode 100644
+index 00000000..5b478e6e
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/.gitignore
+@@ -0,0 +1,2 @@
++__pycache__/
++*.log
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage10_traceback_study/CMakeLists.txt
+new file mode 100644
+index 00000000..11169f01
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/CMakeLists.txt
+@@ -0,0 +1,22 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage10_traceback_study LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++set(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../..")
++set(CC_ROOT "${REPO_ROOT}/Task/CC")
++add_executable(stage10_traceback_study_runner
++    src/stage10_traceback_study_runner.cpp
++    "${CC_ROOT}/shared/src/trellis.cpp"
++    "${CC_ROOT}/shared/src/puncturing.cpp"
++    "${CC_ROOT}/block/current/src/block_encoder.cpp"
++    "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
++    "${REPO_ROOT}/Task/Common/src/random_policy.cpp"
++    "${REPO_ROOT}/Task/Common/src/gaussian_noise.cpp"
++)
++target_include_directories(stage10_traceback_study_runner PRIVATE
++    "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include"
++    "${REPO_ROOT}/Task/Common/include")
++if(NOT MSVC)
++    target_compile_options(stage10_traceback_study_runner PRIVATE -O3 -Wall -Wextra -Wpedantic -Werror)
++endif()
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/commands_used.md b/Task/CC/simulation/stages/S3/stage10_traceback_study/commands_used.md
+new file mode 100644
+index 00000000..333dfc4a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/commands_used.md
+@@ -0,0 +1,7 @@
++# Stage10 命令
++
++```powershell
++python Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/run_stage10.py --clean
++python Task/CC/shared/scripts/cc_stage_audit.py Task/CC/simulation/stages/S3/stage09_awgn_formal/manifest.json
++git diff --check
++```
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/config/stage10_config.json b/Task/CC/simulation/stages/S3/stage10_traceback_study/config/stage10_config.json
+new file mode 100644
+index 00000000..944fd4ba
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/config/stage10_config.json
+@@ -0,0 +1,19 @@
++{
++  "schemaVersion": "cc.stage10.config.v1",
++  "masterSeed": 2026072001,
++  "framesPerPoint": 1000,
++  "tracebackDepths": [35, 49, 70],
++  "scenarios": [
++    {"caseId": "CC-B-R12-S", "snrDb": -0.5},
++    {"caseId": "CC-B-R12-S", "snrDb": 0.0},
++    {"caseId": "CC-B-R23-S", "snrDb": 0.5},
++    {"caseId": "CC-B-R23-S", "snrDb": 1.0}
++  ],
++  "recommendationThresholds": {
++    "preferredMaxRelativeBerIncrease": 0.05,
++    "preferredMaxRelativeFerIncrease": 0.05,
++    "fallbackMaxRelativeBerIncrease": 0.10,
++    "fallbackMaxRelativeFerIncrease": 0.15,
++    "fallbackMinSurvivorMemoryReduction": 0.50
++  }
++}
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/frozen_config.csv b/Task/CC/simulation/stages/S3/stage10_traceback_study/frozen_config.csv
+new file mode 100644
+index 00000000..d0c3a5f2
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/frozen_config.csv
+@@ -0,0 +1,12 @@
++parameter,value
++framesPerPoint,1000
++tracebackDepths,35|49|70
++R12_soft_snrDb,-0.5|0.0
++R23_soft_snrDb,0.5|1.0
++fullBlockDepth,306
++knownFinalState,0
++preferredMaxRelativeBerIncrease,0.05
++preferredMaxRelativeFerIncrease,0.05
++fallbackMaxRelativeBerIncrease,0.10
++fallbackMaxRelativeFerIncrease,0.15
++fallbackMinSurvivorMemoryReduction,0.50
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/include/README.md b/Task/CC/simulation/stages/S3/stage10_traceback_study/include/README.md
+new file mode 100644
+index 00000000..c37be043
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/include/README.md
+@@ -0,0 +1,3 @@
++# Stage10 include
++
++研究实现保持在 runner 内，不扩大公共 API。
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/known_issues.md b/Task/CC/simulation/stages/S3/stage10_traceback_study/known_issues.md
+new file mode 100644
+index 00000000..e1444bd5
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/known_issues.md
+@@ -0,0 +1,5 @@
++# Stage10 已知问题
++
++- 有限回溯实现用于离线研究输出，Stage12 仍需独立实现窗口调度、重叠和边界状态传递。
++- 时延只代表当前 Windows/MinGW 单机环境。
++- 没有候选达到所有点 BER/FER 增幅均不超过 5% 的优先门限；最终推荐必须标注为 fallback，并携带实际最坏损失。
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/matlab/README.md b/Task/CC/simulation/stages/S3/stage10_traceback_study/matlab/README.md
+new file mode 100644
+index 00000000..bbd65bdc
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/matlab/README.md
+@@ -0,0 +1,3 @@
++# Stage10 MATLAB
++
++本 Stage 不改变已在 Stage05 完成 MATLAB 对比的分支度量和完整块译码基准。
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_comparison_summary.csv b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_comparison_summary.csv
+new file mode 100644
+index 00000000..93a1d5e8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_comparison_summary.csv
+@@ -0,0 +1,13 @@
++caseId,snrDb,Dtb,berRatioToFull,ferRatioToFull,fullMismatchBits,fullMismatchFrames,survivorMemoryBytes,avgDecodeTime_us,pointPass
++CC-B-R12-S,-0.5,35,1.3488888888888888,1.7457627118644068,227,56,6720,583.77799999999934,FAIL
++CC-B-R12-S,0.0,35,1.4117647058823528,1.8125,64,17,6720,554.19529999999975,FAIL
++CC-B-R23-S,0.5,35,1.8376582278481013,2.303030303030303,4279,475,6720,509.65710000000018,FAIL
++CC-B-R23-S,1.0,35,1.916506717850288,2.9772727272727275,1353,226,6720,515.95840000000032,FAIL
++CC-B-R12-S,-0.5,49,1.04,1.0847457627118644,30,11,9408,585.86289999999974,FAIL
++CC-B-R12-S,0.0,49,1.049019607843137,1.1875,7,5,9408,538.43679999999961,FAIL
++CC-B-R23-S,0.5,49,1.2981012658227846,1.6363636363636362,1932,269,9408,500.8398000000002,FAIL
++CC-B-R23-S,1.0,49,1.231285988483685,1.6136363636363635,463,83,9408,516.38359999999966,FAIL
++CC-B-R12-S,-0.5,70,1.0044444444444443,1.0,2,1,13440,575.48180000000059,PASS
++CC-B-R12-S,0.0,70,1.0,1.0,0,0,13440,563.93960000000072,PASS
++CC-B-R23-S,0.5,70,1.0569620253164558,1.12987012987013,472,80,13440,521.50580000000014,FAIL
++CC-B-R23-S,1.0,70,1.034548944337812,1.0681818181818183,100,15,13440,514.06839999999966,FAIL
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_recommendation.csv b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_recommendation.csv
+new file mode 100644
+index 00000000..ff481e83
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_recommendation.csv
+@@ -0,0 +1,2 @@
++recommendedDtb,recommendationTier,qualifiedDepths,worstBerIncrease,worstFerIncrease,survivorMemoryReduction,decisionRule,usage
++70,FALLBACK,70,0.05696202531645578,0.1298701298701299,0.7712418300653595,"preferred <=5% BER/FER; fallback <=10% BER, <=15% FER, >=50% memory reduction",Stage12 sliding-window candidate
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_report.md b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_report.md
+new file mode 100644
+index 00000000..3bb8a2d3
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_report.md
+@@ -0,0 +1,9 @@
++# Stage10 回溯深度研究报告
++
++在 R12-soft 的 -0.5/0.0 dB 与 R23-soft 的 0.5/1.0 dB 各运行 1000 帧，共比较完整块和 `Dtb={35,49,70}`。
++
++严格优先门限（所有点 BER/FER 增幅均不超过 5%）没有候选通过。Dtb=70 的最坏 BER 增幅为 5.696%，最坏 FER 增幅为 12.987%，survivor 内存由完整块的 58752 bytes 降至 13440 bytes（减少 77.124%），满足已记录的 fallback 门限，因此冻结为 Stage12 候选。
++
++四场景合计的 full mismatch frames：Dtb35=774、Dtb49=368、Dtb70=96。四场景平均 `firstStableOutputDepth` 为 45.225。当前研究实现为每个输出重复回溯，四场景平均时延约为 full=488.174 us、Dtb35=540.897 us、Dtb49=535.381 us、Dtb70=543.749 us；因此 Dtb70 的价值是性能与内存折中，不代表该离线实现已获得时延收益。Stage12 必须用滑窗调度重新验证时延。
++
++推荐：`Dtb=70`，等级 `FALLBACK`。不得表述为与完整块无损等价。
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_study_results.csv b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_study_results.csv
+new file mode 100644
+index 00000000..7ec5bcc9
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_study_results.csv
+@@ -0,0 +1,17 @@
++caseId,snrDb,mode,Dtb,frames,payloadBitErrors,payloadErrorFrames,BER,FER,fullMismatchBits,fullMismatchFrames,avgDecodeTime_us,p95DecodeTime_us,maxDecodeTime_us,survivorMemoryBytes,tracebackOperations,firstStableOutputDepth
++CC-B-R12-S,-0.5,FULL_BLOCK_ZERO_TERMINATED,306,1000,450,59,0.0015,0.058999999999999997,0,0,497.51349999999951,931.20000000000005,2085,58752,306000,36.250999999999998
++CC-B-R12-S,-0.5,FINITE_TRACEBACK,35,1000,607,103,0.0020233333333333331,0.10299999999999999,227,56,583.77799999999934,1109.8,11324.799999999999,6720,9520000,36.250999999999998
++CC-B-R12-S,-0.5,FINITE_TRACEBACK,49,1000,468,64,0.00156,0.064000000000000001,30,11,585.86289999999974,1127.0999999999999,8651.3999999999996,9408,12642000,36.250999999999998
++CC-B-R12-S,-0.5,FINITE_TRACEBACK,70,1000,452,59,0.0015066666666666666,0.058999999999999997,2,1,575.48180000000059,1054.5999999999999,3510.0999999999999,13440,16590000,36.250999999999998
++CC-B-R12-S,0,FULL_BLOCK_ZERO_TERMINATED,306,1000,102,16,0.00034000000000000002,0.016,0,0,511.22440000000063,897.20000000000005,9341,58752,306000,35.343000000000004
++CC-B-R12-S,0,FINITE_TRACEBACK,35,1000,144,29,0.00048000000000000001,0.029000000000000001,64,17,554.19529999999975,936.89999999999998,13009.6,6720,9520000,35.343000000000004
++CC-B-R12-S,0,FINITE_TRACEBACK,49,1000,107,19,0.00035666666666666664,0.019,7,5,538.43679999999961,951.79999999999995,3361.3000000000002,9408,12642000,35.343000000000004
++CC-B-R12-S,0,FINITE_TRACEBACK,70,1000,102,16,0.00034000000000000002,0.016,0,0,563.93960000000072,1021,5123.6000000000004,13440,16590000,35.343000000000004
++CC-B-R23-S,0.5,FULL_BLOCK_ZERO_TERMINATED,306,1000,3160,231,0.010533333333333334,0.23100000000000001,0,0,469.17429999999962,792.89999999999998,2932.9000000000001,58752,306000,65.879999999999995
++CC-B-R23-S,0.5,FINITE_TRACEBACK,35,1000,5807,532,0.019356666666666668,0.53200000000000003,4279,475,509.65710000000018,838.70000000000005,5267.5,6720,9520000,65.879999999999995
++CC-B-R23-S,0.5,FINITE_TRACEBACK,49,1000,4102,378,0.013673333333333332,0.378,1932,269,500.8398000000002,810.5,1838.4000000000001,9408,12642000,65.879999999999995
++CC-B-R23-S,0.5,FINITE_TRACEBACK,70,1000,3340,261,0.011133333333333334,0.26100000000000001,472,80,521.50580000000014,896.29999999999995,1982.8,13440,16590000,65.879999999999995
++CC-B-R23-S,1,FULL_BLOCK_ZERO_TERMINATED,306,1000,1042,88,0.0034733333333333335,0.087999999999999995,0,0,474.78190000000006,755.29999999999995,14286,58752,306000,43.426000000000002
++CC-B-R23-S,1,FINITE_TRACEBACK,35,1000,1997,262,0.0066566666666666666,0.26200000000000001,1353,226,515.95840000000032,852.5,4086.8000000000002,6720,9520000,43.426000000000002
++CC-B-R23-S,1,FINITE_TRACEBACK,49,1000,1283,142,0.0042766666666666665,0.14199999999999999,463,83,516.38359999999966,862.20000000000005,5282.6000000000004,9408,12642000,43.426000000000002
++CC-B-R23-S,1,FINITE_TRACEBACK,70,1000,1078,94,0.0035933333333333334,0.094,100,15,514.06839999999966,829.89999999999998,1761.5,13440,16590000,43.426000000000002
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_test_summary.csv b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_test_summary.csv
+new file mode 100644
+index 00000000..d3c9c7c8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_test_summary.csv
+@@ -0,0 +1,7 @@
++check,status
++noiseless_finite_traceback,PASS
++scenario_mode_matrix,PASS
++formula_and_finite_checks,PASS
++preferred_threshold,NO_CANDIDATE
++recommendation_data_driven,PASS_FALLBACK_DTB_70
++stage_gate,PASS_STAGE10_CC_TRACEBACK_STUDY
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/check_stage10.py b/Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/check_stage10.py
+new file mode 100644
+index 00000000..e707893c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/check_stage10.py
+@@ -0,0 +1,158 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import csv
++import math
++import sys
++from collections import defaultdict
++from pathlib import Path
++
++
++def close(a: float, b: float) -> bool:
++    return math.isclose(a, b, rel_tol=1e-12, abs_tol=1e-12)
++
++
++def main() -> int:
++    stage = Path(__file__).resolve().parents[1]
++    results = stage / "results"
++    source = results / "stage10_traceback_study_results.csv"
++    with source.open(encoding="utf-8", newline="") as handle:
++        rows = list(csv.DictReader(handle))
++    if len(rows) != 16:
++        raise RuntimeError(f"expected 16 rows, got {len(rows)}")
++    grouped: dict[tuple[str, float], list[dict[str, str]]] = defaultdict(list)
++    for row in rows:
++        key = (row["caseId"], float(row["snrDb"]))
++        grouped[key].append(row)
++        frames = int(row["frames"])
++        bit_errors = int(row["payloadBitErrors"])
++        frame_errors = int(row["payloadErrorFrames"])
++        depth = int(row["Dtb"])
++        numeric = [
++            "BER", "FER", "avgDecodeTime_us", "p95DecodeTime_us", "maxDecodeTime_us",
++            "firstStableOutputDepth",
++        ]
++        if not all(math.isfinite(float(row[name])) for name in numeric):
++            raise RuntimeError(f"non-finite metric at {key}")
++        if frames != 1000:
++            raise RuntimeError(f"frame count at {key}")
++        if not close(float(row["BER"]), bit_errors / (300 * frames)):
++            raise RuntimeError(f"BER formula at {key}")
++        if not close(float(row["FER"]), frame_errors / frames):
++            raise RuntimeError(f"FER formula at {key}")
++        if int(row["survivorMemoryBytes"]) != depth * 64 * 3:
++            raise RuntimeError(f"survivor memory formula at {key}")
++        expected_operations = (306 if row["mode"].startswith("FULL") else depth * (307 - depth)) * frames
++        if int(row["tracebackOperations"]) != expected_operations:
++            raise RuntimeError(f"traceback operations at {key}")
++        if not 35 <= float(row["firstStableOutputDepth"]) <= 306:
++            raise RuntimeError(f"stable depth range at {key}")
++        mismatch_bits = int(row["fullMismatchBits"])
++        mismatch_frames = int(row["fullMismatchFrames"])
++        if mismatch_bits < mismatch_frames or mismatch_bits > mismatch_frames * 300:
++            raise RuntimeError(f"mismatch count relation at {key}")
++        if row["mode"].startswith("FULL") and (mismatch_bits != 0 or mismatch_frames != 0):
++            raise RuntimeError(f"full baseline mismatch at {key}")
++    if len(grouped) != 4 or any(len(items) != 4 for items in grouped.values()):
++        raise RuntimeError("scenario/mode matrix incomplete")
++
++    preferred: list[int] = []
++    fallback: list[int] = []
++    worst_by_depth: dict[int, tuple[float, float, float]] = {}
++    comparison_rows: list[dict[str, object]] = []
++    for depth in (35, 49, 70):
++        preferred_pass = True
++        fallback_pass = True
++        worst_ber = 0.0
++        worst_fer = 0.0
++        memory_reduction = 0.0
++        for (case, snr), items in sorted(grouped.items()):
++            by_depth = {int(row["Dtb"]): row for row in items}
++            baseline = by_depth[306]
++            candidate = by_depth[depth]
++            base_ber = float(baseline["BER"])
++            base_fer = float(baseline["FER"])
++            ber_ratio = float(candidate["BER"]) / base_ber if base_ber else (
++                1.0 if float(candidate["BER"]) == 0 else math.inf
++            )
++            fer_ratio = float(candidate["FER"]) / base_fer if base_fer else (
++                1.0 if float(candidate["FER"]) == 0 else math.inf
++            )
++            point_pass = ber_ratio <= 1.05 and fer_ratio <= 1.05
++            preferred_pass &= point_pass
++            fallback_pass &= ber_ratio <= 1.10 and fer_ratio <= 1.15
++            worst_ber = max(worst_ber, ber_ratio - 1)
++            worst_fer = max(worst_fer, fer_ratio - 1)
++            memory_reduction = 1 - int(candidate["survivorMemoryBytes"]) / int(
++                baseline["survivorMemoryBytes"]
++            )
++            comparison_rows.append({
++                "caseId": case,
++                "snrDb": snr,
++                "Dtb": depth,
++                "berRatioToFull": ber_ratio,
++                "ferRatioToFull": fer_ratio,
++                "fullMismatchBits": candidate["fullMismatchBits"],
++                "fullMismatchFrames": candidate["fullMismatchFrames"],
++                "survivorMemoryBytes": candidate["survivorMemoryBytes"],
++                "avgDecodeTime_us": candidate["avgDecodeTime_us"],
++                "pointPass": "PASS" if point_pass else "FAIL",
++            })
++        fallback_pass &= memory_reduction >= 0.50
++        worst_by_depth[depth] = (worst_ber, worst_fer, memory_reduction)
++        if preferred_pass:
++            preferred.append(depth)
++        if fallback_pass:
++            fallback.append(depth)
++    if preferred:
++        recommendation = min(preferred)
++        tier = "PREFERRED"
++        qualified = preferred
++    elif fallback:
++        recommendation = min(fallback)
++        tier = "FALLBACK"
++        qualified = fallback
++    else:
++        raise RuntimeError("no traceback depth meets preferred or fallback threshold")
++    with (results / "stage10_traceback_comparison_summary.csv").open(
++        "w", encoding="utf-8", newline=""
++    ) as handle:
++        writer = csv.DictWriter(handle, fieldnames=list(comparison_rows[0]), lineterminator="\n")
++        writer.writeheader()
++        writer.writerows(comparison_rows)
++    with (results / "stage10_traceback_recommendation.csv").open(
++        "w", encoding="utf-8", newline=""
++    ) as handle:
++        writer = csv.writer(handle, lineterminator="\n")
++        writer.writerow([
++            "recommendedDtb", "recommendationTier", "qualifiedDepths", "worstBerIncrease",
++            "worstFerIncrease", "survivorMemoryReduction", "decisionRule", "usage",
++        ])
++        worst_ber, worst_fer, memory_reduction = worst_by_depth[recommendation]
++        writer.writerow([
++            recommendation,
++            tier,
++            "|".join(map(str, qualified)),
++            worst_ber,
++            worst_fer,
++            memory_reduction,
++            "preferred <=5% BER/FER; fallback <=10% BER, <=15% FER, >=50% memory reduction",
++            "Stage12 sliding-window candidate",
++        ])
++    with (results / "stage10_traceback_test_summary.csv").open(
++        "w", encoding="utf-8", newline=""
++    ) as handle:
++        writer = csv.writer(handle, lineterminator="\n")
++        writer.writerow(["check", "status"])
++        writer.writerow(["noiseless_finite_traceback", "PASS"])
++        writer.writerow(["scenario_mode_matrix", "PASS"])
++        writer.writerow(["formula_and_finite_checks", "PASS"])
++        writer.writerow(["preferred_threshold", "PASS" if preferred else "NO_CANDIDATE"])
++        writer.writerow(["recommendation_data_driven", f"PASS_{tier}_DTB_{recommendation}"])
++        writer.writerow(["stage_gate", "PASS_STAGE10_CC_TRACEBACK_STUDY"])
++    print(f"PASS_STAGE10_CC_TRACEBACK_STUDY recommendedDtb={recommendation} tier={tier}")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/run_stage10.py b/Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/run_stage10.py
+new file mode 100644
+index 00000000..72195b2d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/run_stage10.py
+@@ -0,0 +1,33 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++
++def run(command: list[str], cwd: Path) -> None:
++    print("+", " ".join(command))
++    subprocess.run(command, cwd=cwd, check=True)
++
++
++def main() -> int:
++    stage = Path(__file__).resolve().parents[1]
++    build = stage / "build"
++    results = stage / "results"
++    if "--clean" in sys.argv and build.exists():
++        shutil.rmtree(build)
++    results.mkdir(parents=True, exist_ok=True)
++    run([
++        "cmake", "-S", str(stage), "-B", str(build), "-G", "MinGW Makefiles",
++        "-DCMAKE_BUILD_TYPE=Release",
++    ], stage)
++    run(["cmake", "--build", str(build), "--parallel"], stage)
++    run([str(build / "stage10_traceback_study_runner.exe"), str(results)], stage)
++    run([sys.executable, str(stage / "scripts" / "check_stage10.py")], stage)
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/src/stage10_traceback_study_runner.cpp b/Task/CC/simulation/stages/S3/stage10_traceback_study/src/stage10_traceback_study_runner.cpp
+new file mode 100644
+index 00000000..f3d53c29
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/src/stage10_traceback_study_runner.cpp
+@@ -0,0 +1,308 @@
++#include "cc/block_encoder.hpp"
++#include "cc/puncturing.hpp"
++#include "cc/soft_viterbi.hpp"
++#include "cc/trellis.hpp"
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++
++#include <algorithm>
++#include <array>
++#include <chrono>
++#include <cmath>
++#include <cstdint>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++
++using Clock = std::chrono::steady_clock;
++constexpr std::uint64_t kSeed = 2026072001ULL;
++constexpr std::size_t kCodecInputLength = 306;
++constexpr std::size_t kPayloadLength = 300;
++
++struct Survivor {
++    std::uint8_t predecessor = 0;
++    std::uint8_t input = 0;
++    bool valid = false;
++};
++
++struct Scenario {
++    std::string case_id;
++    double snr_db = 0;
++    scl::cc::PuncturePattern pattern;
++    std::uint64_t noise_group = 0;
++};
++
++struct DecodeResult {
++    std::vector<std::uint8_t> payload;
++    std::uint64_t traceback_operations = 0;
++};
++
++struct Aggregate {
++    std::uint64_t frames = 0;
++    std::uint64_t bit_errors = 0;
++    std::uint64_t frame_errors = 0;
++    std::uint64_t mismatch_bits = 0;
++    std::uint64_t mismatch_frames = 0;
++    std::uint64_t traceback_operations = 0;
++    std::uint64_t stable_depth_sum = 0;
++    double decode_us_sum = 0;
++    double decode_us_max = 0;
++    std::vector<double> decode_samples;
++};
++
++double symbol(std::uint8_t bit) {
++    return bit == 0 ? 1.0 : -1.0;
++}
++
++bool better(double candidate, std::uint8_t predecessor, std::uint8_t input,
++            double incumbent, const Survivor& survivor) {
++    if (!survivor.valid || candidate < incumbent) return true;
++    if (candidate > incumbent) return false;
++    if (predecessor != survivor.predecessor) return predecessor < survivor.predecessor;
++    return input < survivor.input;
++}
++
++DecodeResult decode_finite(
++    const scl::cc::Trellis& trellis,
++    const std::vector<double>& received,
++    const std::vector<std::uint8_t>& mask,
++    std::size_t depth) {
++    if (depth == 0 || depth > kCodecInputLength) {
++        throw std::invalid_argument("traceback depth outside [1, 306]");
++    }
++    if (received.size() != 2 * kCodecInputLength || mask.size() != received.size()) {
++        throw std::invalid_argument("finite traceback input length mismatch");
++    }
++    for (double value : received) {
++        if (!std::isfinite(value)) throw std::invalid_argument("non-finite received symbol");
++    }
++    const double infinity = std::numeric_limits<double>::infinity();
++    std::array<double, scl::cc::kStateCount> metrics{};
++    std::array<double, scl::cc::kStateCount> next{};
++    metrics.fill(infinity);
++    metrics[0] = 0;
++    std::vector<Survivor> ring(depth * scl::cc::kStateCount);
++    std::vector<std::uint8_t> decoded(kCodecInputLength, 0);
++    DecodeResult result;
++
++    for (std::size_t time = 0; time < kCodecInputLength; ++time) {
++        next.fill(infinity);
++        Survivor* step = ring.data() + (time % depth) * scl::cc::kStateCount;
++        std::fill(step, step + scl::cc::kStateCount, Survivor{});
++        for (std::size_t state = 0; state < scl::cc::kStateCount; ++state) {
++            if (!std::isfinite(metrics[state])) continue;
++            for (std::uint8_t input = 0; input < 2; ++input) {
++                const auto& branch = trellis.branch(static_cast<std::uint8_t>(state), input);
++                const double d0 = received[2 * time] - symbol(branch.output_bits[0]);
++                const double d1 = received[2 * time + 1] - symbol(branch.output_bits[1]);
++                const double candidate = metrics[state] +
++                    (mask[2 * time] != 0 ? d0 * d0 : 0.0) +
++                    (mask[2 * time + 1] != 0 ? d1 * d1 : 0.0);
++                auto& survivor = step[branch.next_state];
++                if (better(candidate, static_cast<std::uint8_t>(state), input,
++                           next[branch.next_state], survivor)) {
++                    next[branch.next_state] = candidate;
++                    survivor.predecessor = static_cast<std::uint8_t>(state);
++                    survivor.input = input;
++                    survivor.valid = true;
++                }
++            }
++        }
++        double minimum = infinity;
++        for (double value : next) minimum = std::min(minimum, value);
++        if (!std::isfinite(minimum)) throw std::runtime_error("no reachable finite state");
++        for (double& value : next) {
++            if (std::isfinite(value)) value -= minimum;
++        }
++        metrics = next;
++
++        if (time + 1 >= depth && time + 1 < kCodecInputLength) {
++            std::uint8_t state = 0;
++            double best_metric = infinity;
++            for (std::size_t candidate = 0; candidate < scl::cc::kStateCount; ++candidate) {
++                if (metrics[candidate] < best_metric) {
++                    best_metric = metrics[candidate];
++                    state = static_cast<std::uint8_t>(candidate);
++                }
++            }
++            std::uint8_t emitted = 0;
++            for (std::size_t offset = 0; offset < depth; ++offset) {
++                const std::size_t trace_time = time - offset;
++                const auto& survivor =
++                    ring[(trace_time % depth) * scl::cc::kStateCount + state];
++                if (!survivor.valid) throw std::runtime_error("invalid finite survivor");
++                emitted = survivor.input;
++                state = survivor.predecessor;
++                ++result.traceback_operations;
++            }
++            decoded[time + 1 - depth] = emitted;
++        }
++    }
++
++    std::uint8_t state = 0;
++    for (std::size_t offset = 0; offset < depth; ++offset) {
++        const std::size_t time = kCodecInputLength - 1 - offset;
++        const auto& survivor = ring[(time % depth) * scl::cc::kStateCount + state];
++        if (!survivor.valid) throw std::runtime_error("invalid final finite survivor");
++        decoded[time] = survivor.input;
++        state = survivor.predecessor;
++        ++result.traceback_operations;
++    }
++    result.payload.assign(decoded.begin(), decoded.begin() + kPayloadLength);
++    return result;
++}
++
++std::uint64_t errors(const std::vector<std::uint8_t>& left,
++                     const std::vector<std::uint8_t>& right) {
++    if (left.size() != right.size()) throw std::runtime_error("comparison length mismatch");
++    std::uint64_t count = 0;
++    for (std::size_t i = 0; i < left.size(); ++i) count += left[i] != right[i];
++    return count;
++}
++
++double p95(std::vector<double> values) {
++    std::sort(values.begin(), values.end());
++    return values[static_cast<std::size_t>(std::ceil(0.95 * values.size())) - 1];
++}
++
++void add(Aggregate& aggregate, const std::vector<std::uint8_t>& payload,
++         const std::vector<std::uint8_t>& decoded,
++         const std::vector<std::uint8_t>& full,
++         double decode_us, std::uint64_t operations, std::size_t stable_depth) {
++    const auto bit_errors = errors(payload, decoded);
++    const auto mismatch = errors(full, decoded);
++    ++aggregate.frames;
++    aggregate.bit_errors += bit_errors;
++    aggregate.frame_errors += bit_errors != 0;
++    aggregate.mismatch_bits += mismatch;
++    aggregate.mismatch_frames += mismatch != 0;
++    aggregate.traceback_operations += operations;
++    aggregate.stable_depth_sum += stable_depth;
++    aggregate.decode_us_sum += decode_us;
++    aggregate.decode_us_max = std::max(aggregate.decode_us_max, decode_us);
++    aggregate.decode_samples.push_back(decode_us);
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::invalid_argument("expected results directory");
++        const std::filesystem::path results(argv[1]);
++        std::filesystem::create_directories(results);
++        const std::vector<std::size_t> depths = {35, 49, 70};
++        const std::vector<Scenario> scenarios = {
++            {"CC-B-R12-S", -0.5, {"R12_11", {1, 1}}, 1200},
++            {"CC-B-R12-S", 0.0, {"R12_11", {1, 1}}, 1200},
++            {"CC-B-R23-S", 0.5, {"R23_B_1101", {1, 1, 0, 1}}, 2300},
++            {"CC-B-R23-S", 1.0, {"R23_B_1101", {1, 1, 0, 1}}, 2300}
++        };
++        const scl::cc::Trellis trellis;
++        scl::cc::ConvolutionalEncoder encoder(trellis);
++        const scl::cc::SoftViterbiDecoder full_decoder(trellis);
++
++        {
++            const std::vector<std::uint8_t> zero_payload(kPayloadLength, 0);
++            const auto encoded = encoder.encode_block(zero_payload, true);
++            for (const auto& scenario : scenarios) {
++                const auto punctured = scl::cc::puncture_bits(encoded.mother_bits, scenario.pattern);
++                std::vector<double> received(punctured.bits.size());
++                for (std::size_t i = 0; i < received.size(); ++i) {
++                    received[i] = punctured.bits[i] == 0 ? 1.0 : -1.0;
++                }
++                const auto depunctured = scl::cc::depuncture_soft(
++                    received, 2 * kCodecInputLength, scenario.pattern);
++                for (auto depth : depths) {
++                    if (decode_finite(trellis, depunctured.expanded_values,
++                                      depunctured.observed_mask, depth).payload != zero_payload) {
++                        throw std::runtime_error("noiseless finite traceback mismatch");
++                    }
++                }
++            }
++        }
++
++        std::ofstream out(results / "stage10_traceback_study_results.csv");
++        out << "caseId,snrDb,mode,Dtb,frames,payloadBitErrors,payloadErrorFrames,BER,FER,"
++               "fullMismatchBits,fullMismatchFrames,avgDecodeTime_us,p95DecodeTime_us,"
++               "maxDecodeTime_us,survivorMemoryBytes,tracebackOperations,"
++               "firstStableOutputDepth\n";
++        out << std::setprecision(17);
++        for (const auto& scenario : scenarios) {
++            std::array<Aggregate, 4> aggregates;
++            const double sigma = std::sqrt(1.0 / (2.0 * std::pow(10.0, scenario.snr_db / 10.0)));
++            for (std::uint64_t frame = 0; frame < 1000; ++frame) {
++                const auto common_payload = scl::common::generatePayloadBits(kSeed, kPayloadLength, frame);
++                std::vector<std::uint8_t> payload(common_payload.begin(), common_payload.end());
++                const auto encoded = encoder.encode_block(payload, true);
++                const auto punctured = scl::cc::puncture_bits(encoded.mother_bits, scenario.pattern);
++                const auto noise = scl::common::generateStandardGaussianFrame(
++                    kSeed, scenario.noise_group, frame, punctured.bits.size());
++                std::vector<double> received(punctured.bits.size());
++                for (std::size_t i = 0; i < received.size(); ++i) {
++                    received[i] = (punctured.bits[i] == 0 ? 1.0 : -1.0) + sigma * noise[i];
++                }
++                const auto depunctured = scl::cc::depuncture_soft(
++                    received, 2 * kCodecInputLength, scenario.pattern);
++
++                const auto full_start = Clock::now();
++                const auto full = full_decoder.decode_terminated_masked_symbols(
++                    depunctured.expanded_values, depunctured.observed_mask, kCodecInputLength);
++                const auto full_end = Clock::now();
++                std::array<DecodeResult, 3> finite;
++                std::array<double, 3> finite_us{};
++                for (std::size_t i = 0; i < depths.size(); ++i) {
++                    const auto start = Clock::now();
++                    finite[i] = decode_finite(
++                        trellis, depunctured.expanded_values, depunctured.observed_mask, depths[i]);
++                    const auto end = Clock::now();
++                    finite_us[i] =
++                        std::chrono::duration<double, std::micro>(end - start).count();
++                }
++                std::size_t first_stable = kCodecInputLength;
++                for (std::size_t i = 0; i < depths.size(); ++i) {
++                    if (finite[i].payload == full.payload_bits) {
++                        first_stable = depths[i];
++                        break;
++                    }
++                }
++                add(aggregates[0], payload, full.payload_bits, full.payload_bits,
++                    std::chrono::duration<double, std::micro>(full_end - full_start).count(),
++                    kCodecInputLength, first_stable);
++                for (std::size_t i = 0; i < depths.size(); ++i) {
++                    add(aggregates[i + 1], payload, finite[i].payload, full.payload_bits,
++                        finite_us[i], finite[i].traceback_operations, first_stable);
++                }
++            }
++
++            for (std::size_t mode = 0; mode < aggregates.size(); ++mode) {
++                const auto& value = aggregates[mode];
++                const bool full = mode == 0;
++                const std::size_t depth = full ? kCodecInputLength : depths[mode - 1];
++                out << scenario.case_id << ',' << scenario.snr_db << ','
++                    << (full ? "FULL_BLOCK_ZERO_TERMINATED" : "FINITE_TRACEBACK") << ','
++                    << depth << ',' << value.frames << ',' << value.bit_errors << ','
++                    << value.frame_errors << ','
++                    << static_cast<double>(value.bit_errors) / (value.frames * kPayloadLength) << ','
++                    << static_cast<double>(value.frame_errors) / value.frames << ','
++                    << value.mismatch_bits << ',' << value.mismatch_frames << ','
++                    << value.decode_us_sum / value.frames << ',' << p95(value.decode_samples) << ','
++                    << value.decode_us_max << ','
++                    << depth * scl::cc::kStateCount * sizeof(Survivor) << ','
++                    << value.traceback_operations << ','
++                    << static_cast<double>(value.stable_depth_sum) / value.frames << '\n';
++            }
++        }
++        std::cout << "PASS_STAGE10_CC_TRACEBACK_STUDY_RUNNER\n";
++        return 0;
++    } catch (const std::exception& error) {
++        std::cerr << "FAIL_STAGE10: " << error.what() << '\n';
++        return 1;
++    }
++}
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/stage_plan.md b/Task/CC/simulation/stages/S3/stage10_traceback_study/stage_plan.md
+new file mode 100644
+index 00000000..eda22a3e
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/stage_plan.md
+@@ -0,0 +1,40 @@
++# Stage10 规格冻结：回溯深度研究
++
++## 目标
++
++在 1/2 soft 与 2/3 soft 的瀑布区代表点比较 `Dtb={35,49,70}` 和完整块已知零终止回溯，量化性能、时延、survivor 内存和回溯操作数，并由数据冻结后续滑窗推荐 Dtb。
++
++## 非目标
++
++- 不替换 Stage09 正式曲线。
++- 不在本 Stage 实现分块流水线。
++- 不把“常用 5K”作为无实验依据的结论。
++
++## 范围
++
++只修改 `Task/CC/simulation/stages/S3/stage10_traceback_study/`。Stage09 及公共编译码实现只读复用。
++
++## 冻结语义
++
++- Case/SNR：R12-soft {-0.5, 0.0} dB；R23-soft {0.5, 1.0} dB。
++- 每点 1000 帧，复用 masterSeed=2026072001、公共 payload 和母噪声。
++- 完整块基准：处理 306 个 codec input 后从已知 finalState=0 回溯全部 306 步。
++- 有限回溯：处理中间时刻从当前最优状态回溯 Dtb；块末最后 Dtb 位利用已知 finalState=0 flush。它是“有限回溯输出”，不是 Stage12 的滑窗调度实现。
++- `survivorMemoryBytes = Dtb * 64 * sizeof(Survivor)`；完整块用 306 步。
++- `tracebackOperations` 记录逐帧实际 survivor 访问次数。
++- 单帧 `firstStableOutputDepth` 定义为候选集合中第一个与完整块 payload 完全一致的 Dtb；若三者均不一致则为 306。结果表记录帧均值。
++- 推荐优先门限为所有点 BER/FER 增幅均不超过 5%；若无候选达到，则允许明确标注 `FALLBACK`，要求最坏 BER 增幅不超过 10%、最坏 FER 增幅不超过 15%，且 survivor 内存至少减少 50%。若 fallback 仍无候选则 Gate 失败。
++
++## 验收矩阵
++
++| 需求 | 实现位置 | 正向测试 | 负向测试 | Gate 条件 |
++|---|---|---|---|---|
++| 三候选与完整块对比 | C++ runner | 4 场景×4 模式 | 非法 Dtb/长度拒绝 | 全矩阵完成 |
++| 性能与 mismatch | runner + checker | BER/FER/差异公式 | 计数越界拒绝 | 公式 PASS |
++| 时延/内存/操作数 | runner | finite/p95/max/内存公式 | NaN/Inf 拒绝 | 指标 PASS |
++| 数据化推荐 | checker | 依门限选择最小合格 Dtb | 无合格候选时拒绝伪选 | 推荐可追溯 |
++| 审计 | manifest | functional range 对齐 | 越界拒绝 | 审计 PASS |
++
++## Gate
++
++`PASS_STAGE10_CC_TRACEBACK_STUDY`
+diff --git a/Task/CC/simulation/stages/S3/stage10_traceback_study/tests/README.md b/Task/CC/simulation/stages/S3/stage10_traceback_study/tests/README.md
+new file mode 100644
+index 00000000..0192c4b8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage10_traceback_study/tests/README.md
+@@ -0,0 +1,3 @@
++# Stage10 测试
++
++驱动检查无噪声有限回溯、正式矩阵、逐行公式、有限值、mismatch 关系和推荐门限。

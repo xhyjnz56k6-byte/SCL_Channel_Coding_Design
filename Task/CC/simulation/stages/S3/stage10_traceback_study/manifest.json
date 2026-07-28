@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage10_traceback_study",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE10_CC_TRACEBACK_STUDY",
+  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "4feb90e38a6540d7901e24c6d6d754bb29eb9313",
+      "contentCommit": "17d65c1c433943af2c80415e1bccf76e9c3e5bd4",
+      "diffPaths": ["Task/CC/simulation/stages/S3/stage10_traceback_study"],
+      "files": [
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/.gitignore",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/commands_used.md",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/config/stage10_config.json",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/frozen_config.csv",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/include/README.md",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/known_issues.md",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/matlab/README.md",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_comparison_summary.csv",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_recommendation.csv",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_report.md",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_study_results.csv",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/results/stage10_traceback_test_summary.csv",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/check_stage10.py",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/run_stage10.py",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/src/stage10_traceback_study_runner.cpp",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/stage_plan.md",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/tests/README.md"
+      ]
+    }
+  ],
+  "validation": {
+    "scenarios": 4,
+    "framesPerScenario": 1000,
+    "depths": [35, 49, 70],
+    "noiseless": "PASS",
+    "preferredThreshold": "NO_CANDIDATE",
+    "recommendedDtb": 70,
+    "recommendationTier": "FALLBACK",
+    "worstBerIncrease": 0.05696202531645578,
+    "worstFerIncrease": 0.1298701298701299,
+    "survivorMemoryReduction": 0.7712418300653595,
+    "stage09AuditRegression": "PASS"
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary --unified=0 baseCommit..contentCommit over Stage10",
+    "sha256": "7d135fa7574b3873923006852ece9966870b507262f39f97605282e192af63fd",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage10_traceback_study/"],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "mergeStatus": "NOT_MERGED"
+}
