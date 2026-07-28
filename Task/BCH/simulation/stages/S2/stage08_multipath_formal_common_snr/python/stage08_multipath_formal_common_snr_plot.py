@@ -72,19 +72,34 @@ def main() -> int:
             legend, style_id, color, line, marker = STYLE[case_id]
             x = [float(row["waveformSnrDb"]) for row in selected]
             y = []
+            observed_x = []
+            observed_y = []
+            after_first_zero = False
             for row in selected:
                 raw = float(row[field])
                 is_zero = raw == 0.0
                 surrogate = False
                 if scale == "log" and is_zero:
                     count = int(row["totalPayloadBits"]) if field == "ber" else int(row["totalFrames"])
-                    plot_value = 0.5 / count
+                    plot_value = 3.0 / count
                     surrogate = True
                 elif field.endswith("TimeMeanNs"):
                     plot_value = raw / 1000.0
                 else:
                     plot_value = raw
                 y.append(plot_value)
+                render_rule = "DRAW"
+                if scale == "log" and row["stopReason"] == "MAX_FRAMES_REACHED":
+                    render_rule = "OMIT_MAX_FRAMES_CENSORED_FROM_LOG_CURVE"
+                elif scale == "log" and is_zero:
+                    render_rule = "OMIT_ZERO_OBSERVED_FROM_LOG_CURVE"
+                elif scale == "log" and after_first_zero:
+                    render_rule = "OMIT_AFTER_FIRST_ZERO_OBSERVED"
+                if scale == "log" and is_zero:
+                    after_first_zero = True
+                if render_rule == "DRAW":
+                    observed_x.append(float(row["waveformSnrDb"]))
+                    observed_y.append(plot_value)
                 figure_rows.append({
                     "caseId": case_id,
                     "legendLabel": legend,
@@ -98,11 +113,13 @@ def main() -> int:
                     "plotY": f"{plot_value:.17g}",
                     "isZeroObserved": str(is_zero).lower(),
                     "plotSurrogateUsed": str(surrogate).lower(),
-                    "plotSurrogateFormula": "0.5/totalPayloadBits" if surrogate and field == "ber" else "0.5/totalFrames" if surrogate else "NONE",
+                    "plotSurrogateFormula": "3/totalPayloadBits" if surrogate and field == "ber" else "3/totalFrames" if surrogate else "NONE",
+                    "plotRenderRule": render_rule,
+                    "stopReason": row["stopReason"],
                     "sourceCsv": f"results/{PREFIX}_results.csv",
                     "sourceRowId": f"{case_id}:{row['waveformSnrIndex']}",
                 })
-            ax.plot(x, y, label=legend, color=color, linestyle=line, marker=marker, markersize=3.5, linewidth=1.2)
+            ax.plot(observed_x, observed_y, label=legend, color=color, linestyle=line, marker=marker, markersize=3.5, linewidth=1.2)
         ax.set_title(title)
         ax.set_xlabel("SNR (dB)")
         ax.set_ylabel(ylabel)
@@ -128,7 +145,7 @@ def main() -> int:
             "ySourceColumn": field,
             "xScale": "linear",
             "yScale": scale,
-            "zeroHandlingRule": "raw zero retained; plotY=0.5/count only for log display",
+            "zeroHandlingRule": "raw zero retained; zero-observed BER/FER points are censored in figure-data with 3/count upper bounds; BER/FER log plots render only TARGET_FRAME_ERRORS_REACHED points and omit MAX_FRAMES_REACHED censored tails",
             "sourceCsv": f"results/{PREFIX}_results.csv",
             "sourceCsvSha256": sha(source),
             "figureDataCsv": f"plots/{figure_csv.name}",

@@ -46,6 +46,8 @@ def main() -> int:
         require(manifest["xSourceColumn"] == "waveformSnrDb", "x source")
         require(manifest["gridDefinition"] == "0:0.5:18 dB; BASE_0P5DB; NO_REFINEMENT", "grid definition")
         require(manifest["yScale"] in ("log", "linear"), "scale")
+        if manifest["yScale"] == "log":
+            require("only TARGET_FRAME_ERRORS_REACHED points" in manifest["zeroHandlingRule"], "zero render rule")
         require(sha(png) == manifest["plotFileSha256"], "png hash")
         require(sha(figure) == manifest["figureDataSha256"], "figure hash")
         require(sha(stage / manifest["sourceCsv"]) == manifest["sourceCsvSha256"], "source hash")
@@ -64,9 +66,23 @@ def main() -> int:
             if row["isZeroObserved"] == "true":
                 require(raw == 0.0 and row["plotSurrogateUsed"] == "true", "zero handling")
                 count = int(source["totalPayloadBits"]) if field == "ber" else int(source["totalFrames"])
-                require(abs(plot_y - 0.5 / count) <= 1e-18, "surrogate formula")
+                require(abs(plot_y - 3.0 / count) <= 1e-18, "surrogate formula")
+                require(row["plotRenderRule"] in (
+                    "OMIT_ZERO_OBSERVED_FROM_LOG_CURVE",
+                    "OMIT_MAX_FRAMES_CENSORED_FROM_LOG_CURVE",
+                ), "zero render rule")
             else:
                 require(row["plotSurrogateUsed"] == "false", "unexpected surrogate")
+                require(row["plotRenderRule"] in (
+                    "DRAW",
+                    "OMIT_AFTER_FIRST_ZERO_OBSERVED",
+                    "OMIT_MAX_FRAMES_CENSORED_FROM_LOG_CURVE",
+                ), "draw render rule")
+            if manifest["yScale"] == "log":
+                if source["stopReason"] == "TARGET_FRAME_ERRORS_REACHED":
+                    require(row["plotRenderRule"] == "DRAW", "target-stop render rule")
+                else:
+                    require(row["plotRenderRule"] == "OMIT_MAX_FRAMES_CENSORED_FROM_LOG_CURVE", "max-stop render rule")
         require(len(by_case) == 4, "case count")
         for case_rows in by_case.values():
             xs = sorted(float(row["waveformSnrDb"]) for row in case_rows)
