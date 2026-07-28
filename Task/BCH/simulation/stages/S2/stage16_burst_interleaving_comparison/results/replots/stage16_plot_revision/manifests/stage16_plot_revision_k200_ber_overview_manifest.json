@@ -1,0 +1,23 @@
+{
+  "figureName": "stage16_plot_revision_k200_ber_overview",
+  "title": "200比特BCH突发信道适应性",
+  "xAxis": "SNR",
+  "yAxis": "BER",
+  "scale": "log",
+  "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+  "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+  "seriesCountExpected": 12,
+  "seriesCountRendered": 12,
+  "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+  "usesZeroSurrogate": false,
+  "rawFigureDataPath": "results/replots/stage16_plot_revision/figure_data/stage16_plot_revision_k200_ber_overview_raw_figure_data.csv",
+  "rawFigureDataSha256": "46a479c0b081666d7f9b6a0646ba7f1bc878fa5c503d93a355bfa1757ee7653b",
+  "publicationFigureDataPath": "results/replots/stage16_plot_revision/figure_data/stage16_plot_revision_k200_ber_overview_publication_figure_data.csv",
+  "publicationFigureDataSha256": "55218894b7925d11b2353cbec692a6d1660e37181b6d5667cd83f0ca4ba5064b",
+  "seriesAuditPath": "results/replots/stage16_plot_revision/audit/stage16_plot_revision_k200_ber_overview_series_audit.csv",
+  "seriesAuditSha256": "92348248c4abb8b3dc95c5fb6a21a93bfdc3064c496a350d3581c4187f92e9a5",
+  "pngPath": "results/replots/stage16_plot_revision/figures/stage16_plot_revision_k200_ber_overview.png",
+  "sha256": "ab1d4cfd34e7003b18224c483f6485ff4256f6801543a1d1f6b0a269f05cd085",
+  "generatedAt": "2026-07-28T01:43:27.398232+00:00",
+  "gitHead": "e7a176efba0599cc76c90b206804f163904ea747"
+}

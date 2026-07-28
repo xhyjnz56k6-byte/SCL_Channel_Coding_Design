@@ -1,0 +1,9 @@
+figureName,seriesLabel,payloadGroup,codeType,configuration,rawPointCount,positivePointCount,zeroPointCount,firstSnr,lastSnr,firstPositiveSnr,lastPositiveSnr,includedInPublicationPlot,reason
+stage16_plot_revision_k300_fer_burst_only,分块300-无交织突发,300,分块,无交织突发,37,37,0,0,18,0,18,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k300_fer_burst_only,分块300-交织突发,300,分块,交织突发,37,23,14,0,18,0,11,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k300_fer_burst_only,255双块300-无交织突发,300,255,无交织突发,37,37,0,0,18,0,18,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k300_fer_burst_only,255双块300-交织突发,300,255,交织突发,37,17,20,0,18,0,8,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k300_fer_burst_only,421整块300-无交织突发,300,421,无交织突发,37,17,20,0,18,0,8,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k300_fer_burst_only,421整块300-交织突发,300,421,交织突发,37,17,20,0,18,0,8,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k300_fer_burst_only,385整块300-无交织突发,300,385,无交织突发,37,13,24,0,18,0,6,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k300_fer_burst_only,385整块300-交织突发,300,385,交织突发,37,13,24,0,18,0,6,true,rendered; zero-valued high-SNR points removed from publication plot
