@@ -272,3 +272,50 @@ Generated step Gate:
 ```text
 PASS_STAGE17_AFTER_BURST_INTERLEAVING_MERGE
 ```
+
+## Full Integration Check
+
+Ancestor checks:
+
+```text
+origin/stage07-bch-s2-awgn-dense-formal ancestor of HEAD: PASS
+origin/stage07-08-bch-s2-multipath ancestor of HEAD: PASS
+origin/stage10-12-bch-s2-dense-snr-rerun ancestor of HEAD: PASS
+origin/stage13-16-bch-s2-burst-interleaving ancestor of HEAD: PASS
+```
+
+Forbidden module diff:
+
+```text
+Task/CC changes: 0
+Task/LDPC changes: 0
+```
+
+Full whitespace check:
+
+```text
+git diff --check origin/main...HEAD
+```
+
+Result:
+
+```text
+BLOCKED_STAGE17_FULL_DIFF_CHECK
+```
+
+Blocking files include:
+
+- `Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_error_floor_repair.patch`
+- `Task/BCH/simulation/stages/S2/stage13_burst_interleaving_validation/...`
+- `Task/BCH/simulation/stages/S2/stage14_burst_formal/...`
+- `Task/BCH/simulation/stages/S2/stage15_interleaving_formal/...`
+
+The errors are pre-existing content from merged source branches: trailing whitespace in a retained patch evidence file and new blank lines at EOF in Burst/Interleaving source or config files.
+
+Gate decision:
+
+```text
+BLOCKED_BCH_S2_ALL_CHANNELS_INTEGRATION_FULL_DIFF_CHECK
+```
+
+`PASS_BCH_S2_ALL_CHANNELS_INTEGRATION` has not been generated.

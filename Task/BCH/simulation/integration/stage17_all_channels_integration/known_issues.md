@@ -42,3 +42,20 @@ Current decision:
 ```text
 PASS_STAGE17_AFTER_AWGN_DENSE_MERGE
 ```
+
+## BLOCKED: Full Integration Diff Check
+
+All channel branches were merged and their stage-level regressions passed, but the final all-branch check:
+
+```text
+git diff --check origin/main...HEAD
+```
+
+fails on pre-existing whitespace issues introduced by source branches:
+
+- trailing whitespace in `stage08_multipath_formal_common_snr_error_floor_repair.patch`
+- new blank line at EOF in several Stage13/14/15 Burst/Interleaving files
+
+These are not numeric simulation failures. They block the final all-channel integration Gate because the project audit requires `git diff --check` to pass.
+
+No `PASS_BCH_S2_ALL_CHANNELS_INTEGRATION` has been generated.

@@ -30,4 +30,10 @@ python Task\BCH\simulation\stages\S2\stage13_burst_interleaving_validation\pytho
 python Task\BCH\simulation\stages\S2\stage14_burst_formal\python\stage14_burst_formal_check.py
 python Task\BCH\simulation\stages\S2\stage15_interleaving_formal\python\stage15_interleaving_formal_check.py
 python Task\BCH\simulation\stages\S2\stage16_burst_interleaving_comparison\python\stage16_burst_interleaving_comparison_check.py
+git merge-base --is-ancestor origin/stage07-bch-s2-awgn-dense-formal HEAD
+git merge-base --is-ancestor origin/stage07-08-bch-s2-multipath HEAD
+git merge-base --is-ancestor origin/stage10-12-bch-s2-dense-snr-rerun HEAD
+git merge-base --is-ancestor origin/stage13-16-bch-s2-burst-interleaving HEAD
+git diff --check origin/main...HEAD
+git diff --name-only origin/main...HEAD -- Task/CC Task/LDPC
 ```
