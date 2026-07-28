@@ -226,3 +226,49 @@ Generated step Gate:
 ```text
 PASS_STAGE17_AFTER_CFO_BLOCKAGE_DENSE_MERGE
 ```
+
+## Burst And Interleaving Merge
+
+Merged branch:
+
+```text
+origin/stage13-16-bch-s2-burst-interleaving
+```
+
+Merge commit:
+
+```text
+324f7a6367b090adcba8c2628c153fa0c01611ad
+```
+
+Executed regressions:
+
+```text
+python Task\BCH\simulation\stages\S2\stage13_burst_interleaving_validation\python\stage13_burst_interleaving_validation_check.py
+PASS_STAGE13_BURST_INTERLEAVING_VALIDATION_FUNCTIONAL
+
+python Task\BCH\simulation\stages\S2\stage14_burst_formal\python\stage14_burst_formal_check.py
+PASS_STAGE14_BURST_FORMAL_FUNCTIONAL
+
+python Task\BCH\simulation\stages\S2\stage15_interleaving_formal\python\stage15_interleaving_formal_check.py
+PASS_STAGE15_INTERLEAVING_FORMAL_FUNCTIONAL
+
+python Task\BCH\simulation\stages\S2\stage16_burst_interleaving_comparison\python\stage16_burst_interleaving_comparison_check.py
+PASS_STAGE16_BURST_INTERLEAVING_COMPARISON_FUNCTIONAL
+PASS_BCH_S2_BURST_INTERLEAVING_STAGE13_TO_STAGE16_FUNCTIONAL
+```
+
+Additional evidence:
+
+```text
+PASS_STAGE16_PLOT_REVISION
+origin/stage13-16-bch-s2-burst-interleaving is ancestor of HEAD
+```
+
+The Stage13-16 checkers temporarily refreshed original Stage files with functional Gate wording. Those run-side effects were restored and were not committed; Stage17 records the observed checker outputs.
+
+Generated step Gate:
+
+```text
+PASS_STAGE17_AFTER_BURST_INTERLEAVING_MERGE
+```

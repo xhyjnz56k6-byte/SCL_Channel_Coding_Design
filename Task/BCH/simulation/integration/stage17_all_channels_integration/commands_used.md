@@ -25,4 +25,9 @@ python \\?\C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design_stage17_inte
 git merge --no-ff origin/stage10-12-bch-s2-dense-snr-rerun -m "BCH/stage17：合并CFO遮挡高密度线路"
 python Task\BCH\simulation\stages\S2\stage10_cfo_formal\python\stage10_cfo_formal_checker.py
 python Task\BCH\simulation\stages\S2\stage12_blockage_formal\python\stage12_blockage_formal_checker.py
+git merge --no-ff origin/stage13-16-bch-s2-burst-interleaving -m "BCH/stage17：合并突发错误与交织线路"
+python Task\BCH\simulation\stages\S2\stage13_burst_interleaving_validation\python\stage13_burst_interleaving_validation_check.py
+python Task\BCH\simulation\stages\S2\stage14_burst_formal\python\stage14_burst_formal_check.py
+python Task\BCH\simulation\stages\S2\stage15_interleaving_formal\python\stage15_interleaving_formal_check.py
+python Task\BCH\simulation\stages\S2\stage16_burst_interleaving_comparison\python\stage16_burst_interleaving_comparison_check.py
 ```
