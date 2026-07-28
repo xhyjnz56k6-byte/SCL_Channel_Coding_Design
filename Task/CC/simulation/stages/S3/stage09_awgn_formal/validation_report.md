@@ -15,4 +15,4 @@ FER=0.1 只在 hard/soft 两条曲线都覆盖目标时进行对数 FER 线性�
 
 首次按统一 0.2 dB 生成工作单元时，R23/R34 因冻结端点不在同一网格而被 merge Gate 拒绝，未写正式输出。随后将这两个码率改用任务允许的 0.1 dB，保留失败 runtime 并在新 `formal_v2` 目录完整重跑。
 
-远程验证延后至 Stage15 后统一 push；未合并 `main`。
+远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交；未合并 `main`。

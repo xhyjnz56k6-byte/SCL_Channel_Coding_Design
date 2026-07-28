@@ -55,6 +55,6 @@
     "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage10_traceback_study/"],
     "outOfScopeChanges": []
   },
-  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
   "mergeStatus": "NOT_MERGED"
 }

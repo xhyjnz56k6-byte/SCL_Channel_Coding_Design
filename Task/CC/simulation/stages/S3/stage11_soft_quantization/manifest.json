@@ -32,6 +32,6 @@
   "validation":{"clipMax":2,"formalFrames":4000,"recommendedBits":6,"worstBerIncrease":0.09803921568627438,"worstFerIncrease":0.06779661016949157,"integerOverflowCount":0,"pathMetricSaturationCount":0,"stage10AuditRegression":"PASS"},
   "changesPatch":{"semantic":"git diff --binary --unified=0 baseCommit..contentCommit over Stage11","sha256":"706b060f6a7b38f8565dca34614f23519ba331446767a707688a90a903a78067","includesAuditCommit":false},
   "scope":{"allowedPrefixes":["Task/CC/simulation/stages/S3/stage11_soft_quantization/"],"outOfScopeChanges":[]},
-  "remoteVerification":"DEFERRED_TO_BATCH_PUSH",
+  "remoteVerification":"VERIFIED_ORIGIN_STAGE01_CC",
   "mergeStatus":"NOT_MERGED"
 }

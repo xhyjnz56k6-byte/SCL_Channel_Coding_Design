@@ -68,6 +68,6 @@
     "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage08_awgn_prescan/"],
     "outOfScopeChanges": []
   },
-  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
   "mergeStatus": "NOT_MERGED"
 }

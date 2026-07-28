@@ -12,4 +12,4 @@ Gate：`PASS_STAGE08_CC_AWGN_PRESCAN`
 
 复验误码统计与原功能提交一致；计时字段受本机调度影响而刷新，故作为独立 `validationRefresh` functional range 保留。Stage09 正式区间已按 FER 约 0.005～0.8 冻结，步长均为 0.2 dB。
 
-本 Stage 只用于定位 waterfall，不给出正式编码增益。远程验证延后至 Stage15 后统一 push；未合并 `main`。
+本 Stage 只用于定位 waterfall，不给出正式编码增益。远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交；未合并 `main`。

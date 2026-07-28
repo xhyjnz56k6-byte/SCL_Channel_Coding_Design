@@ -48,5 +48,5 @@ results/stage01_cc_contract_check_results.csv
 
 - 功能范围由 `manifest.json` 中的 `baseCommit` 和 `contentCommit` 精确限定。
 - `changes.patch` 由该真实功能范围生成，不包含审计提交自身。
-- 批次远程验证按用户要求延后至 Stage15 完成后的统一 push。
+- 远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交。
 - `mergeStatus` 保持 `NOT_MERGED`。

@@ -12,4 +12,4 @@ Gate：`PASS_STAGE07_CC_BLOCK_NOISELESS`
 
 原始提交的 actualRate 仅有默认 6 位，发现后未把 Gate 收口；修复输出精度和 checker 后完整重跑。
 
-未运行 AWGN prescan/formal。远程验证延后至 Stage15 后统一 push；未合并 `main`。
+未运行 AWGN prescan/formal。远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交；未合并 `main`。

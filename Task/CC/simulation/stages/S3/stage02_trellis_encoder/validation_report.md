@@ -51,4 +51,4 @@ PASS_STAGE02_CC_TRELLIS_ENCODER
 
 本阶段未实现或运行 Viterbi、打孔、AWGN smoke/prescan/formal；这些项目没有标记为 PASS。
 
-批次远程验证按用户要求在 Stage15 后统一执行。当前未合并 `main`。
+远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交。当前未合并 `main`。

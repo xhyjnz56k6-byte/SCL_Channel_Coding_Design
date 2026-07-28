@@ -23,4 +23,4 @@ Gate：`PASS_STAGE04_CC_SOFT_VITERBI`
 
 首次 MATLAB 导入因内层分号被误判为外层 delimiter 而失败；固定外层 delimiter 为逗号后重新运行通过。失败发生在数据导入阶段，没有修改 C++ 向量或参考结果。
 
-未执行打孔、量化或 AWGN 性能实验。远程验证延后到 Stage15 统一 push；未合并 `main`。
+未执行打孔、量化或 AWGN 性能实验。远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交；未合并 `main`。

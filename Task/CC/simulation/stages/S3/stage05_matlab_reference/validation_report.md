@@ -25,4 +25,4 @@ Gate：`PASS_STAGE05_CC_MATLAB_REFERENCE`
 
 证据：`results/stage05_matlab_reference_comparison.csv`、`stage05_matlab_reference_hashes.json`、`stage05_matlab_reference_test_summary.csv`。
 
-本阶段未对打孔图样或 AWGN 性能作结论。远程验证延后至 Stage15 后统一 push；未合并 `main`。
+本阶段未对打孔图样或 AWGN 性能作结论。远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交；未合并 `main`。

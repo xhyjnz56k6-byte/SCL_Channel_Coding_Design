@@ -33,4 +33,4 @@
 
 证据位于 `results/stage03_hard_viterbi_test_summary.csv` 和 `results/stage03_hard_viterbi_matlab_comparison.csv`。
 
-本阶段未实现打孔、软判决或 AWGN，未把这些测试标记为 PASS。远程验证延后到 Stage15 后统一 push；未合并 `main`。
+本阶段未实现打孔、软判决或 AWGN，未把这些测试标记为 PASS。远程分支 `origin/stage01-cc` 已验证包含本 Stage 功能提交；未合并 `main`。

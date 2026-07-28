@@ -58,6 +58,6 @@
     "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage07_block_noiseless/"],
     "outOfScopeChanges": []
   },
-  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
   "mergeStatus": "NOT_MERGED"
 }

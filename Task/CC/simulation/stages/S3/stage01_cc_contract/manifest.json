@@ -58,6 +58,6 @@
     "forbidden": ["Task/Common/**", "Task/BCH/**", "Task/LDPC/**", "other stages"],
     "outOfScopeChanges": []
   },
-  "remoteVerification": "DEFERRED_TO_BATCH_PUSH",
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
   "mergeStatus": "NOT_MERGED"
 }
