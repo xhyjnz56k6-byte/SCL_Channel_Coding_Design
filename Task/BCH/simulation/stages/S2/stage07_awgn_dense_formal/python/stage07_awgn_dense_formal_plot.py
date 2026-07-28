@@ -138,9 +138,16 @@ def main():
         for case_id in dict.fromkeys(x["caseId"] for x in data):
             pts = [x for x in data if x["caseId"] == case_id]
             color, line, marker = STYLE[pts[0]["styleId"]]
-            ax.plot([float(x["snrDb"]) for x in pts], [float(x["plotY"]) for x in pts],
-                    color=color, linestyle=line, marker=marker, markevery=2,
-                    label=pts[0]["legendLabel"])
+            if yscale == "log":
+                observed = [x for x in pts if x["isZeroObserved"] != "true"]
+                if observed:
+                    ax.plot([float(x["snrDb"]) for x in observed], [float(x["plotY"]) for x in observed],
+                            color=color, linestyle=line, marker=marker, markevery=2,
+                            label=pts[0]["legendLabel"])
+            else:
+                ax.plot([float(x["snrDb"]) for x in pts], [float(x["plotY"]) for x in pts],
+                        color=color, linestyle=line, marker=marker, markevery=2,
+                        label=pts[0]["legendLabel"])
         ax.set_xlabel("SNR (dB)")
         ax.set_ylabel(ylabel)
         ax.set_title(title)
@@ -180,7 +187,7 @@ def main():
             "xMax": 18.0,
             "xStep": 0.5,
             "markEvery": 2,
-            "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N.",
+            "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor.",
         })
     aggregate_path = PLOTS / "stage07_awgn_dense_formal_figure_data.csv"
     write(aggregate_path, aggregate, FIGURE_FIELDS)
@@ -197,7 +204,7 @@ def main():
         "pythonVersion": platform.python_version(),
         "matplotlibVersion": matplotlib.__version__,
         "createdAt": platform.node(),
-        "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored and log plots use one-sided 95% upper bound 3/raw denominator",
+        "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored; log plots omit censored zero-observed points from the main curve to avoid a false error floor; 3/raw denominator upper bounds remain in figure-data and published error-floor analysis",
         "zeroObservedUpperBoundFactor": ZERO_OBSERVED_UPPER_BOUND_FACTOR,
         "xTransformFormula": "EbN0_dB = SNR_dB - 10*log10(2*R); sigma2 = 1/10^(SNR_dB/10)",
         "legendMapping": {r["caseId"]: r["legendLabel"] for r in raw},

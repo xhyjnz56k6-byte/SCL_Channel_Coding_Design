@@ -3,7 +3,7 @@
   "sourceResultsFile": "stage07_awgn_dense_formal_results.csv",
   "sourceResultsSha256": "337c1cb6f46dc8239482f9183738375dc5f7f1f8c9b320e03d5b238a310a6843",
   "plotScript": "stage07_awgn_dense_formal_plot.py",
-  "plotScriptSha256": "90574ac690de75dc289c4e1cb280c43d66d8bfa445bd80a552d6633bea347baa",
+  "plotScriptSha256": "134e64dd967ee295554e47af1c7e612120dde52cab3edb6cde3815beb8358dd7",
   "configFile": "stage07_awgn_dense_formal_config.json",
   "configSha256": "06c0a60191fbbad29be0c8054a0f2f0e1a2a41ec8a64c125eb84b9670f0ea338",
   "configHash": "06c0a60191fbbad29be0c8054a0f2f0e1a2a41ec8a64c125eb84b9670f0ea338",
@@ -11,7 +11,7 @@
   "pythonVersion": "3.11.0",
   "matplotlibVersion": "3.10.7",
   "createdAt": "ZiHua",
-  "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored and log plots use one-sided 95% upper bound 3/raw denominator",
+  "zeroSurrogateRule": "raw CSV keeps zero; zero-observed BER/FER points are censored; log plots omit censored zero-observed points from the main curve to avoid a false error floor; 3/raw denominator upper bounds remain in figure-data and published error-floor analysis",
   "zeroObservedUpperBoundFactor": 3.0,
   "xTransformFormula": "EbN0_dB = SNR_dB - 10*log10(2*R); sigma2 = 1/10^(SNR_dB/10)",
   "legendMapping": {
@@ -52,7 +52,7 @@
     {
       "figureId": "stage07_awgn_dense_formal_k200_ber",
       "png": "stage07_awgn_dense_formal_k200_ber.png",
-      "pngSha256": "3e11346a0dbee0af091729944c806d4bd045c8a07533535ca55e5586763983c7",
+      "pngSha256": "4a0ae95e64b23f9e473aa5a3dc12f5263fd596a5395cdbe26a71381893b9edb2",
       "figureData": "stage07_awgn_dense_formal_k200_ber_figure_data.csv",
       "figureDataSha256": "6930feda89bbfc926f57598ceed9b9bb6838e9af8c9786f7cfe6830d7a4fdf08",
       "title": "200比特BCH误码率对比",
@@ -78,12 +78,12 @@
       "xMax": 18.0,
       "xStep": 0.5,
       "markEvery": 2,
-      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k200_fer",
       "png": "stage07_awgn_dense_formal_k200_fer.png",
-      "pngSha256": "7ac0c9ea5da9eb5d88047654c5dd3681398ca7f281034c90075dfba64e81b753",
+      "pngSha256": "97da4a5ffb6cb56872df771284eec3c66e1d8e4fde6dabb8a3a3fe7babb28e4c",
       "figureData": "stage07_awgn_dense_formal_k200_fer_figure_data.csv",
       "figureDataSha256": "49fc52dbb93a1bea3124a755f4f85ff5dbb2bfab2d88b526471ca19bb1a631ce",
       "title": "200比特BCH误帧率对比",
@@ -109,7 +109,7 @@
       "xMax": 18.0,
       "xStep": 0.5,
       "markEvery": 2,
-      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k200_latency",
@@ -140,12 +140,12 @@
       "xMax": 18.0,
       "xStep": 0.5,
       "markEvery": 2,
-      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k300_ber",
       "png": "stage07_awgn_dense_formal_k300_ber.png",
-      "pngSha256": "56fdcefbdcc62064979593c10f7186a3503f1098991d8ba717ccd42ffa29c8c7",
+      "pngSha256": "3ccb29c8aaacbca1ad522dac00458610914673eada2b96d550b036eba512f172",
       "figureData": "stage07_awgn_dense_formal_k300_ber_figure_data.csv",
       "figureDataSha256": "f61a8b84a648aa5afedbbcc3933f6e6c00e8684e631a1fe2db08d1adfb6d4baf",
       "title": "300比特BCH误码率对比",
@@ -171,12 +171,12 @@
       "xMax": 18.0,
       "xStep": 0.5,
       "markEvery": 2,
-      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k300_fer",
       "png": "stage07_awgn_dense_formal_k300_fer.png",
-      "pngSha256": "53c72a7a4ce15d2f50a9c69d29793c5f0724d9d6020089841bfec30c45a186ac",
+      "pngSha256": "0d031eb8a1337c4bfe90b782c5f1c43572451910ef3a9cabaa66d58974277c80",
       "figureData": "stage07_awgn_dense_formal_k300_fer_figure_data.csv",
       "figureDataSha256": "3da1042e9944e18103ee2def376a6dd4e44c1cfa272c57182c2793fdbd481350",
       "title": "300比特BCH误帧率对比",
@@ -202,7 +202,7 @@
       "xMax": 18.0,
       "xStep": 0.5,
       "markEvery": 2,
-      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
     },
     {
       "figureId": "stage07_awgn_dense_formal_k300_latency",
@@ -233,7 +233,7 @@
       "xMax": 18.0,
       "xStep": 0.5,
       "markEvery": 2,
-      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots use a one-sided 95% upper bound of 3/N."
+      "zeroObservedPointRule": "BER/FER raw zero values are censored zero-observation points; log plots omit censored zero-observed points from the main curve to avoid a false error floor."
     }
   ]
 }

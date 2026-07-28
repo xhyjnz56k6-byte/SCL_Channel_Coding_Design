@@ -156,6 +156,9 @@ def check_figures(data):
             "x-axis contract mismatch")
         req(fig["legendLocation"] == "upper right", "legend location mismatch")
         req(fig["yScale"] in ("log", "linear"), "unknown y scale")
+        if fig["yScale"] == "log":
+            req("omit censored zero-observed points" in fig["zeroObservedPointRule"],
+                "zero-observed plot rule mismatch")
         fd = rows(PLOTS / fig["figureData"])
         req(len(fd) == 148, "per-figure data row count mismatch")
         req(fig["figureDataSha256"] == sha(PLOTS / fig["figureData"]), "figure-data hash mismatch")
