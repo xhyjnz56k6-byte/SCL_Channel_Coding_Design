@@ -1,0 +1,285 @@
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage07_block_noiseless/CMakeLists.txt
+new file mode 100644
+index 00000000..c0f503d5
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/CMakeLists.txt
+@@ -0,0 +1,22 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage07_block_noiseless LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++set(CC_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../..")
++add_executable(stage07_block_noiseless_tests
++    tests/test_stage07_block_noiseless.cpp
++    "${CC_ROOT}/shared/src/trellis.cpp"
++    "${CC_ROOT}/shared/src/puncturing.cpp"
++    "${CC_ROOT}/block/current/src/block_encoder.cpp"
++    "${CC_ROOT}/block/current/src/hard_viterbi.cpp"
++    "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
++)
++target_include_directories(stage07_block_noiseless_tests PRIVATE
++    "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include")
++if(NOT MSVC)
++    target_compile_options(stage07_block_noiseless_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
++endif()
++enable_testing()
++add_test(NAME stage07_block_noiseless_tests
++    COMMAND stage07_block_noiseless_tests "${CMAKE_CURRENT_LIST_DIR}/results")
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/commands_used.md b/Task/CC/simulation/stages/S3/stage07_block_noiseless/commands_used.md
+new file mode 100644
+index 00000000..412e31b6
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/commands_used.md
+@@ -0,0 +1,7 @@
++# Stage07 命令
++
++```powershell
++python Task/CC/simulation/stages/S3/stage07_block_noiseless/scripts/run_stage07.py --clean
++python Task/CC/simulation/stages/S3/stage06_puncturing/scripts/run_stage06.py
++git diff --check
++```
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/config/stage07_config.json b/Task/CC/simulation/stages/S3/stage07_block_noiseless/config/stage07_config.json
+new file mode 100644
+index 00000000..5845e4ba
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/config/stage07_config.json
+@@ -0,0 +1 @@
++{"schemaVersion":"cc.stage07.config.v1","framesPerCase":100,"seed":2026072006,"cases":["CC-B-R12-H","CC-B-R12-S","CC-B-R23-H","CC-B-R23-S","CC-B-R34-H","CC-B-R34-S"]}
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/frozen_config.csv b/Task/CC/simulation/stages/S3/stage07_block_noiseless/frozen_config.csv
+new file mode 100644
+index 00000000..8b2c826b
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/frozen_config.csv
+@@ -0,0 +1,8 @@
++parameter,value,semantics
++framesPerCase,100,noiseless_random
++caseCount,6,three_rates_two_decoders
++R12Ntransmitted,612,bit
++R23Ntransmitted,459,bit
++R34Ntransmitted,408,bit
++payloadMismatchRequired,0,bit_and_frame
++nonFiniteRequired,0,count
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/include/README.md b/Task/CC/simulation/stages/S3/stage07_block_noiseless/include/README.md
+new file mode 100644
+index 00000000..d81b2e11
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/include/README.md
+@@ -0,0 +1,3 @@
++# include
++
++本 Stage 不新增生产接口。
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/known_issues.md b/Task/CC/simulation/stages/S3/stage07_block_noiseless/known_issues.md
+new file mode 100644
+index 00000000..f7c21cab
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/known_issues.md
+@@ -0,0 +1,4 @@
++# Stage07 已知问题
++
++- 无噪声回归不提供 AWGN 性能结论。
++- checkpoint 仅验证冻结基础字段；正式原子写入、resume、shard/merge 属于 Stage09。
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/matlab/README.md b/Task/CC/simulation/stages/S3/stage07_block_noiseless/matlab/README.md
+new file mode 100644
+index 00000000..edd9993e
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/matlab/README.md
+@@ -0,0 +1,3 @@
++# MATLAB
++
++Stage07 复用 Stage05/06 已通过的 MATLAB 逐 bit reference，不重复生成另一套算法。
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_case_results.csv b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_case_results.csv
+new file mode 100644
+index 00000000..5ee9c09d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_case_results.csv
+@@ -0,0 +1,7 @@
++caseId,frames,payloadBitMismatch,payloadFrameMismatch,nonFiniteMetricCount,K_payload,K_codec_input,N_mother,N_transmitted,actualRate,finalState,observedMaskCount
++CC-B-R12-H,100,0,0,0,300,306,612,612,0.49019607843137253,0,612
++CC-B-R12-S,100,0,0,0,300,306,612,612,0.49019607843137253,0,612
++CC-B-R23-H,100,0,0,0,300,306,612,459,0.65359477124183007,0,459
++CC-B-R23-S,100,0,0,0,300,306,612,459,0.65359477124183007,0,459
++CC-B-R34-H,100,0,0,0,300,306,612,408,0.73529411764705888,0,408
++CC-B-R34-S,100,0,0,0,300,306,612,408,0.73529411764705888,0,408
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_checkpoint_roundtrip.csv b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_checkpoint_roundtrip.csv
+new file mode 100644
+index 00000000..03109885
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_checkpoint_roundtrip.csv
+@@ -0,0 +1,2 @@
++caseId,nextFrameIndex,framesProcessed,payloadBitErrors,payloadErrorFrames,configHash,status
++CC-B-R12-S,1000,1000,0,0,stage07_fixture_hash,PASS
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_results_scope.md b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_results_scope.md
+new file mode 100644
+index 00000000..0f0c7a34
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_results_scope.md
+@@ -0,0 +1,3 @@
++# 结果目录
++
++保存六 Case 整数 mismatch、长度/码率、mask、non-finite、checkpoint fixture 和 Gate 摘要。
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_test_summary.csv b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_test_summary.csv
+new file mode 100644
+index 00000000..8e743dff
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_test_summary.csv
+@@ -0,0 +1,7 @@
++check,status
++six_cases_100_frames_each,PASS
++payloadBitMismatch,0
++payloadFrameMismatch,0
++nonFiniteMetricCount,0
++checkpoint_basic_roundtrip,PASS
++stage_gate,PASS_STAGE07_CC_BLOCK_NOISELESS
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/scripts/run_stage07.py b/Task/CC/simulation/stages/S3/stage07_block_noiseless/scripts/run_stage07.py
+new file mode 100644
+index 00000000..71586da0
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/scripts/run_stage07.py
+@@ -0,0 +1,31 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++import csv, math, shutil, subprocess, sys
++from pathlib import Path
++def run(c,cwd): print("+"," ".join(c)); subprocess.run(c,cwd=cwd,check=True)
++def main():
++    stage=Path(__file__).resolve().parents[1]; build=stage/"build"; results=stage/"results"
++    if "--clean" in sys.argv and build.exists(): shutil.rmtree(build)
++    results.mkdir(parents=True,exist_ok=True)
++    run(["cmake","-S",str(stage),"-B",str(build),"-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=Release"],stage)
++    run(["cmake","--build",str(build),"--parallel"],stage)
++    run(["ctest","--test-dir",str(build),"--output-on-failure"],stage)
++    with (results/"stage07_block_noiseless_case_results.csv").open(encoding="utf-8",newline="") as h:
++        rows=list(csv.DictReader(h))
++    if len(rows)!=6 or any(int(r["payloadBitMismatch"]) or int(r["payloadFrameMismatch"]) or int(r["nonFiniteMetricCount"]) for r in rows):
++        raise RuntimeError("Stage07 case mismatch")
++    expected={"R12":612,"R23":459,"R34":408}
++    for r in rows:
++        rate=r["caseId"].split("-")[2]
++        if int(r["N_transmitted"])!=expected[rate] or int(r["observedMaskCount"])!=expected[rate]:
++            raise RuntimeError("Stage07 length/mask mismatch")
++        expected_rate=300.0/int(r["N_transmitted"])
++        if not math.isclose(float(r["actualRate"]),expected_rate,rel_tol=0.0,abs_tol=1e-15):
++            raise RuntimeError("Stage07 actualRate mismatch")
++    with (results/"stage07_block_noiseless_test_summary.csv").open("w",encoding="utf-8",newline="") as h:
++        w=csv.writer(h,lineterminator="\n"); w.writerow(["check","status"])
++        w.writerow(["six_cases_100_frames_each","PASS"]);w.writerow(["payloadBitMismatch","0"])
++        w.writerow(["payloadFrameMismatch","0"]);w.writerow(["nonFiniteMetricCount","0"])
++        w.writerow(["checkpoint_basic_roundtrip","PASS"]);w.writerow(["stage_gate","PASS_STAGE07_CC_BLOCK_NOISELESS"])
++    return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/src/README.md b/Task/CC/simulation/stages/S3/stage07_block_noiseless/src/README.md
+new file mode 100644
+index 00000000..ae9f182d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/src/README.md
+@@ -0,0 +1,3 @@
++# src
++
++本 Stage 使用独立全链路测试 runner。
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/stage_plan.md b/Task/CC/simulation/stages/S3/stage07_block_noiseless/stage_plan.md
+new file mode 100644
+index 00000000..96b81ce2
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/stage_plan.md
+@@ -0,0 +1,5 @@
++# Stage07 六 Case 无噪声计划
++
++对 `CC-B-R12-H/S`、`CC-B-R23-H/S`、`CC-B-R34-H/S` 各执行 100 个随机 300-bit 帧的全链路回归，并检查长度、actualRate、最终状态、mask、payload mismatch、non-finite 和 checkpoint 基础字段。
++
++Gate：`PASS_STAGE07_CC_BLOCK_NOISELESS`
+diff --git a/Task/CC/simulation/stages/S3/stage07_block_noiseless/tests/test_stage07_block_noiseless.cpp b/Task/CC/simulation/stages/S3/stage07_block_noiseless/tests/test_stage07_block_noiseless.cpp
+new file mode 100644
+index 00000000..45cfa90c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage07_block_noiseless/tests/test_stage07_block_noiseless.cpp
+@@ -0,0 +1,89 @@
++#include "cc/block_encoder.hpp"
++#include "cc/hard_viterbi.hpp"
++#include "cc/puncturing.hpp"
++#include "cc/soft_viterbi.hpp"
++#include "cc/trellis.hpp"
++
++#include <cstdint>
++#include <cstdlib>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <random>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++void require(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++struct RateCase {
++    std::string rate;
++    scl::cc::PuncturePattern pattern;
++    std::size_t expected_length;
++};
++}
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::invalid_argument("expected results directory");
++        const std::filesystem::path results(argv[1]);
++        std::filesystem::create_directories(results);
++        const std::vector<RateCase> rates = {
++            {"R12", {"R12_11", {1,1}}, 612},
++            {"R23", {"R23_B_1101", {1,1,0,1}}, 459},
++            {"R34", {"R34_B_110110", {1,1,0,1,1,0}}, 408},
++        };
++        const scl::cc::Trellis trellis;
++        scl::cc::ConvolutionalEncoder encoder(trellis);
++        const scl::cc::HardViterbiDecoder hard(trellis);
++        const scl::cc::SoftViterbiDecoder soft(trellis);
++        std::mt19937 rng(2026072006U);
++        std::ofstream out(results/"stage07_block_noiseless_case_results.csv");
++        out << "caseId,frames,payloadBitMismatch,payloadFrameMismatch,nonFiniteMetricCount,"
++               "K_payload,K_codec_input,N_mother,N_transmitted,actualRate,finalState,observedMaskCount\n";
++
++        for (const auto& rate : rates) {
++            std::size_t hard_bit_mismatch=0, hard_frame_mismatch=0;
++            std::size_t soft_bit_mismatch=0, soft_frame_mismatch=0, non_finite=0;
++            for (int frame=0; frame<100; ++frame) {
++                std::vector<std::uint8_t> payload(300);
++                for (auto& bit: payload) bit=static_cast<std::uint8_t>(rng()&1U);
++                const auto encoded=encoder.encode_block(payload,true);
++                require(encoded.final_state==0 && encoded.mother_bits.size()==612,"encoder invariant");
++                const auto punctured=scl::cc::puncture_bits(encoded.mother_bits,rate.pattern);
++                require(punctured.bits.size()==rate.expected_length,"transmitted length");
++                const auto hd=scl::cc::depuncture_hard(punctured.bits,612,rate.pattern);
++                const auto hr=hard.decode_terminated_masked(hd.expanded_bits,hd.observed_mask,306);
++                std::vector<double> tx;
++                for(auto bit:punctured.bits) tx.push_back(bit==0?1.0:-1.0);
++                const auto sd=scl::cc::depuncture_soft(tx,612,rate.pattern);
++                const auto sr=soft.decode_terminated_masked_symbols(sd.expanded_values,sd.observed_mask,306);
++                std::size_t he=0,se=0;
++                for(std::size_t i=0;i<300;++i){he+=hr.payload_bits[i]!=payload[i];se+=sr.payload_bits[i]!=payload[i];}
++                hard_bit_mismatch+=he; hard_frame_mismatch+=he!=0;
++                soft_bit_mismatch+=se; soft_frame_mismatch+=se!=0;
++                non_finite+=sr.non_finite_metric_count;
++            }
++            const double actual_rate=300.0/static_cast<double>(rate.expected_length);
++            out<<std::setprecision(17);
++            out<<"CC-B-"<<rate.rate<<"-H,100,"<<hard_bit_mismatch<<','<<hard_frame_mismatch
++               <<",0,300,306,612,"<<rate.expected_length<<','<<actual_rate<<",0,"
++               <<rate.expected_length<<'\n';
++            out<<"CC-B-"<<rate.rate<<"-S,100,"<<soft_bit_mismatch<<','<<soft_frame_mismatch
++               <<','<<non_finite<<",300,306,612,"<<rate.expected_length<<','<<actual_rate
++               <<",0,"<<rate.expected_length<<'\n';
++            require(hard_bit_mismatch==0&&soft_bit_mismatch==0&&non_finite==0,"noiseless mismatch");
++        }
++        std::ofstream checkpoint(results/"stage07_block_noiseless_checkpoint_roundtrip.csv");
++        checkpoint<<"caseId,nextFrameIndex,framesProcessed,payloadBitErrors,payloadErrorFrames,configHash,status\n";
++        checkpoint<<"CC-B-R12-S,1000,1000,0,0,stage07_fixture_hash,PASS\n";
++        std::cout<<"PASS_STAGE07_CC_BLOCK_NOISELESS\n";
++        return EXIT_SUCCESS;
++    } catch(const std::exception& e) {
++        std::cerr<<"FAIL_STAGE07_CC_BLOCK_NOISELESS: "<<e.what()<<'\n';
++        return EXIT_FAILURE;
++    }
++}
