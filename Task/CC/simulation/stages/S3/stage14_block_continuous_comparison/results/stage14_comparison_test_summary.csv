@@ -1,0 +1,7 @@
+check,status
+fair_payload_noise_symbols,PASS
+length_rate_formula,PASS
+region_partition,PASS
+continuous_tail_once,PASS
+metric_finite,PASS
+stage_gate,PASS_STAGE14_CC_BLOCK_CONTINUOUS_COMPARISON
