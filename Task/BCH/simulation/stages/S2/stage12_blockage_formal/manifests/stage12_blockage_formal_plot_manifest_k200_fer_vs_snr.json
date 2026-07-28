@@ -1,0 +1,12 @@
+{
+  "stageId": "stage12_blockage_formal",
+  "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
+  "sourceCsvSha256": "c0473d5c4e4f6b109a384032f2e5e32e619392c7585ca706ec8d031810f77043",
+  "figureData": "results\\stage12_blockage_formal_figure_data_k200_fer_vs_snr.csv",
+  "figureDataSha256": "a4624d08cdef6e98b155238a794ceb4457b58a82c5c484b0008b515f6162cd40",
+  "png": "plots\\stage12_blockage_formal_k200_fer_vs_snr.png",
+  "pngSha256": "3e87870135759319e3ebcd89fdede8fc6245d2c0a3ea780d4a4a0b794483f16f",
+  "xAxis": "SNR",
+  "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
+  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator only"
+}

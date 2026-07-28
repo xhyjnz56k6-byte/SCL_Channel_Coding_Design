@@ -1,0 +1,38 @@
+{
+  "stageId": "stage10_cfo_formal",
+  "sourceCsv": "results\\stage10_cfo_formal_result_summary.csv",
+  "sourceCsvSha256": "d8436fa0be26c3583ad4fdc308c9d71c55c401783b34a52f9fb11c9b86df3537",
+  "figureData": "results\\stage10_cfo_formal_figure_data_k300_fer.csv",
+  "figureDataSha256": "206b5a9c68e77ce149ad9e5c63e27c1aefd58914ba1dec3ce95efea81cf723a4",
+  "png": "plots\\stage10_cfo_formal_k300_fer.png",
+  "pngSha256": "d21653230b3aaa45f71908078a17dcee4bc2c239bce00138871744147fa5e56d",
+  "xAxis": "SNR",
+  "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
+  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator for log display only",
+  "caseStyles": {
+    "K300_S15": {
+      "legendLabel": "分块",
+      "color": "#0072B2",
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "K300_M255K207": {
+      "legendLabel": "255双块",
+      "color": "#D55E00",
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "K300_M511K421": {
+      "legendLabel": "421整块",
+      "color": "#009E73",
+      "lineStyle": "-.",
+      "marker": "^"
+    },
+    "K300_M511K385": {
+      "legendLabel": "385整块",
+      "color": "#CC79A7",
+      "lineStyle": ":",
+      "marker": "D"
+    }
+  }
+}

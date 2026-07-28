@@ -1,0 +1,33 @@
+{
+  "stage": "stage09_cfo_validation",
+  "branch": "stage09-12-bch-s2-cfo-blockage",
+  "functionalRanges": [{
+    "name": "content",
+    "baseCommit": "8bd58cf80c60f2d373d479b9d8e02a1919fdca8d",
+    "contentCommit": "0ba060c4aff4fe03fee0085e380cd789d1d52b64",
+    "files": [
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/configs/stage09_cfo_validation_stage10_frozen_config.json",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/cpp/CMakeLists.txt",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/cpp/stage09_cfo_validation_runner.cpp",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/logs/stage09_cfo_validation_build.log",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/logs/stage09_cfo_validation_checker.log",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/logs/stage09_cfo_validation_cmake.log",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/logs/stage09_cfo_validation_ctest.log",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/logs/stage09_cfo_validation_matlab.log",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/matlab/stage09_cfo_validation_matlab_reference.m",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/python/stage09_cfo_validation_checker.py",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/python/stage09_cfo_validation_run.py",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/results/stage09_cfo_validation_case_results.csv",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/results/stage09_cfo_validation_comparison.csv",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/results/stage09_cfo_validation_cpp_outputs.csv",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/results/stage09_cfo_validation_fixed_vectors.csv",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/results/stage09_cfo_validation_matlab_outputs.csv",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/stage09_cfo_validation_commands_used.md",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/stage09_cfo_validation_known_issues.md",
+      "Task/BCH/simulation/stages/S2/stage09_cfo_validation/stage09_cfo_validation_stage_plan.md"
+    ]
+  }],
+  "gate": "PASS_STAGE09_CFO_VALIDATION",
+  "remoteVerification": "VERIFIED_ON_ORIGIN",
+  "mergeStatus": "NOT_MERGED"
+}

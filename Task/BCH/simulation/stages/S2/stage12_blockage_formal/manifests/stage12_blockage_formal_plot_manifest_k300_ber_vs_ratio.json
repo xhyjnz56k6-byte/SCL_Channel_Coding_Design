@@ -1,0 +1,12 @@
+{
+  "stageId": "stage12_blockage_formal",
+  "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
+  "sourceCsvSha256": "c0473d5c4e4f6b109a384032f2e5e32e619392c7585ca706ec8d031810f77043",
+  "figureData": "results\\stage12_blockage_formal_figure_data_k300_ber_vs_ratio.csv",
+  "figureDataSha256": "4b1addb3014fcf7351e9620c788c9bd3083916d4d836bc373562611bde88aa50",
+  "png": "plots\\stage12_blockage_formal_k300_ber_vs_ratio.png",
+  "pngSha256": "ce0387fa62a519fe84a899aab907ecd803bd6767c494a87e3931e2447d1fec4c",
+  "xAxis": "遮挡比例",
+  "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
+  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator only"
+}

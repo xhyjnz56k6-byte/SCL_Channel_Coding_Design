@@ -1,0 +1,12 @@
+{
+  "stageId": "stage12_blockage_formal",
+  "sourceCsv": "results\\stage12_blockage_formal_result_summary.csv",
+  "sourceCsvSha256": "c0473d5c4e4f6b109a384032f2e5e32e619392c7585ca706ec8d031810f77043",
+  "figureData": "results\\stage12_blockage_formal_figure_data_k300_fer_vs_ratio.csv",
+  "figureDataSha256": "f2ee48e37c96db9d701628564f195ee88d3fce6c1376ccd52051448b16b35219",
+  "png": "plots\\stage12_blockage_formal_k300_fer_vs_ratio.png",
+  "pngSha256": "4368d28ec4221c0153f3e7e2c0ba663634165cafb830b3ac5d874e03680ae6f0",
+  "xAxis": "遮挡比例",
+  "snrFormula": "snrDb=ebn0Db+10*log10(actualRate)",
+  "zeroValuePolicy": "raw zero retained; plotValue=0.5/denominator only"
+}

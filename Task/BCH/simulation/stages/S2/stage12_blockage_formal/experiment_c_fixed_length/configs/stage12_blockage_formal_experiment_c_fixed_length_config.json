@@ -1,0 +1,24 @@
+{
+  "stageId": "stage12_blockage_formal",
+  "experimentId": "experiment_c_fixed_length",
+  "masterSeed": 2026072713,
+  "model": {
+    "blockageDomain": "MODULATED_SYMBOL",
+    "blockageShape": "RECTANGULAR_CONTIGUOUS",
+    "blockageAmplitude": 0,
+    "noiseDuringBlockage": true,
+    "blockageStartPolicy": "RANDOM_PER_FRAME",
+    "blockageWrapAround": false,
+    "interleaver": false
+  },
+  "stopRule": {
+    "minFrames": 5000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000
+  },
+  "fixedLengthExperiment": {
+    "K200Ebn0Db": 7.5,
+    "K300Ebn0Db": 8.0,
+    "requestedBlockageLengthSymbols": [5, 10, 20, 30]
+  }
+}

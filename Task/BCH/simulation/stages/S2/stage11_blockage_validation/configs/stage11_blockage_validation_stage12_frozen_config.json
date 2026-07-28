@@ -1,0 +1,12 @@
+{
+  "stageId":"stage12_blockage_formal",
+  "masterSeed":2026072712,
+  "model":{"domain":"MODULATED_SYMBOL","shape":"RECTANGULAR_CONTIGUOUS",
+    "amplitude":0,"noiseDuringBlockage":true,"startPolicy":"RANDOM_PER_FRAME",
+    "wrapAround":false,"interleaver":false},
+  "stopRule":{"minFrames":5000,"targetFrameErrors":200,"maxFrames":50000},
+  "ratioExperiment":{"K200Ebn0Db":7.5,"K300Ebn0Db":8.0,
+    "requestedRatios":[0,0.02,0.05,0.08,0.10,0.12,0.15,0.20]},
+  "snrExperiment":{"representativeRatio":0.10,
+    "K200Ebn0Db":[4.5,5.5,6.5,7.5,8.5],"K300Ebn0Db":[5,6,7,8,9]}
+}

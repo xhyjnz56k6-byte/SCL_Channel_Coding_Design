@@ -1,0 +1,5 @@
+vectorId,k,encodedLength,inputBit,bpsk,targetEndPhaseDeg,noiseI,noiseQ
+SHORT30,0,4,0,1,30,0,0.5
+SHORT30,1,4,1,-1,30,0.125,-0.125
+SHORT30,2,4,0,1,30,-0.25,0.25
+SHORT30,3,4,1,-1,30,0.375,-0.375

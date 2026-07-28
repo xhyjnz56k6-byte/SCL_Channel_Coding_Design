@@ -1,0 +1,6 @@
+[ 15%] Built target stage12_block_core
+[ 61%] Built target stage12_segmented_core
+[ 84%] Built target stage12_support
+[ 92%] Building CXX object CMakeFiles/stage12_blockage_formal_runner.dir/stage12_blockage_formal_runner.cpp.obj
+[100%] Linking CXX executable stage12_blockage_formal_runner.exe
+[100%] Built target stage12_blockage_formal_runner

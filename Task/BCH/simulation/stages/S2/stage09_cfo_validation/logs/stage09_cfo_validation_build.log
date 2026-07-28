@@ -1,0 +1,6 @@
+[ 15%] Built target stage09_block_core
+[ 61%] Built target stage09_segmented_core
+[ 84%] Built target stage09_support
+[ 92%] Building CXX object CMakeFiles/stage09_cfo_validation_runner.dir/stage09_cfo_validation_runner.cpp.obj
+Linking CXX executable stage09_cfo_validation_runner.exe
+Built target stage09_cfo_validation_runner
