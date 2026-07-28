@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "cc.stage09.config.v1",
+  "masterSeed": 2026072001,
+  "payloadLength": 300,
+  "minFrames": 5000,
+  "targetFrameErrors": 200,
+  "maxFrames": 50000,
+  "checkpointIntervalFrames": 1000,
+  "shardCount": 2,
+  "snrStepDbByRate": {"R12": 0.2, "R23": 0.1, "R34": 0.1},
+  "caseRangesSource": "../stage08_awgn_prescan/results/stage08_awgn_prescan_formal_case_ranges.csv",
+  "caseRanges": [
+    {"caseId": "CC-B-R12-H", "minSnrDb": 0.0, "maxSnrDb": 2.0, "stepDb": 0.2},
+    {"caseId": "CC-B-R12-S", "minSnrDb": -2.0, "maxSnrDb": 0.0, "stepDb": 0.2},
+    {"caseId": "CC-B-R23-H", "minSnrDb": 1.0, "maxSnrDb": 4.0, "stepDb": 0.1},
+    {"caseId": "CC-B-R23-S", "minSnrDb": -0.5, "maxSnrDb": 2.0, "stepDb": 0.1},
+    {"caseId": "CC-B-R34-H", "minSnrDb": 2.0, "maxSnrDb": 4.0, "stepDb": 0.1},
+    {"caseId": "CC-B-R34-S", "minSnrDb": 0.5, "maxSnrDb": 3.0, "stepDb": 0.1}
+  ]
+}

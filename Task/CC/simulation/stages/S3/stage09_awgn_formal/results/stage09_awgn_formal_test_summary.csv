@@ -1,0 +1,13 @@
+check,status
+duplicate_rejected,PASS
+missing_rejected,PASS
+frame_skip_rejected,PASS
+checkpoint_resume_consistency,PASS
+checkpoint_config_mismatch_rejected,PASS
+shard_coverage_no_duplicate_no_skip,PASS
+point_formula_check,PASS
+case_count,6
+point_count,126
+figure_count,5
+overwrite_rejected,PASS
+stage_gate,PASS_STAGE09_CC_AWGN_FORMAL
