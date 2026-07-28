@@ -1,0 +1,7 @@
+stage=stage06_puncturing
+branch=stage01-cc
+baseCommit=380cebe679bc30a977c0f51e5cc5ce06bed1fce1
+contentCommit=074474416a92bebcc63c6deb6bed3474d2f2fd46
+contentCommitMessage=CC/阶段06：实现并冻结打孔图样
+mergeStatus=NOT_MERGED
+remoteVerification=DEFERRED_TO_BATCH_PUSH
