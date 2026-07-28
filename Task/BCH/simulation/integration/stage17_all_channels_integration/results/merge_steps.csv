@@ -1,0 +1,2 @@
+step,sourceBranch,mergeCommit,sourceAttestation,integrationCanonicalCheck,originalBranchLocalChecker,decision
+1,origin/stage07-bch-s2-awgn-dense-formal,eb695b86f122566b367bde320d460688ae4d8775,PASS,PASS,NOT_APPLICABLE_IN_INTEGRATION_CONTEXT,CONTINUE
