@@ -61,7 +61,32 @@ def main() -> int:
         writer.writerow(["release_build", "PASS"])
         writer.writerow(["ctest", "PASS"])
         writer.writerow(["trellis_and_encoder_vectors", "PASS"])
-        writer.writerow(["stage_gate_before_matlab", "PASS_CPP"])
+        matlab_vectors = results / "stage02_trellis_encoder_matlab_comparison.csv"
+        matlab_trellis = results / "stage02_trellis_encoder_matlab_trellis_comparison.csv"
+        if matlab_vectors.is_file() and matlab_trellis.is_file():
+            with matlab_vectors.open(encoding="utf-8", newline="") as source:
+                vector_rows = list(csv.DictReader(source))
+            with matlab_trellis.open(encoding="utf-8", newline="") as source:
+                trellis_rows = list(csv.DictReader(source))
+            matlab_pass = (
+                len(vector_rows) == 4
+                and len(trellis_rows) == 128
+                and all(row["status"] == "PASS" and int(row["bitMismatch"]) == 0 for row in vector_rows)
+                and all(
+                    row["status"] == "PASS"
+                    and int(row["nextStateMismatch"]) == 0
+                    and int(row["outputMismatch"]) == 0
+                    for row in trellis_rows
+                )
+            )
+            if not matlab_pass:
+                raise RuntimeError("existing MATLAB comparison does not pass")
+            writer.writerow(["matlab_poly2trellis_128_branches", "PASS"])
+            writer.writerow(["matlab_convenc_fixed_vectors", "PASS"])
+            writer.writerow(["cpp_matlab_bit_mismatch", "0"])
+            writer.writerow(["stage_gate", "PASS_STAGE02_CC_TRELLIS_ENCODER"])
+        else:
+            writer.writerow(["stage_gate_before_matlab", "PASS_CPP"])
     print("PASS_CPP_STAGE02_CC_TRELLIS_ENCODER")
     return 0
 
