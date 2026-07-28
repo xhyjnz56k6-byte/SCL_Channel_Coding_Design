@@ -2,10 +2,7 @@ diff --git a/Task/CC/block/current/include/cc/hard_viterbi.hpp b/Task/CC/block/c
 index 78b2df89..6e95b4f4 100644
 --- a/Task/CC/block/current/include/cc/hard_viterbi.hpp
 +++ b/Task/CC/block/current/include/cc/hard_viterbi.hpp
-@@ -29,6 +29,14 @@ public:
-         std::uint8_t initial_state = 0,
-         std::uint8_t final_state = 0) const;
- 
+@@ -31,0 +32,8 @@ public:
 +    HardViterbiResult decode_terminated_masked(
 +        const std::vector<std::uint8_t>& expanded_bits,
 +        const std::vector<std::uint8_t>& observed_mask,
@@ -14,17 +11,11 @@ index 78b2df89..6e95b4f4 100644
 +        std::uint8_t initial_state = 0,
 +        std::uint8_t final_state = 0) const;
 +
- private:
-     const Trellis& trellis_;
- };
 diff --git a/Task/CC/block/current/include/cc/soft_viterbi.hpp b/Task/CC/block/current/include/cc/soft_viterbi.hpp
 index b1c72330..a95cf42e 100644
 --- a/Task/CC/block/current/include/cc/soft_viterbi.hpp
 +++ b/Task/CC/block/current/include/cc/soft_viterbi.hpp
-@@ -29,6 +29,14 @@ public:
-         std::uint8_t initial_state = 0,
-         std::uint8_t final_state = 0) const;
- 
+@@ -31,0 +32,8 @@ public:
 +    SoftViterbiResult decode_terminated_masked_symbols(
 +        const std::vector<double>& expanded_symbols,
 +        const std::vector<std::uint8_t>& observed_mask,
@@ -33,17 +24,11 @@ index b1c72330..a95cf42e 100644
 +        std::uint8_t initial_state = 0,
 +        std::uint8_t final_state = 0) const;
 +
- private:
-     const Trellis& trellis_;
- };
 diff --git a/Task/CC/block/current/src/hard_viterbi.cpp b/Task/CC/block/current/src/hard_viterbi.cpp
 index 4e10cdb4..ee0add48 100644
 --- a/Task/CC/block/current/src/hard_viterbi.cpp
 +++ b/Task/CC/block/current/src/hard_viterbi.cpp
-@@ -46,6 +46,22 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
-     const std::size_t tail_length,
-     const std::uint8_t initial_state,
-     const std::uint8_t final_state) const {
+@@ -48,0 +49,16 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
 +    return decode_terminated_masked(
 +        received_bits,
 +        std::vector<std::uint8_t>(received_bits.size(), 1),
@@ -60,48 +45,26 @@ index 4e10cdb4..ee0add48 100644
 +    const std::size_t tail_length,
 +    const std::uint8_t initial_state,
 +    const std::uint8_t final_state) const {
-     if (initial_state >= kStateCount || final_state >= kStateCount) {
-         throw std::invalid_argument("Viterbi state is outside [0, 63]");
-     }
-@@ -55,11 +71,19 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
-     if (received_bits.size() != codec_input_length * kOutputBitsPerInput) {
-         throw std::invalid_argument("hard Viterbi input length mismatch");
-     }
+@@ -57,0 +74,3 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
 +    if (observed_mask.size() != received_bits.size()) {
 +        throw std::invalid_argument("hard Viterbi observed mask length mismatch");
 +    }
-     for (const auto bit : received_bits) {
-         if (bit > 1) {
-             throw std::invalid_argument("hard Viterbi input is not binary");
-         }
-     }
+@@ -62,0 +82,5 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
 +    for (const auto mask : observed_mask) {
 +        if (mask > 1) {
 +            throw std::invalid_argument("hard Viterbi observed mask is not binary");
 +        }
 +    }
- 
-     std::array<std::int32_t, kStateCount> metrics{};
-     std::array<std::int32_t, kStateCount> next_metrics{};
-@@ -82,8 +106,8 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
-             for (std::uint8_t input = 0; input < 2; ++input) {
-                 const auto& branch = trellis_.branch(static_cast<std::uint8_t>(state), input);
-                 const std::int32_t branch_metric =
+@@ -85,2 +109,2 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
 -                    static_cast<std::int32_t>(observed0 != branch.output_bits[0]) +
 -                    static_cast<std::int32_t>(observed1 != branch.output_bits[1]);
 +                    static_cast<std::int32_t>(observed_mask[2 * time] != 0 && observed0 != branch.output_bits[0]) +
 +                    static_cast<std::int32_t>(observed_mask[2 * time + 1] != 0 && observed1 != branch.output_bits[1]);
-                 if (metrics[state] > kInfiniteMetric - branch_metric) {
-                     ++result.overflow_count;
-                     continue;
 diff --git a/Task/CC/block/current/src/soft_viterbi.cpp b/Task/CC/block/current/src/soft_viterbi.cpp
 index 82c7fb04..71fdc030 100644
 --- a/Task/CC/block/current/src/soft_viterbi.cpp
 +++ b/Task/CC/block/current/src/soft_viterbi.cpp
-@@ -49,6 +49,22 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
-     const std::size_t tail_length,
-     const std::uint8_t initial_state,
-     const std::uint8_t final_state) const {
+@@ -51,0 +52,16 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
 +    return decode_terminated_masked_symbols(
 +        received_symbols,
 +        std::vector<std::uint8_t>(received_symbols.size(), 1),
@@ -118,41 +81,22 @@ index 82c7fb04..71fdc030 100644
 +    const std::size_t tail_length,
 +    const std::uint8_t initial_state,
 +    const std::uint8_t final_state) const {
-     if (initial_state >= kStateCount || final_state >= kStateCount) {
-         throw std::invalid_argument("soft Viterbi state is outside [0, 63]");
-     }
-@@ -58,11 +74,19 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
-     if (received_symbols.size() != codec_input_length * 2) {
-         throw std::invalid_argument("soft Viterbi symbol length mismatch");
-     }
+@@ -60,0 +77,3 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
 +    if (observed_mask.size() != received_symbols.size()) {
 +        throw std::invalid_argument("soft Viterbi observed mask length mismatch");
 +    }
-     for (double value : received_symbols) {
-         if (!std::isfinite(value)) {
-             throw std::invalid_argument("soft Viterbi received symbol is not finite");
-         }
-     }
+@@ -65,0 +85,5 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
 +    for (auto mask : observed_mask) {
 +        if (mask > 1) {
 +            throw std::invalid_argument("soft Viterbi observed mask is not binary");
 +        }
 +    }
- 
-     const double infinite = std::numeric_limits<double>::infinity();
-     std::array<double, kStateCount> metrics{};
-@@ -87,7 +111,10 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
-                 const auto& branch = trellis_.branch(static_cast<std::uint8_t>(state), input);
-                 const double d0 = y0 - symbol_for_bit(branch.output_bits[0]);
-                 const double d1 = y1 - symbol_for_bit(branch.output_bits[1]);
+@@ -90 +114,4 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
 -                const double candidate = metrics[state] + d0 * d0 + d1 * d1;
 +                const double candidate =
 +                    metrics[state] +
 +                    (observed_mask[2 * time] != 0 ? d0 * d0 : 0.0) +
 +                    (observed_mask[2 * time + 1] != 0 ? d1 * d1 : 0.0);
-                 if (!std::isfinite(candidate)) {
-                     ++result.non_finite_metric_count;
-                     continue;
 diff --git a/Task/CC/shared/include/cc/puncturing.hpp b/Task/CC/shared/include/cc/puncturing.hpp
 new file mode 100644
 index 00000000..44ef69ba

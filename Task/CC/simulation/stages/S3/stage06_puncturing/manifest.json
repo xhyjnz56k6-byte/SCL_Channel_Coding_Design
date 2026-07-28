@@ -58,8 +58,8 @@
     "selectedR34": "R34_B_110110"
   },
   "changesPatch": {
-    "semantic": "git diff --binary baseCommit..contentCommit over diffPaths",
-    "sha256": "3f13740a6ef5a0fcc7dd86b2ecd9554c86dbc4c0b155b827c47738fc999c4d5a",
+    "semantic": "git diff --binary --unified=0 baseCommit..contentCommit over diffPaths",
+    "sha256": "51432eafa7b09fe2f5dc323bfe057ffa0796ad92f5999abcc32d1204550cea1e",
     "includesAuditCommit": false
   },
   "scope": {

@@ -20,4 +20,6 @@ Gate：`PASS_STAGE06_CC_PUNCTURING`
 
 首次 CTest 因未传 results 参数失败，修复 CMake 注册后重跑通过。小 AWGN 选择冻结 R23=`1101`、R34=`110110`，不作为 formal 结论。
 
+首次审计提交后，`git diff --check` 对作为新增文本文件的 `changes.patch` 中标准 unified context 空行报 trailing whitespace。功能范围自身的 `git diff --check base..content` 为 PASS。审计修复将 patch 重新由同一真实 Git diff 以 `--unified=0` 生成，避免上下文空行歧义；随后工作区和 staged diff 检查均通过。
+
 远程验证延后至 Stage15 后统一 push；未合并 `main`。
