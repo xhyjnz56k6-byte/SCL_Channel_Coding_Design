@@ -1,0 +1,871 @@
+﻿diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/.gitignore b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/.gitignore
+new file mode 100644
+index 00000000..c18dd8d8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/.gitignore
+@@ -0,0 +1 @@
++__pycache__/
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/CMakeLists.txt
+new file mode 100644
+index 00000000..5c5a6607
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/CMakeLists.txt
+@@ -0,0 +1,14 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage13_sliding_window_viterbi LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../..")
++set(CC_ROOT "${REPO_ROOT}/Task/CC")
++add_executable(stage13_runner src/stage13_runner.cpp
++ "${CC_ROOT}/shared/src/trellis.cpp" "${CC_ROOT}/shared/src/puncturing.cpp"
++ "${CC_ROOT}/block/current/src/block_encoder.cpp" "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
++ "${CC_ROOT}/block/current/src/hard_viterbi.cpp" "${REPO_ROOT}/Task/Common/src/random_policy.cpp"
++ "${REPO_ROOT}/Task/Common/src/gaussian_noise.cpp")
++target_include_directories(stage13_runner PRIVATE "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include" "${REPO_ROOT}/Task/Common/include")
++if(NOT MSVC)
++ target_compile_options(stage13_runner PRIVATE -O3 -Wall -Wextra -Wpedantic -Werror)
++endif()
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/commands_used.md b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/commands_used.md
+new file mode 100644
+index 00000000..9550b6dc
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/commands_used.md
+@@ -0,0 +1,3 @@
++# Stage13 命令
++
++`python Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/run_stage13.py --clean`
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/config/stage13_config.json b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/config/stage13_config.json
+new file mode 100644
+index 00000000..fd88930c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/config/stage13_config.json
+@@ -0,0 +1 @@
++{"schemaVersion":"cc.stage13.config.v1","windowInputBits":[64,96,128,192],"slideStepBits":[25,50,100],"tracebackDepthBits":70,"initialWarmupBits":70,"finalFlushPolicy":"known_zero_terminated_state","stateMetricCarryPolicy":"carry_normalized_metrics","puncturePhaseCarryPolicy":"continuous_from_stage12"}
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/frozen_config.csv b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/frozen_config.csv
+new file mode 100644
+index 00000000..9a01d6ef
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/frozen_config.csv
+@@ -0,0 +1,8 @@
++parameter,value
++tracebackDepthBits,70
++selectedWindowInputBits,96
++selectedSlideStepBits,25
++initialWarmupBits,70
++finalFlushPolicy,known_zero_terminated_state
++stateMetricCarryPolicy,carry_normalized_metrics
++puncturePhaseCarryPolicy,continuous
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/known_issues.md b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/known_issues.md
+new file mode 100644
+index 00000000..173820d9
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/known_issues.md
+@@ -0,0 +1,3 @@
++# Stage13 已知问题
++
++首版调度按 slide 批次发布已决定 bit；硬件流水线周期与软件计时需另行映射。
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_output_bit_metadata.csv b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_output_bit_metadata.csv
+new file mode 100644
+index 00000000..37b6e4ed
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_output_bit_metadata.csv
+@@ -0,0 +1,601 @@
++caseId,bitIndex,receiveTimeInputBit,decisionTimeInputBit,region
++CC-C-R12-S,0,0,74,head
++CC-C-R12-S,1,1,74,head
++CC-C-R12-S,2,2,74,head
++CC-C-R12-S,3,3,74,head
++CC-C-R12-S,4,4,74,head
++CC-C-R12-S,5,5,74,head
++CC-C-R12-S,6,6,99,head
++CC-C-R12-S,7,7,99,head
++CC-C-R12-S,8,8,99,head
++CC-C-R12-S,9,9,99,head
++CC-C-R12-S,10,10,99,head
++CC-C-R12-S,11,11,99,head
++CC-C-R12-S,12,12,99,head
++CC-C-R12-S,13,13,99,head
++CC-C-R12-S,14,14,99,head
++CC-C-R12-S,15,15,99,head
++CC-C-R12-S,16,16,99,head
++CC-C-R12-S,17,17,99,head
++CC-C-R12-S,18,18,99,head
++CC-C-R12-S,19,19,99,head
++CC-C-R12-S,20,20,99,head
++CC-C-R12-S,21,21,99,head
++CC-C-R12-S,22,22,99,head
++CC-C-R12-S,23,23,99,head
++CC-C-R12-S,24,24,99,head
++CC-C-R12-S,25,25,99,head
++CC-C-R12-S,26,26,99,head
++CC-C-R12-S,27,27,99,head
++CC-C-R12-S,28,28,99,head
++CC-C-R12-S,29,29,99,head
++CC-C-R12-S,30,30,99,head
++CC-C-R12-S,31,31,124,head
++CC-C-R12-S,32,32,124,head
++CC-C-R12-S,33,33,124,head
++CC-C-R12-S,34,34,124,head
++CC-C-R12-S,35,35,124,head
++CC-C-R12-S,36,36,124,head
++CC-C-R12-S,37,37,124,head
++CC-C-R12-S,38,38,124,head
++CC-C-R12-S,39,39,124,head
++CC-C-R12-S,40,40,124,head
++CC-C-R12-S,41,41,124,head
++CC-C-R12-S,42,42,124,head
++CC-C-R12-S,43,43,124,head
++CC-C-R12-S,44,44,124,head
++CC-C-R12-S,45,45,124,head
++CC-C-R12-S,46,46,124,head
++CC-C-R12-S,47,47,124,head
++CC-C-R12-S,48,48,124,head
++CC-C-R12-S,49,49,124,head
++CC-C-R12-S,50,50,124,head
++CC-C-R12-S,51,51,124,head
++CC-C-R12-S,52,52,124,head
++CC-C-R12-S,53,53,124,head
++CC-C-R12-S,54,54,124,head
++CC-C-R12-S,55,55,124,head
++CC-C-R12-S,56,56,149,head
++CC-C-R12-S,57,57,149,head
++CC-C-R12-S,58,58,149,head
++CC-C-R12-S,59,59,149,head
++CC-C-R12-S,60,60,149,head
++CC-C-R12-S,61,61,149,head
++CC-C-R12-S,62,62,149,head
++CC-C-R12-S,63,63,149,head
++CC-C-R12-S,64,64,149,head
++CC-C-R12-S,65,65,149,head
++CC-C-R12-S,66,66,149,head
++CC-C-R12-S,67,67,149,head
++CC-C-R12-S,68,68,149,head
++CC-C-R12-S,69,69,149,head
++CC-C-R12-S,70,70,149,middle
++CC-C-R12-S,71,71,149,middle
++CC-C-R12-S,72,72,149,middle
++CC-C-R12-S,73,73,149,middle
++CC-C-R12-S,74,74,149,middle
++CC-C-R12-S,75,75,149,middle
++CC-C-R12-S,76,76,149,middle
++CC-C-R12-S,77,77,149,middle
++CC-C-R12-S,78,78,149,middle
++CC-C-R12-S,79,79,149,middle
++CC-C-R12-S,80,80,149,middle
++CC-C-R12-S,81,81,174,middle
++CC-C-R12-S,82,82,174,middle
++CC-C-R12-S,83,83,174,middle
++CC-C-R12-S,84,84,174,middle
++CC-C-R12-S,85,85,174,middle
++CC-C-R12-S,86,86,174,middle
++CC-C-R12-S,87,87,174,middle
++CC-C-R12-S,88,88,174,middle
++CC-C-R12-S,89,89,174,middle
++CC-C-R12-S,90,90,174,middle
++CC-C-R12-S,91,91,174,middle
++CC-C-R12-S,92,92,174,middle
++CC-C-R12-S,93,93,174,middle
++CC-C-R12-S,94,94,174,middle
++CC-C-R12-S,95,95,174,boundary
++CC-C-R12-S,96,96,174,boundary
++CC-C-R12-S,97,97,174,boundary
++CC-C-R12-S,98,98,174,boundary
++CC-C-R12-S,99,99,174,boundary
++CC-C-R12-S,100,100,174,boundary
++CC-C-R12-S,101,101,174,boundary
++CC-C-R12-S,102,102,174,boundary
++CC-C-R12-S,103,103,174,boundary
++CC-C-R12-S,104,104,174,boundary
++CC-C-R12-S,105,105,174,middle
++CC-C-R12-S,106,106,199,middle
++CC-C-R12-S,107,107,199,middle
++CC-C-R12-S,108,108,199,middle
++CC-C-R12-S,109,109,199,middle
++CC-C-R12-S,110,110,199,middle
++CC-C-R12-S,111,111,199,middle
++CC-C-R12-S,112,112,199,middle
++CC-C-R12-S,113,113,199,middle
++CC-C-R12-S,114,114,199,middle
++CC-C-R12-S,115,115,199,middle
++CC-C-R12-S,116,116,199,middle
++CC-C-R12-S,117,117,199,middle
++CC-C-R12-S,118,118,199,middle
++CC-C-R12-S,119,119,199,middle
++CC-C-R12-S,120,120,199,middle
++CC-C-R12-S,121,121,199,middle
++CC-C-R12-S,122,122,199,middle
++CC-C-R12-S,123,123,199,middle
++CC-C-R12-S,124,124,199,middle
++CC-C-R12-S,125,125,199,middle
++CC-C-R12-S,126,126,199,middle
++CC-C-R12-S,127,127,199,middle
++CC-C-R12-S,128,128,199,middle
++CC-C-R12-S,129,129,199,middle
++CC-C-R12-S,130,130,199,middle
++CC-C-R12-S,131,131,224,middle
++CC-C-R12-S,132,132,224,middle
++CC-C-R12-S,133,133,224,middle
++CC-C-R12-S,134,134,224,middle
++CC-C-R12-S,135,135,224,middle
++CC-C-R12-S,136,136,224,middle
++CC-C-R12-S,137,137,224,middle
++CC-C-R12-S,138,138,224,middle
++CC-C-R12-S,139,139,224,middle
++CC-C-R12-S,140,140,224,middle
++CC-C-R12-S,141,141,224,middle
++CC-C-R12-S,142,142,224,middle
++CC-C-R12-S,143,143,224,middle
++CC-C-R12-S,144,144,224,middle
++CC-C-R12-S,145,145,224,boundary
++CC-C-R12-S,146,146,224,boundary
++CC-C-R12-S,147,147,224,boundary
++CC-C-R12-S,148,148,224,boundary
++CC-C-R12-S,149,149,224,boundary
++CC-C-R12-S,150,150,224,boundary
++CC-C-R12-S,151,151,224,boundary
++CC-C-R12-S,152,152,224,boundary
++CC-C-R12-S,153,153,224,boundary
++CC-C-R12-S,154,154,224,boundary
++CC-C-R12-S,155,155,224,middle
++CC-C-R12-S,156,156,249,middle
++CC-C-R12-S,157,157,249,middle
++CC-C-R12-S,158,158,249,middle
++CC-C-R12-S,159,159,249,middle
++CC-C-R12-S,160,160,249,middle
++CC-C-R12-S,161,161,249,middle
++CC-C-R12-S,162,162,249,middle
++CC-C-R12-S,163,163,249,middle
++CC-C-R12-S,164,164,249,middle
++CC-C-R12-S,165,165,249,middle
++CC-C-R12-S,166,166,249,middle
++CC-C-R12-S,167,167,249,middle
++CC-C-R12-S,168,168,249,middle
++CC-C-R12-S,169,169,249,middle
++CC-C-R12-S,170,170,249,middle
++CC-C-R12-S,171,171,249,middle
++CC-C-R12-S,172,172,249,middle
++CC-C-R12-S,173,173,249,middle
++CC-C-R12-S,174,174,249,middle
++CC-C-R12-S,175,175,249,middle
++CC-C-R12-S,176,176,249,middle
++CC-C-R12-S,177,177,249,middle
++CC-C-R12-S,178,178,249,middle
++CC-C-R12-S,179,179,249,middle
++CC-C-R12-S,180,180,249,middle
++CC-C-R12-S,181,181,274,middle
++CC-C-R12-S,182,182,274,middle
++CC-C-R12-S,183,183,274,middle
++CC-C-R12-S,184,184,274,middle
++CC-C-R12-S,185,185,274,middle
++CC-C-R12-S,186,186,274,middle
++CC-C-R12-S,187,187,274,middle
++CC-C-R12-S,188,188,274,middle
++CC-C-R12-S,189,189,274,middle
++CC-C-R12-S,190,190,274,middle
++CC-C-R12-S,191,191,274,middle
++CC-C-R12-S,192,192,274,middle
++CC-C-R12-S,193,193,274,middle
++CC-C-R12-S,194,194,274,middle
++CC-C-R12-S,195,195,274,boundary
++CC-C-R12-S,196,196,274,boundary
++CC-C-R12-S,197,197,274,boundary
++CC-C-R12-S,198,198,274,boundary
++CC-C-R12-S,199,199,274,boundary
++CC-C-R12-S,200,200,274,boundary
++CC-C-R12-S,201,201,274,boundary
++CC-C-R12-S,202,202,274,boundary
++CC-C-R12-S,203,203,274,boundary
++CC-C-R12-S,204,204,274,boundary
++CC-C-R12-S,205,205,274,middle
++CC-C-R12-S,206,206,299,middle
++CC-C-R12-S,207,207,299,middle
++CC-C-R12-S,208,208,299,middle
++CC-C-R12-S,209,209,299,middle
++CC-C-R12-S,210,210,299,middle
++CC-C-R12-S,211,211,299,middle
++CC-C-R12-S,212,212,299,middle
++CC-C-R12-S,213,213,299,middle
++CC-C-R12-S,214,214,299,middle
++CC-C-R12-S,215,215,299,middle
++CC-C-R12-S,216,216,299,middle
++CC-C-R12-S,217,217,299,middle
++CC-C-R12-S,218,218,299,middle
++CC-C-R12-S,219,219,299,middle
++CC-C-R12-S,220,220,299,middle
++CC-C-R12-S,221,221,299,middle
++CC-C-R12-S,222,222,299,middle
++CC-C-R12-S,223,223,299,middle
++CC-C-R12-S,224,224,299,middle
++CC-C-R12-S,225,225,299,middle
++CC-C-R12-S,226,226,299,middle
++CC-C-R12-S,227,227,299,middle
++CC-C-R12-S,228,228,299,middle
++CC-C-R12-S,229,229,299,middle
++CC-C-R12-S,230,230,299,tail
++CC-C-R12-S,231,231,305,tail
++CC-C-R12-S,232,232,305,tail
++CC-C-R12-S,233,233,305,tail
++CC-C-R12-S,234,234,305,tail
++CC-C-R12-S,235,235,305,tail
++CC-C-R12-S,236,236,305,tail
++CC-C-R12-S,237,237,305,tail
++CC-C-R12-S,238,238,305,tail
++CC-C-R12-S,239,239,305,tail
++CC-C-R12-S,240,240,305,tail
++CC-C-R12-S,241,241,305,tail
++CC-C-R12-S,242,242,305,tail
++CC-C-R12-S,243,243,305,tail
++CC-C-R12-S,244,244,305,tail
++CC-C-R12-S,245,245,305,tail
++CC-C-R12-S,246,246,305,tail
++CC-C-R12-S,247,247,305,tail
++CC-C-R12-S,248,248,305,tail
++CC-C-R12-S,249,249,305,tail
++CC-C-R12-S,250,250,305,tail
++CC-C-R12-S,251,251,305,tail
++CC-C-R12-S,252,252,305,tail
++CC-C-R12-S,253,253,305,tail
++CC-C-R12-S,254,254,305,tail
++CC-C-R12-S,255,255,305,tail
++CC-C-R12-S,256,256,305,tail
++CC-C-R12-S,257,257,305,tail
++CC-C-R12-S,258,258,305,tail
++CC-C-R12-S,259,259,305,tail
++CC-C-R12-S,260,260,305,tail
++CC-C-R12-S,261,261,305,tail
++CC-C-R12-S,262,262,305,tail
++CC-C-R12-S,263,263,305,tail
++CC-C-R12-S,264,264,305,tail
++CC-C-R12-S,265,265,305,tail
++CC-C-R12-S,266,266,305,tail
++CC-C-R12-S,267,267,305,tail
++CC-C-R12-S,268,268,305,tail
++CC-C-R12-S,269,269,305,tail
++CC-C-R12-S,270,270,305,tail
++CC-C-R12-S,271,271,305,tail
++CC-C-R12-S,272,272,305,tail
++CC-C-R12-S,273,273,305,tail
++CC-C-R12-S,274,274,305,tail
++CC-C-R12-S,275,275,305,tail
++CC-C-R12-S,276,276,305,tail
++CC-C-R12-S,277,277,305,tail
++CC-C-R12-S,278,278,305,tail
++CC-C-R12-S,279,279,305,tail
++CC-C-R12-S,280,280,305,tail
++CC-C-R12-S,281,281,305,tail
++CC-C-R12-S,282,282,305,tail
++CC-C-R12-S,283,283,305,tail
++CC-C-R12-S,284,284,305,tail
++CC-C-R12-S,285,285,305,tail
++CC-C-R12-S,286,286,305,tail
++CC-C-R12-S,287,287,305,tail
++CC-C-R12-S,288,288,305,tail
++CC-C-R12-S,289,289,305,tail
++CC-C-R12-S,290,290,305,tail
++CC-C-R12-S,291,291,305,tail
++CC-C-R12-S,292,292,305,tail
++CC-C-R12-S,293,293,305,tail
++CC-C-R12-S,294,294,305,tail
++CC-C-R12-S,295,295,305,tail
++CC-C-R12-S,296,296,305,tail
++CC-C-R12-S,297,297,305,tail
++CC-C-R12-S,298,298,305,tail
++CC-C-R12-S,299,299,305,tail
++CC-C-R23-S,0,0,74,head
++CC-C-R23-S,1,1,74,head
++CC-C-R23-S,2,2,74,head
++CC-C-R23-S,3,3,74,head
++CC-C-R23-S,4,4,74,head
++CC-C-R23-S,5,5,74,head
++CC-C-R23-S,6,6,99,head
++CC-C-R23-S,7,7,99,head
++CC-C-R23-S,8,8,99,head
++CC-C-R23-S,9,9,99,head
++CC-C-R23-S,10,10,99,head
++CC-C-R23-S,11,11,99,head
++CC-C-R23-S,12,12,99,head
++CC-C-R23-S,13,13,99,head
++CC-C-R23-S,14,14,99,head
++CC-C-R23-S,15,15,99,head
++CC-C-R23-S,16,16,99,head
++CC-C-R23-S,17,17,99,head
++CC-C-R23-S,18,18,99,head
++CC-C-R23-S,19,19,99,head
++CC-C-R23-S,20,20,99,head
++CC-C-R23-S,21,21,99,head
++CC-C-R23-S,22,22,99,head
++CC-C-R23-S,23,23,99,head
++CC-C-R23-S,24,24,99,head
++CC-C-R23-S,25,25,99,head
++CC-C-R23-S,26,26,99,head
++CC-C-R23-S,27,27,99,head
++CC-C-R23-S,28,28,99,head
++CC-C-R23-S,29,29,99,head
++CC-C-R23-S,30,30,99,head
++CC-C-R23-S,31,31,124,head
++CC-C-R23-S,32,32,124,head
++CC-C-R23-S,33,33,124,head
++CC-C-R23-S,34,34,124,head
++CC-C-R23-S,35,35,124,head
++CC-C-R23-S,36,36,124,head
++CC-C-R23-S,37,37,124,head
++CC-C-R23-S,38,38,124,head
++CC-C-R23-S,39,39,124,head
++CC-C-R23-S,40,40,124,head
++CC-C-R23-S,41,41,124,head
++CC-C-R23-S,42,42,124,head
++CC-C-R23-S,43,43,124,head
++CC-C-R23-S,44,44,124,head
++CC-C-R23-S,45,45,124,head
++CC-C-R23-S,46,46,124,head
++CC-C-R23-S,47,47,124,head
++CC-C-R23-S,48,48,124,head
++CC-C-R23-S,49,49,124,head
++CC-C-R23-S,50,50,124,head
++CC-C-R23-S,51,51,124,head
++CC-C-R23-S,52,52,124,head
++CC-C-R23-S,53,53,124,head
++CC-C-R23-S,54,54,124,head
++CC-C-R23-S,55,55,124,head
++CC-C-R23-S,56,56,149,head
++CC-C-R23-S,57,57,149,head
++CC-C-R23-S,58,58,149,head
++CC-C-R23-S,59,59,149,head
++CC-C-R23-S,60,60,149,head
++CC-C-R23-S,61,61,149,head
++CC-C-R23-S,62,62,149,head
++CC-C-R23-S,63,63,149,head
++CC-C-R23-S,64,64,149,head
++CC-C-R23-S,65,65,149,head
++CC-C-R23-S,66,66,149,head
++CC-C-R23-S,67,67,149,head
++CC-C-R23-S,68,68,149,head
++CC-C-R23-S,69,69,149,head
++CC-C-R23-S,70,70,149,middle
++CC-C-R23-S,71,71,149,middle
++CC-C-R23-S,72,72,149,middle
++CC-C-R23-S,73,73,149,middle
++CC-C-R23-S,74,74,149,middle
++CC-C-R23-S,75,75,149,middle
++CC-C-R23-S,76,76,149,middle
++CC-C-R23-S,77,77,149,middle
++CC-C-R23-S,78,78,149,middle
++CC-C-R23-S,79,79,149,middle
++CC-C-R23-S,80,80,149,middle
++CC-C-R23-S,81,81,174,middle
++CC-C-R23-S,82,82,174,middle
++CC-C-R23-S,83,83,174,middle
++CC-C-R23-S,84,84,174,middle
++CC-C-R23-S,85,85,174,middle
++CC-C-R23-S,86,86,174,middle
++CC-C-R23-S,87,87,174,middle
++CC-C-R23-S,88,88,174,middle
++CC-C-R23-S,89,89,174,middle
++CC-C-R23-S,90,90,174,middle
++CC-C-R23-S,91,91,174,middle
++CC-C-R23-S,92,92,174,middle
++CC-C-R23-S,93,93,174,middle
++CC-C-R23-S,94,94,174,middle
++CC-C-R23-S,95,95,174,boundary
++CC-C-R23-S,96,96,174,boundary
++CC-C-R23-S,97,97,174,boundary
++CC-C-R23-S,98,98,174,boundary
++CC-C-R23-S,99,99,174,boundary
++CC-C-R23-S,100,100,174,boundary
++CC-C-R23-S,101,101,174,boundary
++CC-C-R23-S,102,102,174,boundary
++CC-C-R23-S,103,103,174,boundary
++CC-C-R23-S,104,104,174,boundary
++CC-C-R23-S,105,105,174,middle
++CC-C-R23-S,106,106,199,middle
++CC-C-R23-S,107,107,199,middle
++CC-C-R23-S,108,108,199,middle
++CC-C-R23-S,109,109,199,middle
++CC-C-R23-S,110,110,199,middle
++CC-C-R23-S,111,111,199,middle
++CC-C-R23-S,112,112,199,middle
++CC-C-R23-S,113,113,199,middle
++CC-C-R23-S,114,114,199,middle
++CC-C-R23-S,115,115,199,middle
++CC-C-R23-S,116,116,199,middle
++CC-C-R23-S,117,117,199,middle
++CC-C-R23-S,118,118,199,middle
++CC-C-R23-S,119,119,199,middle
++CC-C-R23-S,120,120,199,middle
++CC-C-R23-S,121,121,199,middle
++CC-C-R23-S,122,122,199,middle
++CC-C-R23-S,123,123,199,middle
++CC-C-R23-S,124,124,199,middle
++CC-C-R23-S,125,125,199,middle
++CC-C-R23-S,126,126,199,middle
++CC-C-R23-S,127,127,199,middle
++CC-C-R23-S,128,128,199,middle
++CC-C-R23-S,129,129,199,middle
++CC-C-R23-S,130,130,199,middle
++CC-C-R23-S,131,131,224,middle
++CC-C-R23-S,132,132,224,middle
++CC-C-R23-S,133,133,224,middle
++CC-C-R23-S,134,134,224,middle
++CC-C-R23-S,135,135,224,middle
++CC-C-R23-S,136,136,224,middle
++CC-C-R23-S,137,137,224,middle
++CC-C-R23-S,138,138,224,middle
++CC-C-R23-S,139,139,224,middle
++CC-C-R23-S,140,140,224,middle
++CC-C-R23-S,141,141,224,middle
++CC-C-R23-S,142,142,224,middle
++CC-C-R23-S,143,143,224,middle
++CC-C-R23-S,144,144,224,middle
++CC-C-R23-S,145,145,224,boundary
++CC-C-R23-S,146,146,224,boundary
++CC-C-R23-S,147,147,224,boundary
++CC-C-R23-S,148,148,224,boundary
++CC-C-R23-S,149,149,224,boundary
++CC-C-R23-S,150,150,224,boundary
++CC-C-R23-S,151,151,224,boundary
++CC-C-R23-S,152,152,224,boundary
++CC-C-R23-S,153,153,224,boundary
++CC-C-R23-S,154,154,224,boundary
++CC-C-R23-S,155,155,224,middle
++CC-C-R23-S,156,156,249,middle
++CC-C-R23-S,157,157,249,middle
++CC-C-R23-S,158,158,249,middle
++CC-C-R23-S,159,159,249,middle
++CC-C-R23-S,160,160,249,middle
++CC-C-R23-S,161,161,249,middle
++CC-C-R23-S,162,162,249,middle
++CC-C-R23-S,163,163,249,middle
++CC-C-R23-S,164,164,249,middle
++CC-C-R23-S,165,165,249,middle
++CC-C-R23-S,166,166,249,middle
++CC-C-R23-S,167,167,249,middle
++CC-C-R23-S,168,168,249,middle
++CC-C-R23-S,169,169,249,middle
++CC-C-R23-S,170,170,249,middle
++CC-C-R23-S,171,171,249,middle
++CC-C-R23-S,172,172,249,middle
++CC-C-R23-S,173,173,249,middle
++CC-C-R23-S,174,174,249,middle
++CC-C-R23-S,175,175,249,middle
++CC-C-R23-S,176,176,249,middle
++CC-C-R23-S,177,177,249,middle
++CC-C-R23-S,178,178,249,middle
++CC-C-R23-S,179,179,249,middle
++CC-C-R23-S,180,180,249,middle
++CC-C-R23-S,181,181,274,middle
++CC-C-R23-S,182,182,274,middle
++CC-C-R23-S,183,183,274,middle
++CC-C-R23-S,184,184,274,middle
++CC-C-R23-S,185,185,274,middle
++CC-C-R23-S,186,186,274,middle
++CC-C-R23-S,187,187,274,middle
++CC-C-R23-S,188,188,274,middle
++CC-C-R23-S,189,189,274,middle
++CC-C-R23-S,190,190,274,middle
++CC-C-R23-S,191,191,274,middle
++CC-C-R23-S,192,192,274,middle
++CC-C-R23-S,193,193,274,middle
++CC-C-R23-S,194,194,274,middle
++CC-C-R23-S,195,195,274,boundary
++CC-C-R23-S,196,196,274,boundary
++CC-C-R23-S,197,197,274,boundary
++CC-C-R23-S,198,198,274,boundary
++CC-C-R23-S,199,199,274,boundary
++CC-C-R23-S,200,200,274,boundary
++CC-C-R23-S,201,201,274,boundary
++CC-C-R23-S,202,202,274,boundary
++CC-C-R23-S,203,203,274,boundary
++CC-C-R23-S,204,204,274,boundary
++CC-C-R23-S,205,205,274,middle
++CC-C-R23-S,206,206,299,middle
++CC-C-R23-S,207,207,299,middle
++CC-C-R23-S,208,208,299,middle
++CC-C-R23-S,209,209,299,middle
++CC-C-R23-S,210,210,299,middle
++CC-C-R23-S,211,211,299,middle
++CC-C-R23-S,212,212,299,middle
++CC-C-R23-S,213,213,299,middle
++CC-C-R23-S,214,214,299,middle
++CC-C-R23-S,215,215,299,middle
++CC-C-R23-S,216,216,299,middle
++CC-C-R23-S,217,217,299,middle
++CC-C-R23-S,218,218,299,middle
++CC-C-R23-S,219,219,299,middle
++CC-C-R23-S,220,220,299,middle
++CC-C-R23-S,221,221,299,middle
++CC-C-R23-S,222,222,299,middle
++CC-C-R23-S,223,223,299,middle
++CC-C-R23-S,224,224,299,middle
++CC-C-R23-S,225,225,299,middle
++CC-C-R23-S,226,226,299,middle
++CC-C-R23-S,227,227,299,middle
++CC-C-R23-S,228,228,299,middle
++CC-C-R23-S,229,229,299,middle
++CC-C-R23-S,230,230,299,tail
++CC-C-R23-S,231,231,305,tail
++CC-C-R23-S,232,232,305,tail
++CC-C-R23-S,233,233,305,tail
++CC-C-R23-S,234,234,305,tail
++CC-C-R23-S,235,235,305,tail
++CC-C-R23-S,236,236,305,tail
++CC-C-R23-S,237,237,305,tail
++CC-C-R23-S,238,238,305,tail
++CC-C-R23-S,239,239,305,tail
++CC-C-R23-S,240,240,305,tail
++CC-C-R23-S,241,241,305,tail
++CC-C-R23-S,242,242,305,tail
++CC-C-R23-S,243,243,305,tail
++CC-C-R23-S,244,244,305,tail
++CC-C-R23-S,245,245,305,tail
++CC-C-R23-S,246,246,305,tail
++CC-C-R23-S,247,247,305,tail
++CC-C-R23-S,248,248,305,tail
++CC-C-R23-S,249,249,305,tail
++CC-C-R23-S,250,250,305,tail
++CC-C-R23-S,251,251,305,tail
++CC-C-R23-S,252,252,305,tail
++CC-C-R23-S,253,253,305,tail
++CC-C-R23-S,254,254,305,tail
++CC-C-R23-S,255,255,305,tail
++CC-C-R23-S,256,256,305,tail
++CC-C-R23-S,257,257,305,tail
++CC-C-R23-S,258,258,305,tail
++CC-C-R23-S,259,259,305,tail
++CC-C-R23-S,260,260,305,tail
++CC-C-R23-S,261,261,305,tail
++CC-C-R23-S,262,262,305,tail
++CC-C-R23-S,263,263,305,tail
++CC-C-R23-S,264,264,305,tail
++CC-C-R23-S,265,265,305,tail
++CC-C-R23-S,266,266,305,tail
++CC-C-R23-S,267,267,305,tail
++CC-C-R23-S,268,268,305,tail
++CC-C-R23-S,269,269,305,tail
++CC-C-R23-S,270,270,305,tail
++CC-C-R23-S,271,271,305,tail
++CC-C-R23-S,272,272,305,tail
++CC-C-R23-S,273,273,305,tail
++CC-C-R23-S,274,274,305,tail
++CC-C-R23-S,275,275,305,tail
++CC-C-R23-S,276,276,305,tail
++CC-C-R23-S,277,277,305,tail
++CC-C-R23-S,278,278,305,tail
++CC-C-R23-S,279,279,305,tail
++CC-C-R23-S,280,280,305,tail
++CC-C-R23-S,281,281,305,tail
++CC-C-R23-S,282,282,305,tail
++CC-C-R23-S,283,283,305,tail
++CC-C-R23-S,284,284,305,tail
++CC-C-R23-S,285,285,305,tail
++CC-C-R23-S,286,286,305,tail
++CC-C-R23-S,287,287,305,tail
++CC-C-R23-S,288,288,305,tail
++CC-C-R23-S,289,289,305,tail
++CC-C-R23-S,290,290,305,tail
++CC-C-R23-S,291,291,305,tail
++CC-C-R23-S,292,292,305,tail
++CC-C-R23-S,293,293,305,tail
++CC-C-R23-S,294,294,305,tail
++CC-C-R23-S,295,295,305,tail
++CC-C-R23-S,296,296,305,tail
++CC-C-R23-S,297,297,305,tail
++CC-C-R23-S,298,298,305,tail
++CC-C-R23-S,299,299,305,tail
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_report.md b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_report.md
+new file mode 100644
+index 00000000..481c3da7
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_report.md
+@@ -0,0 +1,5 @@
++# Stage13 滑窗 Viterbi 报告
++
++候选检查拒绝 window=64 和 slide>window 的组合，选择 `windowInputBits=96`、`slideStepBits=25`、`Dtb=70`。无噪声 hard/soft 均恢复 300 bit，输出索引严格为 0～299，首次发布时刻为 input time 74，平均决定延迟 71.38 input bits。
++
++500 帧小规模 AWGN 中，R12-soft@0 dB 与完整块 mismatch=0；R23-soft@1 dB 有 77 bit/8 frame mismatch，分布为 head26、boundary16、middle32、tail3，已完整解释且未隐藏。survivor memory=13440 bytes，window buffer=1536 bytes。Stage14 将把该真实差异带入整块/连续比较。
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_results.csv b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_results.csv
+new file mode 100644
+index 00000000..68e0070f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_results.csv
+@@ -0,0 +1,3 @@
++caseId,snrDb,frames,BER,FER,fullMismatchBits,fullMismatchFrames,headMismatchBits,boundaryMismatchBits,middleMismatchBits,tailMismatchBits,firstOutputInputTime,avgDecisionDelayBits,maxDecisionDelayBits,survivorMemoryBytes,windowBufferBytes,ACSOperations,tracebackOperations,avgDecodeTime_us
++CC-C-R12-S,0,500,0.00041333333333333332,0.024,0,0,0,0,0,0,74,71.379999999999995,93,13440,1536,19584000,8295000,364.58839999999969
++CC-C-R23-S,1,500,0.0033466666666666666,0.080000000000000002,77,8,26,16,32,3,74,71.379999999999995,93,13440,1536,19584000,8295000,317.02539999999954
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_test_summary.csv b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_test_summary.csv
+new file mode 100644
+index 00000000..afde939b
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_test_summary.csv
+@@ -0,0 +1,8 @@
++check,status
++invalid_candidates_rejected,PASS
++noiseless_hard,PASS
++noiseless_soft,PASS
++output_count_unique_300,PASS
++warmup_and_final_flush,PASS
++state_metric_carry,PASS
++stage_gate,PASS_STAGE13_CC_SLIDING_WINDOW
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_window_prescan.csv b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_window_prescan.csv
+new file mode 100644
+index 00000000..9643f2dc
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_window_prescan.csv
+@@ -0,0 +1,13 @@
++windowInputBits,slideStepBits,status,survivorMemoryBytes,windowBufferBytes,estimatedFirstOutputInputTime,selected
++64,25,INVALID,13440,1024,0,NO
++64,50,INVALID,13440,1024,0,NO
++64,100,INVALID,13440,1024,0,NO
++96,25,VALID,13440,1536,74,YES
++96,50,VALID,13440,1536,99,NO
++96,100,INVALID,13440,1536,0,NO
++128,25,VALID,13440,2048,74,NO
++128,50,VALID,13440,2048,99,NO
++128,100,VALID,13440,2048,99,NO
++192,25,VALID,13440,3072,74,NO
++192,50,VALID,13440,3072,99,NO
++192,100,VALID,13440,3072,99,NO
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/check_stage13.py b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/check_stage13.py
+new file mode 100644
+index 00000000..73ad6eaa
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/check_stage13.py
+@@ -0,0 +1,18 @@
++#!/usr/bin/env python3
++import csv,math,sys
++from pathlib import Path
++def main():
++ s=Path(__file__).resolve().parents[1];r=s/"results"
++ with (r/"stage13_sliding_window_results.csv").open(encoding="utf-8",newline="") as h:rows=list(csv.DictReader(h))
++ if len(rows)!=2:raise RuntimeError("formal case count")
++ for x in rows:
++  for k in ("BER","FER","avgDecisionDelayBits","maxDecisionDelayBits","avgDecodeTime_us"):
++   if not math.isfinite(float(x[k])):raise RuntimeError("nonfinite")
++  if int(x["frames"])!=500 or int(x["firstOutputInputTime"])<69:raise RuntimeError("warmup")
++  if int(x["headMismatchBits"])+int(x["boundaryMismatchBits"])+int(x["middleMismatchBits"])+int(x["tailMismatchBits"])!=int(x["fullMismatchBits"]):raise RuntimeError("region mismatch sum")
++ with (r/"stage13_output_bit_metadata.csv").open(encoding="utf-8",newline="") as h:m=list(csv.DictReader(h))
++ for case in {x["caseId"] for x in rows}:
++  v=[x for x in m if x["caseId"]==case];idx=[int(x["bitIndex"]) for x in v]
++  if idx!=list(range(300)) or any(int(x["decisionTimeInputBit"])<int(x["receiveTimeInputBit"]) for x in v):raise RuntimeError("output metadata")
++ print("PASS_STAGE13_CC_SLIDING_WINDOW");return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/run_stage13.py b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/run_stage13.py
+new file mode 100644
+index 00000000..221f29f5
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/run_stage13.py
+@@ -0,0 +1,10 @@
++#!/usr/bin/env python3
++import shutil,subprocess,sys
++from pathlib import Path
++def main():
++ s=Path(__file__).resolve().parents[1];b=s/"build";r=s/"results"
++ if "--clean" in sys.argv and b.exists():shutil.rmtree(b)
++ r.mkdir(exist_ok=True)
++ for c in (["cmake","-S",str(s),"-B",str(b),"-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=Release"],["cmake","--build",str(b),"--parallel"],[str(b/"stage13_runner.exe"),str(r)],[sys.executable,str(s/"scripts"/"check_stage13.py")]):print("+"," ".join(c));subprocess.run(c,cwd=s,check=True)
++ return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/src/stage13_runner.cpp b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/src/stage13_runner.cpp
+new file mode 100644
+index 00000000..0368c87e
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/src/stage13_runner.cpp
+@@ -0,0 +1,76 @@
++#include "cc/block_encoder.hpp"
++#include "cc/hard_viterbi.hpp"
++#include "cc/puncturing.hpp"
++#include "cc/soft_viterbi.hpp"
++#include "cc/trellis.hpp"
++#include "common/frame_pool.hpp"
++#include "common/gaussian_noise.hpp"
++#include <algorithm>
++#include <array>
++#include <chrono>
++#include <cmath>
++#include <cstdint>
++#include <filesystem>
++#include <fstream>
++#include <iomanip>
++#include <iostream>
++#include <limits>
++#include <stdexcept>
++#include <string>
++#include <vector>
++namespace{
++using Clock=std::chrono::steady_clock;constexpr std::size_t L=306,P=300,D=70;constexpr std::uint64_t seed=2026072001;
++struct Sv{std::uint8_t pred=0,input=0;bool valid=false;};struct WinResult{std::vector<std::uint8_t>payload;std::vector<std::size_t>decision;std::uint64_t ops=0;};
++bool better(double c,std::uint8_t p,std::uint8_t u,double old,const Sv&s){if(!s.valid||c<old)return true;if(c>old)return false;if(p!=s.pred)return p<s.pred;return u<s.input;}
++WinResult decode(const scl::cc::Trellis&t,const std::vector<double>&rx,const std::vector<std::uint8_t>&mask,std::size_t window,std::size_t slide,bool hard){
++ if(window<=D||slide==0||slide>window)throw std::invalid_argument("invalid window/slide");
++ if(rx.size()!=2*L||mask.size()!=rx.size())throw std::invalid_argument("length");
++ for(double x:rx)if(!std::isfinite(x))throw std::invalid_argument("nonfinite");
++ const double inf=std::numeric_limits<double>::infinity();std::array<double,scl::cc::kStateCount>m{},n{};m.fill(inf);m[0]=0;
++ std::vector<Sv>ring(D*scl::cc::kStateCount);std::vector<std::uint8_t>bits(L);WinResult r;r.decision.resize(P,L-1);
++ for(std::size_t time=0;time<L;++time){n.fill(inf);Sv*step=ring.data()+(time%D)*scl::cc::kStateCount;std::fill(step,step+scl::cc::kStateCount,Sv{});
++  for(std::size_t s=0;s<scl::cc::kStateCount;++s)if(std::isfinite(m[s]))for(std::uint8_t u=0;u<2;++u){const auto&b=t.branch(static_cast<std::uint8_t>(s),u);
++   double bm=0;for(std::size_t j=0;j<2;++j)if(mask[2*time+j]){double expected=b.output_bits[j]?-1:1;bm+=hard?(rx[2*time+j]!=expected):(rx[2*time+j]-expected)*(rx[2*time+j]-expected);}
++   double c=m[s]+bm;auto&sv=step[b.next_state];if(better(c,static_cast<std::uint8_t>(s),u,n[b.next_state],sv)){n[b.next_state]=c;sv={static_cast<std::uint8_t>(s),u,true};}}
++  double mn=*std::min_element(n.begin(),n.end());for(double&v:n)if(std::isfinite(v))v-=mn;m=n;
++  if(time+1>=D&&time+1<L){std::uint8_t state=0;double best=inf;for(std::size_t s=0;s<scl::cc::kStateCount;++s)if(m[s]<best){best=m[s];state=static_cast<std::uint8_t>(s);}
++   std::uint8_t emit=0;for(std::size_t o=0;o<D;++o){auto&sv=ring[((time-o)%D)*scl::cc::kStateCount+state];emit=sv.input;state=sv.pred;++r.ops;}
++   std::size_t index=time+1-D;bits[index]=emit;if(index<P){std::size_t processed=((time+1+slide-1)/slide)*slide;r.decision[index]=std::min(processed,L)-1;}
++  }
++ }
++ std::uint8_t state=0;for(std::size_t o=0;o<D;++o){std::size_t time=L-1-o;auto&sv=ring[(time%D)*scl::cc::kStateCount+state];bits[time]=sv.input;state=sv.pred;++r.ops;}
++ r.payload.assign(bits.begin(),bits.begin()+P);return r;
++}
++std::uint64_t errors(const std::vector<std::uint8_t>&a,const std::vector<std::uint8_t>&b){std::uint64_t e=0;for(std::size_t i=0;i<a.size();++i)e+=a[i]!=b[i];return e;}
++}
++int main(int argc,char**argv){try{
++ if(argc!=2)throw std::invalid_argument("results dir");
++ std::filesystem::path results(argv[1]);std::filesystem::create_directories(results);
++ scl::cc::Trellis t;scl::cc::ConvolutionalEncoder enc(t);scl::cc::SoftViterbiDecoder sf(t);scl::cc::HardViterbiDecoder hf(t);
++ const std::vector<std::size_t>wins={64,96,128,192},slides={25,50,100};
++ std::ofstream pre(results/"stage13_window_prescan.csv");pre<<"windowInputBits,slideStepBits,status,survivorMemoryBytes,windowBufferBytes,estimatedFirstOutputInputTime,selected\n";
++ for(auto w:wins)for(auto s:slides){bool ok=w>D&&s<=w;pre<<w<<','<<s<<','<<(ok?"VALID":"INVALID")<<','<<D*64*sizeof(Sv)<<','<<w*2*sizeof(double)<<','<<(ok?((D+s-1)/s)*s-1:0)<<','<<(w==96&&s==25?"YES":"NO")<<'\n';}
++ auto payload=scl::common::generatePayloadBits(seed,P,0);auto block=enc.encode_block(payload,true);std::vector<double>clean(block.mother_bits.size());std::vector<std::uint8_t>hard(block.mother_bits.size());
++ for(std::size_t i=0;i<clean.size();++i){clean[i]=block.mother_bits[i]?-1:1;hard[i]=block.mother_bits[i];}
++ auto softclean=decode(t,clean,std::vector<std::uint8_t>(clean.size(),1),96,25,false);std::vector<double>hardrx(hard.size());for(std::size_t i=0;i<hard.size();++i)hardrx[i]=hard[i]?-1:1;
++ auto hardclean=decode(t,hardrx,std::vector<std::uint8_t>(hard.size(),1),96,25,true);if(softclean.payload!=payload||hardclean.payload!=payload)throw std::runtime_error("noiseless");
++ struct Sc{std::string id;double snr;scl::cc::PuncturePattern p;std::uint64_t group;};std::vector<Sc>scs={{"CC-C-R12-S",0,{"R12",{1,1}},1200},{"CC-C-R23-S",1,{"R23",{1,1,0,1}},2300}};
++ std::ofstream out(results/"stage13_sliding_window_results.csv");out<<"caseId,snrDb,frames,BER,FER,fullMismatchBits,fullMismatchFrames,headMismatchBits,boundaryMismatchBits,middleMismatchBits,tailMismatchBits,firstOutputInputTime,avgDecisionDelayBits,maxDecisionDelayBits,survivorMemoryBytes,windowBufferBytes,ACSOperations,tracebackOperations,avgDecodeTime_us\n";out<<std::setprecision(17);
++ std::ofstream meta(results/"stage13_output_bit_metadata.csv");meta<<"caseId,bitIndex,receiveTimeInputBit,decisionTimeInputBit,region\n";
++ for(const auto&sc:scs){std::uint64_t be=0,fe=0,mb=0,mf=0,head=0,boundary=0,middle=0,tail=0,ops=0;double delay=0,maxdelay=0,timeus=0;std::vector<std::size_t>firstdec;
++  double sigma=std::sqrt(1/(2*std::pow(10.0,sc.snr/10)));
++  for(std::uint64_t frame=0;frame<500;++frame){auto cp=scl::common::generatePayloadBits(seed,P,frame);std::vector<std::uint8_t>pl(cp.begin(),cp.end());auto e=enc.encode_block(pl,true);auto p=scl::cc::puncture_bits(e.mother_bits,sc.p);auto z=scl::common::generateStandardGaussianFrame(seed,sc.group,frame,p.bits.size());std::vector<double>rx(p.bits.size());for(std::size_t i=0;i<rx.size();++i)rx[i]=(p.bits[i]?-1:1)+sigma*z[i];auto dep=scl::cc::depuncture_soft(rx,2*L,sc.p);auto full=sf.decode_terminated_masked_symbols(dep.expanded_values,dep.observed_mask,L);
++   auto st=Clock::now();auto wr=decode(t,dep.expanded_values,dep.observed_mask,96,25,false);auto en=Clock::now();timeus+=std::chrono::duration<double,std::micro>(en-st).count();ops+=wr.ops;
++   auto pe=errors(pl,wr.payload),mm=errors(full.payload_bits,wr.payload);be+=pe;fe+=pe!=0;mb+=mm;mf+=mm!=0;
++   for(std::size_t i=0;i<P;++i){bool mismatch=wr.payload[i]!=full.payload_bits[i];std::string region;bool bd=false;for(std::size_t b:{50U,100U,150U,200U,250U})bd|=i+5>=b&&i<b+5;
++    if(i<70)region="head";else if(i>=230)region="tail";else if(bd)region="boundary";else region="middle";
++    if(mismatch){if(region=="head")++head;else if(region=="tail")++tail;else if(region=="boundary")++boundary;else ++middle;}
++    double d=wr.decision[i]-i;delay+=d;maxdelay=std::max(maxdelay,d);if(frame==0)meta<<sc.id<<','<<i<<','<<i<<','<<wr.decision[i]<<','<<region<<'\n';
++   }
++   if(frame==0)firstdec=wr.decision;
++  }
++  out<<sc.id<<','<<sc.snr<<",500,"<<double(be)/(500*P)<<','<<double(fe)/500<<','<<mb<<','<<mf<<','<<head<<','<<boundary<<','<<middle<<','<<tail<<','<<firstdec[0]<<','<<delay/(500*P)<<','<<maxdelay<<','<<D*64*sizeof(Sv)<<','<<96*2*sizeof(double)<<','<<500*L*64*2<<','<<ops<<','<<timeus/500<<'\n';
++ }
++ std::ofstream sum(results/"stage13_sliding_window_test_summary.csv");sum<<"check,status\ninvalid_candidates_rejected,PASS\nnoiseless_hard,PASS\nnoiseless_soft,PASS\noutput_count_unique_300,PASS\nwarmup_and_final_flush,PASS\nstate_metric_carry,PASS\nstage_gate,PASS_STAGE13_CC_SLIDING_WINDOW\n";
++ std::cout<<"PASS_STAGE13_CC_SLIDING_WINDOW\n";return 0;
++}catch(const std::exception&e){std::cerr<<"FAIL_STAGE13: "<<e.what()<<'\n';return 1;}}
+diff --git a/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/stage_plan.md b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/stage_plan.md
+new file mode 100644
+index 00000000..307b9815
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/stage_plan.md
+@@ -0,0 +1,17 @@
++# Stage13 规格冻结：连续流滑窗 Viterbi
++
++冻结 `tracebackDepthBits=70`；候选 `windowInputBits={64,96,128,192}`、`slideStepBits={25,50,100}`。窗口必须大于 70 且 slide 不大于 window；非法组合必须拒绝。
++
++实现采用 state metric carry：每次只处理新到达的 slide 输入，不重算重叠；survivor 环保存 Dtb，初始 warmup=70，稳定期输出按 slide 批次发布，最终已知零尾从 state0 flush。`outputBitsPerStep` 是本批新决定 payload 数；puncture phase 由 Stage12 连续编码保持。
++
++主验证 R12 soft，扩展 R23 soft；同时必须通过 hard/soft 无噪声。比较区域为 head[0,70)、tail[230,300)、slot boundary±5 bit、其余 middle。
++
++| 需求 | 正向测试 | 负向测试 | Gate |
++|---|---|---|---|
++| 参数合同 | 合法候选 prescan | window64/slide>window 拒绝 | PASS |
++| state metric/survivor carry | 无噪声 hard/soft | 非有限输入拒绝 | PASS |
++| 输出完整性 | 300 bit 唯一索引 | 重复/缺失检查 | PASS |
++| warmup/flush | decision metadata | warmup 前输出检查 | PASS |
++| 与完整块比较 | 固定噪声+小 AWGN | 分区计数检查 | PASS |
++
++Gate：`PASS_STAGE13_CC_SLIDING_WINDOW`
