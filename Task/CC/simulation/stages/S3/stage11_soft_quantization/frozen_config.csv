@@ -1,0 +1,15 @@
+parameter,value
+input,receivedSymbols
+quantizer,symmetric_mid_tread
+zeroPoint,0
+bits,3|4|6
+clipCandidates,2|3|4|6
+puncturedNeutralCode,0
+pathMetricType,int32_t
+pathMetricSaturation,1000000000
+normalization,subtract_min_each_step
+prescanFramesPerScenario,200
+formalFramesPerScenario,1000
+selectedClipMax,2
+selectedClipBasis,Q4_global_minimum_float_mismatch_frames
+recommendedBits,6

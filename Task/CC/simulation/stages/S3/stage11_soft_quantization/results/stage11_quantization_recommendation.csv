@@ -1,0 +1,2 @@
+recommendedBits,qualifiedBits,rule
+6,6,minimum width with <=10% BER/FER increase at every scenario and zero overflow
