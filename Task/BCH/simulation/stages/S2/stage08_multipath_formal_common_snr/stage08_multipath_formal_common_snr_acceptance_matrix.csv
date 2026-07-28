@@ -1,0 +1,5 @@
+requirement,implementation,positiveTest,negativeTest,gate
+common waveform SNR grid,runner frozen grid,296 rows and 37 points per case,missing duplicate or extra point blocked,PASS_STAGE08_COMMON_SNR_RESULTS_CHECK
+sigma2 identity,runner and checker,recompute both formulas,nonfinite or mismatch blocked,PASS_STAGE08_COMMON_SNR_RESULTS_CHECK
+plot evidence,matplotlib script,8 PNG plus figure-data and manifests,forbidden format or missing point blocked,PASS_STAGE08_COMMON_SNR_PLOT_CHECK
+fair comparison,ranking and crossing scripts,same payload and same SNR only,cross-SNR ranking blocked,PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON

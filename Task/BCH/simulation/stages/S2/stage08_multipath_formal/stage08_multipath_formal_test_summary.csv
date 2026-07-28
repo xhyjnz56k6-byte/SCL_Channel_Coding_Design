@@ -1,0 +1,8 @@
+test,actualResult,evidence
+runner_self_test,PASS,PASS_STAGE08_MULTIPATH_FORMAL_SELF_TEST
+formal_shards,PASS,2 shards 24 points
+resume,PASS,executed=0 resumeSkipped=24 hashes unchanged
+merge,PASS,PASS_STAGE08_SHARD_MERGE
+formula_recomputation,PASS,24/24 rows
+stop_rule,PASS,all rows legal
+finite_and_residual,PASS,no NaN Inf residual <= 1e-11

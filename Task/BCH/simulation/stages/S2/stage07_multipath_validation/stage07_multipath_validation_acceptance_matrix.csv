@@ -1,0 +1,8 @@
+requirement,implementation,positiveTest,negativeTest,gateCondition
+frozen channel,configs/stage07_multipath_validation_frozen_model.json,energy and seven convolution vectors,empty or nonfinite impulse rejected,unit energy and full length
+stage02 eight cases,cpp/stage07_multipath_validation_runner.cpp,1007 noiseless frames per case,stage02 invalid length tests,zero payload and decoder errors
+linear MMSE,cpp/stage07_multipath_validation_core.cpp,four SNR regimes for all cases,invalid dimensions and nonfinite values rejected,residual below 1e-11
+C++ MATLAB agreement,matlab and python compare,independent convolution and backslash solve,continuous or discrete mismatch blocks,zero hard mismatch and tolerance pass
+h1 degeneration,runner h1 audit,same payload encoded bits noise and identity,mismatch blocks,all discrete mismatch zero
+deterministic execution,runner resume and shard audits,continuous resume shard comparison,overlap or count mismatch blocks,integer counts identical
+trial and formal freeze,trial config and stage08 frozen grid,three manual points per case,dynamic grid modification forbidden,24 auditable trial points and frozen grid

@@ -1,0 +1,59 @@
+{
+  "plotFile": "plots/stage08_multipath_formal_k300_fer.png",
+  "plotType": "fer",
+  "title": "300比特BCH多径误帧率对比",
+  "xLabel": "SNR (dB)",
+  "yLabel": "FER",
+  "xSourceColumn": "snrDb",
+  "ySourceColumn": "fer",
+  "xTransformFormula": "SNR_dB = EbN0_dB + 10*log10(2*R)",
+  "yScale": "log",
+  "zeroHandlingRule": "raw zero retained; plotY=0.5/count only for log display",
+  "sourceCsv": "results/stage08_multipath_formal_results.csv",
+  "sourceCsvSha256": "d7bbbda6c51fd13da3f76949cc8650fde7313f8e107ed1e734210185b2af4a14",
+  "figureDataCsv": "plots/stage08_multipath_formal_k300_fer_figure_data.csv",
+  "figureDataSha256": "7cfd130ededad7e6d598d90b5e507e602d32129c174491891bc32280301beb9d",
+  "legendMapping": {
+    "K300_S15": "分块300",
+    "K300_M255K207": "255双块300",
+    "K300_M511K421": "421整块300",
+    "K300_M511K385": "385整块300"
+  },
+  "styleMapping": {
+    "K300_S15": {
+      "styleId": "STYLE_1",
+      "color": "C0",
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "K300_M255K207": {
+      "styleId": "STYLE_2",
+      "color": "C1",
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "K300_M511K421": {
+      "styleId": "STYLE_3",
+      "color": "C2",
+      "lineStyle": "-.",
+      "marker": "^"
+    },
+    "K300_M511K385": {
+      "styleId": "STYLE_4",
+      "color": "C3",
+      "lineStyle": ":",
+      "marker": "D"
+    }
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "dpi": 140,
+  "imageFormat": "PNG",
+  "imageWidth": 1260,
+  "imageHeight": 812,
+  "plotScript": "python/stage08_multipath_formal_plot.py",
+  "plotScriptSha256": "d02029c9111e58ce118c36294f242b84768ff3854636780e18b7f650cbc45521",
+  "plotFileSha256": "84ea0dab5655ef4cdd05eec666f7e48623b2d66b9294a84f6420e94f2a0f5609",
+  "gitCommit": "5fb6a373263eb6a50d0ef70a14cad16963a0fb3d",
+  "configHash": "457ea7422976679d98dd9ca6857c00c84e2fbb71e546f759d4ff745aac299a84"
+}

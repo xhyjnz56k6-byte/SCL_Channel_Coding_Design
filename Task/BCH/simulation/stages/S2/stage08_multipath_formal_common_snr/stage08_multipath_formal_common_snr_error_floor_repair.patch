@@ -1,0 +1,728 @@
+﻿diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/.gitignore b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/.gitignore
+index 4257da5..64e0e9b 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/.gitignore
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/.gitignore
+@@ -1,5 +1,6 @@
+ *
+ !*/
++python/__pycache__/
+ !.gitignore
+ !cpp/CMakeLists.txt
+ !cpp/stage08_multipath_formal_common_snr_runner.cpp
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py
+index 792744e..f28e571 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py
+@@ -43,6 +43,7 @@ def main() -> int:
+     stage = Path(__file__).resolve().parents[1]
+     rows = read(stage / f"results/{PREFIX}_results.csv")
+     grid = read(stage / f"{PREFIX}_frozen_grid.csv")
++    error_floor_rows = read(stage / f"{PREFIX}_error_floor_analysis.csv")
+     require(len(rows) == len(grid) == 296, "ROW_COUNT")
+     require({row["caseId"] for row in rows} == set(CASES), "CASE_SET")
+     expected_grid = [i * 0.5 for i in range(37)]
+@@ -61,6 +62,10 @@ def main() -> int:
+     require(actual == expected and len(actual) == 296, "FROZEN_GRID_MISMATCH")
+     require(len({row["gitCommit"] for row in rows}) == 1, "GIT_COMMIT")
+     require(len({row["configHash"] for row in rows}) == 1, "CONFIG_HASH")
++    require(len(error_floor_rows) == 296, "ERROR_FLOOR_ROW_COUNT")
++    error_floor_by_key = {
++        (row["caseId"], row["waveformSnrIndex"]): row for row in error_floor_rows
++    }
+     for row in rows:
+         payload, encoded = CASES[row["caseId"]]
+         rate = payload / encoded
+@@ -107,6 +112,17 @@ def main() -> int:
+         require(row["equalizerType"] == "BLOCK_LINEAR_MMSE", "EQUALIZER")
+         require(row["solverType"] == "BANDED_CHOLESKY_NORMAL_EQUATIONS", "SOLVER")
+         require(row["miscorrectionFrames"] == row["undetectedErrorFrames"], "SEMANTIC_ALIAS")
++        ef = error_floor_by_key[(row["caseId"], row["waveformSnrIndex"])]
++        ber95 = float(ef["berOneSided95Upper"])
++        fer95 = float(ef["ferOneSided95Upper"])
++        if bit_errors == 0 and frame_errors == 0:
++            require(ef["errorFloorCensoringStatus"] == "ZERO_OBSERVED_CENSORED", "ERROR_FLOOR_CENSOR_STATUS")
++            require(close(ber95, 3.0 / bits), "ERROR_FLOOR_BER95")
++            require(close(fer95, 3.0 / frames), "ERROR_FLOOR_FER95")
++        else:
++            require(ef["errorFloorCensoringStatus"] == "OBSERVED_ERRORS", "ERROR_FLOOR_OBSERVED_STATUS")
++            require(close(ber95, bit_errors / bits), "ERROR_FLOOR_BER_OBSERVED")
++            require(close(fer95, frame_errors / frames), "ERROR_FLOOR_FER_OBSERVED")
+     summary = stage / f"{PREFIX}_test_summary.csv"
+     total_frames = sum(int(row["totalFrames"]) for row in rows)
+     summary.write_text(
+@@ -117,7 +133,8 @@ def main() -> int:
+         "merge,PASS,PASS_STAGE08_COMMON_SNR_SHARD_MERGE\n"
+         "formula_recomputation,PASS,296/296 rows\n"
+         "stop_rule,PASS,all rows legal\n"
+-        "finite_and_residual,PASS,no NaN Inf residual <= 1e-11\n",
++        "finite_and_residual,PASS,no NaN Inf residual <= 1e-11\n"
++        "error_floor_censoring,PASS,zero-error rows use 3/N one-sided 95% upper bounds\n",
+         encoding="utf-8",
+     )
+     print(f"PASS_STAGE08_COMMON_SNR_RESULTS_CHECK points=296 frames={total_frames}")
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py
+index 89022a8..73a6cc9 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py
+@@ -24,63 +24,106 @@ def read(path: Path) -> list[dict[str, str]]:
+         return list(csv.DictReader(handle))
+ 
+ 
++def weighted_mean(rows: list[dict[str, str]], field: str) -> float:
++    frames = sum(int(row["totalFrames"]) for row in rows)
++    return sum(float(row[field]) * int(row["totalFrames"]) for row in rows) / frames
++
++
++def observed_best(rows: list[dict[str, str]], payload: int, metric: str, snr_index: int) -> str:
++    selected = [
++        row for row in rows
++        if int(row["payloadLength"]) == payload and int(row["waveformSnrIndex"]) == snr_index
++    ]
++    return min(selected, key=lambda row: float(row[metric]))["caseId"]
++
++
++def censored_group(error_rows: list[dict[str, str]], payload: int, snr_index: int, metric: str) -> tuple[list[str], float]:
++    selected = [
++        row for row in error_rows
++        if int(row["payloadLength"]) == payload and int(row["waveformSnrIndex"]) == snr_index
++    ]
++    upper_field = "berOneSided95Upper" if metric == "ber" else "ferOneSided95Upper"
++    zero = [row for row in selected if row["errorFloorCensoringStatus"] == "ZERO_OBSERVED_CENSORED"]
++    if not zero:
++        best = min(selected, key=lambda row: float(row[upper_field]))
++        return [best["caseId"]], float(best[upper_field])
++    upper = min(float(row[upper_field]) for row in zero)
++    tied = sorted(row["caseId"] for row in zero if abs(float(row[upper_field]) - upper) <= 1e-18)
++    return tied, upper
++
++
+ def main() -> int:
+     stage = Path(__file__).resolve().parents[1]
+     repo = stage.parents[5]
+     rows = read(stage / f"results/{PREFIX}_results.csv")
+     summary = read(stage / f"{PREFIX}_summary.csv")
+-    ranking = read(stage / f"{PREFIX}_pointwise_ranking.csv")
+-    crossing = read(stage / f"{PREFIX}_curve_crossing_analysis.csv")
++    error_rows = read(stage / f"{PREFIX}_error_floor_analysis.csv")
+     files = []
+     for path in stage.rglob("*"):
+-        if path.is_file() and PREFIX in path.name or (path.is_file() and path.parent.name == "plots" and path.name.startswith("stage08_multipath_common_snr_")):
++        is_common_file = path.is_file() and PREFIX in path.name
++        is_common_plot = path.is_file() and path.parent.name == "plots" and path.name.startswith("stage08_multipath_common_snr_")
++        if is_common_file or is_common_plot:
+             files.append(path)
+     hashes = {str(path.relative_to(repo)).replace("\\", "/"): sha(path) for path in sorted(files)}
+-    (stage / f"{PREFIX}_file_hashes.json").write_text(json.dumps(hashes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
++    (stage / f"{PREFIX}_file_hashes.json").write_text(
++        json.dumps(hashes, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
++    )
+ 
+     total_frames = sum(int(row["totalFrames"]) for row in rows)
+     target_points = sum(row["stopReason"] == "TARGET_FRAME_ERRORS_REACHED" for row in rows)
+     max_points = sum(row["stopReason"] == "MAX_FRAMES_REACHED" for row in rows)
++    zero_points = sum(row["errorFloorCensoringStatus"] == "ZERO_OBSERVED_CENSORED" for row in error_rows)
+     max_residual = max(float(row["solverResidualMax"]) for row in rows)
+     old_stage = stage.parent / "stage08_multipath_formal"
+     old_results = old_stage / "results" / "stage08_multipath_formal_results.csv"
+     old_grid = old_stage / "stage08_multipath_formal_frozen_grid.csv"
+     stage07_model = stage.parent / "stage07_multipath_validation" / "stage07_multipath_validation_frozen_model.json"
+ 
+-    def best(payload: int, metric: str, snr_index: int) -> str:
+-        selected = [r for r in rows if int(r["payloadLength"]) == payload and int(r["waveformSnrIndex"]) == snr_index]
+-        return min(selected, key=lambda r: float(r[metric]))["caseId"]
+-
+-    conclusions = []
++    conclusion_rows = []
+     for payload in (200, 300):
+-        conclusions.append({
++        payload_summary = [row for row in summary if int(row["payloadLength"]) == payload]
++        payload_rows = [row for row in rows if int(row["payloadLength"]) == payload]
++        high_ber_group, high_ber_upper = censored_group(error_rows, payload, 36, "ber")
++        high_fer_group, high_fer_upper = censored_group(error_rows, payload, 36, "fer")
++        rate_priority = max(payload_summary, key=lambda row: float(row["actualRate"]))["caseId"]
++        cases = sorted({row["caseId"] for row in payload_rows})
++        decode_priority = min(cases, key=lambda case: weighted_mean([r for r in payload_rows if r["caseId"] == case], "decodeTimeMeanNs"))
++        equalize_priority = min(cases, key=lambda case: weighted_mean([r for r in payload_rows if r["caseId"] == case], "equalizeTimeMeanNs"))
++        conclusion_rows.append({
+             "payloadLength": payload,
+-            "lowSnrBerBest": best(payload, "ber", 0),
+-            "midSnrBerBest": best(payload, "ber", 18),
+-            "highSnrBerBest": best(payload, "ber", 36),
+-            "lowSnrFerBest": best(payload, "fer", 0),
+-            "midSnrFerBest": best(payload, "fer", 18),
+-            "highSnrFerBest": best(payload, "fer", 36),
+-            "ratePriority": max([s for s in summary if int(s["payloadLength"]) == payload], key=lambda s: float(s["actualRate"]))["caseId"],
+-            "decodeLatencyPriority": min([s for s in summary if int(s["payloadLength"]) == payload], key=lambda s: float([r for r in rows if r["caseId"] == s["caseId"]][0]["decodeTimeMeanNs"]))["caseId"],
+-            "equalizeLatencyPriority": min([s for s in summary if int(s["payloadLength"]) == payload], key=lambda s: float([r for r in rows if r["caseId"] == s["caseId"]][0]["equalizeTimeMeanNs"]))["caseId"],
+-            "qualification": "No single absolute best independent of waveform-SNR operating region.",
++            "lowSnrBerBestObserved": observed_best(rows, payload, "ber", 0),
++            "lowSnrFerBestObserved": observed_best(rows, payload, "fer", 0),
++            "midSnrBerBestObserved": observed_best(rows, payload, "ber", 18),
++            "midSnrFerBestObserved": observed_best(rows, payload, "fer", 18),
++            "highSnrBerCensoredBestGroup": ";".join(high_ber_group),
++            "highSnrBer95Upper": high_ber_upper,
++            "highSnrFerCensoredBestGroup": ";".join(high_fer_group),
++            "highSnrFer95Upper": high_fer_upper,
++            "ratePriority": rate_priority,
++            "decodeLatencyPriority": decode_priority,
++            "equalizeLatencyPriority": equalize_priority,
+         })
++
+     with (stage / f"{PREFIX}_conclusion.md").open("w", encoding="utf-8") as handle:
+         handle.write(f"# {PREFIX} Conclusion\n\n")
+         handle.write("本结论只使用统一 `waveformSnrDb=0:0.5:18` 网格下的同 SNR 横向比较；旧 Stage08 标记为 `LEGACY_WIDE_GRID_FORMAL`，不作为最终横向排名依据。\n\n")
++        handle.write("Error-floor 处理规则：正式结果 CSV 中的 `ber=0` / `fer=0` 保持原始整数计数含义；在结论和高 SNR 排名中，零错误点标记为 `ZERO_OBSERVED_CENSORED`，只说明在当前帧数下未观测到错误，并使用单侧 95% 上界 `3/N` 给出可审查约束，不能当作真实 error floor 为 0。\n\n")
+         handle.write("`miscorrectionFrames` 与 `undetectedErrorFrames` 在当前译码接口语义下是同一事件集合的两个语义标签，不是互斥类别。\n\n")
+-        for item in conclusions:
++        for item in conclusion_rows:
+             handle.write(f"## {item['payloadLength']} bit\n\n")
+-            handle.write(f"- 低 SNR BER 最优：{item['lowSnrBerBest']}；FER 最优：{item['lowSnrFerBest']}。\n")
+-            handle.write(f"- 中 SNR BER 最优：{item['midSnrBerBest']}；FER 最优：{item['midSnrFerBest']}。\n")
+-            handle.write(f"- 高 SNR BER 最优：{item['highSnrBerBest']}；FER 最优：{item['highSnrFerBest']}。\n")
++            handle.write(f"- 低 SNR 观测 BER 最优：{item['lowSnrBerBestObserved']}；观测 FER 最优：{item['lowSnrFerBestObserved']}。\n")
++            handle.write(f"- 中 SNR 观测 BER 最优：{item['midSnrBerBestObserved']}；观测 FER 最优：{item['midSnrFerBestObserved']}。\n")
++            handle.write(f"- 高 SNR error-floor-aware BER 候选组：{item['highSnrBerCensoredBestGroup']}，95% 上界约束 <= {item['highSnrBer95Upper']:.6g}。\n")
++            handle.write(f"- 高 SNR error-floor-aware FER 候选组：{item['highSnrFerCensoredBestGroup']}，95% 上界约束 <= {item['highSnrFer95Upper']:.6g}。\n")
+             handle.write(f"- 码率优先：{item['ratePriority']}；BCH 译码时延优先：{item['decodeLatencyPriority']}；MMSE 均衡时延优先：{item['equalizeLatencyPriority']}。\n")
+-            handle.write("- 不存在脱离 SNR 工作区间的单一绝对最优方案。\n\n")
++            handle.write("- 不存在脱离 SNR 工作区间和有限样本 censoring 的单一绝对最优方案。\n\n")
++
+     (stage / f"{PREFIX}_known_issues.md").write_text(
+         "# Known Issues\n\n"
+-        "- 零 BER/FER 点表示在有限帧数内未观测到错误，不等于真实错误率为零；对数图仅使用 0.5/count surrogate 显示。\n"
+-        "- 时延统计受本机调度和缓存波动影响，适合作同一批次内相对比较。\n"
++        "- 高 SNR 零错误点是右删失/上界证据：有限帧数内未观测到错误，不等于真实 BER/FER 或 error floor 为 0。\n"
++        "- 对数图仅使用 `0.5/count` surrogate 显示零错误点；正式 CSV 的原始 `ber=0`、`fer=0` 未被改写。\n"
++        "- 高 SNR 多个零错误方案在当前 `50000` 帧上限下不能严格排序；结论改用 `3/N` 单侧 95% 上界和候选组表述。\n"
++        "- 时延统计受本机调度和缓存波动影响，适合同一批次内相对比较。\n"
+         "- `miscorrectionFrames` 与 `undetectedErrorFrames` 是当前接口下同一事件集合的语义别名。\n"
+         "- 本分支尚未合并 `main`，mergeStatus 保持 `NOT_MERGED`。\n",
+         encoding="utf-8",
+@@ -90,22 +133,25 @@ def main() -> int:
+         f"- Results gate: PASS_STAGE08_COMMON_SNR_RESULTS_CHECK\n"
+         f"- Plot gate: PASS_STAGE08_COMMON_SNR_PLOT_CHECK\n"
+         f"- Final comparison gate: PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON\n"
++        f"- Error-floor handling: PASS_ZERO_ERROR_CENSORING_WITH_3_OVER_N_UPPER_BOUND\n"
+         f"- Point count: 296\n"
+         f"- Total frames: {total_frames}\n"
+         f"- TARGET_FRAME_ERRORS_REACHED points: {target_points}\n"
+         f"- MAX_FRAMES_REACHED points: {max_points}\n"
++        f"- Zero-error censored points: {zero_points}\n"
+         f"- Solver residual max: {max_residual:.17g}\n"
+         f"- NaN/Inf: 0\n"
+         f"- Stage07 frozen model SHA-256: {sha(stage07_model)}\n"
+         f"- Legacy Stage08 result SHA-256: {sha(old_results)}\n"
+         f"- Legacy Stage08 grid SHA-256: {sha(old_grid)}\n"
+         f"- Legacy data label: LEGACY_WIDE_GRID_FORMAL\n\n"
++        "Error-floor note: zero-error rows keep raw `ber=0` and `fer=0` in the formal CSV, but reliability conclusions use `ZERO_OBSERVED_CENSORED` status and `3/N` one-sided 95% upper bounds.\n\n"
+         "`miscorrectionFrames` 与 `undetectedErrorFrames` 在当前译码接口语义下是同一事件集合的两个语义标签，不是互斥类别。\n",
+         encoding="utf-8",
+     )
+     (stage / f"{PREFIX}_changed_files.md").write_text(
+         "# Changed Files\n\n"
+-        "新增 common-SNR Stage08 补充实验目录，包含 C++ runner、Python checker/plot/audit、冻结网格、正式结果、图像证据和审计文件。未修改 Stage07 与旧 Stage08 结果。\n",
++        "新增 common-SNR Stage08 补充实验目录，包含 C++ runner、Python checker/plot/audit、冻结网格、正式结果、图像证据和审计文件。后续修正只调整高 SNR error-floor 后处理、排名和结论表达；未改写正式原始计数，未修改 Stage07 与旧 Stage08 结果。\n",
+         encoding="utf-8",
+     )
+     (stage / f"{PREFIX}_manifest.json").write_text(json.dumps({
+@@ -118,16 +164,21 @@ def main() -> int:
+         "formalPointCount": len(rows),
+         "formalFrameCount": total_frames,
+         "grid": {"startDb": 0.0, "endDb": 18.0, "stepDb": 0.5, "gridType": "BASE_0P5DB", "refinement": "NO_REFINEMENT"},
++        "errorFloorHandling": {
++            "zeroErrorStatus": "ZERO_OBSERVED_CENSORED",
++            "upperBoundRule": "one-sided 95% upper bound ~= 3/N",
++            "rawCsvPolicy": "preserve observed integer counts and raw ber/fer",
++        },
+         "gates": [
+             "PASS_STAGE08_COMMON_SNR_RESULTS_CHECK",
+             "PASS_STAGE08_COMMON_SNR_PLOT_CHECK",
+             "PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON",
++            "PASS_ZERO_ERROR_CENSORING_WITH_3_OVER_N_UPPER_BOUND",
+         ],
+         "legacyStage08Label": "LEGACY_WIDE_GRID_FORMAL",
+         "mergeStatus": "NOT_MERGED",
+         "trackedFileHashes": hashes,
+     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+-    (stage / f"{PREFIX}_git_commit.txt").write_text("TO_BE_FILLED_AFTER_COMMIT\n", encoding="utf-8")
+     print("PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON")
+     return 0
+ 
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py
+index f7f46c5..754c527 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py
+@@ -33,6 +33,17 @@ def sha(path: Path) -> str:
+     return hashlib.sha256(path.read_bytes()).hexdigest()
+ 
+ 
++def error_floor_status(row: dict[str, str]) -> tuple[str, float, float]:
++    """Return censoring status and one-sided 95% upper bounds for zero-error rows."""
++    frames = int(row["totalFrames"])
++    bits = int(row["totalPayloadBits"])
++    frame_errors = int(row["payloadErrorFrames"])
++    bit_errors = int(row["payloadErrorBits"])
++    if frame_errors == 0 and bit_errors == 0:
++        return "ZERO_OBSERVED_CENSORED", 3.0 / bits, 3.0 / frames
++    return "OBSERVED_ERRORS", bit_errors / bits, frame_errors / frames
++
++
+ def main() -> int:
+     stage = Path(__file__).resolve().parents[1]
+     results = stage / "results"
+@@ -133,9 +144,57 @@ def main() -> int:
+             for metric in METRICS:
+                 ordered = sorted(selected, key=lambda row: float(row[metric]))
+                 ranks[metric + "Ranking"] = ";".join(f"{rank + 1}:{row['caseId']}" for rank, row in enumerate(ordered))
++            ber_conservative = []
++            fer_conservative = []
++            for row in selected:
++                status, ber95, fer95 = error_floor_status(row)
++                ber_conservative.append((ber95, status, row["caseId"]))
++                fer_conservative.append((fer95, status, row["caseId"]))
++            ranks["berErrorFloorAwareRanking"] = ";".join(
++                f"{rank + 1}:{case_id}:{status}:upper={upper:.17g}"
++                for rank, (upper, status, case_id) in enumerate(sorted(ber_conservative))
++            )
++            ranks["ferErrorFloorAwareRanking"] = ";".join(
++                f"{rank + 1}:{case_id}:{status}:upper={upper:.17g}"
++                for rank, (upper, status, case_id) in enumerate(sorted(fer_conservative))
++            )
++            zero_cases = sorted(
++                row["caseId"] for row in selected
++                if row["payloadErrorBits"] == "0" and row["payloadErrorFrames"] == "0"
++            )
++            ranks["zeroObservedCensoredCases"] = ";".join(zero_cases) if zero_cases else "NONE"
++            ranks["errorFloorRankingNote"] = (
++                "zero-error cases are censored and not strictly ordered by observed zero"
++                if zero_cases else "all cases have observed errors"
++            )
+             ranking.append({"payloadLength": payload, "waveformSnrIndex": idx, "waveformSnrDb": snr, **ranks})
+     write(stage / f"{PREFIX}_pointwise_ranking.csv", ranking)
+ 
++    error_floor_rows = []
++    for row in rows:
++        status, ber95, fer95 = error_floor_status(row)
++        error_floor_rows.append({
++            "payloadLength": row["payloadLength"],
++            "caseId": row["caseId"],
++            "waveformSnrIndex": row["waveformSnrIndex"],
++            "waveformSnrDb": row["waveformSnrDb"],
++            "totalFrames": row["totalFrames"],
++            "totalPayloadBits": row["totalPayloadBits"],
++            "payloadErrorBits": row["payloadErrorBits"],
++            "payloadErrorFrames": row["payloadErrorFrames"],
++            "observedBer": row["ber"],
++            "observedFer": row["fer"],
++            "errorFloorCensoringStatus": status,
++            "berOneSided95Upper": f"{ber95:.17g}",
++            "ferOneSided95Upper": f"{fer95:.17g}",
++            "interpretation": (
++                "zero errors observed; treat as censored upper-bound evidence, not measured zero"
++                if status == "ZERO_OBSERVED_CENSORED"
++                else "errors observed; use measured rate with ordinary finite-sample uncertainty"
++            ),
++        })
++    write(stage / f"{PREFIX}_error_floor_analysis.csv", error_floor_rows)
++
+     crossings = []
+     for payload in (200, 300):
+         case_ids = sorted({row["caseId"] for row in rows if int(row["payloadLength"]) == payload})
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md
+index 57db198..5c90471 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md
+@@ -1,3 +1,3 @@
+ # Changed Files
+ 
+-新增 common-SNR Stage08 补充实验目录，包含 C++ runner、Python checker/plot/audit、冻结网格、正式结果、图像证据和审计文件。未修改 Stage07 与旧 Stage08 结果。
++新增 common-SNR Stage08 补充实验目录，包含 C++ runner、Python checker/plot/audit、冻结网格、正式结果、图像证据和审计文件。后续修正只调整高 SNR error-floor 后处理、排名和结论表达；未改写正式原始计数，未修改 Stage07 与旧 Stage08 结果。
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md
+index c017735..f619eef 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md
+@@ -1,21 +1,26 @@
+-﻿# stage08_multipath_formal_common_snr Conclusion
++# stage08_multipath_formal_common_snr Conclusion
+ 
+-鏈粨璁哄彧浣跨敤缁熶竴 `waveformSnrDb=0:0.5:18` 缃戞牸涓嬬殑鍚?SNR 妯悜姣旇緝锛涙棫 Stage08 鏍囪涓?`LEGACY_WIDE_GRID_FORMAL`锛屼笉浣滀负鏈€缁堟í鍚戞帓鍚嶄緷鎹€?
++本结论只使用统一 `waveformSnrDb=0:0.5:18` 网格下的同 SNR 横向比较；旧 Stage08 标记为 `LEGACY_WIDE_GRID_FORMAL`，不作为最终横向排名依据。
+ 
+-`miscorrectionFrames` 涓?`undetectedErrorFrames` 鍦ㄥ綋鍓嶈瘧鐮佹帴鍙ｈ涔変笅鏄悓涓€浜嬩欢闆嗗悎鐨勪袱涓涔夋爣绛撅紝涓嶆槸浜掓枼绫诲埆銆?
++Error-floor 处理规则：正式结果 CSV 中的 `ber=0` / `fer=0` 保持原始整数计数含义；在结论和高 SNR 排名中，零错误点标记为 `ZERO_OBSERVED_CENSORED`，只说明在当前帧数下未观测到错误，并使用单侧 95% 上界 `3/N` 给出可审查约束，不能当作真实 error floor 为 0。
++
++`miscorrectionFrames` 与 `undetectedErrorFrames` 在当前译码接口语义下是同一事件集合的两个语义标签，不是互斥类别。
+ 
+ ## 200 bit
+ 
+-- 浣?SNR BER 鏈€浼橈細K200_M511K421锛汧ER 鏈€浼橈細K200_S15銆?
+-- 涓?SNR BER 鏈€浼橈細K200_M511K385锛汧ER 鏈€浼橈細K200_M511K385銆?
+-- 楂?SNR BER 鏈€浼橈細K200_M255K207锛汧ER 鏈€浼橈細K200_M255K207銆?
+-- 鐮佺巼浼樺厛锛欿200_M255K207锛汢CH 璇戠爜鏃跺欢浼樺厛锛欿200_S15锛汳MSE 鍧囪　鏃跺欢浼樺厛锛欿200_S15銆?
+-- 涓嶅瓨鍦ㄨ劚绂?SNR 宸ヤ綔鍖洪棿鐨勫崟涓€缁濆鏈€浼樻柟妗堛€?
++- 低 SNR 观测 BER 最优：K200_M511K421；观测 FER 最优：K200_S15。
++- 中 SNR 观测 BER 最优：K200_M511K385；观测 FER 最优：K200_M511K385。
++- 高 SNR error-floor-aware BER 候选组：K200_M255K207;K200_M511K385;K200_M511K421，95% 上界约束 <= 3e-07。
++- 高 SNR error-floor-aware FER 候选组：K200_M255K207;K200_M511K385;K200_M511K421，95% 上界约束 <= 6e-05。
++- 码率优先：K200_M255K207；BCH 译码时延优先：K200_S15；MMSE 均衡时延优先：K200_S15。
++- 不存在脱离 SNR 工作区间和有限样本 censoring 的单一绝对最优方案。
+ 
+ ## 300 bit
+ 
+-- 浣?SNR BER 鏈€浼橈細K300_M255K207锛汧ER 鏈€浼橈細K300_S15銆?
+-- 涓?SNR BER 鏈€浼橈細K300_M511K385锛汧ER 鏈€浼橈細K300_M511K385銆?
+-- 楂?SNR BER 鏈€浼橈細K300_M255K207锛汧ER 鏈€浼橈細K300_M255K207銆?
+-- 鐮佺巼浼樺厛锛欿300_M511K421锛汢CH 璇戠爜鏃跺欢浼樺厛锛欿300_S15锛汳MSE 鍧囪　鏃跺欢浼樺厛锛欿300_M255K207銆?
+-- 涓嶅瓨鍦ㄨ劚绂?SNR 宸ヤ綔鍖洪棿鐨勫崟涓€缁濆鏈€浼樻柟妗堛€?
++- 低 SNR 观测 BER 最优：K300_M255K207；观测 FER 最优：K300_S15。
++- 中 SNR 观测 BER 最优：K300_M511K385；观测 FER 最优：K300_M511K385。
++- 高 SNR error-floor-aware BER 候选组：K300_M255K207;K300_M511K385;K300_M511K421，95% 上界约束 <= 2e-07。
++- 高 SNR error-floor-aware FER 候选组：K300_M255K207;K300_M511K385;K300_M511K421，95% 上界约束 <= 6e-05。
++- 码率优先：K300_M511K421；BCH 译码时延优先：K300_S15；MMSE 均衡时延优先：K300_M255K207。
++- 不存在脱离 SNR 工作区间和有限样本 censoring 的单一绝对最优方案。
++
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json
+index d467242..39884c1 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json
+@@ -38,36 +38,40 @@
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/plots/stage08_multipath_common_snr_k300_fer_figure_data.csv": "cf36d18a948217d2ce7f690c4d3978b389f68e06b0e6831a315aae76bf47644a",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/plots/stage08_multipath_common_snr_k300_fer_plot_check.log": "bae4f6b0adba993d6027c23cfe5a4efd28e6aadcbe4c7bafeb2049ab2ba7bb47",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/plots/stage08_multipath_common_snr_k300_fer_plot_manifest.json": "627aa80617ee81b31005d1ae27429eb698a904e7577c9ddcf2871235a0a2459f",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py": "00403a4c65a2d90228445d0cfab4ebcca1fdcc3c6df7b85d419a98574f28658e",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py": "d996309344b12cd7e636741965c21e1e05a249a07f01ef971a7f02fd2aea39e5",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/__pycache__/stage08_multipath_formal_common_snr_check.cpython-311.pyc": "3da7a74e8efbde8a27d4cc1fc98b61a816aba1329dbf4f8770384dc3613c1dc1",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/__pycache__/stage08_multipath_formal_common_snr_process.cpython-311.pyc": "dbd62dd4a08ea283dc3e48822607056c355f9b9466c02fd15bc3659bb9e2abc7",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py": "a3395a07d929316dd9ba73db665e37d5746e68e2b026a18d74dfe08265a2d0a9",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py": "9760deeb7323eb3a57406719c5cfccdcdb53355408a4a338eb961007a20e32aa",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_plot.py": "642f31a129477bba2784758bf028dba82ecd7ebadd94a9598037a6d8ca1466d0",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_plot_check.py": "0165a8d4e912694007506795ac7a7af852341072850fbe69e2239aea83ba14e6",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_prepare.py": "8c3dd22f035bf1dbaf786cf4bb8a7644ab321c3db65ce73de8931e52fa82fb51",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py": "453ef0e14c80504bbef5d74895859bfa098d6373760b19f649a1e5abd1592eb5",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py": "e565f15258b6e04d47020c4c78dc7d3635a9107bd59c59b09fcf0658e5481e9d",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/results/stage08_multipath_formal_common_snr_results.csv": "5eb7ec83049534d8a7337059711a8b91c665d11ad2f94a3c3e3b3c2747b309d7",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/results/stage08_multipath_formal_common_snr_shard_0.csv": "b54af587dcbfeaa552401426f853c857e6e764fce2e16ecad782c23d446bf733",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/results/stage08_multipath_formal_common_snr_shard_1.csv": "f7ec46c7b8bbaae95be34030eae198fbc8183da42f0ae0d699d1b83748a08dfd",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_acceptance_matrix.csv": "d81c1c1fb202019a8df0a2047ce7dbc5aadcd69e05e6763ac76eb34af3bbc002",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md": "44178b3237c9a0c76f36051bc29e4c5d36d888d59b74c91848d10fe7bdebb25d",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md": "a8759390ee1b56d87d722e08e86a8263cc1c1b3d1843e1ca12a352d852398015",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changes.patch": "57e27795152c4c13abd80f29861fbe3f94c141fb89fa2c4194a3aef0a4a721a8",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_checkpoint_manifest.json": "bd2ece77a6d17a5043fbbdea26416fd716e32a9fa348b13068b9ad2d80c61fa1",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_commands_used.md": "449dd02e73a942b5005f10c78e0f0e26d48967e533ad937eadc56b15b24a0aa4",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md": "6827a98cbae5d6b0e7e87a6702e8fc4e630bbec8180f0c8f86f70febdc43b22f",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md": "cd7a751a39c8bc93458f2597929191586db8ecdf90953a49a67d90e6da5d3eca",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_config.json": "bc8c55a2713d7a06ebaa8a6edd34813874918e3535ac4c23c9bae7aba7755784",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_curve_crossing_analysis.csv": "015e3a7371187c593efed712ea17356f39a3ea02cff49c2274c98cf07185ed9a",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json": "115d1369e3f37395e28ff6206a6fbf5e4874aa8220e6aac669ae4232a9cf7b71",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_error_floor_analysis.csv": "9d8409935555d2ba7777de93d204a574fb39781af9d0c08b39d9e5797ddde60e",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json": "f179a488327b35db7b0fa499d72735bc026bb05371c1631efe3019d61fec6ec4",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_frozen_grid.csv": "afc458d636fa78969d88d4937e98b24bafed88d360802368aa304f22c5b8a1c2",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_git_commit.txt": "8ab19d69497e01b0b2d9339340b9188ff70bf339a6ab5afda806b15b91cde9f5",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_git_commit.txt": "208a784baede4a2823462c7e4534f82f329d027ebe6a7fed565474acaa81cf91",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_k200_summary.csv": "1b40a3651d0bf634afd27aaea8ad14beda039fa8436c085a5832bcec1d6f79ca",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_k300_summary.csv": "d13621d270dd729fac47a03a104a800bedd6e19a1df5bb5b74ef5f5267c93778",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md": "703eb0971827011dbe91c7f42853b283ab2e6a7ebcece2b70f001e44d58bb6ce",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json": "82928e25127603335076d691afc81669ca2331a7bddd22e263005c9c585ae1c2",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md": "62a1cf9bd3f82b87e2b54420c7e16d671bf2c7eb7e4663c445456d44836df452",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json": "7200abda1330981a0e7e2923923d4bebe2697c3845668ea1e273ffd77792724f",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_merge_audit.csv": "53ce080471fb7701b9a06ca9034e41b1956d96966d68a9bdbbdcdab34a5b048b",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_plot_manifest.json": "dd61b4989efcb76d342aa87505f97de7cf3d1a398fa8bebabbfb8fdee1d3ec7b",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv": "128e86241fcf4cf4a1cacc1bf2793f386e4cd82fb4896c726c456cc03406f435",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv": "97e4a57208dbb3b65ef9e21a25565fd1ed0db2d20a1fbcc488c248b07b611f55",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_runtime_summary.csv": "65775579770266324df9c9e3516cee74d2f9fd967a5e2bee105a8a2229ea082f",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_shard_manifest.json": "57482379dee2c04bf7dd1e3d7777119e19c23078a3bbe038c5e51fa4f729f5b1",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_stage_plan.md": "af48e5c83688a73c126a18d0c34a106c6f98da7c76c1720040011751d01055b0",
+   "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_summary.csv": "e8f6151e480353340d4030d087682fc466c78872f6bcc5162a251e1d368b0858",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv": "1614e9eb33775aeaf51a941109748b76e9eba4fef51891d6ac23552a0d33fb2f",
+-  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md": "acdd558fdae567a8e3af22dcb602f0847f4c97e08ab5e1d29e1aea5f7f3b3b53"
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv": "24451176258a93479cee7748ee5abbc8ee09e8251e778d36209f5050482bf395",
++  "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md": "ffa471671ef8f1d5102c7b3c04411b9eb191ed9aad70c3241a675c85a71f8e83"
+ }
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md
+index ff4971e..4c69c98 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md
+@@ -1,6 +1,8 @@
+ # Known Issues
+ 
+-- 零 BER/FER 点表示在有限帧数内未观测到错误，不等于真实错误率为零；对数图仅使用 0.5/count surrogate 显示。
+-- 时延统计受本机调度和缓存波动影响，适合作同一批次内相对比较。
++- 高 SNR 零错误点是右删失/上界证据：有限帧数内未观测到错误，不等于真实 BER/FER 或 error floor 为 0。
++- 对数图仅使用 `0.5/count` surrogate 显示零错误点；正式 CSV 的原始 `ber=0`、`fer=0` 未被改写。
++- 高 SNR 多个零错误方案在当前 `50000` 帧上限下不能严格排序；结论改用 `3/N` 单侧 95% 上界和候选组表述。
++- 时延统计受本机调度和缓存波动影响，适合同一批次内相对比较。
+ - `miscorrectionFrames` 与 `undetectedErrorFrames` 是当前接口下同一事件集合的语义别名。
+ - 本分支尚未合并 `main`，mergeStatus 保持 `NOT_MERGED`。
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json
+index ecab5e2..a4ddd27 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json
+@@ -2,7 +2,7 @@
+   "stage": "stage08_multipath_formal_common_snr",
+   "branch": "stage07-08-bch-s2-multipath",
+   "baseCommit": "069373b02401ad0acc10d96eb4e63bad8763c64c",
+-  "currentHeadAtAuditGeneration": "56ade6b92d0728b8d7c48fc69bfc439e9d09d759",
++  "currentHeadAtAuditGeneration": "a4eeabf2140057cab3aabde3c8330f82ee60d3fe",
+   "formalRunGitCommit": "a251a4f1d4cfb87fd01e99da592a8ae9a9bfe790",
+   "formalConfigHash": "BC8C55A2713D7A06EBAA8A6EDD34813874918E3535AC4C23C9BAE7ABA7755784",
+   "formalPointCount": 296,
+@@ -14,10 +14,16 @@
+     "gridType": "BASE_0P5DB",
+     "refinement": "NO_REFINEMENT"
+   },
++  "errorFloorHandling": {
++    "zeroErrorStatus": "ZERO_OBSERVED_CENSORED",
++    "upperBoundRule": "one-sided 95% upper bound ~= 3/N",
++    "rawCsvPolicy": "preserve observed integer counts and raw ber/fer"
++  },
+   "gates": [
+     "PASS_STAGE08_COMMON_SNR_RESULTS_CHECK",
+     "PASS_STAGE08_COMMON_SNR_PLOT_CHECK",
+-    "PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON"
++    "PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON",
++    "PASS_ZERO_ERROR_CENSORING_WITH_3_OVER_N_UPPER_BOUND"
+   ],
+   "legacyStage08Label": "LEGACY_WIDE_GRID_FORMAL",
+   "mergeStatus": "NOT_MERGED",
+@@ -61,37 +67,41 @@
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/plots/stage08_multipath_common_snr_k300_fer_figure_data.csv": "cf36d18a948217d2ce7f690c4d3978b389f68e06b0e6831a315aae76bf47644a",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/plots/stage08_multipath_common_snr_k300_fer_plot_check.log": "bae4f6b0adba993d6027c23cfe5a4efd28e6aadcbe4c7bafeb2049ab2ba7bb47",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/plots/stage08_multipath_common_snr_k300_fer_plot_manifest.json": "627aa80617ee81b31005d1ae27429eb698a904e7577c9ddcf2871235a0a2459f",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py": "00403a4c65a2d90228445d0cfab4ebcca1fdcc3c6df7b85d419a98574f28658e",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py": "d996309344b12cd7e636741965c21e1e05a249a07f01ef971a7f02fd2aea39e5",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/__pycache__/stage08_multipath_formal_common_snr_check.cpython-311.pyc": "3da7a74e8efbde8a27d4cc1fc98b61a816aba1329dbf4f8770384dc3613c1dc1",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/__pycache__/stage08_multipath_formal_common_snr_process.cpython-311.pyc": "dbd62dd4a08ea283dc3e48822607056c355f9b9466c02fd15bc3659bb9e2abc7",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_check.py": "a3395a07d929316dd9ba73db665e37d5746e68e2b026a18d74dfe08265a2d0a9",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_finalize_audit.py": "9760deeb7323eb3a57406719c5cfccdcdb53355408a4a338eb961007a20e32aa",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_plot.py": "642f31a129477bba2784758bf028dba82ecd7ebadd94a9598037a6d8ca1466d0",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_plot_check.py": "0165a8d4e912694007506795ac7a7af852341072850fbe69e2239aea83ba14e6",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_prepare.py": "8c3dd22f035bf1dbaf786cf4bb8a7644ab321c3db65ce73de8931e52fa82fb51",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py": "453ef0e14c80504bbef5d74895859bfa098d6373760b19f649a1e5abd1592eb5",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/python/stage08_multipath_formal_common_snr_process.py": "e565f15258b6e04d47020c4c78dc7d3635a9107bd59c59b09fcf0658e5481e9d",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/results/stage08_multipath_formal_common_snr_results.csv": "5eb7ec83049534d8a7337059711a8b91c665d11ad2f94a3c3e3b3c2747b309d7",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/results/stage08_multipath_formal_common_snr_shard_0.csv": "b54af587dcbfeaa552401426f853c857e6e764fce2e16ecad782c23d446bf733",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/results/stage08_multipath_formal_common_snr_shard_1.csv": "f7ec46c7b8bbaae95be34030eae198fbc8183da42f0ae0d699d1b83748a08dfd",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_acceptance_matrix.csv": "d81c1c1fb202019a8df0a2047ce7dbc5aadcd69e05e6763ac76eb34af3bbc002",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md": "44178b3237c9a0c76f36051bc29e4c5d36d888d59b74c91848d10fe7bdebb25d",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changed_files.md": "a8759390ee1b56d87d722e08e86a8263cc1c1b3d1843e1ca12a352d852398015",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_changes.patch": "57e27795152c4c13abd80f29861fbe3f94c141fb89fa2c4194a3aef0a4a721a8",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_checkpoint_manifest.json": "bd2ece77a6d17a5043fbbdea26416fd716e32a9fa348b13068b9ad2d80c61fa1",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_commands_used.md": "449dd02e73a942b5005f10c78e0f0e26d48967e533ad937eadc56b15b24a0aa4",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md": "6827a98cbae5d6b0e7e87a6702e8fc4e630bbec8180f0c8f86f70febdc43b22f",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_conclusion.md": "cd7a751a39c8bc93458f2597929191586db8ecdf90953a49a67d90e6da5d3eca",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_config.json": "bc8c55a2713d7a06ebaa8a6edd34813874918e3535ac4c23c9bae7aba7755784",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_curve_crossing_analysis.csv": "015e3a7371187c593efed712ea17356f39a3ea02cff49c2274c98cf07185ed9a",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json": "115d1369e3f37395e28ff6206a6fbf5e4874aa8220e6aac669ae4232a9cf7b71",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_error_floor_analysis.csv": "9d8409935555d2ba7777de93d204a574fb39781af9d0c08b39d9e5797ddde60e",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json": "f179a488327b35db7b0fa499d72735bc026bb05371c1631efe3019d61fec6ec4",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_frozen_grid.csv": "afc458d636fa78969d88d4937e98b24bafed88d360802368aa304f22c5b8a1c2",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_git_commit.txt": "8ab19d69497e01b0b2d9339340b9188ff70bf339a6ab5afda806b15b91cde9f5",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_git_commit.txt": "208a784baede4a2823462c7e4534f82f329d027ebe6a7fed565474acaa81cf91",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_k200_summary.csv": "1b40a3651d0bf634afd27aaea8ad14beda039fa8436c085a5832bcec1d6f79ca",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_k300_summary.csv": "d13621d270dd729fac47a03a104a800bedd6e19a1df5bb5b74ef5f5267c93778",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md": "703eb0971827011dbe91c7f42853b283ab2e6a7ebcece2b70f001e44d58bb6ce",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json": "82928e25127603335076d691afc81669ca2331a7bddd22e263005c9c585ae1c2",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_known_issues.md": "62a1cf9bd3f82b87e2b54420c7e16d671bf2c7eb7e4663c445456d44836df452",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json": "7200abda1330981a0e7e2923923d4bebe2697c3845668ea1e273ffd77792724f",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_merge_audit.csv": "53ce080471fb7701b9a06ca9034e41b1956d96966d68a9bdbbdcdab34a5b048b",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_plot_manifest.json": "dd61b4989efcb76d342aa87505f97de7cf3d1a398fa8bebabbfb8fdee1d3ec7b",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv": "128e86241fcf4cf4a1cacc1bf2793f386e4cd82fb4896c726c456cc03406f435",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv": "97e4a57208dbb3b65ef9e21a25565fd1ed0db2d20a1fbcc488c248b07b611f55",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_runtime_summary.csv": "65775579770266324df9c9e3516cee74d2f9fd967a5e2bee105a8a2229ea082f",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_shard_manifest.json": "57482379dee2c04bf7dd1e3d7777119e19c23078a3bbe038c5e51fa4f729f5b1",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_stage_plan.md": "af48e5c83688a73c126a18d0c34a106c6f98da7c76c1720040011751d01055b0",
+     "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_summary.csv": "e8f6151e480353340d4030d087682fc466c78872f6bcc5162a251e1d368b0858",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv": "1614e9eb33775aeaf51a941109748b76e9eba4fef51891d6ac23552a0d33fb2f",
+-    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md": "acdd558fdae567a8e3af22dcb602f0847f4c97e08ab5e1d29e1aea5f7f3b3b53"
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv": "24451176258a93479cee7748ee5abbc8ee09e8251e778d36209f5050482bf395",
++    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md": "ffa471671ef8f1d5102c7b3c04411b9eb191ed9aad70c3241a675c85a71f8e83"
+   }
+ }
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv
+index 1cd0333..cd4e777 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_pointwise_ranking.csv
+@@ -1,75 +1,75 @@
+-payloadLength,waveformSnrIndex,waveformSnrDb,berRanking,ferRanking,decoderFailureRateRanking,miscorrectionRateRanking,decodeTimeMeanNsRanking,equalizeTimeMeanNsRanking
+-200,0,0,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207
+-200,1,0.5,1:K200_M511K385;2:K200_M255K207;3:K200_M511K421;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K385;4:K200_M511K421,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207
+-200,2,1,1:K200_M511K421;2:K200_M255K207;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,3,1.5,1:K200_M255K207;2:K200_M511K385;3:K200_M511K421;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207
+-200,4,2,1:K200_M511K421;2:K200_M255K207;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,5,2.5,1:K200_M511K421;2:K200_M255K207;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K385;4:K200_M511K421
+-200,6,3,1:K200_M511K385;2:K200_M255K207;3:K200_M511K421;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,7,3.5,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,8,4,1:K200_M511K421;2:K200_M511K385;3:K200_S15;4:K200_M255K207,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385
+-200,9,4.5,1:K200_S15;2:K200_M511K385;3:K200_M255K207;4:K200_M511K421,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,10,5,1:K200_S15;2:K200_M511K385;3:K200_M255K207;4:K200_M511K421,1:K200_M511K385;2:K200_M511K421;3:K200_S15;4:K200_M255K207,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,11,5.5,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,12,6,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,13,6.5,1:K200_M511K385;2:K200_S15;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,14,7,1:K200_M511K385;2:K200_S15;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,15,7.5,1:K200_M511K385;2:K200_M511K421;3:K200_S15;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,16,8,1:K200_M511K385;2:K200_M511K421;3:K200_S15;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,17,8.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_S15;4:K200_M511K385
+-200,18,9,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K385;4:K200_M511K421,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421
+-200,19,9.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15
+-200,20,10,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K385;3:K200_M511K421;4:K200_S15
+-200,21,10.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,22,11,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,23,11.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,24,12,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421
+-200,25,12.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,26,13,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385
+-200,27,13.5,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385
+-200,28,14,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385
+-200,29,14.5,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,30,15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M255K207;3:K200_S15;4:K200_M511K385
+-200,31,15.5,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,32,16,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385
+-200,33,16.5,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421
+-200,34,17,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421
+-200,35,17.5,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385
+-200,36,18,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385
+-300,0,0,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385
+-300,1,0.5,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421
+-300,2,1,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_S15;3:K300_M511K421;4:K300_M511K385
+-300,3,1.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421
+-300,4,2,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385
+-300,5,2.5,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15
+-300,6,3,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421
+-300,7,3.5,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M511K385;2:K300_S15;3:K300_M511K421;4:K300_M255K207
+-300,8,4,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_S15;3:K300_M511K385;4:K300_M511K421
+-300,9,4.5,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M511K385;2:K300_S15;3:K300_M255K207;4:K300_M511K421,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_S15;3:K300_M511K421;4:K300_M255K207
+-300,10,5,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421
+-300,11,5.5,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421
+-300,12,6,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_S15;3:K300_M255K207;4:K300_M511K385
+-300,13,6.5,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_S15;3:K300_M511K385;4:K300_M255K207
+-300,14,7,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15
+-300,15,7.5,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15
+-300,16,8,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15
+-300,17,8.5,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15
+-300,18,9,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15
+-300,19,9.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15
+-300,20,10,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M511K385;2:K300_M511K421;3:K300_S15;4:K300_M255K207
+-300,21,10.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_S15;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15
+-300,22,11,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15
+-300,23,11.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15
+-300,24,12,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_S15;3:K300_M511K385;4:K300_M511K421
+-300,25,12.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421
+-300,26,13,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15
+-300,27,13.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385
+-300,28,14,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15
+-300,29,14.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_S15;3:K300_M511K385;4:K300_M255K207
+-300,30,15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15
+-300,31,15.5,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15
+-300,32,16,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385
+-300,33,16.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385
+-300,34,17,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385
+-300,35,17.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M511K385;3:K300_S15;4:K300_M255K207
+-300,36,18,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15
++payloadLength,waveformSnrIndex,waveformSnrDb,berRanking,ferRanking,decoderFailureRateRanking,miscorrectionRateRanking,decodeTimeMeanNsRanking,equalizeTimeMeanNsRanking,berErrorFloorAwareRanking,ferErrorFloorAwareRanking,zeroObservedCensoredCases,errorFloorRankingNote
++200,0,0,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M511K421:OBSERVED_ERRORS:upper=0.18684000000000001;2:K200_M511K385:OBSERVED_ERRORS:upper=0.18719;3:K200_M255K207:OBSERVED_ERRORS:upper=0.18831000000000001;4:K200_S15:OBSERVED_ERRORS:upper=0.21326673326673326,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,1,0.5,1:K200_M511K385;2:K200_M255K207;3:K200_M511K421;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K385;4:K200_M511K421,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385:OBSERVED_ERRORS:upper=0.17500499999999999;2:K200_M255K207:OBSERVED_ERRORS:upper=0.176315;3:K200_M511K421:OBSERVED_ERRORS:upper=0.17715;4:K200_S15:OBSERVED_ERRORS:upper=0.19997500000000001,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,2,1,1:K200_M511K421;2:K200_M255K207;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421:OBSERVED_ERRORS:upper=0.16281999999999999;2:K200_M255K207:OBSERVED_ERRORS:upper=0.162995;3:K200_M511K385:OBSERVED_ERRORS:upper=0.16306000000000001;4:K200_S15:OBSERVED_ERRORS:upper=0.18620500000000001,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,3,1.5,1:K200_M255K207;2:K200_M511K385;3:K200_M511K421;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207:OBSERVED_ERRORS:upper=0.15182499999999999;2:K200_M511K385:OBSERVED_ERRORS:upper=0.15203;3:K200_M511K421:OBSERVED_ERRORS:upper=0.15238499999999999;4:K200_S15:OBSERVED_ERRORS:upper=0.17136000000000001,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,4,2,1:K200_M511K421;2:K200_M255K207;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421:OBSERVED_ERRORS:upper=0.14042499999999999;2:K200_M255K207:OBSERVED_ERRORS:upper=0.14136000000000001;3:K200_M511K385:OBSERVED_ERRORS:upper=0.14185500000000001;4:K200_S15:OBSERVED_ERRORS:upper=0.157085,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,5,2.5,1:K200_M511K421;2:K200_M255K207;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K385;4:K200_M511K421,1:K200_M511K421:OBSERVED_ERRORS:upper=0.12759000000000001;2:K200_M255K207:OBSERVED_ERRORS:upper=0.12842000000000001;3:K200_M511K385:OBSERVED_ERRORS:upper=0.12925500000000001;4:K200_S15:OBSERVED_ERRORS:upper=0.14080500000000001,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,6,3,1:K200_M511K385;2:K200_M255K207;3:K200_M511K421;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=0.116475;2:K200_M255K207:OBSERVED_ERRORS:upper=0.11700000000000001;3:K200_M511K421:OBSERVED_ERRORS:upper=0.11823500000000001;4:K200_S15:OBSERVED_ERRORS:upper=0.12626999999999999,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,7,3.5,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421:OBSERVED_ERRORS:upper=0.105265;2:K200_M511K385:OBSERVED_ERRORS:upper=0.10586;3:K200_M255K207:OBSERVED_ERRORS:upper=0.10625999999999999;4:K200_S15:OBSERVED_ERRORS:upper=0.113525,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,8,4,1:K200_M511K421;2:K200_M511K385;3:K200_S15;4:K200_M255K207,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_M511K421:OBSERVED_ERRORS:upper=0.093780000000000002;2:K200_M511K385:OBSERVED_ERRORS:upper=0.094320000000000001;3:K200_S15:OBSERVED_ERRORS:upper=0.095469999999999999;4:K200_M255K207:OBSERVED_ERRORS:upper=0.096104999999999996,1:K200_M255K207:OBSERVED_ERRORS:upper=1;2:K200_M511K385:OBSERVED_ERRORS:upper=1;3:K200_M511K421:OBSERVED_ERRORS:upper=1;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,9,4.5,1:K200_S15;2:K200_M511K385;3:K200_M255K207;4:K200_M511K421,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_S15:OBSERVED_ERRORS:upper=0.082729999999999998;2:K200_M511K385:OBSERVED_ERRORS:upper=0.084879999999999997;3:K200_M255K207:OBSERVED_ERRORS:upper=0.084940000000000002;4:K200_M511K421:OBSERVED_ERRORS:upper=0.085059999999999997,1:K200_M511K385:OBSERVED_ERRORS:upper=0.997;2:K200_M511K421:OBSERVED_ERRORS:upper=0.997;3:K200_M255K207:OBSERVED_ERRORS:upper=0.999;4:K200_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++200,10,5,1:K200_S15;2:K200_M511K385;3:K200_M255K207;4:K200_M511K421,1:K200_M511K385;2:K200_M511K421;3:K200_S15;4:K200_M255K207,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15:OBSERVED_ERRORS:upper=0.069419999999999996;2:K200_M511K385:OBSERVED_ERRORS:upper=0.07442;3:K200_M255K207:OBSERVED_ERRORS:upper=0.075005000000000002;4:K200_M511K421:OBSERVED_ERRORS:upper=0.075234999999999996,1:K200_M511K385:OBSERVED_ERRORS:upper=0.98299999999999998;2:K200_M511K421:OBSERVED_ERRORS:upper=0.98999999999999999;3:K200_S15:OBSERVED_ERRORS:upper=0.998;4:K200_M255K207:OBSERVED_ERRORS:upper=0.999,NONE,all cases have observed errors
++200,11,5.5,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_S15:OBSERVED_ERRORS:upper=0.058520000000000003;2:K200_M511K385:OBSERVED_ERRORS:upper=0.064034999999999995;3:K200_M511K421:OBSERVED_ERRORS:upper=0.065665000000000001;4:K200_M255K207:OBSERVED_ERRORS:upper=0.066345000000000001,1:K200_M511K385:OBSERVED_ERRORS:upper=0.92400000000000004;2:K200_M511K421:OBSERVED_ERRORS:upper=0.98199999999999998;3:K200_M255K207:OBSERVED_ERRORS:upper=0.995;4:K200_S15:OBSERVED_ERRORS:upper=0.997,NONE,all cases have observed errors
++200,12,6,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_S15:OBSERVED_ERRORS:upper=0.047980000000000002;2:K200_M511K385:OBSERVED_ERRORS:upper=0.051374999999999997;3:K200_M511K421:OBSERVED_ERRORS:upper=0.055910000000000001;4:K200_M255K207:OBSERVED_ERRORS:upper=0.057619999999999998,1:K200_M511K385:OBSERVED_ERRORS:upper=0.82299999999999995;2:K200_M511K421:OBSERVED_ERRORS:upper=0.92800000000000005;3:K200_M255K207:OBSERVED_ERRORS:upper=0.98199999999999998;4:K200_S15:OBSERVED_ERRORS:upper=0.98299999999999998,NONE,all cases have observed errors
++200,13,6.5,1:K200_M511K385;2:K200_S15;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=0.037065000000000001;2:K200_S15:OBSERVED_ERRORS:upper=0.039390000000000001;3:K200_M511K421:OBSERVED_ERRORS:upper=0.044534999999999998;4:K200_M255K207:OBSERVED_ERRORS:upper=0.047809999999999998,1:K200_M511K385:OBSERVED_ERRORS:upper=0.63900000000000001;2:K200_M511K421:OBSERVED_ERRORS:upper=0.82199999999999995;3:K200_M255K207:OBSERVED_ERRORS:upper=0.93400000000000005;4:K200_S15:OBSERVED_ERRORS:upper=0.96899999999999997,NONE,all cases have observed errors
++200,14,7,1:K200_M511K385;2:K200_S15;3:K200_M511K421;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=0.022114999999999999;2:K200_S15:OBSERVED_ERRORS:upper=0.03159;3:K200_M511K421:OBSERVED_ERRORS:upper=0.033529999999999997;4:K200_M255K207:OBSERVED_ERRORS:upper=0.040314999999999997,1:K200_M511K385:OBSERVED_ERRORS:upper=0.41499999999999998;2:K200_M511K421:OBSERVED_ERRORS:upper=0.67900000000000005;3:K200_M255K207:OBSERVED_ERRORS:upper=0.86799999999999999;4:K200_S15:OBSERVED_ERRORS:upper=0.94799999999999995,NONE,all cases have observed errors
++200,15,7.5,1:K200_M511K385;2:K200_M511K421;3:K200_S15;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=0.010975;2:K200_M511K421:OBSERVED_ERRORS:upper=0.023085000000000001;3:K200_S15:OBSERVED_ERRORS:upper=0.024805000000000001;4:K200_M255K207:OBSERVED_ERRORS:upper=0.030904999999999998,1:K200_M511K385:OBSERVED_ERRORS:upper=0.20699999999999999;2:K200_M511K421:OBSERVED_ERRORS:upper=0.47299999999999998;3:K200_M255K207:OBSERVED_ERRORS:upper=0.74199999999999999;4:K200_S15:OBSERVED_ERRORS:upper=0.87,NONE,all cases have observed errors
++200,16,8,1:K200_M511K385;2:K200_M511K421;3:K200_S15;4:K200_M255K207,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=0.0052376188094047024;2:K200_M511K421:OBSERVED_ERRORS:upper=0.013065;3:K200_S15:OBSERVED_ERRORS:upper=0.018180000000000002;4:K200_M255K207:OBSERVED_ERRORS:upper=0.022485000000000002,1:K200_M511K385:OBSERVED_ERRORS:upper=0.10005002501250625;2:K200_M511K421:OBSERVED_ERRORS:upper=0.29099999999999998;3:K200_M255K207:OBSERVED_ERRORS:upper=0.59299999999999997;4:K200_S15:OBSERVED_ERRORS:upper=0.77800000000000002,NONE,all cases have observed errors
++200,17,8.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_S15;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=0.0017431192660550458;2:K200_M511K421:OBSERVED_ERRORS:upper=0.0054406130268199234;3:K200_M255K207:OBSERVED_ERRORS:upper=0.01366;4:K200_S15:OBSERVED_ERRORS:upper=0.015285,1:K200_M511K385:OBSERVED_ERRORS:upper=0.035977693829825505;2:K200_M511K421:OBSERVED_ERRORS:upper=0.1277139208173691;3:K200_M255K207:OBSERVED_ERRORS:upper=0.372;4:K200_S15:OBSERVED_ERRORS:upper=0.74299999999999999,NONE,all cases have observed errors
++200,18,9,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K385;4:K200_M511K421,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421,1:K200_M511K385:OBSERVED_ERRORS:upper=0.00064283902067740703;2:K200_M511K421:OBSERVED_ERRORS:upper=0.0024202516827626572;3:K200_M255K207:OBSERVED_ERRORS:upper=0.0074000000000000003;4:K200_S15:OBSERVED_ERRORS:upper=0.01166,1:K200_M511K385:OBSERVED_ERRORS:upper=0.012685525815045033;2:K200_M511K421:OBSERVED_ERRORS:upper=0.058530875036581796;3:K200_M255K207:OBSERVED_ERRORS:upper=0.21299999999999999;4:K200_S15:OBSERVED_ERRORS:upper=0.629,NONE,all cases have observed errors
++200,19,9.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M511K385:OBSERVED_ERRORS:upper=0.00015540000000000001;2:K200_M511K421:OBSERVED_ERRORS:upper=0.00090640008935552333;3:K200_M255K207:OBSERVED_ERRORS:upper=0.0044614361702127658;4:K200_S15:OBSERVED_ERRORS:upper=0.0080850000000000002,1:K200_M511K385:OBSERVED_ERRORS:upper=0.0032000000000000002;2:K200_M511K421:OBSERVED_ERRORS:upper=0.022338880822070813;3:K200_M255K207:OBSERVED_ERRORS:upper=0.13297872340425532;4:K200_S15:OBSERVED_ERRORS:upper=0.496,NONE,all cases have observed errors
++200,20,10,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K385;3:K200_M511K421;4:K200_S15,1:K200_M511K385:OBSERVED_ERRORS:upper=3.8800000000000001e-05;2:K200_M511K421:OBSERVED_ERRORS:upper=0.00032084188911704311;3:K200_M255K207:OBSERVED_ERRORS:upper=0.0022226062910473557;4:K200_S15:OBSERVED_ERRORS:upper=0.0063899999999999998,1:K200_M511K385:OBSERVED_ERRORS:upper=0.00076000000000000004;2:K200_M511K421:OBSERVED_ERRORS:upper=0.0078976465013426006;3:K200_M255K207:OBSERVED_ERRORS:upper=0.069132388524023508;4:K200_S15:OBSERVED_ERRORS:upper=0.40999999999999998,NONE,all cases have observed errors
++200,21,10.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=1.17e-05;2:K200_M511K421:OBSERVED_ERRORS:upper=0.0001103;3:K200_M255K207:OBSERVED_ERRORS:upper=0.0010676567656765677;4:K200_S15:OBSERVED_ERRORS:upper=0.0041250000000000002,1:K200_M511K385:OBSERVED_ERRORS:upper=0.00024000000000000001;2:K200_M511K421:OBSERVED_ERRORS:upper=0.0025799999999999998;3:K200_M255K207:OBSERVED_ERRORS:upper=0.033003300330033;4:K200_S15:OBSERVED_ERRORS:upper=0.29499999999999998,NONE,all cases have observed errors
++200,22,11,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:OBSERVED_ERRORS:upper=3.3000000000000002e-06;2:K200_M511K421:OBSERVED_ERRORS:upper=3.79e-05;3:K200_M255K207:OBSERVED_ERRORS:upper=0.00037725090036014406;4:K200_S15:OBSERVED_ERRORS:upper=0.0031250000000000002,1:K200_M511K385:OBSERVED_ERRORS:upper=6.0000000000000002e-05;2:K200_M511K421:OBSERVED_ERRORS:upper=0.00093999999999999997;3:K200_M255K207:OBSERVED_ERRORS:upper=0.012004801920768308;4:K200_S15:OBSERVED_ERRORS:upper=0.22600000000000001,NONE,all cases have observed errors
++200,23,11.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:OBSERVED_ERRORS:upper=1.03e-05;3:K200_M255K207:OBSERVED_ERRORS:upper=0.00017034509329076999;4:K200_S15:OBSERVED_ERRORS:upper=0.0024483082706766917,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K421:OBSERVED_ERRORS:upper=0.00027999999999999998;3:K200_M255K207:OBSERVED_ERRORS:upper=0.0055038802355660736;4:K200_S15:OBSERVED_ERRORS:upper=0.18796992481203006,K200_M511K385,zero-error cases are censored and not strictly ordered by observed zero
++200,24,12,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:OBSERVED_ERRORS:upper=7.9999999999999996e-07;3:K200_M255K207:OBSERVED_ERRORS:upper=7.5099999999999996e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.0016644385026737968,1:K200_M511K421:OBSERVED_ERRORS:upper=4.0000000000000003e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M255K207:OBSERVED_ERRORS:upper=0.0022599999999999999;4:K200_S15:OBSERVED_ERRORS:upper=0.13368983957219252,K200_M511K385,zero-error cases are censored and not strictly ordered by observed zero
++200,25,12.5,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_M511K385;2:K200_M511K421;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K385;3:K200_M511K421;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:OBSERVED_ERRORS:upper=2.5000000000000002e-06;3:K200_M255K207:OBSERVED_ERRORS:upper=2.51e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.0013333333333333333,1:K200_M511K421:OBSERVED_ERRORS:upper=6.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M255K207:OBSERVED_ERRORS:upper=0.00084000000000000003;4:K200_S15:OBSERVED_ERRORS:upper=0.10335917312661498,K200_M511K385,zero-error cases are censored and not strictly ordered by observed zero
++200,26,13,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M255K207:OBSERVED_ERRORS:upper=6.0000000000000002e-06;4:K200_S15:OBSERVED_ERRORS:upper=0.00083851948902718639,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M255K207:OBSERVED_ERRORS:upper=0.00022000000000000001;4:K200_S15:OBSERVED_ERRORS:upper=0.065509335080248934,K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,27,13.5,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M255K207:OBSERVED_ERRORS:upper=6.8000000000000001e-06;4:K200_S15:OBSERVED_ERRORS:upper=0.00050201207243460761,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M255K207:OBSERVED_ERRORS:upper=0.00018000000000000001;4:K200_S15:OBSERVED_ERRORS:upper=0.040241448692152917,K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,28,14,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M255K207:OBSERVED_ERRORS:upper=6.9999999999999997e-07;4:K200_S15:OBSERVED_ERRORS:upper=0.00032306487403733195,1:K200_M255K207:OBSERVED_ERRORS:upper=2.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.026106252447461165,K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,29,14.5,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M255K207:OBSERVED_ERRORS:upper=2.3e-06;4:K200_S15:OBSERVED_ERRORS:upper=0.0002086399445935417,1:K200_M255K207:OBSERVED_ERRORS:upper=6.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.017314518223530431,K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,30,15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M511K421;2:K200_M255K207;3:K200_S15;4:K200_M511K385,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M255K207:OBSERVED_ERRORS:upper=1.5999999999999999e-06;4:K200_S15:OBSERVED_ERRORS:upper=0.00013421329931784151,1:K200_M255K207:OBSERVED_ERRORS:upper=4.0000000000000003e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.011092008208086075,K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,31,15.5,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;4:K200_S15:OBSERVED_ERRORS:upper=7.759186351706037e-05,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.0065616797900262466,K200_M255K207;K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,32,16,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;4:K200_S15:OBSERVED_ERRORS:upper=4.0399999999999999e-05,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.0033,K200_M255K207;K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,33,16.5,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;4:K200_S15:OBSERVED_ERRORS:upper=2.5599999999999999e-05,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.00216,K200_M255K207;K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,34,17,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_M511K421;2:K200_M511K385;3:K200_M255K207;4:K200_S15,1:K200_S15;2:K200_M511K421;3:K200_M511K385;4:K200_M255K207,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_S15;3:K200_M511K385;4:K200_M511K421,1:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M255K207:OBSERVED_ERRORS:upper=6.9999999999999997e-07;4:K200_S15:OBSERVED_ERRORS:upper=1.8600000000000001e-05,1:K200_M255K207:OBSERVED_ERRORS:upper=2.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.0015200000000000001,K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,35,17.5,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;4:K200_S15:OBSERVED_ERRORS:upper=7.3000000000000004e-06,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.00054000000000000001,K200_M255K207;K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++200,36,18,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_M255K207;2:K200_M511K421;3:K200_M511K385;4:K200_S15,1:K200_S15;2:K200_M255K207;3:K200_M511K421;4:K200_M511K385,1:K200_S15;2:K200_M511K421;3:K200_M255K207;4:K200_M511K385,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=2.9999999999999999e-07;4:K200_S15:OBSERVED_ERRORS:upper=2.9000000000000002e-06,1:K200_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K200_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K200_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K200_S15:OBSERVED_ERRORS:upper=0.00024000000000000001,K200_M255K207;K200_M511K385;K200_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,0,0,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385,1:K300_M255K207:OBSERVED_ERRORS:upper=0.18713333333333335;2:K300_M511K421:OBSERVED_ERRORS:upper=0.18731666666666666;3:K300_M511K385:OBSERVED_ERRORS:upper=0.18850333333333333;4:K300_S15:OBSERVED_ERRORS:upper=0.21265999999999999,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,1,0.5,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421,1:K300_M511K421:OBSERVED_ERRORS:upper=0.17464666666666667;2:K300_M255K207:OBSERVED_ERRORS:upper=0.17575666666666667;3:K300_M511K385:OBSERVED_ERRORS:upper=0.17615;4:K300_S15:OBSERVED_ERRORS:upper=0.19986999999999999,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,2,1,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_S15;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385:OBSERVED_ERRORS:upper=0.16314000000000001;2:K300_M511K421:OBSERVED_ERRORS:upper=0.16433333333333333;3:K300_M255K207:OBSERVED_ERRORS:upper=0.16438;4:K300_S15:OBSERVED_ERRORS:upper=0.18685333333333334,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,3,1.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421,1:K300_M511K421:OBSERVED_ERRORS:upper=0.15215333333333333;2:K300_M511K385:OBSERVED_ERRORS:upper=0.15249333333333334;3:K300_M255K207:OBSERVED_ERRORS:upper=0.15322;4:K300_S15:OBSERVED_ERRORS:upper=0.17108333333333334,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,4,2,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385:OBSERVED_ERRORS:upper=0.13962666666666668;2:K300_M511K421:OBSERVED_ERRORS:upper=0.13980000000000001;3:K300_M255K207:OBSERVED_ERRORS:upper=0.14069333333333334;4:K300_S15:OBSERVED_ERRORS:upper=0.15607333333333334,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,5,2.5,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15,1:K300_M255K207:OBSERVED_ERRORS:upper=0.12876000000000001;2:K300_M511K385:OBSERVED_ERRORS:upper=0.12926666666666667;3:K300_M511K421:OBSERVED_ERRORS:upper=0.1293;4:K300_S15:OBSERVED_ERRORS:upper=0.14083999999999999,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,6,3,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421,1:K300_M255K207:OBSERVED_ERRORS:upper=0.11697;2:K300_M511K385:OBSERVED_ERRORS:upper=0.11701;3:K300_M511K421:OBSERVED_ERRORS:upper=0.11751;4:K300_S15:OBSERVED_ERRORS:upper=0.12428333333333333,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,7,3.5,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M511K385;2:K300_S15;3:K300_M511K421;4:K300_M255K207,1:K300_M511K421:OBSERVED_ERRORS:upper=0.10534;2:K300_M255K207:OBSERVED_ERRORS:upper=0.10609;3:K300_M511K385:OBSERVED_ERRORS:upper=0.10703333333333333;4:K300_S15:OBSERVED_ERRORS:upper=0.11142333333333333,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,8,4,1:K300_M255K207;2:K300_M511K385;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_S15;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207:OBSERVED_ERRORS:upper=0.095296666666666668;2:K300_M511K385:OBSERVED_ERRORS:upper=0.095706666666666662;3:K300_M511K421:OBSERVED_ERRORS:upper=0.09676333333333334;4:K300_S15:OBSERVED_ERRORS:upper=0.09736333333333333,1:K300_M255K207:OBSERVED_ERRORS:upper=1;2:K300_M511K385:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,9,4.5,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M511K385;2:K300_S15;3:K300_M255K207;4:K300_M511K421,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_S15;3:K300_M511K421;4:K300_M255K207,1:K300_S15:OBSERVED_ERRORS:upper=0.08400666666666666;2:K300_M511K385:OBSERVED_ERRORS:upper=0.085283333333333336;3:K300_M511K421:OBSERVED_ERRORS:upper=0.085290000000000005;4:K300_M255K207:OBSERVED_ERRORS:upper=0.08530666666666667,1:K300_M511K385:OBSERVED_ERRORS:upper=0.999;2:K300_M255K207:OBSERVED_ERRORS:upper=1;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,10,5,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421,1:K300_S15:OBSERVED_ERRORS:upper=0.071319999999999995;2:K300_M255K207:OBSERVED_ERRORS:upper=0.07538333333333333;3:K300_M511K421:OBSERVED_ERRORS:upper=0.075829999999999995;4:K300_M511K385:OBSERVED_ERRORS:upper=0.076213333333333327,1:K300_M255K207:OBSERVED_ERRORS:upper=0.999;2:K300_M511K385:OBSERVED_ERRORS:upper=0.999;3:K300_M511K421:OBSERVED_ERRORS:upper=1;4:K300_S15:OBSERVED_ERRORS:upper=1,NONE,all cases have observed errors
++300,11,5.5,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K385;3:K300_S15;4:K300_M511K421,1:K300_S15:OBSERVED_ERRORS:upper=0.057430000000000002;2:K300_M511K421:OBSERVED_ERRORS:upper=0.065633333333333335;3:K300_M511K385:OBSERVED_ERRORS:upper=0.066026666666666664;4:K300_M255K207:OBSERVED_ERRORS:upper=0.066076666666666672,1:K300_M511K385:OBSERVED_ERRORS:upper=0.996;2:K300_M255K207:OBSERVED_ERRORS:upper=0.998;3:K300_M511K421:OBSERVED_ERRORS:upper=0.999;4:K300_S15:OBSERVED_ERRORS:upper=0.999,NONE,all cases have observed errors
++300,12,6,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_S15;3:K300_M255K207;4:K300_M511K385,1:K300_S15:OBSERVED_ERRORS:upper=0.047570000000000001;2:K300_M255K207:OBSERVED_ERRORS:upper=0.055536666666666665;3:K300_M511K385:OBSERVED_ERRORS:upper=0.057123333333333332;4:K300_M511K421:OBSERVED_ERRORS:upper=0.058143333333333332,1:K300_M511K385:OBSERVED_ERRORS:upper=0.98499999999999999;2:K300_M511K421:OBSERVED_ERRORS:upper=0.99299999999999999;3:K300_M255K207:OBSERVED_ERRORS:upper=0.99399999999999999;4:K300_S15:OBSERVED_ERRORS:upper=0.995,NONE,all cases have observed errors
++300,13,6.5,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_S15;3:K300_M511K385;4:K300_M255K207,1:K300_S15:OBSERVED_ERRORS:upper=0.039063333333333332;2:K300_M255K207:OBSERVED_ERRORS:upper=0.045693333333333336;3:K300_M511K385:OBSERVED_ERRORS:upper=0.046683333333333334;4:K300_M511K421:OBSERVED_ERRORS:upper=0.049096666666666663,1:K300_M511K385:OBSERVED_ERRORS:upper=0.90700000000000003;2:K300_M255K207:OBSERVED_ERRORS:upper=0.96999999999999997;3:K300_M511K421:OBSERVED_ERRORS:upper=0.97499999999999998;4:K300_S15:OBSERVED_ERRORS:upper=0.996,NONE,all cases have observed errors
++300,14,7,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15:OBSERVED_ERRORS:upper=0.031593333333333334;2:K300_M255K207:OBSERVED_ERRORS:upper=0.035713333333333333;3:K300_M511K385:OBSERVED_ERRORS:upper=0.037076666666666667;4:K300_M511K421:OBSERVED_ERRORS:upper=0.040620000000000003,1:K300_M511K385:OBSERVED_ERRORS:upper=0.78000000000000003;2:K300_M511K421:OBSERVED_ERRORS:upper=0.90900000000000003;3:K300_M255K207:OBSERVED_ERRORS:upper=0.91100000000000003;4:K300_S15:OBSERVED_ERRORS:upper=0.98799999999999999,NONE,all cases have observed errors
++300,15,7.5,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=0.023026666666666668;2:K300_M255K207:OBSERVED_ERRORS:upper=0.025329999999999998;3:K300_S15:OBSERVED_ERRORS:upper=0.025700000000000001;4:K300_M511K421:OBSERVED_ERRORS:upper=0.031179999999999999,1:K300_M511K385:OBSERVED_ERRORS:upper=0.53300000000000003;2:K300_M255K207:OBSERVED_ERRORS:upper=0.79400000000000004;3:K300_M511K421:OBSERVED_ERRORS:upper=0.79500000000000004;4:K300_S15:OBSERVED_ERRORS:upper=0.95599999999999996,NONE,all cases have observed errors
++300,16,8,1:K300_M511K385;2:K300_M255K207;3:K300_S15;4:K300_M511K421,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=0.012966666666666666;2:K300_M255K207:OBSERVED_ERRORS:upper=0.017256666666666667;3:K300_S15:OBSERVED_ERRORS:upper=0.019923333333333335;4:K300_M511K421:OBSERVED_ERRORS:upper=0.021513333333333332,1:K300_M511K385:OBSERVED_ERRORS:upper=0.32300000000000001;2:K300_M511K421:OBSERVED_ERRORS:upper=0.58699999999999997;3:K300_M255K207:OBSERVED_ERRORS:upper=0.63700000000000001;4:K300_S15:OBSERVED_ERRORS:upper=0.91200000000000003,NONE,all cases have observed errors
++300,17,8.5,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=0.0059845077461269363;2:K300_M255K207:OBSERVED_ERRORS:upper=0.01034;3:K300_M511K421:OBSERVED_ERRORS:upper=0.012279999999999999;4:K300_S15:OBSERVED_ERRORS:upper=0.014506666666666666,1:K300_M511K385:OBSERVED_ERRORS:upper=0.14992503748125938;2:K300_M511K421:OBSERVED_ERRORS:upper=0.35799999999999998;3:K300_M255K207:OBSERVED_ERRORS:upper=0.432;4:K300_S15:OBSERVED_ERRORS:upper=0.84399999999999997,NONE,all cases have observed errors
++300,18,9,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=0.0018840236686390533;2:K300_M255K207:OBSERVED_ERRORS:upper=0.0056233333333333335;3:K300_M511K421:OBSERVED_ERRORS:upper=0.0065076209410205432;4:K300_S15:OBSERVED_ERRORS:upper=0.011596666666666667,1:K300_M511K385:OBSERVED_ERRORS:upper=0.047337278106508875;2:K300_M511K421:OBSERVED_ERRORS:upper=0.19880715705765409;3:K300_M255K207:OBSERVED_ERRORS:upper=0.25600000000000001;4:K300_S15:OBSERVED_ERRORS:upper=0.77900000000000003,NONE,all cases have observed errors
++300,19,9.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=0.00062730422730422728;2:K300_M511K421:OBSERVED_ERRORS:upper=0.0026846846846846845;3:K300_M255K207:OBSERVED_ERRORS:upper=0.0027096914385049977;4:K300_S15:OBSERVED_ERRORS:upper=0.0083866666666666673,1:K300_M511K385:OBSERVED_ERRORS:upper=0.016632016632016633;2:K300_M511K421:OBSERVED_ERRORS:upper=0.083160083160083165;3:K300_M255K207:OBSERVED_ERRORS:upper=0.1303780964797914;4:K300_S15:OBSERVED_ERRORS:upper=0.65200000000000002,NONE,all cases have observed errors
++300,20,10,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M511K385;2:K300_M511K421;3:K300_S15;4:K300_M255K207,1:K300_M511K385:OBSERVED_ERRORS:upper=0.00013973333333333333;2:K300_M511K421:OBSERVED_ERRORS:upper=0.0010836690605476732;3:K300_M255K207:OBSERVED_ERRORS:upper=0.0012722886511432768;4:K300_S15:OBSERVED_ERRORS:upper=0.0065166666666666663,1:K300_M511K385:OBSERVED_ERRORS:upper=0.0037200000000000002;2:K300_M511K421:OBSERVED_ERRORS:upper=0.035032404974601507;3:K300_M255K207:OBSERVED_ERRORS:upper=0.062932662051604776;4:K300_S15:OBSERVED_ERRORS:upper=0.54600000000000004,NONE,all cases have observed errors
++300,21,10.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_S15;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=3.6999999999999998e-05;2:K300_M511K421:OBSERVED_ERRORS:upper=0.00030509607351712612;3:K300_M255K207:OBSERVED_ERRORS:upper=0.00059055314479525159;4:K300_S15:OBSERVED_ERRORS:upper=0.0046933333333333332,1:K300_M511K385:OBSERVED_ERRORS:upper=0.00096000000000000002;2:K300_M511K421:OBSERVED_ERRORS:upper=0.010025062656641603;3:K300_M255K207:OBSERVED_ERRORS:upper=0.02992667963489451;4:K300_S15:OBSERVED_ERRORS:upper=0.44900000000000001,NONE,all cases have observed errors
++300,22,11,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=7.9333333333333342e-06;2:K300_M511K421:OBSERVED_ERRORS:upper=9.8266666666666665e-05;3:K300_M255K207:OBSERVED_ERRORS:upper=0.00027922093326690863;4:K300_S15:OBSERVED_ERRORS:upper=0.0031566666666666666,1:K300_M511K385:OBSERVED_ERRORS:upper=0.00020000000000000001;2:K300_M511K421:OBSERVED_ERRORS:upper=0.0031800000000000001;3:K300_M255K207:OBSERVED_ERRORS:upper=0.014233862358550993;4:K300_S15:OBSERVED_ERRORS:upper=0.316,NONE,all cases have observed errors
++300,23,11.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M511K385:OBSERVED_ERRORS:upper=2.2666666666666668e-06;2:K300_M511K421:OBSERVED_ERRORS:upper=3.1466666666666668e-05;3:K300_M255K207:OBSERVED_ERRORS:upper=0.00011149390988253805;4:K300_S15:OBSERVED_ERRORS:upper=0.0023033333333333334,1:K300_M511K385:OBSERVED_ERRORS:upper=6.0000000000000002e-05;2:K300_M511K421:OBSERVED_ERRORS:upper=0.0010399999999999999;3:K300_M255K207:OBSERVED_ERRORS:upper=0.0054254943981770342;4:K300_S15:OBSERVED_ERRORS:upper=0.252,NONE,all cases have observed errors
++300,24,12,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_M255K207;2:K300_S15;3:K300_M511K385;4:K300_M511K421,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:OBSERVED_ERRORS:upper=6.8000000000000001e-06;3:K300_M255K207:OBSERVED_ERRORS:upper=5.5466666666666669e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.0015450771055753262,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K421:OBSERVED_ERRORS:upper=0.00025999999999999998;3:K300_M255K207:OBSERVED_ERRORS:upper=0.0028999999999999998;4:K300_S15:OBSERVED_ERRORS:upper=0.17793594306049823,K300_M511K385,zero-error cases are censored and not strictly ordered by observed zero
++300,25,12.5,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K385;4:K300_M511K421,1:K300_S15;2:K300_M511K385;3:K300_M255K207;4:K300_M511K421,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:OBSERVED_ERRORS:upper=2.9333333333333333e-06;3:K300_M255K207:OBSERVED_ERRORS:upper=2.4199999999999999e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.001208740120874012,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K421:OBSERVED_ERRORS:upper=8.0000000000000007e-05;3:K300_M255K207:OBSERVED_ERRORS:upper=0.00116;4:K300_S15:OBSERVED_ERRORS:upper=0.1394700139470014,K300_M511K385,zero-error cases are censored and not strictly ordered by observed zero
++300,26,13,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_M511K385;2:K300_M511K421;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K385;3:K300_M511K421;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:OBSERVED_ERRORS:upper=1.5333333333333334e-06;3:K300_M255K207:OBSERVED_ERRORS:upper=1.1466666666666666e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.00089131187262028386,1:K300_M511K421:OBSERVED_ERRORS:upper=4.0000000000000003e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M255K207:OBSERVED_ERRORS:upper=0.00055999999999999995;4:K300_S15:OBSERVED_ERRORS:upper=0.10384215991692627,K300_M511K385,zero-error cases are censored and not strictly ordered by observed zero
++300,27,13.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M255K207:OBSERVED_ERRORS:upper=5.0000000000000004e-06;4:K300_S15:OBSERVED_ERRORS:upper=0.00054359643400739288,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M255K207:OBSERVED_ERRORS:upper=0.00022000000000000001;4:K300_S15:OBSERVED_ERRORS:upper=0.065231572080887146,K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,28,14,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M255K207:OBSERVED_ERRORS:upper=2.1333333333333334e-06;4:K300_S15:OBSERVED_ERRORS:upper=0.00032620392789884316,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M255K207:OBSERVED_ERRORS:upper=0.00012;4:K300_S15:OBSERVED_ERRORS:upper=0.040355125100887811,K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,29,14.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_S15;3:K300_M511K385;4:K300_M255K207,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M255K207:OBSERVED_ERRORS:upper=2.0666666666666666e-06;4:K300_S15:OBSERVED_ERRORS:upper=0.00021868250539956803,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M255K207:OBSERVED_ERRORS:upper=0.0001;4:K300_S15:OBSERVED_ERRORS:upper=0.026997840172786176,K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,30,15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K385;2:K300_M255K207;3:K300_M511K421;4:K300_S15,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M255K207:OBSERVED_ERRORS:upper=3.9999999999999998e-07;4:K300_S15:OBSERVED_ERRORS:upper=0.00012849462365591399,1:K300_M255K207:OBSERVED_ERRORS:upper=2.0000000000000002e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.016129032258064516,K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,31,15.5,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;4:K300_S15:OBSERVED_ERRORS:upper=8.6545324768022837e-05,1:K300_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.010706638115631691,K300_M255K207;K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,32,16,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385,1:K300_M255K207:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;4:K300_S15:OBSERVED_ERRORS:upper=5.5122239703634273e-05,1:K300_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.0066950088708867539,K300_M255K207;K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,33,16.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M255K207:OBSERVED_ERRORS:upper=1.4666666666666667e-06;4:K300_S15:OBSERVED_ERRORS:upper=2.4266666666666666e-05,1:K300_M255K207:OBSERVED_ERRORS:upper=6.0000000000000002e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.0030799999999999998,K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,34,17,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_S15;4:K300_M511K385,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M255K207:OBSERVED_ERRORS:upper=4.6666666666666666e-07;4:K300_S15:OBSERVED_ERRORS:upper=1.3266666666666666e-05,1:K300_M255K207:OBSERVED_ERRORS:upper=2.0000000000000002e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.00172,K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,35,17.5,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_M511K421;2:K300_M511K385;3:K300_M255K207;4:K300_S15,1:K300_S15;2:K300_M511K421;3:K300_M511K385;4:K300_M255K207,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M511K385;3:K300_S15;4:K300_M255K207,1:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M255K207:OBSERVED_ERRORS:upper=5.3333333333333334e-07;4:K300_S15:OBSERVED_ERRORS:upper=6.4666666666666669e-06,1:K300_M255K207:OBSERVED_ERRORS:upper=2.0000000000000002e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.00076000000000000004,K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
++300,36,18,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M255K207;2:K300_M511K421;3:K300_M511K385;4:K300_S15,1:K300_S15;2:K300_M255K207;3:K300_M511K421;4:K300_M511K385,1:K300_M511K421;2:K300_M255K207;3:K300_M511K385;4:K300_S15,1:K300_M255K207:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=1.9999999999999999e-07;4:K300_S15:OBSERVED_ERRORS:upper=3.2666666666666666e-06,1:K300_M255K207:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;2:K300_M511K385:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;3:K300_M511K421:ZERO_OBSERVED_CENSORED:upper=6.0000000000000002e-05;4:K300_S15:OBSERVED_ERRORS:upper=0.00044000000000000002,K300_M255K207;K300_M511K385;K300_M511K421,zero-error cases are censored and not strictly ordered by observed zero
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv
+index e35eb6a..9377e8f 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_test_summary.csv
+@@ -6,3 +6,4 @@ merge,PASS,PASS_STAGE08_COMMON_SNR_SHARD_MERGE
+ formula_recomputation,PASS,296/296 rows
+ stop_rule,PASS,all rows legal
+ finite_and_residual,PASS,no NaN Inf residual <= 1e-11
++error_floor_censoring,PASS,zero-error rows use 3/N one-sided 95% upper bounds
+diff --git a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md
+index c33d2df..01f9e2a 100644
+--- a/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md
++++ b/Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md
+@@ -3,10 +3,12 @@
+ - Results gate: PASS_STAGE08_COMMON_SNR_RESULTS_CHECK
+ - Plot gate: PASS_STAGE08_COMMON_SNR_PLOT_CHECK
+ - Final comparison gate: PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON
++- Error-floor handling: PASS_ZERO_ERROR_CENSORING_WITH_3_OVER_N_UPPER_BOUND
+ - Point count: 296
+ - Total frames: 5599111
+ - TARGET_FRAME_ERRORS_REACHED points: 195
+ - MAX_FRAMES_REACHED points: 101
++- Zero-error censored points: 56
+ - Solver residual max: 2.9431816804399681e-16
+ - NaN/Inf: 0
+ - Stage07 frozen model SHA-256: 2f7cb7895db229506d3fe809dc1f6d4bffc2b6f4be859695a76dca13f8ff62e6
+@@ -14,4 +16,6 @@
+ - Legacy Stage08 grid SHA-256: 3ef3bf44ac1142ccb81db259bc72072d708965c8648fe645773755820d773e7b
+ - Legacy data label: LEGACY_WIDE_GRID_FORMAL
+ 
++Error-floor note: zero-error rows keep raw `ber=0` and `fer=0` in the formal CSV, but reliability conclusions use `ZERO_OBSERVED_CENSORED` status and `3/N` one-sided 95% upper bounds.
++
+ `miscorrectionFrames` 与 `undetectedErrorFrames` 在当前译码接口语义下是同一事件集合的两个语义标签，不是互斥类别。

@@ -1,0 +1,12 @@
+{
+  "plots": [
+    "plots/stage08_multipath_common_snr_k200_ber_plot_manifest.json",
+    "plots/stage08_multipath_common_snr_k200_fer_plot_manifest.json",
+    "plots/stage08_multipath_common_snr_k200_decode_latency_plot_manifest.json",
+    "plots/stage08_multipath_common_snr_k200_equalize_latency_plot_manifest.json",
+    "plots/stage08_multipath_common_snr_k300_ber_plot_manifest.json",
+    "plots/stage08_multipath_common_snr_k300_fer_plot_manifest.json",
+    "plots/stage08_multipath_common_snr_k300_decode_latency_plot_manifest.json",
+    "plots/stage08_multipath_common_snr_k300_equalize_latency_plot_manifest.json"
+  ]
+}

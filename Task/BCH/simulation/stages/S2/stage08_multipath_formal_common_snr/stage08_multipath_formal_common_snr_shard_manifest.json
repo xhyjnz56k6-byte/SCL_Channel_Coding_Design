@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "stage08.common_snr.shards.v1",
+  "shardCount": 2,
+  "partition": "GRID_ROW_INDEX_MOD_SHARD_COUNT",
+  "mergedResult": "results/stage08_multipath_formal_common_snr_results.csv",
+  "mergedResultSha256": "5eb7ec83049534d8a7337059711a8b91c665d11ad2f94a3c3e3b3c2747b309d7",
+  "mergeGate": "PASS"
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "stage08.common_snr.checkpoint.v1",
+  "checkpointIntervalFramesConfigured": 1000,
+  "resumeVerification": "PASS_INTERRUPTED_POINT_RESUMED_AND_COMPLETED",
+  "shards": [
+    {
+      "shardId": "SHARD_0",
+      "completedPoints": 148,
+      "resultFile": "results/stage08_multipath_formal_common_snr_shard_0.csv",
+      "resultSha256": "b54af587dcbfeaa552401426f853c857e6e764fce2e16ecad782c23d446bf733"
+    },
+    {
+      "shardId": "SHARD_1",
+      "completedPoints": 148,
+      "resultFile": "results/stage08_multipath_formal_common_snr_shard_1.csv",
+      "resultSha256": "f7ec46c7b8bbaae95be34030eae198fbc8183da42f0ae0d699d1b83748a08dfd"
+    }
+  ]
+}

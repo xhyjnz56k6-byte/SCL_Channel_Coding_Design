@@ -1,0 +1,60 @@
+{
+  "plotFile": "plots/stage08_multipath_common_snr_k300_equalize_latency.png",
+  "plotType": "equalizeTimeMeanNs",
+  "title": "300比特BCH多径均衡时延对比",
+  "xLabel": "SNR (dB)",
+  "yLabel": "均衡时延 (us)",
+  "xSourceColumn": "waveformSnrDb",
+  "ySourceColumn": "equalizeTimeMeanNs",
+  "xScale": "linear",
+  "yScale": "linear",
+  "zeroHandlingRule": "raw zero retained; zero-observed BER/FER points are censored in figure-data with 3/count upper bounds; BER/FER log plots render only TARGET_FRAME_ERRORS_REACHED points and omit MAX_FRAMES_REACHED censored tails",
+  "sourceCsv": "results/stage08_multipath_formal_common_snr_results.csv",
+  "sourceCsvSha256": "5eb7ec83049534d8a7337059711a8b91c665d11ad2f94a3c3e3b3c2747b309d7",
+  "figureDataCsv": "plots/stage08_multipath_common_snr_k300_equalize_latency_figure_data.csv",
+  "figureDataSha256": "37fe67b980a0656233af3476bd2ab78a7a49d46669937105a322cc17b5f61661",
+  "legendMapping": {
+    "K300_S15": "分块300",
+    "K300_M255K207": "255双块300",
+    "K300_M511K421": "421整块300",
+    "K300_M511K385": "385整块300"
+  },
+  "styleMapping": {
+    "K300_S15": {
+      "styleId": "STYLE_1",
+      "color": "C0",
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "K300_M255K207": {
+      "styleId": "STYLE_2",
+      "color": "C1",
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "K300_M511K421": {
+      "styleId": "STYLE_3",
+      "color": "C2",
+      "lineStyle": "-.",
+      "marker": "^"
+    },
+    "K300_M511K385": {
+      "styleId": "STYLE_4",
+      "color": "C3",
+      "lineStyle": ":",
+      "marker": "D"
+    }
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "dpi": 140,
+  "imageFormat": "PNG",
+  "imageWidth": 1260,
+  "imageHeight": 812,
+  "plotScript": "python/stage08_multipath_formal_common_snr_plot.py",
+  "plotScriptSha256": "0b12a0998ab8fc0cf68094732cd742abc58e5fed3d53a845d8f01fec52706e7d",
+  "plotFileSha256": "ff4b7ffc2de14f277008c24957fa3b4a2cbb344e8e01062dbfd34e129f3310f3",
+  "gitCommit": "a251a4f1d4cfb87fd01e99da592a8ae9a9bfe790",
+  "configHash": "BC8C55A2713D7A06EBAA8A6EDD34813874918E3535AC4C23C9BAE7ABA7755784",
+  "gridDefinition": "0:0.5:18 dB; BASE_0P5DB; NO_REFINEMENT"
+}

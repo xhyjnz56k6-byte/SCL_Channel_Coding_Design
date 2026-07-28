@@ -1,0 +1,10 @@
+{
+  "stageId": "stage07_multipath_validation",
+  "masterSeed": 7070707,
+  "framesPerPoint": 500,
+  "pointSelection": "MANUAL_FIXED_BEFORE_TRIAL",
+  "maximumPointsPerCase": 3,
+  "randomDomains": ["PAYLOAD", "AWGN"],
+  "purpose": "VALIDATION_AND_STAGE08_GRID_FREEZE_ONLY",
+  "formalClaimAllowed": false
+}

@@ -1,0 +1,3 @@
+# Changed Files
+
+新增 common-SNR Stage08 补充实验目录，包含 C++ runner、Python checker/plot/audit、冻结网格、正式结果、图像证据和审计文件。后续修正只调整高 SNR error-floor 后处理、排名和结论表达；未改写正式原始计数，未修改 Stage07 与旧 Stage08 结果。

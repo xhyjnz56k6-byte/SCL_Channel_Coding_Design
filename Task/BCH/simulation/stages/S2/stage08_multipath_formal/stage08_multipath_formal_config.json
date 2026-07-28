@@ -1,0 +1,17 @@
+{
+  "stageId": "stage08_multipath_formal",
+  "gridStatus": "FROZEN_BEFORE_STAGE07_GATE",
+  "gridSelection": "MANUAL_FROM_HISTORICAL_RANGE_AND_STAGE07_TRIAL",
+  "masterSeed": 8080808,
+  "minFrames": 5000,
+  "targetFrameErrors": 200,
+  "maxFrames": 50000,
+  "checkpointIntervalFrames": 1000,
+  "shardCount": 2,
+  "channelModelSource": "../stage07_multipath_validation/stage07_multipath_validation_frozen_model.json",
+  "caseContractSource": "../stage02_case_contract/cpp/stage02_case_contract.cpp",
+  "rateFormula": "payloadLength/totalEncodedLength",
+  "sigma2Formula": "1/(2*R*10^(EbN0_dB/10))",
+  "snrDbFormula": "EbN0_dB+10*log10(2*R)",
+  "stopReasons": ["TARGET_FRAME_ERRORS_REACHED", "MAX_FRAMES_REACHED"]
+}

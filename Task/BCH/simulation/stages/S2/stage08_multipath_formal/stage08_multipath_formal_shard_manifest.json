@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "stage08.shards.v1",
+  "shardCount": 2,
+  "partition": "GRID_ROW_INDEX_MOD_SHARD_COUNT",
+  "frameOverlapPolicy": "NO_SHARED_CASE_EBN0_POINT_ACROSS_SHARDS",
+  "gitCommit": "5fb6a373263eb6a50d0ef70a14cad16963a0fb3d",
+  "configHash": "457ea7422976679d98dd9ca6857c00c84e2fbb71e546f759d4ff745aac299a84",
+  "mergedResult": "results/stage08_multipath_formal_results.csv",
+  "mergedResultSha256": "d7bbbda6c51fd13da3f76949cc8650fde7313f8e107ed1e734210185b2af4a14",
+  "mergeGate": "PASS"
+}
