@@ -1,0 +1,51 @@
+{
+  "plotId": "stage14_burst_formal_k200_ber_vs_burst_length",
+  "stageId": "stage14_burst_formal",
+  "gitCommit": "793f7247491a6f3e44b22072722e1ca693f26cae",
+  "sourceFiles": [
+    "stage14_burst_formal_raw_results.csv"
+  ],
+  "sourceSha256": [
+    "9d0f8694cb588914d76858c10f10168e25c96cc3ee9619b095cc6261e8403980"
+  ],
+  "figureDataFile": "results/figure_data/stage14_burst_formal_k200_ber_vs_burst_length_figure_data.csv",
+  "figureDataSha256": "b833fa052306d7a719b0b687f06b94a8734a619c9f199509da1306f443f1f55e",
+  "pngFile": "results/plots/stage14_burst_formal_k200_ber_vs_burst_length.png",
+  "pngSha256": "db8beb3997290c60c527171774de7f42bbe7d4372f6493eb03afc279c902cb0e",
+  "xSourceColumn": "burstLengthBits",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发长度（bit）",
+  "xPhysicalQuantity": "burst_length",
+  "xUnit": "bit",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "ber",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "BER",
+  "yUnit": "1",
+  "yScale": "log",
+  "title": "200比特BCH误比特率对比",
+  "legendLabels": [
+    "分块200",
+    "255整块200",
+    "421整块200",
+    "385整块200"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {
+    "K200_S15": "-",
+    "K200_M255K207": "-",
+    "K200_M511K421": "-",
+    "K200_M511K385": "-"
+  },
+  "markers": {
+    "K200_S15": "o",
+    "K200_M255K207": "o",
+    "K200_M511K421": "o",
+    "K200_M511K385": "o"
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; plot uses 0.5/denominator only in figure-data for logarithmic display.",
+  "missingValueHandling": "NO_INTERPOLATION",
+  "createdAt": "2026-07-27T14:11:19.011666+00:00"
+}

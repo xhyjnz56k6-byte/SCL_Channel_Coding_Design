@@ -1,0 +1,9 @@
+caseId,noneLtol1e1,noneLtol1e2,noneLtol1e1Status,noneLtol1e2Status,bestInterleaverMode,bestInterleaverDepth,sourceStages
+K200_S15,1,1,OBSERVED,OBSERVED,ROW_COLUMN,16,stage14_burst_formal|stage15_interleaving_formal
+K200_M255K207,6,6,OBSERVED,OBSERVED,ROW_COLUMN,4,stage14_burst_formal|stage15_interleaving_formal
+K200_M511K421,10,10,OBSERVED,OBSERVED,ROW_COLUMN,16,stage14_burst_formal|stage15_interleaving_formal
+K200_M511K385,12,12,OBSERVED,OBSERVED,ROW_COLUMN,16,stage14_burst_formal|stage15_interleaving_formal
+K300_S15,1,1,OBSERVED,OBSERVED,ROW_COLUMN,16,stage14_burst_formal|stage15_interleaving_formal
+K300_M255K207,6,6,OBSERVED,OBSERVED,ROW_COLUMN,4,stage14_burst_formal|stage15_interleaving_formal
+K300_M511K421,10,10,OBSERVED,OBSERVED,ROW_COLUMN,16,stage14_burst_formal|stage15_interleaving_formal
+K300_M511K385,12,12,OBSERVED,OBSERVED,PSEUDORANDOM,16,stage14_burst_formal|stage15_interleaving_formal

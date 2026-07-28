@@ -1,0 +1,45 @@
+{
+  "plotId": "stage15_interleaving_formal_latency_overhead",
+  "stageId": "stage15_interleaving_formal",
+  "gitCommit": "c56ea139a842ce7156261a02174dba399024849b",
+  "sourceFiles": [
+    "stage15_interleaving_formal_method_results.csv"
+  ],
+  "sourceSha256": [
+    "314ee3786133817c3dc61c5fb0d53a658f7076afa5d442b34b8757c95e0701e8"
+  ],
+  "figureDataFile": "results/figure_data/stage15_interleaving_formal_latency_overhead_figure_data.csv",
+  "figureDataSha256": "c615e1df4463856f4f7eeda1ff97dcef12a36bb17dae1620870cf44e70d8dedd",
+  "pngFile": "results/plots/stage15_interleaving_formal_latency_overhead.png",
+  "pngSha256": "4104996f3a578d3586312fd0ff0e78a3369f58fb263d81dac73ab7fe77a15fcf",
+  "xSourceColumn": "burstLengthBits",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发长度（bit）",
+  "xPhysicalQuantity": "burst_length",
+  "xUnit": "bit",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "interleaverTimeMeanNs",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "交织时延（ns）",
+  "yUnit": "ns",
+  "yScale": "linear",
+  "title": "BCH交织时延开销",
+  "legendLabels": [
+    "分块200",
+    "255整块200",
+    "421整块200",
+    "385整块200",
+    "分块300",
+    "255双块300",
+    "421整块300",
+    "385整块300"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {},
+  "markers": {},
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; logarithmic rate plots use 0.5/denominator only in figure-data.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T14:37:31.763122+00:00"
+}

@@ -1,0 +1,13 @@
+metric,value
+methodCanonicalPoints,288
+depthCanonicalPoints,224
+uniqueCanonicalPoints,400
+newFormalPoints,328
+uniqueCanonicalFrames,10377644
+newFormalFrames,8639644
+targetStopsUnique,198
+maxStopsUnique,202
+matlabComparisons,96
+pngFiles,30
+figureDataFiles,30
+plotManifests,30

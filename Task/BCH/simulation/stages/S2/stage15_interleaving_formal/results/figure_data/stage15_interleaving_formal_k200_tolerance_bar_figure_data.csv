@@ -1,0 +1,5 @@
+plotId,caseId,legendLabel,xRaw,xDisplay,yRaw,yPlot,yIsZero,framesProcessed,payloadBitsProcessed,plotSurrogateUsed
+stage15_interleaving_formal_k200_tolerance_bar,K200_S15,分块200,0,0,8.0,8.0,false,0,0,false
+stage15_interleaving_formal_k200_tolerance_bar,K200_M255K207,255整块200,1,1,5.0,5.0,false,0,0,false
+stage15_interleaving_formal_k200_tolerance_bar,K200_M511K421,421整块200,2,2,10.0,10.0,false,0,0,false
+stage15_interleaving_formal_k200_tolerance_bar,K200_M511K385,385整块200,3,3,10.0,10.0,false,0,0,false

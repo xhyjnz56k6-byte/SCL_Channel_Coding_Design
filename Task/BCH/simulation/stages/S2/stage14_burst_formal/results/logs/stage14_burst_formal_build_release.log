@@ -1,0 +1,4 @@
+[ 13%] Built target stage14_block_core
+[ 53%] Built target stage14_segmented_core
+[ 86%] Built target stage14_support
+[100%] Built target stage14_burst_formal_runner

@@ -1,0 +1,20 @@
+{
+  "stageId": "stage13_burst_interleaving_validation",
+  "sharedBurstIdentityStage": "bch_s2_burst_shared",
+  "masterSeed": 1397048147,
+  "interleaverSeed": 1140071481932319848,
+  "validationDepths": [4, 8, 16],
+  "prescanDepths": [4, 8, 16, 32],
+  "prescanBurstLengths": [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50],
+  "prescanFramesPerPoint": 200,
+  "stage14DefaultBurstLengths": [0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40],
+  "stage15MethodDefaultBurstLengths": [1, 2, 3, 5, 8, 10, 15, 20, 30],
+  "stage15DepthDefaultBurstLengths": [3, 5, 8, 10, 15, 20, 30],
+  "formalStopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000,
+    "checkpointIntervalFrames": 1000
+  }
+}
+

@@ -1,0 +1,18 @@
+{
+  "stageId": "stage14_burst_formal",
+  "sourceFrozenParameters": "../stage13_burst_interleaving_validation/results/stage13_burst_interleaving_validation_frozen_parameters.json",
+  "channelType": "DETERMINISTIC_BIT_BURST",
+  "burstAction": "FLIP_CONTIGUOUS_BITS",
+  "burstStartPolicy": "RANDOM_PER_FRAME",
+  "burstWrapAround": false,
+  "awgnEnabled": false,
+  "interleaverMode": "NONE",
+  "masterSeed": 1397048147,
+  "stopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000,
+    "checkpointIntervalFrames": 1000
+  }
+}
+

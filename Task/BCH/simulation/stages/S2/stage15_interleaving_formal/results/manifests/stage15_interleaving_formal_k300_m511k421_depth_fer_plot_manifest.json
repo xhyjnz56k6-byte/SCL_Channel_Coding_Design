@@ -1,0 +1,51 @@
+{
+  "plotId": "stage15_interleaving_formal_k300_m511k421_depth_fer",
+  "stageId": "stage15_interleaving_formal",
+  "gitCommit": "c56ea139a842ce7156261a02174dba399024849b",
+  "sourceFiles": [
+    "stage15_interleaving_formal_depth_results.csv"
+  ],
+  "sourceSha256": [
+    "f3344b2520f4bebb4d4b1cc128e18ed4f368a64011a4dd0226c8d26465222a86"
+  ],
+  "figureDataFile": "results/figure_data/stage15_interleaving_formal_k300_m511k421_depth_fer_figure_data.csv",
+  "figureDataSha256": "950c35043e0462d1a9bc6835029ff0fc168252a53d2e34b634d24c1e5bbc2951",
+  "pngFile": "results/plots/stage15_interleaving_formal_k300_m511k421_depth_fer.png",
+  "pngSha256": "2a2a7bdaf2b3ca0d2c41e2edbcf965f5d2e5ae1524cfe2d3c4cbf9db7badd327",
+  "xSourceColumn": "burstLengthBits",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发长度（bit）",
+  "xPhysicalQuantity": "burst_length",
+  "xUnit": "bit",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "fer",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "FER",
+  "yUnit": "1",
+  "yScale": "log",
+  "title": "421整块300交织深度FER",
+  "legendLabels": [
+    "无交织",
+    "D=4",
+    "D=8",
+    "D=16"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {
+    "无交织": "-",
+    "D=4": "--",
+    "D=8": "-.",
+    "D=16": ":"
+  },
+  "markers": {
+    "无交织": "o",
+    "D=4": "s",
+    "D=8": "^",
+    "D=16": "D"
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; logarithmic rate plots use 0.5/denominator only in figure-data.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T14:37:29.167876+00:00"
+}

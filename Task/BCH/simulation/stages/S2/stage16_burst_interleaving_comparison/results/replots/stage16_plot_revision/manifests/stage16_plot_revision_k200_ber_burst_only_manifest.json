@@ -1,0 +1,23 @@
+{
+  "figureName": "stage16_plot_revision_k200_ber_burst_only",
+  "title": "200比特BCH突发对比",
+  "xAxis": "SNR",
+  "yAxis": "BER",
+  "scale": "log",
+  "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+  "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+  "seriesCountExpected": 8,
+  "seriesCountRendered": 8,
+  "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+  "usesZeroSurrogate": false,
+  "rawFigureDataPath": "results/replots/stage16_plot_revision/figure_data/stage16_plot_revision_k200_ber_burst_only_raw_figure_data.csv",
+  "rawFigureDataSha256": "a2877b734005e5ee6f895cf8162ef184addbcaec5d456086b8463fdcc913cd6c",
+  "publicationFigureDataPath": "results/replots/stage16_plot_revision/figure_data/stage16_plot_revision_k200_ber_burst_only_publication_figure_data.csv",
+  "publicationFigureDataSha256": "fb2ff65ccdc923ec7181e9252b805f2965e65bc6577799ad982bd112e0a85c4f",
+  "seriesAuditPath": "results/replots/stage16_plot_revision/audit/stage16_plot_revision_k200_ber_burst_only_series_audit.csv",
+  "seriesAuditSha256": "ea8d69ff39729886eda14ae6b8646e329588cbcde47fa99abc58ae702026cee5",
+  "pngPath": "results/replots/stage16_plot_revision/figures/stage16_plot_revision_k200_ber_burst_only.png",
+  "sha256": "756535285f428bab2ce821ad51074ff1a148a6d72f6da976389d2834ec434db2",
+  "generatedAt": "2026-07-28T01:43:29.593843+00:00",
+  "gitHead": "e7a176efba0599cc76c90b206804f163904ea747"
+}

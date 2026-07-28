@@ -1,0 +1,4 @@
+[ 13%] Built target stage16_block
+[ 53%] Built target stage16_segmented
+[ 86%] Built target stage16_support
+[100%] Built target stage16_burst_interleaving_comparison_runner

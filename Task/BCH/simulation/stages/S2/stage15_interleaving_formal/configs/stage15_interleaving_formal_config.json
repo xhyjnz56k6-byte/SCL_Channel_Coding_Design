@@ -1,0 +1,18 @@
+{
+  "stageId": "stage15_interleaving_formal",
+  "sourceFrozenParameters": "../stage13_burst_interleaving_validation/results/stage13_burst_interleaving_validation_frozen_parameters.json",
+  "sourceNoneResults": "../stage14_burst_formal/results/stage14_burst_formal_raw_results.csv",
+  "masterSeed": 1397048147,
+  "interleaverSeed": 1140071481932319848,
+  "requiredModes": ["NONE", "BLOCK", "ROW_COLUMN", "PSEUDORANDOM"],
+  "methodDepth": 8,
+  "formalDepths": [4, 8, 16],
+  "bestModePriority": ["BLOCK", "ROW_COLUMN", "PSEUDORANDOM"],
+  "stopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000,
+    "checkpointIntervalFrames": 1000
+  }
+}
+

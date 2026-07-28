@@ -1,0 +1,45 @@
+{
+  "plotId": "stage15_interleaving_formal_error_spreading",
+  "stageId": "stage15_interleaving_formal",
+  "gitCommit": "c56ea139a842ce7156261a02174dba399024849b",
+  "sourceFiles": [
+    "stage15_interleaving_formal_method_results.csv"
+  ],
+  "sourceSha256": [
+    "314ee3786133817c3dc61c5fb0d53a658f7076afa5d442b34b8757c95e0701e8"
+  ],
+  "figureDataFile": "results/figure_data/stage15_interleaving_formal_error_spreading_figure_data.csv",
+  "figureDataSha256": "b2ed0d6d2a62185b04a0fd961c199e879f1d98570f60c1479765c38c2314d7b8",
+  "pngFile": "results/plots/stage15_interleaving_formal_error_spreading.png",
+  "pngSha256": "4fbf96699e24ac435d62feccd225a3f2cc9bdb5a349f479a913060bf086855d0",
+  "xSourceColumn": "burstLengthBits",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发长度（bit）",
+  "xPhysicalQuantity": "burst_length",
+  "xUnit": "bit",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "meanAffectedCodeBlocks",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "受影响码块数",
+  "yUnit": "block",
+  "yScale": "linear",
+  "title": "BCH交织错误扩散",
+  "legendLabels": [
+    "分块200",
+    "255整块200",
+    "421整块200",
+    "385整块200",
+    "分块300",
+    "255双块300",
+    "421整块300",
+    "385整块300"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {},
+  "markers": {},
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; logarithmic rate plots use 0.5/denominator only in figure-data.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T14:37:31.467292+00:00"
+}

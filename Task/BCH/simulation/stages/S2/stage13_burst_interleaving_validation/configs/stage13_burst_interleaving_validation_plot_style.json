@@ -1,0 +1,20 @@
+{
+  "caseStyles": {
+    "K200_S15": {"color": "#1f77b4", "legend": "分块200"},
+    "K200_M255K207": {"color": "#ff7f0e", "legend": "255整块200"},
+    "K200_M511K421": {"color": "#2ca02c", "legend": "421整块200"},
+    "K200_M511K385": {"color": "#d62728", "legend": "385整块200"},
+    "K300_S15": {"color": "#1f77b4", "legend": "分块300"},
+    "K300_M255K207": {"color": "#ff7f0e", "legend": "255双块300"},
+    "K300_M511K421": {"color": "#2ca02c", "legend": "421整块300"},
+    "K300_M511K385": {"color": "#d62728", "legend": "385整块300"}
+  },
+  "interleaverStyles": {
+    "NONE": {"lineStyle": "-", "marker": "o", "legend": "无交织"},
+    "BLOCK": {"lineStyle": "--", "marker": "s", "legend": "块交织"},
+    "ROW_COLUMN": {"lineStyle": "-.", "marker": "^", "legend": "行列交织"},
+    "PSEUDORANDOM": {"lineStyle": ":", "marker": "D", "legend": "伪随机交织"}
+  },
+  "legendLocation": "upper right"
+}
+

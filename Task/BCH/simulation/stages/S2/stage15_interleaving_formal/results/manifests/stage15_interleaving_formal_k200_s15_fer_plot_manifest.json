@@ -1,0 +1,51 @@
+{
+  "plotId": "stage15_interleaving_formal_k200_s15_fer",
+  "stageId": "stage15_interleaving_formal",
+  "gitCommit": "c56ea139a842ce7156261a02174dba399024849b",
+  "sourceFiles": [
+    "stage15_interleaving_formal_method_results.csv"
+  ],
+  "sourceSha256": [
+    "314ee3786133817c3dc61c5fb0d53a658f7076afa5d442b34b8757c95e0701e8"
+  ],
+  "figureDataFile": "results/figure_data/stage15_interleaving_formal_k200_s15_fer_figure_data.csv",
+  "figureDataSha256": "2a37acd38ed17c533372326f4c2af6f0196161c160f48bb7c3d14e75e0ad0620",
+  "pngFile": "results/plots/stage15_interleaving_formal_k200_s15_fer.png",
+  "pngSha256": "312cf63641c5b82fe8b04b126a56904799905b3475591b1849a28d686c2cb4f2",
+  "xSourceColumn": "burstLengthBits",
+  "xDisplayColumn": "xDisplay",
+  "xDisplayLabel": "突发长度（bit）",
+  "xPhysicalQuantity": "burst_length",
+  "xUnit": "bit",
+  "xTransformFormula": "identity",
+  "ySourceColumn": "fer",
+  "yPlotColumn": "yPlot",
+  "yDisplayLabel": "FER",
+  "yUnit": "1",
+  "yScale": "log",
+  "title": "分块200交织方式FER",
+  "legendLabels": [
+    "无交织",
+    "块交织",
+    "行列交织",
+    "伪随机交织"
+  ],
+  "legendLocation": "upper right",
+  "lineStyles": {
+    "无交织": "-",
+    "块交织": "--",
+    "行列交织": "-.",
+    "伪随机交织": ":"
+  },
+  "markers": {
+    "无交织": "o",
+    "块交织": "s",
+    "行列交织": "^",
+    "伪随机交织": "D"
+  },
+  "matplotlibVersion": "3.10.7",
+  "pythonVersion": "3.11.0",
+  "zeroHandling": "Raw zero retained; logarithmic rate plots use 0.5/denominator only in figure-data.",
+  "missingValueHandling": "NO_INTERPOLATION;MISSING_REMAINS_MISSING",
+  "createdAt": "2026-07-27T14:37:20.368776+00:00"
+}

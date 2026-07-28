@@ -1,0 +1,9 @@
+figureName,seriesLabel,payloadGroup,codeType,configuration,rawPointCount,positivePointCount,zeroPointCount,firstSnr,lastSnr,firstPositiveSnr,lastPositiveSnr,includedInPublicationPlot,reason
+stage16_plot_revision_k200_ber_burst_only,分块-无交织突发,200,分块,无交织突发,37,37,0,0,18,0,18,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k200_ber_burst_only,分块-交织突发,200,分块,交织突发,37,23,14,0,18,0,11,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k200_ber_burst_only,255整块-无交织突发,200,255,无交织突发,37,37,0,0,18,0,18,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k200_ber_burst_only,255整块-交织突发,200,255,交织突发,37,37,0,0,18,0,18,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k200_ber_burst_only,421整块-无交织突发,200,421,无交织突发,37,37,0,0,18,0,18,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k200_ber_burst_only,421整块-交织突发,200,421,交织突发,37,37,0,0,18,0,18,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k200_ber_burst_only,385整块-无交织突发,200,385,无交织突发,37,17,20,0,18,0,8,true,rendered; zero-valued high-SNR points removed from publication plot
+stage16_plot_revision_k200_ber_burst_only,385整块-交织突发,200,385,交织突发,37,17,20,0,18,0,8,true,rendered; zero-valued high-SNR points removed from publication plot

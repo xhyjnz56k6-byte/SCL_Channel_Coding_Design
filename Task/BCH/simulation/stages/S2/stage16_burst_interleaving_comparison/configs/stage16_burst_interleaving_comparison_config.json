@@ -1,0 +1,22 @@
+{
+  "stageId": "stage16_burst_interleaving_comparison",
+  "masterSeed": 1397048147,
+  "interleaverSeed": 1140071481932319848,
+  "snr": {
+    "minimumDb": 0.0,
+    "maximumDb": 18.0,
+    "stepDb": 0.5,
+    "pointCount": 37,
+    "physicalQuantity": "waveform_snr",
+    "displayLabel": "SNR",
+    "unit": "dB"
+  },
+  "configurations": ["NONE_L0", "NONE_LREP", "BEST_LREP"],
+  "targetFer": [0.1, 0.01],
+  "stopRule": {
+    "minFrames": 1000,
+    "targetFrameErrors": 200,
+    "maxFrames": 50000,
+    "checkpointIntervalFrames": 1000
+  }
+}

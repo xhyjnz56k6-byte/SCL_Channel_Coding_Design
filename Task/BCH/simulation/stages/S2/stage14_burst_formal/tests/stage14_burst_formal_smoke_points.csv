@@ -1,0 +1,6 @@
+caseId,burstLengthIndex,burstLengthBits
+K200_S15,0,0
+K200_M255K207,6,6
+K300_S15,4,4
+K300_M511K385,10,15
+
