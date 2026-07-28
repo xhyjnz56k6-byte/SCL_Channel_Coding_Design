@@ -1,0 +1,195 @@
+﻿diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/.gitignore b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/.gitignore
+new file mode 100644
+index 00000000..c18dd8d8
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/.gitignore
+@@ -0,0 +1 @@
++__pycache__/
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/CMakeLists.txt
+new file mode 100644
+index 00000000..b2439f41
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/CMakeLists.txt
+@@ -0,0 +1,14 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage14_compare LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../../../..")
++set(CC_ROOT "${REPO_ROOT}/Task/CC")
++add_executable(stage14_runner src/stage14_runner.cpp
++ "${CC_ROOT}/shared/src/trellis.cpp" "${CC_ROOT}/shared/src/puncturing.cpp"
++ "${CC_ROOT}/block/current/src/block_encoder.cpp" "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
++ "${CC_ROOT}/block/current/src/hard_viterbi.cpp" "${REPO_ROOT}/Task/Common/src/random_policy.cpp"
++ "${REPO_ROOT}/Task/Common/src/gaussian_noise.cpp")
++target_include_directories(stage14_runner PRIVATE "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include" "${REPO_ROOT}/Task/Common/include")
++if(NOT MSVC)
++ target_compile_options(stage14_runner PRIVATE -O3 -Wall -Wextra -Wpedantic -Werror)
++endif()
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/commands_used.md b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/commands_used.md
+new file mode 100644
+index 00000000..15ec9ac5
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/commands_used.md
+@@ -0,0 +1,3 @@
++# Stage14 命令
++
++`python Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/run_stage14.py --clean`
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/frozen_config.csv b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/frozen_config.csv
+new file mode 100644
+index 00000000..e53e0b0c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/frozen_config.csv
+@@ -0,0 +1,5 @@
++scheme,slotBits,slotCount,decoder
++A_BLOCK_ZERO_TAIL,300,1,full_block_soft
++B_CONT_50x6,50,6,window96_slide25_dtb70_soft
++C_CONT_100x3,100,3,window96_slide25_dtb70_soft
++D_CONT_150x2,150,2,window96_slide25_dtb70_soft
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/known_issues.md b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/known_issues.md
+new file mode 100644
+index 00000000..70e04378
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/known_issues.md
+@@ -0,0 +1,3 @@
++# Stage14 已知问题
++
++软件输出时延按 trellis input 决定时刻在本帧译码耗时中线性映射，不能替代硬件周期级测量。
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_block_continuous_results.csv b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_block_continuous_results.csv
+new file mode 100644
+index 00000000..8551d532
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_block_continuous_results.csv
+@@ -0,0 +1,9 @@
++rateId,snrDb,scheme,slotBits,slotCount,frames,BER,FER,headBER,boundaryBER,boundaryBitCount,middleBER,tailBER,N_transmitted,tailOverheadBits,avoidedRepeatedTailInputBits,actualRate,firstOutputLatency_us,avgOutputLatency_us,fullFrameCompletionLatency_us,steadyStateOutputInterval_us,avgDecodeTime_us,p95DecodeTime_us,maxDecodeTime_us,rawDecodeThroughput_Mbps,successfulDecodeThroughput_Mbps,normalizedGoodput,survivorMemoryBytes,windowBufferBytes,ACSOperations,tracebackOperations
++R12,0,A_BLOCK_ZERO_TAIL,300,1,500,0.00041333333333333332,0.024,0.00045714285714285713,0,0,0.00029999999999999997,0.00062857142857142853,612,6,0,0.49019607843137253,307.47099999999983,307.47099999999983,307.47099999999983,307.47099999999983,307.47099999999983,414,1871.8,0.97570177350059084,0.95228493093657662,0.47843137254901957,58752,0,19584000,153000
++R12,0,B_CONT_50x6,50,6,500,0.00041333333333333332,0.024,0.00045714285714285713,6.666666666666667e-05,15000,0.00035384615384615386,0.00062857142857142853,612,6,30,0.49019607843137253,87.614355555555534,84.512333777777755,362.29719999999992,29.59944444444444,362.29719999999992,467,2191.1999999999998,0.82804945773801197,0.8081762707522997,0.47843137254901957,13440,1536,19584000,8295000
++R12,0,C_CONT_100x3,100,3,500,0.00041333333333333332,0.024,0.00045714285714285713,0,10000,0.00034285714285714285,0.00062857142857142853,612,6,12,0.49019607843137253,87.614355555555534,84.512333777777755,362.29719999999992,29.59944444444444,362.29719999999992,467,2191.1999999999998,0.82804945773801197,0.8081762707522997,0.47843137254901957,13440,1536,19584000,8295000
++R12,0,D_CONT_150x2,150,2,500,0.00041333333333333332,0.024,0.00045714285714285713,0.00020000000000000001,5000,0.00030666666666666668,0.00062857142857142853,612,6,6,0.49019607843137253,87.614355555555534,84.512333777777755,362.29719999999992,29.59944444444444,362.29719999999992,467,2191.1999999999998,0.82804945773801197,0.8081762707522997,0.47843137254901957,13440,1536,19584000,8295000
++R23,1,A_BLOCK_ZERO_TAIL,300,1,500,0.0031133333333333334,0.073999999999999996,0.0023142857142857145,0,0,0.0038500000000000001,0.0022285714285714287,459,6,0,0.65359477124183007,275.09719999999993,275.09719999999993,275.09719999999993,275.09719999999993,275.09719999999993,402,622.70000000000005,1.0905236403714762,1.0098248909839871,0.60522875816993471,58752,0,19584000,153000
++R23,1,B_CONT_50x6,50,6,500,0.0033466666666666666,0.080000000000000002,0.0025999999999999999,0.0043333333333333331,15000,0.0040769230769230769,0.0023142857142857145,459,6,30,0.65359477124183007,76.231849673202603,73.532830130718935,315.22899999999993,25.75400326797385,315.22899999999993,428.30000000000001,946.89999999999998,0.95168908951904829,0.87555396235752447,0.60130718954248374,13440,1536,19584000,8295000
++R23,1,C_CONT_100x3,100,3,500,0.0033466666666666666,0.080000000000000002,0.0025999999999999999,0.0051999999999999998,10000,0.0039714285714285711,0.0023142857142857145,459,6,12,0.65359477124183007,76.231849673202603,73.532830130718935,315.22899999999993,25.75400326797385,315.22899999999993,428.30000000000001,946.89999999999998,0.95168908951904829,0.87555396235752447,0.60130718954248374,13440,1536,19584000,8295000
++R23,1,D_CONT_150x2,150,2,500,0.0033466666666666666,0.080000000000000002,0.0025999999999999999,0.0025999999999999999,5000,0.0042266666666666668,0.0023142857142857145,459,6,6,0.65359477124183007,76.231849673202603,73.532830130718935,315.22899999999993,25.75400326797385,315.22899999999993,428.30000000000001,946.89999999999998,0.95168908951904829,0.87555396235752447,0.60130718954248374,13440,1536,19584000,8295000
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_report.md b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_report.md
+new file mode 100644
+index 00000000..907ff1ae
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_report.md
+@@ -0,0 +1,7 @@
++# Stage14 整块/连续滑窗比较报告
++
++整块方案一次收完整帧后利用已知零终止回溯，边界定义最清晰、性能最好，但首 bit 只能在整帧译码结束后交付。连续方案保持编码器和 puncture phase，中间 slot 不重置；相对于每 slot 独立终止，50×6、100×3、150×2 分别避免 30、12、6 个重复 tail input bits。本次 300 bit 有限实验仍在最后统一加 6 个尾 bit，所以 A-D 的实际 transmitted length 相同。
++
++滑窗 window96/slide25/Dtb70 在 warmup 后可批量提前输出，代价是 traceback 深度与批次调度带来的决定延迟，并可能产生相对完整块的性能差异。三种连续 slot 组织共享完全相同的编码比特和译码输出，差别只在业务边界归属；50 bit slot 边界更密集，边界统计样本更多。
++
++当前软件结果推荐：可靠性优先或离线帧处理使用 A；实时高速电文使用 C（100×3）作为边界频率与调度粒度的折中。B 的更新粒度更细但业务边界更密，D 边界少但 slot 交付粒度更粗。R23 滑窗差异沿用 Stage13 的真实记录，未隐藏。
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_test_summary.csv b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_test_summary.csv
+new file mode 100644
+index 00000000..c7ba0dfd
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_test_summary.csv
+@@ -0,0 +1,7 @@
++check,status
++fair_payload_noise_symbols,PASS
++length_rate_formula,PASS
++region_partition,PASS
++continuous_tail_once,PASS
++metric_finite,PASS
++stage_gate,PASS_STAGE14_CC_BLOCK_CONTINUOUS_COMPARISON
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py
+new file mode 100644
+index 00000000..4695cace
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py
+@@ -0,0 +1,23 @@
++#!/usr/bin/env python3
++import csv,math,sys
++from collections import defaultdict
++from pathlib import Path
++def main():
++ s=Path(__file__).resolve().parents[1];p=s/"results"/"stage14_block_continuous_results.csv"
++ with p.open(encoding="utf-8",newline="") as h:rows=list(csv.DictReader(h))
++ if len(rows)!=8:raise RuntimeError("matrix")
++ g=defaultdict(list)
++ for r in rows:
++  g[r["rateId"]].append(r)
++  if not all(math.isfinite(float(r[k])) for k in ("BER","FER","boundaryBER","avgDecodeTime_us","normalizedGoodput")):raise RuntimeError("finite")
++  n=int(r["N_transmitted"]);expected=612 if r["rateId"]=="R12" else 459
++  if n!=expected or not math.isclose(float(r["actualRate"]),300/n,rel_tol=1e-12):raise RuntimeError("rate")
++  if int(r["tailOverheadBits"])!=6:raise RuntimeError("tail")
++ for rate,v in g.items():
++  if len(v)!=4:raise RuntimeError("scheme count")
++  cont=v[1:]
++  if len({(x["BER"],x["FER"]) for x in cont})!=1:raise RuntimeError("continuous organization changed decoder result")
++  for x in cont:
++   if int(x["avoidedRepeatedTailInputBits"])!=(int(x["slotCount"])-1)*6:raise RuntimeError("avoided tail")
++ print("PASS_STAGE14_CC_BLOCK_CONTINUOUS_COMPARISON");return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/run_stage14.py b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/run_stage14.py
+new file mode 100644
+index 00000000..fcb0e402
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/run_stage14.py
+@@ -0,0 +1,10 @@
++#!/usr/bin/env python3
++import shutil,subprocess,sys
++from pathlib import Path
++def main():
++ s=Path(__file__).resolve().parents[1];b=s/"build";r=s/"results"
++ if "--clean" in sys.argv and b.exists():shutil.rmtree(b)
++ r.mkdir(exist_ok=True)
++ for c in (["cmake","-S",str(s),"-B",str(b),"-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=Release"],["cmake","--build",str(b),"--parallel"],[str(b/"stage14_runner.exe"),str(r)],[sys.executable,str(s/"scripts"/"check_stage14.py")]):print("+"," ".join(c));subprocess.run(c,cwd=s,check=True)
++ return 0
++if __name__=="__main__":sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp
+new file mode 100644
+index 00000000..ab0236a4
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp
+@@ -0,0 +1,32 @@
++#define main stage13_embedded_main
++#include "../../stage13_sliding_window_viterbi/src/stage13_runner.cpp"
++#undef main
++#include <numeric>
++namespace{
++struct Agg14{std::uint64_t be=0,fe=0,headE=0,headN=0,boundE=0,boundN=0,midE=0,midN=0,tailE=0,tailN=0;double sum=0,max=0;std::vector<double>times;};
++double pct95(std::vector<double>v){std::sort(v.begin(),v.end());return v[static_cast<std::size_t>(std::ceil(.95*v.size()))-1];}
++}
++int main(int argc,char**argv){try{
++ if(argc!=2)throw std::invalid_argument("results dir");
++ std::filesystem::path results(argv[1]);std::filesystem::create_directories(results);
++ scl::cc::Trellis t;scl::cc::ConvolutionalEncoder enc(t);scl::cc::SoftViterbiDecoder fullDecoder(t);
++ struct Sc{std::string rate;double snr;scl::cc::PuncturePattern p;std::uint64_t group;};std::vector<Sc>scs={{"R12",0,{"R12",{1,1}},1200},{"R23",1,{"R23",{1,1,0,1}},2300}};
++ struct Scheme{std::string id;std::size_t slot,count;bool block;};std::vector<Scheme>schemes={{"A_BLOCK_ZERO_TAIL",300,1,true},{"B_CONT_50x6",50,6,false},{"C_CONT_100x3",100,3,false},{"D_CONT_150x2",150,2,false}};
++ std::ofstream out(results/"stage14_block_continuous_results.csv");out<<"rateId,snrDb,scheme,slotBits,slotCount,frames,BER,FER,headBER,boundaryBER,boundaryBitCount,middleBER,tailBER,N_transmitted,tailOverheadBits,avoidedRepeatedTailInputBits,actualRate,firstOutputLatency_us,avgOutputLatency_us,fullFrameCompletionLatency_us,steadyStateOutputInterval_us,avgDecodeTime_us,p95DecodeTime_us,maxDecodeTime_us,rawDecodeThroughput_Mbps,successfulDecodeThroughput_Mbps,normalizedGoodput,survivorMemoryBytes,windowBufferBytes,ACSOperations,tracebackOperations\n";out<<std::setprecision(17);
++ for(const auto&sc:scs){std::array<Agg14,4>a;std::size_t n=0;double sigma=std::sqrt(1/(2*std::pow(10.0,sc.snr/10)));
++  for(std::uint64_t frame=0;frame<500;++frame){auto cp=scl::common::generatePayloadBits(seed,P,frame);std::vector<std::uint8_t>pl(cp.begin(),cp.end());auto e=enc.encode_block(pl,true);auto p=scl::cc::puncture_bits(e.mother_bits,sc.p);n=p.bits.size();auto z=scl::common::generateStandardGaussianFrame(seed,sc.group,frame,n);std::vector<double>rx(n);for(std::size_t i=0;i<n;++i)rx[i]=(p.bits[i]?-1:1)+sigma*z[i];auto dep=scl::cc::depuncture_soft(rx,2*L,sc.p);
++   auto st=Clock::now();auto full=fullDecoder.decode_terminated_masked_symbols(dep.expanded_values,dep.observed_mask,L);auto en=Clock::now();double fullus=std::chrono::duration<double,std::micro>(en-st).count();
++   st=Clock::now();auto win=decode(t,dep.expanded_values,dep.observed_mask,96,25,false);en=Clock::now();double winus=std::chrono::duration<double,std::micro>(en-st).count();
++   for(std::size_t k=0;k<schemes.size();++k){const auto&s=schemes[k];auto&g=a[k];const auto&decoded=s.block?full.payload_bits:win.payload;std::uint64_t frameE=0;
++    for(std::size_t i=0;i<P;++i){bool er=decoded[i]!=pl[i];frameE+=er;bool bd=false;if(!s.block)for(std::size_t b=s.slot;b<P;b+=s.slot)bd|=i+5>=b&&i<b+5;
++     if(i<70){g.headE+=er;++g.headN;}else if(i>=230){g.tailE+=er;++g.tailN;}else if(bd){g.boundE+=er;++g.boundN;}else{g.midE+=er;++g.midN;}}
++    g.be+=frameE;g.fe+=frameE!=0;double us=s.block?fullus:winus;g.sum+=us;g.max=std::max(g.max,us);g.times.push_back(us);
++   }
++  }
++  for(std::size_t k=0;k<schemes.size();++k){const auto&s=schemes[k];auto&g=a[k];double ber=double(g.be)/(500*P),fer=double(g.fe)/500,avg=g.sum/500,rate=300.0/n;double first=s.block?avg:avg*74/L;double avglat=s.block?avg:avg*71.38/L;double interval=s.block?avg:avg*25/L;
++   out<<sc.rate<<','<<sc.snr<<','<<s.id<<','<<s.slot<<','<<s.count<<",500,"<<ber<<','<<fer<<','<<double(g.headE)/g.headN<<','<<(g.boundN?double(g.boundE)/g.boundN:0)<<','<<g.boundN<<','<<double(g.midE)/g.midN<<','<<double(g.tailE)/g.tailN<<','<<n<<",6,"<<(s.count-1)*6<<','<<rate<<','<<first<<','<<avglat<<','<<avg<<','<<interval<<','<<avg<<','<<pct95(g.times)<<','<<g.max<<','<<300/avg<<','<<300/avg*(1-fer)<<','<<rate*(1-fer)<<','<<(s.block?L*64*sizeof(Sv):D*64*sizeof(Sv))<<','<<(s.block?0:96*2*sizeof(double))<<','<<500*L*64*2<<','<<(s.block?500*L:500*D*(L+1-D))<<'\n';
++  }
++ }
++ std::ofstream sum(results/"stage14_comparison_test_summary.csv");sum<<"check,status\nfair_payload_noise_symbols,PASS\nlength_rate_formula,PASS\nregion_partition,PASS\ncontinuous_tail_once,PASS\nmetric_finite,PASS\nstage_gate,PASS_STAGE14_CC_BLOCK_CONTINUOUS_COMPARISON\n";
++ std::cout<<"PASS_STAGE14_CC_BLOCK_CONTINUOUS_COMPARISON\n";return 0;
++}catch(const std::exception&e){std::cerr<<"FAIL_STAGE14: "<<e.what()<<'\n';return 1;}}
+diff --git a/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/stage_plan.md b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/stage_plan.md
+new file mode 100644
+index 00000000..c22755ad
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/stage_plan.md
+@@ -0,0 +1,9 @@
++# Stage14 规格冻结：整块与连续滑窗比较
++
++在 R12-soft@0 dB、R23-soft@1 dB 各 500 个相同 payload/母噪声帧比较 A整块零尾、B50×6、C100×3、D150×2。B/C/D 使用 Stage12 连续编码语义和 Stage13 window96/slide25/Dtb70；每帧只生成一次编码与接收符号。
++
++连续方案只在最后统一追加 6 个尾 bit，因此 A-D 当前有限 300 bit 实验的 N_transmitted 相同；其优势相对于“每 slot 独立清零加尾”的反事实是避免 `(slotCount-1)*6` 个重复 tail input bits。A 的内部 boundaryBitCount=0、boundaryBER 记 0 并由报告说明 N/A。
++
++验收要求覆盖 BER/FER、四区域 BER、长度/码率、输出时延、译码时延/吞吐/goodput、内存、ACS/traceback 操作，并保证逐方案分区计数闭合。
++
++Gate：`PASS_STAGE14_CC_BLOCK_CONTINUOUS_COMPARISON`

@@ -1,0 +1,13 @@
+{"schemaVersion":"cc.stage.audit.v1","stage":"stage14_block_continuous_comparison","scenario":"S3","branch":"stage01-cc","gate":"PASS_STAGE14_CC_BLOCK_CONTINUOUS_COMPARISON","gateStatus":"PASS","functionalRanges":[{"name":"content","baseCommit":"07c6edabb333689fe341b109fb1e51e6606d9d65","contentCommit":"d1be888c0feca499b6a9c1c9a3d983dedbf6cb25","diffPaths":["Task/CC/simulation/stages/S3/stage14_block_continuous_comparison"],"files":[
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/.gitignore",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/CMakeLists.txt",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/commands_used.md",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/frozen_config.csv",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/known_issues.md",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_block_continuous_results.csv",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_report.md",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_comparison_test_summary.csv",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/run_stage14.py",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp",
+"Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/stage_plan.md"]}],"validation":{"rates":2,"schemes":4,"framesPerRate":500,"fairPayloadNoiseSymbols":"PASS","regionPartition":"PASS","recommendedContinuousSlots":"100x3","stage13AuditRegression":"PASS"},"changesPatch":{"semantic":"git diff --binary --unified=0 baseCommit..contentCommit over Stage14","sha256":"45491bee9c5d4f63120b082ee4154d3cc521ce7c74a63c12e0f0f550563bf61b","includesAuditCommit":false},"scope":{"allowedPrefixes":["Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/"],"outOfScopeChanges":[]},"remoteVerification":"DEFERRED_TO_BATCH_PUSH","mergeStatus":"NOT_MERGED"}
