@@ -1,0 +1,9 @@
+check,status,detail
+positive_contract_validation,PASS,all frozen invariants matched
+reject_wrong_state_count,PASS,invalid mutation rejected
+reject_reversed_generator_bits,PASS,invalid mutation rejected
+reject_theoretical_rate_as_actual,PASS,invalid mutation rejected
+reject_missing_hard_as_zero,PASS,invalid mutation rejected
+reject_missing_sigma_squared,PASS,invalid mutation rejected
+required_documents,PASS,all present
+stage_gate,PASS,PASS_STAGE01_CC_CONTRACT

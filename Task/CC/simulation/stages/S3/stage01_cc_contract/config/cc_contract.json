@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "cc.s3.contract.v1",
+  "stage": "stage01_cc_contract",
+  "mainScenario": {
+    "payloadLength": 300,
+    "compatibilityPayloadLengths": [200],
+    "constraintLength": 7,
+    "memory": 6,
+    "stateCount": 64,
+    "motherRateNumerator": 1,
+    "motherRateDenominator": 2,
+    "generator1Octal": "171",
+    "generator2Octal": "133",
+    "generator1Binary": "1111001",
+    "generator2Binary": "1011011",
+    "initialState": 0,
+    "tailLength": 6,
+    "modulation": "BPSK",
+    "baselineChannel": "AWGN"
+  },
+  "bitOrder": {
+    "registerVector": ["u(t)", "u(t-1)", "u(t-2)", "u(t-3)", "u(t-4)", "u(t-5)", "u(t-6)"],
+    "stateVector": ["u(t-1)", "u(t-2)", "u(t-3)", "u(t-4)", "u(t-5)", "u(t-6)"],
+    "stateMsb": "u(t-1)",
+    "stateLsb": "u(t-6)",
+    "inputShiftDirection": "INTO_STATE_BIT_5_MSB",
+    "nextStateFormula": "((inputBit & 1) << 5) | (stateIndex >> 1)",
+    "branchOutputOrder": ["g1_171", "g2_133"],
+    "motherSerialization": "TIME_MAJOR_G1_THEN_G2",
+    "matlabReference": "poly2trellis(7,[171 133])"
+  },
+  "blockZeroTail": {
+    "K_payload": 300,
+    "K_codec_input": 306,
+    "N_mother": 612,
+    "N_transmittedMother": 612,
+    "actualRateMother": 0.49019607843137253,
+    "terminationState": 0,
+    "tailBits": [0, 0, 0, 0, 0, 0]
+  },
+  "bpsk": {
+    "bit0Symbol": 1.0,
+    "bit1Symbol": -1.0,
+    "hardDecisionZeroInclusive": true,
+    "hardDecisionRule": "y >= 0 -> 0; y < 0 -> 1",
+    "llrFormula": "2*y/sigmaSquared",
+    "positiveLlrMeansBit": 0
+  },
+  "snr": {
+    "axisLabel": "SNR (dB)",
+    "definition": "BPSK_SYMBOL_ES_OVER_N0",
+    "snrDbFormula": "ebN0Db + 10*log10(actualRate)",
+    "ebN0DbFormula": "snrDb - 10*log10(actualRate)",
+    "sigmaSquaredFormula": "1/(2*10^(snrDb/10))"
+  },
+  "metrics": {
+    "hardBranchMetric": "MASKED_HAMMING_DISTANCE",
+    "softFloatBranchMetric": "MASKED_RECEIVED_SYMBOL_EUCLIDEAN_SQUARED",
+    "tieBreaking": ["LOWER_PATH_METRIC", "LOWER_PREDECESSOR_STATE", "LOWER_INPUT_BIT"],
+    "normalization": "SUBTRACT_MIN_FINITE_EVERY_TRELLIS_STEP",
+    "missingHardBitPolicy": "EXCLUDE_WITH_OBSERVED_MASK",
+    "missingSoftLlr": 0.0,
+    "nonFinitePolicy": "ERROR_ABORT"
+  },
+  "puncturingInterface": {
+    "maskIndexDomain": "SERIALIZED_MOTHER_BIT_INDEX",
+    "maskOrder": "TIME_MAJOR_G1_THEN_G2",
+    "phaseFormula": "motherBitIndex % patternLength",
+    "tailPolicy": "CONTINUE_CURRENT_PATTERN_PHASE",
+    "continuousSlotPolicy": "CARRY_PATTERN_PHASE",
+    "nTransmittedPolicy": "COUNT_RETAINED_BITS"
+  },
+  "statistics": {
+    "berNumerator": "payloadBitErrors",
+    "berDenominator": "framesProcessed*K_payload",
+    "ferNumerator": "payloadErrorFrames",
+    "ferDenominator": "framesProcessed",
+    "normalizedGoodputFormula": "actualRate*(1-FER)"
+  },
+  "stopRules": {
+    "prescan": {
+      "minFrames": 300,
+      "targetFrameErrors": 30,
+      "maxFrames": 2000,
+      "snrStepDb": 0.5
+    },
+    "formal": {
+      "minFrames": 5000,
+      "targetFrameErrors": 200,
+      "maxFrames": 50000,
+      "checkpointIntervalFrames": 1000
+    },
+    "expression": "(framesProcessed >= minFrames AND payloadErrorFrames >= targetFrameErrors) OR framesProcessed >= maxFrames",
+    "stopReasons": ["TARGET_ERRORS_REACHED", "MAX_FRAMES_REACHED", "ERROR_ABORT", "MANUAL_STOP"]
+  },
+  "randomness": {
+    "masterSeed": 2026072001,
+    "payloadSeedFields": ["masterSeed", "payloadLength", "frameIndex"],
+    "noiseSeedFields": ["masterSeed", "noiseGroupId", "frameIndex"],
+    "excludedNoiseSeedFields": ["snrIndex", "snrDb", "ebN0Db", "decoderType"],
+    "hardSoftShareReceivedSymbols": true
+  },
+  "overwriteExistingResults": false
+}
