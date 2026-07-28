@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "cc.stage03.config.v1",
+  "payloadLength": 300,
+  "codecInputLength": 306,
+  "motherLength": 612,
+  "initialState": 0,
+  "finalState": 0,
+  "tailLength": 6,
+  "randomNoiselessFrames": 100,
+  "randomSeed": 2026072002,
+  "matlabTracebackDepth": 35
+}

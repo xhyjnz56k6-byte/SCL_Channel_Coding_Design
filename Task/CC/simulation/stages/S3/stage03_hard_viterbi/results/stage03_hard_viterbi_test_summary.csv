@@ -1,0 +1,8 @@
+check,status
+release_build,PASS
+ctest,PASS
+noiseless_random_100,PASS
+invalid_input_negative,PASS
+matlab_vitdec_vectors,PASS
+payload_mismatch,0
+stage_gate,PASS_STAGE03_CC_HARD_VITERBI
