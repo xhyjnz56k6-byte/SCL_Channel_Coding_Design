@@ -9,4 +9,9 @@ python Task\BCH\simulation\stages\S2\stage07_awgn_dense_formal\python\stage07_aw
 git ls-tree -r --name-only origin/stage07-bch-s2-awgn-dense-formal Task/BCH/simulation/stages/S2/stage07_awgn_dense_formal/results/points
 python Task\BCH\simulation\integration\stage17_all_channels_integration\stage17_awgn_dense_source_attestation.py
 python Task\BCH\simulation\integration\stage17_all_channels_integration\stage17_awgn_dense_integration_check.py
+git merge --no-ff origin/stage07-08-bch-s2-multipath -m "BCH/stage17：合并多径common-SNR线路"
+python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_check.py
+python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_plot_check.py
+python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_finalize_audit.py
+git restore -- Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_file_hashes.json Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_manifest.json Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr/stage08_multipath_formal_common_snr_validation_report.md
 ```

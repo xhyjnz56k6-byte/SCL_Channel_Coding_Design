@@ -120,3 +120,38 @@ No `PASS_BCH_S2_ALL_CHANNELS_INTEGRATION` has been generated yet.
 No merge to `main` has been attempted.
 
 No push has been attempted.
+
+## Multipath Common-SNR Merge
+
+Merged branch:
+
+```text
+origin/stage07-08-bch-s2-multipath
+```
+
+Merge commit:
+
+```text
+7ffff868de786a1fca2bcad1530c9431b2b6eb87
+```
+
+Executed regressions:
+
+```text
+python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_check.py
+PASS_STAGE08_COMMON_SNR_RESULTS_CHECK points=296 frames=5599111
+
+python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_plot_check.py
+PASS_STAGE08_COMMON_SNR_PLOT_CHECK
+
+python Task\BCH\simulation\stages\S2\stage08_multipath_formal_common_snr\python\stage08_multipath_formal_common_snr_finalize_audit.py
+PASS_STAGE08_MULTIPATH_COMMON_SNR_COMPARISON
+```
+
+The finalize audit script temporarily refreshed Stage08 audit files for the integration HEAD. Those run-side effects were restored and were not committed, because Stage17 must not rewrite original Stage08 audit evidence during integration.
+
+Generated step Gate:
+
+```text
+PASS_STAGE17_AFTER_MULTIPATH_MERGE
+```
