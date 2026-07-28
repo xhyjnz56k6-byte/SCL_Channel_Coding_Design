@@ -49,6 +49,22 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
     const std::size_t tail_length,
     const std::uint8_t initial_state,
     const std::uint8_t final_state) const {
+    return decode_terminated_masked_symbols(
+        received_symbols,
+        std::vector<std::uint8_t>(received_symbols.size(), 1),
+        codec_input_length,
+        tail_length,
+        initial_state,
+        final_state);
+}
+
+SoftViterbiResult SoftViterbiDecoder::decode_terminated_masked_symbols(
+    const std::vector<double>& received_symbols,
+    const std::vector<std::uint8_t>& observed_mask,
+    const std::size_t codec_input_length,
+    const std::size_t tail_length,
+    const std::uint8_t initial_state,
+    const std::uint8_t final_state) const {
     if (initial_state >= kStateCount || final_state >= kStateCount) {
         throw std::invalid_argument("soft Viterbi state is outside [0, 63]");
     }
@@ -58,9 +74,17 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
     if (received_symbols.size() != codec_input_length * 2) {
         throw std::invalid_argument("soft Viterbi symbol length mismatch");
     }
+    if (observed_mask.size() != received_symbols.size()) {
+        throw std::invalid_argument("soft Viterbi observed mask length mismatch");
+    }
     for (double value : received_symbols) {
         if (!std::isfinite(value)) {
             throw std::invalid_argument("soft Viterbi received symbol is not finite");
+        }
+    }
+    for (auto mask : observed_mask) {
+        if (mask > 1) {
+            throw std::invalid_argument("soft Viterbi observed mask is not binary");
         }
     }
 
@@ -87,7 +111,10 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
                 const auto& branch = trellis_.branch(static_cast<std::uint8_t>(state), input);
                 const double d0 = y0 - symbol_for_bit(branch.output_bits[0]);
                 const double d1 = y1 - symbol_for_bit(branch.output_bits[1]);
-                const double candidate = metrics[state] + d0 * d0 + d1 * d1;
+                const double candidate =
+                    metrics[state] +
+                    (observed_mask[2 * time] != 0 ? d0 * d0 : 0.0) +
+                    (observed_mask[2 * time + 1] != 0 ? d1 * d1 : 0.0);
                 if (!std::isfinite(candidate)) {
                     ++result.non_finite_metric_count;
                     continue;

@@ -29,6 +29,14 @@ public:
         std::uint8_t initial_state = 0,
         std::uint8_t final_state = 0) const;
 
+    HardViterbiResult decode_terminated_masked(
+        const std::vector<std::uint8_t>& expanded_bits,
+        const std::vector<std::uint8_t>& observed_mask,
+        std::size_t codec_input_length,
+        std::size_t tail_length = kMemory,
+        std::uint8_t initial_state = 0,
+        std::uint8_t final_state = 0) const;
+
 private:
     const Trellis& trellis_;
 };

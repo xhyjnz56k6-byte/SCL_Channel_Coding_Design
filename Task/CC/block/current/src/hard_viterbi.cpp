@@ -46,6 +46,22 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
     const std::size_t tail_length,
     const std::uint8_t initial_state,
     const std::uint8_t final_state) const {
+    return decode_terminated_masked(
+        received_bits,
+        std::vector<std::uint8_t>(received_bits.size(), 1),
+        codec_input_length,
+        tail_length,
+        initial_state,
+        final_state);
+}
+
+HardViterbiResult HardViterbiDecoder::decode_terminated_masked(
+    const std::vector<std::uint8_t>& received_bits,
+    const std::vector<std::uint8_t>& observed_mask,
+    const std::size_t codec_input_length,
+    const std::size_t tail_length,
+    const std::uint8_t initial_state,
+    const std::uint8_t final_state) const {
     if (initial_state >= kStateCount || final_state >= kStateCount) {
         throw std::invalid_argument("Viterbi state is outside [0, 63]");
     }
@@ -55,9 +71,17 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
     if (received_bits.size() != codec_input_length * kOutputBitsPerInput) {
         throw std::invalid_argument("hard Viterbi input length mismatch");
     }
+    if (observed_mask.size() != received_bits.size()) {
+        throw std::invalid_argument("hard Viterbi observed mask length mismatch");
+    }
     for (const auto bit : received_bits) {
         if (bit > 1) {
             throw std::invalid_argument("hard Viterbi input is not binary");
+        }
+    }
+    for (const auto mask : observed_mask) {
+        if (mask > 1) {
+            throw std::invalid_argument("hard Viterbi observed mask is not binary");
         }
     }
 
@@ -82,8 +106,8 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
             for (std::uint8_t input = 0; input < 2; ++input) {
                 const auto& branch = trellis_.branch(static_cast<std::uint8_t>(state), input);
                 const std::int32_t branch_metric =
-                    static_cast<std::int32_t>(observed0 != branch.output_bits[0]) +
-                    static_cast<std::int32_t>(observed1 != branch.output_bits[1]);
+                    static_cast<std::int32_t>(observed_mask[2 * time] != 0 && observed0 != branch.output_bits[0]) +
+                    static_cast<std::int32_t>(observed_mask[2 * time + 1] != 0 && observed1 != branch.output_bits[1]);
                 if (metrics[state] > kInfiniteMetric - branch_metric) {
                     ++result.overflow_count;
                     continue;

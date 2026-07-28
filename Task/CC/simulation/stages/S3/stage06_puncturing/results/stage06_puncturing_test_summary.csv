@@ -1,0 +1,7 @@
+check,status
+noiseless_four_patterns_480_frames,PASS
+phase_carry,PASS
+matlab_four_patterns,PASS
+selectedR23,R23_B_1101
+selectedR34,R34_B_110110
+stage_gate,PASS_STAGE06_CC_PUNCTURING
