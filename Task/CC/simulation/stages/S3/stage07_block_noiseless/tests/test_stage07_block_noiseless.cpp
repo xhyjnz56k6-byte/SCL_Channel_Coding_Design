@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <random>
 #include <stdexcept>
@@ -67,6 +68,7 @@ int main(int argc, char** argv) {
                 non_finite+=sr.non_finite_metric_count;
             }
             const double actual_rate=300.0/static_cast<double>(rate.expected_length);
+            out<<std::setprecision(17);
             out<<"CC-B-"<<rate.rate<<"-H,100,"<<hard_bit_mismatch<<','<<hard_frame_mismatch
                <<",0,300,306,612,"<<rate.expected_length<<','<<actual_rate<<",0,"
                <<rate.expected_length<<'\n';

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import csv, shutil, subprocess, sys
+import csv, math, shutil, subprocess, sys
 from pathlib import Path
 def run(c,cwd): print("+"," ".join(c)); subprocess.run(c,cwd=cwd,check=True)
 def main():
@@ -19,6 +19,9 @@ def main():
         rate=r["caseId"].split("-")[2]
         if int(r["N_transmitted"])!=expected[rate] or int(r["observedMaskCount"])!=expected[rate]:
             raise RuntimeError("Stage07 length/mask mismatch")
+        expected_rate=300.0/int(r["N_transmitted"])
+        if not math.isclose(float(r["actualRate"]),expected_rate,rel_tol=0.0,abs_tol=1e-15):
+            raise RuntimeError("Stage07 actualRate mismatch")
     with (results/"stage07_block_noiseless_test_summary.csv").open("w",encoding="utf-8",newline="") as h:
         w=csv.writer(h,lineterminator="\n"); w.writerow(["check","status"])
         w.writerow(["six_cases_100_frames_each","PASS"]);w.writerow(["payloadBitMismatch","0"])
