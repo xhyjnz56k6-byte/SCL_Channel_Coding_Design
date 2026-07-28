@@ -1,0 +1,8 @@
+check,status
+invalid_candidates_rejected,PASS
+noiseless_hard,PASS
+noiseless_soft,PASS
+output_count_unique_300,PASS
+warmup_and_final_flush,PASS
+state_metric_carry,PASS
+stage_gate,PASS_STAGE13_CC_SLIDING_WINDOW

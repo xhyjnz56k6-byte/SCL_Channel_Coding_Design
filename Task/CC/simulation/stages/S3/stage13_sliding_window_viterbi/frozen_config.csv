@@ -1,0 +1,8 @@
+parameter,value
+tracebackDepthBits,70
+selectedWindowInputBits,96
+selectedSlideStepBits,25
+initialWarmupBits,70
+finalFlushPolicy,known_zero_terminated_state
+stateMetricCarryPolicy,carry_normalized_metrics
+puncturePhaseCarryPolicy,continuous
