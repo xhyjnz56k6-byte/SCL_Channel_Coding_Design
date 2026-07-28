@@ -1,0 +1,10 @@
+parameter,value,semantics
+smokeFramesPerPoint,60,range_detection
+smokeSnrGrid,-2:-1:4,dB
+prescanMinFrames,300,frame
+prescanTargetFrameErrors,30,frame
+prescanMaxFrames,2000,frame
+prescanStep,0.5,dB
+masterSeed,2026072001,common_payload_and_noise
+snrDefinition,BPSK_SYMBOL_ES_OVER_N0,axis
+sigmaSquaredFormula,1/(2*10^(snrDb/10)),formula

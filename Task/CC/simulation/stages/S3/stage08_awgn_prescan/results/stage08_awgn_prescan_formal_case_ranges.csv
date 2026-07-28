@@ -1,0 +1,7 @@
+caseId,formalMinSnrDb,formalMaxSnrDb,stepDb,basis
+CC-B-R12-H,0.0,2.0,0.2,prescan_FER_0.005_to_0.8
+CC-B-R12-S,-2.0,0.0,0.2,prescan_FER_0.005_to_0.8
+CC-B-R23-H,1.0,4.0,0.2,prescan_FER_0.005_to_0.8
+CC-B-R23-S,-0.5,2.0,0.2,prescan_FER_0.005_to_0.8
+CC-B-R34-H,2.0,4.0,0.2,prescan_FER_0.005_to_0.8
+CC-B-R34-S,0.5,3.0,0.2,prescan_FER_0.005_to_0.8
