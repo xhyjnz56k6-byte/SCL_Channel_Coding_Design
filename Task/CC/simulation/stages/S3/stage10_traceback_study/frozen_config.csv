@@ -1,12 +1,22 @@
 parameter,value
-framesPerPoint,1000
-tracebackDepths,35|49|70
-R12_soft_snrDb,-0.5|0.0
-R23_soft_snrDb,0.5|1.0
-fullBlockDepth,306
-knownFinalState,0
-preferredMaxRelativeBerIncrease,0.05
-preferredMaxRelativeFerIncrease,0.05
-fallbackMaxRelativeBerIncrease,0.10
-fallbackMaxRelativeFerIncrease,0.15
-fallbackMinSurvivorMemoryReduction,0.50
+payloadBits,300
+constraintLength,7
+generatorOctal,171/133
+motherRate,1/2
+puncturedRates,2/3;3/4
+modulation,"BPSK 0->+1,1->-1"
+snrDefinition,Es/N0
+coarseSnrDb,-5:0.5:10
+denseStepDb,0.1
+minFrames,1000
+targetFrameErrors,200
+maxFrames,50000
+checkpointIntervalFrames,1000
+payloadSeed,2026072001
+modelScope,symbol-level discrete BPSK-AWGN
+buildType,Release
+compiler,GNU 15.2.0 MinGW UCRT64
+operatingSystem,Windows-10-10.0.26200-SP0
+threadsPerRunner,1
+formalShardCount,4 (Stages09/11/13); 8 (Stage14)
+timingBatchCount,5

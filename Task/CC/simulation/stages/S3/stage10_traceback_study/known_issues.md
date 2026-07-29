@@ -1,5 +1,6 @@
-# stage10_traceback_study 当前已知问题
+# stage10_traceback_study known issues
 
-- 临时状态：`PARTIAL_PASS`。
-- 尚未满足：正确性、最坏 FER 增幅、CI、四类推荐及 D84 联合复核通过。
-- 本轮完成前不得用于 Stage15 最终结论。
+- No unresolved P0 correctness issue.
+- CPU timing is specific to the recorded Release build, host, operating system and compiler.
+- The channel is symbol-level discrete BPSK-AWGN; it does not model sampling rate, pulse shaping, matched filtering or noise bandwidth.
+- Formal zero-error BER/FER values remain zero; confidence upper bounds are stored and used only for display.

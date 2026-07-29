@@ -1,7 +1,8 @@
-# Stage11 命令
+# stage11_soft_quantization commands used
 
-```powershell
-python Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/run_stage11.py --clean
-python Task/CC/shared/scripts/cc_stage_audit.py Task/CC/simulation/stages/S3/stage10_traceback_study/manifest.json
-git diff --check
-```
+- Release build: `cmake -DCMAKE_BUILD_TYPE=Release`
+- Formal stopping: `--min-frames 1000 --target-frame-errors 200 --max-frames 50000`
+- Coarse grid: `-5:0.5:10 dB`
+- Dense grid: `0.1 dB` in the measured waterfall range
+- Shards were merged only after every shard emitted its PASS sentinel and stderr remained empty.
+- Plot processors generated pointwise figure-data CSVs, PNGs, plot manifests and SHA-256 checks.

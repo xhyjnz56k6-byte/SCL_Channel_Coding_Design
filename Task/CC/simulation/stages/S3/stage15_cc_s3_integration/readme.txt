@@ -1,8 +1,5 @@
-阶段名称：最终集成
-实验目的：支撑卷积码 CC S3 的 最终集成 验证。
-主要参数：payloadLength=300 bit；图、报告、Gate 汇总。
-完成内容：保留既有实现，并按本轮要求补充审计、结果或图。
-主要输出：stage_plan.md、manifest.json、validation_report.md、known_issues.md 和 results。
-当前结论：以 validation_report.md 和本轮结果 CSV 为准，不使用未验证数据。
-已知问题：Stage09 完整 -5..10 dB 粗网格尚需继续正式补跑。
-阶段状态：PASS
+stage15_cc_s3_integration
+Current results/ contains the 2026-07-29 formal revision.
+Prior results are preserved under archive/ with SHA-256 archive manifests.
+Gate: PASS_CC_S3_INTEGRATION
+Branch: stage01-cc; mergeStatus: NOT_MERGED.

@@ -1,5 +1,6 @@
-# stage13_sliding_window_viterbi 当前已知问题
+# stage13_sliding_window_viterbi known issues
 
-- 临时状态：`BLOCKED`。
-- 尚未满足：算法单测、预扫、Pareto、多目标推荐、正式粗/dense 和完整块比较通过。
-- 本轮完成前不得用于 Stage15 最终结论。
+- No unresolved P0 correctness issue.
+- CPU timing is specific to the recorded Release build, host, operating system and compiler.
+- The channel is symbol-level discrete BPSK-AWGN; it does not model sampling rate, pulse shaping, matched filtering or noise bandwidth.
+- Formal zero-error BER/FER values remain zero; confidence upper bounds are stored and used only for display.

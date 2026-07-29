@@ -1,6 +1,19 @@
-# stage09_awgn_formal 修订验证报告
+# stage09_awgn_formal validation report
 
-- 基线 HEAD：`6cda1f14f29a8cbe42ad3dcdc8a443ab35368b58`
-- 当前状态：`PARTIAL_PASS`
-- 旧结果归档：PASS
-- 功能实现与正式实验：尚在执行；不得据此宣称最终 PASS。
+- Branch: `stage01-cc`
+- Gate: `PASS_STAGE09_TWO_LEVEL_REVISION`
+- Remote functional commits verified: PASS
+- Merge status: NOT_MERGED
+
+## Executed checks
+
+- Release MinGW build: PASS
+- four coarse shards: PASS
+- two-level merge/formula/coverage checker: PASS
+- five pointwise plots and hash manifest: PASS
+
+## Functional ranges
+
+- `e3e9efbc77fed04daad3be0968fbc6edd69ec91d...23fd8445a629ebd89c44949612bf40c09a071dd3` (1 files)
+
+Final status: **PASS_STAGE09_TWO_LEVEL_REVISION**

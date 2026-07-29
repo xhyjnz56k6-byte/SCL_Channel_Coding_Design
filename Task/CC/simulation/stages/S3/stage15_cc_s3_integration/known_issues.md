@@ -1,5 +1,6 @@
-# stage15_cc_s3_integration 当前已知问题
+# stage15_cc_s3_integration known issues
 
-- 临时状态：`BLOCKED`。
-- 尚未满足：Stage09～14 全通过且 scheme matrix、图、文档、审计总 Gate 全通过。
-- 本轮完成前不得用于 Stage15 最终结论。
+- No unresolved P0 correctness issue.
+- CPU timing is specific to the recorded Release build, host, operating system and compiler.
+- The channel is symbol-level discrete BPSK-AWGN; it does not model sampling rate, pulse shaping, matched filtering or noise bandwidth.
+- Formal zero-error BER/FER values remain zero; confidence upper bounds are stored and used only for display.

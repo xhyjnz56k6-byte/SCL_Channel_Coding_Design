@@ -1,5 +1,6 @@
-# stage14_block_continuous_comparison 当前已知问题
+# stage14_block_continuous_comparison known issues
 
-- 临时状态：`BLOCKED`。
-- 尚未满足：Stage12 先通过；372 coarse 点、候选 dense、在线证据和六类主图通过。
-- 本轮完成前不得用于 Stage15 最终结论。
+- No unresolved P0 correctness issue.
+- CPU timing is specific to the recorded Release build, host, operating system and compiler.
+- The channel is symbol-level discrete BPSK-AWGN; it does not model sampling rate, pulse shaping, matched filtering or noise bandwidth.
+- Formal zero-error BER/FER values remain zero; confidence upper bounds are stored and used only for display.

@@ -1,15 +1,22 @@
 parameter,value
-input,receivedSymbols
-quantizer,symmetric_mid_tread
-zeroPoint,0
-bits,3|4|6
-clipCandidates,2|3|4|6
-puncturedNeutralCode,0
-pathMetricType,int32_t
-pathMetricSaturation,1000000000
-normalization,subtract_min_each_step
-prescanFramesPerScenario,200
-formalFramesPerScenario,1000
-selectedClipMax,2
-selectedClipBasis,Q4_global_minimum_float_mismatch_frames
-recommendedBits,6
+payloadBits,300
+constraintLength,7
+generatorOctal,171/133
+motherRate,1/2
+puncturedRates,2/3;3/4
+modulation,"BPSK 0->+1,1->-1"
+snrDefinition,Es/N0
+coarseSnrDb,-5:0.5:10
+denseStepDb,0.1
+minFrames,1000
+targetFrameErrors,200
+maxFrames,50000
+checkpointIntervalFrames,1000
+payloadSeed,2026072001
+modelScope,symbol-level discrete BPSK-AWGN
+buildType,Release
+compiler,GNU 15.2.0 MinGW UCRT64
+operatingSystem,Windows-10-10.0.26200-SP0
+threadsPerRunner,1
+formalShardCount,4 (Stages09/11/13); 8 (Stage14)
+timingBatchCount,5
