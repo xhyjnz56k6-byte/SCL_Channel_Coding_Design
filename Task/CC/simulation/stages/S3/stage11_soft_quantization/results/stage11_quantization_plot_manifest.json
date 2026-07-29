@@ -1,0 +1,64 @@
+{
+  "figures": [
+    {
+      "png": "stage11_quantization_ber.png",
+      "pngSha256": "8c74d77b00abb6dafe13a951137677bc41fb1829940bea3046bfb3bbed1fa9fc",
+      "figureDataCsv": "stage11_quantization_figure_data_ber.csv",
+      "figureDataSha256": "e43bd74b1b41218390eed3f3ee01d13cf46bf6eec34ef4a6ca985cf6acb74431",
+      "sourceCsv": "stage11_quantization_figure_data_ber.source.csv",
+      "sourceSha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd",
+      "xColumn": "bits",
+      "yColumn": "BER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage11_quantization_fer.png",
+      "pngSha256": "411c5a8486fe834e040f51c80da1399a9fe8ad3a290be3f80d63520b04ee7418",
+      "figureDataCsv": "stage11_quantization_figure_data_fer.csv",
+      "figureDataSha256": "10ffff160f57e8d686808f932ceae7e7891ddd2a847f46922ce3c5e72178a1d4",
+      "sourceCsv": "stage11_quantization_figure_data_fer.source.csv",
+      "sourceSha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd",
+      "xColumn": "bits",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage11_quantization_latency.png",
+      "pngSha256": "17e4fee0998823ec6d998b3dd5758bb81e3763fa54a2312c9b2c4581a315525c",
+      "figureDataCsv": "stage11_quantization_figure_data_latency.csv",
+      "figureDataSha256": "7331cea16d20f446afd6cd52e0f5bcddd590caf5130d43474a8de2e1ac786084",
+      "sourceCsv": "stage11_quantization_figure_data_latency.source.csv",
+      "sourceSha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd",
+      "xColumn": "bits",
+      "yColumn": "avgDecodeTime_us",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage11_quantization_memory.png",
+      "pngSha256": "6d03aa9e44cf7d52d8809c7ad8cce5c7520e9d2436c397047d1658332ed93085",
+      "figureDataCsv": "stage11_quantization_figure_data_memory.csv",
+      "figureDataSha256": "afb8bd915e4b1233af157ceb864612fdb80ffca9ce02afa8fc0cf3955f95fa61",
+      "sourceCsv": "stage11_quantization_figure_data_memory.source.csv",
+      "sourceSha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd",
+      "xColumn": "bits",
+      "yColumn": "inputMemoryBytes",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage11_quantization_saturation.png",
+      "pngSha256": "1971f76b0af09cd381484928a65980c3f613a6dae2bd53967c73cb786584dc8e",
+      "figureDataCsv": "stage11_quantization_figure_data_saturation.csv",
+      "figureDataSha256": "f6d2bba0135de60ab73b0952bb4e69df6aa8f5a5123b8c46265e2b59778c4bcc",
+      "sourceCsv": "stage11_quantization_figure_data_saturation.source.csv",
+      "sourceSha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd",
+      "xColumn": "bits",
+      "yColumn": "inputSaturationCount",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    }
+  ]
+}

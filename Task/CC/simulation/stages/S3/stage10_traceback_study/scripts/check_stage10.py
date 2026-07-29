@@ -18,8 +18,8 @@ def main() -> int:
     source = results / "stage10_traceback_study_results.csv"
     with source.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
-    if len(rows) != 16:
-        raise RuntimeError(f"expected 16 rows, got {len(rows)}")
+    if len(rows) != 28:
+        raise RuntimeError(f"expected 28 rows, got {len(rows)}")
     grouped: dict[tuple[str, float], list[dict[str, str]]] = defaultdict(list)
     for row in rows:
         key = (row["caseId"], float(row["snrDb"]))
@@ -42,6 +42,10 @@ def main() -> int:
             raise RuntimeError(f"FER formula at {key}")
         if int(row["survivorMemoryBytes"]) != depth * 64 * 3:
             raise RuntimeError(f"survivor memory formula at {key}")
+        if int(row["pathMetricMemoryBytes"]) != 2 * 64 * 8:
+            raise RuntimeError(f"path metric memory formula at {key}")
+        if int(row["ACSCount"]) != frames * 306 * 64 * 2:
+            raise RuntimeError(f"ACS count formula at {key}")
         expected_operations = (306 if row["mode"].startswith("FULL") else depth * (307 - depth)) * frames
         if int(row["tracebackOperations"]) != expected_operations:
             raise RuntimeError(f"traceback operations at {key}")
@@ -53,14 +57,14 @@ def main() -> int:
             raise RuntimeError(f"mismatch count relation at {key}")
         if row["mode"].startswith("FULL") and (mismatch_bits != 0 or mismatch_frames != 0):
             raise RuntimeError(f"full baseline mismatch at {key}")
-    if len(grouped) != 4 or any(len(items) != 4 for items in grouped.values()):
+    if len(grouped) != 4 or any(len(items) != 7 for items in grouped.values()):
         raise RuntimeError("scenario/mode matrix incomplete")
 
     preferred: list[int] = []
     fallback: list[int] = []
     worst_by_depth: dict[int, tuple[float, float, float]] = {}
     comparison_rows: list[dict[str, object]] = []
-    for depth in (35, 49, 70):
+    for depth in (35, 49, 70, 84, 98, 112):
         preferred_pass = True
         fallback_pass = True
         worst_ber = 0.0
@@ -126,7 +130,8 @@ def main() -> int:
         writer = csv.writer(handle, lineterminator="\n")
         writer.writerow([
             "recommendedDtb", "recommendationTier", "qualifiedDepths", "worstBerIncrease",
-            "worstFerIncrease", "survivorMemoryReduction", "decisionRule", "usage",
+            "worstFerIncrease", "survivorMemoryReduction", "performanceFirstRecommendation",
+            "balancedRecommendation", "resourceFirstRecommendation", "decisionRule", "usage",
         ])
         worst_ber, worst_fer, memory_reduction = worst_by_depth[recommendation]
         writer.writerow([
@@ -136,9 +141,19 @@ def main() -> int:
             worst_ber,
             worst_fer,
             memory_reduction,
+            max(qualified),
+            recommendation,
+            min(qualified),
             "preferred <=5% BER/FER; fallback <=10% BER, <=15% FER, >=50% memory reduction",
             "Stage12 sliding-window candidate",
         ])
+    (results / "stage10_existing_data_audit.md").write_text(
+        "# Stage10 existing data audit\n\n"
+        "Conclusion: DATA_PARTIAL\n\n"
+        "旧结果真实运行了 Dtb=35/49/70 与 BLOCK_FULL_TRACEBACK，且 payload/noise 公平；"
+        "但不包含 84/98/112，也没有完整科研图和多推荐策略，因此本轮已补跑扩展深度。\n",
+        encoding="utf-8",
+    )
     with (results / "stage10_traceback_test_summary.csv").open(
         "w", encoding="utf-8", newline=""
     ) as handle:

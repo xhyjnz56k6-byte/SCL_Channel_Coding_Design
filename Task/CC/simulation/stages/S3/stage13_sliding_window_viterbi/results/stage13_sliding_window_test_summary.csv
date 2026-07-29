@@ -1,8 +1,8 @@
 check,status
-invalid_candidates_rejected,PASS
+window_and_slide_used_in_decode,PASS
 noiseless_hard,PASS
 noiseless_soft,PASS
 output_count_unique_300,PASS
-warmup_and_final_flush,PASS
-state_metric_carry,PASS
+final_flush_known_zero_state,PASS
+parameter_grid_real_run,PASS
 stage_gate,PASS_STAGE13_CC_SLIDING_WINDOW

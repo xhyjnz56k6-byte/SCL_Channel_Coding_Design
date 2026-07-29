@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
         if (argc != 2) throw std::invalid_argument("expected results directory");
         const std::filesystem::path results(argv[1]);
         std::filesystem::create_directories(results);
-        const std::vector<std::size_t> depths = {35, 49, 70};
+        const std::vector<std::size_t> depths = {35, 49, 70, 84, 98, 112};
         const std::vector<Scenario> scenarios = {
             {"CC-B-R12-S", -0.5, {"R12_11", {1, 1}}, 1200},
             {"CC-B-R12-S", 0.0, {"R12_11", {1, 1}}, 1200},
@@ -231,11 +231,11 @@ int main(int argc, char** argv) {
         std::ofstream out(results / "stage10_traceback_study_results.csv");
         out << "caseId,snrDb,mode,Dtb,frames,payloadBitErrors,payloadErrorFrames,BER,FER,"
                "fullMismatchBits,fullMismatchFrames,avgDecodeTime_us,p95DecodeTime_us,"
-               "maxDecodeTime_us,survivorMemoryBytes,tracebackOperations,"
+               "maxDecodeTime_us,survivorMemoryBytes,pathMetricMemoryBytes,ACSCount,tracebackOperations,"
                "firstStableOutputDepth\n";
         out << std::setprecision(17);
         for (const auto& scenario : scenarios) {
-            std::array<Aggregate, 4> aggregates;
+            std::vector<Aggregate> aggregates(depths.size() + 1);
             const double sigma = std::sqrt(1.0 / (2.0 * std::pow(10.0, scenario.snr_db / 10.0)));
             for (std::uint64_t frame = 0; frame < 1000; ++frame) {
                 const auto common_payload = scl::common::generatePayloadBits(kSeed, kPayloadLength, frame);
@@ -255,8 +255,8 @@ int main(int argc, char** argv) {
                 const auto full = full_decoder.decode_terminated_masked_symbols(
                     depunctured.expanded_values, depunctured.observed_mask, kCodecInputLength);
                 const auto full_end = Clock::now();
-                std::array<DecodeResult, 3> finite;
-                std::array<double, 3> finite_us{};
+                std::vector<DecodeResult> finite(depths.size());
+                std::vector<double> finite_us(depths.size(), 0.0);
                 for (std::size_t i = 0; i < depths.size(); ++i) {
                     const auto start = Clock::now();
                     finite[i] = decode_finite(
@@ -281,11 +281,11 @@ int main(int argc, char** argv) {
                 }
             }
 
-            for (std::size_t mode = 0; mode < aggregates.size(); ++mode) {
+                for (std::size_t mode = 0; mode < aggregates.size(); ++mode) {
                 const auto& value = aggregates[mode];
                 const bool full = mode == 0;
                 const std::size_t depth = full ? kCodecInputLength : depths[mode - 1];
-                out << scenario.case_id << ',' << scenario.snr_db << ','
+                    out << scenario.case_id << ',' << scenario.snr_db << ','
                     << (full ? "FULL_BLOCK_ZERO_TERMINATED" : "FINITE_TRACEBACK") << ','
                     << depth << ',' << value.frames << ',' << value.bit_errors << ','
                     << value.frame_errors << ','
@@ -295,6 +295,8 @@ int main(int argc, char** argv) {
                     << value.decode_us_sum / value.frames << ',' << p95(value.decode_samples) << ','
                     << value.decode_us_max << ','
                     << depth * scl::cc::kStateCount * sizeof(Survivor) << ','
+                    << 2 * scl::cc::kStateCount * sizeof(double) << ','
+                    << value.frames * kCodecInputLength * scl::cc::kStateCount * 2 << ','
                     << value.traceback_operations << ','
                     << static_cast<double>(value.stable_depth_sum) / value.frames << '\n';
             }

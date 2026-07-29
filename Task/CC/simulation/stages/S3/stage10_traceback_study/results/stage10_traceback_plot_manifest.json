@@ -1,0 +1,52 @@
+{
+  "figures": [
+    {
+      "png": "stage10_traceback_ber.png",
+      "pngSha256": "136a82e67ce8af3e15f68ea1ef0d9f4fbe1798a5e946512185dcf08f93b07c48",
+      "figureDataCsv": "stage10_traceback_figure_data_ber.csv",
+      "figureDataSha256": "a56de1c2cc8e7bd549919ac7ba78738683fdb023760e75bd19a2b30a29478573",
+      "sourceCsv": "stage10_traceback_figure_data_ber.source.csv",
+      "sourceSha256": "3a194b870fe2da90e9f25f9d7326c51623e7917b91b1dc59d9122bc89d927bab",
+      "xColumn": "Dtb",
+      "yColumn": "BER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage10_traceback_fer.png",
+      "pngSha256": "fd917a22f98d74215c7974827a480dac6a76305c02742603f46126bb878282b4",
+      "figureDataCsv": "stage10_traceback_figure_data_fer.csv",
+      "figureDataSha256": "183f556ec35e63c334a6c898a55992a3f4b9688d6857748ce2cc4a9ba2d18759",
+      "sourceCsv": "stage10_traceback_figure_data_fer.source.csv",
+      "sourceSha256": "3a194b870fe2da90e9f25f9d7326c51623e7917b91b1dc59d9122bc89d927bab",
+      "xColumn": "Dtb",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage10_traceback_latency.png",
+      "pngSha256": "7968bd9cae011d391b28aa2eb0b7c2f5d4c916023672dd317e669799f6fbaee3",
+      "figureDataCsv": "stage10_traceback_figure_data_latency.csv",
+      "figureDataSha256": "01e137e7a5fe625ce165365f52fe15ae3a962443373ae74aefe0671748105b69",
+      "sourceCsv": "stage10_traceback_figure_data_latency.source.csv",
+      "sourceSha256": "3a194b870fe2da90e9f25f9d7326c51623e7917b91b1dc59d9122bc89d927bab",
+      "xColumn": "Dtb",
+      "yColumn": "avgDecodeTime_us",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage10_traceback_memory.png",
+      "pngSha256": "c099fc2832eddef9805729754b9cea523d76014960ba17a618ac64478613acab",
+      "figureDataCsv": "stage10_traceback_figure_data_memory.csv",
+      "figureDataSha256": "b49291b5541237d999dd8a78ee62aff30b6525f927ae7cb5bea886f1e0b57fb0",
+      "sourceCsv": "stage10_traceback_figure_data_memory.source.csv",
+      "sourceSha256": "3a194b870fe2da90e9f25f9d7326c51623e7917b91b1dc59d9122bc89d927bab",
+      "xColumn": "Dtb",
+      "yColumn": "survivorMemoryBytes",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    }
+  ]
+}

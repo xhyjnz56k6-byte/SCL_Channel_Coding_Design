@@ -1,0 +1,9 @@
+sourceRowId,caseId,xRaw,yRaw,xPlot,yPlot,isZeroPoint,sourceFile,sourceHash
+0,A_BLOCK_300-R12,0.0,0.016,0.0,0.016,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438
+4,A_BLOCK_300-R23,1.0,0.088,1.0,0.088,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438
+1,B_CONT_50x6-R12,0.0,0.016,0.0,0.016,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438
+5,B_CONT_50x6-R23,1.0,0.089,1.0,0.089,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438
+2,C_CONT_100x3-R12,0.0,0.016,0.0,0.016,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438
+6,C_CONT_100x3-R23,1.0,0.089,1.0,0.089,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438
+3,D_CONT_150x2-R12,0.0,0.016,0.0,0.016,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438
+7,D_CONT_150x2-R23,1.0,0.089,1.0,0.089,NO,stage14_figure_data_organization_fer.csv,7faf6953d1b1f00b5282640f3e48318becb46eef22076287700784b2496a0438

@@ -1,0 +1,7 @@
+caseId,denseMinSnrDb,denseMaxSnrDb,denseStepDb,source,sourceMeaning
+CC-B-R12-H,0.0,2.0,0.2,stage09_awgn_formal_point_results.csv,verified legacy dense/waterfall formal data
+CC-B-R12-S,-2.0,0.0,0.2,stage09_awgn_formal_point_results.csv,verified legacy dense/waterfall formal data
+CC-B-R23-H,1.0,4.0,0.1,stage09_awgn_formal_point_results.csv,verified legacy dense/waterfall formal data
+CC-B-R23-S,-0.5,2.0,0.1,stage09_awgn_formal_point_results.csv,verified legacy dense/waterfall formal data
+CC-B-R34-H,2.0,4.0,0.1,stage09_awgn_formal_point_results.csv,verified legacy dense/waterfall formal data
+CC-B-R34-S,0.5,3.0,0.1,stage09_awgn_formal_point_results.csv,verified legacy dense/waterfall formal data

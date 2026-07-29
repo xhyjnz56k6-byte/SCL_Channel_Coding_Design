@@ -1,0 +1,17 @@
+sourceRowId,caseId,xRaw,yRaw,xPlot,yPlot,isZeroPoint,sourceFile,sourceHash
+0,CC-B-R12-S--0.5-SOFT_FLOAT,64.0,4896.0,64.0,4896.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+1,CC-B-R12-S--0.5-SOFT_Q3,3.0,230.0,3.0,230.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+2,CC-B-R12-S--0.5-SOFT_Q4,4.0,306.0,4.0,306.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+3,CC-B-R12-S--0.5-SOFT_Q6,6.0,459.0,6.0,459.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+4,CC-B-R12-S-0-SOFT_FLOAT,64.0,4896.0,64.0,4896.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+5,CC-B-R12-S-0-SOFT_Q3,3.0,230.0,3.0,230.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+6,CC-B-R12-S-0-SOFT_Q4,4.0,306.0,4.0,306.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+7,CC-B-R12-S-0-SOFT_Q6,6.0,459.0,6.0,459.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+8,CC-B-R23-S-0.5-SOFT_FLOAT,64.0,3672.0,64.0,3672.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+9,CC-B-R23-S-0.5-SOFT_Q3,3.0,173.0,3.0,173.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+10,CC-B-R23-S-0.5-SOFT_Q4,4.0,230.0,4.0,230.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+11,CC-B-R23-S-0.5-SOFT_Q6,6.0,345.0,6.0,345.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+12,CC-B-R23-S-1-SOFT_FLOAT,64.0,3672.0,64.0,3672.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+13,CC-B-R23-S-1-SOFT_Q3,3.0,173.0,3.0,173.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+14,CC-B-R23-S-1-SOFT_Q4,4.0,230.0,4.0,230.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48
+15,CC-B-R23-S-1-SOFT_Q6,6.0,345.0,6.0,345.0,NO,stage11_quantization_figure_data_memory.csv,cbf690f99aba13ba165ef3cf1b0bf7eb997138dcd3a32ebf0e996eb94cadcd48

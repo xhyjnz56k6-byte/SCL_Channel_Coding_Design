@@ -7,8 +7,9 @@ add_executable(stage14_runner src/stage14_runner.cpp
  "${CC_ROOT}/shared/src/trellis.cpp" "${CC_ROOT}/shared/src/puncturing.cpp"
  "${CC_ROOT}/block/current/src/block_encoder.cpp" "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
  "${CC_ROOT}/block/current/src/hard_viterbi.cpp" "${REPO_ROOT}/Task/Common/src/random_policy.cpp"
- "${REPO_ROOT}/Task/Common/src/gaussian_noise.cpp")
-target_include_directories(stage14_runner PRIVATE "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include" "${REPO_ROOT}/Task/Common/include")
+ "${REPO_ROOT}/Task/Common/src/gaussian_noise.cpp"
+ "${CC_ROOT}/simulation/stages/S3/stage12_continuous_encoder/src/continuous_encoder.cpp")
+target_include_directories(stage14_runner PRIVATE "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include" "${REPO_ROOT}/Task/Common/include" "${CC_ROOT}/simulation/stages/S3/stage12_continuous_encoder/include")
 if(NOT MSVC)
  target_compile_options(stage14_runner PRIVATE -O3 -Wall -Wextra -Wpedantic -Werror)
 endif()

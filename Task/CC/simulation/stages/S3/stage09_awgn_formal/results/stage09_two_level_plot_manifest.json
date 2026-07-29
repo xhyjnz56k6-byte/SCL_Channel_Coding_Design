@@ -1,0 +1,69 @@
+{
+  "figures": [
+    {
+      "png": "stage09_two_level_ber.png",
+      "pngSha256": "2bf9e4f110ad3bb1b46b7f765001447e13ef9c06e9186276e103397495c7d8f1",
+      "figureDataCsv": "stage09_two_level_figure_data_ber.csv",
+      "figureDataSha256": "db5847df66c003c54eac7143f978430f12444e33c6fd2232093b460f5a59769b",
+      "sourceCsv": "stage09_two_level_figure_data_ber.source.csv",
+      "sourceSha256": "2255c9afd02d36fd4d21c1384bad226f803654c4f40f62f30be70818914abbfe",
+      "xColumn": "snrDb",
+      "yColumn": "BER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting",
+      "name": "stage09_two_level_ber"
+    },
+    {
+      "png": "stage09_two_level_fer.png",
+      "pngSha256": "4c923d31936a50ad7b21aa3853d96a19097fdd9d44b3bd1b2b540b874485f5a8",
+      "figureDataCsv": "stage09_two_level_figure_data_fer.csv",
+      "figureDataSha256": "0ebb1806bec9bb0c9074e793dc451453ba7d51eddff9577c9d8b4fb5bf911f3b",
+      "sourceCsv": "stage09_two_level_figure_data_fer.source.csv",
+      "sourceSha256": "2255c9afd02d36fd4d21c1384bad226f803654c4f40f62f30be70818914abbfe",
+      "xColumn": "snrDb",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting",
+      "name": "stage09_two_level_fer"
+    },
+    {
+      "png": "stage09_two_level_hard_soft_fer.png",
+      "pngSha256": "adfeeac92e42e3f2d808625980a9ab071355f2e5f9aa0277e48740418d33a162",
+      "figureDataCsv": "stage09_two_level_figure_data_hard_soft_fer.csv",
+      "figureDataSha256": "c715aad32cc8571fee5ee47fa8e56a0b6126db018fba8eded87e30fadaba316b",
+      "sourceCsv": "stage09_two_level_figure_data_hard_soft_fer.source.csv",
+      "sourceSha256": "2255c9afd02d36fd4d21c1384bad226f803654c4f40f62f30be70818914abbfe",
+      "xColumn": "snrDb",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting",
+      "name": "stage09_two_level_hard_soft_fer"
+    },
+    {
+      "png": "stage09_two_level_delay.png",
+      "pngSha256": "32d6f01bcf82dc93dbb5f3359b1c45e4beeb9ac320c54b40463a06da0b549ac4",
+      "figureDataCsv": "stage09_two_level_figure_data_delay.csv",
+      "figureDataSha256": "66ecbc9e5c8f1b8902984aeaa97f93c813a8796b587f2592409e67efbdfa497d",
+      "sourceCsv": "stage09_two_level_figure_data_delay.source.csv",
+      "sourceSha256": "2255c9afd02d36fd4d21c1384bad226f803654c4f40f62f30be70818914abbfe",
+      "xColumn": "snrDb",
+      "yColumn": "avgDecodeTime_us",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted",
+      "name": "stage09_two_level_delay"
+    },
+    {
+      "png": "stage09_two_level_goodput.png",
+      "pngSha256": "b14d4e601afbebc7db6bb1256ea6f1c567b825f45eac9a0cb5ed61def5ca0fc9",
+      "figureDataCsv": "stage09_two_level_figure_data_goodput.csv",
+      "figureDataSha256": "91c4454edf016f7cf3997297595723a8355fbcb0953ff44b5202727d010d5447",
+      "sourceCsv": "stage09_two_level_figure_data_goodput.source.csv",
+      "sourceSha256": "2255c9afd02d36fd4d21c1384bad226f803654c4f40f62f30be70818914abbfe",
+      "xColumn": "snrDb",
+      "yColumn": "normalizedGoodput",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted",
+      "name": "stage09_two_level_goodput"
+    }
+  ]
+}

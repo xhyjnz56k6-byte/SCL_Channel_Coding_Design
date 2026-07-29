@@ -1,0 +1,17 @@
+sourceRowId,caseId,xRaw,yRaw,xPlot,yPlot,isZeroPoint,sourceFile,sourceHash
+0,CC-B-R12-S--0.5-SOFT_FLOAT,64.0,0.059,64.0,0.059,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+1,CC-B-R12-S--0.5-SOFT_Q3,3.0,0.138,3.0,0.138,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+2,CC-B-R12-S--0.5-SOFT_Q4,4.0,0.073,4.0,0.073,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+3,CC-B-R12-S--0.5-SOFT_Q6,6.0,0.063,6.0,0.063,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+4,CC-B-R12-S-0-SOFT_FLOAT,64.0,0.016,64.0,0.016,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+5,CC-B-R12-S-0-SOFT_Q3,3.0,0.047,3.0,0.047,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+6,CC-B-R12-S-0-SOFT_Q4,4.0,0.018,4.0,0.018,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+7,CC-B-R12-S-0-SOFT_Q6,6.0,0.017,6.0,0.017,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+8,CC-B-R23-S-0.5-SOFT_FLOAT,64.0,0.231,64.0,0.231,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+9,CC-B-R23-S-0.5-SOFT_Q3,3.0,0.409,3.0,0.409,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+10,CC-B-R23-S-0.5-SOFT_Q4,4.0,0.257,4.0,0.257,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+11,CC-B-R23-S-0.5-SOFT_Q6,6.0,0.231,6.0,0.231,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+12,CC-B-R23-S-1-SOFT_FLOAT,64.0,0.088,64.0,0.088,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+13,CC-B-R23-S-1-SOFT_Q3,3.0,0.21,3.0,0.21,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+14,CC-B-R23-S-1-SOFT_Q4,4.0,0.113,4.0,0.113,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2
+15,CC-B-R23-S-1-SOFT_Q6,6.0,0.087,6.0,0.087,NO,stage11_quantization_figure_data_fer.csv,5e4754439ae4ec44bacb568f63674ebcd6e3004f7213cab3591a0fdd1fc28cd2

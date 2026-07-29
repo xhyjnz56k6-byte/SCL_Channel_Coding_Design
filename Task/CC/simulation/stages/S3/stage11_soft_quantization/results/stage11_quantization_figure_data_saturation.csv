@@ -1,0 +1,17 @@
+sourceRowId,caseId,xRaw,yRaw,xPlot,yPlot,isZeroPoint,sourceFile,sourceHash
+0,CC-B-R12-S--0.5-SOFT_FLOAT,64.0,0.0,64.0,0.0,YES,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+1,CC-B-R12-S--0.5-SOFT_Q3,3.0,23041.0,3.0,23041.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+2,CC-B-R12-S--0.5-SOFT_Q4,4.0,38948.0,4.0,38948.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+3,CC-B-R12-S--0.5-SOFT_Q6,6.0,51672.0,6.0,51672.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+4,CC-B-R12-S-0-SOFT_FLOAT,64.0,0.0,64.0,0.0,YES,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+5,CC-B-R12-S-0-SOFT_Q3,3.0,18272.0,3.0,18272.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+6,CC-B-R12-S-0-SOFT_Q4,4.0,32449.0,4.0,32449.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+7,CC-B-R12-S-0-SOFT_Q6,6.0,44299.0,6.0,44299.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+8,CC-B-R23-S-0.5-SOFT_FLOAT,64.0,0.0,64.0,0.0,YES,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+9,CC-B-R23-S-0.5-SOFT_Q3,3.0,10311.0,3.0,10311.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+10,CC-B-R23-S-0.5-SOFT_Q4,4.0,19671.0,4.0,19671.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+11,CC-B-R23-S-0.5-SOFT_Q6,6.0,27655.0,6.0,27655.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+12,CC-B-R23-S-1-SOFT_FLOAT,64.0,0.0,64.0,0.0,YES,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+13,CC-B-R23-S-1-SOFT_Q3,3.0,7753.0,3.0,7753.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+14,CC-B-R23-S-1-SOFT_Q4,4.0,15824.0,4.0,15824.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c
+15,CC-B-R23-S-1-SOFT_Q6,6.0,23015.0,6.0,23015.0,NO,stage11_quantization_figure_data_saturation.csv,13f6191be8bb4c97c837cc9ee632a17dbfad6f10cf80ac930527fce4c14c4a3c

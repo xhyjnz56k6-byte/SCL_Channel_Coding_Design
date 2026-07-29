@@ -1,0 +1,76 @@
+{
+  "figures": [
+    {
+      "png": "stage14_organization_ber.png",
+      "pngSha256": "25f5fba992d634024221c5e011fd7d1703c12f189ca83abd508f0a41d27a2b92",
+      "figureDataCsv": "stage14_figure_data_organization_ber.csv",
+      "figureDataSha256": "62c35193161bf9c7125c7b77e46737aa5d4a96610db41d7b61e206e1c6fff4df",
+      "sourceCsv": "stage14_figure_data_organization_ber.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "snrDb",
+      "yColumn": "BER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage14_organization_fer.png",
+      "pngSha256": "d4652b928cdfa15ea8269930c46ab47fbd237422876e9346cda26294e0cd93a6",
+      "figureDataCsv": "stage14_figure_data_organization_fer.csv",
+      "figureDataSha256": "c61135081e2a3e6fe0a33ebe4c1fd343d2fa7f9bef11e525e2fcf163ad66aa08",
+      "sourceCsv": "stage14_figure_data_organization_fer.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "snrDb",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage14_boundary_ber.png",
+      "pngSha256": "8a68cf12aab36b9c67ebff58911201f095182585c4728217c56c9dced289b113",
+      "figureDataCsv": "stage14_figure_data_boundary_ber.csv",
+      "figureDataSha256": "2903079fb7a1092fff5cfd926cd7008d235c881c502bb2ef3565afd3ca1fd022",
+      "sourceCsv": "stage14_figure_data_boundary_ber.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "slotBits",
+      "yColumn": "boundaryBER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage14_first_output_latency.png",
+      "pngSha256": "802f2107aac9823920a7fd5f7c445cd088482f9c4c03a9710c5d48ba67abeca0",
+      "figureDataCsv": "stage14_figure_data_first_output_latency.csv",
+      "figureDataSha256": "5e0393e22579376c9cfd4bd62be6c3c79926d21a47bc3bf5383f389c8db76eb8",
+      "sourceCsv": "stage14_figure_data_first_output_latency.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "slotBits",
+      "yColumn": "firstOutputDelaySymbols",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage14_full_frame_latency.png",
+      "pngSha256": "8029a2ae1e5f7bd4fe004eed01978feba4d2a7c51b9878a38f33e8c07fa59a71",
+      "figureDataCsv": "stage14_figure_data_full_frame_latency.csv",
+      "figureDataSha256": "3077cf9ad293b10fc7d6065190dcfa979f2b971e6c6bdaf4b9d18f4b09286c42",
+      "sourceCsv": "stage14_figure_data_full_frame_latency.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "slotBits",
+      "yColumn": "fullFrameCompletionSymbols",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage14_goodput.png",
+      "pngSha256": "fe63a49d840861b6aadf2224634676e2569798fac104fdec06e7cc2448bd83f5",
+      "figureDataCsv": "stage14_figure_data_goodput.csv",
+      "figureDataSha256": "5441098503110ffdbc253327beb9d2ac951ac5d8e673ef87faef576c91acb022",
+      "sourceCsv": "stage14_figure_data_goodput.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "snrDb",
+      "yColumn": "normalizedGoodput",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    }
+  ]
+}

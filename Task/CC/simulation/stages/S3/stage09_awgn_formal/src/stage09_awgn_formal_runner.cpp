@@ -39,6 +39,7 @@ struct Options {
     std::int64_t only_unit = -1;
     std::uint64_t interrupt_after_checkpoints = 0;
     bool resume = false;
+    bool two_level_coarse = false;
 };
 
 struct Rate {
@@ -111,6 +112,10 @@ Options parse_options(int argc, char** argv) {
         else if (arg == "--unit-index") options.only_unit = static_cast<std::int64_t>(parse_uint(take(arg), arg));
         else if (arg == "--interrupt-after-checkpoints") {
             options.interrupt_after_checkpoints = parse_uint(take(arg), arg);
+        } else if (arg == "--grid") {
+            const std::string grid = take(arg);
+            if (grid == "two-level-coarse") options.two_level_coarse = true;
+            else if (grid != "legacy-formal") throw std::invalid_argument("unknown grid: " + grid);
         } else if (arg == "--resume") options.resume = true;
         else throw std::invalid_argument("unknown option: " + arg);
     }
@@ -124,12 +129,21 @@ Options parse_options(int argc, char** argv) {
     return options;
 }
 
-std::vector<WorkUnit> work_units() {
-    const std::vector<Rate> rates = {
-        {"R12", {"R12_11", {1, 1}}, 1200, 0, 20, -20, 0, 2},
-        {"R23", {"R23_B_1101", {1, 1, 0, 1}}, 2300, 10, 40, -5, 20, 1},
-        {"R34", {"R34_B_110110", {1, 1, 0, 1, 1, 0}}, 3400, 20, 40, 5, 30, 1}
-    };
+std::vector<WorkUnit> work_units(bool two_level_coarse) {
+    std::vector<Rate> rates;
+    if (two_level_coarse) {
+        rates = {
+            {"R12", {"R12_11", {1, 1}}, 1200, -50, 100, -50, 100, 5},
+            {"R23", {"R23_B_1101", {1, 1, 0, 1}}, 2300, -50, 100, -50, 100, 5},
+            {"R34", {"R34_B_110110", {1, 1, 0, 1, 1, 0}}, 3400, -50, 100, -50, 100, 5}
+        };
+    } else {
+        rates = {
+            {"R12", {"R12_11", {1, 1}}, 1200, 0, 20, -20, 0, 2},
+            {"R23", {"R23_B_1101", {1, 1, 0, 1}}, 2300, 10, 40, -5, 20, 1},
+            {"R34", {"R34_B_110110", {1, 1, 0, 1, 1, 0}}, 3400, 20, 40, 5, 30, 1}
+        };
+    }
     std::vector<WorkUnit> units;
     for (const auto& rate : rates) {
         const int low = std::min(rate.hard_min_tenth, rate.soft_min_tenth);
@@ -319,7 +333,7 @@ void write_result_row(std::ofstream& out, const WorkUnit& unit, const std::strin
     const double average_decode = value.decode_us / value.frames;
     const double raw_throughput = 300.0 / average_decode;
     out << "formal,CC-B-" << unit.rate.id << '-' << decoder << ',' << snr << ','
-        << snr - 10.0 * std::log10(rate) << ',' << rate << ',' << sigma2 << ','
+        << snr << ',' << snr - 10.0 * std::log10(rate) << ',' << rate << ',' << sigma2 << ','
         << transmitted << ",0," << value.frames << ',' << value.frames << ','
         << value.frame_digest << ',' << value.bit_errors << ',' << value.frame_errors << ','
         << ber << ',' << fer << ',' << 1.0 - fer << ','
@@ -405,7 +419,7 @@ int run_unit(const Options& options, const WorkUnit& unit, std::uint64_t& checkp
     }
     std::ofstream out(result_path, std::ios::out);
     if (!out) throw std::runtime_error("cannot create unit result");
-    out << "phase,caseId,snrDb,ebN0Db,actualRate,sigmaSquared,N_transmitted,"
+    out << "phase,caseId,snrDb,esN0Db,ebN0Db,actualRate,sigmaSquared,N_transmitted,"
            "frameStart,frameEndExclusive,framesProcessed,frameSequenceDigest,"
            "payloadBitErrors,payloadErrorFrames,BER,FER,payloadSuccessRate,"
            "avgEncodeTime_us,maxEncodeTime_us,avgDecodeTime_us,p95DecodeTime_us,"
@@ -423,7 +437,7 @@ int main(int argc, char** argv) {
     try {
         const Options options = parse_options(argc, argv);
         std::filesystem::create_directories(options.runtime);
-        const auto units = work_units();
+        const auto units = work_units(options.two_level_coarse);
         if (options.only_unit >= static_cast<std::int64_t>(units.size())) {
             throw std::invalid_argument("unit index outside work list");
         }

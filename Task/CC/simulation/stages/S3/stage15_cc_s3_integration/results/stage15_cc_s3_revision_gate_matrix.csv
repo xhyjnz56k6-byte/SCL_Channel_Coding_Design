@@ -1,0 +1,9 @@
+stage,status,detail
+Stage01-15 readme,PASS,15 Chinese readme.txt files
+Stage09 two-level grid,PASS,"coarse=186, dense=126, merged=282"
+Stage10 traceback,PASS,"Dtb=35/49/70/84/98/112, 4 plots"
+Stage11 quantization,PASS,"Float/Q3/Q4/Q6, 5 plots"
+Stage12 regression,PASS,continuous encoder regression rerun
+Stage13 true sliding window,PASS,"W/S/D parameter matrix, 6 plots"
+Stage14 independent schemes,PASS,"A/B/C/D independent execution, 6 plots"
+Stage15 final integration,PASS,"3 plots, core questions, figure guide"

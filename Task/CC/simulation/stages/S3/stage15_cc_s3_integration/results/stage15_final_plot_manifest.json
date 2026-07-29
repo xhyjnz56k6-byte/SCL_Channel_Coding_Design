@@ -1,0 +1,40 @@
+{
+  "figures": [
+    {
+      "png": "stage15_final_scheme_performance.png",
+      "pngSha256": "e28094db0330143a96b9b64b3564df5afdf9a5d9ea9f728206586aed808afc6b",
+      "figureDataCsv": "stage15_figure_data_final_scheme_performance.csv",
+      "figureDataSha256": "246fd62092fb907669494e551946def3980a2dce81250427f1df79cf9ca4b83b",
+      "sourceCsv": "stage15_figure_data_final_scheme_performance.source.csv",
+      "sourceSha256": "2255c9afd02d36fd4d21c1384bad226f803654c4f40f62f30be70818914abbfe",
+      "xColumn": "snrDb",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage15_latency_reliability_tradeoff.png",
+      "pngSha256": "47502374e8d52c152dd9962a7daec3f9bf2c3fa652b08611d96a413127d0a11c",
+      "figureDataCsv": "stage15_figure_data_latency_reliability_tradeoff.csv",
+      "figureDataSha256": "4b8940333d223c9a2256a872c2cd8759d3da81bb2a2b3ef1916f3c4c098a1e05",
+      "sourceCsv": "stage15_figure_data_latency_reliability_tradeoff.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "firstOutputDelaySymbols",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage15_goodput_fer_tradeoff.png",
+      "pngSha256": "fcc818e2a461894437649a76e2fdbffbc671ca72d6712bbb16992f12f14e193e",
+      "figureDataCsv": "stage15_figure_data_goodput_fer_tradeoff.csv",
+      "figureDataSha256": "f6390a010fc37ffe4dc9dfa14adba2b1030a47c06271b8cfc69c4f1efcace705",
+      "sourceCsv": "stage15_figure_data_goodput_fer_tradeoff.source.csv",
+      "sourceSha256": "eecdfa2b06d6863bd13447595452bfe41a5fa21b5393f9f1c2a8e279bac916d0",
+      "xColumn": "FER",
+      "yColumn": "normalizedGoodput",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    }
+  ]
+}
