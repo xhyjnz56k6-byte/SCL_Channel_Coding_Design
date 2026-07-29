@@ -70,6 +70,24 @@ def safe_log(values: pd.Series, upper: pd.Series) -> pd.Series:
     result.loc[result <= 0] = upper.loc[result <= 0].astype(float)
     return result
 
+def semilogy_points(axis, x, values, upper, **kwargs):
+    display = safe_log(values, upper)
+    line = axis.semilogy(x, display, **kwargs)[0]
+    zero = values.astype(float) <= 0
+    if zero.any():
+        axis.scatter(
+            pd.Series(x).reset_index(drop=True)[zero.reset_index(drop=True)],
+            upper.astype(float).reset_index(drop=True)[
+                zero.reset_index(drop=True)
+            ],
+            facecolors="none",
+            edgecolors=line.get_color(),
+            marker="o",
+            linewidths=1.2,
+            zorder=4,
+        )
+    return line
+
 
 def figure_data(name: str, data: pd.DataFrame) -> Path:
     path = FIGURE_DATA / f"{name}.csv"
@@ -303,15 +321,19 @@ def control_plots(
         fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
         for rate in RATES:
             group = data[data.rateCase == rate].sort_values(xfield)
-            axes[0].semilogy(
+            semilogy_points(
+                axes[0],
                 group[xfield],
-                safe_log(group.BER, group.berCiHigh),
+                group.BER,
+                group.berCiHigh,
                 marker="o",
                 label=rate,
             )
-            axes[1].semilogy(
+            semilogy_points(
+                axes[1],
                 group[xfield],
-                safe_log(group.FER, group.ferCiHigh),
+                group.FER,
+                group.ferCiHigh,
                 marker="o",
                 label=rate,
             )
@@ -461,9 +483,11 @@ def final_plots(comparison: pd.DataFrame, manifest: list[dict]) -> None:
                 group = rate_rows[
                     rate_rows.comparisonMode == mode
                 ].sort_values("snrDb")
-                axis.semilogy(
+                semilogy_points(
+                    axis,
                     group.snrDb,
-                    safe_log(group[metric], group[upper]),
+                    group[metric],
+                    group[upper],
                     marker="o",
                     markersize=2.5,
                     linewidth=1,
