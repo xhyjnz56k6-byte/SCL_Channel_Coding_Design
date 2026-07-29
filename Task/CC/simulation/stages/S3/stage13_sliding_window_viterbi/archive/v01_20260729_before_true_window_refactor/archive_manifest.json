@@ -1,0 +1,172 @@
+{
+  "archiveVersion": "v01",
+  "archiveDate": "2026-07-29",
+  "reason": "true_window_refactor",
+  "sourceStage": "stage13_sliding_window_viterbi",
+  "sourceHead": "6cda1f14f29a8cbe42ad3dcdc8a443ab35368b58",
+  "files": [
+    {
+      "path": "stage13_latency_reliability_tradeoff.png",
+      "sizeBytes": 98845,
+      "sha256": "e83997daa35a2061c4fe9ca52cf00678a83ff69a8e92979273d6931d66812bc4"
+    },
+    {
+      "path": "stage13_output_bit_metadata.csv",
+      "sizeBytes": 82215,
+      "sha256": "62c784356f08edf7e2e9bf5bcac6685f1dc242748bcb54534bc7e52f8d1357c7"
+    },
+    {
+      "path": "stage13_sliding_window_report.md",
+      "sizeBytes": 198,
+      "sha256": "4c1a4b86f55027c21de20b47bb69d60fb24774f8632c8489ebd778029e1d42c6"
+    },
+    {
+      "path": "stage13_sliding_window_results.csv",
+      "sizeBytes": 4406,
+      "sha256": "5ea25fdb473c3680be3890dd874a2991ffc9894fd7119de8154242ac30685d56"
+    },
+    {
+      "path": "stage13_sliding_window_test_summary.csv",
+      "sizeBytes": 232,
+      "sha256": "ee7220e0d694524445e40a5ee6ce2cc8eaa3f8f860dc31f24762721b0c843511"
+    },
+    {
+      "path": "stage13_window_ber.png",
+      "sizeBytes": 81829,
+      "sha256": "508e1387d43a2e205e1e956ab9bb9ac34666422a39a07b758947e8b21be10746"
+    },
+    {
+      "path": "stage13_window_fer.png",
+      "sizeBytes": 82378,
+      "sha256": "bc488b5580e8cf6e283bdc2d4113a4e211452596969a79060752792116f98361"
+    },
+    {
+      "path": "stage13_window_figure_data_ber.csv",
+      "sizeBytes": 3542,
+      "sha256": "8754306980883f9fc20753efdd4b0da9fefa4762f2b4eff47fd138626ae491e7"
+    },
+    {
+      "path": "stage13_window_figure_data_ber.source.csv",
+      "sizeBytes": 4384,
+      "sha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775"
+    },
+    {
+      "path": "stage13_window_figure_data_fer.csv",
+      "sizeBytes": 3126,
+      "sha256": "88652289fd13b98b0564dca628dec8962022a9e6396cfeb3a0eb21d104ecc89a"
+    },
+    {
+      "path": "stage13_window_figure_data_fer.source.csv",
+      "sizeBytes": 4384,
+      "sha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775"
+    },
+    {
+      "path": "stage13_window_figure_data_latency.csv",
+      "sizeBytes": 3188,
+      "sha256": "1410bee3577e06d4d156479ac8d5b4bf6d573c229a51014f3d3e3725b5868bd6"
+    },
+    {
+      "path": "stage13_window_figure_data_latency.source.csv",
+      "sizeBytes": 4384,
+      "sha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775"
+    },
+    {
+      "path": "stage13_window_figure_data_memory.csv",
+      "sizeBytes": 3275,
+      "sha256": "465acbbe12a9898ec2fbd39d83a14d19181aaf7eb328632e6b7c52e2b90b4bd7"
+    },
+    {
+      "path": "stage13_window_figure_data_memory.source.csv",
+      "sizeBytes": 4384,
+      "sha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775"
+    },
+    {
+      "path": "stage13_window_figure_data_mismatch.csv",
+      "sizeBytes": 3192,
+      "sha256": "60925398e6b1a57835ba487edfd875ce77a5910e7b3e4ee3cab340c036cd34b6"
+    },
+    {
+      "path": "stage13_window_figure_data_mismatch.source.csv",
+      "sizeBytes": 4384,
+      "sha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775"
+    },
+    {
+      "path": "stage13_window_figure_data_tradeoff.csv",
+      "sizeBytes": 3303,
+      "sha256": "dca0163ed150b0b4470cccb814b0b011a84dc1066fe71c5ecb1cd82300c86609"
+    },
+    {
+      "path": "stage13_window_figure_data_tradeoff.source.csv",
+      "sizeBytes": 4384,
+      "sha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775"
+    },
+    {
+      "path": "stage13_window_latency.png",
+      "sizeBytes": 89540,
+      "sha256": "62068bf5ba729859c3b870479c32cbf8829813d46424cde7f42ba78334cb4645"
+    },
+    {
+      "path": "stage13_window_memory.png",
+      "sizeBytes": 90337,
+      "sha256": "8f28abb3d85cc00f7174b4d40b1aa2611e8844d1e85203928c8e457f5d78178b"
+    },
+    {
+      "path": "stage13_window_mismatch.png",
+      "sizeBytes": 95261,
+      "sha256": "d7d28ef98dc3a187a66e856f4d7e99ec604ca197f66b05582b59082120394464"
+    },
+    {
+      "path": "stage13_window_plot_check.md",
+      "sizeBytes": 101,
+      "sha256": "8036b29a84b6c4bb020b34b7ad04ef29c816e354929768db34302ba12da66726"
+    },
+    {
+      "path": "stage13_window_plot_manifest.json",
+      "sizeBytes": 3771,
+      "sha256": "1556719e647342f76607c666c52a4a695ae7eb3e5f9f8b4275608e244777f7bf"
+    },
+    {
+      "path": "stage13_window_prescan.csv",
+      "sizeBytes": 366,
+      "sha256": "98f5fd445be26a71e8f4b382ddeb46527a850786ac12fd09897e237b4fb724a9"
+    },
+    {
+      "path": "stage_root_audit_snapshot/commands_used.md",
+      "sizeBytes": 118,
+      "sha256": "aa334accd6eb636ede28a981c3718ad87335be72638554b198bb29a12caad27d"
+    },
+    {
+      "path": "stage_root_audit_snapshot/frozen_config.csv",
+      "sizeBytes": 240,
+      "sha256": "e5c38c3fd04d9e92c0940000b4dc02680ee9c2b1d54e706021b722c980a13dd6"
+    },
+    {
+      "path": "stage_root_audit_snapshot/known_issues.md",
+      "sizeBytes": 129,
+      "sha256": "72919153afff2c3ffe468e38ae7f772d41136aabc26c11d9f4e32b60878a66ea"
+    },
+    {
+      "path": "stage_root_audit_snapshot/manifest.json",
+      "sizeBytes": 2405,
+      "sha256": "20334c20d3df85d340a46e86986e6e52f81226e1de17c8f0f358fcc9c2629ffb"
+    },
+    {
+      "path": "stage_root_audit_snapshot/readme.txt",
+      "sizeBytes": 872,
+      "sha256": "421e9fb2dfbc84550a47bf4316675ee9cc9c831f965a3a1ded6f220db711d8bb"
+    },
+    {
+      "path": "stage_root_audit_snapshot/stage_plan.md",
+      "sizeBytes": 1207,
+      "sha256": "7841559718c19af44d87ecf62959de04ee95297945d05dc33078f016fadd92d7"
+    },
+    {
+      "path": "stage_root_audit_snapshot/validation_report.md",
+      "sizeBytes": 613,
+      "sha256": "9bfa4562f1eb69672018f2f9ba86de780b47edff950bd9d52ee94ac4a99b3440"
+    }
+  ],
+  "sha256": "9023afb3cb06e8cc0cee35687033aa1c8a93cbb045aff0237a0f1bb0cc261054",
+  "previousStatus": "PREVIOUS_REVISION_SNAPSHOT",
+  "movePolicy": "results contents moved; stage-root audit files copied as snapshot"
+}

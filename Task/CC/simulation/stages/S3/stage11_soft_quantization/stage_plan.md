@@ -1,29 +1,36 @@
-# Stage11 规格冻结：软信息量化
+# stage11_soft_quantization 2026-07-29 修订规格冻结
 
-## 目标与范围
+## 目标
 
-在 R12/R23 soft 的四个 Stage10 代表点比较 `SOFT_FLOAT/Q3/Q4/Q6`，先用全局 clipping prescan 冻结单一范围，再给出性能与复杂度推荐。只修改本 Stage 目录。
+完成三种码率、Q3～Q8/Float、clip 预扫、粗网格和候选 dense。
 
-## 量化合同
+## 公共冻结参数
 
-- 输入：BPSK `receivedSymbols`，不是 LLR。
-- 对称 mid-tread 有符号码，零点为 0。
-- b bit 的代码范围 `[-(2^(b-1)-1), +(2^(b-1)-1)]`，保留对称性。
-- 步长 `clipMax / codeMax`，舍入到最近整数，饱和上下限为 `±clipMax`。
-- punctured bit 使用中性 code=0 且 observedMask=0，不贡献分支度量。
-- 分支度量为量化 code 与量化 `±1` 之差平方和。
-- 路径度量为 `int32_t`，候选先用 `int64_t` 检测；上限 `1,000,000,000`，每步减去最小有限度量归一化。
-- clipping 候选 `{2,3,4,6}`，Q4 在全部四场景各 200 帧联合 prescan；按 float mismatch frames 最少选择，平局取饱和率更低者，不允许逐 SNR 调参。
-- 正式：四场景各 1000 帧。
-- 推荐：选择所有点 BER/FER 相对 float 增幅均不超过 10%、整数 overflow=0 的最小位宽。
+- payloadBits = 300；K=7；生成多项式 171/133（八进制）；母码率 1/2；打孔码率 2/3、3/4。
+- BPSK：0→+1，1→-1；横轴 `SNR = Es/N0 (dB)`。
+- `sigmaSquared = 1/(2*10^(snrDb/10))`；`actualRate=payloadBits/transmittedBits`。
+- `ebN0Db=snrDb-10*log10(actualRate)`；正式 CSV 记录 SNR、种子、case/sourceNoise、CI 和停止原因。
+- coarse：-5～10 dB、0.5 dB；停止规则 1000/200/50000；dense 优先 0.1 dB。
+- 只允许修改 `Task/CC/**`，禁止修改 BCH、LDPC、Common、main 或公共 SNR 定义。
+
+## 非目标
+
+- 不新增 200-bit 正式实验。
+- 不把符号级离散 BPSK-AWGN 描述为连续波形仿真。
+- 不合并 main，不删除旧 Stage，不用预扫描或旧错误结果冒充 formal。
+
+## 接口与数据
+
+输入由 Stage09 正式基线、共享 payload/噪声标识和本 Stage 冻结配置组成；输出为原始 CSV、汇总 CSV、figure-data、PNG、plot manifest/check，以及可复现命令和审计文件。
 
 ## 验收矩阵
 
 | 需求 | 实现位置 | 正向测试 | 负向测试 | Gate 条件 |
 |---|---|---|---|---|
-| clipping prescan | C++ runner | 四候选联合比较 | 单点调参禁止 | 单一 clip 冻结 |
-| Q3/Q4/Q6 整数 ACS | C++ runner | 无噪声与正式矩阵 | 非法位宽/clip 拒绝 | 无 overflow |
-| 性能/复杂度 | checker | BER/FER/时延/吞吐/饱和/内存 | 公式和有限值 mutation | 指标 PASS |
-| 推荐位宽 | checker | 最小合格位宽 | 无合格项时拒绝 | 数据化推荐 |
+| 本 Stage 功能 | `stage11_soft_quantization/src` 与 `scripts` | 651 个 coarse 点及候选 dense 具备 CI、分离裁剪计数和 SNR loss。 | 拒绝 Q64 表示 Float、混合 saturationCount、缺 Q5/Q7/Q8/R34。 | 完整网格、裁剪定义、SNR loss 和四类数据驱动推荐通过。 |
+| 公平性与统计 | runner/checker | 同帧同噪声、CI、停止规则和 SNR 公式复算 | 篡改种子、缺字段、NaN/Inf、未覆盖插值 | checker 全通过 |
+| 科研绘图 | `results` 与绘图脚本 | PNG/figure-data/hash 可复算 | 平滑、外推、零错误伪装非零 | plot check 全通过 |
 
-Gate：`PASS_STAGE11_CC_SOFT_QUANTIZATION`
+## 当前临时状态
+
+`PARTIAL_PASS`。只有本文件所列 Gate 实际通过后才更新最终状态。

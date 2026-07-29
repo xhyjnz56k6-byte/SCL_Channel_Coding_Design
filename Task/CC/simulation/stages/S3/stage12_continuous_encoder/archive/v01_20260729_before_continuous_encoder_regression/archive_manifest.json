@@ -1,0 +1,57 @@
+{
+  "archiveVersion": "v01",
+  "archiveDate": "2026-07-29",
+  "reason": "continuous_encoder_regression",
+  "sourceStage": "stage12_continuous_encoder",
+  "sourceHead": "6cda1f14f29a8cbe42ad3dcdc8a443ab35368b58",
+  "files": [
+    {
+      "path": "stage12_continuous_encoder_test_summary.csv",
+      "sizeBytes": 245,
+      "sha256": "5323f7fbbb5cb8648b2a6cbab3d6b2824e85bff855ad83bda99ae59d96cc019c"
+    },
+    {
+      "path": "stage12_slot_metadata.csv",
+      "sizeBytes": 1326,
+      "sha256": "f81d131323cab41c6090f35c9858d55d1331cd4d61ab48540dba90521deeaf15"
+    },
+    {
+      "path": "stage_root_audit_snapshot/commands_used.md",
+      "sizeBytes": 114,
+      "sha256": "08a6aa225236b126fca883fbe4bd8b2ce70a7cdc756f79fe7c1cdddbcedc3bab"
+    },
+    {
+      "path": "stage_root_audit_snapshot/frozen_config.csv",
+      "sizeBytes": 89,
+      "sha256": "60f1139739aa5908ae6e742f2effd863c2712266ecca0105e3fa1c69ab34a3e4"
+    },
+    {
+      "path": "stage_root_audit_snapshot/known_issues.md",
+      "sizeBytes": 100,
+      "sha256": "1177e5b923ebcd6544a01c7d71eb0dc1f2c45259e526fc77388c231b6d4e46a6"
+    },
+    {
+      "path": "stage_root_audit_snapshot/manifest.json",
+      "sizeBytes": 2009,
+      "sha256": "80ce67ecd60a3e7159d4e9733901cde7f9e859430b8f8accb6b086c6a6cd1237"
+    },
+    {
+      "path": "stage_root_audit_snapshot/readme.txt",
+      "sizeBytes": 545,
+      "sha256": "3a21ccec145d00746149ae0b49ad231526ad607be0d1efd3f0193648a3ff1870"
+    },
+    {
+      "path": "stage_root_audit_snapshot/stage_plan.md",
+      "sizeBytes": 1155,
+      "sha256": "e4bcab3db988eed6176a0e331f183f242d0ec5540661c1356204e6e80e1186ff"
+    },
+    {
+      "path": "stage_root_audit_snapshot/validation_report.md",
+      "sizeBytes": 634,
+      "sha256": "3b1a0d64cc857b2d75251e568d02b267bf9a05d7db379e560cd423ce5677a3e8"
+    }
+  ],
+  "sha256": "a64af1501a8a7412d9b6d7adb21a05b786198d7e5f3dd719875d4f79948df68c",
+  "previousStatus": "PREVIOUS_REVISION_SNAPSHOT",
+  "movePolicy": "results contents moved; stage-root audit files copied as snapshot"
+}

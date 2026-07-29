@@ -1,14 +1,15 @@
-{"schemaVersion":"cc.stage.audit.v1","stage":"stage15_cc_s3_integration","scenario":"S3","branch":"stage01-cc","gate":"PASS_CC_S3_INTEGRATION","gateStatus":"PASS","functionalRanges":[{"name":"content","baseCommit":"d811b0945e4955d91ad4cd5b1f4d81584647e053","contentCommit":"e265afc2da3d2c967ffad9c3e990dbf07014340b","diffPaths":["Task/CC/simulation/stages/S3/stage15_cc_s3_integration"],"files":[
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/.gitignore",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/commands_used.md",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/known_issues.md",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_final_report.md",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_gate_matrix.csv",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_known_limits.md",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_master_case_table.csv",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_master_result_index.csv",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_plot_index.csv",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_reproducibility.md",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_cc_s3_integration_summary.md",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/run_stage15.py",
-"Task/CC/simulation/stages/S3/stage15_cc_s3_integration/stage_plan.md"]}],"validation":{"stageGatesPassed":14,"unitNoiseless":"PASS","matlabFixedVectors":"PASS","formalIntegrity":"PASS","checkpointResume":"PASS","figureHashes":"PASS","manifestAudits":"PASS","scopeOnlyTaskCC":"PASS","gitDiffCheck":"PASS"},"changesPatch":{"semantic":"git diff --binary --unified=0 baseCommit..contentCommit over Stage15","sha256":"9b0718711d3d2961b9b8ca1dc96d26787c303c49ceb309ee9e40cfa8ce02cfd7","includesAuditCommit":false},"scope":{"allowedPrefixes":["Task/CC/simulation/stages/S3/stage15_cc_s3_integration/"],"outOfScopeChanges":[]},"remoteVerification":"VERIFIED_ORIGIN_STAGE01_CC","mergeStatus":"NOT_MERGED"}
+{
+  "stage": "stage15_cc_s3_integration",
+  "revision": "20260729_full_revision",
+  "branch": "stage01-cc",
+  "baseCommit": "6cda1f14f29a8cbe42ad3dcdc8a443ab35368b58",
+  "functionalRanges": [],
+  "allowedPaths": [
+    "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/**"
+  ],
+  "status": "BLOCKED",
+  "gate": "Stage09～14 全通过且 scheme matrix、图、文档、审计总 Gate 全通过。",
+  "remoteVerification": "TO_VERIFY_AFTER_PUSH",
+  "mergeStatus": "NOT_MERGED",
+  "balancedWeights": null
+}

@@ -1,0 +1,37 @@
+{
+  "schemaVersion":"cc.stage.audit.v1",
+  "stage":"stage11_soft_quantization",
+  "scenario":"S3",
+  "branch":"stage01-cc",
+  "gate":"PASS_STAGE11_CC_SOFT_QUANTIZATION",
+  "gateStatus":"PASS",
+  "functionalRanges":[{
+    "name":"content",
+    "baseCommit":"16063360f65a9f6dd95887659f92e01561e5e948",
+    "contentCommit":"f4cad80c878c24653e01b3aa4b0100198ef783fb",
+    "diffPaths":["Task/CC/simulation/stages/S3/stage11_soft_quantization"],
+    "files":[
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/.gitignore",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/CMakeLists.txt",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/commands_used.md",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/config/stage11_config.json",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/frozen_config.csv",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/known_issues.md",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_comparison_summary.csv",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_prescan.csv",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_recommendation.csv",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_report.md",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_quantization_test_summary.csv",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/results/stage11_soft_quantization_results.csv",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/check_stage11.py",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/scripts/run_stage11.py",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/src/stage11_soft_quantization_runner.cpp",
+      "Task/CC/simulation/stages/S3/stage11_soft_quantization/stage_plan.md"
+    ]
+  }],
+  "validation":{"clipMax":2,"formalFrames":4000,"recommendedBits":6,"worstBerIncrease":0.09803921568627438,"worstFerIncrease":0.06779661016949157,"integerOverflowCount":0,"pathMetricSaturationCount":0,"stage10AuditRegression":"PASS"},
+  "changesPatch":{"semantic":"git diff --binary --unified=0 baseCommit..contentCommit over Stage11","sha256":"706b060f6a7b38f8565dca34614f23519ba331446767a707688a90a903a78067","includesAuditCommit":false},
+  "scope":{"allowedPrefixes":["Task/CC/simulation/stages/S3/stage11_soft_quantization/"],"outOfScopeChanges":[]},
+  "remoteVerification":"VERIFIED_ORIGIN_STAGE01_CC",
+  "mergeStatus":"NOT_MERGED"
+}

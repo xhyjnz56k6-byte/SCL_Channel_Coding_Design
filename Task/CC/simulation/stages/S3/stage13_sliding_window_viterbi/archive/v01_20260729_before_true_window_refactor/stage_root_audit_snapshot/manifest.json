@@ -1,0 +1,16 @@
+{"schemaVersion":"cc.stage.audit.v1","stage":"stage13_sliding_window_viterbi","scenario":"S3","branch":"stage01-cc","gate":"PASS_STAGE13_CC_SLIDING_WINDOW","gateStatus":"PASS","functionalRanges":[{"name":"content","baseCommit":"6601bcd1dff50269d525aa6bf2362dee1eab2bf7","contentCommit":"ea54079373ea4cc865e2ea152be8a86094b9ae8f","diffPaths":["Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi"],"files":[
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/.gitignore",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/CMakeLists.txt",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/commands_used.md",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/config/stage13_config.json",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/frozen_config.csv",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/known_issues.md",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_output_bit_metadata.csv",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_report.md",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_results.csv",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_sliding_window_test_summary.csv",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/results/stage13_window_prescan.csv",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/check_stage13.py",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/scripts/run_stage13.py",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/src/stage13_runner.cpp",
+"Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/stage_plan.md"]}],"validation":{"windowInputBits":96,"slideStepBits":25,"tracebackDepthBits":70,"noiselessHard":"PASS","noiselessSoft":"PASS","formalFrames":1000,"R12FullMismatchBits":0,"R23FullMismatchBits":77,"outputMetadata":"PASS","stage12AuditRegression":"PASS"},"changesPatch":{"semantic":"git diff --binary --unified=0 baseCommit..contentCommit over Stage13","sha256":"8a5909782564a75a76c3656da30da771964dc756bc2ad037c645923bf13f93ca","includesAuditCommit":false},"scope":{"allowedPrefixes":["Task/CC/simulation/stages/S3/stage13_sliding_window_viterbi/"],"outOfScopeChanges":[]},"remoteVerification":"VERIFIED_ORIGIN_STAGE01_CC","mergeStatus":"NOT_MERGED"}
