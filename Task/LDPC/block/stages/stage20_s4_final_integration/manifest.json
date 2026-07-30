@@ -1,0 +1,9 @@
+{
+  "stage": "stage20_s4_final_integration",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [],
+  "gateStatus": "PASS",
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": true,
+  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+}

@@ -1,0 +1,42 @@
+{
+  "sourceRawCsv": "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_point_results_raw.csv",
+  "sourceRawCsvSha256": "a7b810d783fd3f981427b723c65911b39906287b9b4454b2cf1150cb9c096f4d",
+  "sourceAuditedCsv": "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_point_results.csv",
+  "sourceAuditedCsvSha256": "a7b810d783fd3f981427b723c65911b39906287b9b4454b2cf1150cb9c096f4d",
+  "figureDataCsv": "formal_avg_delay_figure_data.csv",
+  "figureDataCsvSha256": "74ec376c9b04ee9186d39c8f42f129a15362b80c0ba8f4986354b2396c708872",
+  "xColumn": "esN0Db",
+  "yColumn": "avgDecodeTimeUs",
+  "xUnit": "dB",
+  "yUnit": "平均译码时延（微秒）",
+  "xScale": "linear",
+  "yScale": "linear",
+  "seriesMapping": [
+    "480比特 BP",
+    "480比特 NMS（α=0.95）",
+    "560比特 BP",
+    "560比特 NMS（α=0.95）",
+    "640比特 BP",
+    "640比特 NMS（α=0.80）"
+  ],
+  "colorMapping": {
+    "480": "#1f77b4",
+    "560": "#ff7f0e",
+    "640": "#2ca02c"
+  },
+  "lineStyleMapping": {
+    "BP": "-",
+    "NMS": "--"
+  },
+  "markerMapping": {
+    "BP": "o",
+    "NMS": "s"
+  },
+  "zeroHandling": "NOT_APPLICABLE",
+  "zeroErrorUpperBoundFormula": "1-0.05^(1/trials)",
+  "interpolation": false,
+  "smoothing": false,
+  "plotScript": "Task/LDPC/block/scripts/formal_postprocess.py",
+  "plotScriptSha256": "a3b4525d3d61f224ed33bd51b43f69acb3935f246f523724d7e8c17c7dd7552c",
+  "pngSha256": "560087bacb0e8d2e6fd961650cc40e9a32cdbc4d3f0c279a223aa4e7093a5dc2"
+}

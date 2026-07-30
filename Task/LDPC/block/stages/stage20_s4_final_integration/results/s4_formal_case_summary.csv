@@ -1,0 +1,4 @@
+actualLength,actualRate,formalAlpha,pairedFrames,zeroBitErrorRecords,zeroFrameErrorRecords
+480,0.625,0.95,453694,6,6
+560,0.5357142857142857,0.95,460561,8,8
+640,0.46875,0.8,1104882,38,38
