@@ -63,6 +63,9 @@ struct Aggregate {
     std::uint64_t frameErrors = 0;
     std::uint64_t syndromePasses = 0;
     std::uint64_t nanInf = 0;
+    std::uint64_t atanhClamps = 0;
+    std::uint64_t llrClamps = 0;
+    std::uint64_t messageClamps = 0;
     std::uint64_t iterations = 0;
     int maximumIterations = 0;
     std::uint64_t finalSyndromeWeight = 0;
@@ -101,6 +104,9 @@ void update(Aggregate& aggregate,
     aggregate.frameErrors += errors != 0;
     aggregate.syndromePasses += decoded.syndromePass;
     aggregate.nanInf += decoded.numeric.nanInfCount;
+    aggregate.atanhClamps += decoded.numeric.atanhClampCount;
+    aggregate.llrClamps += decoded.numeric.llrClampCount;
+    aggregate.messageClamps += decoded.numeric.messageClampCount;
     aggregate.iterations += decoded.usedIterations;
     aggregate.maximumIterations = std::max(aggregate.maximumIterations, decoded.usedIterations);
     aggregate.finalSyndromeWeight += decoded.finalSyndromeWeight;
@@ -354,6 +360,149 @@ int simulateMode(int argc, char** argv) {
     return 0;
 }
 
+void writeChunkAggregate(std::ofstream& output,
+                         const s4ldpc::DirectCase& config,
+                         const s4ldpc::DirectGraph& graph,
+                         double snr,
+                         const Aggregate& aggregate,
+                         std::uint64_t payloadHashXor,
+                         std::uint64_t codewordHashXor,
+                         std::uint64_t llrHashXor,
+                         int frameStart,
+                         int frameEnd) {
+    output << config.id << ',' << config.targetLength << ',' << config.actualLength << ','
+           << config.actualRate << ',' << config.zc << ',' << config.fillerLength << ','
+           << config.rankHp << ',' << aggregate.algorithm << ',' << aggregate.alpha << ','
+           << snr << ',' << aggregate.frames << ',' << aggregate.bitErrors << ','
+           << aggregate.frameErrors << ',' << aggregate.syndromePasses << ','
+           << aggregate.correctValidFrames << ',' << aggregate.wrongValidFrames << ','
+           << aggregate.correctInvalidFrames << ',' << aggregate.wrongInvalidFrames << ','
+           << aggregate.finalSyndromeWeight << ',' << aggregate.nanInf << ','
+           << aggregate.atanhClamps << ',' << aggregate.llrClamps << ','
+           << aggregate.messageClamps << ',' << aggregate.complexity.checkNodeUpdates << ','
+           << aggregate.complexity.variableNodeUpdates << ','
+           << aggregate.complexity.messageUpdates << ',' << aggregate.complexity.tanhOperations << ','
+           << aggregate.complexity.atanhOperations << ',' << aggregate.complexity.absOperations << ','
+           << aggregate.complexity.comparisonOperations << ','
+           << aggregate.complexity.min1Min2Updates << ',' << aggregate.complexity.signOperations << ','
+           << aggregate.complexity.alphaMultiplications << ',' << graph.edges.size() << ','
+           << payloadHashXor << ',' << codewordHashXor << ',' << llrHashXor << ','
+           << frameStart << ',' << frameEnd << '\n';
+}
+
+int formalChunkMode(int argc, char** argv) {
+    if (argc != 19) {
+        throw std::runtime_error(
+            "formalchunk arguments: summaryCsv samplesCsv actualLength alpha esN0Db requestedFrames "
+            "frameStart runId maxIterations payloadSeed noiseSeed priorFrames priorBpErrors "
+            "priorNmsErrors minFrames targetFrameErrors maxFrames");
+    }
+    const int actualLength = std::stoi(argv[4]);
+    const double alpha = std::stod(argv[5]);
+    const double snr = std::stod(argv[6]);
+    const int requestedFrames = std::stoi(argv[7]);
+    const int frameStart = std::stoi(argv[8]);
+    const std::uint64_t runId = std::stoull(argv[9]);
+    const int maxIterations = std::stoi(argv[10]);
+    const std::uint64_t payloadSeed = std::stoull(argv[11]);
+    const std::uint64_t noiseSeed = std::stoull(argv[12]);
+    const int priorFrames = std::stoi(argv[13]);
+    const std::uint64_t priorBpErrors = std::stoull(argv[14]);
+    const std::uint64_t priorNmsErrors = std::stoull(argv[15]);
+    const int minFrames = std::stoi(argv[16]);
+    const std::uint64_t targetFrameErrors = std::stoull(argv[17]);
+    const int maxFrames = std::stoi(argv[18]);
+    const std::vector<s4ldpc::DirectCase> cases = s4ldpc::freezeS4Cases();
+    const auto selected = std::find_if(cases.begin(), cases.end(),
+        [actualLength](const s4ldpc::DirectCase& value) {
+            return value.actualLength == actualLength;
+        });
+    if (selected == cases.end()) throw std::runtime_error("formal actualLength not frozen");
+    const s4ldpc::DirectCase& config = *selected;
+    const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
+    Aggregate bp;
+    bp.algorithm = "DIRECT_LAYERED_SPA_BP";
+    Aggregate nms;
+    nms.algorithm = "DIRECT_LAYERED_NMS";
+    nms.alpha = alpha;
+    std::ofstream samples(argv[3]);
+    if (!samples) throw std::runtime_error("cannot open formal chunk samples");
+    samples << std::setprecision(17);
+    samples << "frameIndex,algorithm,usedIterations,decodeTimeUs,finalSyndromeWeight,"
+               "isPayloadCorrect,isCodewordValid,decodedPayloadHash,decodedCodewordHash,"
+               "payloadErrorPositionsHash\n";
+    std::uint64_t payloadHashXor = 0;
+    std::uint64_t codewordHashXor = 0;
+    std::uint64_t llrHashXor = 0;
+    int completed = 0;
+    for (int offset = 0; offset < requestedFrames && priorFrames + offset < maxFrames; ++offset) {
+        const int frameIndex = frameStart + offset;
+        const std::vector<unsigned char> payload =
+            s4ldpc::makePayload(payloadSeed, frameIndex, config.payloadLength);
+        const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+        if (s4ldpc::syndromeWeight(graph, codeword) != 0) {
+            throw std::runtime_error("formal encoder syndrome nonzero");
+        }
+        const std::vector<double> llr = s4ldpc::makeChannelLlr(
+            config, codeword, noiseSeed ^ runId,
+            static_cast<std::uint64_t>(actualLength), frameIndex, snr);
+        payloadHashXor ^= s4ldpc::hashBytes(payload);
+        codewordHashXor ^= s4ldpc::hashBytes(codeword);
+        llrHashXor ^= s4ldpc::hashDoubles(llr);
+        auto begin = std::chrono::steady_clock::now();
+        const s4ldpc::DecodeResult bpResult = s4ldpc::decodeLayeredBp(
+            graph, llr, maxIterations, s4ldpc::EarlyStopPolicy::SyndromeAfterFullIteration);
+        auto end = std::chrono::steady_clock::now();
+        const double bpTime = std::chrono::duration<double, std::micro>(end - begin).count();
+        update(bp, payload, bpResult, bpTime);
+        begin = std::chrono::steady_clock::now();
+        const s4ldpc::DecodeResult nmsResult = s4ldpc::decodeLayeredNms(
+            graph, llr, maxIterations, alpha,
+            s4ldpc::EarlyStopPolicy::SyndromeAfterFullIteration);
+        end = std::chrono::steady_clock::now();
+        const double nmsTime = std::chrono::duration<double, std::micro>(end - begin).count();
+        update(nms, payload, nmsResult, nmsTime, &bpResult);
+        const s4ldpc::DecodeResult* decoded[2] = {&bpResult, &nmsResult};
+        const double times[2] = {bpTime, nmsTime};
+        const char* names[2] = {"DIRECT_LAYERED_SPA_BP", "DIRECT_LAYERED_NMS"};
+        for (int decoder = 0; decoder < 2; ++decoder) {
+            const std::uint64_t errors = countPayloadErrors(payload, decoded[decoder]->bits);
+            samples << frameIndex << ',' << names[decoder] << ','
+                    << decoded[decoder]->usedIterations << ',' << times[decoder] << ','
+                    << decoded[decoder]->finalSyndromeWeight << ',' << (errors == 0 ? 1 : 0) << ','
+                    << (decoded[decoder]->syndromePass ? 1 : 0) << ','
+                    << s4ldpc::hashBytes(payloadSlice(decoded[decoder]->bits, payload.size())) << ','
+                    << s4ldpc::hashBytes(decoded[decoder]->bits) << ','
+                    << errorPositionsHash(payload, decoded[decoder]->bits) << '\n';
+        }
+        ++completed;
+        if (bp.nanInf != 0 || nms.nanInf != 0) {
+            throw std::runtime_error("formal decoder NaN/Inf");
+        }
+        const int totalFrames = priorFrames + completed;
+        if (totalFrames >= minFrames
+            && priorBpErrors + bp.frameErrors >= targetFrameErrors
+            && priorNmsErrors + nms.frameErrors >= targetFrameErrors) break;
+    }
+    std::ofstream summary(argv[2]);
+    if (!summary) throw std::runtime_error("cannot open formal chunk summary");
+    summary << std::setprecision(17);
+    summary << "caseId,targetLength,actualLength,actualRate,Zc,fillerLength,rankHp,algorithm,"
+               "alpha,esN0Db,frames,bitErrors,frameErrors,syndromePasses,correctValidFrames,"
+               "wrongValidFrames,correctInvalidFrames,wrongInvalidFrames,finalSyndromeWeight,"
+               "nanInfCount,atanhClampCount,llrClampCount,messageClampCount,checkNodeUpdates,"
+               "variableNodeUpdates,messageUpdates,tanhOperations,atanhOperations,absOperations,"
+               "comparisonOperations,min1Min2Updates,signOperations,alphaMultiplications,edgeCount,"
+               "payloadHashXor,codewordHashXor,llrHashXor,frameStart,frameEnd\n";
+    const int frameEnd = frameStart + completed - 1;
+    writeChunkAggregate(summary, config, graph, snr, bp, payloadHashXor, codewordHashXor,
+                        llrHashXor, frameStart, frameEnd);
+    writeChunkAggregate(summary, config, graph, snr, nms, payloadHashXor, codewordHashXor,
+                        llrHashXor, frameStart, frameEnd);
+    std::cout << "PASS_S4_LDPC_FORMAL_CHUNK frames=" << completed << '\n';
+    return 0;
+}
+
 void writeAuditFrame(std::ofstream& output,
                      const s4ldpc::DirectCase& config,
                      int frameIndex,
@@ -481,6 +630,7 @@ int main(int argc, char** argv) {
         if (mode == "fixture" && argc == 3) return fixtureMode(argv[2]);
         if (mode == "simulate") return simulateMode(argc, argv);
         if (mode == "audit") return auditMode(argc, argv);
+        if (mode == "formalchunk") return formalChunkMode(argc, argv);
         throw std::runtime_error("invalid mode or argument count");
     } catch (const std::exception& error) {
         std::cerr << "FAIL_S4_LDPC_RUNNER: " << error.what() << '\n';
