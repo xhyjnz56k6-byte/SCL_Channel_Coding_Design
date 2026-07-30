@@ -52,6 +52,26 @@ COUNTERS = [
 ]
 
 
+def load_formal_case_metadata(actual_length: int) -> dict:
+    """Return the single frozen Case definition; never infer it from length."""
+    source = S14 / "results/formal_case_config.csv"
+    if not source.is_file():
+        source = STAGES / "stage04_s4_case_freeze/results/frozen_cases.csv"
+    candidates = [row for row in read_csv(source)
+                  if int(row["actualLength"]) == actual_length]
+    if len(candidates) != 1:
+        raise RuntimeError(f"formal case metadata is not unique: N{actual_length}")
+    row = dict(candidates[0])
+    numeric = ["BG", "Zc", "kb", "nb", "mb", "informationCapacity", "payloadLength",
+               "fillerLength", "parityLength", "actualLength", "targetLength", "rankH", "rankHp"]
+    for name in numeric:
+        if name in row:
+            row[name] = int(row[name])
+    row["actualRate"] = float(row["actualRate"])
+    row["formalAlpha"] = float(row.get("formalAlpha", ALPHAS[actual_length]))
+    return row
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -373,11 +393,11 @@ def result_rows(checkpoint: dict, config: dict) -> list[dict]:
                 else "MAX_FRAMES_REACHED")
         result.append({
             "caseId": checkpoint["caseId"],
-            "targetLength": 480 if n == 480 else (576 if n == 560 else 640),
-            "actualLength": n, "actualRate": RATES[n],
-            "Zc": 40 if n == 480 else (40 if n == 560 else 40),
-            "fillerLength": 20,
-            "rankHp": n - 320,
+            "targetLength": load_formal_case_metadata(n)["targetLength"],
+            "actualLength": n, "actualRate": load_formal_case_metadata(n)["actualRate"],
+            "Zc": load_formal_case_metadata(n)["Zc"],
+            "fillerLength": load_formal_case_metadata(n)["fillerLength"],
+            "rankHp": load_formal_case_metadata(n)["rankHp"],
             "algorithm": algorithm,
             "alpha": 0.0 if algorithm == "DIRECT_LAYERED_SPA_BP" else ALPHAS[n],
             "snrDefinition": "Es/N0", "snrDb": snr, "esN0Db": snr,

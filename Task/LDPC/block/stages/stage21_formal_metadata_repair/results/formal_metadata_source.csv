@@ -1,0 +1,4 @@
+actualLength,source,sourceSha256,candidateId,targetLength,actualRate,Zc,fillerLength,rankHp,formalAlpha,edgeCount
+480,stage14_formal_preflight/results/formal_case_config.csv,0be82536befc379a297220b47fbea1a6585ebfd871f6b5caa7c0d04fefcd0cfd,LDPC_BG2_K300_N480,480,0.625,48,84,96,0.95,672
+560,stage14_formal_preflight/results/formal_case_config.csv,0be82536befc379a297220b47fbea1a6585ebfd871f6b5caa7c0d04fefcd0cfd,LDPC_BG2_K300_N560,576,0.5357142857142857,56,148,112,0.95,784
+640,stage14_formal_preflight/results/formal_case_config.csv,0be82536befc379a297220b47fbea1a6585ebfd871f6b5caa7c0d04fefcd0cfd,LDPC_BG2_K300_N640,640,0.46875,40,20,320,0.8,2240

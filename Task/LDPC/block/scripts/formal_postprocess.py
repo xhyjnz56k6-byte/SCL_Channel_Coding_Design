@@ -95,7 +95,8 @@ def audit() -> None:
             reasons.append("NAN_INF")
         if not 0 <= float(row["BER"]) <= 1 or not 0 <= float(row["FER"]) <= 1:
             reasons.append("RATE_RANGE")
-        if float(row["actualRate"]) != 300 / n:
+        metadata = fs.load_formal_case_metadata(n)
+        if abs(float(row["actualRate"]) - metadata["actualRate"]) > 1e-14:
             reasons.append("RATE_FORMULA")
         expected_alpha = 0.0 if row["algorithm"] == "DIRECT_LAYERED_SPA_BP" else fs.ALPHAS[n]
         if abs(float(row["alpha"]) - expected_alpha) > 1e-12:
@@ -314,9 +315,10 @@ def plots() -> None:
     # Rate versus actual length.
     rate_rows = []
     for n in fs.LENGTHS:
+        metadata = fs.load_formal_case_metadata(n)
         rate_rows.append({
-            "actualLength": n, "actualRate": fs.RATES[n],
-            "targetLength": 480 if n == 480 else (576 if n == 560 else 640),
+            "actualLength": n, "actualRate": metadata["actualRate"],
+            "targetLength": metadata["targetLength"],
             "series": "Direct BG2 frozen case",
         })
     figure_data = out / "formal_rate_length_figure_data.csv"
@@ -457,8 +459,8 @@ def length_comparison() -> None:
         config = next(row for row in case_config if int(row["actualLength"]) == n)
         curve = [row for row in primary if int(row["actualLength"]) == n]
         comparison.append({
-            "targetLength": 480 if n == 480 else (576 if n == 560 else 640),
-            "actualLength": n, "actualRate": 300 / n, "Zc": config["Zc"],
+            "targetLength": fs.load_formal_case_metadata(n)["targetLength"],
+            "actualLength": n, "actualRate": fs.load_formal_case_metadata(n)["actualRate"], "Zc": config["Zc"],
             "fillerLength": config["fillerLength"], "parityLength": config["parityLength"],
             "rankHp": config["rankHp"], "edgeCount": curve[0]["edgeCount"],
             "meanBERAcrossGrid": statistics.fmean(float(row["BER"]) for row in curve),
