@@ -1,0 +1,27 @@
+{
+  "stage": "stage06_direct_bp_baseline",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE06_DIRECT_BP_BASELINE",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/direct_bp_fixed_noise.csv",
+    "results/direct_bp_noiseless.csv",
+    "results/direct_bp_numeric_audit.csv",
+    "results/direct_bp_validation_report.md",
+    "results/stage23g_regression.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

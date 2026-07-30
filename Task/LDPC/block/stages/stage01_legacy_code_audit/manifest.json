@@ -1,0 +1,28 @@
+{
+  "stage": "stage01_legacy_code_audit",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE01_LEGACY_CODE_AUDIT",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/legacy_code_inventory.csv",
+    "results/legacy_risk_report.md",
+    "results/legacy_source_map.csv",
+    "results/stage15b_nms_flow.md",
+    "results/stage19_parameter_flow.md",
+    "results/stage23g_direct_bp_flow.md"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

@@ -1,0 +1,28 @@
+{
+  "stage": "stage02_cc_ldpc_common_contract",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE02_COMMON_CONTRACT",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/cc_ldpc_contract_diff.md",
+    "results/common_contract.json",
+    "results/noise_policy_audit.md",
+    "results/result_schema.csv",
+    "results/snr_formula_audit.md",
+    "results/timing_contract.md"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

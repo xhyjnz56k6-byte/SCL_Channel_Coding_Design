@@ -1,0 +1,26 @@
+{
+  "stage": "stage04_s4_case_freeze",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE04_S4_CASE_FREEZE",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/case_manifest.json",
+    "results/case_selection_report.md",
+    "results/frozen_cases.csv",
+    "results/target_actual_length_comparison.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

@@ -1,0 +1,22 @@
+{
+  "sourceFiles": [
+    "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design_LDPC/Task/LDPC/block/stages/stage12_direct_bp_nms_smoke/results/stage12_alpha_summary_figure_data.csv"
+  ],
+  "sourceHashes": [
+    "347c648d477cce311c537b7b34a61ebdaae6bcf78d6f859cc20d8e3a36764647"
+  ],
+  "xColumn": "actualLength",
+  "yColumn": "alpha",
+  "xUnit": "dimensionless",
+  "yUnit": "alpha",
+  "xScale": "linear",
+  "yScale": "linear",
+  "conversionFormula": "frozen alpha by actual length",
+  "zeroHandling": "half-event upper-bound marker for log axes; source zero retained",
+  "missingValueHandling": "reject",
+  "lineStyle": "fixed by actual length and decoder",
+  "marker": "fixed by decoder",
+  "legend": "upper right",
+  "scriptHash": "b261ea2297707372ffc02214ef565e99bb4d68f5fe45439c70c9e911c65a8a45",
+  "outputHash": "6fff4afd15e05580d4b5884b6827b49031b670ca26276b07f8e259857b2b1a3e"
+}

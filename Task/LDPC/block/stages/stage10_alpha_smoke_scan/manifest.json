@@ -1,0 +1,30 @@
+{
+  "stage": "stage10_alpha_smoke_scan",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE10_ALPHA_SMOKE_SCAN",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/alpha_coarse_curve_summary.csv",
+    "results/alpha_coarse_point_results.csv",
+    "results/alpha_local_search_plan.csv",
+    "results/stage10_alpha_coarse_each_length.png",
+    "results/stage10_alpha_coarse_each_length_figure_data.csv",
+    "results/stage10_alpha_coarse_each_length_plot_check.md",
+    "results/stage10_alpha_coarse_each_length_plot_manifest.json",
+    "results/waterfall_estimate.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

@@ -1,0 +1,4 @@
+caseId,lowSnrDb,midSnrDb,highSnrDb
+LDPC_BG2_K300_N480,3.0,4.0,5.0
+LDPC_BG2_K300_N560,3.0,4.0,5.0
+LDPC_BG2_K300_N640,-2.0,-1.5,-1.0

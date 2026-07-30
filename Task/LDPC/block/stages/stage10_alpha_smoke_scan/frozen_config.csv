@@ -1,0 +1,7 @@
+parameter,value
+payloadLength,300
+baseGraph,BG2
+snrDefinition,Es/N0
+maxIterations,32
+earlyStopPolicy,SYNDROME_AFTER_FULL_ITERATION
+formalStarted,false

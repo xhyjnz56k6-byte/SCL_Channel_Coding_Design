@@ -1,0 +1,4 @@
+caseId,pythonRankHp,pythonSyndromeWeight,codewordMatch,edgeCountMatch,status
+LDPC_BG2_K300_N480,96,0,true,true,PASS
+LDPC_BG2_K300_N560,112,0,true,true,PASS
+LDPC_BG2_K300_N640,320,0,true,true,PASS

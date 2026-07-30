@@ -1,0 +1,27 @@
+{
+  "stage": "stage03_direct_case_selector",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE03_DIRECT_CASE_SELECTOR",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/all_candidates.csv",
+    "results/feasible_candidates.csv",
+    "results/rejected_candidates.csv",
+    "results/selector_design.md",
+    "results/selector_unit_test.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

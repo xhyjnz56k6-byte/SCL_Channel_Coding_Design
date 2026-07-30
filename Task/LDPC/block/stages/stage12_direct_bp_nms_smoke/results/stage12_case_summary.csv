@@ -1,0 +1,4 @@
+caseId,targetLength,actualLength,actualRate,Zc,fillerLength,rankHp,frozenAlpha,smokeSnrRange,status
+LDPC_BG2_K300_N480,480,480,0.625,48,84,96,1.0,2.5:5.5,PASS
+LDPC_BG2_K300_N560,576,560,0.5357142857142857,56,148,112,1.0,2.5:5.5,PASS
+LDPC_BG2_K300_N640,640,640,0.46875,40,20,320,0.8,-3.0:0.0,PASS

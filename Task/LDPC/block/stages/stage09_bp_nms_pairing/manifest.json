@@ -1,0 +1,25 @@
+{
+  "stage": "stage09_bp_nms_pairing",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE09_BP_NMS_PAIRING",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/paired_runner_validation.md",
+    "results/pairing_config_diff.csv",
+    "results/pairing_hash_check.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

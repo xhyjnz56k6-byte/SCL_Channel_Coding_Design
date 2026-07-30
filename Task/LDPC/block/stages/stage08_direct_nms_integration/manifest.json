@@ -1,0 +1,26 @@
+{
+  "stage": "stage08_direct_nms_integration",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE08_DIRECT_NMS",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/direct_nms_alpha_sanity.csv",
+    "results/direct_nms_dependency_scan.txt",
+    "results/direct_nms_noiseless.csv",
+    "results/direct_nms_reference_comparison.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

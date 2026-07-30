@@ -1,0 +1,22 @@
+{
+  "sourceFiles": [
+    "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design_LDPC/Task/LDPC/block/stages/stage10_alpha_smoke_scan/results/alpha_coarse_point_results.csv"
+  ],
+  "sourceHashes": [
+    "8502bafadbf7b0388b2a2d50e35ac2e1004e67f041d2b081660d6d33b1acbfb0"
+  ],
+  "xColumn": "alpha",
+  "yColumn": "FER",
+  "xUnit": "dimensionless",
+  "yUnit": "dimensionless",
+  "xScale": "linear",
+  "yScale": "linear",
+  "conversionFormula": "raw points; no interpolation",
+  "zeroHandling": "half-event upper-bound marker for log axes; source zero retained",
+  "missingValueHandling": "reject",
+  "lineStyle": "fixed by actual length and decoder",
+  "marker": "fixed by decoder",
+  "legend": "upper right",
+  "scriptHash": "b261ea2297707372ffc02214ef565e99bb4d68f5fe45439c70c9e911c65a8a45",
+  "outputHash": "d1257007ce1e7074ce0d21978ca2d4822d3f1611a59b219aef6d18cef29943a2"
+}

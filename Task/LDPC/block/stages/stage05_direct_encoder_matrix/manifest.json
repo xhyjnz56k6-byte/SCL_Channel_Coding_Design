@@ -1,0 +1,27 @@
+{
+  "stage": "stage05_direct_encoder_matrix",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE05_DIRECT_ENCODER_MATRIX",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/encoder_selfcheck.csv",
+    "results/matrix_summary.csv",
+    "results/payload_filler_mapping.csv",
+    "results/reference_comparison.csv",
+    "results/syndrome_selfcheck.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

@@ -1,0 +1,26 @@
+{
+  "stage": "stage07_nms_kernel_extraction",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE07_NMS_KERNEL",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/nms_dependency_scan.txt",
+    "results/nms_kernel_design.md",
+    "results/nms_kernel_unit_test.csv",
+    "results/nms_stage15b_regression.csv"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

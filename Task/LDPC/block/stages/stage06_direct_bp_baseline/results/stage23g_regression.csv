@@ -1,0 +1,7 @@
+item,legacy,new,status
+schedule,BASE_LAYER_THEN_EXPANDED_ROW,BASE_LAYER_THEN_EXPANDED_ROW,PASS
+algorithm,LAYERED_SPA_BP,LAYERED_SPA_BP,PASS
+atanhEps,1e-16,1e-16,PASS
+earlyStop,SYNDROME_AFTER_FULL_ITERATION,SYNDROME_AFTER_FULL_ITERATION,PASS
+rateMatchExecuted,false,false,PASS
+rateRecoverExecuted,false,false,PASS

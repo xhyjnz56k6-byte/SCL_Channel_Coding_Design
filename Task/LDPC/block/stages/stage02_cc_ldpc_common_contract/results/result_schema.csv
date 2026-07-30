@@ -1,0 +1,11 @@
+field,meaning
+snrDb,Es/N0 dB
+esN0Db,Es/N0 dB alias
+ebN0Db,由 actualRate 换算
+actualRate,300/transmittedLength
+sigmaSquared,AWGN 每实维方差
+frames/bitErrors/frameErrors,计数
+BER/FER,仅原始 300 bit
+avg/median/p95/maxDecodeTimeUs,译码核心时延
+payloadSeed/noiseSeed/frameStart/frameEnd,复现字段
+stopReason,停止原因

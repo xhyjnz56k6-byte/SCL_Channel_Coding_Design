@@ -1,0 +1,4 @@
+test,expected,actual,status
+repeatability,LDPC_BG2_K300_N480,LDPC_BG2_K300_N480,PASS
+repeatability,LDPC_BG2_K300_N560,LDPC_BG2_K300_N560,PASS
+repeatability,LDPC_BG2_K300_N640,LDPC_BG2_K300_N640,PASS

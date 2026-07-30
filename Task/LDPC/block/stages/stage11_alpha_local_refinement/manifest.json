@@ -1,0 +1,30 @@
+{
+  "stage": "stage11_alpha_local_refinement",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "stage01_12_batch_content",
+      "baseCommit": "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+      "contentCommit": "WORKTREE_FUNCTIONAL_CONTENT",
+      "files": [
+        "Task/LDPC/"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE11_ALPHA_FREEZE",
+  "gateStatus": "PASS",
+  "resultFiles": [
+    "results/alpha_all_candidates.csv",
+    "results/alpha_selection_by_length.csv",
+    "results/alpha_selection_report.md",
+    "results/frozen_alpha.json",
+    "results/stage11_alpha_selection_each_length.png",
+    "results/stage11_alpha_selection_each_length_figure_data.csv",
+    "results/stage11_alpha_selection_each_length_plot_check.md",
+    "results/stage11_alpha_selection_each_length_plot_manifest.json"
+  ],
+  "pushStatus": "TO_BE_RECORDED_AFTER_PUSH",
+  "remoteVerified": false,
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false
+}

@@ -1,0 +1,16 @@
+{
+  "payloadLength": 300,
+  "modulation": "BPSK_0_TO_PLUS1_1_TO_MINUS1",
+  "snrDefinition": "Es/N0",
+  "sigmaSquaredFormula": "1/(2*10^(snrDb/10))",
+  "ebN0Formula": "snrDb-10*log10(actualRate)",
+  "llrFormula": "2*receivedSymbol/sigmaSquared",
+  "llrSign": "POSITIVE_FAVORS_ZERO",
+  "actualRateFormula": "payloadLength/transmittedLength",
+  "payloadSeed": 2026072001,
+  "noiseSeed": 2026072904,
+  "noisePolicy": "standard Gaussian per case/SNR/frame; paired decoders share channelLlr",
+  "timingBoundary": "decoder.decode(channelLlr)",
+  "threads": 1,
+  "buildType": "Release"
+}

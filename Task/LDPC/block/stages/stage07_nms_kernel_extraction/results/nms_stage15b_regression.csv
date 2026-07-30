@@ -1,0 +1,6 @@
+kernelItem,legacyMeaning,newMeaning,status
+oldMessageRemoval,posterior-oldCheckMessage,posterior-oldCheckMessage,PASS
+min1/min2,two-minimum scan,two-minimum scan,PASS
+signProduct,product of extrinsic signs,product of extrinsic signs,PASS
+alpha,multiplicative normalization,multiplicative normalization,PASS
+layeredWriteback,immediate posterior update,immediate posterior update,PASS
