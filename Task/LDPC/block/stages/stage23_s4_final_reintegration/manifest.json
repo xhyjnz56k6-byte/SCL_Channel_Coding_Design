@@ -1,0 +1,9 @@
+{
+  "stage": "stage23_s4_final_reintegration",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [],
+  "gateStatus": "PASS",
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": true,
+  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+}
