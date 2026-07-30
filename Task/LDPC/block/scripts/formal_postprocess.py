@@ -269,6 +269,9 @@ def plot_metric(data: list[dict[str, str]], result_dir: Path, stem: str,
             ax.plot([float(row["esN0Db"]) for row in curve],
                     [float(row[metric]) for row in curve], color=color,
                     linestyle=line, marker=marker, markersize=4, linewidth=1.4, label=name)
+    if log_y and any(float(row[metric]) == 0 for row in data):
+        ax.scatter([], [], facecolors="none", edgecolors="black", marker="v", s=38,
+                   label="零错误点95%上界（不连线）")
     ax.set_xlabel("Es/N0（dB）")
     ax.set_ylabel(ylabel)
     ax.set_title(title)

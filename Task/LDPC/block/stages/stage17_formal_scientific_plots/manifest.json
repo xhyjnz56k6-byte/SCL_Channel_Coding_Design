@@ -1,0 +1,9 @@
+{
+  "stage": "stage17_formal_scientific_plots",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [],
+  "gateStatus": "PASS",
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": true,
+  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+}
