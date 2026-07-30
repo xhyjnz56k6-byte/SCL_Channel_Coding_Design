@@ -1,0 +1,21 @@
+{
+  "title": "560比特LDPC不同缩放因子的复杂度对比",
+  "x": "snrDb",
+  "y": "avg_normalized_complexity",
+  "series": [
+    "BP",
+    "MS (α=1.00)",
+    "NMS (α=0.60)",
+    "NMS (α=0.65)",
+    "NMS (α=0.70)",
+    "NMS (α=0.75)",
+    "NMS (α=0.80)",
+    "NMS (α=0.85)",
+    "NMS (α=0.90)",
+    "NMS (α=0.95)"
+  ],
+  "source": "n560_alpha_curve_complexity_figure_data.csv",
+  "pngSha256": "fb7a0755499c78da9006f230dfabf964db6daf0e6131d49ed7cde8ba69df1208",
+  "interpolation": false,
+  "smoothing": false
+}

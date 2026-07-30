@@ -1,0 +1,9 @@
+{
+  "stage": "stage12r_alpha_curve_selection",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [],
+  "gateStatus": "PASS",
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": false,
+  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+}
