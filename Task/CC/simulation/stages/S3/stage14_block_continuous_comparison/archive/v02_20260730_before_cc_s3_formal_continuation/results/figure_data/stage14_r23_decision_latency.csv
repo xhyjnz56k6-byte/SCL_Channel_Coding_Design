@@ -1,0 +1,5 @@
+organization,rateCase,snrDb,avgDecisionDelaySymbols,p95DecisionDelaySymbols,fullFrameLastDecisionSymbol
+A_BLOCK_300,R23,1.0,233.0,435,458
+B_CONT_50x6,R23,1.0,173.0,256,458
+C_CONT_100x3,R23,1.0,193.25,322,458
+D_CONT_150x2,R23,1.0,213.5,397,458

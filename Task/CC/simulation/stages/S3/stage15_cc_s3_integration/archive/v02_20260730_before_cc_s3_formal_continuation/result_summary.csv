@@ -1,0 +1,6 @@
+metric,value
+required_plots,8
+scheme_matrix,PASS
+core_questions,5
+recommendation_classes,6
+channel_model,symbol-level discrete BPSK-AWGN

@@ -1,0 +1,133 @@
+{
+  "stage": "stage15_cc_s3_integration",
+  "branch": "stage01-cc",
+  "status": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content1",
+      "baseCommit": "86188ee7d964b1c15fb9eb42a30dc68a40ed397c",
+      "contentCommit": "f5fe1b1d4a74bde5cd792636cfa9773f7b27c218",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/check_stage15_revision.py",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/process_stage15_revision.py"
+      ]
+    }
+  ],
+  "gate": "PASS_CC_S3_INTEGRATION",
+  "formalResults": [
+    {
+      "path": "results/figure_data/stage15_cpu_decode_latency.csv",
+      "bytes": 17954,
+      "sha256": "223e9c4c3582753adaeb66b22fcb36b7bfa9862901cb1bc7d035a68d6197acf7"
+    },
+    {
+      "path": "results/figure_data/stage15_final_ber.csv",
+      "bytes": 226625,
+      "sha256": "e5dd3b60f999534824665bb22eeef07817338fe5444353412d1ec2bb9c2be50e"
+    },
+    {
+      "path": "results/figure_data/stage15_final_fer.csv",
+      "bytes": 226625,
+      "sha256": "e5dd3b60f999534824665bb22eeef07817338fe5444353412d1ec2bb9c2be50e"
+    },
+    {
+      "path": "results/figure_data/stage15_first_output_latency.csv",
+      "bytes": 12565,
+      "sha256": "7f11c3f96f67a05d960ad16530881e376ac72ffb4dede7db69c69fcc3b1bd28e"
+    },
+    {
+      "path": "results/figure_data/stage15_goodput_fer_pareto.csv",
+      "bytes": 17954,
+      "sha256": "223e9c4c3582753adaeb66b22fcb36b7bfa9862901cb1bc7d035a68d6197acf7"
+    },
+    {
+      "path": "results/figure_data/stage15_latency_reliability_pareto.csv",
+      "bytes": 12565,
+      "sha256": "7f11c3f96f67a05d960ad16530881e376ac72ffb4dede7db69c69fcc3b1bd28e"
+    },
+    {
+      "path": "results/figure_data/stage15_quantization_snr_loss.csv",
+      "bytes": 4719,
+      "sha256": "cdf91a5b0fcffa2cc3170645b2e0354ca0ff437a7f32a2aab8617977e3827bee"
+    },
+    {
+      "path": "results/figure_data/stage15_traceback_memory_reliability.csv",
+      "bytes": 626,
+      "sha256": "e2f39936035b921d1f95a2c03b28977f492961e13203e06106cce8a6d491f144"
+    },
+    {
+      "path": "results/plot_check.md",
+      "bytes": 262,
+      "sha256": "bd48540bf11428f0196b5670e1f2f28746d6da8ed595bf3143746940ae31fbee"
+    },
+    {
+      "path": "results/plot_manifest.json",
+      "bytes": 2718,
+      "sha256": "15778970c2ffdb760c8adbbf515f6eed991372785613b55cc1502f3017d56650"
+    },
+    {
+      "path": "results/stage15_all_figures_guide.md",
+      "bytes": 20385,
+      "sha256": "a551e12b94956141625ab81aa2c87661ee2d32ee6d5bc0d3120f73543dce44ce"
+    },
+    {
+      "path": "results/stage15_core_questions_answer.md",
+      "bytes": 4539,
+      "sha256": "5e1b09e887aa96ab30cf48aa8539931be9ab07abff63e5467d8bb7f5719f9018"
+    },
+    {
+      "path": "results/stage15_cpu_decode_latency.png",
+      "bytes": 137992,
+      "sha256": "7d3551e204b9940e3c586abe823740ca572716e776b9088a01e05eefcd6d9724"
+    },
+    {
+      "path": "results/stage15_final_ber.png",
+      "bytes": 202866,
+      "sha256": "038dfb66c9f1bb7454691c48fdbec8ba9673c3ed517674a8c441d042579233d4"
+    },
+    {
+      "path": "results/stage15_final_fer.png",
+      "bytes": 191104,
+      "sha256": "64bec712deb0805c0680e1d736d81674556e13aada401785bc67bf1a74b692c2"
+    },
+    {
+      "path": "results/stage15_final_recommendations.csv",
+      "bytes": 1763,
+      "sha256": "2889fce42033f7d98e6713725479fdb01734104bb29637ce106d039933ce3b36"
+    },
+    {
+      "path": "results/stage15_final_scheme_matrix.csv",
+      "bytes": 474978,
+      "sha256": "48851bd148812a556a867bd6f057f3c8a2218a058f43257988a02db5bf7188e5"
+    },
+    {
+      "path": "results/stage15_first_output_latency.png",
+      "bytes": 126239,
+      "sha256": "8af8ac414756faff2630d77fe9b15d002bfbef28acf6abec19295b199a31c028"
+    },
+    {
+      "path": "results/stage15_goodput_fer_pareto.png",
+      "bytes": 40677,
+      "sha256": "306d4655f915c1698f9da0483967f60dc7d0c32123b571fc9cd1ca548648da2b"
+    },
+    {
+      "path": "results/stage15_latency_reliability_pareto.png",
+      "bytes": 71928,
+      "sha256": "7411816b93f8057b3cdb707729f707d0c4705827e87571534dcbd2eec381a659"
+    },
+    {
+      "path": "results/stage15_quantization_snr_loss.png",
+      "bytes": 92730,
+      "sha256": "4749c4a483c9ee652b26c438cdc4bbc6cb2ed63d018bafcf9608611f0722e037"
+    },
+    {
+      "path": "results/stage15_traceback_memory_reliability.png",
+      "bytes": 43588,
+      "sha256": "e36ddb361fd648e32967a2b0796647cc1d471366138ea83392837b6bcccb4273"
+    }
+  ],
+  "formalResultCount": 22,
+  "remoteVerified": true,
+  "mergeStatus": "NOT_MERGED",
+  "balancedWeights": null
+}

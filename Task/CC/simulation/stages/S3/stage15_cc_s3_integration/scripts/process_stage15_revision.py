@@ -277,6 +277,59 @@ def build_matrix() -> pd.DataFrame:
 
     append_rows(rows, data13, stage13, "Stage13", map13)
 
+    stage13_full = (
+        S3
+        / "stage13_sliding_window_viterbi"
+        / "results"
+        / "stage13_full_wsd_formal_results.csv"
+    )
+    data13_full = pd.read_csv(stage13_full)
+
+    def map13full(row: pd.Series) -> dict:
+        return {
+            "schemeId": (
+                f"{row.rateCase}_{row.experimentId}_W"
+                f"{int(row.windowBits)}_S{int(row.slideBits)}_D{int(row.dtb)}"
+            ),
+            "rate": row.rateCase,
+            "decisionMode": "Soft Float",
+            "quantMode": "Float",
+            "quantBits": "Float",
+            "tracebackMode": "True sliding-window Viterbi",
+            "dtb": int(row.dtb),
+            "window": int(row.windowBits),
+            "slide": int(row.slideBits),
+            "organization": "Continuous300",
+            "snrDb": row.snrDb,
+            "frames": row.frames,
+            "BER": row.BER,
+            "FER": row.FER,
+            "berCiLow": row.berCiLow,
+            "berCiHigh": row.berCiHigh,
+            "ferCiLow": row.ferCiLow,
+            "ferCiHigh": row.ferCiHigh,
+            "normalizedGoodput": row.normalizedGoodput,
+            "firstOutputDelaySymbols": row.firstOutputDelaySymbols,
+            "avgDecisionDelaySymbols": row.avgDecisionDelaySymbols,
+            "p95DecisionDelaySymbols": row.p95DecisionDelaySymbols,
+            "fullFrameLastDecisionSymbol": row.fullFrameLastDecisionSymbol,
+            "avgDecodeTimeUs": row.avgWindowProcessingTimeUs,
+            "p95DecodeTimeUs": row.p95WindowProcessingTimeUs,
+            "survivorMemoryBytes": row.survivorMemoryBytes,
+            "pathMetricMemoryBytes": row.pathMetricMemoryBytes,
+            "totalMemoryBytes": row.totalMemoryBytes,
+            "ACSCount": row.ACSCount,
+            "tracebackOperations": row.tracebackOperations,
+        }
+
+    append_rows(
+        rows,
+        data13_full,
+        stage13_full,
+        "Stage13FullWSD",
+        map13full,
+    )
+
     stage14 = (
         S3
         / "stage14_block_continuous_comparison"
@@ -405,7 +458,7 @@ def final_curve_rows(matrix: pd.DataFrame) -> pd.DataFrame:
     selected = matrix[
         matrix.schemeId.str.contains(
             "_H_BLOCK_FULL|_FLOAT_BLOCK_FULL|_Q8_BLOCK_FULL|"
-            "CONTINUOUS_TRUNCATED_D112|SLIDING_BALANCED"
+            "CONTINUOUS_TRUNCATED_D112|SLIDING_BALANCED|CONTROL_[WSD]"
         )
     ].copy()
     return selected.drop_duplicates(["schemeId", "snrDb"])

@@ -1,0 +1,8 @@
+metric,value
+prescan_rows,135
+formal_coarse_rows,341
+reference_rows,279
+window_storage,W*64 survivor cells
+lost_bits,0
+duplicate_bits,0
+plots,15

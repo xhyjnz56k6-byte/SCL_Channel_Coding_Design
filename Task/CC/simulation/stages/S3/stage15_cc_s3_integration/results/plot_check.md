@@ -1,6 +1,6 @@
 # Stage15 plot check
 
-- Scheme-matrix rows: 1052: PASS
+- Scheme-matrix rows: 2354: PASS
 - Required final plots: 8: PASS
 - Pointwise formal data only: PASS
 - Unified coarse SNR grid used for final curves: PASS

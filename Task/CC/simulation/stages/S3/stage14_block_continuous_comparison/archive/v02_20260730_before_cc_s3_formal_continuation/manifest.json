@@ -1,0 +1,235 @@
+{
+  "stage": "stage14_block_continuous_comparison",
+  "branch": "stage01-cc",
+  "status": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content1",
+      "baseCommit": "bee31ab24f5652df4e1f213f96e4d9e42ffadee1",
+      "contentCommit": "86188ee7d964b1c15fb9eb42a30dc68a40ed397c",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/process_stage14_revision.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE14_ONLINE_SLOT_REVISION",
+  "formalResults": [
+    {
+      "path": "results/figure_data/stage14_r12_ber.csv",
+      "bytes": 7509,
+      "sha256": "ac192d341c4013d4e311e0d79e9a9dbafd3fd6dc4f241a0aefa011a66e0a488c"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_boundary_relative_ber.csv",
+      "bytes": 4502,
+      "sha256": "68376e0f7b1d9107e8553505a100fef0b8400badcf16c0a29bed8d5a522c20bf"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_decision_latency.csv",
+      "bytes": 251,
+      "sha256": "fe9c30970483ae8e55f2585c156a3da780e12b9ac50686ad008b80580fffa3fb"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_fer.csv",
+      "bytes": 6699,
+      "sha256": "67ed7d58c6d3c67d56bd82dd1e2ff7cb0aac069be51ef7dcbda4c7a54b280002"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_first_output_latency.csv",
+      "bytes": 159,
+      "sha256": "8e0911b72bd30b89efffef905ca96eed8585525bdd8c5d9989265dff82b62047"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_normalized_goodput.csv",
+      "bytes": 5800,
+      "sha256": "94da4c1c6fda5fe899d5ad736bc5aef7b2a58b49bafd9502cd95ff3505919fbf"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_ber.csv",
+      "bytes": 7590,
+      "sha256": "ef5ec78ce926eef407fe09aaa9e577add82519cc87dbcc5408d8ac3e972c8596"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_boundary_relative_ber.csv",
+      "bytes": 4414,
+      "sha256": "6b27a54f8907349ec54bfdf2d98c2cfe45f5df4ab99ad0da7afc6f5e131a7592"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_decision_latency.csv",
+      "bytes": 248,
+      "sha256": "741de57a8701030d8274c532f3280d05ac397fe308abef5f980a2cddc2bd4c6a"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_fer.csv",
+      "bytes": 6335,
+      "sha256": "fb854787a5cb717ad6777922eebea94775af34523b312ea472d05de49f669266"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_first_output_latency.csv",
+      "bytes": 155,
+      "sha256": "e503be63af17af1a9814e956df9f7e9689493dfdc580ccbe998311091889919b"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_normalized_goodput.csv",
+      "bytes": 5389,
+      "sha256": "92af7726a29f83c550de19ab9cfdddd215aeb95c401d2074086ff0f06fdd75fe"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_ber.csv",
+      "bytes": 7540,
+      "sha256": "41de662b3baa1fb8d25445cf1d0c57f9c6e2345df4f4b7fff528e9812906abd3"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_boundary_relative_ber.csv",
+      "bytes": 4414,
+      "sha256": "60d971cfdbc1dd3e42182185250a9f9e6c584aef0352029ec7552cb322867473"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_decision_latency.csv",
+      "bytes": 260,
+      "sha256": "03ace2cc21dbb4da95ea54327349576270f3c745333ed60e97e3d31290ec09d0"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_fer.csv",
+      "bytes": 6236,
+      "sha256": "f75d2c5eff298f761b58b53fac057e149b21eb4a7d95c982ab9405990c8dd9dd"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_first_output_latency.csv",
+      "bytes": 155,
+      "sha256": "42528872ccc7ef22889d88fd1eb540c5833e70caec6dedac7beec960e153f53e"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_normalized_goodput.csv",
+      "bytes": 5425,
+      "sha256": "61df34e9ae9260e4983daefea4e46b5b95ea2fa920cf619940557aae240d1663"
+    },
+    {
+      "path": "results/plot_check.md",
+      "bytes": 612,
+      "sha256": "eeaf0a5425b07b3ee23f72dfbf7c35183dcfe83d4e3d5863ace206a32ef2bd19"
+    },
+    {
+      "path": "results/plot_manifest.json",
+      "bytes": 5990,
+      "sha256": "3da6088d72de66b6e8c5002267379b75103122c873655368cc764ac082175af7"
+    },
+    {
+      "path": "results/stage14_boundary_offset_results.csv",
+      "bytes": 364458,
+      "sha256": "ff68d3f4c8a3637078002a3f9766e7f4be94e0784b85267f9cbca2edf4d92a39"
+    },
+    {
+      "path": "results/stage14_online_slot_dense_results.csv",
+      "bytes": 79556,
+      "sha256": "d3f2510f5321c86b82fec13f5007e2ee715b46438fd5e1dcc7c4b7e8271e79e8"
+    },
+    {
+      "path": "results/stage14_online_slot_formal_results.csv",
+      "bytes": 180553,
+      "sha256": "62cccc049bd05c8b7adc65465fa590b84e5e7f8784bfc6d404890243d3ce70e1"
+    },
+    {
+      "path": "results/stage14_organization_recommendations.csv",
+      "bytes": 1850,
+      "sha256": "0146f0df72ce1b3f9c4859208cc1878d99228d09dac8fd86cc60e848dad6bbef"
+    },
+    {
+      "path": "results/stage14_r12_ber.png",
+      "bytes": 68213,
+      "sha256": "9d54ed64995fb22c99d1c53491ae8f78165a97c201524cdf64e08a3570d1af1c"
+    },
+    {
+      "path": "results/stage14_r12_boundary_relative_ber.png",
+      "bytes": 109140,
+      "sha256": "f0466b5fdef5ce2c30b47f41b77ae10b953ffd52904406af06d1e1cbe35db495"
+    },
+    {
+      "path": "results/stage14_r12_decision_latency.png",
+      "bytes": 40981,
+      "sha256": "0e4f46676f78ac6d7c5301e7f66d8afc71258e90697cbeac6ce1cfae7b5eca3a"
+    },
+    {
+      "path": "results/stage14_r12_fer.png",
+      "bytes": 65041,
+      "sha256": "1837a070e60eb0fc2f312719e23ff9727f88eeca5397bb23d01740365ea4f463"
+    },
+    {
+      "path": "results/stage14_r12_first_output_latency.png",
+      "bytes": 33456,
+      "sha256": "41659e956c7a4efb459d9847afde9d6b8cf433329dd6159710ce9ce1e2e396bf"
+    },
+    {
+      "path": "results/stage14_r12_normalized_goodput.png",
+      "bytes": 53304,
+      "sha256": "c6a193af32694d81701fe3f82a68b736ded146690ae1b926abb483361af6995f"
+    },
+    {
+      "path": "results/stage14_r23_ber.png",
+      "bytes": 67789,
+      "sha256": "593deed27649b462102d3d11afc1463e331f1f1443d29561ac63348489e915ca"
+    },
+    {
+      "path": "results/stage14_r23_boundary_relative_ber.png",
+      "bytes": 131623,
+      "sha256": "0036d87d3fe5982e714242ac8fe390ef4f1210a04a66bbb19520c6ed17a4576b"
+    },
+    {
+      "path": "results/stage14_r23_decision_latency.png",
+      "bytes": 38201,
+      "sha256": "af4148cff7ec0c6863ed925dbaabf42fe1e648e41c4ace4042ec8c484a92f529"
+    },
+    {
+      "path": "results/stage14_r23_fer.png",
+      "bytes": 63060,
+      "sha256": "d6b2f080ee984201e209f11995b9b3ecc7114ffb9e44506072bfc60d85c5372b"
+    },
+    {
+      "path": "results/stage14_r23_first_output_latency.png",
+      "bytes": 30822,
+      "sha256": "57cfd0516112e5061bb96eed0476975266755bfdb5292f4b8d15045ef932a3c7"
+    },
+    {
+      "path": "results/stage14_r23_normalized_goodput.png",
+      "bytes": 55203,
+      "sha256": "27276562fba1ff4a4d4527f338b0b8460de798192dbb23c1d41d6ac8bdf8810b"
+    },
+    {
+      "path": "results/stage14_r34_ber.png",
+      "bytes": 66455,
+      "sha256": "22fee7a8e165aa221f02123410895b68a6f6c57637f80cbbe14fb178a53480d8"
+    },
+    {
+      "path": "results/stage14_r34_boundary_relative_ber.png",
+      "bytes": 127683,
+      "sha256": "24d5f9f0dd561b85ef5f55c27e7a960a86097d60a4e7379b8a8185ffc54b82e2"
+    },
+    {
+      "path": "results/stage14_r34_decision_latency.png",
+      "bytes": 43411,
+      "sha256": "c4a03136578e189f30d6985b46c50b1f50b822840de296511d320559c912e7ea"
+    },
+    {
+      "path": "results/stage14_r34_fer.png",
+      "bytes": 62021,
+      "sha256": "21abd78847eb3b56b7ba089472be5e185f02edf9dfcf7937ec43d867b156cb6e"
+    },
+    {
+      "path": "results/stage14_r34_first_output_latency.png",
+      "bytes": 35323,
+      "sha256": "716064f9f75b539a7dc2e7c4bfc3d40c9fbda32c47020be87df0126427ba143c"
+    },
+    {
+      "path": "results/stage14_r34_normalized_goodput.png",
+      "bytes": 55455,
+      "sha256": "382f3d9320c343fccebbe9eb770b7d0ec5a8dbfe7e17b89617f9f8abd9da519f"
+    }
+  ],
+  "formalResultCount": 42,
+  "remoteVerified": true,
+  "mergeStatus": "NOT_MERGED",
+  "balancedWeights": null
+}

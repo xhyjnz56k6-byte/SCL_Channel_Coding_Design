@@ -24,6 +24,11 @@
   "gate": "PASS_STAGE11_REVISION",
   "formalResults": [
     {
+      "path": "results/results_analysis.md",
+      "bytes": 3178,
+      "sha256": "de7b57fc3ec46694180dc5eab8353dbf9f18dc34f90bd71ce96553f89ff6b14f"
+    },
+    {
       "path": "results/stage11_clip_selection.csv",
       "bytes": 119,
       "sha256": "94222cd769e3bb2b158a18e4c99cdbd9eb9caf0cd8f1119c4abfb88a6a202943"
@@ -66,7 +71,7 @@
     {
       "path": "results/stage11_quantization_plot_manifest.json",
       "bytes": 4450,
-      "sha256": "319e9e9b1349171d5078d26eccde675db40ba4fd3a7cb89db148503b69fc31e9"
+      "sha256": "51ae17ffcc8cbf8a8c264acfb20b54e53cdfade5bc54726c354e93e8191d79eb"
     },
     {
       "path": "results/stage11_quantization_prescan.csv",
@@ -105,8 +110,8 @@
     },
     {
       "path": "results/stage11_r12_quantization_ber.png",
-      "bytes": 86955,
-      "sha256": "9063c1c535ecc3fb665291c21ea62632f8d149e4dbd4bde70709fb2272154a27"
+      "bytes": 99352,
+      "sha256": "883a89616ce2c83eab61ef40ce5a2a45ff837ef548a5776de75ed4f50ae4c976"
     },
     {
       "path": "results/stage11_r12_quantization_ber_figure_data.csv",
@@ -115,8 +120,8 @@
     },
     {
       "path": "results/stage11_r12_quantization_fer.png",
-      "bytes": 81008,
-      "sha256": "125b87aa5dc97465a64f5d8cb8e633bc8553b41ed0ed92f0b56ff8f5fcf9f24f"
+      "bytes": 89855,
+      "sha256": "c784b0e7bb16dd78b708971d6696905ed767a3f203f7faf2614da189e61c24f2"
     },
     {
       "path": "results/stage11_r12_quantization_fer_figure_data.csv",
@@ -135,8 +140,8 @@
     },
     {
       "path": "results/stage11_r23_quantization_ber.png",
-      "bytes": 84824,
-      "sha256": "afc935e1685c4fbc8f1f79d5f42511b0e541cc46d7df3555862d0909f896fa51"
+      "bytes": 90040,
+      "sha256": "1f79d567456a22c6a55432f277a6c80c56bf50d79acedc99a2ca197aacaf29db"
     },
     {
       "path": "results/stage11_r23_quantization_ber_figure_data.csv",
@@ -145,8 +150,8 @@
     },
     {
       "path": "results/stage11_r23_quantization_fer.png",
-      "bytes": 79080,
-      "sha256": "f8ddb014770502178a5371f94787a0af100d00c44cc263f010aaa4d435a63253"
+      "bytes": 81377,
+      "sha256": "0a6c21bd0ad6a661e23f3b7ef6a1ded3bff58356626ab9d345ee7536ff781eca"
     },
     {
       "path": "results/stage11_r23_quantization_fer_figure_data.csv",
@@ -165,8 +170,8 @@
     },
     {
       "path": "results/stage11_r34_quantization_ber.png",
-      "bytes": 89781,
-      "sha256": "cea4813b368eb0ff74ad94d29b6e42e6b2e4d608bfc2337087b19ba418c33b2b"
+      "bytes": 89407,
+      "sha256": "43ea22d711a05ffb1c1bc3990360156441ca46767322c160e2865e97419d10ac"
     },
     {
       "path": "results/stage11_r34_quantization_ber_figure_data.csv",
@@ -175,8 +180,8 @@
     },
     {
       "path": "results/stage11_r34_quantization_fer.png",
-      "bytes": 81739,
-      "sha256": "6a7fcaec08b827ac5bfc81efedc9cb4f4c9c16591fb29257e00e18198965a074"
+      "bytes": 80146,
+      "sha256": "a5a80e047a85a1a061266206d99b57684bd3b2f6e7ccab87cf4242e2015e1341"
     },
     {
       "path": "results/stage11_r34_quantization_fer_figure_data.csv",
@@ -199,7 +204,7 @@
       "sha256": "0630a8d707ee7eb702175ddb77417e408b5516eeaad977bac6187295d8b851c6"
     }
   ],
-  "formalResultCount": 35,
+  "formalResultCount": 36,
   "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "balancedWeights": null

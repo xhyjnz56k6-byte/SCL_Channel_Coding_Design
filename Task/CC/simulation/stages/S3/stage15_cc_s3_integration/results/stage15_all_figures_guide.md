@@ -230,6 +230,66 @@ Purpose and axes follow the filename and its adjacent figure-data CSV/plot manif
 
 Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
 
+## stage13_r12_dtb_fer_snr.png
+
+![stage13_r12_dtb_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r12_dtb_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r12_slidebits_fer_snr.png
+
+![stage13_r12_slidebits_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r12_slidebits_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r12_windowbits_fer_snr.png
+
+![stage13_r12_windowbits_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r12_windowbits_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r23_dtb_fer_snr.png
+
+![stage13_r23_dtb_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r23_dtb_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r23_slidebits_fer_snr.png
+
+![stage13_r23_slidebits_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r23_slidebits_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r23_windowbits_fer_snr.png
+
+![stage13_r23_windowbits_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r23_windowbits_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r34_dtb_fer_snr.png
+
+![stage13_r34_dtb_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r34_dtb_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r34_slidebits_fer_snr.png
+
+![stage13_r34_slidebits_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r34_slidebits_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_r34_windowbits_fer_snr.png
+
+![stage13_r34_windowbits_fer_snr](../../stage13_sliding_window_viterbi/results/stage13_r34_windowbits_fer_snr.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_s_avg_p95_latency.png
+
+![stage13_s_avg_p95_latency](../../stage13_sliding_window_viterbi/results/stage13_s_avg_p95_latency.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
 ## stage13_s_steady_output_interval.png
 
 ![stage13_s_steady_output_interval](../../stage13_sliding_window_viterbi/results/stage13_s_steady_output_interval.png)
@@ -242,9 +302,39 @@ Purpose and axes follow the filename and its adjacent figure-data CSV/plot manif
 
 Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
 
+## stage13_w_avg_p95_latency.png
+
+![stage13_w_avg_p95_latency](../../stage13_sliding_window_viterbi/results/stage13_w_avg_p95_latency.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_w_compute_complexity.png
+
+![stage13_w_compute_complexity](../../stage13_sliding_window_viterbi/results/stage13_w_compute_complexity.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_w_cpu_time.png
+
+![stage13_w_cpu_time](../../stage13_sliding_window_viterbi/results/stage13_w_cpu_time.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
 ## stage13_w_first_output_delay.png
 
 ![stage13_w_first_output_delay](../../stage13_sliding_window_viterbi/results/stage13_w_first_output_delay.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_w_first_output_latency.png
+
+![stage13_w_first_output_latency](../../stage13_sliding_window_viterbi/results/stage13_w_first_output_latency.png)
+
+Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
+
+## stage13_w_memory.png
+
+![stage13_w_memory](../../stage13_sliding_window_viterbi/results/stage13_w_memory.png)
 
 Purpose and axes follow the filename and its adjacent figure-data CSV/plot manifest. Interpret only within the measured SNR grid and confidence intervals.
 

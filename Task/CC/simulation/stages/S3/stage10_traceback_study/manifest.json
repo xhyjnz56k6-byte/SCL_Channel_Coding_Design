@@ -24,6 +24,11 @@
   "gate": "PASS_STAGE10_REVISION",
   "formalResults": [
     {
+      "path": "results/results_analysis.md",
+      "bytes": 1876,
+      "sha256": "530eb23d6a3e07ca45caf54d30a0f1d862dae70a09f673557bf5e3a3c703c0c6"
+    },
+    {
       "path": "results/stage10_d84_window_revalidation.csv",
       "bytes": 24381,
       "sha256": "80021c649abfbae73c57f10d52b556e06783c2f92183f7d86d9d72a8f20210c2"
@@ -124,7 +129,7 @@
       "sha256": "fdc0c02ee263df0ef5c8e3b5690f190a58fe6fc6fa88a1c5fbe2768f98cd934d"
     }
   ],
-  "formalResultCount": 20,
+  "formalResultCount": 21,
   "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "balancedWeights": null

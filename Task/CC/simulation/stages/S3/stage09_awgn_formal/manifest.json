@@ -15,14 +15,19 @@
   "gate": "PASS_STAGE09_TWO_LEVEL_REVISION",
   "formalResults": [
     {
+      "path": "results/results_analysis.md",
+      "bytes": 1525,
+      "sha256": "2547781f813739f9278fd74eb0fa2ba3bff19d2085757838949551a519984471"
+    },
+    {
       "path": "results/stage09_selected_snr_by_fer_level.csv",
       "bytes": 1234,
       "sha256": "1c7e9031fb8462d394079aa661501f9bd308701aa2fa76d02820c8d63256ba1a"
     },
     {
       "path": "results/stage09_two_level_ber.png",
-      "bytes": 149104,
-      "sha256": "ba0e171f7a765b91fe0c00fc59a733d3c4eef95a0621177b7256504ac9c0fd47"
+      "bytes": 144695,
+      "sha256": "7c0395cc2495cbc2508b022256b16204157d5fad1a8fca9d14b0758266b1a25f"
     },
     {
       "path": "results/stage09_two_level_coarse_point_results.csv",
@@ -41,8 +46,8 @@
     },
     {
       "path": "results/stage09_two_level_fer.png",
-      "bytes": 132631,
-      "sha256": "d5f6494df95c312a8288ac9ea903d34b067988119baebeb3db3a58be61355ec6"
+      "bytes": 125097,
+      "sha256": "ced2889797e72e7bddf0195b249e8050c65de754fdcd5bb22fad7599cc424c4b"
     },
     {
       "path": "results/stage09_two_level_figure_data_ber.csv",
@@ -76,8 +81,8 @@
     },
     {
       "path": "results/stage09_two_level_hard_soft_fer.png",
-      "bytes": 131308,
-      "sha256": "5853ea7cd5e2ceac069ce31fcfd19fcfd82a42538d84c97cd7a5c68772138a88"
+      "bytes": 123768,
+      "sha256": "24845fac22dc4c8cc594dc4e394f1be823b847a177b99e6785d4bccf8151c246"
     },
     {
       "path": "results/stage09_two_level_merged_point_results.csv",
@@ -91,8 +96,8 @@
     },
     {
       "path": "results/stage09_two_level_plot_manifest.json",
-      "bytes": 2845,
-      "sha256": "f3704036658998642fa7ffd271db2e9db54e8a94eb1d46d88b50023e8ede0c05"
+      "bytes": 2902,
+      "sha256": "fe36a333d428d6ad608c7af3f38be132c9c8fd2e50d9ec80bc96ac1a5656c9c5"
     },
     {
       "path": "results/stage09_two_level_report.md",
@@ -100,7 +105,7 @@
       "sha256": "44ecdccfe7488a5fd3c2b5ff6860f7847e5709ffb3b61a338b0a61699299b53b"
     }
   ],
-  "formalResultCount": 17,
+  "formalResultCount": 18,
   "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "balancedWeights": null
