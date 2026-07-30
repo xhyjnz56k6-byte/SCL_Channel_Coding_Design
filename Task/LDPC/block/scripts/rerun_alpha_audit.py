@@ -550,7 +550,7 @@ def main() -> int:
         generate_stage12()
     elif mode == "stage13":
         generate_stage13()
-    elif mode == "finalize" and len(sys.argv) == 6:
+    elif mode == "finalize" and len(sys.argv) == 5:
         finalize(Path(sys.argv[2]), sys.argv[3], sys.argv[4])
     else:
         raise SystemExit(f"invalid mode: {mode}")

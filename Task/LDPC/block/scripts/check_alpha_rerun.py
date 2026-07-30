@@ -38,6 +38,18 @@ def check_common(stage: Path) -> None:
     require(not any(token in report for token in
                     ["pending", "to be run", "not_pushed", "to_verify_after_push"]),
             f"unfinished validation state: {stage.name}")
+    manifest = json.loads((stage / "manifest.json").read_text(encoding="utf-8"))
+    require(manifest["branch"] == "stage01-ldpc"
+            and manifest["gateStatus"] == "PASS"
+            and manifest["mergeStatus"] == "NOT_MERGED"
+            and manifest["formalStarted"] is False, f"manifest state: {stage.name}")
+    require(len(manifest["functionalRanges"]) == 1, f"functional range: {stage.name}")
+    functional = manifest["functionalRanges"][0]
+    actual = subprocess.run(
+        ["git", "diff", "--name-only",
+         f"{functional['baseCommit']}...{functional['contentCommit']}"],
+        cwd=ROOT, check=True, text=True, capture_output=True).stdout.splitlines()
+    require(actual == functional["files"], f"functional range diff mismatch: {stage.name}")
 
 
 def check_stage11() -> None:

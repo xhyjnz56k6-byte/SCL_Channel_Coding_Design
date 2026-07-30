@@ -1,9 +1,51 @@
 {
   "stage": "stage13r_direct_bp_nms_smoke_rerun",
   "branch": "stage01-ldpc",
-  "functionalRanges": [],
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "d8b80dab4c274bd92cac7e99a6bb38458414b050",
+      "contentCommit": "69e00d07fd6ea6ba7735962e3f818fa64d9a374f",
+      "files": [
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/changed_files.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/changes.patch",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/commands_used.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/frozen_config.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/git_commit.txt",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/known_issues.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/manifest.json",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/readme.txt",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgcomplexity.png",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgcomplexity_figure_data.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgcomplexity_plot_check.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgcomplexity_plot_manifest.json",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgdecodetimeus.png",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgdecodetimeus_figure_data.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgdecodetimeus_plot_check.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgdecodetimeus_plot_manifest.json",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgiterations.png",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgiterations_figure_data.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgiterations_plot_check.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_avgiterations_plot_manifest.json",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_ber.png",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_ber_figure_data.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_ber_plot_check.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_ber_plot_manifest.json",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_curve_summary.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_fer.png",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_fer_figure_data.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_fer_plot_check.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_fer_plot_manifest.json",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_final_smoke_report.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_smoke_point_results.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/results/stage13r_smoke_point_results_raw.csv",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/stage_plan.md",
+        "Task/LDPC/block/stages/stage13r_direct_bp_nms_smoke_rerun/validation_report.md"
+      ]
+    }
+  ],
   "gateStatus": "PASS",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false,
-  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+  "remoteVerification": "PUSHED_AND_VERIFIED"
 }
