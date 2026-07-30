@@ -1,0 +1,11 @@
+{
+  "key": "n640_snr_m04p0",
+  "configHash": "7c571bfd784eb622ed7b51fbd286473bdf226b970668e6c605e5c4ebd0e1547e",
+  "codeCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+  "checkpointHash": "0c6667f042b065181ce8cec3a84e7b775a3ad8e89b943be85a8d7b8495d4bb2f",
+  "pointResultSha256": "6b8609db2712d1373dc3b20ccb7adb8b13c6fe4549262732e0a41390b72748d6",
+  "frames": 1000,
+  "chunks": 2,
+  "atomicWrite": true,
+  "status": "COMPLETED"
+}

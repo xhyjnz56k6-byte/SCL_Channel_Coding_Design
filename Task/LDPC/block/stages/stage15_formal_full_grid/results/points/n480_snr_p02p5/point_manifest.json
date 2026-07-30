@@ -1,0 +1,11 @@
+{
+  "key": "n480_snr_p02p5",
+  "configHash": "7c571bfd784eb622ed7b51fbd286473bdf226b970668e6c605e5c4ebd0e1547e",
+  "codeCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+  "checkpointHash": "93329ea4a7a2ecd7b3aca4ed0c1ef088564ec675fe7b5d52cd046b1723f5bd66",
+  "pointResultSha256": "cab46ee8119507c8f6220c44c2abd1141ce1b8b828393ceb99a73f0326a1b510",
+  "frames": 1000,
+  "chunks": 2,
+  "atomicWrite": true,
+  "status": "COMPLETED"
+}

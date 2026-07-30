@@ -1,0 +1,11 @@
+{
+  "key": "n560_snr_m02p0",
+  "configHash": "7c571bfd784eb622ed7b51fbd286473bdf226b970668e6c605e5c4ebd0e1547e",
+  "codeCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+  "checkpointHash": "ea5db1224698e3a214ec882bbc9f8b813451c98e569556fd5fa58ebeeb3fb6ad",
+  "pointResultSha256": "eea9ee4999dd85a146b7da14680c78570a7abead39c1ace68c22d4d32cc59aa4",
+  "frames": 1000,
+  "chunks": 2,
+  "atomicWrite": true,
+  "status": "COMPLETED"
+}
