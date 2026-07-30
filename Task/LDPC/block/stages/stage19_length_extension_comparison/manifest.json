@@ -1,9 +1,31 @@
 {
   "stage": "stage19_length_extension_comparison",
   "branch": "stage01-ldpc",
-  "functionalRanges": [],
-  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "bf65f4bbe95819f13cc017d86680f0f296507348",
+      "contentCommit": "8f91782e6d5def7dd7f5391743ea0efe07768eb1",
+      "files": [
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/changed_files.md",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/changes.patch",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/commands_used.md",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/frozen_config.csv",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/git_commit.txt",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/known_issues.md",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/manifest.json",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/readme.txt",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_extension_report.md",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_comparison.csv",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_delay_complexity.csv",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_target_fer.csv",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/stage_plan.md",
+        "Task/LDPC/block/stages/stage19_length_extension_comparison/validation_report.md"
+      ]
+    }
+  ],
+  "gateStatus": "PASS_LOCAL",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": true,
-  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+  "remoteVerification": "AWAITING_REMOTE_VERIFICATION"
 }

@@ -1,3 +1,3 @@
 # 实际命令
 
-由本阶段执行结束后填写。
+- `python Task/LDPC/block/scripts/formal_postprocess.py compare`

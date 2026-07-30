@@ -1,9 +1,35 @@
 {
   "stage": "stage16_formal_result_audit",
   "branch": "stage01-ldpc",
-  "functionalRanges": [],
-  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "09dda4f65866a4d9935ea2dd5246b7d3f9d4cdbb",
+      "contentCommit": "36890f5b0884fa8b2ce07d565859dbf6029e4e11",
+      "files": [
+        "Task/LDPC/block/scripts/formal_postprocess.py",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/changed_files.md",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/changes.patch",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/commands_used.md",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/frozen_config.csv",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/git_commit.txt",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/known_issues.md",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/manifest.json",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/readme.txt",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_anomaly_report.csv",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_completeness_report.md",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_pairing_audit.csv",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_point_results.csv",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_point_results_raw.csv",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_snr_formula_audit.csv",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/results/formal_stop_rule_audit.csv",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/stage_plan.md",
+        "Task/LDPC/block/stages/stage16_formal_result_audit/validation_report.md"
+      ]
+    }
+  ],
+  "gateStatus": "PASS_LOCAL",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": true,
-  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+  "remoteVerification": "AWAITING_REMOTE_VERIFICATION"
 }

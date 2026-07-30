@@ -584,6 +584,70 @@ def check_all() -> None:
     print("PASS_S4_LDPC_FORMAL_POSTPROCESS_CHECK")
 
 
+RANGES = {
+    S16: [("content", "09dda4f6", "36890f5b")],
+    S17: [("content", "36890f5b", "cbf868cc")],
+    S18: [("content", "cbf868cc", "bf65f4bb")],
+    S19: [("content", "bf65f4bb", "8f91782e")],
+    S20: [("content", "8f91782e", "a760786a")],
+}
+RANGES[fs.S14] = [
+    ("content", "d42a741bdcf4bdb39f1028e8c919ffcc47a5d0ed", "989d8b59"),
+    ("configBinding", "989d8b59", "0684244b"),
+]
+RANGES[fs.S15] = [("content", "0684244b", "09dda4f6")]
+
+
+def rev(commit: str) -> str:
+    return subprocess.run(["git", "rev-parse", commit], cwd=ROOT, check=True,
+                          text=True, capture_output=True).stdout.strip()
+
+
+def finalize_local() -> None:
+    for stage, ranges in RANGES.items():
+        functional = []
+        for name, base, content in ranges:
+            base_full, content_full = rev(base), rev(content)
+            files = subprocess.run(
+                ["git", "diff", "--name-only", f"{base_full}...{content_full}"],
+                cwd=ROOT, check=True, text=True, capture_output=True).stdout.splitlines()
+            functional.append({
+                "name": name, "baseCommit": base_full,
+                "contentCommit": content_full, "files": files,
+            })
+        first_base = functional[0]["baseCommit"]
+        last_content = functional[-1]["contentCommit"]
+        patch = subprocess.run(
+            ["git", "diff", "--binary", f"{first_base}...{last_content}"],
+            cwd=ROOT, check=True, capture_output=True).stdout
+        (stage / "changes.patch").write_bytes(patch)
+        fs.atomic_text(stage / "git_commit.txt",
+                       "\n".join(item["contentCommit"] for item in functional) + "\n")
+        manifest = json.loads((stage / "manifest.json").read_text(encoding="utf-8"))
+        manifest["functionalRanges"] = functional
+        manifest["gateStatus"] = "PASS_LOCAL"
+        manifest["remoteVerification"] = "AWAITING_REMOTE_VERIFICATION"
+        fs.atomic_json(stage / "manifest.json", manifest)
+
+
+def finalize_remote() -> None:
+    remote = subprocess.run(
+        ["git", "ls-remote", "origin", "refs/heads/stage01-ldpc"],
+        cwd=ROOT, check=True, text=True, capture_output=True).stdout.split()[0]
+    for stage, ranges in RANGES.items():
+        manifest = json.loads((stage / "manifest.json").read_text(encoding="utf-8"))
+        for functional in manifest["functionalRanges"]:
+            result = subprocess.run(
+                ["git", "merge-base", "--is-ancestor",
+                 functional["contentCommit"], remote], cwd=ROOT)
+            if result.returncode != 0:
+                raise RuntimeError(f"remote missing {stage.name} content")
+        manifest["gateStatus"] = "PASS"
+        manifest["remoteVerification"] = "PUSHED_AND_VERIFIED"
+        manifest["verifiedRemoteCommit"] = remote
+        fs.atomic_json(stage / "manifest.json", manifest)
+
+
 def main() -> int:
     import sys
     modes = {
@@ -593,9 +657,12 @@ def main() -> int:
         "length": length_comparison,
         "integrate": integrate,
         "check": check_all,
+        "finalize-local": finalize_local,
+        "finalize-remote": finalize_remote,
     }
     if len(sys.argv) != 2 or sys.argv[1] not in modes:
-        raise SystemExit("mode required: audit|plots|compare|length|integrate|check")
+        raise SystemExit(
+            "mode required: audit|plots|compare|length|integrate|check|finalize-local|finalize-remote")
     modes[sys.argv[1]]()
     return 0
 

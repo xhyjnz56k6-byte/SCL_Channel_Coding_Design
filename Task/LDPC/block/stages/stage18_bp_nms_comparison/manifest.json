@@ -1,9 +1,32 @@
 {
   "stage": "stage18_bp_nms_comparison",
   "branch": "stage01-ldpc",
-  "functionalRanges": [],
-  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "cbf868cca4f309330398f230a3b14344ba2eed0f",
+      "contentCommit": "bf65f4bbe95819f13cc017d86680f0f296507348",
+      "files": [
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/changed_files.md",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/changes.patch",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/commands_used.md",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/frozen_config.csv",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/git_commit.txt",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/known_issues.md",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/manifest.json",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/readme.txt",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/results/formal_bp_nms_point_comparison.csv",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/results/formal_bp_nms_report.md",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/results/formal_complexity_comparison.csv",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/results/formal_delay_reduction.csv",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/results/formal_target_fer_snr_comparison.csv",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/stage_plan.md",
+        "Task/LDPC/block/stages/stage18_bp_nms_comparison/validation_report.md"
+      ]
+    }
+  ],
+  "gateStatus": "PASS_LOCAL",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": true,
-  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+  "remoteVerification": "AWAITING_REMOTE_VERIFICATION"
 }
