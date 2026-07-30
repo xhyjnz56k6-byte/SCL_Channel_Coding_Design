@@ -81,13 +81,13 @@
     {
       "plot": "stage13_final_ber_comparison.png",
       "figureData": "figure_data/stage13_final_ber_comparison.csv",
-      "plotSha256": "18d229bad7564409a79e0d900270a166c722c4c25dcb33d8db6036f21804f6c2",
+      "plotSha256": "f70bfcc4b9b007e40866146d876c194441d4c0ced14aee62bd9c492e09a7705a",
       "figureDataSha256": "a3a2d63dad2dfa997c1707510a3a7162dc03d0337e9a92e18e66b16ea2bf42c7"
     },
     {
       "plot": "stage13_final_fer_comparison.png",
       "figureData": "figure_data/stage13_final_fer_comparison.csv",
-      "plotSha256": "bf4648f2d921d213a570f3df312d46c795260fe47deb5172eff4cf45fb550773",
+      "plotSha256": "e1a7e67353940e1407155a40305dcc6a17336b1168822abd064c306f9661bc5e",
       "figureDataSha256": "a3a2d63dad2dfa997c1707510a3a7162dc03d0337e9a92e18e66b16ea2bf42c7"
     },
     {

@@ -66,29 +66,15 @@ def configure_font() -> None:
     plt.rcParams["axes.unicode_minus"] = False
 
 
-def safe_log(values: pd.Series, upper: pd.Series) -> pd.Series:
-    result = values.astype(float).copy()
-    zero = result <= 0
-    result.loc[zero] = upper.loc[zero].astype(float)
-    return result
-
 def semilogy_points(axis, x, values, upper, **kwargs):
-    display = safe_log(values, upper)
-    line = axis.semilogy(x, display, **kwargs)[0]
-    zero = values.astype(float) <= 0
-    if zero.any():
-        axis.scatter(
-            pd.Series(x).reset_index(drop=True)[zero.reset_index(drop=True)],
-            upper.astype(float).reset_index(drop=True)[
-                zero.reset_index(drop=True)
-            ],
-            facecolors="none",
-            edgecolors=line.get_color(),
-            marker="o",
-            linewidths=1.2,
-            zorder=4,
-        )
-    return line
+    valid = values.astype(float) > 0.0
+    if not valid.any():
+        return None
+    return axis.semilogy(
+        pd.Series(x).reset_index(drop=True)[valid.reset_index(drop=True)],
+        values.astype(float).reset_index(drop=True)[valid.reset_index(drop=True)],
+        **kwargs,
+    )[0]
 
 
 def write_figure_data(name: str, data: pd.DataFrame) -> Path:
@@ -426,7 +412,7 @@ def main() -> None:
         "- Boundary offsets: -10..+9 with Wilson CI: PASS",
         "- Block boundary fields: NOT_APPLICABLE: PASS",
         "- Plots use pointwise CSV data without smoothing: PASS",
-        "- BER/FER zero observations use CI upper-bound display only: PASS",
+        "- BER/FER zero observations omitted from log-scale figures; raw CSV retained: PASS",
         "",
         "## Balanced selections",
         "",

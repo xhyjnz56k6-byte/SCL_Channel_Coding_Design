@@ -199,25 +199,15 @@ def plot_curves(
             (row for row in selected if row["caseId"] == case),
             key=lambda row: float(row["snrDb"]),
         )
-        x = [float(row["snrDb"]) for row in points]
-        y_raw = [float(row[metric]) for row in points]
-        upper_name = "berCiHigh" if metric == "BER" else "ferCiHigh"
-        y = [
-            value if value > 0.0 else float(row[upper_name])
-            for value, row in zip(y_raw, points)
-        ]
-        line = axis.plot(x, y, marker="o", markersize=3, linewidth=1.2, label=case)[0]
-        zero_x = [x[index] for index, value in enumerate(y_raw) if value == 0.0]
-        zero_y = [y[index] for index, value in enumerate(y_raw) if value == 0.0]
-        if zero_x:
-            axis.scatter(
-                zero_x,
-                zero_y,
-                facecolors="none",
-                edgecolors=line.get_color(),
+        plotted = [row for row in points if float(row[metric]) > 0.0]
+        if plotted:
+            axis.plot(
+                [float(row["snrDb"]) for row in plotted],
+                [float(row[metric]) for row in plotted],
                 marker="o",
-                s=36,
-                zorder=4,
+                markersize=3,
+                linewidth=1.2,
+                label=case,
             )
     if log_y:
         axis.set_yscale("log")
@@ -236,7 +226,7 @@ def plot_curves(
         "figureData": figure_data.name,
         "figureDataSha256": sha256(figure_data),
         "outputSha256": sha256(output),
-        "zeroErrorPolicy": "raw zero retained; hollow marker plotted at Wilson 95% upper bound",
+        "zeroErrorPolicy": "raw zero retained in formal CSV; zero observations omitted from this log-scale figure",
     }
 
 

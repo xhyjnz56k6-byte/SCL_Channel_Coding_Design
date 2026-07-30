@@ -9,13 +9,13 @@
     {
       "plot": "stage15_final_ber.png",
       "figureData": "figure_data/stage15_final_ber.csv",
-      "plotSha256": "038dfb66c9f1bb7454691c48fdbec8ba9673c3ed517674a8c441d042579233d4",
+      "plotSha256": "43ebf34d545d465b45674dc29ee696f54174d94309beed28d3c03aec44f83807",
       "figureDataSha256": "e5dd3b60f999534824665bb22eeef07817338fe5444353412d1ec2bb9c2be50e"
     },
     {
       "plot": "stage15_final_fer.png",
       "figureData": "figure_data/stage15_final_fer.csv",
-      "plotSha256": "64bec712deb0805c0680e1d736d81674556e13aada401785bc67bf1a74b692c2",
+      "plotSha256": "139c0b9fb8622665ce604f5c433e29477a9765e75c71abe7eb5deddb2ad76296",
       "figureDataSha256": "e5dd3b60f999534824665bb22eeef07817338fe5444353412d1ec2bb9c2be50e"
     },
     {

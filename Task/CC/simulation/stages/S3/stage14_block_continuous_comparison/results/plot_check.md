@@ -4,7 +4,7 @@
 - Boundary offsets: -10..+9 with Wilson CI: PASS
 - Block boundary fields: NOT_APPLICABLE: PASS
 - Plots use pointwise CSV data without smoothing: PASS
-- BER/FER zero observations use CI upper-bound display only: PASS
+- BER/FER zero observations omitted from log-scale figures; raw CSV retained: PASS
 
 ## Balanced selections
 

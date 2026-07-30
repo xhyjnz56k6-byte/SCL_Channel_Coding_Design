@@ -65,28 +65,15 @@ def configure_font() -> None:
     plt.rcParams["axes.unicode_minus"] = False
 
 
-def safe_log(values: pd.Series, upper: pd.Series) -> pd.Series:
-    result = values.astype(float).copy()
-    result.loc[result <= 0] = upper.loc[result <= 0].astype(float)
-    return result
-
 def semilogy_points(axis, x, values, upper, **kwargs):
-    display = safe_log(values, upper)
-    line = axis.semilogy(x, display, **kwargs)[0]
-    zero = values.astype(float) <= 0
-    if zero.any():
-        axis.scatter(
-            pd.Series(x).reset_index(drop=True)[zero.reset_index(drop=True)],
-            upper.astype(float).reset_index(drop=True)[
-                zero.reset_index(drop=True)
-            ],
-            facecolors="none",
-            edgecolors=line.get_color(),
-            marker="o",
-            linewidths=1.2,
-            zorder=4,
-        )
-    return line
+    valid = values.astype(float) > 0.0
+    if not valid.any():
+        return None
+    return axis.semilogy(
+        pd.Series(x).reset_index(drop=True)[valid.reset_index(drop=True)],
+        values.astype(float).reset_index(drop=True)[valid.reset_index(drop=True)],
+        **kwargs,
+    )[0]
 
 
 def figure_data(name: str, data: pd.DataFrame) -> Path:
@@ -629,7 +616,7 @@ def main() -> None:
         f"- Final comparison rows: {len(comparison)}: PASS\n"
         f"- Plot count: {len(manifest)}: PASS\n"
         "- Pointwise CSV plotting without smoothing: PASS\n"
-        "- Zero BER/FER displayed with CI upper bounds: PASS\n\n"
+        "- Zero BER/FER observations omitted from log-scale figures; raw CSV retained: PASS\n\n"
         "PASS_STAGE13_FINAL_COMPARISON\n",
         encoding="utf-8",
     )

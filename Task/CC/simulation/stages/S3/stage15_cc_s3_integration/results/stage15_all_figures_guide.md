@@ -1,6 +1,6 @@
 # CC S3 all figures guide
 
-All BER/FER figures use SNR = Es/N0 (dB). Zero observations remain zero in CSV and are displayed at their 95% upper confidence bound. Curves are pointwise and unsmoothed.
+All BER/FER figures use SNR = Es/N0 (dB). Zero observations remain unchanged in the formal CSV but are omitted from log-scale figures. Curves are pointwise and unsmoothed.
 
 ## stage08_awgn_prescan_ber.png
 

@@ -4,6 +4,6 @@
 - Final comparison rows: 558: PASS
 - Plot count: 15: PASS
 - Pointwise CSV plotting without smoothing: PASS
-- Zero BER/FER displayed with CI upper bounds: PASS
+- Zero BER/FER observations omitted from log-scale figures; raw CSV retained: PASS
 
 PASS_STAGE13_FINAL_COMPARISON

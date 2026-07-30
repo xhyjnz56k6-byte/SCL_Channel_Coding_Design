@@ -13,13 +13,13 @@
     {
       "plot": "stage14_r12_ber.png",
       "figureData": "figure_data/stage14_r12_ber.csv",
-      "plotSha256": "9d54ed64995fb22c99d1c53491ae8f78165a97c201524cdf64e08a3570d1af1c",
+      "plotSha256": "f9655634066cde97f6e4c0d1c5d6c8a37ed678a22045206c35bc1883888cbaf1",
       "figureDataSha256": "ac192d341c4013d4e311e0d79e9a9dbafd3fd6dc4f241a0aefa011a66e0a488c"
     },
     {
       "plot": "stage14_r12_fer.png",
       "figureData": "figure_data/stage14_r12_fer.csv",
-      "plotSha256": "1837a070e60eb0fc2f312719e23ff9727f88eeca5397bb23d01740365ea4f463",
+      "plotSha256": "86d17fdecec8d4134004d1b4268ee43ab51f1367da7adb7f913f9770366283cb",
       "figureDataSha256": "67ed7d58c6d3c67d56bd82dd1e2ff7cb0aac069be51ef7dcbda4c7a54b280002"
     },
     {
@@ -49,13 +49,13 @@
     {
       "plot": "stage14_r23_ber.png",
       "figureData": "figure_data/stage14_r23_ber.csv",
-      "plotSha256": "593deed27649b462102d3d11afc1463e331f1f1443d29561ac63348489e915ca",
+      "plotSha256": "3e85fab7bf8f55bd307da509b0843f4e11ad20a164aa7ae359ac66299a0c2a02",
       "figureDataSha256": "ef5ec78ce926eef407fe09aaa9e577add82519cc87dbcc5408d8ac3e972c8596"
     },
     {
       "plot": "stage14_r23_fer.png",
       "figureData": "figure_data/stage14_r23_fer.csv",
-      "plotSha256": "d6b2f080ee984201e209f11995b9b3ecc7114ffb9e44506072bfc60d85c5372b",
+      "plotSha256": "eecb1917a186ef9f21d85c4765124eda78e49dc7d0e20c19b5ccbc7cd50889f5",
       "figureDataSha256": "fb854787a5cb717ad6777922eebea94775af34523b312ea472d05de49f669266"
     },
     {
@@ -85,13 +85,13 @@
     {
       "plot": "stage14_r34_ber.png",
       "figureData": "figure_data/stage14_r34_ber.csv",
-      "plotSha256": "22fee7a8e165aa221f02123410895b68a6f6c57637f80cbbe14fb178a53480d8",
+      "plotSha256": "30a156fe792845faaa37a1a0999457aa8428c26b012ad5a19b032feee9836fad",
       "figureDataSha256": "41de662b3baa1fb8d25445cf1d0c57f9c6e2345df4f4b7fff528e9812906abd3"
     },
     {
       "plot": "stage14_r34_fer.png",
       "figureData": "figure_data/stage14_r34_fer.csv",
-      "plotSha256": "21abd78847eb3b56b7ba089472be5e185f02edf9dfcf7937ec43d867b156cb6e",
+      "plotSha256": "309c52930c1374dc166efae1bd01c80d63f3285c7180c8a691fc92b254eed351",
       "figureDataSha256": "f75d2c5eff298f761b58b53fac057e149b21eb4a7d95c982ab9405990c8dd9dd"
     },
     {

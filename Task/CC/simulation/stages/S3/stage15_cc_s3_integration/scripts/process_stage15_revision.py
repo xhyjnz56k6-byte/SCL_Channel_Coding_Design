@@ -369,28 +369,15 @@ def build_matrix() -> pd.DataFrame:
     return matrix
 
 
-def safe_log(data: pd.Series, upper: pd.Series) -> pd.Series:
-    result = data.astype(float).copy()
-    result.loc[result <= 0] = upper.loc[result <= 0].astype(float)
-    return result
-
 def semilogy_points(axis, x, values, upper, **kwargs):
-    display = safe_log(values, upper)
-    line = axis.semilogy(x, display, **kwargs)[0]
-    zero = values.astype(float) <= 0
-    if zero.any():
-        axis.scatter(
-            pd.Series(x).reset_index(drop=True)[zero.reset_index(drop=True)],
-            upper.astype(float).reset_index(drop=True)[
-                zero.reset_index(drop=True)
-            ],
-            facecolors="none",
-            edgecolors=line.get_color(),
-            marker="o",
-            linewidths=1.2,
-            zorder=4,
-        )
-    return line
+    valid = values.astype(float) > 0.0
+    if not valid.any():
+        return None
+    return axis.semilogy(
+        pd.Series(x).reset_index(drop=True)[valid.reset_index(drop=True)],
+        values.astype(float).reset_index(drop=True)[valid.reset_index(drop=True)],
+        **kwargs,
+    )[0]
 
 
 def figure_data(name: str, data: pd.DataFrame) -> Path:
@@ -749,9 +736,9 @@ not universal hardware constants.
     lines = [
         "# CC S3 all figures guide",
         "",
-        "All BER/FER figures use SNR = Es/N0 (dB). Zero observations remain zero "
-        "in CSV and are displayed at their 95% upper confidence bound. Curves "
-        "are pointwise and unsmoothed.",
+        "All BER/FER figures use SNR = Es/N0 (dB). Zero observations remain "
+        "unchanged in the formal CSV but are omitted from log-scale figures. "
+        "Curves are pointwise and unsmoothed.",
         "",
     ]
     for path in figure_paths:
@@ -803,7 +790,7 @@ def main() -> None:
         f"- Required final plots: {len(manifest)}: PASS\n"
         "- Pointwise formal data only: PASS\n"
         "- Unified coarse SNR grid used for final curves: PASS\n"
-        "- Zero observations use CI upper-bound markers: PASS\n\n"
+        "- Zero observations omitted from log-scale figures; raw CSV retained: PASS\n\n"
         "PASS_CC_S3_INTEGRATION\n",
         encoding="utf-8",
     )

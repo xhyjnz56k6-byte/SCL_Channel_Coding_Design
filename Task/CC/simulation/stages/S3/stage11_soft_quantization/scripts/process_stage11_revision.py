@@ -193,34 +193,15 @@ def line_plot(
             (row for row in data if row["quantMode"] == mode),
             key=lambda row: float(row["snrDb"]),
         )
-        y = []
-        for row in points:
-            value = float(row[metric])
-            if value == 0:
-                value = float(
-                    row["berCiHigh" if metric == "BER" else "ferCiHigh"]
-                )
-            y.append(value)
-        line = axis.plot(
-            [float(row["snrDb"]) for row in points],
-            y,
-            marker="o",
-            markersize=2.5,
-            linewidth=1,
-            label=mode,
-        )[0]
-        zero = [
-            (float(row["snrDb"]), y[index])
-            for index, row in enumerate(points)
-            if float(row[metric]) == 0
-        ]
-        if zero:
-            axis.scatter(
-                [item[0] for item in zero],
-                [item[1] for item in zero],
-                facecolors="none",
-                edgecolors=line.get_color(),
-                s=30,
+        plotted = [row for row in points if float(row[metric]) > 0.0]
+        if plotted:
+            axis.plot(
+                [float(row["snrDb"]) for row in plotted],
+                [float(row[metric]) for row in plotted],
+                marker="o",
+                markersize=2.5,
+                linewidth=1,
+                label=mode,
             )
     axis.set_yscale("log")
     axis.set(
