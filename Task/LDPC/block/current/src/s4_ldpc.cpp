@@ -122,6 +122,30 @@ void hardDecision(const std::vector<double>& posterior, std::vector<unsigned cha
     }
 }
 
+int payloadErrors(const std::vector<unsigned char>* referencePayload,
+                  const std::vector<unsigned char>& bits) {
+    if (referencePayload == nullptr) return -1;
+    int errors = 0;
+    for (std::size_t index = 0; index < referencePayload->size(); ++index) {
+        errors += (*referencePayload)[index] != bits[index];
+    }
+    return errors;
+}
+
+void captureIteration(DecodeResult& result,
+                      const std::vector<double>& posterior,
+                      const std::vector<double>& messages,
+                      const std::vector<unsigned char>* referencePayload) {
+    IterationTrace point;
+    point.iteration = result.usedIterations;
+    point.syndromeWeight = result.finalSyndromeWeight;
+    point.payloadErrorCount = payloadErrors(referencePayload, result.bits);
+    point.hardDecisionHash = hashBytes(result.bits);
+    point.posteriorLlrHash = hashDoubles(posterior);
+    point.checkMessageHash = hashDoubles(messages);
+    result.trace.push_back(point);
+}
+
 DirectCase evaluateCase(int payloadLength, int zc, int nb) {
     DirectCase config;
     config.payloadLength = payloadLength;
@@ -295,7 +319,12 @@ int syndromeWeight(const DirectGraph& graph, const std::vector<unsigned char>& b
     return weight;
 }
 
-DecodeResult decodeLayeredBp(const DirectGraph& graph, const std::vector<double>& llr, int maxIterations) {
+DecodeResult decodeLayeredBp(const DirectGraph& graph,
+                             const std::vector<double>& llr,
+                             int maxIterations,
+                             EarlyStopPolicy policy,
+                             const std::vector<unsigned char>* referencePayload,
+                             bool captureTrace) {
     require(static_cast<int>(llr.size()) == graph.config.actualLength, "BP LLR length mismatch");
     std::vector<double> posterior = llr;
     std::vector<double> messages(graph.edges.size(), 0.0);
@@ -347,13 +376,21 @@ DecodeResult decodeLayeredBp(const DirectGraph& graph, const std::vector<double>
         hardDecision(posterior, result.bits);
         result.usedIterations = iteration + 1;
         result.finalSyndromeWeight = syndromeWeight(graph, result.bits);
-        if (result.finalSyndromeWeight == 0) break;
+        if (captureTrace) captureIteration(result, posterior, messages, referencePayload);
+        if (policy == EarlyStopPolicy::SyndromeAfterFullIteration
+            && result.finalSyndromeWeight == 0) break;
     }
     result.syndromePass = result.finalSyndromeWeight == 0;
     return result;
 }
 
-DecodeResult decodeLayeredNms(const DirectGraph& graph, const std::vector<double>& llr, int maxIterations, double alpha) {
+DecodeResult decodeLayeredNms(const DirectGraph& graph,
+                              const std::vector<double>& llr,
+                              int maxIterations,
+                              double alpha,
+                              EarlyStopPolicy policy,
+                              const std::vector<unsigned char>* referencePayload,
+                              bool captureTrace) {
     require(alpha > 0.0 && alpha <= 1.0, "NMS alpha outside (0,1]");
     require(static_cast<int>(llr.size()) == graph.config.actualLength, "NMS LLR length mismatch");
     std::vector<double> posterior = llr;
@@ -415,7 +452,9 @@ DecodeResult decodeLayeredNms(const DirectGraph& graph, const std::vector<double
         hardDecision(posterior, result.bits);
         result.usedIterations = iteration + 1;
         result.finalSyndromeWeight = syndromeWeight(graph, result.bits);
-        if (result.finalSyndromeWeight == 0) break;
+        if (captureTrace) captureIteration(result, posterior, messages, referencePayload);
+        if (policy == EarlyStopPolicy::SyndromeAfterFullIteration
+            && result.finalSyndromeWeight == 0) break;
     }
     result.syndromePass = result.finalSyndromeWeight == 0;
     return result;

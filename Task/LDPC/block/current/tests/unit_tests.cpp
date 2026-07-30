@@ -28,9 +28,20 @@ int main() {
             for (std::size_t bit = 0; bit < codeword.size(); ++bit) llr[bit] = codeword[bit] ? -20.0 : 20.0;
             const s4ldpc::DecodeResult bp = s4ldpc::decodeLayeredBp(graph, llr, 32);
             const s4ldpc::DecodeResult nms = s4ldpc::decodeLayeredNms(graph, llr, 32, 0.8);
+            const s4ldpc::DecodeResult bpFixed = s4ldpc::decodeLayeredBp(
+                graph, llr, 32, s4ldpc::EarlyStopPolicy::IterationLimitOnly, &payload, true);
+            const s4ldpc::DecodeResult msFixed = s4ldpc::decodeLayeredNms(
+                graph, llr, 32, 1.0, s4ldpc::EarlyStopPolicy::IterationLimitOnly, &payload, true);
             check(bp.numeric.nanInfCount == 0, "BP NaN/Inf");
             check(nms.numeric.nanInfCount == 0, "NMS NaN/Inf");
             check(bp.syndromePass && nms.syndromePass, "noiseless syndrome failed");
+            check(bpFixed.usedIterations == 32 && msFixed.usedIterations == 32,
+                  "iteration-limit policy stopped early");
+            check(bpFixed.trace.size() == 32 && msFixed.trace.size() == 32,
+                  "iteration trace length mismatch");
+            check(bpFixed.trace.front().payloadErrorCount == 0
+                      && msFixed.trace.front().payloadErrorCount == 0,
+                  "noiseless decoder did not converge on the first iteration");
             for (int bit = 0; bit < 300; ++bit) {
                 check(bp.bits[bit] == payload[bit], "BP noiseless payload mismatch");
                 check(nms.bits[bit] == payload[bit], "NMS noiseless payload mismatch");

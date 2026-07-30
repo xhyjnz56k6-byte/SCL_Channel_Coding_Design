@@ -62,6 +62,20 @@ struct ComplexityStats {
     std::uint64_t alphaMultiplications = 0;
 };
 
+enum class EarlyStopPolicy {
+    SyndromeAfterFullIteration,
+    IterationLimitOnly
+};
+
+struct IterationTrace {
+    int iteration = 0;
+    int syndromeWeight = 0;
+    int payloadErrorCount = -1;
+    std::uint64_t hardDecisionHash = 0;
+    std::uint64_t posteriorLlrHash = 0;
+    std::uint64_t checkMessageHash = 0;
+};
+
 struct DecodeResult {
     std::vector<unsigned char> bits;
     int usedIterations = 0;
@@ -69,6 +83,7 @@ struct DecodeResult {
     bool syndromePass = false;
     NumericStats numeric;
     ComplexityStats complexity;
+    std::vector<IterationTrace> trace;
 };
 
 std::vector<DirectCase> enumerateDirectCases(int payloadLength, int maxLength);
@@ -77,8 +92,21 @@ std::vector<DirectCase> freezeS4Cases();
 DirectGraph buildDirectGraph(const DirectCase& config);
 std::vector<unsigned char> encode(const DirectGraph& graph, const std::vector<unsigned char>& payload);
 int syndromeWeight(const DirectGraph& graph, const std::vector<unsigned char>& bits);
-DecodeResult decodeLayeredBp(const DirectGraph& graph, const std::vector<double>& llr, int maxIterations);
-DecodeResult decodeLayeredNms(const DirectGraph& graph, const std::vector<double>& llr, int maxIterations, double alpha);
+DecodeResult decodeLayeredBp(
+    const DirectGraph& graph,
+    const std::vector<double>& llr,
+    int maxIterations,
+    EarlyStopPolicy policy = EarlyStopPolicy::SyndromeAfterFullIteration,
+    const std::vector<unsigned char>* referencePayload = nullptr,
+    bool captureTrace = false);
+DecodeResult decodeLayeredNms(
+    const DirectGraph& graph,
+    const std::vector<double>& llr,
+    int maxIterations,
+    double alpha,
+    EarlyStopPolicy policy = EarlyStopPolicy::SyndromeAfterFullIteration,
+    const std::vector<unsigned char>* referencePayload = nullptr,
+    bool captureTrace = false);
 std::vector<double> makeChannelLlr(const DirectCase& config,
                                    const std::vector<unsigned char>& codeword,
                                    std::uint64_t noiseSeed,

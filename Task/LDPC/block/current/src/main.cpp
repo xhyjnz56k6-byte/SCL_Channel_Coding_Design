@@ -27,6 +27,24 @@ std::uint64_t countPayloadErrors(const std::vector<unsigned char>& payload,
     return result;
 }
 
+std::vector<unsigned char> payloadSlice(const std::vector<unsigned char>& decoded,
+                                        std::size_t payloadLength) {
+    return std::vector<unsigned char>(decoded.begin(), decoded.begin() + payloadLength);
+}
+
+std::uint64_t errorPositionsHash(const std::vector<unsigned char>& payload,
+                                 const std::vector<unsigned char>& decoded) {
+    std::vector<unsigned char> positions;
+    positions.reserve(payload.size() * 2);
+    for (std::size_t index = 0; index < payload.size(); ++index) {
+        if (payload[index] != decoded[index]) {
+            positions.push_back(static_cast<unsigned char>(index & 0xffU));
+            positions.push_back(static_cast<unsigned char>((index >> 8U) & 0xffU));
+        }
+    }
+    return s4ldpc::hashBytes(positions);
+}
+
 double percentile(std::vector<double> values, double quantile) {
     if (values.empty()) return 0.0;
     std::sort(values.begin(), values.end());
@@ -48,6 +66,12 @@ struct Aggregate {
     std::uint64_t iterations = 0;
     int maximumIterations = 0;
     std::uint64_t finalSyndromeWeight = 0;
+    std::uint64_t correctValidFrames = 0;
+    std::uint64_t wrongValidFrames = 0;
+    std::uint64_t correctInvalidFrames = 0;
+    std::uint64_t wrongInvalidFrames = 0;
+    std::uint64_t sameDecodedPayloadFramesVsBp = 0;
+    std::uint64_t sameDecodedCodewordFramesVsBp = 0;
     s4ldpc::ComplexityStats complexity;
     std::vector<double> usedIterations;
     std::vector<double> decodeTimesUs;
@@ -69,7 +93,8 @@ void addComplexity(s4ldpc::ComplexityStats& target, const s4ldpc::ComplexityStat
 void update(Aggregate& aggregate,
             const std::vector<unsigned char>& payload,
             const s4ldpc::DecodeResult& decoded,
-            double elapsedUs) {
+            double elapsedUs,
+            const s4ldpc::DecodeResult* bpReference = nullptr) {
     const std::uint64_t errors = countPayloadErrors(payload, decoded.bits);
     ++aggregate.frames;
     aggregate.bitErrors += errors;
@@ -79,6 +104,17 @@ void update(Aggregate& aggregate,
     aggregate.iterations += decoded.usedIterations;
     aggregate.maximumIterations = std::max(aggregate.maximumIterations, decoded.usedIterations);
     aggregate.finalSyndromeWeight += decoded.finalSyndromeWeight;
+    if (errors == 0 && decoded.syndromePass) ++aggregate.correctValidFrames;
+    else if (errors != 0 && decoded.syndromePass) ++aggregate.wrongValidFrames;
+    else if (errors == 0) ++aggregate.correctInvalidFrames;
+    else ++aggregate.wrongInvalidFrames;
+    const s4ldpc::DecodeResult& reference = bpReference == nullptr ? decoded : *bpReference;
+    bool samePayload = true;
+    for (std::size_t index = 0; index < payload.size(); ++index) {
+        samePayload = samePayload && decoded.bits[index] == reference.bits[index];
+    }
+    aggregate.sameDecodedPayloadFramesVsBp += samePayload;
+    aggregate.sameDecodedCodewordFramesVsBp += decoded.bits == reference.bits;
     aggregate.usedIterations.push_back(decoded.usedIterations);
     aggregate.decodeTimesUs.push_back(elapsedUs);
     addComplexity(aggregate.complexity, decoded.complexity);
@@ -216,7 +252,9 @@ int simulateMode(int argc, char** argv) {
               "variableNodeUpdates,messageUpdates,tanhOperations,atanhOperations,absOperations,"
               "comparisonOperations,min1Min2Updates,signOperations,alphaMultiplications,"
               "decoderMemoryBytes,payloadSeed,noiseSeed,noiseGroupId,frameStart,frameEnd,runId,"
-              "alphaCalibrationFrameRange,smokeEvaluationFrameRange,stopReason,status\n";
+              "alphaCalibrationFrameRange,smokeEvaluationFrameRange,stopReason,"
+              "correctValidFrames,wrongValidFrames,correctInvalidFrames,wrongInvalidFrames,"
+              "sameDecodedPayloadRateVsBP,sameDecodedCodewordRateVsBP,avgNormalizedComplexity,status\n";
     const std::vector<s4ldpc::DirectCase> cases = s4ldpc::freezeS4Cases();
     for (const s4ldpc::DirectCase& config : cases) {
         const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
@@ -251,7 +289,7 @@ int simulateMode(int argc, char** argv) {
                         s4ldpc::decodeLayeredNms(graph, llr, maxIterations, alphas[index]);
                     end = std::chrono::steady_clock::now();
                     update(aggregates[index + 1], payload, nmsResult,
-                           std::chrono::duration<double, std::micro>(end - begin).count());
+                           std::chrono::duration<double, std::micro>(end - begin).count(), &bpResult);
                 }
                 usedFrames = offset + 1;
                 bool allReached = usedFrames >= minFrames;
@@ -301,12 +339,134 @@ int simulateMode(int argc, char** argv) {
                        << startFrame << ',' << (startFrame + usedFrames - 1) << ',' << runId << ','
                        << (startFrame < 10000 ? std::to_string(startFrame) + ":" + std::to_string(startFrame + usedFrames - 1) : "")
                        << ',' << (startFrame >= 10000 ? std::to_string(startFrame) + ":" + std::to_string(startFrame + usedFrames - 1) : "")
-                       << ',' << stopReason << ',' << (aggregate.nanInf == 0 ? "PASS" : "FAIL") << '\n';
+                       << ',' << stopReason << ',' << aggregate.correctValidFrames << ','
+                       << aggregate.wrongValidFrames << ',' << aggregate.correctInvalidFrames << ','
+                       << aggregate.wrongInvalidFrames << ','
+                       << (aggregate.sameDecodedPayloadFramesVsBp / frames) << ','
+                       << (aggregate.sameDecodedCodewordFramesVsBp / frames) << ','
+                       << (aggregate.complexity.messageUpdates / frames) << ','
+                       << (aggregate.nanInf == 0 ? "PASS" : "FAIL") << '\n';
                 if (aggregate.nanInf != 0) throw std::runtime_error("decoder NaN/Inf observed");
             }
         }
     }
     std::cout << "PASS_S4_LDPC_SIMULATION\n";
+    return 0;
+}
+
+void writeAuditFrame(std::ofstream& output,
+                     const s4ldpc::DirectCase& config,
+                     int frameIndex,
+                     double snr,
+                     const std::string& decoder,
+                     double alpha,
+                     const std::string& policy,
+                     const std::vector<unsigned char>& payload,
+                     const std::vector<unsigned char>& codeword,
+                     const std::vector<double>& llr,
+                     const s4ldpc::DecodeResult& result,
+                     double elapsedUs) {
+    const std::uint64_t errors = countPayloadErrors(payload, result.bits);
+    output << config.id << ',' << config.actualLength << ',' << frameIndex << ',' << snr << ','
+           << decoder << ',' << alpha << ',' << policy << ',' << s4ldpc::hashBytes(payload) << ','
+           << s4ldpc::hashBytes(codeword) << ',' << s4ldpc::hashDoubles(llr) << ','
+           << s4ldpc::hashBytes(payloadSlice(result.bits, payload.size())) << ','
+           << s4ldpc::hashBytes(result.bits) << ',' << errors << ','
+           << errorPositionsHash(payload, result.bits) << ',' << result.finalSyndromeWeight << ','
+           << result.usedIterations << ',' << (errors == 0 ? 1 : 0) << ','
+           << (result.syndromePass ? 1 : 0) << ',' << elapsedUs << ','
+           << result.complexity.checkNodeUpdates << ',' << result.complexity.variableNodeUpdates << ','
+           << result.complexity.messageUpdates << ',' << result.numeric.nanInfCount << '\n';
+}
+
+void writeAuditTrace(std::ofstream& output,
+                     const s4ldpc::DirectCase& config,
+                     int frameIndex,
+                     double snr,
+                     const std::string& decoder,
+                     double alpha,
+                     const std::string& policy,
+                     const s4ldpc::DecodeResult& result) {
+    for (const s4ldpc::IterationTrace& point : result.trace) {
+        output << config.id << ',' << config.actualLength << ',' << frameIndex << ',' << snr << ','
+               << decoder << ',' << alpha << ',' << policy << ',' << point.iteration << ','
+               << point.syndromeWeight << ',' << point.payloadErrorCount << ','
+               << point.hardDecisionHash << ',' << point.posteriorLlrHash << ','
+               << point.checkMessageHash << ',' << point.iteration << '\n';
+    }
+}
+
+int auditMode(int argc, char** argv) {
+    if (argc != 11) {
+        throw std::runtime_error(
+            "audit arguments: frameCsv traceCsv alphas snrsByLength frames startFrame runId maxIterations");
+    }
+    const std::vector<double> alphas = parseDoubles(argv[4]);
+    const std::vector<double> snrs = parseDoubles(argv[5]);
+    const int frames = std::stoi(argv[6]);
+    const int startFrame = std::stoi(argv[7]);
+    const std::uint64_t runId = std::stoull(argv[8]);
+    const int maxIterations = std::stoi(argv[9]);
+    const int traceFrameLimit = std::stoi(argv[10]);
+    const std::vector<s4ldpc::DirectCase> cases = s4ldpc::freezeS4Cases();
+    if (snrs.size() != cases.size()) throw std::runtime_error("one audit SNR is required per case");
+    std::ofstream frameOutput(argv[2]);
+    std::ofstream traceOutput(argv[3]);
+    if (!frameOutput || !traceOutput) throw std::runtime_error("cannot open audit output");
+    frameOutput << std::setprecision(17);
+    traceOutput << std::setprecision(17);
+    frameOutput << "caseId,actualLength,frameIndex,snrDb,decoderType,alpha,earlyStopPolicy,"
+                   "payloadHash,transmittedCodewordHash,llrHash,decodedPayloadHash,"
+                   "decodedCodewordHash,errorBitCount,payloadErrorPositionsHash,"
+                   "finalSyndromeWeight,usedIterations,isPayloadCorrect,isCodewordValid,"
+                   "decodeTimeUs,checkNodeUpdates,variableNodeUpdates,messageUpdates,nanInfCount\n";
+    traceOutput << "caseId,actualLength,frameIndex,snrDb,decoderType,alpha,earlyStopPolicy,"
+                   "iteration,syndromeWeight,payloadErrorCount,hardDecisionHash,"
+                   "posteriorLlrHash,checkMessageHash,usedIterationsSoFar\n";
+    for (std::size_t caseIndex = 0; caseIndex < cases.size(); ++caseIndex) {
+        const s4ldpc::DirectCase& config = cases[caseIndex];
+        const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
+        for (int offset = 0; offset < frames; ++offset) {
+            const int frameIndex = startFrame + offset;
+            const std::vector<unsigned char> payload =
+                s4ldpc::makePayload(2026072001ULL, frameIndex, 300);
+            const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+            const std::vector<double> llr = s4ldpc::makeChannelLlr(
+                config, codeword, 2026072904ULL ^ runId,
+                static_cast<std::uint64_t>(config.actualLength), frameIndex, snrs[caseIndex]);
+            for (int policyIndex = 0; policyIndex < 2; ++policyIndex) {
+                const s4ldpc::EarlyStopPolicy policy = policyIndex == 0
+                    ? s4ldpc::EarlyStopPolicy::SyndromeAfterFullIteration
+                    : s4ldpc::EarlyStopPolicy::IterationLimitOnly;
+                const std::string policyName = policyIndex == 0
+                    ? "SYNDROME_AFTER_FULL_ITERATION" : "ITERATION_LIMIT_ONLY";
+                const bool trace = policyIndex == 0 && offset < traceFrameLimit;
+                auto begin = std::chrono::steady_clock::now();
+                const s4ldpc::DecodeResult bp = s4ldpc::decodeLayeredBp(
+                    graph, llr, maxIterations, policy, &payload, trace);
+                auto end = std::chrono::steady_clock::now();
+                writeAuditFrame(frameOutput, config, frameIndex, snrs[caseIndex],
+                                "DIRECT_LAYERED_SPA_BP", 0.0, policyName, payload, codeword, llr,
+                                bp, std::chrono::duration<double, std::micro>(end - begin).count());
+                if (trace) writeAuditTrace(traceOutput, config, frameIndex, snrs[caseIndex],
+                                           "DIRECT_LAYERED_SPA_BP", 0.0, policyName, bp);
+                for (double alpha : alphas) {
+                    begin = std::chrono::steady_clock::now();
+                    const s4ldpc::DecodeResult nms = s4ldpc::decodeLayeredNms(
+                        graph, llr, maxIterations, alpha, policy, &payload, trace);
+                    end = std::chrono::steady_clock::now();
+                    const std::string decoder = alpha == 1.0
+                        ? "DIRECT_LAYERED_MS" : "DIRECT_LAYERED_NMS";
+                    writeAuditFrame(frameOutput, config, frameIndex, snrs[caseIndex], decoder,
+                                    alpha, policyName, payload, codeword, llr, nms,
+                                    std::chrono::duration<double, std::micro>(end - begin).count());
+                    if (trace) writeAuditTrace(traceOutput, config, frameIndex, snrs[caseIndex],
+                                               decoder, alpha, policyName, nms);
+                }
+            }
+        }
+    }
+    std::cout << "PASS_STAGE11R_DECODER_AUDIT_RAW\n";
     return 0;
 }
 
@@ -320,6 +480,7 @@ int main(int argc, char** argv) {
         if (mode == "validate" && argc == 4) return validateMode(argv[2], argv[3]);
         if (mode == "fixture" && argc == 3) return fixtureMode(argv[2]);
         if (mode == "simulate") return simulateMode(argc, argv);
+        if (mode == "audit") return auditMode(argc, argv);
         throw std::runtime_error("invalid mode or argument count");
     } catch (const std::exception& error) {
         std::cerr << "FAIL_S4_LDPC_RUNNER: " << error.what() << '\n';
