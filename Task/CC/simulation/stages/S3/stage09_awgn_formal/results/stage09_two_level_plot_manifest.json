@@ -1,0 +1,54 @@
+{
+  "stage": "stage09_awgn_formal",
+  "snrDefinition": "SNR = Es/N0 (dB)",
+  "coarseRows": 186,
+  "denseRows": 126,
+  "mergedRows": 282,
+  "coarseFrames": 4620252,
+  "denseFrames": 825696,
+  "figures": [
+    {
+      "name": "stage09_two_level_ber.png",
+      "inputCsv": "stage09_two_level_merged_point_results.csv",
+      "inputSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "figureData": "stage09_two_level_figure_data_ber.csv",
+      "figureDataSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "outputSha256": "ba0e171f7a765b91fe0c00fc59a733d3c4eef95a0621177b7256504ac9c0fd47",
+      "zeroErrorPolicy": "raw zero retained; hollow marker plotted at Wilson 95% upper bound"
+    },
+    {
+      "name": "stage09_two_level_fer.png",
+      "inputCsv": "stage09_two_level_merged_point_results.csv",
+      "inputSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "figureData": "stage09_two_level_figure_data_fer.csv",
+      "figureDataSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "outputSha256": "d5f6494df95c312a8288ac9ea903d34b067988119baebeb3db3a58be61355ec6",
+      "zeroErrorPolicy": "raw zero retained; hollow marker plotted at Wilson 95% upper bound"
+    },
+    {
+      "name": "stage09_two_level_hard_soft_fer.png",
+      "inputCsv": "stage09_two_level_merged_point_results.csv",
+      "inputSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "figureData": "stage09_two_level_figure_data_hard_soft_fer.csv",
+      "figureDataSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "outputSha256": "5853ea7cd5e2ceac069ce31fcfd19fcfd82a42538d84c97cd7a5c68772138a88",
+      "zeroErrorPolicy": "raw zero retained; hollow marker plotted at Wilson 95% upper bound"
+    },
+    {
+      "name": "stage09_two_level_delay.png",
+      "inputCsv": "stage09_two_level_merged_point_results.csv",
+      "inputSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "figureData": "stage09_two_level_figure_data_delay.csv",
+      "figureDataSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "outputSha256": "cbd9086c902d8407248425f14a5d90109a2ea2891aab9c03b23698162fbaa175"
+    },
+    {
+      "name": "stage09_two_level_goodput.png",
+      "inputCsv": "stage09_two_level_merged_point_results.csv",
+      "inputSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "figureData": "stage09_two_level_figure_data_goodput.csv",
+      "figureDataSha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25",
+      "outputSha256": "426bdfe49816513245fdb86fb11dc25966b8468324465f565f70507c501148df"
+    }
+  ]
+}

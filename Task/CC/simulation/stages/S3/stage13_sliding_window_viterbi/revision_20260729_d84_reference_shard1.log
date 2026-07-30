@@ -1,0 +1,3 @@
+reference R12 -0.6 frames=2430
+reference R23 1.5 frames=8299
+PASS_STAGE13_REFERENCE_REPLAY rows=6 shard=1/4
