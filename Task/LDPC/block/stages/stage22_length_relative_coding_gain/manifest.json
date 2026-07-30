@@ -1,9 +1,16 @@
 {
   "stage": "stage22_length_relative_coding_gain",
   "branch": "stage01-ldpc",
-  "functionalRanges": [],
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "862dab8a43e8f47efeb9f54bd709cc5a9d1e7831",
+      "contentCommit": "74dfbc22876c2725b367976b4fc5358793181334",
+      "files": ["Task/LDPC/block/stages/stage22_length_relative_coding_gain/"]
+    }
+  ],
   "gateStatus": "PASS",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": true,
-  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+  "remoteVerification": "AWAITING_PUSH"
 }

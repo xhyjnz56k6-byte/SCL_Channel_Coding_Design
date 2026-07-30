@@ -1,9 +1,21 @@
 {
   "stage": "stage21_formal_metadata_repair",
   "branch": "stage01-ldpc",
-  "functionalRanges": [],
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "98804f61193daad398392aad255b7396cef6457f",
+      "contentCommit": "862dab8a43e8f47efeb9f54bd709cc5a9d1e7831",
+      "files": [
+        "Task/LDPC/block/scripts/formal_s4.py",
+        "Task/LDPC/block/scripts/formal_postprocess.py",
+        "Task/LDPC/block/scripts/revised_coding_gain.py",
+        "Task/LDPC/block/stages/stage21_formal_metadata_repair/"
+      ]
+    }
+  ],
   "gateStatus": "PASS",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": true,
-  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+  "remoteVerification": "AWAITING_PUSH"
 }

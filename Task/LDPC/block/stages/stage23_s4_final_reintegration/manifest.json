@@ -1,9 +1,16 @@
 {
   "stage": "stage23_s4_final_reintegration",
   "branch": "stage01-ldpc",
-  "functionalRanges": [],
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "74dfbc22876c2725b367976b4fc5358793181334",
+      "contentCommit": "158e76dda264a86ae3c2ab336949e40af816a76e",
+      "files": ["Task/LDPC/block/stages/stage23_s4_final_reintegration/"]
+    }
+  ],
   "gateStatus": "PASS",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": true,
-  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
+  "remoteVerification": "AWAITING_PUSH"
 }
