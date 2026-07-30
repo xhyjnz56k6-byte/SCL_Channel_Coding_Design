@@ -552,7 +552,7 @@ def prepare_stage12(root: Path) -> None:
     plot_audit(png, result / "stage12_alpha_summary_figure_data.csv", "actualLength", "alpha", "linear", "linear", "frozen alpha by actual length")
 
 
-def stage_common_files(root: Path, content_commit: str) -> None:
+def stage_common_files(root: Path, content_commit: str, push_status: str, remote_verified: bool) -> None:
     tracked = subprocess.run(["git", "diff", "--name-only", "0680b6f4", content_commit] if content_commit != "WORKTREE_FUNCTIONAL_CONTENT" else ["git", "status", "--short"], cwd=root, check=True, text=True, capture_output=True).stdout.splitlines()
     functional_files = [line.strip()[3:] if content_commit == "WORKTREE_FUNCTIONAL_CONTENT" and len(line) > 3 else line.strip() for line in tracked if "Task/LDPC/" in line]
     for number, name in STAGES.items():
@@ -606,8 +606,8 @@ PASS"""
             "gate": GATES[number],
             "gateStatus": "PASS",
             "resultFiles": result_files,
-            "pushStatus": "TO_BE_RECORDED_AFTER_PUSH" if content_commit == "WORKTREE_FUNCTIONAL_CONTENT" else "LOCAL_CONTENT_COMMIT",
-            "remoteVerified": False,
+            "pushStatus": push_status,
+            "remoteVerified": remote_verified,
             "mergeStatus": "NOT_MERGED",
             "formalStarted": False,
         }
@@ -623,6 +623,8 @@ def main() -> int:
     parser.add_argument("--cc-root", required=True, type=Path)
     parser.add_argument("--build", required=True, type=Path)
     parser.add_argument("--content-commit", default="WORKTREE_FUNCTIONAL_CONTENT")
+    parser.add_argument("--push-status", default="LOCAL_CONTENT_COMMIT")
+    parser.add_argument("--remote-verified", action="store_true")
     args = parser.parse_args()
     root = args.root.resolve()
     prepare_stage01(root, args.legacy)
@@ -630,7 +632,27 @@ def main() -> int:
     prepare_stage03_09(root, args.build.resolve())
     prepare_stage10_11(root)
     prepare_stage12(root)
-    stage_common_files(root, args.content_commit)
+    stage_common_files(root, args.content_commit, args.push_status, args.remote_verified)
+    if args.content_commit != "WORKTREE_FUNCTIONAL_CONTENT":
+        patch = subprocess.run(
+            [
+                "git",
+                "diff",
+                "0680b6f4ae00e2c6b1fbe2acecc05d5875e8bfda",
+                args.content_commit,
+                "--",
+                "Task/LDPC",
+                ":(exclude)Task/LDPC/block/changes.patch",
+                ":(exclude)Task/LDPC/block/stages/*/changes.patch",
+            ],
+            cwd=root,
+            check=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+        ).stdout
+        write_text(root / "Task/LDPC/block/changes.patch", patch)
     write_text(
         root / "Task/LDPC/README.md",
         "# S4-LDPC\n\n300 bit、BG2、整块 Direct QC-LDPC。三个实际码长为 480/560/640；主译码器为 Direct Layered SPA/BP，对比译码器为 Direct Layered NMS。严禁速率匹配、速率恢复、分块和交织。",
