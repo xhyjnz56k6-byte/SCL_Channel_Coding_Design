@@ -270,8 +270,8 @@
     "results/stage12_smoke_point_results.csv",
     "results/stage12_smoke_point_results_raw.csv"
   ],
-  "pushStatus": "LOCAL_CONTENT_COMMIT",
-  "remoteVerified": false,
+  "pushStatus": "PUSHED",
+  "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false
 }

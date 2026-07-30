@@ -242,8 +242,8 @@
     "results/direct_nms_noiseless.csv",
     "results/direct_nms_reference_comparison.csv"
   ],
-  "pushStatus": "LOCAL_CONTENT_COMMIT",
-  "remoteVerified": false,
+  "pushStatus": "PUSHED",
+  "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false
 }

@@ -241,8 +241,8 @@
     "results/pairing_config_diff.csv",
     "results/pairing_hash_check.csv"
   ],
-  "pushStatus": "LOCAL_CONTENT_COMMIT",
-  "remoteVerified": false,
+  "pushStatus": "PUSHED",
+  "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false
 }

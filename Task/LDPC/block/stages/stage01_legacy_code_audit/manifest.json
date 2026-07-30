@@ -244,8 +244,8 @@
     "results/stage19_parameter_flow.md",
     "results/stage23g_direct_bp_flow.md"
   ],
-  "pushStatus": "LOCAL_CONTENT_COMMIT",
-  "remoteVerified": false,
+  "pushStatus": "PUSHED",
+  "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false
 }

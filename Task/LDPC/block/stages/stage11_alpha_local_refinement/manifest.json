@@ -246,8 +246,8 @@
     "results/stage11_alpha_selection_each_length_plot_check.md",
     "results/stage11_alpha_selection_each_length_plot_manifest.json"
   ],
-  "pushStatus": "LOCAL_CONTENT_COMMIT",
-  "remoteVerified": false,
+  "pushStatus": "PUSHED",
+  "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false
 }

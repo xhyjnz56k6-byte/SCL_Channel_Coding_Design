@@ -246,8 +246,8 @@
     "results/stage10_alpha_coarse_each_length_plot_manifest.json",
     "results/waterfall_estimate.csv"
   ],
-  "pushStatus": "LOCAL_CONTENT_COMMIT",
-  "remoteVerified": false,
+  "pushStatus": "PUSHED",
+  "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false
 }

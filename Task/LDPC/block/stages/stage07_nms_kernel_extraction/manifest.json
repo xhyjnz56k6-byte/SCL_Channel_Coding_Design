@@ -242,8 +242,8 @@
     "results/nms_kernel_unit_test.csv",
     "results/nms_stage15b_regression.csv"
   ],
-  "pushStatus": "LOCAL_CONTENT_COMMIT",
-  "remoteVerified": false,
+  "pushStatus": "PUSHED",
+  "remoteVerified": true,
   "mergeStatus": "NOT_MERGED",
   "formalStarted": false
 }
