@@ -1,0 +1,17 @@
+{
+  "title": "Stage13R 修复版 smoke：误帧率",
+  "x": "snrDb",
+  "y": "FER",
+  "series": [
+    "N480 BP",
+    "N480 NMS (α=0.90)",
+    "N560 BP",
+    "N560 NMS (α=0.90)",
+    "N640 BP",
+    "N640 NMS (α=0.80)"
+  ],
+  "source": "stage13r_fer_figure_data.csv",
+  "pngSha256": "fe338edcea53e33ca9406e861caeaf28ced9b43017f66738ab2991a80bd12fe1",
+  "interpolation": false,
+  "smoothing": false
+}

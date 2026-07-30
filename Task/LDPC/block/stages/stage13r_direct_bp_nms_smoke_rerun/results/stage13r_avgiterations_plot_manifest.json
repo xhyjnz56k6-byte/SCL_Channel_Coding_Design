@@ -1,0 +1,17 @@
+{
+  "title": "Stage13R 修复版 smoke：平均迭代次数",
+  "x": "snrDb",
+  "y": "avgIterations",
+  "series": [
+    "N480 BP",
+    "N480 NMS (α=0.90)",
+    "N560 BP",
+    "N560 NMS (α=0.90)",
+    "N640 BP",
+    "N640 NMS (α=0.80)"
+  ],
+  "source": "stage13r_avgiterations_figure_data.csv",
+  "pngSha256": "58f0b80b592c955b3f222725d1d033a2d490d02acff60c6da7481642ea8f0a9c",
+  "interpolation": false,
+  "smoothing": false
+}

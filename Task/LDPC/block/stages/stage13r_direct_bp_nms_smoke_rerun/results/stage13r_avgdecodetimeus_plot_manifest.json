@@ -1,0 +1,17 @@
+{
+  "title": "Stage13R 修复版 smoke：平均译码时延（微秒）",
+  "x": "snrDb",
+  "y": "avgDecodeTimeUs",
+  "series": [
+    "N480 BP",
+    "N480 NMS (α=0.90)",
+    "N560 BP",
+    "N560 NMS (α=0.90)",
+    "N640 BP",
+    "N640 NMS (α=0.80)"
+  ],
+  "source": "stage13r_avgdecodetimeus_figure_data.csv",
+  "pngSha256": "e976c517f95deee2dfc030a058ed3288e46d68dbd8f50c5a92d7f40cb8b6a32e",
+  "interpolation": false,
+  "smoothing": false
+}
