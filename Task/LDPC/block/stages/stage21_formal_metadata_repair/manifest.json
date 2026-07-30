@@ -17,5 +17,5 @@
   "gateStatus": "PASS",
   "mergeStatus": "NOT_MERGED",
   "formalStarted": true,
-  "remoteVerification": "AWAITING_PUSH"
+  "remoteVerification": "PUSHED_AND_VERIFIED"
 }
