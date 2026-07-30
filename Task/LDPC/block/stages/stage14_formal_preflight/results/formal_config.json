@@ -65,7 +65,7 @@
   "checkpointFrames": 500,
   "checkpointSeconds": 60,
   "parallelProcesses": 6,
-  "codeCommit": "TO_BE_SET_AFTER_STAGE14_COMMIT",
+  "codeCommit": "989d8b590d858a01457df3c60d05012d79c30363",
   "formalStarted": true,
   "rateMatching": false
 }
