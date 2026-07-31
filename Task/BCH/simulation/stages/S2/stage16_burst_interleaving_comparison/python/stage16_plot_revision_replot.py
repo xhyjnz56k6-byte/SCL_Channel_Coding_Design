@@ -17,15 +17,15 @@ import matplotlib.pyplot as plt
 STAGE = Path(__file__).resolve().parents[1]
 RESULTS = STAGE / "results"
 SOURCE = RESULTS / "stage16_burst_interleaving_comparison_raw_results.csv"
-REVISION_ROOT = RESULTS / "replots" / "s16_nm"
+REVISION_ROOT = RESULTS / "replots" / "s16_style"
 FIGURES = REVISION_ROOT / "figures"
 FIGURE_DATA = REVISION_ROOT / "figure_data"
 MANIFESTS = REVISION_ROOT / "manifests"
 REPORTS = REVISION_ROOT / "reports"
 AUDIT = REVISION_ROOT / "audit"
-LEGACY_INPUT_AUDIT = RESULTS / "replots" / "s16_nm_input_audit.csv"
+LEGACY_INPUT_AUDIT = RESULTS / "replots" / "s16_style_input_audit.csv"
 STAGE_ID = "stage16_burst_interleaving_comparison"
-REVISION_ID = "s16_nm"
+REVISION_ID = "s16_style"
 
 CASES = [
     "K200_S15",
@@ -56,6 +56,30 @@ CONFIG_INFO = {
     "NONE_LREP": {"label": "无交织突发", "line": "--", "marker": "s"},
     "BEST_LREP": {"label": "交织突发", "line": "-.", "marker": "^"},
 }
+
+# Every code/configuration series has a distinct color; line style remains a
+# second, redundant cue for the three channel/interleaving configurations.
+SERIES_COLORS = {
+    ("K200_S15", "NONE_L0"): "#0072B2",
+    ("K200_S15", "NONE_LREP"): "#D55E00",
+    ("K200_S15", "BEST_LREP"): "#009E73",
+    ("K200_M255K207", "NONE_L0"): "#CC79A7",
+    ("K200_M255K207", "NONE_LREP"): "#56B4E9",
+    ("K200_M255K207", "BEST_LREP"): "#E69F00",
+    ("K200_M511K421", "NONE_L0"): "#6A3D9A",
+    ("K200_M511K421", "NONE_LREP"): "#A65628",
+    ("K200_M511K421", "BEST_LREP"): "#1B9E77",
+    ("K200_M511K385", "NONE_L0"): "#E7298A",
+    ("K200_M511K385", "NONE_LREP"): "#66A61E",
+    ("K200_M511K385", "BEST_LREP"): "#7570B3",
+}
+SERIES_COLORS.update(
+    {
+        (case_id.replace("K200", "K300"), config): color
+        for (case_id, config), color in list(SERIES_COLORS.items())
+        if case_id.startswith("K200")
+    }
+)
 
 FIGURE_SPECS = [
     (200, "ber", "overview", "200比特BCH突发信道适应性"),
@@ -132,6 +156,12 @@ def recompute_metric(row, metric):
     if metric == "ber":
         return as_int(row, "payloadErrorBits") / as_int(row, "payloadBitsProcessed")
     return as_int(row, "payloadErrorFrames") / as_int(row, "framesProcessed")
+
+
+def publication_rows_for_series(case_id, config, metric, positive_rows):
+    if case_id == "K200_S15" and config == "NONE_L0" and metric in ("ber", "fer"):
+        return positive_rows[:-1], "exclude_last_positive_point_requested_by_user"
+    return positive_rows, ""
 
 
 def format_number(value):
@@ -293,6 +323,7 @@ def render_figure(rows, payload, metric, kind, title, head):
     publication_rows = []
     audit_rows = []
     rendered_count = 0
+    tail_point_exclusions = []
 
     fig, axis = plt.subplots(figsize=(12.8, 7.2))
     for case_id in cases:
@@ -305,21 +336,36 @@ def render_figure(rows, payload, metric, kind, title, head):
             ]
             group.sort(key=lambda row: as_int(row, "snrIndex"))
             positive_group = [row for row in group if recompute_metric(row, metric) > 0]
+            plot_group, exclusion_reason = publication_rows_for_series(
+                case_id, config, metric, positive_group
+            )
             raw_rows.extend(raw_figure_row(fig_name, row, metric, label) for row in group)
             publication_group = [
                 publication_figure_row(raw_figure_row(fig_name, row, metric, label), metric)
-                for row in positive_group
+                for row in plot_group
             ]
             publication_rows.extend(publication_group)
-            audit_rows.append(
-                series_audit_row(fig_name, label, payload, case_id, config, group, positive_group)
+            audit_row = series_audit_row(
+                fig_name, label, payload, case_id, config, group, positive_group
             )
-            if len(positive_group) >= 2:
+            audit_row["publicationPointCount"] = len(plot_group)
+            audit_row["tailPointExclusionReason"] = exclusion_reason
+            audit_rows.append(audit_row)
+            if exclusion_reason:
+                tail_point_exclusions.append(
+                    {
+                        "seriesLabel": label,
+                        "reason": exclusion_reason,
+                        "excludedSnr": format_number(as_float(positive_group[-1], "targetSnrDb")),
+                        "excludedValue": format_number(recompute_metric(positive_group[-1], metric)),
+                    }
+                )
+            if len(plot_group) >= 2:
                 rendered_count += 1
                 axis.plot(
-                    [as_float(row, "targetSnrDb") for row in positive_group],
-                    [recompute_metric(row, metric) for row in positive_group],
-                    color=CASE_INFO[case_id]["color"],
+                    [as_float(row, "targetSnrDb") for row in plot_group],
+                    [recompute_metric(row, metric) for row in plot_group],
+                    color=SERIES_COLORS[(case_id, config)],
                     linestyle=CONFIG_INFO[config]["line"],
                     linewidth=2.2,
                     label=label,
@@ -376,12 +422,14 @@ def render_figure(rows, payload, metric, kind, title, head):
         "configuration",
         "rawPointCount",
         "positivePointCount",
+        "publicationPointCount",
         "zeroPointCount",
         "firstSnr",
         "lastSnr",
         "firstPositiveSnr",
         "lastPositiveSnr",
         "includedInPublicationPlot",
+        "tailPointExclusionReason",
         "reason",
     ]
     write_csv(raw_path, raw_rows, raw_fields)
@@ -401,6 +449,8 @@ def render_figure(rows, payload, metric, kind, title, head):
         "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
         "usesZeroSurrogate": False,
         "usesPointMarkers": False,
+        "seriesColorPolicy": "distinct_color_per_case_and_configuration",
+        "tailPointExclusions": tail_point_exclusions,
         "rawFigureDataPath": rel(raw_path),
         "rawFigureDataSha256": sha256(raw_path),
         "publicationFigureDataPath": rel(publication_path),
