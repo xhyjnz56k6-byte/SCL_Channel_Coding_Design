@@ -1,7 +1,8 @@
 # Stage15 结果分析
 
 本轮最终矩阵共 3447 行，其中 Stage14 Hard/Soft 四组织全量纳入。
-12 张核心图均有对应 `figure_data/*.csv`，没有空图。
+12 张核心图均有对应 `figure_data/*.csv`，没有空图。BER/FER 的零错误正式点保留
+在 figure-data 与源 CSV 中，但在对数纵轴上直接省略，避免制造高 SNR error floor。
 
 - Block Soft BER/FER：三码率分图/分线，避免混入 W/S/D 全候选。
 - Block Hard/Soft：每码率仅两条曲线，直接给出判决增益。

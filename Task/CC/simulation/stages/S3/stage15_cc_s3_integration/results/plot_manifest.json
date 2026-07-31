@@ -4,35 +4,35 @@
       "plot": "stage15_block_soft_ber_by_rate.png",
       "figureData": "figure_data/stage15_block_soft_ber_by_rate.csv",
       "rows": 141,
-      "plotSha256": "ebe01e0813a31b660e8682a44172d91cfe142e2fcae046b73b472c61071c8951",
+      "plotSha256": "85c6d48441de3d882cf52326d6d5e2f9ea0a982514c98e3f655daee6ae11c47a",
       "figureDataSha256": "5e78d2c416673a5f8c65603f52a78bbe6f98a11408a8db6c2a664cc0d9dfc8d2"
     },
     {
       "plot": "stage15_block_soft_fer_by_rate.png",
       "figureData": "figure_data/stage15_block_soft_fer_by_rate.csv",
       "rows": 141,
-      "plotSha256": "838a203df3929fbb23ee87348c93d78d030d68c1e4ec7a9a770ef1c58e14aa30",
+      "plotSha256": "f96c112f2feb19b799f9afa0c36c106b113b4d6a6aab31552c697bbb7bc763b8",
       "figureDataSha256": "5e78d2c416673a5f8c65603f52a78bbe6f98a11408a8db6c2a664cc0d9dfc8d2"
     },
     {
       "plot": "stage15_block_hard_soft_fer.png",
       "figureData": "figure_data/stage15_block_hard_soft_fer.csv",
       "rows": 282,
-      "plotSha256": "a73ca8a464b7bafa99d8c7fba6b1b2629964343e3d0b2acb6af61ee608fd59f3",
+      "plotSha256": "6fecd7c05e42b7482d6c38da2504cbc73e7ba5ab51911c05ea3ed629759ef65f",
       "figureDataSha256": "3208df5dc402114254b28a1c94408c586672e4ad043f3402f8553f33d5c666a0"
     },
     {
       "plot": "stage15_slot_soft_fer.png",
       "figureData": "figure_data/stage15_slot_soft_fer.csv",
       "rows": 372,
-      "plotSha256": "dee39e4cc3f17232218b762875b657fd908265e27bb7310c967e1a2e33782d94",
+      "plotSha256": "00ec8e6db9344707b143021459f4a438202ca469b89bb5447df686782f650a86",
       "figureDataSha256": "5db7425b020e751b839bddbd8f0d91263c23084eecc03a359f0a30bed166b331"
     },
     {
       "plot": "stage15_slot_hard_fer.png",
       "figureData": "figure_data/stage15_slot_hard_fer.csv",
       "rows": 372,
-      "plotSha256": "03dfd02ee5a2dc3cbdf3edd8a4be3020de7870a0fddcc05c43951c2fcc05707f",
+      "plotSha256": "9408fb8358a12fdeb5f318fe6c282c62d8977eb2193671ea1861da703e345dc8",
       "figureDataSha256": "21f69f63f3a85b1e8c4fd616bb277b0791a81106fc5aaf1b19811c0ad252ad4a"
     },
     {

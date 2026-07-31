@@ -462,9 +462,12 @@ def plot_rate_curves(
     plt.figure(figsize=(7.6, 5.0))
     for rate in RATES:
         group = data[data.rate == rate].sort_values("snrDb")
+        observed = group[group[metric] > 0.0]
+        if observed.empty:
+            continue
         plt.semilogy(
-            group.snrDb,
-            group[metric].clip(lower=1e-8),
+            observed.snrDb,
+            observed[metric],
             marker="o",
             markersize=3,
             linewidth=1.2,
@@ -504,9 +507,12 @@ def plot_block(matrix: pd.DataFrame, manifest: list[dict]) -> None:
             group = block[
                 (block.rate == rate) & (block.decisionMode == decision)
             ].sort_values("snrDb")
+            observed = group[group.FER > 0.0]
+            if observed.empty:
+                continue
             axis.semilogy(
-                group.snrDb,
-                group.FER.clip(lower=1e-8),
+                observed.snrDb,
+                observed.FER,
                 marker="o",
                 markersize=3,
                 label=decision,
@@ -539,9 +545,12 @@ def plot_slot_curves(
                     (data.rate == rate)
                     & (data.organization == organization)
                 ].sort_values("snrDb")
+                observed = group[group.FER > 0.0]
+                if observed.empty:
+                    continue
                 axis.semilogy(
-                    group.snrDb,
-                    group.FER.clip(lower=1e-8),
+                    observed.snrDb,
+                    observed.FER,
                     marker="o",
                     markersize=2.5,
                     linewidth=1,
@@ -1163,7 +1172,8 @@ D126；实际 W/S/D 控制变量与最初计划略有差异，但已有数据足
     analysis = f"""# Stage15 结果分析
 
 本轮最终矩阵共 {len(matrix)} 行，其中 Stage14 Hard/Soft 四组织全量纳入。
-12 张核心图均有对应 `figure_data/*.csv`，没有空图。
+12 张核心图均有对应 `figure_data/*.csv`，没有空图。BER/FER 的零错误正式点保留
+在 figure-data 与源 CSV 中，但在对数纵轴上直接省略，避免制造高 SNR error floor。
 
 - Block Soft BER/FER：三码率分图/分线，避免混入 W/S/D 全候选。
 - Block Hard/Soft：每码率仅两条曲线，直接给出判决增益。

@@ -47,6 +47,11 @@ def check_markdown_images(path: Path) -> None:
 
 
 def main() -> None:
+    processor = (STAGE / "scripts" / "process_final_delivery.py").read_text(
+        encoding="utf-8"
+    )
+    if "clip(lower=1e-8)" in processor or "observed = group[group[metric] > 0.0]" not in processor:
+        raise RuntimeError("log-scale error-floor clipping is forbidden")
     stage14_path = (
         S3
         / "stage14_block_continuous_comparison"

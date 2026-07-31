@@ -4,84 +4,84 @@
       "plot": "stage14_r12_soft_ber_by_organization.png",
       "figureData": "figure_data/stage14_r12_soft_ber_by_organization.csv",
       "rows": 124,
-      "plotSha256": "4512bc1d2ecfc749e374e8ac9628cdf8ad67869e9a7fdb7aecee5abdca6c7d0a",
+      "plotSha256": "5b23e0852fe249459394ef27f52714b7675446f96462d187a336f56204a28b37",
       "figureDataSha256": "bab288a802552ede767ee288b329c90e510f388bf08871880b7fb8660e274028"
     },
     {
       "plot": "stage14_r12_soft_fer_by_organization.png",
       "figureData": "figure_data/stage14_r12_soft_fer_by_organization.csv",
       "rows": 124,
-      "plotSha256": "2461c1de40726945472ceb655c7f49c8a7af0beb2db9355573a24c34e678e6f4",
+      "plotSha256": "12dbef50998adefce80a9171b5657c73f540ca836aac52744ba8690e401014f9",
       "figureDataSha256": "bab288a802552ede767ee288b329c90e510f388bf08871880b7fb8660e274028"
     },
     {
       "plot": "stage14_r23_soft_ber_by_organization.png",
       "figureData": "figure_data/stage14_r23_soft_ber_by_organization.csv",
       "rows": 124,
-      "plotSha256": "324626578cc2e492d32806cc3ca88edb26a97af39680dae2d6ead4ef21208ba6",
+      "plotSha256": "9aaa157599581fcbfbfbc3488dcbab7aadfbc7727c0525866801b66e9d2c816f",
       "figureDataSha256": "f30953cb0d8cba42e8ddab6cd531265e960f6745c44c4536b63e9e2219b8f914"
     },
     {
       "plot": "stage14_r23_soft_fer_by_organization.png",
       "figureData": "figure_data/stage14_r23_soft_fer_by_organization.csv",
       "rows": 124,
-      "plotSha256": "43364a71eeb5d36f7658989e8171a876efcdb82779e7ebc66e1c69ca89530f6e",
+      "plotSha256": "e97c40082cb8832f045a100ddb00a09210bebbe5b15651c757c55e5f2c75781f",
       "figureDataSha256": "f30953cb0d8cba42e8ddab6cd531265e960f6745c44c4536b63e9e2219b8f914"
     },
     {
       "plot": "stage14_r34_soft_ber_by_organization.png",
       "figureData": "figure_data/stage14_r34_soft_ber_by_organization.csv",
       "rows": 124,
-      "plotSha256": "9dff76fb52269d135e5491ddb5d4adf6da386891b86da15a9ca1a49886421770",
+      "plotSha256": "a2c283d3f2ae2cccd80aa20c51d16c6631ee1bcc0f82e161f41e89f5790dc3b2",
       "figureDataSha256": "124eba8630c325f213056f0267723c063ec3a99d959d174e4d4ed68b11ba9433"
     },
     {
       "plot": "stage14_r34_soft_fer_by_organization.png",
       "figureData": "figure_data/stage14_r34_soft_fer_by_organization.csv",
       "rows": 124,
-      "plotSha256": "7b492a6e4028ca029f726ac42049074653f4c0e793ef024758084728210c23c2",
+      "plotSha256": "e4fc83735710257ae75b7f7c1e59859cbaf53d3ecb2d8dbd5f8aac39bb60f569",
       "figureDataSha256": "124eba8630c325f213056f0267723c063ec3a99d959d174e4d4ed68b11ba9433"
     },
     {
       "plot": "stage14_r12_hard_ber_by_organization.png",
       "figureData": "figure_data/stage14_r12_hard_ber_by_organization.csv",
       "rows": 124,
-      "plotSha256": "e1f75a00fad3f24e4b82ce8c00fe892f876440b8f8514a8c00edb675a9cc9451",
+      "plotSha256": "933b8e0c22adbfccac60bc43698c567168acb33b7d40a12dcf5b14d394c0e183",
       "figureDataSha256": "6ad0731d883b46ad8f452ede394a81cf91ff8804d0747ad01fd9cfa34ea4de58"
     },
     {
       "plot": "stage14_r12_hard_fer_by_organization.png",
       "figureData": "figure_data/stage14_r12_hard_fer_by_organization.csv",
       "rows": 124,
-      "plotSha256": "b4bbc8605a81db07a13855efa3c3ec2baae3854449ef80f0cbf40deca7f5408f",
+      "plotSha256": "e38df99f2c3c7eb94b05b973df125fd76fa75d8bb1c99c36b1072f654c60e636",
       "figureDataSha256": "6ad0731d883b46ad8f452ede394a81cf91ff8804d0747ad01fd9cfa34ea4de58"
     },
     {
       "plot": "stage14_r23_hard_ber_by_organization.png",
       "figureData": "figure_data/stage14_r23_hard_ber_by_organization.csv",
       "rows": 124,
-      "plotSha256": "78e01c7d4039e7199f2f6f802dca421b99186c22a3ebd385abce7087aeac3ad3",
+      "plotSha256": "2239f7d04eb0afad650946badf9535012350518cbfde238db78288b1120d10fb",
       "figureDataSha256": "13c11aa7c3e5fd733a1223d82b432ca14c9dcf31c362e81b8d8420350856ac65"
     },
     {
       "plot": "stage14_r23_hard_fer_by_organization.png",
       "figureData": "figure_data/stage14_r23_hard_fer_by_organization.csv",
       "rows": 124,
-      "plotSha256": "ca32a78e9175bae97681f03272e5d74c9fd84a40b5269636cd568cf5234db599",
+      "plotSha256": "9518d0a435f734b5df511c4e0bb16744cefdf11bdcec976b17fdb3d04dae4604",
       "figureDataSha256": "13c11aa7c3e5fd733a1223d82b432ca14c9dcf31c362e81b8d8420350856ac65"
     },
     {
       "plot": "stage14_r34_hard_ber_by_organization.png",
       "figureData": "figure_data/stage14_r34_hard_ber_by_organization.csv",
       "rows": 124,
-      "plotSha256": "7b2597b7a8ffa9e22b3a2f430e09e587dcd2525fa4cc1cb415a987886dcd4b1d",
+      "plotSha256": "42d49bcbf8c609b45fc9d537a656c9e689b7c22063ab0abc6fe455c7e415644c",
       "figureDataSha256": "f4b8ab67ef1d810df10c891951f1906c2f3783e513304cec98e03e61c55359b6"
     },
     {
       "plot": "stage14_r34_hard_fer_by_organization.png",
       "figureData": "figure_data/stage14_r34_hard_fer_by_organization.csv",
       "rows": 124,
-      "plotSha256": "60e50d9016c8ed89c4f2758e1ec0320e57f609d292bf67f437ce758ab8e63a8a",
+      "plotSha256": "128ddb2fe69896d09d1361e3247164fc256d2237b66b655d50ee8f17344ba0d5",
       "figureDataSha256": "f4b8ab67ef1d810df10c891951f1906c2f3783e513304cec98e03e61c55359b6"
     },
     {

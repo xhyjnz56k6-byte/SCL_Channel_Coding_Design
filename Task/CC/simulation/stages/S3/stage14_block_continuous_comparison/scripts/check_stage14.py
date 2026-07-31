@@ -21,6 +21,11 @@ ORGANIZATIONS = {
 
 
 def main() -> None:
+    processor = (STAGE / "scripts" / "process_final_delivery.py").read_text(
+        encoding="utf-8"
+    )
+    if "clip(lower=1e-8)" in processor or "observed = group[group[metric] > 0.0]" not in processor:
+        raise RuntimeError("log-scale error-floor clipping is forbidden")
     path = RESULTS / "stage14_online_slot_formal_results_all_decisions.csv"
     data = pd.read_csv(path)
     if len(data) != 744:

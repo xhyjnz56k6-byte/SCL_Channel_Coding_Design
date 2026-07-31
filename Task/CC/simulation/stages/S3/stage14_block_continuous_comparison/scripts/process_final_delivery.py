@@ -234,10 +234,12 @@ def plot_error_curves(
                         part.organization == organization
                     ].sort_values("snrDb")
                     color, line, marker = STYLES[organization]
-                    values = group[metric].clip(lower=1e-8)
+                    observed = group[group[metric] > 0.0]
+                    if observed.empty:
+                        continue
                     plt.semilogy(
-                        group.snrDb,
-                        values,
+                        observed.snrDb,
+                        observed[metric],
                         color=color,
                         linestyle=line,
                         marker=marker,
@@ -432,9 +434,12 @@ def plot_boundary(offsets: pd.DataFrame, manifest: list[dict]) -> None:
         plt.figure(figsize=(7.6, 4.8))
         for organization in ORGANIZATIONS[1:]:
             group = grouped[grouped.organization == organization]
+            observed = group[group.BER > 0.0]
+            if observed.empty:
+                continue
             plt.semilogy(
-                group.relativeOffset,
-                group.BER.clip(lower=1e-8),
+                observed.relativeOffset,
+                observed.BER,
                 marker="o",
                 label=LABELS[organization],
             )
@@ -483,7 +488,8 @@ def write_documents(data: pd.DataFrame, manifest: list[dict]) -> None:
 Es/N0 达到相同 FER。当前 50x6、100x3、150x2 的 BER/FER 在每个 SNR 点完全
 重合，因为三者最终使用相同接收序列和滑窗边界；它们的首次输出和 P95 时延因
 slot 到达时刻不同而不重合。限制：曲线只代表 -5 至 10 dB、0.5 dB 步长的离散
-BPSK-AWGN 仿真。
+BPSK-AWGN 仿真；BER/FER 为零的正式点保留在 CSV，但不会在对数纵轴上以人造
+下限绘制。
 
 ## 时延
 
