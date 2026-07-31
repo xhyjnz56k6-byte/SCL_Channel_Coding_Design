@@ -1,5 +1,6 @@
-# Plot check
+# 绘图检查
 
-- PNG: PASS
-- no smoothing/global fit: PASS
-- no extrapolation: PASS
+- PNG：PASS
+- 中文标题和坐标轴：PASS
+- figure-data 数值未改写：PASS
+- 无平滑、无外推：PASS

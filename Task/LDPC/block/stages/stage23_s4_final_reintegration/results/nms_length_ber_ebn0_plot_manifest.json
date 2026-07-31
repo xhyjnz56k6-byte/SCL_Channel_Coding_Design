@@ -1,25 +1,69 @@
 {
-  "sourceFormalCsv": "Task/LDPC/block/stages/stage21_formal_metadata_repair/results/formal_point_results_repaired.csv",
-  "sourceFormalCsvSha256": "6c72c89fbac5e846fc7a68483dc18fa5e2238cd9740e48b2d29163ea0c6e5e3e",
-  "sourceMetadataConfig": "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_case_config.csv",
-  "sourceMetadataConfigSha256": "0be82536befc379a297220b47fbea1a6585ebfd871f6b5caa7c0d04fefcd0cfd",
-  "figureDataCsv": "nms_length_ber_ebn0_figure_data.csv",
-  "figureDataCsvSha256": "a158b5f7e28ba78ac95f206c75d0fdf9aa37656ce25567a4d1b74afcea772c1f",
-  "metric": "BER",
-  "algorithm": "NMS",
-  "xColumn": "ebN0Db",
-  "yColumn": "BER",
+  "title": "300比特LDPC不同码长误比特率对比（NMS）",
+  "titleLanguage": "zh-CN",
+  "xLabel": "Eb/N0（dB）",
+  "yLabel": "误比特率",
   "xScale": "linear",
   "yScale": "log",
-  "targetPointCount": 0,
-  "targetPointGenerationMethod": "FORMAL_MEASURED_POINTS",
-  "interpolationMethod": "NONE",
-  "extrapolationAllowed": false,
-  "zeroErrorHandling": "RAW_ZERO_PRESERVED_EXCLUDED_FROM_CODING_GAIN_INTERPOLATION",
-  "confidenceHandling": "HIGH_MEDIUM_SOLID_LOW_HOLLOW_INVALID_GAP",
+  "seriesMapping": {
+    "480": "480比特 NMS（α=0.95）",
+    "560": "560比特 NMS（α=0.95）",
+    "640": "640比特 NMS（α=0.80）"
+  },
+  "colorMapping": {
+    "480": "#1f77b4",
+    "560": "#ff7f0e",
+    "640": "#2ca02c"
+  },
+  "lineStyleMapping": {
+    "480": "-",
+    "560": "--",
+    "640": "-."
+  },
+  "markerMapping": {
+    "480": "o",
+    "560": "s",
+    "640": "^"
+  },
+  "legendMapping": {
+    "480": "480比特 NMS（α=0.95）",
+    "560": "560比特 NMS（α=0.95）",
+    "640": "640比特 NMS（α=0.80）"
+  },
+  "zeroErrorLegend": "零错误点95%上界（不连线）",
+  "zeroErrorHandling": "RAW_ZERO_PRESERVED_NOT_CONNECTED",
+  "sourceData": "nms_length_ber_ebn0_figure_data.csv",
+  "sourceDataSha256": "a158b5f7e28ba78ac95f206c75d0fdf9aa37656ce25567a4d1b74afcea772c1f",
+  "figureDataCsv": "nms_length_ber_ebn0_figure_data.csv",
+  "figureDataCsvSha256": "a158b5f7e28ba78ac95f206c75d0fdf9aa37656ce25567a4d1b74afcea772c1f",
   "plotScript": "Task/LDPC/block/scripts/revised_coding_gain.py",
-  "plotScriptSha256": "d9b02f6e210ae04b41f69d3d072b2611df4559d19927cf112e96a55e7220de78",
-  "pngSha256": "c2eb8396de7223bc916dc361d8e1fae7667cd1fe134ab77fa626923743352a0b",
-  "interpolation": false,
-  "smoothing": false
+  "plotScriptSha256": "fee071627366ee05bda48e7eda8e8df434c7c5ba5e67b8afc26f217fb2fe592e",
+  "pngSha256": "ffae46eae404a741dc0e47e66e24e856dfdd5681816c61b4a987727b6e35e9ba",
+  "dataValuesChanged": false,
+  "font": "Microsoft YaHei",
+  "dpi": 180,
+  "figureSizeInches": [
+    10,
+    6
+  ],
+  "legendLocation": "upper right",
+  "lengthStyleMapping": {
+    "480": {
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "560": {
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "640": {
+      "lineStyle": "-.",
+      "marker": "^"
+    }
+  },
+  "alphaMapping": {
+    "480": 0.95,
+    "560": 0.95,
+    "640": 0.8
+  }
 }

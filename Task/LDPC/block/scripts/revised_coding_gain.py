@@ -18,6 +18,8 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
+from PIL import Image
 
 import formal_s4 as fs
 
@@ -38,6 +40,27 @@ PAIRS = ((480, 560), (480, 640), (560, 640))
 PAIR_LABEL = {(480, 560): "N560 relative to N480", (480, 640): "N640 relative to N480", (560, 640): "N640 relative to N560"}
 STYLE = {(480, 560): ("#1f77b4", "-", "o"), (480, 640): ("#ff7f0e", "--", "s"), (560, 640): ("#2ca02c", "-.", "^")}
 COLOUR = {480: "#1f77b4", 560: "#ff7f0e", 640: "#2ca02c"}
+LENGTH_STYLE = {
+    480: {"color": "#1f77b4", "linestyle": "-", "marker": "o"},
+    560: {"color": "#ff7f0e", "linestyle": "--", "marker": "s"},
+    640: {"color": "#2ca02c", "linestyle": "-.", "marker": "^"},
+}
+GAIN_STYLE = {pair: {"color": STYLE[pair][0], "linestyle": STYLE[pair][1], "marker": STYLE[pair][2]} for pair in PAIRS}
+LENGTH_LABELS_BP = {480: "480比特 BP", 560: "560比特 BP", 640: "640比特 BP"}
+LENGTH_LABELS_NMS = {480: "480比特 NMS（α=0.95）", 560: "560比特 NMS（α=0.95）", 640: "640比特 NMS（α=0.80）"}
+GAIN_LABELS_ZH = {(480, 560): "560比特相对480比特", (480, 640): "640比特相对480比特", (560, 640): "640比特相对560比特"}
+PLOT_TITLES_ZH = {
+    ("BP", "BER", False): "300比特LDPC不同码长误比特率对比（BP）",
+    ("BP", "FER", False): "300比特LDPC不同码长误帧率对比（BP）",
+    ("NMS", "BER", False): "300比特LDPC不同码长误比特率对比（NMS）",
+    ("NMS", "FER", False): "300比特LDPC不同码长误帧率对比（NMS）",
+    ("BP", "BER", True): "300比特LDPC不同码长相对编码增益（BP，BER）",
+    ("BP", "FER", True): "300比特LDPC不同码长相对编码增益（BP，FER）",
+    ("NMS", "BER", True): "300比特LDPC不同码长相对编码增益（NMS，BER）",
+    ("NMS", "FER", True): "300比特LDPC不同码长相对编码增益（NMS，FER）",
+}
+AXIS_LABELS_ZH = {"ebn0": "Eb/N0（dB）", "BER": "误比特率", "FER": "误帧率", "gain": "相对编码增益（dB）", "targetBER": "目标误比特率", "targetFER": "目标误帧率"}
+PLOT_STEMS = ("bp_length_ber_ebn0", "bp_length_fer_ebn0", "nms_length_ber_ebn0", "nms_length_fer_ebn0", "bp_ber_relative_coding_gain_25points", "bp_fer_relative_coding_gain_25points", "nms_ber_relative_coding_gain_25points", "nms_fer_relative_coding_gain_25points")
 
 def read(path: Path): return fs.read_csv(path)
 def write(path: Path, data, fields=None): fs.write_csv(path, data, fields)
@@ -252,6 +275,151 @@ sufficient to establish an error floor.
     fs.atomic_text(S23/"commands_used.md","# Commands used\n\nReintegrated Stage21/22 derived data and existing runtime/complexity results; no formal runner was invoked.\n")
     fs.atomic_text(S23/"validation_report.md","# Validation report\n\n- Stage21: PASS\n- Stage22: PASS\n- Revised integration: PASS\n- No Monte Carlo rerun: PASS\n- Gate: PASS_STAGE23_S4_FINAL_REINTEGRATION\n")
 
+def chinese_font_name():
+    available = {font.name for font in font_manager.fontManager.ttflist}
+    for name in ("Microsoft YaHei", "SimHei", "Microsoft JhengHei"):
+        if name in available:
+            return name
+    raise RuntimeError("BLOCKED_PLOT_REVISION_CHINESE_FONT_NOT_FOUND")
+
+
+def configure_chinese_plotting():
+    name = chinese_font_name()
+    plt.rcParams["font.sans-serif"] = [name]
+    plt.rcParams["axes.unicode_minus"] = False
+    return name
+
+
+def style_manifest(out, stem, figure_data, title, x_label, y_label, x_scale, y_scale,
+                   series_mapping, color_mapping, line_mapping, marker_mapping,
+                   legend_mapping, zero_legend, source_hash, font_name, support):
+    png = out / f"{stem}.png"
+    manifest = {
+        "title": title, "titleLanguage": "zh-CN", "xLabel": x_label, "yLabel": y_label,
+        "xScale": x_scale, "yScale": y_scale, "seriesMapping": series_mapping,
+        "colorMapping": color_mapping, "lineStyleMapping": line_mapping,
+        "markerMapping": marker_mapping, "legendMapping": legend_mapping,
+        "zeroErrorLegend": zero_legend, "zeroErrorHandling": "RAW_ZERO_PRESERVED_NOT_CONNECTED",
+        "sourceData": figure_data.name, "sourceDataSha256": source_hash,
+        "figureDataCsv": figure_data.name, "figureDataCsvSha256": sha(figure_data),
+        "plotScript": str(Path(__file__).relative_to(ROOT)).replace("\\", "/"),
+        "plotScriptSha256": sha(Path(__file__)), "pngSha256": sha(png),
+        "dataValuesChanged": False, "font": font_name, "dpi": 180,
+        "figureSizeInches": [10, 6], "legendLocation": "upper right",
+    }
+    if support:
+        manifest["lengthStyleMapping"] = {str(n): {"lineStyle": LENGTH_STYLE[n]["linestyle"], "marker": LENGTH_STYLE[n]["marker"]} for n in LENGTHS}
+        manifest["alphaMapping"] = {"480": 0.95, "560": 0.95, "640": 0.80}
+    fs.atomic_json(out / f"{stem}_plot_manifest.json", manifest)
+    fs.atomic_text(out / f"{stem}_plot_check.md", "# 绘图检查\n\n- PNG：PASS\n- 中文标题和坐标轴：PASS\n- figure-data 数值未改写：PASS\n- 无平滑、无外推：PASS\n")
+
+
+def redraw_support_plot(out, stem, algorithm, metric, font_name):
+    figure_data = out / f"{stem}_figure_data.csv"
+    before_hash = sha(figure_data)
+    data = read(figure_data)
+    labels = LENGTH_LABELS_BP if algorithm == "BP" else LENGTH_LABELS_NMS
+    title = PLOT_TITLES_ZH[(algorithm, metric, False)]
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for n in LENGTHS:
+        curve = [r for r in data if int(r["actualLength"]) == n]
+        style = LENGTH_STYLE[n]
+        regular_x, regular_y = [], []
+        labelled = False
+        for row in curve:
+            if row["isZeroError"] == "true":
+                if regular_x:
+                    ax.plot(regular_x, regular_y, color=style["color"], linestyle=style["linestyle"], marker=style["marker"], linewidth=1.8, markersize=6, label=labels[n] if not labelled else None)
+                    labelled = True
+                regular_x, regular_y = [], []
+                ax.scatter([float(row["ebN0Db"])], [float(row["upperBound95"])], marker="v", facecolors="none", edgecolors=style["color"], linewidths=1.4, s=48)
+            else:
+                regular_x.append(float(row["ebN0Db"])); regular_y.append(float(row["rawValue"]))
+        if regular_x:
+            ax.plot(regular_x, regular_y, color=style["color"], linestyle=style["linestyle"], marker=style["marker"], linewidth=1.8, markersize=6, label=labels[n] if not labelled else None)
+    ax.scatter([], [], marker="v", facecolors="none", edgecolors="#555555", linewidths=1.4, s=48, label="零错误点95%上界（不连线）")
+    ax.set_title(title); ax.set_xlabel(AXIS_LABELS_ZH["ebn0"]); ax.set_ylabel(AXIS_LABELS_ZH[metric])
+    ax.set_yscale("log"); ax.grid(True, which="both", alpha=0.3); ax.legend(loc="upper right")
+    fig.tight_layout(); fig.savefig(out / f"{stem}.png", dpi=180); plt.close(fig)
+    if sha(figure_data) != before_hash: raise RuntimeError("BLOCKED_PLOT_REVISION_FIGURE_DATA_CHANGED")
+    series = {str(n): labels[n] for n in LENGTHS}
+    style_manifest(out, stem, figure_data, title, AXIS_LABELS_ZH["ebn0"], AXIS_LABELS_ZH[metric], "linear", "log", series, {str(n): LENGTH_STYLE[n]["color"] for n in LENGTHS}, {str(n): LENGTH_STYLE[n]["linestyle"] for n in LENGTHS}, {str(n): LENGTH_STYLE[n]["marker"] for n in LENGTHS}, series, "零错误点95%上界（不连线）", before_hash, font_name, True)
+    return before_hash
+
+
+def redraw_gain_plot(out, stem, algorithm, metric, font_name):
+    figure_data = out / f"{stem}_figure_data.csv"
+    before_hash = sha(figure_data)
+    data = read(figure_data)
+    title = PLOT_TITLES_ZH[(algorithm, metric, True)]
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for pair in PAIRS:
+        line = [r for r in data if (int(r["referenceLength"]), int(r["candidateLength"])) == pair]
+        strong = [r for r in line if r["confidenceLevel"] in {"HIGH", "MEDIUM"}]
+        low = [r for r in line if r["confidenceLevel"] == "LOW"]
+        style = GAIN_STYLE[pair]
+        if strong:
+            ax.plot([float(r["targetErrorRate"]) for r in strong], [float(r["relativeCodingGainDb"]) for r in strong], color=style["color"], linestyle=style["linestyle"], marker=style["marker"], linewidth=1.8, markersize=6, label=GAIN_LABELS_ZH[pair])
+        if low:
+            ax.scatter([float(r["targetErrorRate"]) for r in low], [float(r["relativeCodingGainDb"]) for r in low], facecolors="none", edgecolors=style["color"], marker=style["marker"], s=48, label=GAIN_LABELS_ZH[pair] if not strong else None)
+    ax.axhline(0, color="#9a9a9a", linewidth=0.8, zorder=0)
+    ax.set_xscale("log"); ax.set_title(title); ax.set_xlabel(AXIS_LABELS_ZH["target" + metric]); ax.set_ylabel(AXIS_LABELS_ZH["gain"])
+    ax.grid(True, which="both", alpha=0.3); ax.legend(loc="upper right")
+    fig.tight_layout(); fig.savefig(out / f"{stem}.png", dpi=180); plt.close(fig)
+    if sha(figure_data) != before_hash: raise RuntimeError("BLOCKED_PLOT_REVISION_FIGURE_DATA_CHANGED")
+    labels = {f"{pair[1]}_vs_{pair[0]}": GAIN_LABELS_ZH[pair] for pair in PAIRS}
+    style_manifest(out, stem, figure_data, title, AXIS_LABELS_ZH["target" + metric], AXIS_LABELS_ZH["gain"], "log", "linear", labels, {GAIN_LABELS_ZH[p]: GAIN_STYLE[p]["color"] for p in PAIRS}, {GAIN_LABELS_ZH[p]: GAIN_STYLE[p]["linestyle"] for p in PAIRS}, {GAIN_LABELS_ZH[p]: GAIN_STYLE[p]["marker"] for p in PAIRS}, labels, None, before_hash, font_name, False)
+    return before_hash
+
+
+def replot():
+    """Redraw only the eight Stage22 figures from their existing figure-data CSVs."""
+    font_name = configure_chinese_plotting()
+    out = S22 / "results"
+    source_hashes = {}
+    for algorithm in ("BP", "NMS"):
+        for metric in ("BER", "FER"):
+            source_hashes[f"{algorithm}_{metric}_support"] = redraw_support_plot(out, f"{algorithm.lower()}_length_{metric.lower()}_ebn0", algorithm, metric, font_name)
+            source_hashes[f"{algorithm}_{metric}_gain"] = redraw_gain_plot(out, f"{algorithm.lower()}_{metric.lower()}_relative_coding_gain_25points", algorithm, metric, font_name)
+    report = ["# Stage22 中文结果图样式修订检查", "", "- 已从既有 figure-data CSV 重绘 8 张 PNG。", "- 未运行 Monte Carlo，未重新计算编码增益或任何仿真数据。", "- 所有 figure-data SHA256 在重绘前后保持一致。", "", "| 图数据 | 重绘前后 SHA256 |", "|---|---|"]
+    report.extend(f"| {key} | `{value}` |" for key, value in source_hashes.items())
+    fs.atomic_text(out / "plot_revision_check.md", "\n".join(report) + "\n")
+    out23 = S23 / "results"
+    for stem in PLOT_STEMS:
+        source_data = out / f"{stem}_figure_data.csv"; target_data = out23 / f"{stem}_figure_data.csv"
+        if not target_data.is_file() or sha(source_data) != sha(target_data): raise RuntimeError("BLOCKED_PLOT_REVISION_STAGE23_FIGURE_DATA_MISMATCH")
+        for suffix in (".png", "_plot_manifest.json", "_plot_check.md"):
+            shutil.copy2(out / f"{stem}{suffix}", out23 / f"{stem}{suffix}")
+    fs.atomic_text(out23 / "plot_revision_check.md", (out / "plot_revision_check.md").read_text(encoding="utf-8"))
+    for stem in PLOT_STEMS:
+        with Image.open(out / f"{stem}.png") as image: image.verify()
+        with Image.open(out23 / f"{stem}.png") as image: image.verify()
+    print("PASS_LDPC_PLOT_LOCALIZATION_CHECK")
+
+
+def plotcheck():
+    """Minimal style/data-integrity check for the eight localized plots only."""
+    for root in (S22 / "results", S23 / "results"):
+        for stem in PLOT_STEMS:
+            png = root / f"{stem}.png"; manifest_path = root / f"{stem}_plot_manifest.json"; data_path = root / f"{stem}_figure_data.csv"
+            with Image.open(png) as image: image.verify()
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            assert manifest["pngSha256"] == sha(png)
+            assert manifest["figureDataCsvSha256"] == sha(data_path)
+            assert manifest["sourceDataSha256"] == sha(data_path)
+            assert manifest["dataValuesChanged"] is False
+            assert manifest["titleLanguage"] == "zh-CN" and any("\u4e00" <= char <= "\u9fff" for char in manifest["title"] + manifest["xLabel"] + manifest["yLabel"])
+            if "length_" in stem:
+                assert manifest["yScale"] == "log" and len(manifest["seriesMapping"]) == 3
+                assert manifest["lengthStyleMapping"] == {"480": {"lineStyle": "-", "marker": "o"}, "560": {"lineStyle": "--", "marker": "s"}, "640": {"lineStyle": "-.", "marker": "^"}}
+                assert manifest["zeroErrorLegend"] == "零错误点95%上界（不连线）"
+                if stem.startswith("nms_"):
+                    assert manifest["alphaMapping"] == {"480": 0.95, "560": 0.95, "640": 0.8}
+            else:
+                assert manifest["xScale"] == "log" and len(manifest["seriesMapping"]) == 3
+    print("PASS_LDPC_PLOT_LOCALIZATION_MINIMAL_CHECK")
+
+
 def check():
     repaired=read(S21/"results/formal_point_results_repaired.csv")
     assert len(repaired)==186
@@ -266,6 +434,6 @@ def check():
     assert (S23/"results/s4_revised_final_report.md").is_file();print("PASS_S4_LDPC_REVISED_POSTPROCESS_CHECK")
 
 def main():
-    if len(sys.argv)!=2 or sys.argv[1] not in {"repair","gain","integrate","check"}: raise SystemExit("mode: repair|gain|integrate|check")
-    {"repair":repair,"gain":gain,"integrate":integrate,"check":check}[sys.argv[1]]()
+    if len(sys.argv)!=2 or sys.argv[1] not in {"repair","gain","integrate","replot","plotcheck","check"}: raise SystemExit("mode: repair|gain|integrate|replot|plotcheck|check")
+    {"repair":repair,"gain":gain,"integrate":integrate,"replot":replot,"plotcheck":plotcheck,"check":check}[sys.argv[1]]()
 if __name__=="__main__": main()
