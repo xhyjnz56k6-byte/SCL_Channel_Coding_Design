@@ -17,15 +17,15 @@ import matplotlib.pyplot as plt
 STAGE = Path(__file__).resolve().parents[1]
 RESULTS = STAGE / "results"
 SOURCE = RESULTS / "stage16_burst_interleaving_comparison_raw_results.csv"
-REVISION_ROOT = RESULTS / "replots" / "stage16_plot_revision"
+REVISION_ROOT = RESULTS / "replots" / "s16_nm"
 FIGURES = REVISION_ROOT / "figures"
 FIGURE_DATA = REVISION_ROOT / "figure_data"
 MANIFESTS = REVISION_ROOT / "manifests"
 REPORTS = REVISION_ROOT / "reports"
 AUDIT = REVISION_ROOT / "audit"
-LEGACY_INPUT_AUDIT = RESULTS / "replots" / "stage16_plot_revision_input_audit.csv"
+LEGACY_INPUT_AUDIT = RESULTS / "replots" / "s16_nm_input_audit.csv"
 STAGE_ID = "stage16_burst_interleaving_comparison"
-REVISION_ID = "stage16_plot_revision"
+REVISION_ID = "s16_nm"
 
 CASES = [
     "K200_S15",
@@ -67,6 +67,9 @@ FIGURE_SPECS = [
     (300, "ber", "burst_only", "300比特BCH突发对比"),
     (300, "fer", "burst_only", "300比特BCH突发对比"),
 ]
+
+# This revision is limited to the four user-requested overview figures.
+FIGURE_SPECS = [spec for spec in FIGURE_SPECS if spec[2] == "overview"]
 
 
 def ensure_dirs():
@@ -318,10 +321,7 @@ def render_figure(rows, payload, metric, kind, title, head):
                     [recompute_metric(row, metric) for row in positive_group],
                     color=CASE_INFO[case_id]["color"],
                     linestyle=CONFIG_INFO[config]["line"],
-                    marker=CONFIG_INFO[config]["marker"],
-                    markevery=1,
                     linewidth=2.2,
-                    markersize=5.5,
                     label=label,
                 )
 
@@ -400,6 +400,7 @@ def render_figure(rows, payload, metric, kind, title, head):
         "seriesCountRendered": rendered_count,
         "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
         "usesZeroSurrogate": False,
+        "usesPointMarkers": False,
         "rawFigureDataPath": rel(raw_path),
         "rawFigureDataSha256": sha256(raw_path),
         "publicationFigureDataPath": rel(publication_path),
