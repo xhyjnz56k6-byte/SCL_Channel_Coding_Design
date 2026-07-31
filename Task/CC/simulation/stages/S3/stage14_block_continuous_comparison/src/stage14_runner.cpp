@@ -2,6 +2,7 @@
 #include "true_sliding_window_viterbi.hpp"
 
 #include "cc/block_encoder.hpp"
+#include "cc/hard_viterbi.hpp"
 #include "cc/puncturing.hpp"
 #include "cc/soft_viterbi.hpp"
 #include "cc/trellis.hpp"
@@ -80,6 +81,7 @@ struct Options {
     std::filesystem::path recommendation;
     std::filesystem::path organization_selection;
     std::string grid = "coarse";
+    std::string decision = "soft";
     std::uint64_t shard_index = 0;
     std::uint64_t shard_count = 1;
     std::uint64_t min_frames = 1000;
@@ -133,6 +135,8 @@ Options parse_options(int argc, char** argv) {
             options.max_frames = std::stoull(take());
         } else if (argument == "--grid") {
             options.grid = take();
+        } else if (argument == "--decision") {
+            options.decision = take();
         } else if (argument == "--organization-selection") {
             options.organization_selection = take();
         } else {
@@ -140,8 +144,9 @@ Options parse_options(int argc, char** argv) {
         }
     }
     if (options.shard_count == 0
-        || options.shard_index >= options.shard_count
-        || (options.grid != "coarse" && options.grid != "dense")
+         || options.shard_index >= options.shard_count
+         || (options.grid != "coarse" && options.grid != "dense")
+         || (options.decision != "soft" && options.decision != "hard")
         || (options.grid == "dense"
             && options.organization_selection.empty())) {
         throw std::invalid_argument("invalid shard coordinates");
@@ -489,6 +494,7 @@ int main(int argc, char** argv) {
             : std::map<std::string, std::string>{};
         const scl::cc::Trellis trellis;
         const scl::cc::SoftViterbiDecoder full_decoder(trellis);
+        const scl::cc::HardViterbiDecoder hard_full_decoder(trellis);
         std::size_t unit_index = 0;
         for (const auto& rate : rates()) {
             const auto mapping = input_to_symbol(rate.pattern);
@@ -564,6 +570,31 @@ int main(int argc, char** argv) {
                     }
                     const auto depunctured = scl::cc::depuncture_soft(
                         received, 2 * kCodec, rate.pattern);
+                    std::vector<std::uint8_t> hard_received;
+                    scl::cc::DepuncturedHard depunctured_hard;
+                    std::vector<double> hard_metrics;
+                    if (options.decision == "hard") {
+                        hard_received.resize(received.size());
+                        std::transform(
+                            received.begin(),
+                            received.end(),
+                            hard_received.begin(),
+                            [](double sample) {
+                                return static_cast<std::uint8_t>(
+                                    sample < 0.0);
+                            });
+                        depunctured_hard = scl::cc::depuncture_hard(
+                            hard_received, 2 * kCodec, rate.pattern);
+                        hard_metrics.resize(
+                            depunctured_hard.expanded_bits.size());
+                        std::transform(
+                            depunctured_hard.expanded_bits.begin(),
+                            depunctured_hard.expanded_bits.end(),
+                            hard_metrics.begin(),
+                            [](std::uint8_t bit) {
+                                return bit == 0 ? 1.0 : -1.0;
+                            });
+                    }
                     for (const std::size_t scheme_index :
                          active_scheme_indices) {
                         const auto& scheme = schemes()[scheme_index];
@@ -578,13 +609,21 @@ int main(int argc, char** argv) {
                         double average_buffer = 0.0;
                         const auto start = Clock::now();
                         if (scheme.block) {
-                            const auto full =
-                                full_decoder
+                            if (options.decision == "hard") {
+                                decoded = hard_full_decoder
+                                    .decode_terminated_masked(
+                                        depunctured_hard.expanded_bits,
+                                        depunctured_hard.observed_mask,
+                                        kCodec)
+                                    .payload_bits;
+                            } else {
+                                decoded = full_decoder
                                     .decode_terminated_masked_symbols(
                                         depunctured.expanded_values,
                                         depunctured.observed_mask,
-                                        kCodec);
-                            decoded = full.payload_bits;
+                                        kCodec)
+                                    .payload_bits;
+                            }
                             std::fill(
                                 decisions.begin(),
                                 decisions.end(),
@@ -601,9 +640,11 @@ int main(int argc, char** argv) {
                             const auto online =
                                 scl::cc::stage13::
                                     true_sliding_window_viterbi_scheduled(
-                                        trellis,
-                                        depunctured.expanded_values,
-                                        depunctured.observed_mask,
+                                         trellis,
+                                         options.decision == "hard"
+                                             ? hard_metrics
+                                             : depunctured.expanded_values,
+                                         depunctured.observed_mask,
                                         recommendations.at(rate.id),
                                         scheme.arrivals);
                             decoded = online.payload;
@@ -683,7 +724,8 @@ int main(int argc, char** argv) {
                 std::ofstream output(output_path);
                 output << std::setprecision(17);
                 output
-                    << "organization,rateCase,snrDb,esN0Db,ebN0Db,"
+                    << "organization,rateCase,decisionMode,windowBits,"
+                       "slideBits,dtb,snrDb,esN0Db,ebN0Db,"
                        "actualRate,sigmaSquared,slotBits,slotCount,frames,"
                        "bitErrors,frameErrors,BER,FER,berCiLow,berCiHigh,"
                        "ferCiLow,ferCiHigh,boundaryBER,nonBoundaryBER,"
@@ -730,6 +772,12 @@ int main(int argc, char** argv) {
                             aggregate.non_boundary_errors)
                         / aggregate.non_boundary_bits;
                     const auto config = recommendations.at(rate.id);
+                    const std::size_t window_bits =
+                        scheme.block ? kCodec : config.window_bits;
+                    const std::size_t slide_bits =
+                        scheme.block ? kPayload : config.slide_bits;
+                    const std::size_t dtb =
+                        scheme.block ? kCodec : config.traceback_depth;
                     const std::size_t decoder_memory = scheme.block
                         ? kCodec * scl::cc::kStateCount * 3
                               + 2 * scl::cc::kStateCount
@@ -738,7 +786,12 @@ int main(int argc, char** argv) {
                               + 3 * scl::cc::kStateCount
                                     * sizeof(double);
                     output
-                        << scheme.id << ',' << rate.id << ',' << snr
+                        << scheme.id << ',' << rate.id << ','
+                        << (options.decision == "hard"
+                                ? "Hard"
+                                : "Soft Float")
+                        << ',' << window_bits << ',' << slide_bits << ','
+                        << dtb << ',' << snr
                         << ',' << snr << ',' << eb_n0 << ','
                         << actual_rate << ',' << sigma_squared << ','
                         << scheme.slot_bits << ','

@@ -1,10 +1,21 @@
 #!/usr/bin/env python3
-import shutil,subprocess,sys
+"""Postprocess completed Stage14 formal data and run the final checker."""
+
+from __future__ import annotations
+
+import subprocess
+import sys
 from pathlib import Path
-def main():
- s=Path(__file__).resolve().parents[1];b=s/"build";r=s/"results"
- if "--clean" in sys.argv and b.exists():shutil.rmtree(b)
- r.mkdir(exist_ok=True)
- for c in (["cmake","-S",str(s),"-B",str(b),"-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=Release"],["cmake","--build",str(b),"--parallel"],[str(b/"stage14_runner.exe"),str(r)],[sys.executable,str(s/"scripts"/"check_stage14.py")]):print("+"," ".join(c));subprocess.run(c,cwd=s,check=True)
- return 0
-if __name__=="__main__":sys.exit(main())
+
+
+def main() -> int:
+    stage = Path(__file__).resolve().parents[1]
+    for script in ("process_final_delivery.py", "check_stage14.py"):
+        command = [sys.executable, str(stage / "scripts" / script)]
+        print("+", " ".join(command), flush=True)
+        subprocess.run(command, cwd=stage, check=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
