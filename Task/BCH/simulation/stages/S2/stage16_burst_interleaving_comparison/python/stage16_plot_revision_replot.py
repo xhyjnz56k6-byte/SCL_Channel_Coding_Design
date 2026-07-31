@@ -1,3 +1,4 @@
+import argparse
 import csv
 import hashlib
 import html
@@ -17,15 +18,15 @@ import matplotlib.pyplot as plt
 STAGE = Path(__file__).resolve().parents[1]
 RESULTS = STAGE / "results"
 SOURCE = RESULTS / "stage16_burst_interleaving_comparison_raw_results.csv"
-REVISION_ROOT = RESULTS / "replots" / "stage16_plot_revision"
+REVISION_ROOT = RESULTS / "replots" / "s16_org"
 FIGURES = REVISION_ROOT / "figures"
 FIGURE_DATA = REVISION_ROOT / "figure_data"
 MANIFESTS = REVISION_ROOT / "manifests"
 REPORTS = REVISION_ROOT / "reports"
 AUDIT = REVISION_ROOT / "audit"
-LEGACY_INPUT_AUDIT = RESULTS / "replots" / "stage16_plot_revision_input_audit.csv"
+LEGACY_INPUT_AUDIT = RESULTS / "replots" / "s16_org_input_audit.csv"
 STAGE_ID = "stage16_burst_interleaving_comparison"
-REVISION_ID = "stage16_plot_revision"
+REVISION_ID = "s16_org"
 
 CASES = [
     "K200_S15",
@@ -54,7 +55,16 @@ BURST_CONFIGS = ["NONE_LREP", "BEST_LREP"]
 CONFIG_INFO = {
     "NONE_L0": {"label": "无突发", "line": "-", "marker": "o"},
     "NONE_LREP": {"label": "无交织突发", "line": "--", "marker": "s"},
-    "BEST_LREP": {"label": "交织突发", "line": "-.", "marker": "^"},
+    "BEST_LREP": {"label": "交织突发", "line": "-", "marker": "o"},
+}
+
+# Color identifies code family; channel/interleaving organization is encoded
+# by line style: solid, dashed, and solid with hollow circles respectively.
+CODE_COLORS = {
+    "分块": "#1f77b4",
+    "255": "#ff7f0e",
+    "421": "#2ca02c",
+    "385": "#d62728",
 }
 
 FIGURE_SPECS = [
@@ -67,6 +77,9 @@ FIGURE_SPECS = [
     (300, "ber", "burst_only", "300比特BCH突发对比"),
     (300, "fer", "burst_only", "300比特BCH突发对比"),
 ]
+
+# This revision is limited to the four user-requested overview figures.
+FIGURE_SPECS = [spec for spec in FIGURE_SPECS if spec[2] == "overview"]
 
 
 def ensure_dirs():
@@ -129,6 +142,12 @@ def recompute_metric(row, metric):
     if metric == "ber":
         return as_int(row, "payloadErrorBits") / as_int(row, "payloadBitsProcessed")
     return as_int(row, "payloadErrorFrames") / as_int(row, "framesProcessed")
+
+
+def publication_rows_for_series(case_id, config, metric, positive_rows):
+    if case_id == "K200_S15" and config == "NONE_L0" and metric in ("ber", "fer"):
+        return positive_rows[:-1], "exclude_last_positive_point_requested_by_user"
+    return positive_rows, ""
 
 
 def format_number(value):
@@ -290,6 +309,7 @@ def render_figure(rows, payload, metric, kind, title, head):
     publication_rows = []
     audit_rows = []
     rendered_count = 0
+    tail_point_exclusions = []
 
     fig, axis = plt.subplots(figsize=(12.8, 7.2))
     for case_id in cases:
@@ -302,26 +322,43 @@ def render_figure(rows, payload, metric, kind, title, head):
             ]
             group.sort(key=lambda row: as_int(row, "snrIndex"))
             positive_group = [row for row in group if recompute_metric(row, metric) > 0]
+            plot_group, exclusion_reason = publication_rows_for_series(
+                case_id, config, metric, positive_group
+            )
             raw_rows.extend(raw_figure_row(fig_name, row, metric, label) for row in group)
             publication_group = [
                 publication_figure_row(raw_figure_row(fig_name, row, metric, label), metric)
-                for row in positive_group
+                for row in plot_group
             ]
             publication_rows.extend(publication_group)
-            audit_rows.append(
-                series_audit_row(fig_name, label, payload, case_id, config, group, positive_group)
+            audit_row = series_audit_row(
+                fig_name, label, payload, case_id, config, group, positive_group
             )
-            if len(positive_group) >= 2:
+            audit_row["publicationPointCount"] = len(plot_group)
+            audit_row["tailPointExclusionReason"] = exclusion_reason
+            audit_rows.append(audit_row)
+            if exclusion_reason:
+                tail_point_exclusions.append(
+                    {
+                        "seriesLabel": label,
+                        "reason": exclusion_reason,
+                        "excludedSnr": format_number(as_float(positive_group[-1], "targetSnrDb")),
+                        "excludedValue": format_number(recompute_metric(positive_group[-1], metric)),
+                    }
+                )
+            if len(plot_group) >= 2:
                 rendered_count += 1
                 axis.plot(
-                    [as_float(row, "targetSnrDb") for row in positive_group],
-                    [recompute_metric(row, metric) for row in positive_group],
-                    color=CASE_INFO[case_id]["color"],
+                    [as_float(row, "targetSnrDb") for row in plot_group],
+                    [recompute_metric(row, metric) for row in plot_group],
+                    color=CODE_COLORS[CASE_INFO[case_id]["code"]],
                     linestyle=CONFIG_INFO[config]["line"],
-                    marker=CONFIG_INFO[config]["marker"],
-                    markevery=1,
                     linewidth=2.2,
-                    markersize=5.5,
+                    marker="o" if config == "BEST_LREP" else None,
+                    markerfacecolor="none" if config == "BEST_LREP" else None,
+                    markeredgewidth=1.4 if config == "BEST_LREP" else None,
+                    markersize=5.8 if config == "BEST_LREP" else None,
+                    markevery=1 if config == "BEST_LREP" else None,
                     label=label,
                 )
 
@@ -376,12 +413,14 @@ def render_figure(rows, payload, metric, kind, title, head):
         "configuration",
         "rawPointCount",
         "positivePointCount",
+        "publicationPointCount",
         "zeroPointCount",
         "firstSnr",
         "lastSnr",
         "firstPositiveSnr",
         "lastPositiveSnr",
         "includedInPublicationPlot",
+        "tailPointExclusionReason",
         "reason",
     ]
     write_csv(raw_path, raw_rows, raw_fields)
@@ -400,6 +439,14 @@ def render_figure(rows, payload, metric, kind, title, head):
         "seriesCountRendered": rendered_count,
         "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
         "usesZeroSurrogate": False,
+        "usesPointMarkers": True,
+        "seriesColorPolicy": "same_color_per_code_family",
+        "organizationStylePolicy": {
+            "NONE_L0": "solid",
+            "NONE_LREP": "dashed",
+            "BEST_LREP": "solid_with_hollow_circle",
+        },
+        "tailPointExclusions": tail_point_exclusions,
         "rawFigureDataPath": rel(raw_path),
         "rawFigureDataSha256": sha256(raw_path),
         "publicationFigureDataPath": rel(publication_path),
@@ -516,6 +563,27 @@ def write_gallery(manifests):
 
 
 def main():
+    global SOURCE, REVISION_ROOT, FIGURES, FIGURE_DATA, MANIFESTS, REPORTS, AUDIT
+    global LEGACY_INPUT_AUDIT, REVISION_ID, FIGURE_SPECS
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-csv", type=Path, default=SOURCE)
+    parser.add_argument("--revision-root", type=Path, default=REVISION_ROOT)
+    parser.add_argument("--revision-id", default=REVISION_ID)
+    parser.add_argument("--title-suffix", default="")
+    args = parser.parse_args()
+    SOURCE = args.source_csv.resolve()
+    REVISION_ROOT = args.revision_root.resolve()
+    FIGURES = REVISION_ROOT / "figures"
+    FIGURE_DATA = REVISION_ROOT / "figure_data"
+    MANIFESTS = REVISION_ROOT / "manifests"
+    REPORTS = REVISION_ROOT / "reports"
+    AUDIT = REVISION_ROOT / "audit"
+    LEGACY_INPUT_AUDIT = REVISION_ROOT.parent / f"{args.revision_id}_input_audit.csv"
+    REVISION_ID = args.revision_id
+    FIGURE_SPECS = [
+        (payload, metric, kind, title + args.title_suffix)
+        for payload, metric, kind, title in FIGURE_SPECS
+    ]
     plt.rcParams["font.sans-serif"] = [
         "Microsoft YaHei",
         "SimHei",

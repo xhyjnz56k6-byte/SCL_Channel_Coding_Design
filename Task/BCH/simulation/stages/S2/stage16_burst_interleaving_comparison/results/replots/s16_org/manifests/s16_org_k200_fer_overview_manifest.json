@@ -1,0 +1,38 @@
+{
+  "figureName": "s16_org_k200_fer_overview",
+  "title": "200比特BCH突发信道适应性",
+  "xAxis": "SNR",
+  "yAxis": "FER",
+  "scale": "log",
+  "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+  "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+  "seriesCountExpected": 12,
+  "seriesCountRendered": 12,
+  "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+  "usesZeroSurrogate": false,
+  "usesPointMarkers": true,
+  "seriesColorPolicy": "same_color_per_code_family",
+  "organizationStylePolicy": {
+    "NONE_L0": "solid",
+    "NONE_LREP": "dashed",
+    "BEST_LREP": "solid_with_hollow_circle"
+  },
+  "tailPointExclusions": [
+    {
+      "seriesLabel": "分块-无突发",
+      "reason": "exclude_last_positive_point_requested_by_user",
+      "excludedSnr": "8.5",
+      "excludedValue": "2.0000000000000002e-05"
+    }
+  ],
+  "rawFigureDataPath": "results/replots/s16_org/figure_data/s16_org_k200_fer_overview_raw_figure_data.csv",
+  "rawFigureDataSha256": "b6539431faa46632c3af2035d0dbb00ebd2c9f505cddf856ed67c9ccaf73b988",
+  "publicationFigureDataPath": "results/replots/s16_org/figure_data/s16_org_k200_fer_overview_publication_figure_data.csv",
+  "publicationFigureDataSha256": "328b383288516ca411191a462b3f32446c9fecb1148e7eff6475ceaca95643cf",
+  "seriesAuditPath": "results/replots/s16_org/audit/s16_org_k200_fer_overview_series_audit.csv",
+  "seriesAuditSha256": "61cae7b59dce1333a7a4051a04335867a58c684c55746f07f873324f4004ea3c",
+  "pngPath": "results/replots/s16_org/figures/s16_org_k200_fer_overview.png",
+  "sha256": "c1c8102f24ea3cf4f1690832cf60629d3ce43c686b065b15d930b74dcf483b20",
+  "generatedAt": "2026-07-31T01:24:56.279494+00:00",
+  "gitHead": "4975c10411d916a488154d4bcae1c2951d669bc5"
+}

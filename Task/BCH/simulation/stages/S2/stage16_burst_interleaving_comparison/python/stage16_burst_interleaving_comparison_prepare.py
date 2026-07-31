@@ -1,3 +1,4 @@
+import argparse
 import csv
 import json
 import math
@@ -135,6 +136,11 @@ def best_depths(depth_rows, selected_modes):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--results-dir", type=Path, default=RESULTS)
+    parser.add_argument("--forced-representative-burst-length", type=int)
+    args = parser.parse_args()
+    results = args.results_dir
     config = json.loads(
         (STAGE / f"configs/{STAGE_ID}_config.json").read_text(encoding="utf-8")
     )
@@ -151,13 +157,21 @@ def main():
         STAGE15 / "results/stage15_interleaving_formal_depth_results.csv"
     )
     representative, representative_rows = representative_lengths(stage14)
+    if args.forced_representative_burst_length is not None:
+        require_length = args.forced_representative_burst_length
+        if require_length <= 0:
+            raise SystemExit("forced representative burst length must be positive")
+        representative = {200: require_length, 300: require_length}
+        for row in representative_rows:
+            row["representativeBurstLengthBits"] = require_length
+            row["selectionRule"] = "USER_FROZEN_UNIFIED_L"
     depths, depth_selection_rows = best_depths(depth_rows, selected_modes)
     write(
-        RESULTS / f"{STAGE_ID}_representative_burst_selection.csv",
+        results / f"{STAGE_ID}_representative_burst_selection.csv",
         representative_rows,
     )
     write(
-        RESULTS / f"{STAGE_ID}_best_depth_selection.csv",
+        results / f"{STAGE_ID}_best_depth_selection.csv",
         depth_selection_rows,
     )
     sha_rows = read(
@@ -207,7 +221,7 @@ def main():
                     "derivedEbN0Db": format(derived, ".17g"),
                     "permutationSha256": sha[(case_id, mode, depth)],
                 })
-    write(RESULTS / f"{STAGE_ID}_points.csv", points)
+    write(results / f"{STAGE_ID}_points.csv", points)
     print("PASS_STAGE16_BURST_INTERLEAVING_COMPARISON_PREPARE")
 
 

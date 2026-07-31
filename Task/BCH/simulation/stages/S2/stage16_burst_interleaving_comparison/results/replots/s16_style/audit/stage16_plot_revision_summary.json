@@ -1,0 +1,151 @@
+{
+  "gate": "PASS_STAGE16_PLOT_REVISION",
+  "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+  "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+  "figureCount": 4,
+  "manifestCount": 4,
+  "usesZeroSurrogate": false,
+  "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+  "figures": [
+    {
+      "figureName": "s16_style_k200_ber_overview",
+      "title": "200比特BCH突发信道适应性",
+      "xAxis": "SNR",
+      "yAxis": "BER",
+      "scale": "log",
+      "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+      "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+      "seriesCountExpected": 12,
+      "seriesCountRendered": 12,
+      "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+      "usesZeroSurrogate": false,
+      "usesPointMarkers": false,
+      "seriesColorPolicy": "distinct_color_per_case_and_configuration",
+      "tailPointExclusions": [
+        {
+          "seriesLabel": "分块-无突发",
+          "reason": "exclude_last_positive_point_requested_by_user",
+          "excludedSnr": "8.5",
+          "excludedValue": "1.9999999999999999e-07"
+        }
+      ],
+      "rawFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k200_ber_overview_raw_figure_data.csv",
+      "rawFigureDataSha256": "97be9af1cad3354de61985613a433b8028d644001bb43bc48672d4fca2ce62c8",
+      "publicationFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k200_ber_overview_publication_figure_data.csv",
+      "publicationFigureDataSha256": "1630d87455d8f071c90dce5f2daed2df937fc33daf8abca95bf05386bf81d50d",
+      "seriesAuditPath": "results/replots/s16_style/audit/s16_style_k200_ber_overview_series_audit.csv",
+      "seriesAuditSha256": "8d3d8e6c8cd90df879197f572344aabfed75342adf8dc1ca394c3db9b6868283",
+      "pngPath": "results/replots/s16_style/figures/s16_style_k200_ber_overview.png",
+      "sha256": "5e15d87131a99b3a8837fbfe1927ee2d2b8de6110446509a8fbe8258e9125d98",
+      "generatedAt": "2026-07-31T01:17:34.628173+00:00",
+      "gitHead": "fdf4940575eda225039cedcf5ce7eca6fa940cff"
+    },
+    {
+      "figureName": "s16_style_k200_fer_overview",
+      "title": "200比特BCH突发信道适应性",
+      "xAxis": "SNR",
+      "yAxis": "FER",
+      "scale": "log",
+      "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+      "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+      "seriesCountExpected": 12,
+      "seriesCountRendered": 12,
+      "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+      "usesZeroSurrogate": false,
+      "usesPointMarkers": false,
+      "seriesColorPolicy": "distinct_color_per_case_and_configuration",
+      "tailPointExclusions": [
+        {
+          "seriesLabel": "分块-无突发",
+          "reason": "exclude_last_positive_point_requested_by_user",
+          "excludedSnr": "8.5",
+          "excludedValue": "2.0000000000000002e-05"
+        }
+      ],
+      "rawFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k200_fer_overview_raw_figure_data.csv",
+      "rawFigureDataSha256": "a25f3d4d86c76aaed7b749b2bfd79a01f2c8faea3afbed3a00337f20fac19483",
+      "publicationFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k200_fer_overview_publication_figure_data.csv",
+      "publicationFigureDataSha256": "0feb022e1e375c5864482726019d960a4d1c236f5b1b8c9386f18a4bb3fc4f47",
+      "seriesAuditPath": "results/replots/s16_style/audit/s16_style_k200_fer_overview_series_audit.csv",
+      "seriesAuditSha256": "0adef26aa221bfe341c4d853c39cf65589a7c61689f6ee8050555ad5db6794be",
+      "pngPath": "results/replots/s16_style/figures/s16_style_k200_fer_overview.png",
+      "sha256": "87691d0bf5877aa23a62ba6f2b3ace89a2acaf6f5e6488ddbad763ee4bbf5f4d",
+      "generatedAt": "2026-07-31T01:17:35.076495+00:00",
+      "gitHead": "fdf4940575eda225039cedcf5ce7eca6fa940cff"
+    },
+    {
+      "figureName": "s16_style_k300_ber_overview",
+      "title": "300比特BCH突发信道适应性",
+      "xAxis": "SNR",
+      "yAxis": "BER",
+      "scale": "log",
+      "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+      "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+      "seriesCountExpected": 12,
+      "seriesCountRendered": 12,
+      "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+      "usesZeroSurrogate": false,
+      "usesPointMarkers": false,
+      "seriesColorPolicy": "distinct_color_per_case_and_configuration",
+      "tailPointExclusions": [],
+      "rawFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k300_ber_overview_raw_figure_data.csv",
+      "rawFigureDataSha256": "227fe638923d03be666fa84a1f7e1e8bbc9ff9c28a9073d7881aac3fda9ae451",
+      "publicationFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k300_ber_overview_publication_figure_data.csv",
+      "publicationFigureDataSha256": "61eced23ca8f5cb35f70882d8da08a6bccd6910aa1b3b5142de97fd932a2a93c",
+      "seriesAuditPath": "results/replots/s16_style/audit/s16_style_k300_ber_overview_series_audit.csv",
+      "seriesAuditSha256": "a79f4cb8c3fa230af8226a55db6ab84cdba9e09306331403cf11f0cb65e33e30",
+      "pngPath": "results/replots/s16_style/figures/s16_style_k300_ber_overview.png",
+      "sha256": "39b3f025ae02824e2646c7d3501d5df75d8b971c46e0bf3fa5f0ff15dfd588ce",
+      "generatedAt": "2026-07-31T01:17:35.558927+00:00",
+      "gitHead": "fdf4940575eda225039cedcf5ce7eca6fa940cff"
+    },
+    {
+      "figureName": "s16_style_k300_fer_overview",
+      "title": "300比特BCH突发信道适应性",
+      "xAxis": "SNR",
+      "yAxis": "FER",
+      "scale": "log",
+      "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+      "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+      "seriesCountExpected": 12,
+      "seriesCountRendered": 12,
+      "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+      "usesZeroSurrogate": false,
+      "usesPointMarkers": false,
+      "seriesColorPolicy": "distinct_color_per_case_and_configuration",
+      "tailPointExclusions": [],
+      "rawFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k300_fer_overview_raw_figure_data.csv",
+      "rawFigureDataSha256": "074a4887aa7735b47a718800a15802f82c2ecc793c97e979e1c00481938120d3",
+      "publicationFigureDataPath": "results/replots/s16_style/figure_data/s16_style_k300_fer_overview_publication_figure_data.csv",
+      "publicationFigureDataSha256": "e028ebb7453ebfa054ad9426cdddb4fb64a35f784e92cac9b167d1a15f926c2f",
+      "seriesAuditPath": "results/replots/s16_style/audit/s16_style_k300_fer_overview_series_audit.csv",
+      "seriesAuditSha256": "4467a84594ca5f44b27d88721d4f2ea97a94ee72f73ad5323f8eca539219ff2b",
+      "pngPath": "results/replots/s16_style/figures/s16_style_k300_fer_overview.png",
+      "sha256": "8fa72760fa17da35967ead2b71a555563220ef98ff1a2dbcd20196a53b7ae063",
+      "generatedAt": "2026-07-31T01:17:36.015982+00:00",
+      "gitHead": "fdf4940575eda225039cedcf5ce7eca6fa940cff"
+    }
+  ],
+  "rawPublicationCounts": {
+    "s16_style_k200_ber_overview": {
+      "raw": 444,
+      "publication": 290
+    },
+    "s16_style_k200_fer_overview": {
+      "raw": 444,
+      "publication": 290
+    },
+    "s16_style_k300_ber_overview": {
+      "raw": 444,
+      "publication": 223
+    },
+    "s16_style_k300_fer_overview": {
+      "raw": 444,
+      "publication": 223
+    }
+  },
+  "generatedAt": "2026-07-31T01:17:36.018977+00:00",
+  "gitHead": "fdf4940575eda225039cedcf5ce7eca6fa940cff",
+  "pythonVersion": "3.11.0",
+  "matplotlibVersion": "3.10.7"
+}

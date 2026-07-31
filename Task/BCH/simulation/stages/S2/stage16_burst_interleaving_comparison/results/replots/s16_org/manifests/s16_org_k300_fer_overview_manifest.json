@@ -1,0 +1,31 @@
+{
+  "figureName": "s16_org_k300_fer_overview",
+  "title": "300比特BCH突发信道适应性",
+  "xAxis": "SNR",
+  "yAxis": "FER",
+  "scale": "log",
+  "sourceCsv": "results/stage16_burst_interleaving_comparison_raw_results.csv",
+  "sourceCsvSha256": "a7df81b736c0a2ea25529fb959bbff7e781fe3a0563a5730ccfccae7160bfffb",
+  "seriesCountExpected": 12,
+  "seriesCountRendered": 12,
+  "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+  "usesZeroSurrogate": false,
+  "usesPointMarkers": true,
+  "seriesColorPolicy": "same_color_per_code_family",
+  "organizationStylePolicy": {
+    "NONE_L0": "solid",
+    "NONE_LREP": "dashed",
+    "BEST_LREP": "solid_with_hollow_circle"
+  },
+  "tailPointExclusions": [],
+  "rawFigureDataPath": "results/replots/s16_org/figure_data/s16_org_k300_fer_overview_raw_figure_data.csv",
+  "rawFigureDataSha256": "6a91d37ce12a535b6b301b3aac074dcf0a4a6f6cdf17e1eb73526edab5702988",
+  "publicationFigureDataPath": "results/replots/s16_org/figure_data/s16_org_k300_fer_overview_publication_figure_data.csv",
+  "publicationFigureDataSha256": "929f7aa15e2f7e90f873b4afb4af2aae73835df61b03ef781de917e265b8bae9",
+  "seriesAuditPath": "results/replots/s16_org/audit/s16_org_k300_fer_overview_series_audit.csv",
+  "seriesAuditSha256": "27baaa80aa756300c5a14630574130f39382ef2a4200efafb4f1bda93d5ced5b",
+  "pngPath": "results/replots/s16_org/figures/s16_org_k300_fer_overview.png",
+  "sha256": "ddfad6e757b08cd7f715b6a3752c5d1a5bea7005f4fd32f1b9ed4953cfe8dc41",
+  "generatedAt": "2026-07-31T01:24:57.247653+00:00",
+  "gitHead": "4975c10411d916a488154d4bcae1c2951d669bc5"
+}
