@@ -19,3 +19,9 @@
 - `python scripts/check_stage14.py`: PASS
 
 Final status: **PASS_STAGE14_FINAL_DELIVERY**
+
+## Log-scale redraw
+
+- Zero-error BER/FER points remain in formal CSV and figure-data: PASS
+- Log-scale plots omit zero values instead of clipping to 1e-8: PASS
+- Rebuilt PNGs, manifests and Stage14/15 checkers: PASS

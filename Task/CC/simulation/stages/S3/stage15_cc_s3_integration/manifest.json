@@ -77,6 +77,22 @@
         "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/process_final_delivery.py",
         "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/run_stage15.py"
       ]
+    },
+    {
+      "name": "logScaleFloorRemoval20260731",
+      "baseCommit": "59f872d5c0090b73cec5fe8d60898922237fb504",
+      "contentCommit": "6bcf4c4debd3f50b9cbe148c50bc1df234e3155c",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/results_analysis.md",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_block_hard_soft_fer.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_block_soft_ber_by_rate.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_block_soft_fer_by_rate.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_slot_hard_fer.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_slot_soft_fer.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/check_stage15_revision.py",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/process_final_delivery.py"
+      ]
     }
   ],
   "gate": "PASS_CC_S3_FINAL_DELIVERY",
@@ -149,27 +165,27 @@
     {
       "path": "results/plot_manifest.json",
       "bytes": 4095,
-      "sha256": "1652fae970c6024f24a428bd5cfe944c370624b0f5168e29bcc964594bb40050"
+      "sha256": "babe831fe2994d98b9e1338353d665fd69c352a0691337fc1c475a6d7174013f"
     },
     {
       "path": "results/results_analysis.md",
-      "bytes": 5109,
-      "sha256": "15a8c561b9e2fe0454949389beb7d274241ac0b8bdba2513c19e440f39f71e57"
+      "bytes": 5249,
+      "sha256": "32821ccd67871dde1872ccb806f6031c3f664af9c99c7ddd22127199ab53ab64"
     },
     {
       "path": "results/stage15_block_hard_soft_fer.png",
-      "bytes": 112281,
-      "sha256": "a73ca8a464b7bafa99d8c7fba6b1b2629964343e3d0b2acb6af61ee608fd59f3"
+      "bytes": 105557,
+      "sha256": "6fecd7c05e42b7482d6c38da2504cbc73e7ba5ab51911c05ea3ed629759ef65f"
     },
     {
       "path": "results/stage15_block_soft_ber_by_rate.png",
-      "bytes": 89775,
-      "sha256": "ebe01e0813a31b660e8682a44172d91cfe142e2fcae046b73b472c61071c8951"
+      "bytes": 91646,
+      "sha256": "85c6d48441de3d882cf52326d6d5e2f9ea0a982514c98e3f655daee6ae11c47a"
     },
     {
       "path": "results/stage15_block_soft_fer_by_rate.png",
-      "bytes": 80838,
-      "sha256": "838a203df3929fbb23ee87348c93d78d030d68c1e4ec7a9a770ef1c58e14aa30"
+      "bytes": 80162,
+      "sha256": "f96c112f2feb19b799f9afa0c36c106b113b4d6a6aab31552c697bbb7bc763b8"
     },
     {
       "path": "results/stage15_fair_operating_points.csv",
@@ -213,13 +229,13 @@
     },
     {
       "path": "results/stage15_slot_hard_fer.png",
-      "bytes": 94047,
-      "sha256": "03dfd02ee5a2dc3cbdf3edd8a4be3020de7870a0fddcc05c43951c2fcc05707f"
+      "bytes": 85933,
+      "sha256": "9408fb8358a12fdeb5f318fe6c282c62d8977eb2193671ea1861da703e345dc8"
     },
     {
       "path": "results/stage15_slot_soft_fer.png",
-      "bytes": 93858,
-      "sha256": "dee39e4cc3f17232218b762875b657fd908265e27bb7310c967e1a2e33782d94"
+      "bytes": 89293,
+      "sha256": "00ec8e6db9344707b143021459f4a438202ca469b89bb5447df686782f650a86"
     },
     {
       "path": "results/stage15_slot_soft_goodput.png",
