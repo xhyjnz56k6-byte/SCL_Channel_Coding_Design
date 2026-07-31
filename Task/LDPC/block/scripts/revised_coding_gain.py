@@ -299,7 +299,7 @@ def style_manifest(out, stem, figure_data, title, x_label, y_label, x_scale, y_s
         "xScale": x_scale, "yScale": y_scale, "seriesMapping": series_mapping,
         "colorMapping": color_mapping, "lineStyleMapping": line_mapping,
         "markerMapping": marker_mapping, "legendMapping": legend_mapping,
-        "zeroErrorLegend": zero_legend, "zeroErrorHandling": "RAW_ZERO_PRESERVED_NOT_CONNECTED",
+        "zeroErrorLegend": zero_legend, "zeroErrorHandling": "RAW_ZERO_PRESERVED_NOT_PLOTTED",
         "sourceData": figure_data.name, "sourceDataSha256": source_hash,
         "figureDataCsv": figure_data.name, "figureDataCsvSha256": sha(figure_data),
         "plotScript": str(Path(__file__).relative_to(ROOT)).replace("\\", "/"),
@@ -332,18 +332,16 @@ def redraw_support_plot(out, stem, algorithm, metric, font_name):
                     ax.plot(regular_x, regular_y, color=style["color"], linestyle=style["linestyle"], marker=style["marker"], linewidth=1.8, markersize=6, label=labels[n] if not labelled else None)
                     labelled = True
                 regular_x, regular_y = [], []
-                ax.scatter([float(row["ebN0Db"])], [float(row["upperBound95"])], marker="v", facecolors="none", edgecolors=style["color"], linewidths=1.4, s=48)
             else:
                 regular_x.append(float(row["ebN0Db"])); regular_y.append(float(row["rawValue"]))
         if regular_x:
             ax.plot(regular_x, regular_y, color=style["color"], linestyle=style["linestyle"], marker=style["marker"], linewidth=1.8, markersize=6, label=labels[n] if not labelled else None)
-    ax.scatter([], [], marker="v", facecolors="none", edgecolors="#555555", linewidths=1.4, s=48, label="零错误点95%上界（不连线）")
     ax.set_title(title); ax.set_xlabel(AXIS_LABELS_ZH["ebn0"]); ax.set_ylabel(AXIS_LABELS_ZH[metric])
     ax.set_yscale("log"); ax.grid(True, which="both", alpha=0.3); ax.legend(loc="upper right")
     fig.tight_layout(); fig.savefig(out / f"{stem}.png", dpi=180); plt.close(fig)
     if sha(figure_data) != before_hash: raise RuntimeError("BLOCKED_PLOT_REVISION_FIGURE_DATA_CHANGED")
     series = {str(n): labels[n] for n in LENGTHS}
-    style_manifest(out, stem, figure_data, title, AXIS_LABELS_ZH["ebn0"], AXIS_LABELS_ZH[metric], "linear", "log", series, {str(n): LENGTH_STYLE[n]["color"] for n in LENGTHS}, {str(n): LENGTH_STYLE[n]["linestyle"] for n in LENGTHS}, {str(n): LENGTH_STYLE[n]["marker"] for n in LENGTHS}, series, "零错误点95%上界（不连线）", before_hash, font_name, True)
+    style_manifest(out, stem, figure_data, title, AXIS_LABELS_ZH["ebn0"], AXIS_LABELS_ZH[metric], "linear", "log", series, {str(n): LENGTH_STYLE[n]["color"] for n in LENGTHS}, {str(n): LENGTH_STYLE[n]["linestyle"] for n in LENGTHS}, {str(n): LENGTH_STYLE[n]["marker"] for n in LENGTHS}, series, "NOT_PLOTTED_BY_REQUEST", before_hash, font_name, True)
     return before_hash
 
 
@@ -412,7 +410,8 @@ def plotcheck():
             if "length_" in stem:
                 assert manifest["yScale"] == "log" and len(manifest["seriesMapping"]) == 3
                 assert manifest["lengthStyleMapping"] == {"480": {"lineStyle": "-", "marker": "o"}, "560": {"lineStyle": "--", "marker": "s"}, "640": {"lineStyle": "-.", "marker": "^"}}
-                assert manifest["zeroErrorLegend"] == "零错误点95%上界（不连线）"
+                assert manifest["zeroErrorLegend"] == "NOT_PLOTTED_BY_REQUEST"
+                assert manifest["zeroErrorHandling"] == "RAW_ZERO_PRESERVED_NOT_PLOTTED"
                 if stem.startswith("nms_"):
                     assert manifest["alphaMapping"] == {"480": 0.95, "560": 0.95, "640": 0.8}
             else:
