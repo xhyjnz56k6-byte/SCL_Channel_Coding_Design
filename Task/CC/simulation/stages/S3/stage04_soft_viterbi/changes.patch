@@ -1,0 +1,587 @@
+diff --git a/Task/CC/block/current/include/cc/soft_viterbi.hpp b/Task/CC/block/current/include/cc/soft_viterbi.hpp
+new file mode 100644
+index 00000000..b1c72330
+--- /dev/null
++++ b/Task/CC/block/current/include/cc/soft_viterbi.hpp
+@@ -0,0 +1,36 @@
++#pragma once
++
++#include "cc/trellis.hpp"
++
++#include <cstddef>
++#include <cstdint>
++#include <vector>
++
++namespace scl::cc {
++
++struct SoftViterbiResult {
++    std::vector<std::uint8_t> codec_input_bits;
++    std::vector<std::uint8_t> payload_bits;
++    double final_path_metric = 0.0;
++    std::size_t normalization_count = 0;
++    std::size_t tie_count = 0;
++    std::size_t non_finite_metric_count = 0;
++    std::uint8_t traceback_final_state = 0;
++};
++
++class SoftViterbiDecoder {
++public:
++    explicit SoftViterbiDecoder(const Trellis& trellis);
++
++    SoftViterbiResult decode_terminated_symbols(
++        const std::vector<double>& received_symbols,
++        std::size_t codec_input_length,
++        std::size_t tail_length = kMemory,
++        std::uint8_t initial_state = 0,
++        std::uint8_t final_state = 0) const;
++
++private:
++    const Trellis& trellis_;
++};
++
++}  // namespace scl::cc
+diff --git a/Task/CC/block/current/src/soft_viterbi.cpp b/Task/CC/block/current/src/soft_viterbi.cpp
+new file mode 100644
+index 00000000..82c7fb04
+--- /dev/null
++++ b/Task/CC/block/current/src/soft_viterbi.cpp
+@@ -0,0 +1,154 @@
++#include "cc/soft_viterbi.hpp"
++
++#include <algorithm>
++#include <array>
++#include <cmath>
++#include <limits>
++#include <stdexcept>
++
++namespace scl::cc {
++
++namespace {
++
++struct SoftSurvivor {
++    std::uint8_t predecessor = 0;
++    std::uint8_t input_bit = 0;
++    bool valid = false;
++};
++
++bool better(
++    double candidate,
++    std::uint8_t predecessor,
++    std::uint8_t input,
++    double incumbent,
++    const SoftSurvivor& survivor) {
++    if (!survivor.valid || candidate < incumbent) {
++        return true;
++    }
++    if (candidate > incumbent) {
++        return false;
++    }
++    if (predecessor != survivor.predecessor) {
++        return predecessor < survivor.predecessor;
++    }
++    return input < survivor.input_bit;
++}
++
++double symbol_for_bit(std::uint8_t bit) {
++    return bit == 0 ? 1.0 : -1.0;
++}
++
++}  // namespace
++
++SoftViterbiDecoder::SoftViterbiDecoder(const Trellis& trellis)
++    : trellis_(trellis) {}
++
++SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
++    const std::vector<double>& received_symbols,
++    const std::size_t codec_input_length,
++    const std::size_t tail_length,
++    const std::uint8_t initial_state,
++    const std::uint8_t final_state) const {
++    if (initial_state >= kStateCount || final_state >= kStateCount) {
++        throw std::invalid_argument("soft Viterbi state is outside [0, 63]");
++    }
++    if (codec_input_length < tail_length) {
++        throw std::invalid_argument("soft Viterbi codec input is shorter than tail");
++    }
++    if (received_symbols.size() != codec_input_length * 2) {
++        throw std::invalid_argument("soft Viterbi symbol length mismatch");
++    }
++    for (double value : received_symbols) {
++        if (!std::isfinite(value)) {
++            throw std::invalid_argument("soft Viterbi received symbol is not finite");
++        }
++    }
++
++    const double infinite = std::numeric_limits<double>::infinity();
++    std::array<double, kStateCount> metrics{};
++    std::array<double, kStateCount> next_metrics{};
++    metrics.fill(infinite);
++    metrics[initial_state] = 0.0;
++    std::vector<SoftSurvivor> survivors(codec_input_length * kStateCount);
++    SoftViterbiResult result;
++
++    for (std::size_t time = 0; time < codec_input_length; ++time) {
++        next_metrics.fill(infinite);
++        auto* step = survivors.data() + time * kStateCount;
++        std::fill(step, step + kStateCount, SoftSurvivor{});
++        const double y0 = received_symbols[2 * time];
++        const double y1 = received_symbols[2 * time + 1];
++
++        for (std::size_t state = 0; state < kStateCount; ++state) {
++            if (!std::isfinite(metrics[state])) {
++                continue;
++            }
++            for (std::uint8_t input = 0; input < 2; ++input) {
++                const auto& branch = trellis_.branch(static_cast<std::uint8_t>(state), input);
++                const double d0 = y0 - symbol_for_bit(branch.output_bits[0]);
++                const double d1 = y1 - symbol_for_bit(branch.output_bits[1]);
++                const double candidate = metrics[state] + d0 * d0 + d1 * d1;
++                if (!std::isfinite(candidate)) {
++                    ++result.non_finite_metric_count;
++                    continue;
++                }
++                auto& survivor = step[branch.next_state];
++                if (survivor.valid && candidate == next_metrics[branch.next_state]) {
++                    ++result.tie_count;
++                }
++                if (better(
++                        candidate,
++                        static_cast<std::uint8_t>(state),
++                        input,
++                        next_metrics[branch.next_state],
++                        survivor)) {
++                    next_metrics[branch.next_state] = candidate;
++                    survivor.predecessor = static_cast<std::uint8_t>(state);
++                    survivor.input_bit = input;
++                    survivor.valid = true;
++                }
++            }
++        }
++        double minimum = infinite;
++        for (double metric : next_metrics) {
++            if (std::isfinite(metric) && metric < minimum) {
++                minimum = metric;
++            }
++        }
++        if (!std::isfinite(minimum)) {
++            throw std::runtime_error("soft Viterbi has no finite reachable state");
++        }
++        for (double& metric : next_metrics) {
++            if (std::isfinite(metric)) {
++                metric -= minimum;
++            }
++        }
++        ++result.normalization_count;
++        metrics = next_metrics;
++    }
++
++    if (!std::isfinite(metrics[final_state])) {
++        throw std::runtime_error("soft Viterbi final state is unreachable");
++    }
++    result.final_path_metric = metrics[final_state];
++    result.traceback_final_state = final_state;
++    result.codec_input_bits.resize(codec_input_length);
++    std::uint8_t state = final_state;
++    for (std::size_t time = codec_input_length; time > 0; --time) {
++        const auto& survivor = survivors[(time - 1) * kStateCount + state];
++        if (!survivor.valid) {
++            throw std::runtime_error("invalid soft Viterbi survivor");
++        }
++        result.codec_input_bits[time - 1] = survivor.input_bit;
++        state = survivor.predecessor;
++    }
++    if (state != initial_state) {
++        throw std::runtime_error("soft Viterbi traceback initial state mismatch");
++    }
++    result.payload_bits.assign(
++        result.codec_input_bits.begin(),
++        result.codec_input_bits.end() - static_cast<std::ptrdiff_t>(tail_length));
++    return result;
++}
++
++}  // namespace scl::cc
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/CMakeLists.txt
+new file mode 100644
+index 00000000..84d3a81d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/CMakeLists.txt
+@@ -0,0 +1,25 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage04_soft_viterbi LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++set(CC_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../..")
++add_library(cc_stage04 STATIC
++    "${CC_ROOT}/shared/src/trellis.cpp"
++    "${CC_ROOT}/block/current/src/block_encoder.cpp"
++    "${CC_ROOT}/block/current/src/hard_viterbi.cpp"
++    "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
++)
++target_include_directories(cc_stage04 PUBLIC
++    "${CC_ROOT}/shared/include"
++    "${CC_ROOT}/block/current/include"
++)
++if(MSVC)
++    target_compile_options(cc_stage04 PRIVATE /W4 /permissive-)
++else()
++    target_compile_options(cc_stage04 PRIVATE -Wall -Wextra -Wpedantic -Werror)
++endif()
++add_executable(stage04_soft_viterbi_tests tests/test_stage04_soft_viterbi.cpp)
++target_link_libraries(stage04_soft_viterbi_tests PRIVATE cc_stage04)
++enable_testing()
++add_test(NAME stage04_soft_viterbi_tests COMMAND stage04_soft_viterbi_tests)
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/commands_used.md b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/commands_used.md
+new file mode 100644
+index 00000000..40c926b4
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/commands_used.md
+@@ -0,0 +1,7 @@
++# Stage04 命令
++
++```powershell
++python Task/CC/simulation/stages/S3/stage04_soft_viterbi/scripts/build_and_test_stage04.py --clean
++matlab -batch "run('.../stage04_soft_viterbi/matlab/stage04_matlab_reference.m')"
++git diff --check
++```
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/config/stage04_config.json b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/config/stage04_config.json
+new file mode 100644
+index 00000000..d57f3d1f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/config/stage04_config.json
+@@ -0,0 +1,10 @@
++{
++  "schemaVersion": "cc.stage04.config.v1",
++  "payloadLength": 300,
++  "codecInputLength": 306,
++  "receivedSymbolMetric": "SQUARED_EUCLIDEAN",
++  "randomFrames": 100,
++  "noiseStandardDeviationForUnitTest": 0.18,
++  "randomSeed": 2026072003,
++  "matlabTracebackDepth": 35
++}
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/frozen_config.csv b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/frozen_config.csv
+new file mode 100644
+index 00000000..779e5d94
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/frozen_config.csv
+@@ -0,0 +1,7 @@
++parameter,value,semantics
++decoderType,SOFT_FLOAT,received_symbols
++branchMetric,SQUARED_EUCLIDEAN,bpsk_candidate
++normalization,SUBTRACT_MIN_EVERY_STEP,double
++nonFinitePolicy,REJECT_OR_ERROR_ABORT,strict
++matlabDecisionType,unquant,vitdec
++matlabTracebackDepth,35,terminated
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/include/README.md b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/include/README.md
+new file mode 100644
+index 00000000..4c048f3a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/include/README.md
+@@ -0,0 +1,3 @@
++# Stage04 include
++
++生产接口位于 `Task/CC/block/current/include/cc/soft_viterbi.hpp`。
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/known_issues.md b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/known_issues.md
+new file mode 100644
+index 00000000..efe0ef3f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/known_issues.md
+@@ -0,0 +1,5 @@
++# Stage04 已知问题
++
++- 当前为浮点 received-symbol 基准；量化属于 Stage11。
++- 打孔缺失位 mask 属于 Stage06。
++- 本阶段低噪声测试不是 AWGN prescan 或 formal。
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/matlab/stage04_matlab_reference.m b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/matlab/stage04_matlab_reference.m
+new file mode 100644
+index 00000000..fee0ff96
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/matlab/stage04_matlab_reference.m
+@@ -0,0 +1,26 @@
++stageDir = fileparts(fileparts(mfilename('fullpath')));
++inputPath = fullfile(stageDir, 'results', 'stage04_soft_viterbi_cpp_matlab_vectors.csv');
++outputPath = fullfile(stageDir, 'results', 'stage04_soft_viterbi_matlab_comparison.csv');
++opts = detectImportOptions(inputPath, 'TextType', 'string', 'Delimiter', ',');
++opts = setvartype(opts, {'receivedSymbols', 'cppCodecInputBits', 'cppPayloadBits'}, 'string');
++t = readtable(inputPath, opts);
++trellis = poly2trellis(7, [171 133]);
++payloadMismatch = zeros(height(t), 1);
++codecInputMismatch = zeros(height(t), 1);
++for row = 1:height(t)
++    received = str2double(split(t.receivedSymbols(row), ';'))';
++    cppCodec = double(char(t.cppCodecInputBits(row))) - double('0');
++    cppPayload = double(char(t.cppPayloadBits(row))) - double('0');
++    decoded = vitdec(received, trellis, 35, 'term', 'unquant');
++    codecInputMismatch(row) = sum(decoded ~= cppCodec);
++    payloadMismatch(row) = sum(decoded(1:300) ~= cppPayload);
++end
++status = repmat("PASS", height(t), 1);
++status(codecInputMismatch ~= 0 | payloadMismatch ~= 0) = "FAIL";
++comparison = table(t.vectorId, codecInputMismatch, payloadMismatch, status, ...
++    'VariableNames', {'vectorId','codecInputMismatch','payloadMismatch','status'});
++writetable(comparison, outputPath);
++if any(codecInputMismatch ~= 0) || any(payloadMismatch ~= 0)
++    error('Stage04 MATLAB unquantized mismatch');
++end
++disp('PASS_STAGE04_MATLAB_VITDEC_UNQUANT');
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_cpp_matlab_vectors.csv b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_cpp_matlab_vectors.csv
+new file mode 100644
+index 00000000..4fad622d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_cpp_matlab_vectors.csv
+@@ -0,0 +1,4 @@
++vectorId,receivedSymbols,cppCodecInputBits,cppPayloadBits
++0,-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000,111100110111000000111100110111100100000001010001011000110000010110110001010111111111001101110110110111011001110000001111110011000111011101101111111111100111110000001000100101101001100111011001101110000001111100000110110111101010001110101001010011011010100011100101100001010110000010000110111000111001000000,111100110111000000111100110111100100000001010001011000110000010110110001010111111111001101110110110111011001110000001111110011000111011101101111111111100111110000001000100101101001100111011001101110000001111100000110110111101010001110101001010011011010100011100101100001010110000010000110111000111001
++1,1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000,000010110001010011101101001001110100000010100101111100101111001001010111111110101100101011110101000111111101100110000100100010010101100000011110100100101100010001100011000001111110100011011011100000111101111001101110000100010110101000111110100111111010011010000111000110111001110111001001111000111001000000,000010110001010011101101001001110100000010100101111100101111001001010111111110101100101011110101000111111101100110000100100010010101100000011110100100101100010001100011000001111110100011011011100000111101111001101110000100010110101000111110100111111010011010000111000110111001110111001001111000111001
++2,-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;-1.000000;1.000000;1.000000;-1.000000;1.000000;-1.000000;-1.000000;-1.000000;-1.000000;-1.000000;1.000000;1.000000;1.000000;-1.000000;-1.000000;-1.000000,101111111100011111010111100100000100001111100001010011011001001011000010011111010001111000111011010100011100110010010001000011001101000011011011110011001010000110010000100100110110001100011011010111001111111010010001001100001101101100000100100100111001111001101000011011111010001000111100001111100001000000,101111111100011111010111100100000100001111100001010011011001001011000010011111010001111000111011010100011100110010010001000011001101000011011011110011001010000110010000100100110110001100011011010111001111111010010001001100001101101100000100100100111001111001101000011011111010001000111100001111100001
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_matlab_comparison.csv b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_matlab_comparison.csv
+new file mode 100644
+index 00000000..5dfd4678
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_matlab_comparison.csv
+@@ -0,0 +1,4 @@
++vectorId,codecInputMismatch,payloadMismatch,status
++0,0,0,PASS
++1,0,0,PASS
++2,0,0,PASS
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_results_scope.md b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_results_scope.md
+new file mode 100644
+index 00000000..9941fd7b
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_results_scope.md
+@@ -0,0 +1,3 @@
++# Stage04 结果目录
++
++保存 C++/MATLAB 浮点软判决固定向量、mismatch 和测试摘要，不保存 build 产物。
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_test_summary.csv b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_test_summary.csv
+new file mode 100644
+index 00000000..57f7010e
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/results/stage04_soft_viterbi_test_summary.csv
+@@ -0,0 +1,8 @@
++check,status
++release_build,PASS
++ctest,PASS
++soft_noiseless_low_noise_100,PASS
++nan_inf_negative,PASS
++matlab_vitdec_unquant,PASS
++payload_mismatch,0
++stage_gate,PASS_STAGE04_CC_SOFT_VITERBI
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/scripts/build_and_test_stage04.py b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/scripts/build_and_test_stage04.py
+new file mode 100644
+index 00000000..7a3989a6
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/scripts/build_and_test_stage04.py
+@@ -0,0 +1,45 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++import csv
++import shutil
++import subprocess
++import sys
++from pathlib import Path
++
++def run(command: list[str], cwd: Path) -> None:
++    print("+", " ".join(command))
++    subprocess.run(command, cwd=cwd, check=True)
++
++def main() -> int:
++    stage = Path(__file__).resolve().parents[1]
++    build = stage / "build"
++    results = stage / "results"
++    if "--clean" in sys.argv and build.exists():
++        shutil.rmtree(build)
++    results.mkdir(parents=True, exist_ok=True)
++    run(["cmake", "-S", str(stage), "-B", str(build), "-G", "MinGW Makefiles", "-DCMAKE_BUILD_TYPE=Release"], stage)
++    run(["cmake", "--build", str(build), "--parallel"], stage)
++    run(["ctest", "--test-dir", str(build), "--output-on-failure"], stage)
++    run([str(build / "stage04_soft_viterbi_tests.exe"), str(results / "stage04_soft_viterbi_cpp_matlab_vectors.csv")], stage)
++    comparison = results / "stage04_soft_viterbi_matlab_comparison.csv"
++    with (results / "stage04_soft_viterbi_test_summary.csv").open("w", encoding="utf-8", newline="") as handle:
++        writer = csv.writer(handle, lineterminator="\n")
++        writer.writerow(["check", "status"])
++        writer.writerow(["release_build", "PASS"])
++        writer.writerow(["ctest", "PASS"])
++        writer.writerow(["soft_noiseless_low_noise_100", "PASS"])
++        writer.writerow(["nan_inf_negative", "PASS"])
++        if comparison.is_file():
++            with comparison.open(encoding="utf-8", newline="") as source:
++                rows = list(csv.DictReader(source))
++            if len(rows) != 3 or not all(row["status"] == "PASS" and int(row["payloadMismatch"]) == 0 for row in rows):
++                raise RuntimeError("MATLAB unquantized comparison failed")
++            writer.writerow(["matlab_vitdec_unquant", "PASS"])
++            writer.writerow(["payload_mismatch", "0"])
++            writer.writerow(["stage_gate", "PASS_STAGE04_CC_SOFT_VITERBI"])
++        else:
++            writer.writerow(["stage_gate_before_matlab", "PASS_CPP"])
++    return 0
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/src/README.md b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/src/README.md
+new file mode 100644
+index 00000000..cbb1be74
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/src/README.md
+@@ -0,0 +1,3 @@
++# Stage04 src
++
++生产实现位于 `Task/CC/block/current/src/soft_viterbi.cpp`。
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/stage_plan.md b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/stage_plan.md
+new file mode 100644
+index 00000000..bdd7664d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/stage_plan.md
+@@ -0,0 +1,13 @@
++# Stage04 浮点软判决 Viterbi 计划
++
++目标是实现基于 `receivedSymbols` 的平方欧氏分支度量、64-state ACS、确定性 tie-break、逐步归一化和已知零终止完整回溯。
++
++允许修改 `Task/CC/block/current/**` 与本 Stage；禁止其他编码目录。
++
++| 需求 | 正向测试 | 负向测试 | Gate |
++|---|---|---|---|
++| 欧氏软度量 | 无噪声及固定低噪声 100 帧 | NaN/Inf 拒绝 | payload mismatch=0 |
++| hard/soft 公平输入 | 同一 receivedSymbols 派生 hardBits | 独立噪声禁止 | 共享链路 |
++| MATLAB 对照 | `vitdec` terminated unquantized | mismatch 失败 | mismatch=0 |
++
++Gate：`PASS_STAGE04_CC_SOFT_VITERBI`
+diff --git a/Task/CC/simulation/stages/S3/stage04_soft_viterbi/tests/test_stage04_soft_viterbi.cpp b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/tests/test_stage04_soft_viterbi.cpp
+new file mode 100644
+index 00000000..e473cefa
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage04_soft_viterbi/tests/test_stage04_soft_viterbi.cpp
+@@ -0,0 +1,132 @@
++#include "cc/block_encoder.hpp"
++#include "cc/hard_viterbi.hpp"
++#include "cc/soft_viterbi.hpp"
++#include "cc/trellis.hpp"
++
++#include <cmath>
++#include <cstdint>
++#include <cstdlib>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <limits>
++#include <random>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++
++void require(bool condition, const std::string& message) {
++    if (!condition) {
++        throw std::runtime_error(message);
++    }
++}
++
++std::string bits_text(const std::vector<std::uint8_t>& bits) {
++    std::string result;
++    for (auto bit : bits) {
++        result.push_back(static_cast<char>('0' + bit));
++    }
++    return result;
++}
++
++std::string symbols_text(const std::vector<double>& symbols) {
++    std::string result;
++    for (std::size_t index = 0; index < symbols.size(); ++index) {
++        if (index != 0) {
++            result.push_back(';');
++        }
++        result += std::to_string(symbols[index]);
++    }
++    return result;
++}
++
++std::vector<double> bpsk(const std::vector<std::uint8_t>& bits) {
++    std::vector<double> symbols;
++    symbols.reserve(bits.size());
++    for (auto bit : bits) {
++        symbols.push_back(bit == 0 ? 1.0 : -1.0);
++    }
++    return symbols;
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        const scl::cc::Trellis trellis;
++        scl::cc::ConvolutionalEncoder encoder(trellis);
++        const scl::cc::HardViterbiDecoder hard(trellis);
++        const scl::cc::SoftViterbiDecoder soft(trellis);
++        std::ofstream vectors;
++        if (argc == 2) {
++            const std::filesystem::path path(argv[1]);
++            std::filesystem::create_directories(path.parent_path());
++            vectors.open(path);
++            require(vectors.good(), "cannot write MATLAB vectors");
++            vectors << "vectorId,receivedSymbols,cppCodecInputBits,cppPayloadBits\n";
++        }
++
++        std::mt19937 rng(2026072003U);
++        std::normal_distribution<double> low_noise(0.0, 0.18);
++        for (int frame = 0; frame < 100; ++frame) {
++            std::vector<std::uint8_t> payload(300);
++            for (auto& bit : payload) {
++                bit = static_cast<std::uint8_t>(rng() & 1U);
++            }
++            const auto encoded = encoder.encode_block(payload, true);
++            auto symbols = bpsk(encoded.mother_bits);
++            if (frame >= 3) {
++                for (auto& value : symbols) {
++                    value += low_noise(rng);
++                }
++            }
++            const auto decoded = soft.decode_terminated_symbols(symbols, 306);
++            require(decoded.payload_bits == payload, "soft noiseless/low-noise mismatch");
++            require(decoded.normalization_count == 306, "soft normalization count");
++            require(decoded.non_finite_metric_count == 0, "soft non-finite metric");
++            const auto repeated = soft.decode_terminated_symbols(symbols, 306);
++            require(repeated.payload_bits == decoded.payload_bits, "soft non-deterministic");
++
++            std::vector<std::uint8_t> hard_bits;
++            hard_bits.reserve(symbols.size());
++            for (double value : symbols) {
++                hard_bits.push_back(value >= 0.0 ? 0 : 1);
++            }
++            const auto hard_result = hard.decode_terminated_mother(hard_bits, 306);
++            if (frame < 3) {
++                require(hard_result.payload_bits == decoded.payload_bits, "shared-symbol hard/soft mismatch");
++                if (vectors.is_open()) {
++                    vectors << frame << ',' << symbols_text(symbols) << ','
++                            << bits_text(decoded.codec_input_bits) << ','
++                            << bits_text(decoded.payload_bits) << '\n';
++                }
++            }
++        }
++
++        bool rejected_nan = false;
++        try {
++            soft.decode_terminated_symbols(
++                {std::numeric_limits<double>::quiet_NaN(), 1.0}, 1, 0);
++        } catch (const std::invalid_argument&) {
++            rejected_nan = true;
++        }
++        require(rejected_nan, "NaN was not rejected");
++
++        bool rejected_inf = false;
++        try {
++            soft.decode_terminated_symbols(
++                {std::numeric_limits<double>::infinity(), 1.0}, 1, 0);
++        } catch (const std::invalid_argument&) {
++            rejected_inf = true;
++        }
++        require(rejected_inf, "Inf was not rejected");
++
++        std::cout << "PASS_STAGE04_CC_SOFT_VITERBI\n";
++        return EXIT_SUCCESS;
++    } catch (const std::exception& error) {
++        std::cerr << "FAIL_STAGE04_CC_SOFT_VITERBI: " << error.what() << '\n';
++        return EXIT_FAILURE;
++    }
++}

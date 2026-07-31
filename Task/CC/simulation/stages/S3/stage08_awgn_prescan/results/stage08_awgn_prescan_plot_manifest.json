@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "cc.stage08.plot_manifest.v1",
+  "figures": [
+    {
+      "metric": "BER",
+      "sourceCsv": "stage08_awgn_prescan_point_results.csv",
+      "sourceSha256": "0e2e34780ac67b01d38cef5ef42c6ab874a9efcf22caae723f185ac8f134cd82",
+      "figureDataCsv": "stage08_awgn_prescan_ber_figure_data.csv",
+      "figureDataSha256": "0e2e34780ac67b01d38cef5ef42c6ab874a9efcf22caae723f185ac8f134cd82",
+      "png": "stage08_awgn_prescan_ber.png",
+      "pngSha256": "b6820261d0d2bd840308df102f078fc94ac9644ede9052e004b2b3a158751773",
+      "pointRows": 56,
+      "plottedPositivePoints": 50,
+      "zeroErrorPoints": 6,
+      "xColumn": "snrDb",
+      "xLabel": "SNR (dB)",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero omitted on log axis"
+    },
+    {
+      "metric": "FER",
+      "sourceCsv": "stage08_awgn_prescan_point_results.csv",
+      "sourceSha256": "0e2e34780ac67b01d38cef5ef42c6ab874a9efcf22caae723f185ac8f134cd82",
+      "figureDataCsv": "stage08_awgn_prescan_fer_figure_data.csv",
+      "figureDataSha256": "0e2e34780ac67b01d38cef5ef42c6ab874a9efcf22caae723f185ac8f134cd82",
+      "png": "stage08_awgn_prescan_fer.png",
+      "pngSha256": "95d49b13d849aa17efbe640fba47371cab95f08187573106b3a953a228d24165",
+      "pointRows": 56,
+      "plottedPositivePoints": 50,
+      "zeroErrorPoints": 6,
+      "xColumn": "snrDb",
+      "xLabel": "SNR (dB)",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero omitted on log axis"
+    }
+  ]
+}

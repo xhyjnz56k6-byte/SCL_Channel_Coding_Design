@@ -1,0 +1,5 @@
+organization,rateCase,snrDb,firstOutputDelaySymbols
+A_BLOCK_300,R34,2.0,406
+B_CONT_50x6,R34,2.0,265
+C_CONT_100x3,R34,2.0,265
+D_CONT_150x2,R34,2.0,406

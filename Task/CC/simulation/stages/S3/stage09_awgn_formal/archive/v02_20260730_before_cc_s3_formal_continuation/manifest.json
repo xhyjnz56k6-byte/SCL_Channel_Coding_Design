@@ -1,0 +1,107 @@
+{
+  "stage": "stage09_awgn_formal",
+  "branch": "stage01-cc",
+  "status": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content1",
+      "baseCommit": "e3e9efbc77fed04daad3be0968fbc6edd69ec91d",
+      "contentCommit": "23fd8445a629ebd89c44949612bf40c09a071dd3",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/scripts/process_stage09_revision.py"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE09_TWO_LEVEL_REVISION",
+  "formalResults": [
+    {
+      "path": "results/stage09_selected_snr_by_fer_level.csv",
+      "bytes": 1234,
+      "sha256": "1c7e9031fb8462d394079aa661501f9bd308701aa2fa76d02820c8d63256ba1a"
+    },
+    {
+      "path": "results/stage09_two_level_ber.png",
+      "bytes": 149104,
+      "sha256": "ba0e171f7a765b91fe0c00fc59a733d3c4eef95a0621177b7256504ac9c0fd47"
+    },
+    {
+      "path": "results/stage09_two_level_coarse_point_results.csv",
+      "bytes": 112163,
+      "sha256": "afd3aa477e53f1db052192e51b124273d48e7281cec2fdd4e1cfd3ed635e7f0c"
+    },
+    {
+      "path": "results/stage09_two_level_delay.png",
+      "bytes": 223049,
+      "sha256": "cbd9086c902d8407248425f14a5d90109a2ea2891aab9c03b23698162fbaa175"
+    },
+    {
+      "path": "results/stage09_two_level_dense_point_results.csv",
+      "bytes": 92776,
+      "sha256": "0d59af6fff63480e2b42a434b6a5102836a19e2381935e47241417fc3258b00a"
+    },
+    {
+      "path": "results/stage09_two_level_fer.png",
+      "bytes": 132631,
+      "sha256": "d5f6494df95c312a8288ac9ea903d34b067988119baebeb3db3a58be61355ec6"
+    },
+    {
+      "path": "results/stage09_two_level_figure_data_ber.csv",
+      "bytes": 185658,
+      "sha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25"
+    },
+    {
+      "path": "results/stage09_two_level_figure_data_delay.csv",
+      "bytes": 185658,
+      "sha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25"
+    },
+    {
+      "path": "results/stage09_two_level_figure_data_fer.csv",
+      "bytes": 185658,
+      "sha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25"
+    },
+    {
+      "path": "results/stage09_two_level_figure_data_goodput.csv",
+      "bytes": 185658,
+      "sha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25"
+    },
+    {
+      "path": "results/stage09_two_level_figure_data_hard_soft_fer.csv",
+      "bytes": 185658,
+      "sha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25"
+    },
+    {
+      "path": "results/stage09_two_level_goodput.png",
+      "bytes": 105939,
+      "sha256": "426bdfe49816513245fdb86fb11dc25966b8468324465f565f70507c501148df"
+    },
+    {
+      "path": "results/stage09_two_level_hard_soft_fer.png",
+      "bytes": 131308,
+      "sha256": "5853ea7cd5e2ceac069ce31fcfd19fcfd82a42538d84c97cd7a5c68772138a88"
+    },
+    {
+      "path": "results/stage09_two_level_merged_point_results.csv",
+      "bytes": 185658,
+      "sha256": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25"
+    },
+    {
+      "path": "results/stage09_two_level_plot_check.md",
+      "bytes": 209,
+      "sha256": "114cd526b84b9a805ad64c887be234d7ec1c658c7d75ec1eafc8256d2670916c"
+    },
+    {
+      "path": "results/stage09_two_level_plot_manifest.json",
+      "bytes": 2845,
+      "sha256": "f3704036658998642fa7ffd271db2e9db54e8a94eb1d46d88b50023e8ede0c05"
+    },
+    {
+      "path": "results/stage09_two_level_report.md",
+      "bytes": 389,
+      "sha256": "44ecdccfe7488a5fd3c2b5ff6860f7847e5709ffb3b61a338b0a61699299b53b"
+    }
+  ],
+  "formalResultCount": 17,
+  "remoteVerified": true,
+  "mergeStatus": "NOT_MERGED",
+  "balancedWeights": null
+}

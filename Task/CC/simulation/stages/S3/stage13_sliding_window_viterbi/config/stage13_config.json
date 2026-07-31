@@ -1,0 +1,1 @@
+{"schemaVersion":"cc.stage13.config.v1","windowInputBits":[64,96,128,192],"slideStepBits":[25,50,100],"tracebackDepthBits":70,"initialWarmupBits":70,"finalFlushPolicy":"known_zero_terminated_state","stateMetricCarryPolicy":"carry_normalized_metrics","puncturePhaseCarryPolicy":"continuous_from_stage12"}

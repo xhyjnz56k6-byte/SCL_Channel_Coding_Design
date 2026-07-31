@@ -1,0 +1,6 @@
+check,status
+point_formula_check,PASS
+case_count,6
+figure_count,2
+soft_not_worse_than_hard,PASS
+stage_gate,PASS_STAGE08_CC_AWGN_PRESCAN

@@ -1,0 +1,5 @@
+scheme,slotBits,slotCount,decoder
+A_BLOCK_ZERO_TAIL,300,1,full_block_soft
+B_CONT_50x6,50,6,window96_slide25_dtb70_soft
+C_CONT_100x3,100,3,window96_slide25_dtb70_soft
+D_CONT_150x2,150,2,window96_slide25_dtb70_soft

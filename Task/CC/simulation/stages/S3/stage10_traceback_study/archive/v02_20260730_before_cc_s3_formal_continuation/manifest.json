@@ -1,0 +1,131 @@
+{
+  "stage": "stage10_traceback_study",
+  "branch": "stage01-cc",
+  "status": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content1",
+      "baseCommit": "23fd8445a629ebd89c44949612bf40c09a071dd3",
+      "contentCommit": "79232996798c9f6a7bb2809fc9806d6880ecaf65",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/process_stage10_revision.py",
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/src/stage10_traceback_study_runner.cpp"
+      ]
+    },
+    {
+      "name": "content2",
+      "baseCommit": "e87c5ff2d4baf4c5535ddd8de2c435c9d08aa536",
+      "contentCommit": "590410dad9e9edbbec35b9339bb5a80867814d18",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage10_traceback_study/scripts/check_stage10.py"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE10_REVISION",
+  "formalResults": [
+    {
+      "path": "results/stage10_d84_window_revalidation.csv",
+      "bytes": 24381,
+      "sha256": "80021c649abfbae73c57f10d52b556e06783c2f92183f7d86d9d72a8f20210c2"
+    },
+    {
+      "path": "results/stage10_d84_window_revalidation.md",
+      "bytes": 1364,
+      "sha256": "77b92a4ae5f6e894703d3f10af02491ec8627410801d492e5d4d9e7424135671"
+    },
+    {
+      "path": "results/stage10_memory_reliability_tradeoff.png",
+      "bytes": 43895,
+      "sha256": "c4c2c7fbed07aad949468f10b1f7cd72e85cb0ece8e69cebf6e6031221d1f406"
+    },
+    {
+      "path": "results/stage10_memory_reliability_tradeoff_figure_data.csv",
+      "bytes": 371,
+      "sha256": "f1d25c834f34ca1c2271e9bc20b936c2191c9a9a4d303c302545cd3b4b07982a"
+    },
+    {
+      "path": "results/stage10_selected_snr_by_fer_level.csv",
+      "bytes": 1234,
+      "sha256": "1c7e9031fb8462d394079aa661501f9bd308701aa2fa76d02820c8d63256ba1a"
+    },
+    {
+      "path": "results/stage10_traceback_ber.png",
+      "bytes": 91378,
+      "sha256": "930f59885c205cec42bbe1a2e5e72c44740f37dc1de123394de93f4ca9191053"
+    },
+    {
+      "path": "results/stage10_traceback_ber_figure_data.csv",
+      "bytes": 31654,
+      "sha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610"
+    },
+    {
+      "path": "results/stage10_traceback_cpu_latency.png",
+      "bytes": 147573,
+      "sha256": "9b2efbf5594871b0dd14156a15f31825a80ea2450c9ee0ba82cb12cde9edf5a8"
+    },
+    {
+      "path": "results/stage10_traceback_cpu_latency_figure_data.csv",
+      "bytes": 31654,
+      "sha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610"
+    },
+    {
+      "path": "results/stage10_traceback_fer.png",
+      "bytes": 100136,
+      "sha256": "78093a790e694b512e0e5543a3093f9a9156735c4268958c0589c79def1dec58"
+    },
+    {
+      "path": "results/stage10_traceback_fer_figure_data.csv",
+      "bytes": 31654,
+      "sha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610"
+    },
+    {
+      "path": "results/stage10_traceback_memory.png",
+      "bytes": 49963,
+      "sha256": "87aef69cb7db37d3c74536b228f75545c1c132716a8c3e126832af891b5b3911"
+    },
+    {
+      "path": "results/stage10_traceback_memory_figure_data.csv",
+      "bytes": 4203,
+      "sha256": "3a3ecf6b89e6aeb9472a558dbba65db3d3ca3e1fd5f4ed3ce6e7563fbb1d8d1f"
+    },
+    {
+      "path": "results/stage10_traceback_plot_check.md",
+      "bytes": 157,
+      "sha256": "474587bc3cb63f1f84be14574f6e9481f39b4e549c274dd1eccc97e060a9c66e"
+    },
+    {
+      "path": "results/stage10_traceback_plot_manifest.json",
+      "bytes": 2234,
+      "sha256": "5ba06d00624921b69dd2a40c2733ce27f8140c836696f8dbf6c5af21969b932c"
+    },
+    {
+      "path": "results/stage10_traceback_recommendation.csv",
+      "bytes": 808,
+      "sha256": "94f2ab1f7e5a5a1260d7c00878f3976366113502e40019e042effc147e52b518"
+    },
+    {
+      "path": "results/stage10_traceback_relative_fer_loss.png",
+      "bytes": 122962,
+      "sha256": "9e6ce42a65ea7f549384fa7030392cb7d86082d38286e514d3d821f0e903a045"
+    },
+    {
+      "path": "results/stage10_traceback_relative_fer_loss_figure_data.csv",
+      "bytes": 31654,
+      "sha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610"
+    },
+    {
+      "path": "results/stage10_traceback_report.md",
+      "bytes": 305,
+      "sha256": "faa18de6809585f6248b874185b148460a51902ccb6303ceb9f5d3483e4dcb3d"
+    },
+    {
+      "path": "results/stage10_traceback_study_results.csv",
+      "bytes": 36370,
+      "sha256": "fdc0c02ee263df0ef5c8e3b5690f190a58fe6fc6fa88a1c5fbe2768f98cd934d"
+    }
+  ],
+  "formalResultCount": 20,
+  "remoteVerified": true,
+  "mergeStatus": "NOT_MERGED",
+  "balancedWeights": null
+}

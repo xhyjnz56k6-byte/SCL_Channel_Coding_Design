@@ -1,0 +1,8 @@
+parameter,value,semantics
+framesPerCase,100,noiseless_random
+caseCount,6,three_rates_two_decoders
+R12Ntransmitted,612,bit
+R23Ntransmitted,459,bit
+R34Ntransmitted,408,bit
+payloadMismatchRequired,0,bit_and_frame
+nonFiniteRequired,0,count

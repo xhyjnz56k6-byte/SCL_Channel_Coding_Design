@@ -1,0 +1,731 @@
+diff --git a/Task/CC/block/current/include/cc/hard_viterbi.hpp b/Task/CC/block/current/include/cc/hard_viterbi.hpp
+index 78b2df89..6e95b4f4 100644
+--- a/Task/CC/block/current/include/cc/hard_viterbi.hpp
++++ b/Task/CC/block/current/include/cc/hard_viterbi.hpp
+@@ -31,0 +32,8 @@ public:
++    HardViterbiResult decode_terminated_masked(
++        const std::vector<std::uint8_t>& expanded_bits,
++        const std::vector<std::uint8_t>& observed_mask,
++        std::size_t codec_input_length,
++        std::size_t tail_length = kMemory,
++        std::uint8_t initial_state = 0,
++        std::uint8_t final_state = 0) const;
++
+diff --git a/Task/CC/block/current/include/cc/soft_viterbi.hpp b/Task/CC/block/current/include/cc/soft_viterbi.hpp
+index b1c72330..a95cf42e 100644
+--- a/Task/CC/block/current/include/cc/soft_viterbi.hpp
++++ b/Task/CC/block/current/include/cc/soft_viterbi.hpp
+@@ -31,0 +32,8 @@ public:
++    SoftViterbiResult decode_terminated_masked_symbols(
++        const std::vector<double>& expanded_symbols,
++        const std::vector<std::uint8_t>& observed_mask,
++        std::size_t codec_input_length,
++        std::size_t tail_length = kMemory,
++        std::uint8_t initial_state = 0,
++        std::uint8_t final_state = 0) const;
++
+diff --git a/Task/CC/block/current/src/hard_viterbi.cpp b/Task/CC/block/current/src/hard_viterbi.cpp
+index 4e10cdb4..ee0add48 100644
+--- a/Task/CC/block/current/src/hard_viterbi.cpp
++++ b/Task/CC/block/current/src/hard_viterbi.cpp
+@@ -48,0 +49,16 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
++    return decode_terminated_masked(
++        received_bits,
++        std::vector<std::uint8_t>(received_bits.size(), 1),
++        codec_input_length,
++        tail_length,
++        initial_state,
++        final_state);
++}
++
++HardViterbiResult HardViterbiDecoder::decode_terminated_masked(
++    const std::vector<std::uint8_t>& received_bits,
++    const std::vector<std::uint8_t>& observed_mask,
++    const std::size_t codec_input_length,
++    const std::size_t tail_length,
++    const std::uint8_t initial_state,
++    const std::uint8_t final_state) const {
+@@ -57,0 +74,3 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
++    if (observed_mask.size() != received_bits.size()) {
++        throw std::invalid_argument("hard Viterbi observed mask length mismatch");
++    }
+@@ -62,0 +82,5 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
++    for (const auto mask : observed_mask) {
++        if (mask > 1) {
++            throw std::invalid_argument("hard Viterbi observed mask is not binary");
++        }
++    }
+@@ -85,2 +109,2 @@ HardViterbiResult HardViterbiDecoder::decode_terminated_mother(
+-                    static_cast<std::int32_t>(observed0 != branch.output_bits[0]) +
+-                    static_cast<std::int32_t>(observed1 != branch.output_bits[1]);
++                    static_cast<std::int32_t>(observed_mask[2 * time] != 0 && observed0 != branch.output_bits[0]) +
++                    static_cast<std::int32_t>(observed_mask[2 * time + 1] != 0 && observed1 != branch.output_bits[1]);
+diff --git a/Task/CC/block/current/src/soft_viterbi.cpp b/Task/CC/block/current/src/soft_viterbi.cpp
+index 82c7fb04..71fdc030 100644
+--- a/Task/CC/block/current/src/soft_viterbi.cpp
++++ b/Task/CC/block/current/src/soft_viterbi.cpp
+@@ -51,0 +52,16 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
++    return decode_terminated_masked_symbols(
++        received_symbols,
++        std::vector<std::uint8_t>(received_symbols.size(), 1),
++        codec_input_length,
++        tail_length,
++        initial_state,
++        final_state);
++}
++
++SoftViterbiResult SoftViterbiDecoder::decode_terminated_masked_symbols(
++    const std::vector<double>& received_symbols,
++    const std::vector<std::uint8_t>& observed_mask,
++    const std::size_t codec_input_length,
++    const std::size_t tail_length,
++    const std::uint8_t initial_state,
++    const std::uint8_t final_state) const {
+@@ -60,0 +77,3 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
++    if (observed_mask.size() != received_symbols.size()) {
++        throw std::invalid_argument("soft Viterbi observed mask length mismatch");
++    }
+@@ -65,0 +85,5 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
++    for (auto mask : observed_mask) {
++        if (mask > 1) {
++            throw std::invalid_argument("soft Viterbi observed mask is not binary");
++        }
++    }
+@@ -90 +114,4 @@ SoftViterbiResult SoftViterbiDecoder::decode_terminated_symbols(
+-                const double candidate = metrics[state] + d0 * d0 + d1 * d1;
++                const double candidate =
++                    metrics[state] +
++                    (observed_mask[2 * time] != 0 ? d0 * d0 : 0.0) +
++                    (observed_mask[2 * time + 1] != 0 ? d1 * d1 : 0.0);
+diff --git a/Task/CC/shared/include/cc/puncturing.hpp b/Task/CC/shared/include/cc/puncturing.hpp
+new file mode 100644
+index 00000000..44ef69ba
+--- /dev/null
++++ b/Task/CC/shared/include/cc/puncturing.hpp
+@@ -0,0 +1,50 @@
++#pragma once
++
++#include <cstddef>
++#include <cstdint>
++#include <string>
++#include <vector>
++
++namespace scl::cc {
++
++struct PuncturePattern {
++    std::string id;
++    std::vector<std::uint8_t> keep_mask;
++};
++
++struct PuncturedBits {
++    std::vector<std::uint8_t> bits;
++    std::size_t mother_length = 0;
++    std::size_t punctured_length = 0;
++    std::size_t final_phase = 0;
++};
++
++struct DepuncturedHard {
++    std::vector<std::uint8_t> expanded_bits;
++    std::vector<std::uint8_t> observed_mask;
++    std::size_t final_phase = 0;
++};
++
++struct DepuncturedSoft {
++    std::vector<double> expanded_values;
++    std::vector<std::uint8_t> observed_mask;
++    std::size_t final_phase = 0;
++};
++
++void validate_puncture_pattern(const PuncturePattern& pattern);
++PuncturedBits puncture_bits(
++    const std::vector<std::uint8_t>& mother_bits,
++    const PuncturePattern& pattern,
++    std::size_t initial_phase = 0);
++DepuncturedHard depuncture_hard(
++    const std::vector<std::uint8_t>& transmitted_bits,
++    std::size_t mother_length,
++    const PuncturePattern& pattern,
++    std::size_t initial_phase = 0);
++DepuncturedSoft depuncture_soft(
++    const std::vector<double>& transmitted_values,
++    std::size_t mother_length,
++    const PuncturePattern& pattern,
++    std::size_t initial_phase = 0);
++
++}  // namespace scl::cc
+diff --git a/Task/CC/shared/src/puncturing.cpp b/Task/CC/shared/src/puncturing.cpp
+new file mode 100644
+index 00000000..afc18beb
+--- /dev/null
++++ b/Task/CC/shared/src/puncturing.cpp
+@@ -0,0 +1,105 @@
++#include "cc/puncturing.hpp"
++
++#include <cmath>
++#include <stdexcept>
++
++namespace scl::cc {
++
++void validate_puncture_pattern(const PuncturePattern& pattern) {
++    if (pattern.id.empty() || pattern.keep_mask.empty() || pattern.keep_mask.size() % 2 != 0) {
++        throw std::invalid_argument("puncture pattern id/mask is invalid");
++    }
++    bool retained = false;
++    for (auto value : pattern.keep_mask) {
++        if (value > 1) {
++            throw std::invalid_argument("puncture mask is not binary");
++        }
++        retained = retained || value == 1;
++    }
++    if (!retained) {
++        throw std::invalid_argument("puncture pattern removes every bit");
++    }
++}
++
++PuncturedBits puncture_bits(
++    const std::vector<std::uint8_t>& mother_bits,
++    const PuncturePattern& pattern,
++    const std::size_t initial_phase) {
++    validate_puncture_pattern(pattern);
++    for (auto bit : mother_bits) {
++        if (bit > 1) {
++            throw std::invalid_argument("mother code contains non-binary value");
++        }
++    }
++    PuncturedBits result;
++    result.mother_length = mother_bits.size();
++    result.bits.reserve(mother_bits.size());
++    std::size_t phase = initial_phase % pattern.keep_mask.size();
++    for (auto bit : mother_bits) {
++        if (pattern.keep_mask[phase] != 0) {
++            result.bits.push_back(bit);
++        }
++        phase = (phase + 1) % pattern.keep_mask.size();
++    }
++    result.punctured_length = mother_bits.size() - result.bits.size();
++    result.final_phase = phase;
++    return result;
++}
++
++DepuncturedHard depuncture_hard(
++    const std::vector<std::uint8_t>& transmitted_bits,
++    const std::size_t mother_length,
++    const PuncturePattern& pattern,
++    const std::size_t initial_phase) {
++    validate_puncture_pattern(pattern);
++    DepuncturedHard result;
++    result.expanded_bits.assign(mother_length, 0);
++    result.observed_mask.assign(mother_length, 0);
++    std::size_t source = 0;
++    std::size_t phase = initial_phase % pattern.keep_mask.size();
++    for (std::size_t index = 0; index < mother_length; ++index) {
++        if (pattern.keep_mask[phase] != 0) {
++            if (source >= transmitted_bits.size() || transmitted_bits[source] > 1) {
++                throw std::invalid_argument("hard depuncture source length/value mismatch");
++            }
++            result.expanded_bits[index] = transmitted_bits[source++];
++            result.observed_mask[index] = 1;
++        }
++        phase = (phase + 1) % pattern.keep_mask.size();
++    }
++    if (source != transmitted_bits.size()) {
++        throw std::invalid_argument("hard depuncture has unused source bits");
++    }
++    result.final_phase = phase;
++    return result;
++}
++
++DepuncturedSoft depuncture_soft(
++    const std::vector<double>& transmitted_values,
++    const std::size_t mother_length,
++    const PuncturePattern& pattern,
++    const std::size_t initial_phase) {
++    validate_puncture_pattern(pattern);
++    DepuncturedSoft result;
++    result.expanded_values.assign(mother_length, 0.0);
++    result.observed_mask.assign(mother_length, 0);
++    std::size_t source = 0;
++    std::size_t phase = initial_phase % pattern.keep_mask.size();
++    for (std::size_t index = 0; index < mother_length; ++index) {
++        if (pattern.keep_mask[phase] != 0) {
++            if (source >= transmitted_values.size() || !std::isfinite(transmitted_values[source])) {
++                throw std::invalid_argument("soft depuncture source length/value mismatch");
++            }
++            result.expanded_values[index] = transmitted_values[source++];
++            result.observed_mask[index] = 1;
++        }
++        phase = (phase + 1) % pattern.keep_mask.size();
++    }
++    if (source != transmitted_values.size()) {
++        throw std::invalid_argument("soft depuncture has unused source values");
++    }
++    result.final_phase = phase;
++    return result;
++}
++
++}  // namespace scl::cc
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/CMakeLists.txt b/Task/CC/simulation/stages/S3/stage06_puncturing/CMakeLists.txt
+new file mode 100644
+index 00000000..e82a4585
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/CMakeLists.txt
+@@ -0,0 +1,24 @@
++cmake_minimum_required(VERSION 3.20)
++project(stage06_puncturing LANGUAGES CXX)
++set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD_REQUIRED ON)
++set(CMAKE_CXX_EXTENSIONS OFF)
++set(CC_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../../..")
++add_executable(stage06_puncturing_tests
++    tests/test_stage06_puncturing.cpp
++    "${CC_ROOT}/shared/src/trellis.cpp"
++    "${CC_ROOT}/shared/src/puncturing.cpp"
++    "${CC_ROOT}/block/current/src/block_encoder.cpp"
++    "${CC_ROOT}/block/current/src/hard_viterbi.cpp"
++    "${CC_ROOT}/block/current/src/soft_viterbi.cpp"
++)
++target_include_directories(stage06_puncturing_tests PRIVATE
++    "${CC_ROOT}/shared/include" "${CC_ROOT}/block/current/include")
++if(NOT MSVC)
++    target_compile_options(stage06_puncturing_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
++endif()
++enable_testing()
++add_test(
++    NAME stage06_puncturing_tests
++    COMMAND stage06_puncturing_tests "${CMAKE_CURRENT_LIST_DIR}/results"
++)
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/commands_used.md b/Task/CC/simulation/stages/S3/stage06_puncturing/commands_used.md
+new file mode 100644
+index 00000000..3eaee83d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/commands_used.md
+@@ -0,0 +1,7 @@
++# Stage06 命令
++
++```powershell
++python Task/CC/simulation/stages/S3/stage06_puncturing/scripts/run_stage06.py --clean
++matlab -batch "run('.../stage06_puncturing/matlab/stage06_matlab_reference.m')"
++python Task/CC/simulation/stages/S3/stage06_puncturing/scripts/run_stage06.py
++```
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/config/stage06_config.json b/Task/CC/simulation/stages/S3/stage06_puncturing/config/stage06_config.json
+new file mode 100644
+index 00000000..2fb270c0
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/config/stage06_config.json
+@@ -0,0 +1 @@
++{"schemaVersion":"cc.stage06.config.v1","candidateFrames":120,"noiseSigma":0.70,"seed":2026072005,"patterns":{"R23_A_1110":"1110","R23_B_1101":"1101","R34_A_111001":"111001","R34_B_110110":"110110"}}
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/frozen_config.csv b/Task/CC/simulation/stages/S3/stage06_puncturing/frozen_config.csv
+new file mode 100644
+index 00000000..1fbfee11
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/frozen_config.csv
+@@ -0,0 +1,10 @@
++parameter,value,semantics
++motherLength,612,bit
++R23TransmittedLength,459,bit
++R23ActualRate,0.6535947712418301,300/459
++R34TransmittedLength,408,bit
++R34ActualRate,0.7352941176470589,300/408
++softMissingValue,0.0,neutral_excluded_by_mask
++hardMissingPolicy,observed_mask,never_real_zero
++tailPhasePolicy,continue,not_restart
++slotPhasePolicy,carry,not_restart
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/include/README.md b/Task/CC/simulation/stages/S3/stage06_puncturing/include/README.md
+new file mode 100644
+index 00000000..eb509def
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/include/README.md
+@@ -0,0 +1,3 @@
++# include
++
++生产接口位于 `Task/CC/shared/include/cc/puncturing.hpp`。
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/known_issues.md b/Task/CC/simulation/stages/S3/stage06_puncturing/known_issues.md
+new file mode 100644
+index 00000000..d794a8a7
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/known_issues.md
+@@ -0,0 +1,4 @@
++# Stage06 已知问题
++
++- 120 帧/候选的固定 AWGN 仅用于候选选择，不是正式曲线。
++- 最终正式 waterfall 范围由 Stage08 冻结。
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/length_rate_audit.csv b/Task/CC/simulation/stages/S3/stage06_puncturing/length_rate_audit.csv
+new file mode 100644
+index 00000000..058f57af
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/length_rate_audit.csv
+@@ -0,0 +1,6 @@
++patternId,K_payload,K_codec_input,N_mother,N_transmitted,puncturedLength,actualRate
++MOTHER_R12,300,306,612,612,0,0.49019607843137253
++R23_A_1110,300,306,612,459,153,0.6535947712418301
++R23_B_1101,300,306,612,459,153,0.6535947712418301
++R34_A_111001,300,306,612,408,204,0.7352941176470589
++R34_B_110110,300,306,612,408,204,0.7352941176470589
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/matlab/stage06_matlab_reference.m b/Task/CC/simulation/stages/S3/stage06_puncturing/matlab/stage06_matlab_reference.m
+new file mode 100644
+index 00000000..053decda
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/matlab/stage06_matlab_reference.m
+@@ -0,0 +1,32 @@
++stageDir=fileparts(fileparts(mfilename('fullpath')));
++inPath=fullfile(stageDir,'results','stage06_puncturing_cpp_matlab_vectors.csv');
++outPath=fullfile(stageDir,'results','stage06_puncturing_matlab_comparison.csv');
++opts=detectImportOptions(inPath,'TextType','string','Delimiter',',');
++opts=setvartype(opts,{'patternId','keepMask','payloadBits','puncturedBits','hardDecodedPayload','softDecodedPayload'},'string');
++t=readtable(inPath,opts);
++trellis=poly2trellis(7,[171 133]);
++punctureMismatch=zeros(height(t),1);
++hardPayloadMismatch=zeros(height(t),1);
++softPayloadMismatch=zeros(height(t),1);
++for row=1:height(t)
++    payload=double(char(t.payloadBits(row)))-double('0');
++    codec=[payload zeros(1,6)];
++    mother=convenc(codec,trellis);
++    pattern=double(char(t.keepMask(row)))-double('0');
++    repeated=repmat(pattern,1,ceil(length(mother)/length(pattern)));
++    matlabPunctured=mother(logical(repeated(1:length(mother))));
++    cppPunctured=double(char(t.puncturedBits(row)))-double('0');
++    punctureMismatch(row)=sum(matlabPunctured~=cppPunctured);
++    hardDecoded=vitdec(matlabPunctured,trellis,35,'term','hard',pattern');
++    softInput=1-2*matlabPunctured;
++    softDecoded=vitdec(softInput,trellis,35,'term','unquant',pattern');
++    hardPayloadMismatch(row)=sum(hardDecoded(1:300)~=payload);
++    softPayloadMismatch(row)=sum(softDecoded(1:300)~=payload);
++end
++status=repmat("PASS",height(t),1);
++status(punctureMismatch~=0|hardPayloadMismatch~=0|softPayloadMismatch~=0)="FAIL";
++comparison=table(t.patternId,punctureMismatch,hardPayloadMismatch,softPayloadMismatch,status, ...
++    'VariableNames',{'patternId','punctureMismatch','hardPayloadMismatch','softPayloadMismatch','status'});
++writetable(comparison,outPath);
++if any(status~="PASS"), error('Stage06 MATLAB puncture mismatch'); end
++disp('PASS_STAGE06_MATLAB_PUNCTURING');
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_candidates.md b/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_candidates.md
+new file mode 100644
+index 00000000..52a7d8ea
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_candidates.md
+@@ -0,0 +1,12 @@
++# 打孔候选
++
++mask 按 `g1(t0),g2(t0),g1(t1),g2(t1)...` 串行顺序。
++
++| ID | 目标码率 | 周期 | mask | 两路长期保留 |
++|---|---|---:|---|---|
++| R23_A_1110 | 2/3 | 4 | 1110 | g1=2/2，g2=1/2 |
++| R23_B_1101 | 2/3 | 4 | 1101 | g1=1/2，g2=2/2 |
++| R34_A_111001 | 3/4 | 6 | 111001 | g1=2/3，g2=2/3 |
++| R34_B_110110 | 3/4 | 6 | 110110 | g1=2/3，g2=2/3 |
++
++尾部继续当前周期；连续 slot 携带相位。不存在某一路长期完全缺失。
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_patterns.csv b/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_patterns.csv
+new file mode 100644
+index 00000000..ad26816f
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_patterns.csv
+@@ -0,0 +1,5 @@
++patternId,targetRate,periodMotherBits,keepMask,keepCount,status
++R23_A_1110,2/3,4,1110,3,CANDIDATE
++R23_B_1101,2/3,4,1101,3,SELECTED
++R34_A_111001,3/4,6,111001,4,CANDIDATE
++R34_B_110110,3/4,6,110110,4,SELECTED
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_selection_report.md b/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_selection_report.md
+new file mode 100644
+index 00000000..be8ae8c4
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/puncture_selection_report.md
+@@ -0,0 +1,25 @@
++# 打孔图样选择报告
++
++## 冻结结果
++
++- 2/3：`R23_B_1101`，串行 mask `1101`
++- 3/4：`R34_B_110110`，串行 mask `110110`
++
++mask 均从独立帧的 mother bit index 0 开始，尾 bit 区域继续当前周期；连续 slot 不重启相位。
++
++## 正确性
++
++四个候选各执行 120 个 300-bit 随机无噪声帧，hard/soft 全部逐 bit 恢复。MATLAB 对每个候选验证打孔输出、terminated hard `vitdec` 和 unquantized soft `vitdec`，mismatch 均为 0。
++
++## 小规模 AWGN 选择
++
++固定 `sigma=0.70`，每候选 120 帧，hard/soft 共享 receivedSymbols。该点用于放大候选差异，不是正式性能结论。
++
++| pattern | hard frame errors | soft frame errors |
++|---|---:|---:|
++| R23_A_1110 | 119 | 64 |
++| R23_B_1101 | 119 | 55 |
++| R34_A_111001 | 120 | 110 |
++| R34_B_110110 | 120 | 108 |
++
++选择规则依次比较 soft 错误帧、hard 错误帧、稳定 ID。因而冻结 B 图样。此选择只适用于当前 K=7、171/133、300-bit 零尾基准；Stage08 仍需在合理 waterfall 范围验证总体性能。
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_candidate_prescan.csv b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_candidate_prescan.csv
+new file mode 100644
+index 00000000..7dbefd21
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_candidate_prescan.csv
+@@ -0,0 +1,5 @@
++patternId,frames,hardFrameErrors,softFrameErrors,N_mother,N_transmitted,actualRate
++R23_A_1110,120,119,64,612,459,0.653595
++R23_B_1101,120,119,55,612,459,0.653595
++R34_A_111001,120,120,110,612,408,0.735294
++R34_B_110110,120,120,108,612,408,0.735294
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_cpp_matlab_vectors.csv b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_cpp_matlab_vectors.csv
+new file mode 100644
+index 00000000..fa492c55
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_cpp_matlab_vectors.csv
+@@ -0,0 +1,5 @@
++patternId,keepMask,payloadBits,puncturedBits,hardDecodedPayload,softDecodedPayload
++R23_A_1110,1110,001101101000001111011010101101010111010000110011000000100111000100011111111110110101011011101011101101001000111111010001110000101010110011010010110110101000001011101110111010011001101011010100010000011101110101110100100000010100011110110101011010110101101101100111010001001011100001010100100101001010,000110011100011100110000100101001011011111101100111110110000011101010000111110101111110011010100000111000010001111110010110100111111100110000100011001110101100100110010010000110010000100101010000000111100110110011100010011010011011001110001001101001000001000000011100110001000010101100110100110110010011101110000001000110000100100000111100011100000011100110100111111101010101100001100000010101000011000010110001010101111100010010000010101100101010011111110110,001101101000001111011010101101010111010000110011000000100111000100011111111110110101011011101011101101001000111111010001110000101010110011010010110110101000001011101110111010011001101011010100010000011101110101110100100000010100011110110101011010110101101101100111010001001011100001010100100101001010,001101101000001111011010101101010111010000110011000000100111000100011111111110110101011011101011101101001000111111010001110000101010110011010010110110101000001011101110111010011001101011010100010000011101110101110100100000010100011110110101011010110101101101100111010001001011100001010100100101001010
++R23_B_1101,1101,010111111011011101101100000000010100001011000011100001000111111111000111011010011101110110111111111000111000010001101011110100101101000011000011100100011001001001100010011001101001101001101111100010001101010010111100011110000010011011101001011110110011110110101111101010010000011011110110101010101111,001100100000000010111011000111011000001101000001100011101101000011001010100000101011111001011001111000011111101111010100101011110000111011111100111110101011010000101011111000111010010010111101011010100011100010111010100001001001000000111110101010111100000010110001001100100001100100000111101101010001110101011110011011100011011111010011100000110010000110000010011010001100110110000100001010010010101011101001010000010011110111010001010011110110111010011010101,010111111011011101101100000000010100001011000011100001000111111111000111011010011101110110111111111000111000010001101011110100101101000011000011100100011001001001100010011001101001101001101111100010001101010010111100011110000010011011101001011110110011110110101111101010010000011011110110101010101111,010111111011011101101100000000010100001011000011100001000111111111000111011010011101110110111111111000111000010001101011110100101101000011000011100100011001001001100010011001101001101001101111100010001101010010111100011110000010011011101001011110110011110110101111101010010000011011110110101010101111
++R34_A_111001,111001,010110000100111100000001101000011110010100101111000011111001011100010000100100010111000100111100000100000101011100101110011010100101101010000100011110111001000011110011100100010110110011111001001110100010000101001110011011110001100101001101111011000111110000001001111110000010101100110111010000100000,001000110101010100011011011011010101011111101000011010110101011001011000100111100011101110000010100100100011111011100100000110110110001111010010010101110100011111011101011001010100100100111001111001001000001100000010100001110000010100111111100010100011111000010111110101010010100001111011000111001111010111100010101110001011011011101011010110001011101001100100100010000000111111010011000001011001110111000000,010110000100111100000001101000011110010100101111000011111001011100010000100100010111000100111100000100000101011100101110011010100101101010000100011110111001000011110011100100010110110011111001001110100010000101001110011011110001100101001101111011000111110000001001111110000010101100110111010000100000,010110000100111100000001101000011110010100101111000011111001011100010000100100010111000100111100000100000101011100101110011010100101101010000100011110111001000011110011100100010110110011111001001110100010000101001110011011110001100101001101111011000111110000001001111110000010101100110111010000100000
++R34_B_110110,110110,011111101001000101010011101110100010111111111100111101001110010000100001110111100011110110011100010101000101101100110110100011111001111001011011000000100110110000101010000110000010101110010100011110101110110000011101101100000111100110010111011010111010010101101100110101011101001110100110011001001000,001010100000111101001111010000111111110000000101110100001111110110101001111110100010010010111101100111101110011101111001101000101010111000010011101101011101000001010100011011011101101100000100000001011101001000001000011001000001100000101001001011111110100110000111101100110011100010001001111001010011001101001011110110111101111101001100010001001101010111010010111101100011101011001000110011101111100000110000,011111101001000101010011101110100010111111111100111101001110010000100001110111100011110110011100010101000101101100110110100011111001111001011011000000100110110000101010000110000010101110010100011110101110110000011101101100000111100110010111011010111010010101101100110101011101001110100110011001001000,011111101001000101010011101110100010111111111100111101001110010000100001110111100011110110011100010101000101101100110110100011111001111001011011000000100110110000101010000110000010101110010100011110101110110000011101101100000111100110010111011010111010010101101100110101011101001110100110011001001000
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_matlab_comparison.csv b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_matlab_comparison.csv
+new file mode 100644
+index 00000000..96e82af1
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_matlab_comparison.csv
+@@ -0,0 +1,5 @@
++patternId,punctureMismatch,hardPayloadMismatch,softPayloadMismatch,status
++R23_A_1110,0,0,0,PASS
++R23_B_1101,0,0,0,PASS
++R34_A_111001,0,0,0,PASS
++R34_B_110110,0,0,0,PASS
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_results_scope.md b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_results_scope.md
+new file mode 100644
+index 00000000..bbddb092
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_results_scope.md
+@@ -0,0 +1,3 @@
++# 结果目录
++
++保存候选固定向量、长度/码率、AWGN 小预扫、MATLAB mismatch 和选择摘要。
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_selection.json b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_selection.json
+new file mode 100644
+index 00000000..a31d4864
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_selection.json
+@@ -0,0 +1,4 @@
++{
++  "2/3": "R23_B_1101",
++  "3/4": "R34_B_110110"
++}
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_test_summary.csv b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_test_summary.csv
+new file mode 100644
+index 00000000..30f9b084
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_test_summary.csv
+@@ -0,0 +1,7 @@
++check,status
++noiseless_four_patterns_480_frames,PASS
++phase_carry,PASS
++matlab_four_patterns,PASS
++selectedR23,R23_B_1101
++selectedR34,R34_B_110110
++stage_gate,PASS_STAGE06_CC_PUNCTURING
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/scripts/run_stage06.py b/Task/CC/simulation/stages/S3/stage06_puncturing/scripts/run_stage06.py
+new file mode 100644
+index 00000000..26deda8a
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/scripts/run_stage06.py
+@@ -0,0 +1,32 @@
++#!/usr/bin/env python3
++from __future__ import annotations
++import csv, json, shutil, subprocess, sys
++from pathlib import Path
++def run(c,cwd): print("+"," ".join(c)); subprocess.run(c,cwd=cwd,check=True)
++def main():
++    stage=Path(__file__).resolve().parents[1]; build=stage/"build"; results=stage/"results"
++    if "--clean" in sys.argv and build.exists(): shutil.rmtree(build)
++    results.mkdir(parents=True,exist_ok=True)
++    run(["cmake","-S",str(stage),"-B",str(build),"-G","MinGW Makefiles","-DCMAKE_BUILD_TYPE=Release"],stage)
++    run(["cmake","--build",str(build),"--parallel"],stage)
++    run(["ctest","--test-dir",str(build),"--output-on-failure"],stage)
++    matlab=results/"stage06_puncturing_matlab_comparison.csv"
++    if matlab.is_file():
++        with matlab.open(encoding="utf-8",newline="") as h: rows=list(csv.DictReader(h))
++        if len(rows)!=4 or any(r["status"]!="PASS" for r in rows): raise RuntimeError("MATLAB mismatch")
++        with (results/"stage06_puncturing_candidate_prescan.csv").open(encoding="utf-8",newline="") as h:
++            stats=list(csv.DictReader(h))
++        chosen={}
++        for rate,prefix in (("2/3","R23_"),("3/4","R34_")):
++            candidates=[r for r in stats if r["patternId"].startswith(prefix)]
++            best=min(candidates,key=lambda r:(int(r["softFrameErrors"]),int(r["hardFrameErrors"]),r["patternId"]))
++            chosen[rate]=best["patternId"]
++        (results/"stage06_puncturing_selection.json").write_text(json.dumps(chosen,indent=2)+"\n",encoding="utf-8")
++        with (results/"stage06_puncturing_test_summary.csv").open("w",encoding="utf-8",newline="") as h:
++            w=csv.writer(h,lineterminator="\n"); w.writerow(["check","status"])
++            w.writerow(["noiseless_four_patterns_480_frames","PASS"])
++            w.writerow(["phase_carry","PASS"]); w.writerow(["matlab_four_patterns","PASS"])
++            w.writerow(["selectedR23",chosen["2/3"]]); w.writerow(["selectedR34",chosen["3/4"]])
++            w.writerow(["stage_gate","PASS_STAGE06_CC_PUNCTURING"])
++    return 0
++if __name__=="__main__": sys.exit(main())
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/src/README.md b/Task/CC/simulation/stages/S3/stage06_puncturing/src/README.md
+new file mode 100644
+index 00000000..07953c2c
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/src/README.md
+@@ -0,0 +1,3 @@
++# src
++
++生产实现位于 `Task/CC/shared/src/puncturing.cpp`，masked Viterbi 位于 block/current。
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/stage_plan.md b/Task/CC/simulation/stages/S3/stage06_puncturing/stage_plan.md
+new file mode 100644
+index 00000000..70b17bfd
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/stage_plan.md
+@@ -0,0 +1,5 @@
++# Stage06 打孔计划
++
++实现/验证 2/3、3/4 候选 mask、soft/hard 中性去打孔、真实长度/码率、尾部和连续相位。以无噪声、固定 AWGN 小预扫和 MATLAB pattern 对照冻结最终图样。
++
++Gate：`PASS_STAGE06_CC_PUNCTURING`
+diff --git a/Task/CC/simulation/stages/S3/stage06_puncturing/tests/test_stage06_puncturing.cpp b/Task/CC/simulation/stages/S3/stage06_puncturing/tests/test_stage06_puncturing.cpp
+new file mode 100644
+index 00000000..15d2c36d
+--- /dev/null
++++ b/Task/CC/simulation/stages/S3/stage06_puncturing/tests/test_stage06_puncturing.cpp
+@@ -0,0 +1,141 @@
++#include "cc/block_encoder.hpp"
++#include "cc/hard_viterbi.hpp"
++#include "cc/puncturing.hpp"
++#include "cc/soft_viterbi.hpp"
++#include "cc/trellis.hpp"
++
++#include <array>
++#include <cstdint>
++#include <cstdlib>
++#include <filesystem>
++#include <fstream>
++#include <iostream>
++#include <random>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace {
++
++void require(bool condition, const char* message) {
++    if (!condition) throw std::runtime_error(message);
++}
++
++std::string bits(const std::vector<std::uint8_t>& values) {
++    std::string text;
++    for (auto value : values) text.push_back(static_cast<char>('0' + value));
++    return text;
++}
++
++std::string mask_text(const std::vector<std::uint8_t>& values) {
++    return bits(values);
++}
++
++struct CandidateStats {
++    std::string id;
++    std::size_t frames = 0;
++    std::size_t hard_errors = 0;
++    std::size_t soft_errors = 0;
++    std::size_t transmitted = 0;
++};
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    try {
++        if (argc != 2) throw std::invalid_argument("expected results directory");
++        const std::filesystem::path results(argv[1]);
++        std::filesystem::create_directories(results);
++        const std::vector<scl::cc::PuncturePattern> patterns = {
++            {"R23_A_1110", {1,1,1,0}},
++            {"R23_B_1101", {1,1,0,1}},
++            {"R34_A_111001", {1,1,1,0,0,1}},
++            {"R34_B_110110", {1,1,0,1,1,0}},
++        };
++        const scl::cc::Trellis trellis;
++        scl::cc::ConvolutionalEncoder encoder(trellis);
++        const scl::cc::HardViterbiDecoder hard(trellis);
++        const scl::cc::SoftViterbiDecoder soft(trellis);
++        std::mt19937 rng(2026072005U);
++        std::normal_distribution<double> noise(0.0, 0.70);
++
++        std::ofstream vectors(results/"stage06_puncturing_cpp_matlab_vectors.csv");
++        vectors << "patternId,keepMask,payloadBits,puncturedBits,hardDecodedPayload,softDecodedPayload\n";
++        std::vector<CandidateStats> stats;
++        for (const auto& pattern : patterns) {
++            scl::cc::validate_puncture_pattern(pattern);
++            CandidateStats stat;
++            stat.id = pattern.id;
++            for (int frame = 0; frame < 120; ++frame) {
++                std::vector<std::uint8_t> payload(300);
++                for (auto& bit : payload) bit = static_cast<std::uint8_t>(rng() & 1U);
++                const auto encoded = encoder.encode_block(payload, true);
++                const auto punctured = scl::cc::puncture_bits(encoded.mother_bits, pattern);
++                stat.transmitted = punctured.bits.size();
++                require(
++                    punctured.bits.size() == (pattern.keep_mask.size() == 4 ? 459U : 408U),
++                    "punctured length mismatch");
++                const auto hard_noiseless =
++                    scl::cc::depuncture_hard(punctured.bits, 612, pattern);
++                const auto hard_clean = hard.decode_terminated_masked(
++                    hard_noiseless.expanded_bits, hard_noiseless.observed_mask, 306);
++                std::vector<double> clean_tx;
++                for (auto bit : punctured.bits) clean_tx.push_back(bit == 0 ? 1.0 : -1.0);
++                const auto soft_noiseless = scl::cc::depuncture_soft(clean_tx, 612, pattern);
++                const auto soft_clean = soft.decode_terminated_masked_symbols(
++                    soft_noiseless.expanded_values, soft_noiseless.observed_mask, 306);
++                require(hard_clean.payload_bits == payload, "hard punctured noiseless mismatch");
++                require(soft_clean.payload_bits == payload, "soft punctured noiseless mismatch");
++                if (frame == 0) {
++                    vectors << pattern.id << ',' << mask_text(pattern.keep_mask) << ','
++                            << bits(payload) << ',' << bits(punctured.bits) << ','
++                            << bits(hard_clean.payload_bits) << ','
++                            << bits(soft_clean.payload_bits) << '\n';
++                }
++
++                std::vector<double> received;
++                std::vector<std::uint8_t> hard_bits;
++                for (auto bit : punctured.bits) {
++                    const double value = (bit == 0 ? 1.0 : -1.0) + noise(rng);
++                    received.push_back(value);
++                    hard_bits.push_back(value >= 0 ? 0 : 1);
++                }
++                const auto hard_dep = scl::cc::depuncture_hard(hard_bits, 612, pattern);
++                const auto soft_dep = scl::cc::depuncture_soft(received, 612, pattern);
++                const auto hard_result = hard.decode_terminated_masked(
++                    hard_dep.expanded_bits, hard_dep.observed_mask, 306);
++                const auto soft_result = soft.decode_terminated_masked_symbols(
++                    soft_dep.expanded_values, soft_dep.observed_mask, 306);
++                ++stat.frames;
++                stat.hard_errors += hard_result.payload_bits != payload;
++                stat.soft_errors += soft_result.payload_bits != payload;
++            }
++            stats.push_back(stat);
++        }
++
++        const std::vector<std::uint8_t> phase_test(37, 1);
++        for (const auto& pattern : patterns) {
++            const auto whole = scl::cc::puncture_bits(phase_test, pattern);
++            const std::vector<std::uint8_t> first(phase_test.begin(), phase_test.begin()+13);
++            const std::vector<std::uint8_t> second(phase_test.begin()+13, phase_test.end());
++            const auto a = scl::cc::puncture_bits(first, pattern);
++            const auto b = scl::cc::puncture_bits(second, pattern, a.final_phase);
++            auto joined = a.bits;
++            joined.insert(joined.end(), b.bits.begin(), b.bits.end());
++            require(joined == whole.bits && b.final_phase == whole.final_phase, "phase carry mismatch");
++        }
++
++        std::ofstream summary(results/"stage06_puncturing_candidate_prescan.csv");
++        summary << "patternId,frames,hardFrameErrors,softFrameErrors,N_mother,N_transmitted,actualRate\n";
++        for (const auto& stat : stats) {
++            summary << stat.id << ',' << stat.frames << ',' << stat.hard_errors << ','
++                    << stat.soft_errors << ",612," << stat.transmitted << ','
++                    << (300.0/static_cast<double>(stat.transmitted)) << '\n';
++        }
++        std::cout << "PASS_STAGE06_CPP_PUNCTURING\n";
++        return EXIT_SUCCESS;
++    } catch (const std::exception& error) {
++        std::cerr << "FAIL_STAGE06_CPP_PUNCTURING: " << error.what() << '\n';
++        return EXIT_FAILURE;
++    }
++}

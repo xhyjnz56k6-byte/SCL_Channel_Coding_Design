@@ -1,0 +1,10 @@
+rateCase,targetFer,selectedSnrDb,observedFer,absoluteFerDifference,sourceCsv,sourceRowId,selectionStatus
+R12,0.3,-1.3999999999999999,0.32979999999999998,0.029799999999999993,stage09_two_level_merged_point_results.csv,dense-014,COVERED
+R12,0.1,-0.59999999999999998,0.081000000000000003,0.019000000000000003,stage09_two_level_merged_point_results.csv,dense-018,COVERED
+R12,0.03,-0.20000000000000001,0.032954358213873783,0.002954358213873784,stage09_two_level_merged_point_results.csv,dense-020,COVERED
+R23,0.3,0.40000000000000002,0.28839999999999999,0.0116,stage09_two_level_merged_point_results.csv,dense-062,COVERED
+R23,0.1,1,0.093200000000000005,0.0068000000000000005,stage09_two_level_merged_point_results.csv,dense-068,COVERED
+R23,0.03,1.5,0.030326004548900682,0.0003260045489006831,stage09_two_level_merged_point_results.csv,dense-073,COVERED
+R34,0.3,1.3,0.29520000000000002,0.004799999999999971,stage09_two_level_merged_point_results.csv,dense-108,COVERED
+R34,0.1,1.8999999999999999,0.096600000000000005,0.0034000000000000002,stage09_two_level_merged_point_results.csv,dense-114,COVERED
+R34,0.03,2.3999999999999999,0.030684258975145751,0.0006842589751457524,stage09_two_level_merged_point_results.csv,dense-119,COVERED

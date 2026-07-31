@@ -1,0 +1,112 @@
+{
+  "sourceFiles": [
+    {
+      "path": "stage13_formal_coarse_results.csv",
+      "sha256": "9f5bb7d3978b06d368aca6558ec04859353079de961ee9b90690b754c6d38606"
+    },
+    {
+      "path": "stage13_formal_dense_results.csv",
+      "sha256": "70ddb46dc085db32944b92ef693e89f8488237b15b3b1a86b442c9d682e9c6e2"
+    },
+    {
+      "path": "stage13_reference_comparison.csv",
+      "sha256": "90f714d3e51a624c3b2fb70bfb745e0aeaa4f8521dca5a5a46bf3c36b4f8c5df"
+    },
+    {
+      "path": "stage13_final_comparison.csv",
+      "sha256": "a3a2d63dad2dfa997c1707510a3a7162dc03d0337e9a92e18e66b16ea2bf42c7"
+    }
+  ],
+  "plots": [
+    {
+      "plot": "stage13_control_w_ber_fer.png",
+      "figureData": "figure_data/stage13_control_w_ber_fer.csv",
+      "plotSha256": "d30a72f1aa371dbf0b77234474a90c7c200aaf1e8727674dad2a7694a4760c55",
+      "figureDataSha256": "8620ef60495cab358de69e09e7088b572fb8f308ec43288b428a092fc3daef50"
+    },
+    {
+      "plot": "stage13_control_s_ber_fer.png",
+      "figureData": "figure_data/stage13_control_s_ber_fer.csv",
+      "plotSha256": "7eb1762b870f11ff6e35d0f7275fee44cc140e58884303eabe5ed95f74269231",
+      "figureDataSha256": "7f57036d1305afc162b7ef1000f2a8355b9278ac7fb0b89bd540e4d17235002a"
+    },
+    {
+      "plot": "stage13_control_d_ber_fer.png",
+      "figureData": "figure_data/stage13_control_d_ber_fer.csv",
+      "plotSha256": "9320ad8e4ff2d3db6831f19cd5643e40563efb270864280d2a773797dc85a7cb",
+      "figureDataSha256": "7006c10d81309a595fd33c63f8bc65d43a186b1444576307beeb61e7ff06879b"
+    },
+    {
+      "plot": "stage13_w_first_output_delay.png",
+      "figureData": "figure_data/stage13_w_first_output_delay.csv",
+      "plotSha256": "295b4a479616b7a45af1217a51114f856a287960895197e6c310a33aa286c002",
+      "figureDataSha256": "8620ef60495cab358de69e09e7088b572fb8f308ec43288b428a092fc3daef50"
+    },
+    {
+      "plot": "stage13_w_actual_memory.png",
+      "figureData": "figure_data/stage13_w_actual_memory.csv",
+      "plotSha256": "4f3279adeab38a805323f9e9e499de153eea0a7b0ba8438efefa94ec40b117bc",
+      "figureDataSha256": "8620ef60495cab358de69e09e7088b572fb8f308ec43288b428a092fc3daef50"
+    },
+    {
+      "plot": "stage13_s_steady_output_interval.png",
+      "figureData": "figure_data/stage13_s_steady_output_interval.csv",
+      "plotSha256": "b1393133c7e3330bd5e1065acd95d03db21215f21785e95e87e964562501e6bc",
+      "figureDataSha256": "7f57036d1305afc162b7ef1000f2a8355b9278ac7fb0b89bd540e4d17235002a"
+    },
+    {
+      "plot": "stage13_d_traceback_operations.png",
+      "figureData": "figure_data/stage13_d_traceback_operations.csv",
+      "plotSha256": "e2ce008dc3f83fa676b6e7426e572c8064a32c04bd798db863a8f96ec090cac0",
+      "figureDataSha256": "9bbfb97fff7177a2de3659236b2d4aeddcbe837af8182308aa4d2680744452f5"
+    },
+    {
+      "plot": "stage13_mismatch_heatmap.png",
+      "figureData": "figure_data/stage13_mismatch_heatmap.csv",
+      "plotSha256": "0f903b07b9b0b0c4bb7edabd452eb33c4b902b534e2ce2f186a2330d8bd793ff",
+      "figureDataSha256": "55084ed43bb13bcf9b76c1b0a1ae1ab5f3b349525041240cb75d663fa9da131b"
+    },
+    {
+      "plot": "stage13_delay_reliability_pareto.png",
+      "figureData": "figure_data/stage13_delay_reliability_pareto.csv",
+      "plotSha256": "5e4cf14dd67140c7f22c0f16b42b5da216f45654d7da42691646877fc3558629",
+      "figureDataSha256": "c464086ee25215c32b56c30c4c094c1987f97a0a5f88c0c520773f8407042c7b"
+    },
+    {
+      "plot": "stage13_memory_reliability_pareto.png",
+      "figureData": "figure_data/stage13_memory_reliability_pareto.csv",
+      "plotSha256": "502f9e122b5bc240a78d61f164bf27bbc2326e47a0ffb7a8fc4be3a5fb089064",
+      "figureDataSha256": "c464086ee25215c32b56c30c4c094c1987f97a0a5f88c0c520773f8407042c7b"
+    },
+    {
+      "plot": "stage13_final_ber_comparison.png",
+      "figureData": "figure_data/stage13_final_ber_comparison.csv",
+      "plotSha256": "f70bfcc4b9b007e40866146d876c194441d4c0ced14aee62bd9c492e09a7705a",
+      "figureDataSha256": "a3a2d63dad2dfa997c1707510a3a7162dc03d0337e9a92e18e66b16ea2bf42c7"
+    },
+    {
+      "plot": "stage13_final_fer_comparison.png",
+      "figureData": "figure_data/stage13_final_fer_comparison.csv",
+      "plotSha256": "e1a7e67353940e1407155a40305dcc6a17336b1168822abd064c306f9661bc5e",
+      "figureDataSha256": "a3a2d63dad2dfa997c1707510a3a7162dc03d0337e9a92e18e66b16ea2bf42c7"
+    },
+    {
+      "plot": "stage13_final_latency_comparison.png",
+      "figureData": "figure_data/stage13_final_latency_comparison.csv",
+      "plotSha256": "2e872e7a29b86ae281867ddfe2a4ac8cea4a7eea2aea18b2dfe63867f5403df2",
+      "figureDataSha256": "caef9c139bbbd56b66fa4aceb1a4dce2502a6526fc26e92286ad8e838bc26938"
+    },
+    {
+      "plot": "stage13_final_memory_comparison.png",
+      "figureData": "figure_data/stage13_final_memory_comparison.csv",
+      "plotSha256": "08b66fe2827cded62558615294121df275effa7536355e4d0af6c52126bb0c72",
+      "figureDataSha256": "caef9c139bbbd56b66fa4aceb1a4dce2502a6526fc26e92286ad8e838bc26938"
+    },
+    {
+      "plot": "stage13_final_complexity_comparison.png",
+      "figureData": "figure_data/stage13_final_complexity_comparison.csv",
+      "plotSha256": "9f8a84f6371410d5f6e89904195fa74cb5d0b671e65690e1124af49ec81eaf84",
+      "figureDataSha256": "caef9c139bbbd56b66fa4aceb1a4dce2502a6526fc26e92286ad8e838bc26938"
+    }
+  ]
+}

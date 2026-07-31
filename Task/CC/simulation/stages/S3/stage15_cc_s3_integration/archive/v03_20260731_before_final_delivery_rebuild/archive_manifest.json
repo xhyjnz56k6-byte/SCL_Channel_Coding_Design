@@ -1,0 +1,125 @@
+{
+  "archiveVersion": "v03",
+  "archiveDate": "2026-07-31",
+  "sourceStage": "stage15_cc_s3_integration",
+  "sourceHead": "661480f684e2ba9793f4a804d96bb07b794ea4fa",
+  "reason": "before_final_delivery_rebuild",
+  "copyPolicy": "results only; runtime excluded",
+  "files": [
+    {
+      "path": "figure_data/stage15_cpu_decode_latency.csv",
+      "sizeBytes": 39962,
+      "sha256": "9a7baef2016d7fa96750abafcd8187d7918365100af1ac411b10b0d05905fed3"
+    },
+    {
+      "path": "figure_data/stage15_final_ber.csv",
+      "sizeBytes": 861033,
+      "sha256": "85e2c259e58a4ac20ac1aacaa2af5bce576d204b4067035ab6cd442bf9fdb2ef"
+    },
+    {
+      "path": "figure_data/stage15_final_fer.csv",
+      "sizeBytes": 861033,
+      "sha256": "85e2c259e58a4ac20ac1aacaa2af5bce576d204b4067035ab6cd442bf9fdb2ef"
+    },
+    {
+      "path": "figure_data/stage15_first_output_latency.csv",
+      "sizeBytes": 34573,
+      "sha256": "079df3e3ca9d3ce12f83a465de2230a9fae08ab28a09beb81c70c627e206fe7f"
+    },
+    {
+      "path": "figure_data/stage15_goodput_fer_pareto.csv",
+      "sizeBytes": 39962,
+      "sha256": "9a7baef2016d7fa96750abafcd8187d7918365100af1ac411b10b0d05905fed3"
+    },
+    {
+      "path": "figure_data/stage15_latency_reliability_pareto.csv",
+      "sizeBytes": 34573,
+      "sha256": "079df3e3ca9d3ce12f83a465de2230a9fae08ab28a09beb81c70c627e206fe7f"
+    },
+    {
+      "path": "figure_data/stage15_quantization_snr_loss.csv",
+      "sizeBytes": 4719,
+      "sha256": "cdf91a5b0fcffa2cc3170645b2e0354ca0ff437a7f32a2aab8617977e3827bee"
+    },
+    {
+      "path": "figure_data/stage15_traceback_memory_reliability.csv",
+      "sizeBytes": 626,
+      "sha256": "e2f39936035b921d1f95a2c03b28977f492961e13203e06106cce8a6d491f144"
+    },
+    {
+      "path": "plot_check.md",
+      "sizeBytes": 284,
+      "sha256": "c14467262f05e60889638c13ed3c6ed0e056a5ea036133868b1b46a7b2436a14"
+    },
+    {
+      "path": "plot_manifest.json",
+      "sizeBytes": 2718,
+      "sha256": "4ee46906163712490973aa2a76783d1325b79b3158b4192ae0cce57fb7284f18"
+    },
+    {
+      "path": "results_analysis.md",
+      "sizeBytes": 2101,
+      "sha256": "e9cf7cc7cb36ac8bbeb67f26804a6e39c044958de21dc9fae6995b2aea9bca78"
+    },
+    {
+      "path": "stage15_all_figures_guide.md",
+      "sizeBytes": 24955,
+      "sha256": "bdb8a47eeb81f84186e04a58b0c9721c27d232b4fbbf1d0626515aa5e994ed18"
+    },
+    {
+      "path": "stage15_core_questions_answer.md",
+      "sizeBytes": 4535,
+      "sha256": "8eb40e37d3d07884aa9ca17450f8cb663f7c43d3f0216d64b4b8753b9295d10b"
+    },
+    {
+      "path": "stage15_cpu_decode_latency.png",
+      "sizeBytes": 176574,
+      "sha256": "d8c16a0f395b0d5417ebcaba75e7d2ab0567fc687c4b09163c5259f45f3df0d4"
+    },
+    {
+      "path": "stage15_final_ber.png",
+      "sizeBytes": 266214,
+      "sha256": "468444e6c1b160db90fdce9619f842b4253e3cfffec1602b4af2cdadfe01d60b"
+    },
+    {
+      "path": "stage15_final_fer.png",
+      "sizeBytes": 257906,
+      "sha256": "9edb900fa55fc354dae14eb1c3aa100745d9de45b665d2bd00d43f5ecb104703"
+    },
+    {
+      "path": "stage15_final_recommendations.csv",
+      "sizeBytes": 1759,
+      "sha256": "91d03c8fdf0bc19b875d6f9416dec3e7df1fdda52f9b02127889242ecd3304c6"
+    },
+    {
+      "path": "stage15_final_scheme_matrix.csv",
+      "sizeBytes": 1109386,
+      "sha256": "d430260d92f183e2fb7765d6d7ae481532c06fad80766806e2de858fd2c3b51e"
+    },
+    {
+      "path": "stage15_first_output_latency.png",
+      "sizeBytes": 165248,
+      "sha256": "b1ac9a74b430fa855029ee843d03f510a2e8039f01993f98765126760efa9b6d"
+    },
+    {
+      "path": "stage15_goodput_fer_pareto.png",
+      "sizeBytes": 43525,
+      "sha256": "c5f6452cac4c3fd2f7e9054c946619e77ae7c3cc237b2a8fc45cc8b4663077e1"
+    },
+    {
+      "path": "stage15_latency_reliability_pareto.png",
+      "sizeBytes": 89436,
+      "sha256": "0a8647246d1ea7e297f601b05f14cb78fa70fc14524ce407d4d50528ed73c638"
+    },
+    {
+      "path": "stage15_quantization_snr_loss.png",
+      "sizeBytes": 92730,
+      "sha256": "4749c4a483c9ee652b26c438cdc4bbc6cb2ed63d018bafcf9608611f0722e037"
+    },
+    {
+      "path": "stage15_traceback_memory_reliability.png",
+      "sizeBytes": 43588,
+      "sha256": "e36ddb361fd648e32967a2b0796647cc1d471366138ea83392837b6bcccb4273"
+    }
+  ]
+}

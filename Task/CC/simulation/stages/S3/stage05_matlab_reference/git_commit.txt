@@ -1,0 +1,7 @@
+stage=stage05_matlab_reference
+branch=stage01-cc
+baseCommit=90a256337ef5cb86148fd11d934f3e38b34ab2bb
+contentCommit=47057c4293a415f054675f8c63d7a94e3451b047
+contentCommitMessage=CC/阶段05：建立MATLAB官方参考验证
+mergeStatus=NOT_MERGED
+remoteVerification=DEFERRED_TO_BATCH_PUSH

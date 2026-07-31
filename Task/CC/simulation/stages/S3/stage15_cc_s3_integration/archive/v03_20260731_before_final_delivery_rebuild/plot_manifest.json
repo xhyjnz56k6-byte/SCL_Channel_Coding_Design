@@ -1,0 +1,58 @@
+{
+  "sourceFiles": [
+    {
+      "path": "stage15_final_scheme_matrix.csv",
+      "sha256": "d430260d92f183e2fb7765d6d7ae481532c06fad80766806e2de858fd2c3b51e"
+    }
+  ],
+  "plots": [
+    {
+      "plot": "stage15_final_ber.png",
+      "figureData": "figure_data/stage15_final_ber.csv",
+      "plotSha256": "468444e6c1b160db90fdce9619f842b4253e3cfffec1602b4af2cdadfe01d60b",
+      "figureDataSha256": "85e2c259e58a4ac20ac1aacaa2af5bce576d204b4067035ab6cd442bf9fdb2ef"
+    },
+    {
+      "plot": "stage15_final_fer.png",
+      "figureData": "figure_data/stage15_final_fer.csv",
+      "plotSha256": "9edb900fa55fc354dae14eb1c3aa100745d9de45b665d2bd00d43f5ecb104703",
+      "figureDataSha256": "85e2c259e58a4ac20ac1aacaa2af5bce576d204b4067035ab6cd442bf9fdb2ef"
+    },
+    {
+      "plot": "stage15_quantization_snr_loss.png",
+      "figureData": "figure_data/stage15_quantization_snr_loss.csv",
+      "plotSha256": "4749c4a483c9ee652b26c438cdc4bbc6cb2ed63d018bafcf9608611f0722e037",
+      "figureDataSha256": "cdf91a5b0fcffa2cc3170645b2e0354ca0ff437a7f32a2aab8617977e3827bee"
+    },
+    {
+      "plot": "stage15_traceback_memory_reliability.png",
+      "figureData": "figure_data/stage15_traceback_memory_reliability.csv",
+      "plotSha256": "e36ddb361fd648e32967a2b0796647cc1d471366138ea83392837b6bcccb4273",
+      "figureDataSha256": "e2f39936035b921d1f95a2c03b28977f492961e13203e06106cce8a6d491f144"
+    },
+    {
+      "plot": "stage15_first_output_latency.png",
+      "figureData": "figure_data/stage15_first_output_latency.csv",
+      "plotSha256": "b1ac9a74b430fa855029ee843d03f510a2e8039f01993f98765126760efa9b6d",
+      "figureDataSha256": "079df3e3ca9d3ce12f83a465de2230a9fae08ab28a09beb81c70c627e206fe7f"
+    },
+    {
+      "plot": "stage15_cpu_decode_latency.png",
+      "figureData": "figure_data/stage15_cpu_decode_latency.csv",
+      "plotSha256": "d8c16a0f395b0d5417ebcaba75e7d2ab0567fc687c4b09163c5259f45f3df0d4",
+      "figureDataSha256": "9a7baef2016d7fa96750abafcd8187d7918365100af1ac411b10b0d05905fed3"
+    },
+    {
+      "plot": "stage15_goodput_fer_pareto.png",
+      "figureData": "figure_data/stage15_goodput_fer_pareto.csv",
+      "plotSha256": "c5f6452cac4c3fd2f7e9054c946619e77ae7c3cc237b2a8fc45cc8b4663077e1",
+      "figureDataSha256": "9a7baef2016d7fa96750abafcd8187d7918365100af1ac411b10b0d05905fed3"
+    },
+    {
+      "plot": "stage15_latency_reliability_pareto.png",
+      "figureData": "figure_data/stage15_latency_reliability_pareto.csv",
+      "plotSha256": "0a8647246d1ea7e297f601b05f14cb78fa70fc14524ce407d4d50528ed73c638",
+      "figureDataSha256": "079df3e3ca9d3ce12f83a465de2230a9fae08ab28a09beb81c70c627e206fe7f"
+    }
+  ]
+}

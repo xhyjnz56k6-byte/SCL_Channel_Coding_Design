@@ -1,0 +1,44 @@
+{
+  "stage": "stage10_traceback_study",
+  "inputCsv": "stage10_traceback_study_results.csv",
+  "inputSha256": "fdc0c02ee263df0ef5c8e3b5690f190a58fe6fc6fa88a1c5fbe2768f98cd934d",
+  "blockReferencePolicy": "完整块与有限回溯采用不同调度；完整块不与有限深度折线连接",
+  "figures": [
+    {
+      "name": "stage10_traceback_ber.png",
+      "figureData": "stage10_traceback_ber_figure_data.csv",
+      "figureDataSha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610",
+      "outputSha256": "930f59885c205cec42bbe1a2e5e72c44740f37dc1de123394de93f4ca9191053"
+    },
+    {
+      "name": "stage10_traceback_fer.png",
+      "figureData": "stage10_traceback_fer_figure_data.csv",
+      "figureDataSha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610",
+      "outputSha256": "78093a790e694b512e0e5543a3093f9a9156735c4268958c0589c79def1dec58"
+    },
+    {
+      "name": "stage10_traceback_cpu_latency.png",
+      "figureData": "stage10_traceback_cpu_latency_figure_data.csv",
+      "figureDataSha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610",
+      "outputSha256": "9b2efbf5594871b0dd14156a15f31825a80ea2450c9ee0ba82cb12cde9edf5a8"
+    },
+    {
+      "name": "stage10_traceback_memory.png",
+      "figureData": "stage10_traceback_memory_figure_data.csv",
+      "figureDataSha256": "3a3ecf6b89e6aeb9472a558dbba65db3d3ca3e1fd5f4ed3ce6e7563fbb1d8d1f",
+      "outputSha256": "87aef69cb7db37d3c74536b228f75545c1c132716a8c3e126832af891b5b3911"
+    },
+    {
+      "name": "stage10_traceback_relative_fer_loss.png",
+      "figureData": "stage10_traceback_relative_fer_loss_figure_data.csv",
+      "figureDataSha256": "15d43d6bf4d94127234a574088326d8aa023b9d45ae1b25fcd8523e772935610",
+      "outputSha256": "9e6ce42a65ea7f549384fa7030392cb7d86082d38286e514d3d821f0e903a045"
+    },
+    {
+      "name": "stage10_memory_reliability_tradeoff.png",
+      "figureData": "stage10_memory_reliability_tradeoff_figure_data.csv",
+      "figureDataSha256": "f1d25c834f34ca1c2271e9bc20b936c2191c9a9a4d303c302545cd3b4b07982a",
+      "outputSha256": "c4c2c7fbed07aad949468f10b1f7cd72e85cb0ece8e69cebf6e6031221d1f406"
+    }
+  ]
+}

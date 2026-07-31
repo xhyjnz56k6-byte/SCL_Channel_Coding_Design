@@ -1,0 +1,4 @@
+rateId,hardCenterSnrDb,softCenterSnrDb,prescanMinSnrDb,prescanMaxSnrDb,formalSuggestedMinSnrDb,formalSuggestedMaxSnrDb
+R12,0,-2,-2.5,2,-2.5,2
+R23,2,0,-0.5,4,-0.5,4
+R34,2,1,0.5,4,0.5,4

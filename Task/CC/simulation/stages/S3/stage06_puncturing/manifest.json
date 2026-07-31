@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage06_puncturing",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE06_CC_PUNCTURING",
+  "gateStatus": "PASS",
+  "functionalRanges": [{
+    "name": "content",
+    "baseCommit": "380cebe679bc30a977c0f51e5cc5ce06bed1fce1",
+    "contentCommit": "074474416a92bebcc63c6deb6bed3474d2f2fd46",
+    "diffPaths": [
+      "Task/CC/shared/include/cc/puncturing.hpp",
+      "Task/CC/shared/src/puncturing.cpp",
+      "Task/CC/block/current/include/cc/hard_viterbi.hpp",
+      "Task/CC/block/current/src/hard_viterbi.cpp",
+      "Task/CC/block/current/include/cc/soft_viterbi.hpp",
+      "Task/CC/block/current/src/soft_viterbi.cpp",
+      "Task/CC/simulation/stages/S3/stage06_puncturing"
+    ],
+    "files": [
+      "Task/CC/block/current/include/cc/hard_viterbi.hpp",
+      "Task/CC/block/current/include/cc/soft_viterbi.hpp",
+      "Task/CC/block/current/src/hard_viterbi.cpp",
+      "Task/CC/block/current/src/soft_viterbi.cpp",
+      "Task/CC/shared/include/cc/puncturing.hpp",
+      "Task/CC/shared/src/puncturing.cpp",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/CMakeLists.txt",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/commands_used.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/config/stage06_config.json",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/frozen_config.csv",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/include/README.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/known_issues.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/length_rate_audit.csv",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/matlab/stage06_matlab_reference.m",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/puncture_candidates.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/puncture_patterns.csv",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/puncture_selection_report.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_candidate_prescan.csv",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_cpp_matlab_vectors.csv",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_matlab_comparison.csv",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_results_scope.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_selection.json",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/results/stage06_puncturing_test_summary.csv",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/scripts/run_stage06.py",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/src/README.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/stage_plan.md",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/tests/test_stage06_puncturing.cpp"
+    ]
+  }],
+  "validation": {
+    "releaseBuild": "PASS",
+    "ctest": "1/1 PASS",
+    "noiselessCandidateFrames": 480,
+    "matlabPatterns": 4,
+    "totalMismatch": 0,
+    "selectedR23": "R23_B_1101",
+    "selectedR34": "R34_B_110110"
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary --unified=0 baseCommit..contentCommit over diffPaths",
+    "sha256": "51432eafa7b09fe2f5dc323bfe057ffa0796ad92f5999abcc32d1204550cea1e",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": [
+      "Task/CC/shared/include/cc/puncturing.hpp",
+      "Task/CC/shared/src/puncturing.cpp",
+      "Task/CC/block/current/",
+      "Task/CC/simulation/stages/S3/stage06_puncturing/"
+    ],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,9 @@
+check,status
+cpp_reference_vectors_16,PASS
+matlab_poly2trellis_128,PASS
+matlab_convenc_16,PASS
+matlab_vitdec_hard_16,PASS
+matlab_vitdec_soft_symbols_16,PASS
+matlab_vitdec_soft_llr_16,PASS
+total_bit_mismatch,0
+stage_gate,PASS_STAGE05_CC_MATLAB_REFERENCE

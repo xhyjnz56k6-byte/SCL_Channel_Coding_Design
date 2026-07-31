@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage09_awgn_formal",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE09_CC_AWGN_FORMAL",
+  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "311e51d6eab305fc65bf31b0ed315fd07c0b72e9",
+      "contentCommit": "84c6a54a7b29d629223b796d1edea857fc6f8460",
+      "diffPaths": ["Task/CC/simulation/stages/S3/stage09_awgn_formal"],
+      "files": [
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/.gitignore",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/commands_used.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/config/stage09_config.json",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/frozen_config.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/include/README.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/known_issues.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/matlab/README.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/formal_report.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_ber.png",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_curve_summary.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_delay.png",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_fer.png",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_figure_data_ber.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_figure_data_delay.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_figure_data_fer.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_figure_data_goodput.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_figure_data_hard_soft_fer.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_goodput.png",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_goodput_summary.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_hard_soft_fer.png",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_plot_check.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_point_results.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_results_scope.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_test_summary.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/results/stage09_awgn_formal_timing_summary.csv",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/scripts/merge_and_plot_stage09.py",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/scripts/run_stage09.py",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/src/stage09_awgn_formal_runner.cpp",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/stage_plan.md",
+        "Task/CC/simulation/stages/S3/stage09_awgn_formal/tests/README.md"
+      ]
+    }
+  ],
+  "validation": {
+    "caseCount": 6,
+    "formalPointCount": 126,
+    "totalFrames": 825696,
+    "figureCount": 5,
+    "checkpointResumeConsistency": "PASS",
+    "checkpointConfigMismatchRejected": "PASS",
+    "shardCoverageNoDuplicateNoSkip": "PASS",
+    "overwriteRejected": "PASS",
+    "stage08AuditRegression": "PASS"
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary --unified=0 baseCommit..contentCommit over Stage09",
+    "sha256": "59b1b03919d26e61dd682c02582a3bfb0e73adeb0cf9be53261c0908c6bb1214",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage09_awgn_formal/"],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
+  "mergeStatus": "NOT_MERGED"
+}

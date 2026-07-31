@@ -1,0 +1,7 @@
+stage=stage04_soft_viterbi
+branch=stage01-cc
+baseCommit=b708dafdc13ac65faddcc3821a62a2f1238d5375
+contentCommit=52a679b1879210024a7d3c17fcdda0a9638b934d
+contentCommitMessage=CC/阶段04：实现浮点软判决维特比译码
+mergeStatus=NOT_MERGED
+remoteVerification=DEFERRED_TO_BATCH_PUSH

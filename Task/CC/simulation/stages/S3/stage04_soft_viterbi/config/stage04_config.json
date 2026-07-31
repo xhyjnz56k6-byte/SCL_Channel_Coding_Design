@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "cc.stage04.config.v1",
+  "payloadLength": 300,
+  "codecInputLength": 306,
+  "receivedSymbolMetric": "SQUARED_EUCLIDEAN",
+  "randomFrames": 100,
+  "noiseStandardDeviationForUnitTest": 0.18,
+  "randomSeed": 2026072003,
+  "matlabTracebackDepth": 35
+}

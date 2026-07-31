@@ -1,0 +1,4 @@
+rate,targetFER,hardMinusSoftSnrDb
+R12,0.1,2.085
+R23,0.1,1.927
+R34,0.1,1.857

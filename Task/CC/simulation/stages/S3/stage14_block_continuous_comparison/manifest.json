@@ -1,0 +1,454 @@
+{
+  "stage": "stage14_block_continuous_comparison",
+  "branch": "stage01-cc",
+  "status": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content1",
+      "baseCommit": "bee31ab24f5652df4e1f213f96e4d9e42ffadee1",
+      "contentCommit": "86188ee7d964b1c15fb9eb42a30dc68a40ed397c",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/process_stage14_revision.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp"
+      ]
+    },
+    {
+      "name": "finalDelivery20260731",
+      "baseCommit": "661480f684e2ba9793f4a804d96bb07b794ea4fa",
+      "contentCommit": "199a225d342ca3b192d590587eb4d068e73eea63",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/.gitignore",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/archive_manifest.json",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r12_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r12_boundary_relative_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r12_decision_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r12_fer.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r12_first_output_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r12_normalized_goodput.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r23_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r23_boundary_relative_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r23_decision_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r23_fer.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r23_first_output_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r23_normalized_goodput.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r34_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r34_boundary_relative_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r34_decision_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r34_fer.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r34_first_output_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/figure_data/stage14_r34_normalized_goodput.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/plot_check.md",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/results_analysis.md",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_boundary_offset_results.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_online_slot_dense_results.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_online_slot_formal_results.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_organization_recommendations.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r12_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r12_boundary_relative_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r12_decision_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r12_fer.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r12_first_output_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r12_normalized_goodput.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r23_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r23_boundary_relative_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r23_decision_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r23_fer.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r23_first_output_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r23_normalized_goodput.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r34_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r34_boundary_relative_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r34_decision_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r34_fer.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r34_first_output_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/archive/v03_20260731_before_hard_slot_completion/stage14_r34_normalized_goodput.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/readme.txt",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_hard_avg_p95_decision_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_hard_buffer_compute_tradeoff.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_hard_first_output_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_hard_goodput_by_rate_and_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r12_boundary_relative_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r12_continuous_output_progress.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r12_hard_ber_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r12_hard_fer_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r12_soft_ber_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r12_soft_fer_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r23_boundary_relative_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r23_continuous_output_progress.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r23_hard_ber_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r23_hard_fer_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r23_soft_ber_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r23_soft_fer_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r34_boundary_relative_ber.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r34_continuous_output_progress.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r34_hard_ber_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r34_hard_fer_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r34_soft_ber_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_r34_soft_fer_by_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_soft_avg_p95_decision_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_soft_buffer_compute_tradeoff.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_soft_first_output_latency.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/figure_data/stage14_soft_goodput_by_rate_and_organization.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/results_analysis.md",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_boundary_offset_results_all_decisions.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_hard_avg_p95_decision_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_hard_buffer_compute_tradeoff.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_hard_first_output_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_hard_goodput_by_rate_and_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_online_slot_formal_results_all_decisions.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_online_slot_formal_results_hard.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_online_slot_formal_results_soft.csv",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_boundary_relative_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_continuous_output_progress.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_hard_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_hard_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_soft_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_soft_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_boundary_relative_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_continuous_output_progress.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_hard_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_hard_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_soft_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_soft_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_boundary_relative_ber.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_continuous_output_progress.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_hard_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_hard_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_soft_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_soft_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_soft_avg_p95_decision_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_soft_buffer_compute_tradeoff.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_soft_first_output_latency.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_soft_goodput_by_rate_and_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/process_final_delivery.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/run_stage14.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp"
+      ]
+    },
+    {
+      "name": "logScaleFloorRemoval20260731",
+      "baseCommit": "59f872d5c0090b73cec5fe8d60898922237fb504",
+      "contentCommit": "6bcf4c4debd3f50b9cbe148c50bc1df234e3155c",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/results_analysis.md",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_hard_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_hard_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_soft_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r12_soft_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_hard_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_hard_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_soft_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r23_soft_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_hard_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_hard_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_soft_ber_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_r34_soft_fer_by_organization.png",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/check_stage14.py",
+        "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/scripts/process_final_delivery.py"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE14_FINAL_DELIVERY",
+  "formalResults": [
+    {
+      "path": "results/figure_data/stage14_hard_avg_p95_decision_latency.csv",
+      "bytes": 1200,
+      "sha256": "3fe3a86e25d23f51d70cd05dacafbfd1578d1ec1076dc9f345aedf0b7d119dae"
+    },
+    {
+      "path": "results/figure_data/stage14_hard_buffer_compute_tradeoff.csv",
+      "bytes": 1200,
+      "sha256": "3fe3a86e25d23f51d70cd05dacafbfd1578d1ec1076dc9f345aedf0b7d119dae"
+    },
+    {
+      "path": "results/figure_data/stage14_hard_first_output_latency.csv",
+      "bytes": 1200,
+      "sha256": "3fe3a86e25d23f51d70cd05dacafbfd1578d1ec1076dc9f345aedf0b7d119dae"
+    },
+    {
+      "path": "results/figure_data/stage14_hard_goodput_by_rate_and_organization.csv",
+      "bytes": 191457,
+      "sha256": "4b9c5f293b6a5b127a51d0d613e20f8eac2071a27be5e19d22d3303c4f0f20fb"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_boundary_relative_ber.csv",
+      "bytes": 3105,
+      "sha256": "59861532b317694e90a9591cfccf92a22a1d433245ebd06a858c981d448e3298"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_continuous_output_progress.csv",
+      "bytes": 2283,
+      "sha256": "1b4066e22c598ea71798ff60f34d709c9469348f7716df7f41e229ad1c69a8d5"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_hard_ber_by_organization.csv",
+      "bytes": 63581,
+      "sha256": "6ad0731d883b46ad8f452ede394a81cf91ff8804d0747ad01fd9cfa34ea4de58"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_hard_fer_by_organization.csv",
+      "bytes": 63581,
+      "sha256": "6ad0731d883b46ad8f452ede394a81cf91ff8804d0747ad01fd9cfa34ea4de58"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_soft_ber_by_organization.csv",
+      "bytes": 63034,
+      "sha256": "bab288a802552ede767ee288b329c90e510f388bf08871880b7fb8660e274028"
+    },
+    {
+      "path": "results/figure_data/stage14_r12_soft_fer_by_organization.csv",
+      "bytes": 63034,
+      "sha256": "bab288a802552ede767ee288b329c90e510f388bf08871880b7fb8660e274028"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_boundary_relative_ber.csv",
+      "bytes": 3065,
+      "sha256": "fcd63c4609636910a6b99fc7f56a392a334a824fd034534f1034fe65e94977f9"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_continuous_output_progress.csv",
+      "bytes": 2273,
+      "sha256": "e32eeb57c948445620db53231cd441eda3715e563cf8741a68a6eea2aadf3a5f"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_hard_ber_by_organization.csv",
+      "bytes": 63992,
+      "sha256": "13c11aa7c3e5fd733a1223d82b432ca14c9dcf31c362e81b8d8420350856ac65"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_hard_fer_by_organization.csv",
+      "bytes": 63992,
+      "sha256": "13c11aa7c3e5fd733a1223d82b432ca14c9dcf31c362e81b8d8420350856ac65"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_soft_ber_by_organization.csv",
+      "bytes": 63263,
+      "sha256": "f30953cb0d8cba42e8ddab6cd531265e960f6745c44c4536b63e9e2219b8f914"
+    },
+    {
+      "path": "results/figure_data/stage14_r23_soft_fer_by_organization.csv",
+      "bytes": 63263,
+      "sha256": "f30953cb0d8cba42e8ddab6cd531265e960f6745c44c4536b63e9e2219b8f914"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_boundary_relative_ber.csv",
+      "bytes": 3058,
+      "sha256": "ac4fd3b4faad5b3cb0ca2beaaff5e305f481615059c382efec025966ed6e1c51"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_continuous_output_progress.csv",
+      "bytes": 1936,
+      "sha256": "eec156ae380b751e6dd4de697d02d5720cd0ee24af64fd86937de066db0f0142"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_hard_ber_by_organization.csv",
+      "bytes": 65526,
+      "sha256": "f4b8ab67ef1d810df10c891951f1906c2f3783e513304cec98e03e61c55359b6"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_hard_fer_by_organization.csv",
+      "bytes": 65526,
+      "sha256": "f4b8ab67ef1d810df10c891951f1906c2f3783e513304cec98e03e61c55359b6"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_soft_ber_by_organization.csv",
+      "bytes": 65066,
+      "sha256": "124eba8630c325f213056f0267723c063ec3a99d959d174e4d4ed68b11ba9433"
+    },
+    {
+      "path": "results/figure_data/stage14_r34_soft_fer_by_organization.csv",
+      "bytes": 65066,
+      "sha256": "124eba8630c325f213056f0267723c063ec3a99d959d174e4d4ed68b11ba9433"
+    },
+    {
+      "path": "results/figure_data/stage14_soft_avg_p95_decision_latency.csv",
+      "bytes": 1217,
+      "sha256": "a11d1f47e72022dae6668a52c0bb106286ad03b9efcd51ca8d2b547c0f7f4418"
+    },
+    {
+      "path": "results/figure_data/stage14_soft_buffer_compute_tradeoff.csv",
+      "bytes": 1217,
+      "sha256": "a11d1f47e72022dae6668a52c0bb106286ad03b9efcd51ca8d2b547c0f7f4418"
+    },
+    {
+      "path": "results/figure_data/stage14_soft_first_output_latency.csv",
+      "bytes": 1217,
+      "sha256": "a11d1f47e72022dae6668a52c0bb106286ad03b9efcd51ca8d2b547c0f7f4418"
+    },
+    {
+      "path": "results/figure_data/stage14_soft_goodput_by_rate_and_organization.csv",
+      "bytes": 189721,
+      "sha256": "9a6be1923a20dceb390920a27d117bca22b51f673a7b80e9a49a3917e3df49a0"
+    },
+    {
+      "path": "results/plot_manifest.json",
+      "bytes": 9238,
+      "sha256": "b3e4492a3461cdaaf32b11f42ee91c6572f2600b5b96b3d883645846955ab794"
+    },
+    {
+      "path": "results/results_analysis.md",
+      "bytes": 13039,
+      "sha256": "346c9b1abe463725a531d7e0b2624e8a5f3e5c4bf31a2e69e06d1796c4e97044"
+    },
+    {
+      "path": "results/stage14_boundary_offset_results_all_decisions.csv",
+      "bytes": 820918,
+      "sha256": "156ace4f02e508f6ea69b786c84acf01cdb4f69c33239d3464bd3f39f4f66df8"
+    },
+    {
+      "path": "results/stage14_hard_avg_p95_decision_latency.png",
+      "bytes": 52003,
+      "sha256": "505cb6356b7010a4c3f026eda8c60fd4d28d3a948480857da3ab847472d84c5d"
+    },
+    {
+      "path": "results/stage14_hard_buffer_compute_tradeoff.png",
+      "bytes": 203096,
+      "sha256": "4e9899e6e9a7922932f0ad7bc10ee2b1a96c2b118b8af3269ae31383c0250ec2"
+    },
+    {
+      "path": "results/stage14_hard_first_output_latency.png",
+      "bytes": 101191,
+      "sha256": "0894d16a8a5c012b459e0a8c12129548926d2649765e5826fc55e8c028602875"
+    },
+    {
+      "path": "results/stage14_hard_goodput_by_rate_and_organization.png",
+      "bytes": 97770,
+      "sha256": "020bfb3fb643f32e23208d3e0f10d7d7e443dc962888ae67760dc6fe3108f654"
+    },
+    {
+      "path": "results/stage14_online_slot_formal_results_all_decisions.csv",
+      "bytes": 380357,
+      "sha256": "427c0c0efd20135457f0a9d5ddab3b9e43ee539809178ef47852286094f508e8"
+    },
+    {
+      "path": "results/stage14_online_slot_formal_results_hard.csv",
+      "bytes": 191457,
+      "sha256": "6757b1380b0d20b4b29d66cb9143fc4d99c78024202c689d1ec2b59aa2ad5632"
+    },
+    {
+      "path": "results/stage14_online_slot_formal_results_soft.csv",
+      "bytes": 189721,
+      "sha256": "2d138697a62708848dfa2ee36ba43099004166b9805ec0656705ee96795cd27d"
+    },
+    {
+      "path": "results/stage14_r12_boundary_relative_ber.png",
+      "bytes": 128932,
+      "sha256": "62e9ef91161a93f08c71f3343c6d324111b805360b6c6b789736ab0c93bbb663"
+    },
+    {
+      "path": "results/stage14_r12_continuous_output_progress.png",
+      "bytes": 49832,
+      "sha256": "57f59dcca0579a6dc0af9e4527037cfe19c47554e05cf332d3301b2ceb6f5406"
+    },
+    {
+      "path": "results/stage14_r12_hard_ber_by_organization.png",
+      "bytes": 68106,
+      "sha256": "933b8e0c22adbfccac60bc43698c567168acb33b7d40a12dcf5b14d394c0e183"
+    },
+    {
+      "path": "results/stage14_r12_hard_fer_by_organization.png",
+      "bytes": 60212,
+      "sha256": "e38df99f2c3c7eb94b05b973df125fd76fa75d8bb1c99c36b1072f654c60e636"
+    },
+    {
+      "path": "results/stage14_r12_soft_ber_by_organization.png",
+      "bytes": 69845,
+      "sha256": "5b23e0852fe249459394ef27f52714b7675446f96462d187a336f56204a28b37"
+    },
+    {
+      "path": "results/stage14_r12_soft_fer_by_organization.png",
+      "bytes": 64534,
+      "sha256": "12dbef50998adefce80a9171b5657c73f540ca836aac52744ba8690e401014f9"
+    },
+    {
+      "path": "results/stage14_r23_boundary_relative_ber.png",
+      "bytes": 152920,
+      "sha256": "40df071c397e34ccf36b3d27efdea906fae1b6275a4ae116bd4df53a3ea3300b"
+    },
+    {
+      "path": "results/stage14_r23_continuous_output_progress.png",
+      "bytes": 49446,
+      "sha256": "f00dda1253c7fc6e6cc6b49f16e215de9ad537a8cd4e5e9bf2d4cade9dea525e"
+    },
+    {
+      "path": "results/stage14_r23_hard_ber_by_organization.png",
+      "bytes": 68828,
+      "sha256": "2239f7d04eb0afad650946badf9535012350518cbfde238db78288b1120d10fb"
+    },
+    {
+      "path": "results/stage14_r23_hard_fer_by_organization.png",
+      "bytes": 59766,
+      "sha256": "9518d0a435f734b5df511c4e0bb16744cefdf11bdcec976b17fdb3d04dae4604"
+    },
+    {
+      "path": "results/stage14_r23_soft_ber_by_organization.png",
+      "bytes": 67632,
+      "sha256": "9aaa157599581fcbfbfbc3488dcbab7aadfbc7727c0525866801b66e9d2c816f"
+    },
+    {
+      "path": "results/stage14_r23_soft_fer_by_organization.png",
+      "bytes": 60741,
+      "sha256": "e97c40082cb8832f045a100ddb00a09210bebbe5b15651c757c55e5f2c75781f"
+    },
+    {
+      "path": "results/stage14_r34_boundary_relative_ber.png",
+      "bytes": 161683,
+      "sha256": "d63a28373ae5714ee68ea7a324177a90e97c20d6d77056d880099727ed2d6353"
+    },
+    {
+      "path": "results/stage14_r34_continuous_output_progress.png",
+      "bytes": 51072,
+      "sha256": "132a64d92a3049c13702fa500e815801a2290bad57e19c48196c8e986a53cdfb"
+    },
+    {
+      "path": "results/stage14_r34_hard_ber_by_organization.png",
+      "bytes": 66447,
+      "sha256": "42d49bcbf8c609b45fc9d537a656c9e689b7c22063ab0abc6fe455c7e415644c"
+    },
+    {
+      "path": "results/stage14_r34_hard_fer_by_organization.png",
+      "bytes": 58666,
+      "sha256": "128ddb2fe69896d09d1361e3247164fc256d2237b66b655d50ee8f17344ba0d5"
+    },
+    {
+      "path": "results/stage14_r34_soft_ber_by_organization.png",
+      "bytes": 67351,
+      "sha256": "a2c283d3f2ae2cccd80aa20c51d16c6631ee1bcc0f82e161f41e89f5790dc3b2"
+    },
+    {
+      "path": "results/stage14_r34_soft_fer_by_organization.png",
+      "bytes": 60865,
+      "sha256": "e4fc83735710257ae75b7f7c1e59859cbaf53d3ecb2d8dbd5f8aac39bb60f569"
+    },
+    {
+      "path": "results/stage14_soft_avg_p95_decision_latency.png",
+      "bytes": 53607,
+      "sha256": "e402b69b53148e8f17d33b5b3161d9124d431a2d1056a452ce2e40dae4f842f6"
+    },
+    {
+      "path": "results/stage14_soft_buffer_compute_tradeoff.png",
+      "bytes": 202450,
+      "sha256": "b4dde3f6a5755e75e6dfe7ecfdc81dc11a498c23df3627ed6c832b03592e7d18"
+    },
+    {
+      "path": "results/stage14_soft_first_output_latency.png",
+      "bytes": 102310,
+      "sha256": "a2d961388ceb5e7e71ec9e67ae937ab608ff872dd5f556a0c1150ff53cae3310"
+    },
+    {
+      "path": "results/stage14_soft_goodput_by_rate_and_organization.png",
+      "bytes": 99124,
+      "sha256": "77698866d1147cf37d1b38f38cd41ab4746d26ddb2c20ed4028355b361243e43"
+    }
+  ],
+  "formalResultCount": 58,
+  "remoteVerified": true,
+  "remoteBranch": "origin/stage01-cc",
+  "mergeStatus": "NOT_MERGED",
+  "finalDeliveryDate": "2026-07-31"
+}

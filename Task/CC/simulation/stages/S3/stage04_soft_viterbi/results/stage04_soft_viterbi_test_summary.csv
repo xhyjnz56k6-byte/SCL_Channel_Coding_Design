@@ -1,0 +1,8 @@
+check,status
+release_build,PASS
+ctest,PASS
+soft_noiseless_low_noise_100,PASS
+nan_inf_negative,PASS
+matlab_vitdec_unquant,PASS
+payload_mismatch,0
+stage_gate,PASS_STAGE04_CC_SOFT_VITERBI

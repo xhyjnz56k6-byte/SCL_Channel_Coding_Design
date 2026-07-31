@@ -1,0 +1,156 @@
+{
+  "archiveVersion": "v02",
+  "archiveDate": "20260730",
+  "reason": "before_cc_s3_formal_continuation",
+  "sourceStage": "stage15_cc_s3_integration",
+  "sourceCommit": "ce4b5eb0a7eae2cd82cf374f7518248047cd03ee",
+  "previousStatus": "committed_clean_before_continuation",
+  "files": [
+    {
+      "path": "results/figure_data/stage15_cpu_decode_latency.csv",
+      "sha256": "223e9c4c3582753adaeb66b22fcb36b7bfa9862901cb1bc7d035a68d6197acf7",
+      "bytes": 17954
+    },
+    {
+      "path": "results/figure_data/stage15_final_ber.csv",
+      "sha256": "e5dd3b60f999534824665bb22eeef07817338fe5444353412d1ec2bb9c2be50e",
+      "bytes": 226625
+    },
+    {
+      "path": "results/figure_data/stage15_final_fer.csv",
+      "sha256": "e5dd3b60f999534824665bb22eeef07817338fe5444353412d1ec2bb9c2be50e",
+      "bytes": 226625
+    },
+    {
+      "path": "results/figure_data/stage15_first_output_latency.csv",
+      "sha256": "7f11c3f96f67a05d960ad16530881e376ac72ffb4dede7db69c69fcc3b1bd28e",
+      "bytes": 12565
+    },
+    {
+      "path": "results/figure_data/stage15_goodput_fer_pareto.csv",
+      "sha256": "223e9c4c3582753adaeb66b22fcb36b7bfa9862901cb1bc7d035a68d6197acf7",
+      "bytes": 17954
+    },
+    {
+      "path": "results/figure_data/stage15_latency_reliability_pareto.csv",
+      "sha256": "7f11c3f96f67a05d960ad16530881e376ac72ffb4dede7db69c69fcc3b1bd28e",
+      "bytes": 12565
+    },
+    {
+      "path": "results/figure_data/stage15_quantization_snr_loss.csv",
+      "sha256": "cdf91a5b0fcffa2cc3170645b2e0354ca0ff437a7f32a2aab8617977e3827bee",
+      "bytes": 4719
+    },
+    {
+      "path": "results/figure_data/stage15_traceback_memory_reliability.csv",
+      "sha256": "e2f39936035b921d1f95a2c03b28977f492961e13203e06106cce8a6d491f144",
+      "bytes": 626
+    },
+    {
+      "path": "results/plot_check.md",
+      "sha256": "f02a994a1cea28c055beba3052c496cc6d8f7422c90673e0659a51a4552fb41a",
+      "bytes": 284
+    },
+    {
+      "path": "results/plot_manifest.json",
+      "sha256": "5e6ac311726a02040bce7cb102694bda4b51c8bb9223284c1f84590b505f62d5",
+      "bytes": 2718
+    },
+    {
+      "path": "results/stage15_all_figures_guide.md",
+      "sha256": "df195e41142f75037cc1475da0c6322d5ce8601991798b54986f98f18211a18f",
+      "bytes": 20386
+    },
+    {
+      "path": "results/stage15_core_questions_answer.md",
+      "sha256": "5e1b09e887aa96ab30cf48aa8539931be9ab07abff63e5467d8bb7f5719f9018",
+      "bytes": 4539
+    },
+    {
+      "path": "results/stage15_cpu_decode_latency.png",
+      "sha256": "7d3551e204b9940e3c586abe823740ca572716e776b9088a01e05eefcd6d9724",
+      "bytes": 137992
+    },
+    {
+      "path": "results/stage15_final_ber.png",
+      "sha256": "43ebf34d545d465b45674dc29ee696f54174d94309beed28d3c03aec44f83807",
+      "bytes": 189295
+    },
+    {
+      "path": "results/stage15_final_fer.png",
+      "sha256": "139c0b9fb8622665ce604f5c433e29477a9765e75c71abe7eb5deddb2ad76296",
+      "bytes": 174267
+    },
+    {
+      "path": "results/stage15_final_recommendations.csv",
+      "sha256": "2889fce42033f7d98e6713725479fdb01734104bb29637ce106d039933ce3b36",
+      "bytes": 1763
+    },
+    {
+      "path": "results/stage15_final_scheme_matrix.csv",
+      "sha256": "48851bd148812a556a867bd6f057f3c8a2218a058f43257988a02db5bf7188e5",
+      "bytes": 474978
+    },
+    {
+      "path": "results/stage15_first_output_latency.png",
+      "sha256": "8af8ac414756faff2630d77fe9b15d002bfbef28acf6abec19295b199a31c028",
+      "bytes": 126239
+    },
+    {
+      "path": "results/stage15_goodput_fer_pareto.png",
+      "sha256": "306d4655f915c1698f9da0483967f60dc7d0c32123b571fc9cd1ca548648da2b",
+      "bytes": 40677
+    },
+    {
+      "path": "results/stage15_latency_reliability_pareto.png",
+      "sha256": "7411816b93f8057b3cdb707729f707d0c4705827e87571534dcbd2eec381a659",
+      "bytes": 71928
+    },
+    {
+      "path": "results/stage15_quantization_snr_loss.png",
+      "sha256": "4749c4a483c9ee652b26c438cdc4bbc6cb2ed63d018bafcf9608611f0722e037",
+      "bytes": 92730
+    },
+    {
+      "path": "results/stage15_traceback_memory_reliability.png",
+      "sha256": "e36ddb361fd648e32967a2b0796647cc1d471366138ea83392837b6bcccb4273",
+      "bytes": 43588
+    },
+    {
+      "path": "readme.txt",
+      "sha256": "cceab75446a7695d9a5d126f5ae5fd14b0177bfbb363e2bbf8a882c5129d9687",
+      "bytes": 238
+    },
+    {
+      "path": "validation_report.md",
+      "sha256": "69171b0abe8ba19405a443ea94f59ee4cba68c002c413995a7fe3ddf8be0c160",
+      "bytes": 562
+    },
+    {
+      "path": "known_issues.md",
+      "sha256": "4586ddd87d92d649e6f5f3d4d4cdf1082cf4b956fb0d534720486f182a43a454",
+      "bytes": 425
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "845d1a1905cb27fc6e6bba7064c682d26cb96b988b10fc651160732d2acc8449",
+      "bytes": 4726
+    },
+    {
+      "path": "frozen_config.csv",
+      "sha256": "a66037cb574bc96f019dc81f7807ea86649cddf55701cdea5a689c3e8d6431ce",
+      "bytes": 551
+    },
+    {
+      "path": "commands_used.md",
+      "sha256": "c0da3dc6d7fce7e08584769022e045fc7cb2c7db8dc088141a8f20a312206376",
+      "bytes": 466
+    },
+    {
+      "path": "result_summary.csv",
+      "sha256": "08f94fda1f9856ed06f25d7d3a506970ff665506288108773aca71f04d341bde",
+      "bytes": 143
+    }
+  ],
+  "sha256": "efd9b2dca577c76362e009ca89032abffd4532ed12b6208d441949f03bda038f"
+}

@@ -1,0 +1,6 @@
+check,status
+global_clip_prescan,PASS
+formal_matrix,PASS
+integer_overflow,PASS_ZERO
+recommended_bits,PASS_Q6
+stage_gate,PASS_STAGE11_CC_SOFT_QUANTIZATION

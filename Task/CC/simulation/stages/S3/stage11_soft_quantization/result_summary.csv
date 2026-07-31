@@ -1,0 +1,7 @@
+metric,value
+prescan_rows,30
+coarse_rows,651
+dense_rows,365
+rates,3
+modes,"Q3,Q4,Q5,Q6,Q7,Q8,Float"
+balanced_quantization,Q8

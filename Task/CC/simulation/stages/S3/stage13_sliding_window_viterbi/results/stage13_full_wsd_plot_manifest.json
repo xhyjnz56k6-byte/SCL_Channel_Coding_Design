@@ -1,0 +1,102 @@
+[
+  {
+    "file": "stage13_full_wsd_formal_results.csv",
+    "sha256": "4b06d6fa229b3b5864a17699740870582895a9fcec8505b47bea35b7b8b49d4e",
+    "bytes": 725360
+  },
+  {
+    "file": "stage13_control_w_formal.csv",
+    "sha256": "b89d1d80da7b61504eac7bf76c5a307dc659e593d0a6f3693fe10473cf88e9e7",
+    "bytes": 209329
+  },
+  {
+    "file": "stage13_control_s_formal.csv",
+    "sha256": "f97fcf0f6a1500604011785b8ffd82774cb16cb6d008d2cf0f8e6a7880a5aa39",
+    "bytes": 206829
+  },
+  {
+    "file": "stage13_control_d_formal.csv",
+    "sha256": "dd4d1790a643ed6b4213884e344a9af8c193fd577d30ff0c9201f2176ec420c4",
+    "bytes": 311000
+  },
+  {
+    "file": "stage13_r12_windowbits_fer_snr.png",
+    "sha256": "5e504e85ea51000408580d72a79c758736e28238c183a2bc65c6558410ccd379",
+    "bytes": 82594
+  },
+  {
+    "file": "stage13_r23_windowbits_fer_snr.png",
+    "sha256": "227c98b237fb918539a186d29c7ed7b46dfb6fad4e7db0291a0dff4f33917b54",
+    "bytes": 83544
+  },
+  {
+    "file": "stage13_r34_windowbits_fer_snr.png",
+    "sha256": "f68c459dc80ee39b5b0c2b946436e0c245bde54bb35a8f02076768a37a2d2025",
+    "bytes": 85137
+  },
+  {
+    "file": "stage13_r12_slidebits_fer_snr.png",
+    "sha256": "86369c60fa21dc24090ea60bb8529081c87bbbe288c2d62945275bfb9eef108f",
+    "bytes": 78243
+  },
+  {
+    "file": "stage13_r23_slidebits_fer_snr.png",
+    "sha256": "4d542f8e88fd02fdefd5901d611b680a1749c80d6b19c2c7592e1a0680e99471",
+    "bytes": 80459
+  },
+  {
+    "file": "stage13_r34_slidebits_fer_snr.png",
+    "sha256": "a816287606306064755642fb9ba437b3c4258a45a85ed27e86e5d13e8789fe1d",
+    "bytes": 80810
+  },
+  {
+    "file": "stage13_r12_dtb_fer_snr.png",
+    "sha256": "16b0d36122d691bbb7755267f64b310a38a67339b43cd3fe10e99cf25b8f81c7",
+    "bytes": 83136
+  },
+  {
+    "file": "stage13_r23_dtb_fer_snr.png",
+    "sha256": "f7eac4ed967dc8e2a53d01891fe35bc3a79d2e574e347d27a867922cfb12ab41",
+    "bytes": 91468
+  },
+  {
+    "file": "stage13_r34_dtb_fer_snr.png",
+    "sha256": "9b3aeeaa17c55e636e3b552f3df75cde100ce041bea6923348520107c6a63132",
+    "bytes": 100196
+  },
+  {
+    "file": "stage13_w_first_output_latency.png",
+    "sha256": "88117ac5b54855d6259c3712c0c3f6a67f54605723a508cf866604e32be541ca",
+    "bytes": 49363
+  },
+  {
+    "file": "stage13_w_avg_p95_latency.png",
+    "sha256": "6054e4f3105a1b01d5f23334ba2978e6950c59ab638fc59ec94899e0b8326df6",
+    "bytes": 89392
+  },
+  {
+    "file": "stage13_w_memory.png",
+    "sha256": "1ccfeaf3a7ab0b7131e7730cad275b6b6d024f250880c4181283020bd089ab28",
+    "bytes": 79459
+  },
+  {
+    "file": "stage13_w_compute_complexity.png",
+    "sha256": "ae4b0467d09fe7f54b5cda6debe1681b8b0ea467697f88d949c5b4ab559296bb",
+    "bytes": 76182
+  },
+  {
+    "file": "stage13_w_cpu_time.png",
+    "sha256": "80b5782b342fb863a1eebf14f66aec3190f954797e08d0913968661fcab81f1b",
+    "bytes": 93669
+  },
+  {
+    "file": "stage13_s_avg_p95_latency.png",
+    "sha256": "7b21c11984c6fc42b84a9b8731d4913ebe6ffa9dc11088d5361601042218c3ba",
+    "bytes": 69880
+  },
+  {
+    "file": "stage13_d_traceback_operations.png",
+    "sha256": "b33313c761d3a12ae185e02809a2cc1dcb26229577fe415169c6c59cfc1d70a2",
+    "bytes": 98703
+  }
+]

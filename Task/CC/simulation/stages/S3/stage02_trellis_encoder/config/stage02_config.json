@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "cc.stage02.config.v1",
+  "payloadLength": 300,
+  "compatibilityPayloadLength": 200,
+  "appendZeroTail": true,
+  "tailLength": 6,
+  "expectedMotherLength": 612,
+  "initialState": 0,
+  "expectedFinalState": 0,
+  "randomTestSeed": 2026072001,
+  "randomTestFrames": 100
+}

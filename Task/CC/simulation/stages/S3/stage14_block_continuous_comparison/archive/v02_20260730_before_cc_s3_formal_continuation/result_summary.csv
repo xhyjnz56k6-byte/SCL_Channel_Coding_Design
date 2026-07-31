@@ -1,0 +1,7 @@
+metric,value
+coarse_rows,372
+dense_final_rows,146
+rates,3
+organizations,"Block300,50x6,100x3,150x2"
+boundary_offsets,-10..+9
+main_plots,18

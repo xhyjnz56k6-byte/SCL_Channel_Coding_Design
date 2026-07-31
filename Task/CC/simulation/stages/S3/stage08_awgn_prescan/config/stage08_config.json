@@ -1,0 +1,1 @@
+{"schemaVersion":"cc.stage08.config.v1","smokeSnrDb":[-2,-1,0,1,2,3,4],"smokeFrames":60,"prescan":{"minFrames":300,"targetFrameErrors":30,"maxFrames":2000,"stepDb":0.5},"masterSeed":2026072001}

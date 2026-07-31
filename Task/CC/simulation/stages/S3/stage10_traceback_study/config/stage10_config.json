@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "cc.stage10.config.v1",
+  "masterSeed": 2026072001,
+  "framesPerPoint": 1000,
+  "tracebackDepths": [35, 49, 70],
+  "scenarios": [
+    {"caseId": "CC-B-R12-S", "snrDb": -0.5},
+    {"caseId": "CC-B-R12-S", "snrDb": 0.0},
+    {"caseId": "CC-B-R23-S", "snrDb": 0.5},
+    {"caseId": "CC-B-R23-S", "snrDb": 1.0}
+  ],
+  "recommendationThresholds": {
+    "preferredMaxRelativeBerIncrease": 0.05,
+    "preferredMaxRelativeFerIncrease": 0.05,
+    "fallbackMaxRelativeBerIncrease": 0.10,
+    "fallbackMaxRelativeFerIncrease": 0.15,
+    "fallbackMinSurvivorMemoryReduction": 0.50
+  }
+}

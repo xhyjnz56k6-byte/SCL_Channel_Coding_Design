@@ -1,0 +1,5 @@
+metric,value
+rates,3
+slot_organizations,"300,50x6,100x3,150x2"
+frames_per_case,100
+checkpoint_resume,PASS

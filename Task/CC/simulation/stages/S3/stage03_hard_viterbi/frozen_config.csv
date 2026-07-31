@@ -1,0 +1,9 @@
+parameter,value,semantics
+decoderType,HARD,hard_bit_input
+branchMetric,HAMMING_DISTANCE,integer
+initialState,0,known
+finalState,0,known_zero_tail
+tracebackMode,FULL_BLOCK,306_input_bits
+tieBreaking,metric_predecessor_input,ascending
+normalization,SUBTRACT_MIN_EVERY_STEP,integer
+matlabTracebackDepth,35,vitdec_term_reference

@@ -1,0 +1,186 @@
+{
+  "plots": [
+    {
+      "plot": "stage14_r12_soft_ber_by_organization.png",
+      "figureData": "figure_data/stage14_r12_soft_ber_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "5b23e0852fe249459394ef27f52714b7675446f96462d187a336f56204a28b37",
+      "figureDataSha256": "bab288a802552ede767ee288b329c90e510f388bf08871880b7fb8660e274028"
+    },
+    {
+      "plot": "stage14_r12_soft_fer_by_organization.png",
+      "figureData": "figure_data/stage14_r12_soft_fer_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "12dbef50998adefce80a9171b5657c73f540ca836aac52744ba8690e401014f9",
+      "figureDataSha256": "bab288a802552ede767ee288b329c90e510f388bf08871880b7fb8660e274028"
+    },
+    {
+      "plot": "stage14_r23_soft_ber_by_organization.png",
+      "figureData": "figure_data/stage14_r23_soft_ber_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "9aaa157599581fcbfbfbc3488dcbab7aadfbc7727c0525866801b66e9d2c816f",
+      "figureDataSha256": "f30953cb0d8cba42e8ddab6cd531265e960f6745c44c4536b63e9e2219b8f914"
+    },
+    {
+      "plot": "stage14_r23_soft_fer_by_organization.png",
+      "figureData": "figure_data/stage14_r23_soft_fer_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "e97c40082cb8832f045a100ddb00a09210bebbe5b15651c757c55e5f2c75781f",
+      "figureDataSha256": "f30953cb0d8cba42e8ddab6cd531265e960f6745c44c4536b63e9e2219b8f914"
+    },
+    {
+      "plot": "stage14_r34_soft_ber_by_organization.png",
+      "figureData": "figure_data/stage14_r34_soft_ber_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "a2c283d3f2ae2cccd80aa20c51d16c6631ee1bcc0f82e161f41e89f5790dc3b2",
+      "figureDataSha256": "124eba8630c325f213056f0267723c063ec3a99d959d174e4d4ed68b11ba9433"
+    },
+    {
+      "plot": "stage14_r34_soft_fer_by_organization.png",
+      "figureData": "figure_data/stage14_r34_soft_fer_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "e4fc83735710257ae75b7f7c1e59859cbaf53d3ecb2d8dbd5f8aac39bb60f569",
+      "figureDataSha256": "124eba8630c325f213056f0267723c063ec3a99d959d174e4d4ed68b11ba9433"
+    },
+    {
+      "plot": "stage14_r12_hard_ber_by_organization.png",
+      "figureData": "figure_data/stage14_r12_hard_ber_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "933b8e0c22adbfccac60bc43698c567168acb33b7d40a12dcf5b14d394c0e183",
+      "figureDataSha256": "6ad0731d883b46ad8f452ede394a81cf91ff8804d0747ad01fd9cfa34ea4de58"
+    },
+    {
+      "plot": "stage14_r12_hard_fer_by_organization.png",
+      "figureData": "figure_data/stage14_r12_hard_fer_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "e38df99f2c3c7eb94b05b973df125fd76fa75d8bb1c99c36b1072f654c60e636",
+      "figureDataSha256": "6ad0731d883b46ad8f452ede394a81cf91ff8804d0747ad01fd9cfa34ea4de58"
+    },
+    {
+      "plot": "stage14_r23_hard_ber_by_organization.png",
+      "figureData": "figure_data/stage14_r23_hard_ber_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "2239f7d04eb0afad650946badf9535012350518cbfde238db78288b1120d10fb",
+      "figureDataSha256": "13c11aa7c3e5fd733a1223d82b432ca14c9dcf31c362e81b8d8420350856ac65"
+    },
+    {
+      "plot": "stage14_r23_hard_fer_by_organization.png",
+      "figureData": "figure_data/stage14_r23_hard_fer_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "9518d0a435f734b5df511c4e0bb16744cefdf11bdcec976b17fdb3d04dae4604",
+      "figureDataSha256": "13c11aa7c3e5fd733a1223d82b432ca14c9dcf31c362e81b8d8420350856ac65"
+    },
+    {
+      "plot": "stage14_r34_hard_ber_by_organization.png",
+      "figureData": "figure_data/stage14_r34_hard_ber_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "42d49bcbf8c609b45fc9d537a656c9e689b7c22063ab0abc6fe455c7e415644c",
+      "figureDataSha256": "f4b8ab67ef1d810df10c891951f1906c2f3783e513304cec98e03e61c55359b6"
+    },
+    {
+      "plot": "stage14_r34_hard_fer_by_organization.png",
+      "figureData": "figure_data/stage14_r34_hard_fer_by_organization.csv",
+      "rows": 124,
+      "plotSha256": "128ddb2fe69896d09d1361e3247164fc256d2237b66b655d50ee8f17344ba0d5",
+      "figureDataSha256": "f4b8ab67ef1d810df10c891951f1906c2f3783e513304cec98e03e61c55359b6"
+    },
+    {
+      "plot": "stage14_soft_goodput_by_rate_and_organization.png",
+      "figureData": "figure_data/stage14_soft_goodput_by_rate_and_organization.csv",
+      "rows": 372,
+      "plotSha256": "77698866d1147cf37d1b38f38cd41ab4746d26ddb2c20ed4028355b361243e43",
+      "figureDataSha256": "9a6be1923a20dceb390920a27d117bca22b51f673a7b80e9a49a3917e3df49a0"
+    },
+    {
+      "plot": "stage14_hard_goodput_by_rate_and_organization.png",
+      "figureData": "figure_data/stage14_hard_goodput_by_rate_and_organization.csv",
+      "rows": 372,
+      "plotSha256": "020bfb3fb643f32e23208d3e0f10d7d7e443dc962888ae67760dc6fe3108f654",
+      "figureDataSha256": "4b9c5f293b6a5b127a51d0d613e20f8eac2071a27be5e19d22d3303c4f0f20fb"
+    },
+    {
+      "plot": "stage14_soft_first_output_latency.png",
+      "figureData": "figure_data/stage14_soft_first_output_latency.csv",
+      "rows": 12,
+      "plotSha256": "a2d961388ceb5e7e71ec9e67ae937ab608ff872dd5f556a0c1150ff53cae3310",
+      "figureDataSha256": "a11d1f47e72022dae6668a52c0bb106286ad03b9efcd51ca8d2b547c0f7f4418"
+    },
+    {
+      "plot": "stage14_soft_avg_p95_decision_latency.png",
+      "figureData": "figure_data/stage14_soft_avg_p95_decision_latency.csv",
+      "rows": 12,
+      "plotSha256": "e402b69b53148e8f17d33b5b3161d9124d431a2d1056a452ce2e40dae4f842f6",
+      "figureDataSha256": "a11d1f47e72022dae6668a52c0bb106286ad03b9efcd51ca8d2b547c0f7f4418"
+    },
+    {
+      "plot": "stage14_soft_buffer_compute_tradeoff.png",
+      "figureData": "figure_data/stage14_soft_buffer_compute_tradeoff.csv",
+      "rows": 12,
+      "plotSha256": "b4dde3f6a5755e75e6dfe7ecfdc81dc11a498c23df3627ed6c832b03592e7d18",
+      "figureDataSha256": "a11d1f47e72022dae6668a52c0bb106286ad03b9efcd51ca8d2b547c0f7f4418"
+    },
+    {
+      "plot": "stage14_hard_first_output_latency.png",
+      "figureData": "figure_data/stage14_hard_first_output_latency.csv",
+      "rows": 12,
+      "plotSha256": "0894d16a8a5c012b459e0a8c12129548926d2649765e5826fc55e8c028602875",
+      "figureDataSha256": "3fe3a86e25d23f51d70cd05dacafbfd1578d1ec1076dc9f345aedf0b7d119dae"
+    },
+    {
+      "plot": "stage14_hard_avg_p95_decision_latency.png",
+      "figureData": "figure_data/stage14_hard_avg_p95_decision_latency.csv",
+      "rows": 12,
+      "plotSha256": "505cb6356b7010a4c3f026eda8c60fd4d28d3a948480857da3ab847472d84c5d",
+      "figureDataSha256": "3fe3a86e25d23f51d70cd05dacafbfd1578d1ec1076dc9f345aedf0b7d119dae"
+    },
+    {
+      "plot": "stage14_hard_buffer_compute_tradeoff.png",
+      "figureData": "figure_data/stage14_hard_buffer_compute_tradeoff.csv",
+      "rows": 12,
+      "plotSha256": "4e9899e6e9a7922932f0ad7bc10ee2b1a96c2b118b8af3269ae31383c0250ec2",
+      "figureDataSha256": "3fe3a86e25d23f51d70cd05dacafbfd1578d1ec1076dc9f345aedf0b7d119dae"
+    },
+    {
+      "plot": "stage14_r12_continuous_output_progress.png",
+      "figureData": "figure_data/stage14_r12_continuous_output_progress.csv",
+      "rows": 27,
+      "plotSha256": "57f59dcca0579a6dc0af9e4527037cfe19c47554e05cf332d3301b2ceb6f5406",
+      "figureDataSha256": "1b4066e22c598ea71798ff60f34d709c9469348f7716df7f41e229ad1c69a8d5"
+    },
+    {
+      "plot": "stage14_r23_continuous_output_progress.png",
+      "figureData": "figure_data/stage14_r23_continuous_output_progress.csv",
+      "rows": 27,
+      "plotSha256": "f00dda1253c7fc6e6cc6b49f16e215de9ad537a8cd4e5e9bf2d4cade9dea525e",
+      "figureDataSha256": "e32eeb57c948445620db53231cd441eda3715e563cf8741a68a6eea2aadf3a5f"
+    },
+    {
+      "plot": "stage14_r34_continuous_output_progress.png",
+      "figureData": "figure_data/stage14_r34_continuous_output_progress.csv",
+      "rows": 21,
+      "plotSha256": "132a64d92a3049c13702fa500e815801a2290bad57e19c48196c8e986a53cdfb",
+      "figureDataSha256": "eec156ae380b751e6dd4de697d02d5720cd0ee24af64fd86937de066db0f0142"
+    },
+    {
+      "plot": "stage14_r12_boundary_relative_ber.png",
+      "figureData": "figure_data/stage14_r12_boundary_relative_ber.csv",
+      "rows": 60,
+      "plotSha256": "62e9ef91161a93f08c71f3343c6d324111b805360b6c6b789736ab0c93bbb663",
+      "figureDataSha256": "59861532b317694e90a9591cfccf92a22a1d433245ebd06a858c981d448e3298"
+    },
+    {
+      "plot": "stage14_r23_boundary_relative_ber.png",
+      "figureData": "figure_data/stage14_r23_boundary_relative_ber.csv",
+      "rows": 60,
+      "plotSha256": "40df071c397e34ccf36b3d27efdea906fae1b6275a4ae116bd4df53a3ea3300b",
+      "figureDataSha256": "fcd63c4609636910a6b99fc7f56a392a334a824fd034534f1034fe65e94977f9"
+    },
+    {
+      "plot": "stage14_r34_boundary_relative_ber.png",
+      "figureData": "figure_data/stage14_r34_boundary_relative_ber.csv",
+      "rows": 60,
+      "plotSha256": "d63a28373ae5714ee68ea7a324177a90e97c20d6d77056d880099727ed2d6353",
+      "figureDataSha256": "ac4fd3b4faad5b3cb0ca2beaaff5e305f481615059c382efec025966ed6e1c51"
+    }
+  ]
+}

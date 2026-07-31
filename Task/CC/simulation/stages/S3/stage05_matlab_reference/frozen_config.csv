@@ -1,0 +1,9 @@
+parameter,value,semantics
+referenceToolbox,MATLAB_Communications_Toolbox,official
+trellisFunction,poly2trellis,7_[171_133]
+encoderFunction,convenc,terminated_input_includes_tail
+hardDecoderFunction,vitdec_term_hard,traceback_35
+softDecoderFunction,vitdec_term_unquant,received_and_llr
+randomVectorCount,16,300_bit
+randomSeed,2026072004,cpp_mt19937
+sigmaSquared,0.36,llr_conversion

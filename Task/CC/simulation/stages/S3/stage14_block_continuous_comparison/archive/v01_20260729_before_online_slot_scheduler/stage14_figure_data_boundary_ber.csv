@@ -1,0 +1,9 @@
+sourceRowId,caseId,xRaw,yRaw,xPlot,yPlot,isZeroPoint,sourceFile,sourceHash
+0,A_BLOCK_300-R12,300.0,0.0,300.0,,YES,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a
+4,A_BLOCK_300-R23,300.0,0.0,300.0,,YES,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a
+1,B_CONT_50x6-R12,50.0,0.00022,50.0,0.00022,NO,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a
+5,B_CONT_50x6-R23,50.0,0.00415,50.0,0.00415,NO,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a
+2,C_CONT_100x3-R12,100.0,0.00025,100.0,0.00025,NO,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a
+6,C_CONT_100x3-R23,100.0,0.004025,100.0,0.004025,NO,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a
+3,D_CONT_150x2-R12,150.0,0.0005,150.0,0.0005,NO,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a
+7,D_CONT_150x2-R23,150.0,0.004,150.0,0.004,NO,stage14_figure_data_boundary_ber.csv,61a7e55bbfe9a7adccbb6b9a14b20e9003783192f94c64f5069eca176c016c6a

@@ -1,0 +1,88 @@
+{
+  "plots": [
+    {
+      "plot": "stage15_block_soft_ber_by_rate.png",
+      "figureData": "figure_data/stage15_block_soft_ber_by_rate.csv",
+      "rows": 141,
+      "plotSha256": "85c6d48441de3d882cf52326d6d5e2f9ea0a982514c98e3f655daee6ae11c47a",
+      "figureDataSha256": "5e78d2c416673a5f8c65603f52a78bbe6f98a11408a8db6c2a664cc0d9dfc8d2"
+    },
+    {
+      "plot": "stage15_block_soft_fer_by_rate.png",
+      "figureData": "figure_data/stage15_block_soft_fer_by_rate.csv",
+      "rows": 141,
+      "plotSha256": "f96c112f2feb19b799f9afa0c36c106b113b4d6a6aab31552c697bbb7bc763b8",
+      "figureDataSha256": "5e78d2c416673a5f8c65603f52a78bbe6f98a11408a8db6c2a664cc0d9dfc8d2"
+    },
+    {
+      "plot": "stage15_block_hard_soft_fer.png",
+      "figureData": "figure_data/stage15_block_hard_soft_fer.csv",
+      "rows": 282,
+      "plotSha256": "6fecd7c05e42b7482d6c38da2504cbc73e7ba5ab51911c05ea3ed629759ef65f",
+      "figureDataSha256": "3208df5dc402114254b28a1c94408c586672e4ad043f3402f8553f33d5c666a0"
+    },
+    {
+      "plot": "stage15_slot_soft_fer.png",
+      "figureData": "figure_data/stage15_slot_soft_fer.csv",
+      "rows": 372,
+      "plotSha256": "00ec8e6db9344707b143021459f4a438202ca469b89bb5447df686782f650a86",
+      "figureDataSha256": "5db7425b020e751b839bddbd8f0d91263c23084eecc03a359f0a30bed166b331"
+    },
+    {
+      "plot": "stage15_slot_hard_fer.png",
+      "figureData": "figure_data/stage15_slot_hard_fer.csv",
+      "rows": 372,
+      "plotSha256": "9408fb8358a12fdeb5f318fe6c282c62d8977eb2193671ea1861da703e345dc8",
+      "figureDataSha256": "21f69f63f3a85b1e8c4fd616bb277b0791a81106fc5aaf1b19811c0ad252ad4a"
+    },
+    {
+      "plot": "stage15_slot_soft_goodput.png",
+      "figureData": "figure_data/stage15_slot_soft_goodput.csv",
+      "rows": 372,
+      "plotSha256": "3a4adaf86adaba5c22f4bb8150e47a088f801e8a96f3a6592ba8c28ac9e04c64",
+      "figureDataSha256": "5db7425b020e751b839bddbd8f0d91263c23084eecc03a359f0a30bed166b331"
+    },
+    {
+      "plot": "stage15_slot_first_output_latency.png",
+      "figureData": "figure_data/stage15_slot_first_output_latency.csv",
+      "rows": 24,
+      "plotSha256": "622067f7696ffc3b525c776c2a961684f449880dc1c1b7a34a8db92b721da693",
+      "figureDataSha256": "4795414fe950d2bbac94edfb0d86e13ea8f65c8561aa4453e0a98def6a48d5d7"
+    },
+    {
+      "plot": "stage15_slot_avg_p95_latency.png",
+      "figureData": "figure_data/stage15_slot_avg_p95_latency.csv",
+      "rows": 12,
+      "plotSha256": "086acd9b864da291b2e92a70d72980a35e83a9353ccee8ff31cf49cd51dc6058",
+      "figureDataSha256": "3bd4f3e93b53259820568923ebaa97b18ee9cce72dca5332d5309b42b021de7f"
+    },
+    {
+      "plot": "stage15_quantization_snr_loss.png",
+      "figureData": "figure_data/stage15_quantization_snr_loss.csv",
+      "rows": 18,
+      "plotSha256": "5587a0aac515ecd5ceca9a224e000292d3b475cc459485989a27be8bd54e8e17",
+      "figureDataSha256": "95d941efec0c5ea1f44aebf7afcc07cbe35890d080a2f294c8b0a6b3a3cf69ff"
+    },
+    {
+      "plot": "stage15_traceback_memory_reliability.png",
+      "figureData": "figure_data/stage15_traceback_memory_reliability.csv",
+      "rows": 18,
+      "plotSha256": "0a828ddfc5f4247fc7ed36cc71ab4482975cd9e373774618d70f06d8cb4b90a7",
+      "figureDataSha256": "b7e87cc001cd532c709e8a5ab98730d5f683565cbbfcb09919927bfff22d9712"
+    },
+    {
+      "plot": "stage15_sliding_parameter_summary.png",
+      "figureData": "figure_data/stage15_sliding_parameter_summary.csv",
+      "rows": 42,
+      "plotSha256": "a27baaa7ce5ac98cd939c038cf66f3aeca5c02961033a489bd0186c1b443504d",
+      "figureDataSha256": "eaa96bf8d5a3ca02b2b98d023d844a8f6b99bf8340f0b6da204b6ad7769f5e10"
+    },
+    {
+      "plot": "stage15_latency_reliability_pareto.png",
+      "figureData": "figure_data/stage15_latency_reliability_pareto.csv",
+      "rows": 9,
+      "plotSha256": "db5ee322ff730b0e734fd488bcd349aed10e50712849772817fe84fbb17d2b15",
+      "figureDataSha256": "73171d2670c887d0a09369cb456d2fcba9948b37ff0271122ec7b3d07acd2499"
+    }
+  ]
+}

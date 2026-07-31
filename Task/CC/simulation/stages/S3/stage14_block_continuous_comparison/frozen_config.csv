@@ -1,0 +1,11 @@
+metric,value
+decisions,Hard|Soft Float
+rates,R12|R23|R34
+organizations,A_BLOCK_300|B_CONT_50x6|C_CONT_100x3|D_CONT_150x2
+snr_db,-5.0:0.5:10.0
+min_frames,1000
+target_frame_errors,200
+max_frames,50000
+hard_rows,372
+soft_rows,372
+all_rows,744

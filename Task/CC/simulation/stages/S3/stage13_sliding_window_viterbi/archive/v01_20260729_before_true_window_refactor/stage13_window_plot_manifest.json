@@ -1,0 +1,76 @@
+{
+  "figures": [
+    {
+      "png": "stage13_window_ber.png",
+      "pngSha256": "508e1387d43a2e205e1e956ab9bb9ac34666422a39a07b758947e8b21be10746",
+      "figureDataCsv": "stage13_window_figure_data_ber.csv",
+      "figureDataSha256": "8754306980883f9fc20753efdd4b0da9fefa4762f2b4eff47fd138626ae491e7",
+      "sourceCsv": "stage13_window_figure_data_ber.source.csv",
+      "sourceSha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775",
+      "xColumn": "windowInputBits",
+      "yColumn": "BER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage13_window_fer.png",
+      "pngSha256": "bc488b5580e8cf6e283bdc2d4113a4e211452596969a79060752792116f98361",
+      "figureDataCsv": "stage13_window_figure_data_fer.csv",
+      "figureDataSha256": "88652289fd13b98b0564dca628dec8962022a9e6396cfeb3a0eb21d104ecc89a",
+      "sourceCsv": "stage13_window_figure_data_fer.source.csv",
+      "sourceSha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775",
+      "xColumn": "windowInputBits",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    },
+    {
+      "png": "stage13_window_mismatch.png",
+      "pngSha256": "d7d28ef98dc3a187a66e856f4d7e99ec604ca197f66b05582b59082120394464",
+      "figureDataCsv": "stage13_window_figure_data_mismatch.csv",
+      "figureDataSha256": "60925398e6b1a57835ba487edfd875ce77a5910e7b3e4ee3cab340c036cd34b6",
+      "sourceCsv": "stage13_window_figure_data_mismatch.source.csv",
+      "sourceSha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775",
+      "xColumn": "windowInputBits",
+      "yColumn": "fullMismatchBits",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage13_window_latency.png",
+      "pngSha256": "62068bf5ba729859c3b870479c32cbf8829813d46424cde7f42ba78334cb4645",
+      "figureDataCsv": "stage13_window_figure_data_latency.csv",
+      "figureDataSha256": "1410bee3577e06d4d156479ac8d5b4bf6d573c229a51014f3d3e3725b5868bd6",
+      "sourceCsv": "stage13_window_figure_data_latency.source.csv",
+      "sourceSha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775",
+      "xColumn": "windowInputBits",
+      "yColumn": "firstOutputDelaySymbols",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage13_window_memory.png",
+      "pngSha256": "8f28abb3d85cc00f7174b4d40b1aa2611e8844d1e85203928c8e457f5d78178b",
+      "figureDataCsv": "stage13_window_figure_data_memory.csv",
+      "figureDataSha256": "465acbbe12a9898ec2fbd39d83a14d19181aaf7eb328632e6b7c52e2b90b4bd7",
+      "sourceCsv": "stage13_window_figure_data_memory.source.csv",
+      "sourceSha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775",
+      "xColumn": "windowInputBits",
+      "yColumn": "survivorMemoryBytes",
+      "yScale": "linear",
+      "zeroPolicy": "raw value plotted"
+    },
+    {
+      "png": "stage13_latency_reliability_tradeoff.png",
+      "pngSha256": "e83997daa35a2061c4fe9ca52cf00678a83ff69a8e92979273d6931d66812bc4",
+      "figureDataCsv": "stage13_window_figure_data_tradeoff.csv",
+      "figureDataSha256": "dca0163ed150b0b4470cccb814b0b011a84dc1066fe71c5ecb1cd82300c86609",
+      "sourceCsv": "stage13_window_figure_data_tradeoff.source.csv",
+      "sourceSha256": "c9f5b40d8d1c2fa5f53c53edcc2af6731adb91878dbaf25a4f662609a5533775",
+      "xColumn": "firstOutputDelaySymbols",
+      "yColumn": "FER",
+      "yScale": "log",
+      "zeroPolicy": "raw zero preserved; zero point omitted from log plotting"
+    }
+  ]
+}

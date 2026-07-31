@@ -1,0 +1,32 @@
+{
+  "stage": "stage12_continuous_encoder",
+  "branch": "stage01-cc",
+  "status": "PASS",
+  "functionalRanges": [
+    {
+      "name": "content1",
+      "baseCommit": "79232996798c9f6a7bb2809fc9806d6880ecaf65",
+      "contentCommit": "0165a577bb3e085f066d25495e5c515db5135f9d",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage12_continuous_encoder/tests/test_stage12.cpp"
+      ]
+    }
+  ],
+  "gate": "PASS_STAGE12_CONTINUOUS_ENCODER",
+  "formalResults": [
+    {
+      "path": "results/stage12_continuous_encoder_test_summary.csv",
+      "bytes": 383,
+      "sha256": "8826d07658c413672bcbd103ce08cf360d77d2f1cb2475b564780c41e939023e"
+    },
+    {
+      "path": "results/stage12_slot_metadata.csv",
+      "bytes": 1528,
+      "sha256": "6a8cc91b37ec8868839dd78e5f3b3f09c005df1f5a2666ca5f4b05871bccfd47"
+    }
+  ],
+  "formalResultCount": 2,
+  "remoteVerified": true,
+  "mergeStatus": "NOT_MERGED",
+  "balancedWeights": null
+}

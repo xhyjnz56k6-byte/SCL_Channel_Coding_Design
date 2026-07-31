@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage05_matlab_reference",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE05_CC_MATLAB_REFERENCE",
+  "gateStatus": "PASS",
+  "functionalRanges": [{
+    "name": "content",
+    "baseCommit": "90a256337ef5cb86148fd11d934f3e38b34ab2bb",
+    "contentCommit": "47057c4293a415f054675f8c63d7a94e3451b047",
+    "diffPaths": ["Task/CC/simulation/stages/S3/stage05_matlab_reference"],
+    "files": [
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/CMakeLists.txt",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/commands_used.md",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/config/stage05_config.json",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/frozen_config.csv",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/include/README.md",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/known_issues.md",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/matlab/stage05_matlab_reference.m",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/results/stage05_matlab_reference_comparison.csv",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/results/stage05_matlab_reference_cpp_trellis.csv",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/results/stage05_matlab_reference_cpp_vectors.csv",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/results/stage05_matlab_reference_hashes.json",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/results/stage05_matlab_reference_results_scope.md",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/results/stage05_matlab_reference_test_summary.csv",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/scripts/run_and_check_stage05.py",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/src/README.md",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/stage_plan.md",
+      "Task/CC/simulation/stages/S3/stage05_matlab_reference/tests/stage05_reference_runner.cpp"
+    ]
+  }],
+  "validation": {
+    "trellisBranches": 128,
+    "randomVectors": 16,
+    "hardVectors": 16,
+    "softSymbolVectors": 16,
+    "softLlrVectors": 16,
+    "totalBitMismatch": 0,
+    "hashedAssets": 3
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary baseCommit..contentCommit over diffPaths",
+    "sha256": "0f322ea29ab912a0200d17c57c09c244538bd1eb45404f9e3349b88709a908e0",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage05_matlab_reference/"],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
+  "mergeStatus": "NOT_MERGED"
+}

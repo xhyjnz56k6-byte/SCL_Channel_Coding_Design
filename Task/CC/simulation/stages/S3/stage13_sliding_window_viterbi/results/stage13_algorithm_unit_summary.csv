@@ -1,0 +1,12 @@
+check,status
+actual_Wx64_survivor_allocation,PASS
+W_changes_allocation_and_window_count,PASS
+S_changes_trigger_and_output_batch_count,PASS
+D_changes_traceback_operations,PASS
+each_bit_emitted_once,PASS
+final_flush_without_full_history,PASS
+r12_r23_r34_noiseless,PASS
+invalid_w_s_d_rejected,PASS
+reported_memory_equals_actual_allocation,PASS
+scheduled_slot_arrival_processing,PASS
+stage_gate,PASS_STAGE13_TRUE_SLIDING_ALGORITHM

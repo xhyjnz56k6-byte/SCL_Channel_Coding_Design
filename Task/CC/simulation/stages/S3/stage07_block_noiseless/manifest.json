@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "cc.stage.audit.v1",
+  "stage": "stage07_block_noiseless",
+  "scenario": "S3",
+  "branch": "stage01-cc",
+  "gate": "PASS_STAGE07_CC_BLOCK_NOISELESS",
+  "gateStatus": "PASS",
+  "functionalRanges": [
+    {
+      "name": "originalContent",
+      "baseCommit": "493b0e33c53a1da8cd29f58b402ad3d5cb3e06f2",
+      "contentCommit": "f75c99548ef481fb6822e67ddd0d947be3982a6e",
+      "diffPaths": ["Task/CC/simulation/stages/S3/stage07_block_noiseless"],
+      "files": [
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/CMakeLists.txt",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/commands_used.md",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/config/stage07_config.json",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/frozen_config.csv",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/include/README.md",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/known_issues.md",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/matlab/README.md",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_case_results.csv",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_checkpoint_roundtrip.csv",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_results_scope.md",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_test_summary.csv",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/scripts/run_stage07.py",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/src/README.md",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/stage_plan.md",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/tests/test_stage07_block_noiseless.cpp"
+      ]
+    },
+    {
+      "name": "repairContent",
+      "baseCommit": "f75c99548ef481fb6822e67ddd0d947be3982a6e",
+      "contentCommit": "2f5dba8c301c01a82530655c9765214068e58e27",
+      "diffPaths": ["Task/CC/simulation/stages/S3/stage07_block_noiseless"],
+      "files": [
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/results/stage07_block_noiseless_case_results.csv",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/scripts/run_stage07.py",
+        "Task/CC/simulation/stages/S3/stage07_block_noiseless/tests/test_stage07_block_noiseless.cpp"
+      ]
+    }
+  ],
+  "validation": {
+    "cases": 6,
+    "framesPerCase": 100,
+    "payloadBitMismatch": 0,
+    "payloadFrameMismatch": 0,
+    "nonFiniteMetricCount": 0,
+    "checkpointBasic": "PASS"
+  },
+  "changesPatch": {
+    "semantic": "git diff --binary --unified=0 baseCommit..repairCommit over Stage07",
+    "sha256": "f91eb1f8e9b987abbde0945a6557dc22e64ac5493d53ffe447fec8e488fa6a9f",
+    "includesAuditCommit": false
+  },
+  "scope": {
+    "allowedPrefixes": ["Task/CC/simulation/stages/S3/stage07_block_noiseless/"],
+    "outOfScopeChanges": []
+  },
+  "remoteVerification": "VERIFIED_ORIGIN_STAGE01_CC",
+  "mergeStatus": "NOT_MERGED"
+}

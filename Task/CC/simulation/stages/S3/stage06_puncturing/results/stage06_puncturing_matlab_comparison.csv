@@ -1,0 +1,5 @@
+patternId,punctureMismatch,hardPayloadMismatch,softPayloadMismatch,status
+R23_A_1110,0,0,0,PASS
+R23_B_1101,0,0,0,PASS
+R34_A_111001,0,0,0,PASS
+R34_B_110110,0,0,0,PASS

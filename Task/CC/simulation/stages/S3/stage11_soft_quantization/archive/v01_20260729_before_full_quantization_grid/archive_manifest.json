@@ -1,0 +1,167 @@
+{
+  "archiveVersion": "v01",
+  "archiveDate": "2026-07-29",
+  "reason": "full_quantization_grid",
+  "sourceStage": "stage11_soft_quantization",
+  "sourceHead": "6cda1f14f29a8cbe42ad3dcdc8a443ab35368b58",
+  "files": [
+    {
+      "path": "stage11_existing_data_audit.md",
+      "sizeBytes": 195,
+      "sha256": "6c9df8dae1c452b16c89203c5f155fea272260003415a44e5d9c4831074c5991"
+    },
+    {
+      "path": "stage11_quantization_ber.png",
+      "sizeBytes": 89506,
+      "sha256": "8c74d77b00abb6dafe13a951137677bc41fb1829940bea3046bfb3bbed1fa9fc"
+    },
+    {
+      "path": "stage11_quantization_comparison_summary.csv",
+      "sizeBytes": 156,
+      "sha256": "f94291a3e76b1dedfac0aed37a695ddbe8b6d9c4f63ecefee89af55575dd4973"
+    },
+    {
+      "path": "stage11_quantization_fer.png",
+      "sizeBytes": 87121,
+      "sha256": "411c5a8486fe834e040f51c80da1399a9fe8ad3a290be3f80d63520b04ee7418"
+    },
+    {
+      "path": "stage11_quantization_figure_data_ber.csv",
+      "sizeBytes": 2833,
+      "sha256": "e43bd74b1b41218390eed3f3ee01d13cf46bf6eec34ef4a6ca985cf6acb74431"
+    },
+    {
+      "path": "stage11_quantization_figure_data_ber.source.csv",
+      "sizeBytes": 3422,
+      "sha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd"
+    },
+    {
+      "path": "stage11_quantization_figure_data_fer.csv",
+      "sizeBytes": 2551,
+      "sha256": "10ffff160f57e8d686808f932ceae7e7891ddd2a847f46922ce3c5e72178a1d4"
+    },
+    {
+      "path": "stage11_quantization_figure_data_fer.source.csv",
+      "sizeBytes": 3422,
+      "sha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd"
+    },
+    {
+      "path": "stage11_quantization_figure_data_latency.csv",
+      "sizeBytes": 3029,
+      "sha256": "7331cea16d20f446afd6cd52e0f5bcddd590caf5130d43474a8de2e1ac786084"
+    },
+    {
+      "path": "stage11_quantization_figure_data_latency.source.csv",
+      "sizeBytes": 3422,
+      "sha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd"
+    },
+    {
+      "path": "stage11_quantization_figure_data_memory.csv",
+      "sizeBytes": 2609,
+      "sha256": "afb8bd915e4b1233af157ceb864612fdb80ffca9ce02afa8fc0cf3955f95fa61"
+    },
+    {
+      "path": "stage11_quantization_figure_data_memory.source.csv",
+      "sizeBytes": 3422,
+      "sha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd"
+    },
+    {
+      "path": "stage11_quantization_figure_data_saturation.csv",
+      "sizeBytes": 2699,
+      "sha256": "f6d2bba0135de60ab73b0952bb4e69df6aa8f5a5123b8c46265e2b59778c4bcc"
+    },
+    {
+      "path": "stage11_quantization_figure_data_saturation.source.csv",
+      "sizeBytes": 3422,
+      "sha256": "611d02e302bb887a58343400372d690c08936d7758404f15ce8afb1a16b5f9fd"
+    },
+    {
+      "path": "stage11_quantization_latency.png",
+      "sizeBytes": 93083,
+      "sha256": "17e4fee0998823ec6d998b3dd5758bb81e3763fa54a2312c9b2c4581a315525c"
+    },
+    {
+      "path": "stage11_quantization_memory.png",
+      "sizeBytes": 94830,
+      "sha256": "6d03aa9e44cf7d52d8809c7ad8cce5c7520e9d2436c397047d1658332ed93085"
+    },
+    {
+      "path": "stage11_quantization_plot_check.md",
+      "sizeBytes": 107,
+      "sha256": "b26dd65cb3405e9d72c0fb1c777dc693183f1e7f2895f1ee03af4126325f5f33"
+    },
+    {
+      "path": "stage11_quantization_plot_manifest.json",
+      "sizeBytes": 3148,
+      "sha256": "e161d8d51ca37028a906b6ac61d05072b7e0caaa4fb42abf5fe57dd39ae0d91d"
+    },
+    {
+      "path": "stage11_quantization_prescan.csv",
+      "sizeBytes": 154,
+      "sha256": "d3df35c9ff04f54a4097098f3b0f277fe289b26d227858a4f7e31c23a54bace0"
+    },
+    {
+      "path": "stage11_quantization_recommendation.csv",
+      "sizeBytes": 117,
+      "sha256": "d04218a4a234bf1a17e56c55ad89c5b0d365d3b3bf185be187e6a3d29c621ca2"
+    },
+    {
+      "path": "stage11_quantization_report.md",
+      "sizeBytes": 151,
+      "sha256": "468f0803f4a8c14e8a9b0cfffdac9d9354befc111d2e5afd69fa317ddfb7ab04"
+    },
+    {
+      "path": "stage11_quantization_saturation.png",
+      "sizeBytes": 94945,
+      "sha256": "1971f76b0af09cd381484928a65980c3f613a6dae2bd53967c73cb786584dc8e"
+    },
+    {
+      "path": "stage11_quantization_test_summary.csv",
+      "sizeBytes": 154,
+      "sha256": "472668d8c6c8f71ebd7aa369a8a25e4b2f8230852b9c62fdbce3caf734d2f9ce"
+    },
+    {
+      "path": "stage11_soft_quantization_results.csv",
+      "sizeBytes": 3439,
+      "sha256": "2819f96b7a0ce63c01ba9db52541ed3906f60242cf6d4a98d3821c11cbf5d49c"
+    },
+    {
+      "path": "stage_root_audit_snapshot/commands_used.md",
+      "sizeBytes": 261,
+      "sha256": "d4b409bf7b74753c89a3d044b52c50e5f45ee37280f0a620319fdebde03ec630"
+    },
+    {
+      "path": "stage_root_audit_snapshot/frozen_config.csv",
+      "sizeBytes": 381,
+      "sha256": "e41c90bea06f375df555fd66dbff2eb920cf021030833d36c4a236cb461eab8b"
+    },
+    {
+      "path": "stage_root_audit_snapshot/known_issues.md",
+      "sizeBytes": 172,
+      "sha256": "d15412d6a8f47732de84dba7621dc39e97c0291346f25eade4361a92eaebd970"
+    },
+    {
+      "path": "stage_root_audit_snapshot/manifest.json",
+      "sizeBytes": 2607,
+      "sha256": "863c82ce3a454066f87e8bb0655363a1bb28ba68d25185c5b44cf34ce7ec3d7d"
+    },
+    {
+      "path": "stage_root_audit_snapshot/readme.txt",
+      "sizeBytes": 735,
+      "sha256": "b5189aef269e8cbbf9e3926e9f97003658983311058559c523e5308d78145f4c"
+    },
+    {
+      "path": "stage_root_audit_snapshot/stage_plan.md",
+      "sizeBytes": 1699,
+      "sha256": "f48ed59adddc8081628aa8260789e24fd91fd84e5cd61ed780b2e21edd32ac9e"
+    },
+    {
+      "path": "stage_root_audit_snapshot/validation_report.md",
+      "sizeBytes": 656,
+      "sha256": "e4be8029a25f12ab8d570a87b5b6362ad61950b52af70471509d5f4d70778dd7"
+    }
+  ],
+  "sha256": "4e4681cfd5f224c1da0abca4a73fcf26c4aae3ecb34aa7985c941a8cee30207b",
+  "previousStatus": "PREVIOUS_REVISION_SNAPSHOT",
+  "movePolicy": "results contents moved; stage-root audit files copied as snapshot"
+}
