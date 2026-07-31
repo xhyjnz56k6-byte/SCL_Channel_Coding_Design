@@ -1,0 +1,7 @@
+start=2026-07-30T03:10:00.778580+00:00
+key=n640_snr_p01p0
+resumeCount=0
+complete=2026-07-30T03:10:42.406296+00:00
+frames=50000
+elapsedSeconds=41.627043
+status=COMPLETED

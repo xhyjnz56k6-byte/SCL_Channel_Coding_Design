@@ -1,0 +1,50 @@
+{
+  "title": "300比特LDPC不同码长相对编码增益（NMS，FER）",
+  "titleLanguage": "zh-CN",
+  "xLabel": "目标误帧率",
+  "yLabel": "相对编码增益（dB）",
+  "xScale": "log",
+  "yScale": "linear",
+  "seriesMapping": {
+    "560_vs_480": "560比特相对480比特",
+    "640_vs_480": "640比特相对480比特",
+    "640_vs_560": "640比特相对560比特"
+  },
+  "colorMapping": {
+    "560比特相对480比特": "#1f77b4",
+    "640比特相对480比特": "#ff7f0e",
+    "640比特相对560比特": "#2ca02c"
+  },
+  "lineStyleMapping": {
+    "560比特相对480比特": "-",
+    "640比特相对480比特": "--",
+    "640比特相对560比特": "-."
+  },
+  "markerMapping": {
+    "560比特相对480比特": "o",
+    "640比特相对480比特": "s",
+    "640比特相对560比特": "^"
+  },
+  "legendMapping": {
+    "560_vs_480": "560比特相对480比特",
+    "640_vs_480": "640比特相对480比特",
+    "640_vs_560": "640比特相对560比特"
+  },
+  "zeroErrorLegend": null,
+  "zeroErrorHandling": "RAW_ZERO_PRESERVED_NOT_PLOTTED",
+  "sourceData": "nms_fer_relative_coding_gain_25points_figure_data.csv",
+  "sourceDataSha256": "cadbc026abf3aff2cc6f34c59fa4cad47f0297e77b8c43a46dc7bc89a3e47ad7",
+  "figureDataCsv": "nms_fer_relative_coding_gain_25points_figure_data.csv",
+  "figureDataCsvSha256": "cadbc026abf3aff2cc6f34c59fa4cad47f0297e77b8c43a46dc7bc89a3e47ad7",
+  "plotScript": "Task/LDPC/block/scripts/revised_coding_gain.py",
+  "plotScriptSha256": "b706f11d4c3870205a975a29a5131f7f4e96c7f861f42ce81621fb018c33ece4",
+  "pngSha256": "5c3f8d4103d11bf5f605880df899c10da6076cb652373b7655ac5f1f7cda8f6e",
+  "dataValuesChanged": false,
+  "font": "Microsoft YaHei",
+  "dpi": 180,
+  "figureSizeInches": [
+    10,
+    6
+  ],
+  "legendLocation": "upper right"
+}

@@ -1,0 +1,8 @@
+field,BP,NMS,status
+H,shared,shared,MATCH
+layerGraph,shared,shared,MATCH
+edgeOrder,shared,shared,MATCH
+channelLlr,shared,shared,MATCH
+maxIterations,32,32,MATCH
+earlyStopPolicy,SYNDROME_AFTER_FULL_ITERATION,SYNDROME_AFTER_FULL_ITERATION,MATCH
+timingBoundary,decoder_only,decoder_only,MATCH

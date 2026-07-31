@@ -1,0 +1,7 @@
+parameter,value
+payload_length,300
+actual_lengths,"480;560;640"
+channel,AWGN
+snr_definition,Es/N0
+max_iterations,32
+formal_started,false

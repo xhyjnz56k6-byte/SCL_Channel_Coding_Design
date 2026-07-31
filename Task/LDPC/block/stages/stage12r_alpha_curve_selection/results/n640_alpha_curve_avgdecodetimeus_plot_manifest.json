@@ -1,0 +1,21 @@
+{
+  "title": "640比特LDPC不同缩放因子的平均译码时延对比",
+  "x": "snrDb",
+  "y": "avgDecodeTimeUs",
+  "series": [
+    "BP",
+    "MS (α=1.00)",
+    "NMS (α=0.60)",
+    "NMS (α=0.65)",
+    "NMS (α=0.70)",
+    "NMS (α=0.75)",
+    "NMS (α=0.80)",
+    "NMS (α=0.85)",
+    "NMS (α=0.90)",
+    "NMS (α=0.95)"
+  ],
+  "source": "n640_alpha_curve_avgdecodetimeus_figure_data.csv",
+  "pngSha256": "066314f1885f4a4b33ff7f6ef1854a29ca51db63eaa287422bb217db6c2c4e22",
+  "interpolation": false,
+  "smoothing": false
+}

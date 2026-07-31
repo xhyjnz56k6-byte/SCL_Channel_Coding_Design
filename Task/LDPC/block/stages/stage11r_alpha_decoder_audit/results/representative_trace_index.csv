@@ -1,0 +1,10 @@
+category,actualLength,frameIndex,snrDb,decoderType,alpha,bpUsedIterations,candidateUsedIterations
+bp_correct_candidate_wrong,480,30000,3,DIRECT_LAYERED_NMS,0.59999999999999998,2,32
+bp_correct_candidate_wrong,480,30000,3,DIRECT_LAYERED_NMS,0.65000000000000002,2,32
+bp_correct_candidate_wrong,480,30000,3,DIRECT_LAYERED_NMS,0.69999999999999996,2,32
+both_wrong_large_iteration_gap,480,30002,3,DIRECT_LAYERED_NMS,0.59999999999999998,2,32
+both_wrong_large_iteration_gap,480,30002,3,DIRECT_LAYERED_NMS,0.65000000000000002,2,32
+both_wrong_large_iteration_gap,480,30002,3,DIRECT_LAYERED_NMS,0.69999999999999996,2,32
+bp_wrong_candidate_correct,480,30037,3,DIRECT_LAYERED_MS,1,32,1
+bp_wrong_candidate_correct,480,30041,3,DIRECT_LAYERED_NMS,0.94999999999999996,32,2
+bp_wrong_candidate_correct,480,30041,3,DIRECT_LAYERED_MS,1,32,2

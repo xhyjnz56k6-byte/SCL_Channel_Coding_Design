@@ -1,0 +1,11 @@
+{
+  "key": "n560_snr_p04p5",
+  "configHash": "7c571bfd784eb622ed7b51fbd286473bdf226b970668e6c605e5c4ebd0e1547e",
+  "codeCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+  "checkpointHash": "6b99d7fba515ffa62cdbb9d27cfb6497621a7a6bd72f343a1dcec86fb17de619",
+  "pointResultSha256": "d8f65323f9222a1855c41bf41859a4a4e966e356c4980b608ac8d0c5ada42abc",
+  "frames": 1888,
+  "chunks": 4,
+  "atomicWrite": true,
+  "status": "COMPLETED"
+}

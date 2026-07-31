@@ -1,0 +1,19 @@
+{
+  "stage": "stage12r_alpha_curve_selection",
+  "values": {
+    "480": 0.9,
+    "560": 0.9,
+    "640": 0.8
+  },
+  "alphaOneMeaning": "MS",
+  "alphaOneRetained": false,
+  "selectionOrder": [
+    "reliability",
+    "FER",
+    "delay",
+    "complexity",
+    "stability"
+  ],
+  "complexityMetric": "average edge-message updates per frame",
+  "formalStarted": false
+}

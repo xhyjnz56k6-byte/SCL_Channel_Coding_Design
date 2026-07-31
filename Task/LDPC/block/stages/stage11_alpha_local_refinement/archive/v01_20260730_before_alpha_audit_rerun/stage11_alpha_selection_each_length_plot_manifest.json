@@ -1,0 +1,22 @@
+{
+  "sourceFiles": [
+    "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design_LDPC/Task/LDPC/block/stages/stage11_alpha_local_refinement/results/alpha_all_candidates.csv"
+  ],
+  "sourceHashes": [
+    "08836b6d2f480b1b531500300b9e3032bf44e5a0df5a74bd18bca6403ff96ada"
+  ],
+  "xColumn": "alpha",
+  "yColumn": "FER",
+  "xUnit": "dimensionless",
+  "yUnit": "dimensionless",
+  "xScale": "linear",
+  "yScale": "linear",
+  "conversionFormula": "raw points; no interpolation",
+  "zeroHandling": "half-event upper-bound marker for log axes; source zero retained",
+  "missingValueHandling": "reject",
+  "lineStyle": "fixed by actual length and decoder",
+  "marker": "fixed by decoder",
+  "legend": "upper right",
+  "scriptHash": "3f70c2c73275122717e92d631ef2e912d99f4e015ece0f6601b9794c1bfdd422",
+  "outputHash": "7c93d635819ffac97cd6d3998d597398bf8dbd38fbce8d96ce94183aefd95a29"
+}

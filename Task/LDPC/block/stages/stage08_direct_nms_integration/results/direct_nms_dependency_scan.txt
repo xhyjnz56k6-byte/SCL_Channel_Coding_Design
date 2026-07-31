@@ -1,0 +1,4 @@
+Direct H/Tanner graph only.
+rateMatch=ABSENT
+rateRecover=ABSENT
+PASS

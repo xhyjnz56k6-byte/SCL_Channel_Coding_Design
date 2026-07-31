@@ -1,0 +1,17 @@
+{
+  "title": "Stage13R 修复版 smoke：平均边消息更新次数/帧",
+  "x": "snrDb",
+  "y": "avg_normalized_complexity",
+  "series": [
+    "N480 BP",
+    "N480 NMS (α=0.90)",
+    "N560 BP",
+    "N560 NMS (α=0.90)",
+    "N640 BP",
+    "N640 NMS (α=0.80)"
+  ],
+  "source": "stage13r_avgcomplexity_figure_data.csv",
+  "pngSha256": "667854ba76b67e51c9fc1f2f246b26e00ab159199686ceb0376a6d0c6507835e",
+  "interpolation": false,
+  "smoothing": false
+}

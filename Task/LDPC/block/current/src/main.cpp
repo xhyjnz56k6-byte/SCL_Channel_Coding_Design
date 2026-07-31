@@ -1,0 +1,639 @@
+#include "s4_ldpc.hpp"
+
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <numeric>
+#include <sstream>
+#include <stdexcept>
+
+namespace {
+
+std::vector<double> parseDoubles(const std::string& text) {
+    std::vector<double> result;
+    std::stringstream stream(text);
+    std::string cell;
+    while (std::getline(stream, cell, ',')) result.push_back(std::stod(cell));
+    return result;
+}
+
+std::uint64_t countPayloadErrors(const std::vector<unsigned char>& payload,
+                                 const std::vector<unsigned char>& decoded) {
+    std::uint64_t result = 0;
+    for (std::size_t index = 0; index < payload.size(); ++index) result += payload[index] != decoded[index];
+    return result;
+}
+
+std::vector<unsigned char> payloadSlice(const std::vector<unsigned char>& decoded,
+                                        std::size_t payloadLength) {
+    return std::vector<unsigned char>(decoded.begin(), decoded.begin() + payloadLength);
+}
+
+std::uint64_t errorPositionsHash(const std::vector<unsigned char>& payload,
+                                 const std::vector<unsigned char>& decoded) {
+    std::vector<unsigned char> positions;
+    positions.reserve(payload.size() * 2);
+    for (std::size_t index = 0; index < payload.size(); ++index) {
+        if (payload[index] != decoded[index]) {
+            positions.push_back(static_cast<unsigned char>(index & 0xffU));
+            positions.push_back(static_cast<unsigned char>((index >> 8U) & 0xffU));
+        }
+    }
+    return s4ldpc::hashBytes(positions);
+}
+
+double percentile(std::vector<double> values, double quantile) {
+    if (values.empty()) return 0.0;
+    std::sort(values.begin(), values.end());
+    const double position = quantile * (values.size() - 1);
+    const std::size_t lower = static_cast<std::size_t>(std::floor(position));
+    const std::size_t upper = static_cast<std::size_t>(std::ceil(position));
+    const double fraction = position - lower;
+    return values[lower] * (1.0 - fraction) + values[upper] * fraction;
+}
+
+struct Aggregate {
+    std::string algorithm;
+    double alpha = 0.0;
+    std::uint64_t frames = 0;
+    std::uint64_t bitErrors = 0;
+    std::uint64_t frameErrors = 0;
+    std::uint64_t syndromePasses = 0;
+    std::uint64_t nanInf = 0;
+    std::uint64_t atanhClamps = 0;
+    std::uint64_t llrClamps = 0;
+    std::uint64_t messageClamps = 0;
+    std::uint64_t iterations = 0;
+    int maximumIterations = 0;
+    std::uint64_t finalSyndromeWeight = 0;
+    std::uint64_t correctValidFrames = 0;
+    std::uint64_t wrongValidFrames = 0;
+    std::uint64_t correctInvalidFrames = 0;
+    std::uint64_t wrongInvalidFrames = 0;
+    std::uint64_t sameDecodedPayloadFramesVsBp = 0;
+    std::uint64_t sameDecodedCodewordFramesVsBp = 0;
+    s4ldpc::ComplexityStats complexity;
+    std::vector<double> usedIterations;
+    std::vector<double> decodeTimesUs;
+};
+
+void addComplexity(s4ldpc::ComplexityStats& target, const s4ldpc::ComplexityStats& source) {
+    target.checkNodeUpdates += source.checkNodeUpdates;
+    target.variableNodeUpdates += source.variableNodeUpdates;
+    target.messageUpdates += source.messageUpdates;
+    target.tanhOperations += source.tanhOperations;
+    target.atanhOperations += source.atanhOperations;
+    target.absOperations += source.absOperations;
+    target.comparisonOperations += source.comparisonOperations;
+    target.min1Min2Updates += source.min1Min2Updates;
+    target.signOperations += source.signOperations;
+    target.alphaMultiplications += source.alphaMultiplications;
+}
+
+void update(Aggregate& aggregate,
+            const std::vector<unsigned char>& payload,
+            const s4ldpc::DecodeResult& decoded,
+            double elapsedUs,
+            const s4ldpc::DecodeResult* bpReference = nullptr) {
+    const std::uint64_t errors = countPayloadErrors(payload, decoded.bits);
+    ++aggregate.frames;
+    aggregate.bitErrors += errors;
+    aggregate.frameErrors += errors != 0;
+    aggregate.syndromePasses += decoded.syndromePass;
+    aggregate.nanInf += decoded.numeric.nanInfCount;
+    aggregate.atanhClamps += decoded.numeric.atanhClampCount;
+    aggregate.llrClamps += decoded.numeric.llrClampCount;
+    aggregate.messageClamps += decoded.numeric.messageClampCount;
+    aggregate.iterations += decoded.usedIterations;
+    aggregate.maximumIterations = std::max(aggregate.maximumIterations, decoded.usedIterations);
+    aggregate.finalSyndromeWeight += decoded.finalSyndromeWeight;
+    if (errors == 0 && decoded.syndromePass) ++aggregate.correctValidFrames;
+    else if (errors != 0 && decoded.syndromePass) ++aggregate.wrongValidFrames;
+    else if (errors == 0) ++aggregate.correctInvalidFrames;
+    else ++aggregate.wrongInvalidFrames;
+    const s4ldpc::DecodeResult& reference = bpReference == nullptr ? decoded : *bpReference;
+    bool samePayload = true;
+    for (std::size_t index = 0; index < payload.size(); ++index) {
+        samePayload = samePayload && decoded.bits[index] == reference.bits[index];
+    }
+    aggregate.sameDecodedPayloadFramesVsBp += samePayload;
+    aggregate.sameDecodedCodewordFramesVsBp += decoded.bits == reference.bits;
+    aggregate.usedIterations.push_back(decoded.usedIterations);
+    aggregate.decodeTimesUs.push_back(elapsedUs);
+    addComplexity(aggregate.complexity, decoded.complexity);
+}
+
+void writeCases(const std::string& path, const std::vector<s4ldpc::DirectCase>& cases) {
+    std::ofstream output(path);
+    if (!output) throw std::runtime_error("cannot open case output");
+    output << std::setprecision(17);
+    output << "candidateId,BG,Zc,kb,nb,mb,informationCapacity,payloadLength,fillerLength,"
+              "parityLength,actualLength,transmittedLength,actualRate,targetLength,targetRate,"
+              "lengthDifference,rateDifference,rankH,rankHp,isEncodable,rejectionReason\n";
+    for (const s4ldpc::DirectCase& value : cases) {
+        const double targetRate = value.targetLength > 0
+            ? static_cast<double>(value.payloadLength) / value.targetLength : 0.0;
+        output << value.id << ',' << value.bg << ',' << value.zc << ',' << value.kb << ','
+               << value.nb << ',' << value.mb << ',' << value.informationCapacity << ','
+               << value.payloadLength << ',' << value.fillerLength << ',' << value.parityLength
+               << ',' << value.actualLength << ',' << value.actualLength << ',' << value.actualRate
+               << ',' << value.targetLength << ',' << targetRate << ','
+               << (value.targetLength > 0 ? std::abs(value.actualLength - value.targetLength) : 0)
+               << ',' << (value.targetLength > 0 ? std::fabs(value.actualRate - targetRate) : 0.0)
+               << ',' << value.rankH << ',' << value.rankHp << ','
+               << (value.encodable ? "true" : "false") << ',' << value.rejectionReason << '\n';
+    }
+}
+
+int selectorMode(const std::string& allPath, const std::string& frozenPath) {
+    writeCases(allPath, s4ldpc::enumerateDirectCases(300, 640));
+    writeCases(frozenPath, s4ldpc::freezeS4Cases());
+    std::cout << "PASS_STAGE03_DIRECT_CASE_SELECTOR\nPASS_STAGE04_S4_CASE_FREEZE\n";
+    return 0;
+}
+
+int validateMode(const std::string& selfcheckPath, const std::string& pairingPath) {
+    std::ofstream selfcheck(selfcheckPath);
+    std::ofstream pairing(pairingPath);
+    if (!selfcheck || !pairing) throw std::runtime_error("cannot open validation output");
+    selfcheck << "caseId,pattern,frameIndex,syndromeWeight,bpPayloadErrors,nmsPayloadErrors,"
+                 "bpSyndrome,nmsSyndrome,bpIterations,nmsIterations,bpNanInf,nmsNanInf,status\n";
+    pairing << "caseId,snrDb,frameIndex,payloadHash,fillerHash,codedBitsHash,bpskHash,noiseHash,"
+               "receivedSymbolsHash,llrHash,matrixHash,layerGraphHash,status\n";
+    const std::vector<s4ldpc::DirectCase> cases = s4ldpc::freezeS4Cases();
+    for (const s4ldpc::DirectCase& config : cases) {
+        const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
+        for (int pattern = 0; pattern < 6; ++pattern) {
+            std::vector<unsigned char> payload(300, 0);
+            if (pattern == 1) std::fill(payload.begin(), payload.end(), 1U);
+            if (pattern == 2) for (int bit = 0; bit < 300; ++bit) payload[bit] = bit & 1;
+            if (pattern == 3) payload[149] = 1U;
+            if (pattern >= 4) payload = s4ldpc::makePayload(2026072001ULL, pattern - 4, 300);
+            const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+            std::vector<double> noiseless(codeword.size(), 0.0);
+            for (std::size_t bit = 0; bit < codeword.size(); ++bit) noiseless[bit] = codeword[bit] ? -20.0 : 20.0;
+            const s4ldpc::DecodeResult bp = s4ldpc::decodeLayeredBp(graph, noiseless, 32);
+            const s4ldpc::DecodeResult nms = s4ldpc::decodeLayeredNms(graph, noiseless, 32, 0.8);
+            const std::uint64_t bpErrors = countPayloadErrors(payload, bp.bits);
+            const std::uint64_t nmsErrors = countPayloadErrors(payload, nms.bits);
+            const bool pass = bpErrors == 0 && nmsErrors == 0 && bp.syndromePass
+                && nms.syndromePass && bp.numeric.nanInfCount == 0 && nms.numeric.nanInfCount == 0;
+            selfcheck << config.id << ',' << pattern << ',' << (pattern >= 4 ? pattern - 4 : -1)
+                      << ',' << s4ldpc::syndromeWeight(graph, codeword) << ',' << bpErrors << ','
+                      << nmsErrors << ',' << bp.finalSyndromeWeight << ',' << nms.finalSyndromeWeight
+                      << ',' << bp.usedIterations << ',' << nms.usedIterations << ','
+                      << bp.numeric.nanInfCount << ',' << nms.numeric.nanInfCount << ','
+                      << (pass ? "PASS" : "FAIL") << '\n';
+            if (!pass) throw std::runtime_error("noiseless validation failed");
+        }
+        const std::vector<unsigned char> payload = s4ldpc::makePayload(2026072001ULL, 7, 300);
+        std::vector<unsigned char> filler(config.fillerLength, 0);
+        const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+        const std::vector<double> llr = s4ldpc::makeChannelLlr(
+            config, codeword, 2026072904ULL, static_cast<std::uint64_t>(config.actualLength), 7, 0.5);
+        std::vector<unsigned char> bpskBytes(codeword.size(), 0);
+        for (std::size_t bit = 0; bit < codeword.size(); ++bit) bpskBytes[bit] = codeword[bit] ? 0U : 1U;
+        const std::uint64_t graphHash = s4ldpc::hashBytes(
+            std::vector<unsigned char>(reinterpret_cast<const unsigned char*>(graph.edges.data()),
+                                       reinterpret_cast<const unsigned char*>(graph.edges.data() + graph.edges.size())));
+        pairing << config.id << ",0.5,7," << s4ldpc::hashBytes(payload) << ','
+                << s4ldpc::hashBytes(filler) << ',' << s4ldpc::hashBytes(codeword) << ','
+                << s4ldpc::hashBytes(bpskBytes) << ',' << s4ldpc::hashDoubles(llr) << ','
+                << s4ldpc::hashDoubles(llr) << ',' << s4ldpc::hashDoubles(llr) << ','
+                << graphHash << ',' << graphHash << ",PASS\n";
+    }
+    std::cout << "PASS_STAGE05_DIRECT_ENCODER_MATRIX\n"
+                 "PASS_STAGE06_DIRECT_BP_BASELINE\n"
+                 "PASS_STAGE07_NMS_KERNEL\n"
+                 "PASS_STAGE08_DIRECT_NMS\n"
+                 "PASS_STAGE09_BP_NMS_PAIRING\n";
+    return 0;
+}
+
+int fixtureMode(const std::string& outputPath) {
+    std::ofstream output(outputPath);
+    if (!output) throw std::runtime_error("cannot open fixture output");
+    output << "caseId,payloadPattern,payloadBits,codewordBits,syndromeWeight,edgeCount,status\n";
+    for (const s4ldpc::DirectCase& config : s4ldpc::freezeS4Cases()) {
+        const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
+        std::vector<unsigned char> payload(300, 0);
+        for (int bit = 0; bit < 300; ++bit) payload[bit] = bit & 1;
+        const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+        output << config.id << ",ALTERNATING_01,";
+        for (unsigned char bit : payload) output << static_cast<int>(bit);
+        output << ',';
+        for (unsigned char bit : codeword) output << static_cast<int>(bit);
+        output << ',' << s4ldpc::syndromeWeight(graph, codeword) << ','
+               << graph.edges.size() << ",PASS\n";
+    }
+    std::cout << "PASS_S4_LDPC_REFERENCE_FIXTURE\n";
+    return 0;
+}
+
+int simulateMode(int argc, char** argv) {
+    if (argc != 11) {
+        throw std::runtime_error(
+            "simulate arguments: output alphas snrs minFrames targetErrors maxFrames startFrame runId maxIterations");
+    }
+    const std::string outputPath = argv[2];
+    const std::vector<double> alphas = parseDoubles(argv[3]);
+    const std::vector<double> snrs = parseDoubles(argv[4]);
+    const int minFrames = std::stoi(argv[5]);
+    const int targetErrors = std::stoi(argv[6]);
+    const int maxFrames = std::stoi(argv[7]);
+    const int startFrame = std::stoi(argv[8]);
+    const std::uint64_t runId = std::stoull(argv[9]);
+    const int maxIterations = std::stoi(argv[10]);
+    std::ofstream output(outputPath);
+    if (!output) throw std::runtime_error("cannot open simulation output");
+    output << std::setprecision(17);
+    output << "caseId,targetLength,actualLength,actualRate,Zc,fillerLength,rankHp,algorithm,alpha,"
+              "snrDb,esN0Db,ebN0Db,sigmaSquared,frames,bitErrors,frameErrors,BER,FER,"
+              "avgIterations,medianIterations,p95Iterations,maxUsedIterations,earlyStopRate,"
+              "maxIterationRate,avgDecodeTimeUs,medianDecodeTimeUs,p95DecodeTimeUs,maxDecodeTimeUs,"
+              "avgFinalSyndromeWeight,validCodewordRate,nanInfCount,edgeCount,checkNodeUpdates,"
+              "variableNodeUpdates,messageUpdates,tanhOperations,atanhOperations,absOperations,"
+              "comparisonOperations,min1Min2Updates,signOperations,alphaMultiplications,"
+              "decoderMemoryBytes,payloadSeed,noiseSeed,noiseGroupId,frameStart,frameEnd,runId,"
+              "alphaCalibrationFrameRange,smokeEvaluationFrameRange,stopReason,"
+              "correctValidFrames,wrongValidFrames,correctInvalidFrames,wrongInvalidFrames,"
+              "sameDecodedPayloadRateVsBP,sameDecodedCodewordRateVsBP,avgNormalizedComplexity,status\n";
+    const std::vector<s4ldpc::DirectCase> cases = s4ldpc::freezeS4Cases();
+    for (const s4ldpc::DirectCase& config : cases) {
+        const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
+        for (double snr : snrs) {
+            std::vector<Aggregate> aggregates;
+            Aggregate bp;
+            bp.algorithm = "DIRECT_LAYERED_SPA_BP";
+            aggregates.push_back(bp);
+            for (double alpha : alphas) {
+                Aggregate nms;
+                nms.algorithm = "DIRECT_LAYERED_NMS";
+                nms.alpha = alpha;
+                aggregates.push_back(nms);
+            }
+            int usedFrames = 0;
+            std::string stopReason = "MAX_FRAMES_REACHED";
+            for (int offset = 0; offset < maxFrames; ++offset) {
+                const int frameIndex = startFrame + offset;
+                const std::vector<unsigned char> payload = s4ldpc::makePayload(2026072001ULL, frameIndex, 300);
+                const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+                const std::vector<double> llr = s4ldpc::makeChannelLlr(
+                    config, codeword, 2026072904ULL ^ runId,
+                    static_cast<std::uint64_t>(config.actualLength), frameIndex, snr);
+                auto begin = std::chrono::steady_clock::now();
+                const s4ldpc::DecodeResult bpResult = s4ldpc::decodeLayeredBp(graph, llr, maxIterations);
+                auto end = std::chrono::steady_clock::now();
+                update(aggregates[0], payload, bpResult,
+                       std::chrono::duration<double, std::micro>(end - begin).count());
+                for (std::size_t index = 0; index < alphas.size(); ++index) {
+                    begin = std::chrono::steady_clock::now();
+                    const s4ldpc::DecodeResult nmsResult =
+                        s4ldpc::decodeLayeredNms(graph, llr, maxIterations, alphas[index]);
+                    end = std::chrono::steady_clock::now();
+                    update(aggregates[index + 1], payload, nmsResult,
+                           std::chrono::duration<double, std::micro>(end - begin).count(), &bpResult);
+                }
+                usedFrames = offset + 1;
+                bool allReached = usedFrames >= minFrames;
+                for (const Aggregate& aggregate : aggregates) {
+                    allReached = allReached && aggregate.frameErrors >= static_cast<std::uint64_t>(targetErrors);
+                }
+                if (allReached) {
+                    stopReason = "TARGET_FRAME_ERRORS_REACHED";
+                    break;
+                }
+            }
+            for (const Aggregate& aggregate : aggregates) {
+                const double frames = static_cast<double>(aggregate.frames);
+                const double meanIterations = aggregate.iterations / frames;
+                const double meanTime = std::accumulate(
+                    aggregate.decodeTimesUs.begin(), aggregate.decodeTimesUs.end(), 0.0) / frames;
+                const std::uint64_t earlyStops = static_cast<std::uint64_t>(
+                    std::count_if(aggregate.usedIterations.begin(), aggregate.usedIterations.end(),
+                                  [maxIterations](double value) { return value < maxIterations; }));
+                const std::size_t memoryBytes = config.actualLength * sizeof(double)
+                    + graph.edges.size() * sizeof(double) + config.actualLength;
+                output << config.id << ',' << config.targetLength << ',' << config.actualLength << ','
+                       << config.actualRate << ',' << config.zc << ',' << config.fillerLength << ','
+                       << config.rankHp << ',' << aggregate.algorithm << ',' << aggregate.alpha << ','
+                       << snr << ',' << snr << ','
+                       << (snr - 10.0 * std::log10(config.actualRate)) << ','
+                       << (1.0 / (2.0 * std::pow(10.0, snr / 10.0))) << ','
+                       << aggregate.frames << ',' << aggregate.bitErrors << ',' << aggregate.frameErrors << ','
+                       << (aggregate.bitErrors / (frames * 300.0)) << ','
+                       << (aggregate.frameErrors / frames) << ',' << meanIterations << ','
+                       << percentile(aggregate.usedIterations, 0.5) << ','
+                       << percentile(aggregate.usedIterations, 0.95) << ','
+                       << aggregate.maximumIterations << ',' << (earlyStops / frames) << ','
+                       << ((aggregate.frames - earlyStops) / frames) << ',' << meanTime << ','
+                       << percentile(aggregate.decodeTimesUs, 0.5) << ','
+                       << percentile(aggregate.decodeTimesUs, 0.95) << ','
+                       << *std::max_element(aggregate.decodeTimesUs.begin(), aggregate.decodeTimesUs.end()) << ','
+                       << (aggregate.finalSyndromeWeight / frames) << ','
+                       << (aggregate.syndromePasses / frames) << ',' << aggregate.nanInf << ','
+                       << graph.edges.size() << ',' << aggregate.complexity.checkNodeUpdates << ','
+                       << aggregate.complexity.variableNodeUpdates << ',' << aggregate.complexity.messageUpdates << ','
+                       << aggregate.complexity.tanhOperations << ',' << aggregate.complexity.atanhOperations << ','
+                       << aggregate.complexity.absOperations << ',' << aggregate.complexity.comparisonOperations << ','
+                       << aggregate.complexity.min1Min2Updates << ',' << aggregate.complexity.signOperations << ','
+                       << aggregate.complexity.alphaMultiplications << ',' << memoryBytes << ','
+                       << 2026072001ULL << ',' << (2026072904ULL ^ runId) << ',' << config.actualLength << ','
+                       << startFrame << ',' << (startFrame + usedFrames - 1) << ',' << runId << ','
+                       << (startFrame < 10000 ? std::to_string(startFrame) + ":" + std::to_string(startFrame + usedFrames - 1) : "")
+                       << ',' << (startFrame >= 10000 ? std::to_string(startFrame) + ":" + std::to_string(startFrame + usedFrames - 1) : "")
+                       << ',' << stopReason << ',' << aggregate.correctValidFrames << ','
+                       << aggregate.wrongValidFrames << ',' << aggregate.correctInvalidFrames << ','
+                       << aggregate.wrongInvalidFrames << ','
+                       << (aggregate.sameDecodedPayloadFramesVsBp / frames) << ','
+                       << (aggregate.sameDecodedCodewordFramesVsBp / frames) << ','
+                       << (aggregate.complexity.messageUpdates / frames) << ','
+                       << (aggregate.nanInf == 0 ? "PASS" : "FAIL") << '\n';
+                if (aggregate.nanInf != 0) throw std::runtime_error("decoder NaN/Inf observed");
+            }
+        }
+    }
+    std::cout << "PASS_S4_LDPC_SIMULATION\n";
+    return 0;
+}
+
+void writeChunkAggregate(std::ofstream& output,
+                         const s4ldpc::DirectCase& config,
+                         const s4ldpc::DirectGraph& graph,
+                         double snr,
+                         const Aggregate& aggregate,
+                         std::uint64_t payloadHashXor,
+                         std::uint64_t codewordHashXor,
+                         std::uint64_t llrHashXor,
+                         int frameStart,
+                         int frameEnd) {
+    output << config.id << ',' << config.targetLength << ',' << config.actualLength << ','
+           << config.actualRate << ',' << config.zc << ',' << config.fillerLength << ','
+           << config.rankHp << ',' << aggregate.algorithm << ',' << aggregate.alpha << ','
+           << snr << ',' << aggregate.frames << ',' << aggregate.bitErrors << ','
+           << aggregate.frameErrors << ',' << aggregate.syndromePasses << ','
+           << aggregate.correctValidFrames << ',' << aggregate.wrongValidFrames << ','
+           << aggregate.correctInvalidFrames << ',' << aggregate.wrongInvalidFrames << ','
+           << aggregate.finalSyndromeWeight << ',' << aggregate.nanInf << ','
+           << aggregate.atanhClamps << ',' << aggregate.llrClamps << ','
+           << aggregate.messageClamps << ',' << aggregate.complexity.checkNodeUpdates << ','
+           << aggregate.complexity.variableNodeUpdates << ','
+           << aggregate.complexity.messageUpdates << ',' << aggregate.complexity.tanhOperations << ','
+           << aggregate.complexity.atanhOperations << ',' << aggregate.complexity.absOperations << ','
+           << aggregate.complexity.comparisonOperations << ','
+           << aggregate.complexity.min1Min2Updates << ',' << aggregate.complexity.signOperations << ','
+           << aggregate.complexity.alphaMultiplications << ',' << graph.edges.size() << ','
+           << payloadHashXor << ',' << codewordHashXor << ',' << llrHashXor << ','
+           << frameStart << ',' << frameEnd << '\n';
+}
+
+int formalChunkMode(int argc, char** argv) {
+    if (argc != 19) {
+        throw std::runtime_error(
+            "formalchunk arguments: summaryCsv samplesCsv actualLength alpha esN0Db requestedFrames "
+            "frameStart runId maxIterations payloadSeed noiseSeed priorFrames priorBpErrors "
+            "priorNmsErrors minFrames targetFrameErrors maxFrames");
+    }
+    const int actualLength = std::stoi(argv[4]);
+    const double alpha = std::stod(argv[5]);
+    const double snr = std::stod(argv[6]);
+    const int requestedFrames = std::stoi(argv[7]);
+    const int frameStart = std::stoi(argv[8]);
+    const std::uint64_t runId = std::stoull(argv[9]);
+    const int maxIterations = std::stoi(argv[10]);
+    const std::uint64_t payloadSeed = std::stoull(argv[11]);
+    const std::uint64_t noiseSeed = std::stoull(argv[12]);
+    const int priorFrames = std::stoi(argv[13]);
+    const std::uint64_t priorBpErrors = std::stoull(argv[14]);
+    const std::uint64_t priorNmsErrors = std::stoull(argv[15]);
+    const int minFrames = std::stoi(argv[16]);
+    const std::uint64_t targetFrameErrors = std::stoull(argv[17]);
+    const int maxFrames = std::stoi(argv[18]);
+    const std::vector<s4ldpc::DirectCase> cases = s4ldpc::freezeS4Cases();
+    const auto selected = std::find_if(cases.begin(), cases.end(),
+        [actualLength](const s4ldpc::DirectCase& value) {
+            return value.actualLength == actualLength;
+        });
+    if (selected == cases.end()) throw std::runtime_error("formal actualLength not frozen");
+    const s4ldpc::DirectCase& config = *selected;
+    const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
+    Aggregate bp;
+    bp.algorithm = "DIRECT_LAYERED_SPA_BP";
+    Aggregate nms;
+    nms.algorithm = "DIRECT_LAYERED_NMS";
+    nms.alpha = alpha;
+    std::ofstream samples(argv[3]);
+    if (!samples) throw std::runtime_error("cannot open formal chunk samples");
+    samples << std::setprecision(17);
+    samples << "frameIndex,algorithm,usedIterations,decodeTimeUs,finalSyndromeWeight,"
+               "isPayloadCorrect,isCodewordValid,decodedPayloadHash,decodedCodewordHash,"
+               "payloadErrorPositionsHash\n";
+    std::uint64_t payloadHashXor = 0;
+    std::uint64_t codewordHashXor = 0;
+    std::uint64_t llrHashXor = 0;
+    int completed = 0;
+    for (int offset = 0; offset < requestedFrames && priorFrames + offset < maxFrames; ++offset) {
+        const int frameIndex = frameStart + offset;
+        const std::vector<unsigned char> payload =
+            s4ldpc::makePayload(payloadSeed, frameIndex, config.payloadLength);
+        const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+        if (s4ldpc::syndromeWeight(graph, codeword) != 0) {
+            throw std::runtime_error("formal encoder syndrome nonzero");
+        }
+        const std::vector<double> llr = s4ldpc::makeChannelLlr(
+            config, codeword, noiseSeed ^ runId,
+            static_cast<std::uint64_t>(actualLength), frameIndex, snr);
+        payloadHashXor ^= s4ldpc::hashBytes(payload);
+        codewordHashXor ^= s4ldpc::hashBytes(codeword);
+        llrHashXor ^= s4ldpc::hashDoubles(llr);
+        auto begin = std::chrono::steady_clock::now();
+        const s4ldpc::DecodeResult bpResult = s4ldpc::decodeLayeredBp(
+            graph, llr, maxIterations, s4ldpc::EarlyStopPolicy::SyndromeAfterFullIteration);
+        auto end = std::chrono::steady_clock::now();
+        const double bpTime = std::chrono::duration<double, std::micro>(end - begin).count();
+        update(bp, payload, bpResult, bpTime);
+        begin = std::chrono::steady_clock::now();
+        const s4ldpc::DecodeResult nmsResult = s4ldpc::decodeLayeredNms(
+            graph, llr, maxIterations, alpha,
+            s4ldpc::EarlyStopPolicy::SyndromeAfterFullIteration);
+        end = std::chrono::steady_clock::now();
+        const double nmsTime = std::chrono::duration<double, std::micro>(end - begin).count();
+        update(nms, payload, nmsResult, nmsTime, &bpResult);
+        const s4ldpc::DecodeResult* decoded[2] = {&bpResult, &nmsResult};
+        const double times[2] = {bpTime, nmsTime};
+        const char* names[2] = {"DIRECT_LAYERED_SPA_BP", "DIRECT_LAYERED_NMS"};
+        for (int decoder = 0; decoder < 2; ++decoder) {
+            const std::uint64_t errors = countPayloadErrors(payload, decoded[decoder]->bits);
+            samples << frameIndex << ',' << names[decoder] << ','
+                    << decoded[decoder]->usedIterations << ',' << times[decoder] << ','
+                    << decoded[decoder]->finalSyndromeWeight << ',' << (errors == 0 ? 1 : 0) << ','
+                    << (decoded[decoder]->syndromePass ? 1 : 0) << ','
+                    << s4ldpc::hashBytes(payloadSlice(decoded[decoder]->bits, payload.size())) << ','
+                    << s4ldpc::hashBytes(decoded[decoder]->bits) << ','
+                    << errorPositionsHash(payload, decoded[decoder]->bits) << '\n';
+        }
+        ++completed;
+        if (bp.nanInf != 0 || nms.nanInf != 0) {
+            throw std::runtime_error("formal decoder NaN/Inf");
+        }
+        const int totalFrames = priorFrames + completed;
+        if (totalFrames >= minFrames
+            && priorBpErrors + bp.frameErrors >= targetFrameErrors
+            && priorNmsErrors + nms.frameErrors >= targetFrameErrors) break;
+    }
+    std::ofstream summary(argv[2]);
+    if (!summary) throw std::runtime_error("cannot open formal chunk summary");
+    summary << std::setprecision(17);
+    summary << "caseId,targetLength,actualLength,actualRate,Zc,fillerLength,rankHp,algorithm,"
+               "alpha,esN0Db,frames,bitErrors,frameErrors,syndromePasses,correctValidFrames,"
+               "wrongValidFrames,correctInvalidFrames,wrongInvalidFrames,finalSyndromeWeight,"
+               "nanInfCount,atanhClampCount,llrClampCount,messageClampCount,checkNodeUpdates,"
+               "variableNodeUpdates,messageUpdates,tanhOperations,atanhOperations,absOperations,"
+               "comparisonOperations,min1Min2Updates,signOperations,alphaMultiplications,edgeCount,"
+               "payloadHashXor,codewordHashXor,llrHashXor,frameStart,frameEnd\n";
+    const int frameEnd = frameStart + completed - 1;
+    writeChunkAggregate(summary, config, graph, snr, bp, payloadHashXor, codewordHashXor,
+                        llrHashXor, frameStart, frameEnd);
+    writeChunkAggregate(summary, config, graph, snr, nms, payloadHashXor, codewordHashXor,
+                        llrHashXor, frameStart, frameEnd);
+    std::cout << "PASS_S4_LDPC_FORMAL_CHUNK frames=" << completed << '\n';
+    return 0;
+}
+
+void writeAuditFrame(std::ofstream& output,
+                     const s4ldpc::DirectCase& config,
+                     int frameIndex,
+                     double snr,
+                     const std::string& decoder,
+                     double alpha,
+                     const std::string& policy,
+                     const std::vector<unsigned char>& payload,
+                     const std::vector<unsigned char>& codeword,
+                     const std::vector<double>& llr,
+                     const s4ldpc::DecodeResult& result,
+                     double elapsedUs) {
+    const std::uint64_t errors = countPayloadErrors(payload, result.bits);
+    output << config.id << ',' << config.actualLength << ',' << frameIndex << ',' << snr << ','
+           << decoder << ',' << alpha << ',' << policy << ',' << s4ldpc::hashBytes(payload) << ','
+           << s4ldpc::hashBytes(codeword) << ',' << s4ldpc::hashDoubles(llr) << ','
+           << s4ldpc::hashBytes(payloadSlice(result.bits, payload.size())) << ','
+           << s4ldpc::hashBytes(result.bits) << ',' << errors << ','
+           << errorPositionsHash(payload, result.bits) << ',' << result.finalSyndromeWeight << ','
+           << result.usedIterations << ',' << (errors == 0 ? 1 : 0) << ','
+           << (result.syndromePass ? 1 : 0) << ',' << elapsedUs << ','
+           << result.complexity.checkNodeUpdates << ',' << result.complexity.variableNodeUpdates << ','
+           << result.complexity.messageUpdates << ',' << result.numeric.nanInfCount << '\n';
+}
+
+void writeAuditTrace(std::ofstream& output,
+                     const s4ldpc::DirectCase& config,
+                     int frameIndex,
+                     double snr,
+                     const std::string& decoder,
+                     double alpha,
+                     const std::string& policy,
+                     const s4ldpc::DecodeResult& result) {
+    for (const s4ldpc::IterationTrace& point : result.trace) {
+        output << config.id << ',' << config.actualLength << ',' << frameIndex << ',' << snr << ','
+               << decoder << ',' << alpha << ',' << policy << ',' << point.iteration << ','
+               << point.syndromeWeight << ',' << point.payloadErrorCount << ','
+               << point.hardDecisionHash << ',' << point.posteriorLlrHash << ','
+               << point.checkMessageHash << ',' << point.iteration << '\n';
+    }
+}
+
+int auditMode(int argc, char** argv) {
+    if (argc != 11) {
+        throw std::runtime_error(
+            "audit arguments: frameCsv traceCsv alphas snrsByLength frames startFrame runId maxIterations");
+    }
+    const std::vector<double> alphas = parseDoubles(argv[4]);
+    const std::vector<double> snrs = parseDoubles(argv[5]);
+    const int frames = std::stoi(argv[6]);
+    const int startFrame = std::stoi(argv[7]);
+    const std::uint64_t runId = std::stoull(argv[8]);
+    const int maxIterations = std::stoi(argv[9]);
+    const int traceFrameLimit = std::stoi(argv[10]);
+    const std::vector<s4ldpc::DirectCase> cases = s4ldpc::freezeS4Cases();
+    if (snrs.size() != cases.size()) throw std::runtime_error("one audit SNR is required per case");
+    std::ofstream frameOutput(argv[2]);
+    std::ofstream traceOutput(argv[3]);
+    if (!frameOutput || !traceOutput) throw std::runtime_error("cannot open audit output");
+    frameOutput << std::setprecision(17);
+    traceOutput << std::setprecision(17);
+    frameOutput << "caseId,actualLength,frameIndex,snrDb,decoderType,alpha,earlyStopPolicy,"
+                   "payloadHash,transmittedCodewordHash,llrHash,decodedPayloadHash,"
+                   "decodedCodewordHash,errorBitCount,payloadErrorPositionsHash,"
+                   "finalSyndromeWeight,usedIterations,isPayloadCorrect,isCodewordValid,"
+                   "decodeTimeUs,checkNodeUpdates,variableNodeUpdates,messageUpdates,nanInfCount\n";
+    traceOutput << "caseId,actualLength,frameIndex,snrDb,decoderType,alpha,earlyStopPolicy,"
+                   "iteration,syndromeWeight,payloadErrorCount,hardDecisionHash,"
+                   "posteriorLlrHash,checkMessageHash,usedIterationsSoFar\n";
+    for (std::size_t caseIndex = 0; caseIndex < cases.size(); ++caseIndex) {
+        const s4ldpc::DirectCase& config = cases[caseIndex];
+        const s4ldpc::DirectGraph graph = s4ldpc::buildDirectGraph(config);
+        for (int offset = 0; offset < frames; ++offset) {
+            const int frameIndex = startFrame + offset;
+            const std::vector<unsigned char> payload =
+                s4ldpc::makePayload(2026072001ULL, frameIndex, 300);
+            const std::vector<unsigned char> codeword = s4ldpc::encode(graph, payload);
+            const std::vector<double> llr = s4ldpc::makeChannelLlr(
+                config, codeword, 2026072904ULL ^ runId,
+                static_cast<std::uint64_t>(config.actualLength), frameIndex, snrs[caseIndex]);
+            for (int policyIndex = 0; policyIndex < 2; ++policyIndex) {
+                const s4ldpc::EarlyStopPolicy policy = policyIndex == 0
+                    ? s4ldpc::EarlyStopPolicy::SyndromeAfterFullIteration
+                    : s4ldpc::EarlyStopPolicy::IterationLimitOnly;
+                const std::string policyName = policyIndex == 0
+                    ? "SYNDROME_AFTER_FULL_ITERATION" : "ITERATION_LIMIT_ONLY";
+                const bool trace = policyIndex == 0 && offset < traceFrameLimit;
+                auto begin = std::chrono::steady_clock::now();
+                const s4ldpc::DecodeResult bp = s4ldpc::decodeLayeredBp(
+                    graph, llr, maxIterations, policy, &payload, trace);
+                auto end = std::chrono::steady_clock::now();
+                writeAuditFrame(frameOutput, config, frameIndex, snrs[caseIndex],
+                                "DIRECT_LAYERED_SPA_BP", 0.0, policyName, payload, codeword, llr,
+                                bp, std::chrono::duration<double, std::micro>(end - begin).count());
+                if (trace) writeAuditTrace(traceOutput, config, frameIndex, snrs[caseIndex],
+                                           "DIRECT_LAYERED_SPA_BP", 0.0, policyName, bp);
+                for (double alpha : alphas) {
+                    begin = std::chrono::steady_clock::now();
+                    const s4ldpc::DecodeResult nms = s4ldpc::decodeLayeredNms(
+                        graph, llr, maxIterations, alpha, policy, &payload, trace);
+                    end = std::chrono::steady_clock::now();
+                    const std::string decoder = alpha == 1.0
+                        ? "DIRECT_LAYERED_MS" : "DIRECT_LAYERED_NMS";
+                    writeAuditFrame(frameOutput, config, frameIndex, snrs[caseIndex], decoder,
+                                    alpha, policyName, payload, codeword, llr, nms,
+                                    std::chrono::duration<double, std::micro>(end - begin).count());
+                    if (trace) writeAuditTrace(traceOutput, config, frameIndex, snrs[caseIndex],
+                                               decoder, alpha, policyName, nms);
+                }
+            }
+        }
+    }
+    std::cout << "PASS_STAGE11R_DECODER_AUDIT_RAW\n";
+    return 0;
+}
+
+} // namespace
+
+int main(int argc, char** argv) {
+    try {
+        if (argc < 2) throw std::runtime_error("missing mode");
+        const std::string mode = argv[1];
+        if (mode == "selector" && argc == 4) return selectorMode(argv[2], argv[3]);
+        if (mode == "validate" && argc == 4) return validateMode(argv[2], argv[3]);
+        if (mode == "fixture" && argc == 3) return fixtureMode(argv[2]);
+        if (mode == "simulate") return simulateMode(argc, argv);
+        if (mode == "audit") return auditMode(argc, argv);
+        if (mode == "formalchunk") return formalChunkMode(argc, argv);
+        throw std::runtime_error("invalid mode or argument count");
+    } catch (const std::exception& error) {
+        std::cerr << "FAIL_S4_LDPC_RUNNER: " << error.what() << '\n';
+        return 1;
+    }
+}

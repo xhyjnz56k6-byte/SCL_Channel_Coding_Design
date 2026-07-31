@@ -1,0 +1,4 @@
+caseId,formalCoarseSnrDb,waterfallDenseSnrDb,minFrames,targetFrameErrors,maxFrames,snrStepDb
+LDPC_BG2_K300_N480,2.5:0.5:5.5,2.8:0.1:5.2,1000,200,50000,0.5
+LDPC_BG2_K300_N560,2.5:0.5:5.5,2.8:0.1:5.2,1000,200,50000,0.5
+LDPC_BG2_K300_N640,-3.0:0.5:0.0,-2.4:0.1:-0.6,1000,200,50000,0.5

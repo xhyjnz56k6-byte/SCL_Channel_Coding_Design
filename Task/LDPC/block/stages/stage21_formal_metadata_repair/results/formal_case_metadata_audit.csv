@@ -1,0 +1,4 @@
+actualLength,rows,caseId,targetLength,payloadLength,actualRate,Zc,kb,nb,mb,fillerLength,parityLength,rankH,rankHp,edgeCount,alpha,status
+480,62,LDPC_BG2_K300_N480,480,300,0.625,48,8,10,2,84,96,96,96,672,0.95,PASS
+560,62,LDPC_BG2_K300_N560,576,300,0.5357142857142857,56,8,10,2,148,112,112,112,784,0.95,PASS
+640,62,LDPC_BG2_K300_N640,640,300,0.46875,40,8,16,8,20,320,320,320,2240,0.8,PASS

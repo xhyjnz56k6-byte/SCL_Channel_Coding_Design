@@ -1,0 +1,21 @@
+{
+  "title": "480比特LDPC不同缩放因子的误帧率对比",
+  "x": "snrDb",
+  "y": "FER",
+  "series": [
+    "BP",
+    "MS (α=1.00)",
+    "NMS (α=0.60)",
+    "NMS (α=0.65)",
+    "NMS (α=0.70)",
+    "NMS (α=0.75)",
+    "NMS (α=0.80)",
+    "NMS (α=0.85)",
+    "NMS (α=0.90)",
+    "NMS (α=0.95)"
+  ],
+  "source": "n480_alpha_curve_fer_figure_data.csv",
+  "pngSha256": "35a105716cc8904e0245c9dd3de11d7640e3413953af96c3f9b5b8f3f4de8d74",
+  "interpolation": false,
+  "smoothing": false
+}

@@ -1,0 +1,50 @@
+{
+  "stage": "stage14_formal_preflight",
+  "branch": "stage01-ldpc",
+  "functionalRanges": [
+    {
+      "name": "content",
+      "baseCommit": "d42a741bdcf4bdb39f1028e8c919ffcc47a5d0ed",
+      "contentCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+      "files": [
+        "Task/LDPC/block/.gitignore",
+        "Task/LDPC/block/current/src/main.cpp",
+        "Task/LDPC/block/scripts/formal_s4.py",
+        "Task/LDPC/block/stages/stage14_formal_preflight/changed_files.md",
+        "Task/LDPC/block/stages/stage14_formal_preflight/changes.patch",
+        "Task/LDPC/block/stages/stage14_formal_preflight/commands_used.md",
+        "Task/LDPC/block/stages/stage14_formal_preflight/frozen_config.csv",
+        "Task/LDPC/block/stages/stage14_formal_preflight/git_commit.txt",
+        "Task/LDPC/block/stages/stage14_formal_preflight/known_issues.md",
+        "Task/LDPC/block/stages/stage14_formal_preflight/manifest.json",
+        "Task/LDPC/block/stages/stage14_formal_preflight/readme.txt",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/checkpoint_design.md",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/checkpoint_resume_test.csv",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_budget_estimate.csv",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_budget_report.md",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_case_config.csv",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_config.json",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_schema.csv",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_seed_config.json",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_snr_grid.csv",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/paired_stop_validation.csv",
+        "Task/LDPC/block/stages/stage14_formal_preflight/stage_plan.md",
+        "Task/LDPC/block/stages/stage14_formal_preflight/validation_report.md"
+      ]
+    },
+    {
+      "name": "configBinding",
+      "baseCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+      "contentCommit": "0684244bd558d778684bffe32b34c57885bf3df1",
+      "files": [
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_config.json",
+        "Task/LDPC/block/stages/stage14_formal_preflight/results/formal_config_hash.json"
+      ]
+    }
+  ],
+  "gateStatus": "PASS",
+  "mergeStatus": "NOT_MERGED",
+  "formalStarted": true,
+  "remoteVerification": "PUSHED_AND_VERIFIED",
+  "verifiedRemoteCommit": "1133ad436bf9e596ef06707cca3794c9def3fddc"
+}

@@ -1,0 +1,10 @@
+parameter,value
+payloadLength,300
+actualLengths,"480;560;640"
+alphaByLength,"480:0.95;560:0.95;640:0.80"
+esN0DbGrid,-5:0.5:10
+minFrames,1000
+targetFrameErrors,200
+maxFrames,50000
+maxIterations,32
+earlyStopPolicy,SYNDROME_AFTER_FULL_ITERATION

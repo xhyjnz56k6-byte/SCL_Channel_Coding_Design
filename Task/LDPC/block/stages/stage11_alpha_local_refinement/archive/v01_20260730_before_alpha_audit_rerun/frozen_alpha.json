@@ -1,0 +1,10 @@
+{
+  "relation": "alpha(actualLength)",
+  "values": {
+    "480": 1.0,
+    "560": 1.0,
+    "640": 0.8
+  },
+  "alphaCalibrationFrameRange": "0:5599",
+  "smokeEvaluationFrameRange": "10000:10499"
+}

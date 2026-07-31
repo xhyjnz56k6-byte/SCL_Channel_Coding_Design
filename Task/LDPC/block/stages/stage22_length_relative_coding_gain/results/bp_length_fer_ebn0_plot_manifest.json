@@ -1,0 +1,69 @@
+{
+  "title": "300比特LDPC不同码长误帧率对比（BP）",
+  "titleLanguage": "zh-CN",
+  "xLabel": "Eb/N0（dB）",
+  "yLabel": "误帧率",
+  "xScale": "linear",
+  "yScale": "log",
+  "seriesMapping": {
+    "480": "480比特 BP",
+    "560": "560比特 BP",
+    "640": "640比特 BP"
+  },
+  "colorMapping": {
+    "480": "#1f77b4",
+    "560": "#ff7f0e",
+    "640": "#2ca02c"
+  },
+  "lineStyleMapping": {
+    "480": "-",
+    "560": "--",
+    "640": "-."
+  },
+  "markerMapping": {
+    "480": "o",
+    "560": "s",
+    "640": "^"
+  },
+  "legendMapping": {
+    "480": "480比特 BP",
+    "560": "560比特 BP",
+    "640": "640比特 BP"
+  },
+  "zeroErrorLegend": "NOT_PLOTTED_BY_REQUEST",
+  "zeroErrorHandling": "RAW_ZERO_PRESERVED_NOT_PLOTTED",
+  "sourceData": "bp_length_fer_ebn0_figure_data.csv",
+  "sourceDataSha256": "43d8bb8cc914119ab395e6768cdd25f9816eeaae266ec0faed3e7434a1f3f29e",
+  "figureDataCsv": "bp_length_fer_ebn0_figure_data.csv",
+  "figureDataCsvSha256": "43d8bb8cc914119ab395e6768cdd25f9816eeaae266ec0faed3e7434a1f3f29e",
+  "plotScript": "Task/LDPC/block/scripts/revised_coding_gain.py",
+  "plotScriptSha256": "b706f11d4c3870205a975a29a5131f7f4e96c7f861f42ce81621fb018c33ece4",
+  "pngSha256": "a6368168eceaa893ae250bb7492fd091a4034015fa566317d2ee9e7aab8b0706",
+  "dataValuesChanged": false,
+  "font": "Microsoft YaHei",
+  "dpi": 180,
+  "figureSizeInches": [
+    10,
+    6
+  ],
+  "legendLocation": "upper right",
+  "lengthStyleMapping": {
+    "480": {
+      "lineStyle": "-",
+      "marker": "o"
+    },
+    "560": {
+      "lineStyle": "--",
+      "marker": "s"
+    },
+    "640": {
+      "lineStyle": "-.",
+      "marker": "^"
+    }
+  },
+  "alphaMapping": {
+    "480": 0.95,
+    "560": 0.95,
+    "640": 0.8
+  }
+}

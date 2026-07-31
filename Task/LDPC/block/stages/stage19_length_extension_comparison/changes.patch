@@ -1,0 +1,184 @@
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/changed_files.md b/Task/LDPC/block/stages/stage19_length_extension_comparison/changed_files.md
+new file mode 100644
+index 00000000..91bd524e
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/changed_files.md
+@@ -0,0 +1,3 @@
++# 文件说明
++
++机器可读功能边界在审计收口后的 manifest.json 中记录。
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/changes.patch b/Task/LDPC/block/stages/stage19_length_extension_comparison/changes.patch
+new file mode 100644
+index 00000000..4d60dc81
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/changes.patch
+@@ -0,0 +1 @@
++Generated after functional commit.
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/commands_used.md b/Task/LDPC/block/stages/stage19_length_extension_comparison/commands_used.md
+new file mode 100644
+index 00000000..8efb57bf
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/commands_used.md
+@@ -0,0 +1,3 @@
++# 实际命令
++
++由本阶段执行结束后填写。
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/frozen_config.csv b/Task/LDPC/block/stages/stage19_length_extension_comparison/frozen_config.csv
+new file mode 100644
+index 00000000..d8b3ab91
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/frozen_config.csv
+@@ -0,0 +1,10 @@
++parameter,value
++payloadLength,300
++actualLengths,"480;560;640"
++alphaByLength,"480:0.95;560:0.95;640:0.80"
++esN0DbGrid,-5:0.5:10
++minFrames,1000
++targetFrameErrors,200
++maxFrames,50000
++maxIterations,32
++earlyStopPolicy,SYNDROME_AFTER_FULL_ITERATION
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/git_commit.txt b/Task/LDPC/block/stages/stage19_length_extension_comparison/git_commit.txt
+new file mode 100644
+index 00000000..fb3c8e08
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/git_commit.txt
+@@ -0,0 +1 @@
++Recorded after functional commit.
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/known_issues.md b/Task/LDPC/block/stages/stage19_length_extension_comparison/known_issues.md
+new file mode 100644
+index 00000000..995caca7
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/known_issues.md
+@@ -0,0 +1,4 @@
++# 已知问题
++
++- wall-clock 时延存在平台调度波动。
++- 最大 50000 帧/点不足以单独证明 error floor。
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/manifest.json b/Task/LDPC/block/stages/stage19_length_extension_comparison/manifest.json
+new file mode 100644
+index 00000000..97a9a2fb
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/manifest.json
+@@ -0,0 +1,9 @@
++{
++  "stage": "stage19_length_extension_comparison",
++  "branch": "stage01-ldpc",
++  "functionalRanges": [],
++  "gateStatus": "PASS",
++  "mergeStatus": "NOT_MERGED",
++  "formalStarted": true,
++  "remoteVerification": "TO_BE_FINALIZED_AFTER_PUSH"
++}
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/readme.txt b/Task/LDPC/block/stages/stage19_length_extension_comparison/readme.txt
+new file mode 100644
+index 00000000..1f46f507
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/readme.txt
+@@ -0,0 +1,24 @@
++阶段名称：
++stage19_length_extension_comparison
++
++实验目的：
++比较目标 480、576、≤640 对应的实际 N480/N560/N640 Direct 整块方案。
++
++主要输入：
++K=300；N480/N560/N640；α=0.95/0.95/0.80；Es/N0=-5:0.5:10 dB；
++minFrames=1000，targetFrameErrors=200，maxFrames=50000，maxIterations=32。
++
++完成内容：
++只记录本阶段真实执行的代码、检查、仿真和结果处理。
++
++主要输出：
++results/ 下的 CSV、JSON、PNG、日志和报告。
++
++当前结论：
++详见 validation_report.md 和 results/。
++
++已知问题：
++时延受操作系统调度影响；有限帧结果不用于武断判定 error floor。
++
++阶段状态：
++PASS
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_extension_report.md b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_extension_report.md
+new file mode 100644
+index 00000000..d137615f
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_extension_report.md
+@@ -0,0 +1,3 @@
++# 三码长 Direct 整块扩展报告
++
++目标 480 对应实际 N480；目标 576 最终冻结为 N560，这是 Direct BG2 子矩阵枚举和Hp 满秩 Gate 的结果。链路不使用速率匹配，因此不能强制命中任意目标长度。N640 码率最低（0.46875）、冗余最多，适合作为增强可靠性的扩展方案；N480 码率最高、译码规模最小，适合作为吞吐优先主力；N560 是中间折中。横向判断同时依据 actualRate、目标 FER Es/N0、时延、操作计数和有效吞吐率，没有只凭 waterfall 横向位置下结论。
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_comparison.csv b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_comparison.csv
+new file mode 100644
+index 00000000..98bf7689
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_comparison.csv
+@@ -0,0 +1,4 @@
++targetLength,actualLength,actualRate,Zc,fillerLength,parityLength,rankHp,edgeCount,meanBERAcrossGrid,meanFERAcrossGrid,decoderMemoryBytes,effectivePayloadThroughputBitsPerUs
++480,480,0.625,48,84,96,96,672,0.054973228879751444,0.55797185441098,9696,6.519863695709927
++576,560,0.5357142857142857,56,148,112,112,784,0.05504676880344001,0.5563714421069966,11312,6.337961771839715
++640,640,0.46875,40,20,320,320,2240,0.03595553377821111,0.22172492766072568,23680,3.261064803872663
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_delay_complexity.csv b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_delay_complexity.csv
+new file mode 100644
+index 00000000..ab09144c
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_delay_complexity.csv
+@@ -0,0 +1,4 @@
++actualLength,meanIterations,meanDelayUs,meanP95DelayUs,meanEdgeUpdates,meanTheoreticalOperations
++480,12.209913666120508,179.4806752292623,348.5651612903224,8205.061983632982,54170.96128253912
++560,13.113142342763725,207.49167016713795,399.1932258064515,10280.70359672676,67874.52329998504
++640,8.76818631459005,476.89653659605773,734.221451612903,19640.737344681715,129857.32885238671
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_target_fer.csv b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_target_fer.csv
+new file mode 100644
+index 00000000..4a708882
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/results/formal_length_target_fer.csv
+@@ -0,0 +1,10 @@
++targetFER,leftEsN0Db,leftFER,rightEsN0Db,rightFER,formula,estimatedEsN0Db,computable,reason,actualLength
++0.5,3.0,0.636,3.5,0.408,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),3.270977082173206,true,,480
++0.1,4.5,0.1378839590443686,5.0,0.06173938854259424,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),4.699904250922238,true,,480
++0.01,5.5,0.02494076568150642,6.0,0.009523373471910627,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),5.974637381207588,true,,480
++0.5,3.0,0.624,3.5,0.419,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),3.2781241548000133,true,,560
++0.1,4.5,0.11175847457627118,5.0,0.05439662001584367,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),4.577197226174598,true,,560
++0.01,5.5,0.018996053959805453,6.0,0.00808355676497659,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),5.875495495398213,true,,560
++0.5,-2.0,0.653,-1.5,0.255,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),-1.8580425533761427,true,,640
++0.1,-1.5,0.255,-1.0,0.04512801620924664,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),-1.2297277906110784,true,,640
++0.01,-1.0,0.04512801620924664,-0.5,0.004824741273249222,x=xL+(log10(t)-log10(yL))*(xR-xL)/(log10(yR)-log10(yL)),-0.6629943505869943,true,,640
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/stage_plan.md b/Task/LDPC/block/stages/stage19_length_extension_comparison/stage_plan.md
+new file mode 100644
+index 00000000..02e775f8
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/stage_plan.md
+@@ -0,0 +1,18 @@
++# stage19_length_extension_comparison
++
++## 目标
++
++比较目标 480、576、≤640 对应的实际 N480/N560/N640 Direct 整块方案。
++
++## 非目标
++
++不使用 rateMatch/rateRecover，不改变 alpha，不修改旧 Stage，不修改 Task/LDPC 外文件。
++
++## 验收矩阵
++
++| 需求 | 实现位置 | 正向测试 | 负向测试 | Gate |
++|---|---|---|---|---|
++| 正式冻结 | results/config | hash 与字段检查 | 错 alpha/SNR/停止参数 | 精确一致 |
++| 配对公平 | point results | frames/seed/hash 一致 | 不同帧边界 | 无错配 |
++| 安全恢复 | checkpoint | 中断恢复一致 | 配置/hash 不同 | 拒绝不兼容 |
++| 数据可靠 | checker | 完整性与公式 | NaN/重复/缺失 | 全 PASS |
+diff --git a/Task/LDPC/block/stages/stage19_length_extension_comparison/validation_report.md b/Task/LDPC/block/stages/stage19_length_extension_comparison/validation_report.md
+new file mode 100644
+index 00000000..2ca75f19
+--- /dev/null
++++ b/Task/LDPC/block/stages/stage19_length_extension_comparison/validation_report.md
+@@ -0,0 +1,6 @@
++# 验证报告
++
++- 三个实际 Case：PASS
++- 576→560 解释：PASS
++- rate/delay/complexity/throughput：PASS
++- Gate：PASS_STAGE19_LENGTH_EXTENSION_COMPARISON

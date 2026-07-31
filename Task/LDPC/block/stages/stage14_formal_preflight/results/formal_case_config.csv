@@ -1,0 +1,4 @@
+candidateId,BG,Zc,kb,nb,mb,informationCapacity,payloadLength,fillerLength,parityLength,actualLength,transmittedLength,actualRate,targetLength,targetRate,lengthDifference,rateDifference,rankH,rankHp,isEncodable,rejectionReason,formalAlpha
+LDPC_BG2_K300_N480,2,48,8,10,2,384,300,84,96,480,480,0.625,480,0.625,0,0,96,96,true,,0.95
+LDPC_BG2_K300_N560,2,56,8,10,2,448,300,148,112,560,560,0.5357142857142857,576,0.52083333333333337,16,0.014880952380952328,112,112,true,,0.95
+LDPC_BG2_K300_N640,2,40,8,16,8,320,300,20,320,640,640,0.46875,640,0.46875,0,0,320,320,true,,0.8

@@ -1,0 +1,5 @@
+# 验证报告
+
+- 93 点 BP/NMS 差异：PASS
+- 目标 FER 插值边界：PASS
+- Gate：PASS_STAGE18_BP_NMS_COMPARISON

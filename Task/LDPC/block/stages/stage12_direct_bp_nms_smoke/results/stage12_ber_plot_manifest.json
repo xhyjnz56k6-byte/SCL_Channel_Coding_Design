@@ -1,0 +1,22 @@
+{
+  "sourceFiles": [
+    "C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design_LDPC/Task/LDPC/block/stages/stage12_direct_bp_nms_smoke/results/stage12_smoke_point_results.csv"
+  ],
+  "sourceHashes": [
+    "2e398506bd284f19f7ffeac82126b26d7e19f42df41d82d03d1b5aadc7e72f4e"
+  ],
+  "xColumn": "snrDb",
+  "yColumn": "BER",
+  "xUnit": "dB",
+  "yUnit": "dimensionless",
+  "xScale": "linear",
+  "yScale": "log",
+  "conversionFormula": "pointwise source value; log zero uses half-event display bound",
+  "zeroHandling": "half-event upper-bound marker for log axes; source zero retained",
+  "missingValueHandling": "reject",
+  "lineStyle": "fixed by actual length and decoder",
+  "marker": "fixed by decoder",
+  "legend": "upper right",
+  "scriptHash": "3f70c2c73275122717e92d631ef2e912d99f4e015ece0f6601b9794c1bfdd422",
+  "outputHash": "40ad00bbdc6e0b8c862b61df9ff1b1593a46a11a6db79ae5894f76b2aab24669"
+}

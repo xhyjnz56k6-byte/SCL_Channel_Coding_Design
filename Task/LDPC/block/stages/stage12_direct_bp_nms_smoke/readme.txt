@@ -1,0 +1,54 @@
+阶段名称：
+stage12_direct_bp_nms_smoke
+
+实验目的：
+在独立 smoke 数据上比较三个 Case 的 BP 与冻结 NMS。
+
+主要输入：
+payloadLength=300；BG2；Direct；BPSK-AWGN；Es/N0；BP/NMS；maxIterations=32。
+
+完成内容：
+已真实完成本阶段规定的代码、测试、smoke 或只读审计，并生成可复查结果。
+
+主要输出：
+results/stage12_alpha_summary.png
+results/stage12_alpha_summary_figure_data.csv
+results/stage12_alpha_summary_plot_check.md
+results/stage12_alpha_summary_plot_manifest.json
+results/stage12_avgdecodetimeus.png
+results/stage12_avgdecodetimeus_figure_data.csv
+results/stage12_avgdecodetimeus_plot_check.md
+results/stage12_avgdecodetimeus_plot_manifest.json
+results/stage12_avgiterations.png
+results/stage12_avgiterations_figure_data.csv
+results/stage12_avgiterations_plot_check.md
+results/stage12_avgiterations_plot_manifest.json
+results/stage12_ber.png
+results/stage12_ber_figure_data.csv
+results/stage12_ber_plot_check.md
+results/stage12_ber_plot_manifest.json
+results/stage12_bp_nms_comparison.csv
+results/stage12_case_summary.csv
+results/stage12_fer.png
+results/stage12_fer_figure_data.csv
+results/stage12_fer_plot_check.md
+results/stage12_fer_plot_manifest.json
+results/stage12_final_smoke_report.md
+results/stage12_formal_parameter_recommendation.csv
+results/stage12_maxdecodetimeus.png
+results/stage12_maxdecodetimeus_figure_data.csv
+results/stage12_maxdecodetimeus_plot_check.md
+results/stage12_maxdecodetimeus_plot_manifest.json
+results/stage12_resource_estimate.md
+results/stage12_smoke_curve_summary.csv
+results/stage12_smoke_point_results.csv
+results/stage12_smoke_point_results_raw.csv
+
+当前结论：
+本阶段仅形成 smoke 级结论，不形成正式性能或编码增益结论。
+
+已知问题：
+正式 formal 尚未启动；smoke 零错误点只能解释为样本上界。
+
+阶段状态：
+PASS

@@ -1,0 +1,4 @@
+targetLength,actualLength,actualRate,Zc,fillerLength,parityLength,rankHp,edgeCount,meanBERAcrossGrid,meanFERAcrossGrid,decoderMemoryBytes,effectivePayloadThroughputBitsPerUs,metadataSource
+480,480,0.625,48,84,96,96,672,0.054973228879751444,0.55797185441098,9696,6.519863695709927,stage14_formal_case_config.csv
+576,560,0.5357142857142857,56,148,112,112,784,0.05504676880344001,0.5563714421069966,11312,6.337961771839715,stage14_formal_case_config.csv
+640,640,0.46875,40,20,320,320,2240,0.03595553377821111,0.22172492766072568,23680,3.261064803872663,stage14_formal_case_config.csv

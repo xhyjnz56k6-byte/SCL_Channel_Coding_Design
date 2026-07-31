@@ -1,0 +1,979 @@
+{
+  "caseId": "LDPC_BG2_K300_N640",
+  "actualLength": 640,
+  "snrDb": 3.5,
+  "frameStart": 100000,
+  "nextFrameIndex": 150000,
+  "framesCompleted": 50000,
+  "seed": {
+    "payload": 2026072001,
+    "noise": 2026073001
+  },
+  "runId": 140001,
+  "alpha": 0.8,
+  "maxIterations": 32,
+  "configHash": "7c571bfd784eb622ed7b51fbd286473bdf226b970668e6c605e5c4ebd0e1547e",
+  "codeCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+  "checkpointResumeCount": 0,
+  "status": "COMPLETED",
+  "chunks": [
+    {
+      "frameStart": 100000,
+      "frameEnd": 100499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_000_samples.csv",
+      "samplesSha256": "d2c9e2c5311c721edabcf9768fc3bf2606d341b928116ec62c620b29a382949f",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_000_summary.csv",
+      "summarySha256": "2143f7d54dba1f68300efea5a8e92a42e597ed732ccae6c9a623fc6ea4f7d9c2"
+    },
+    {
+      "frameStart": 100500,
+      "frameEnd": 100999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_001_samples.csv",
+      "samplesSha256": "5fb262dd74bb8588856dbfb8d4cb964eec7fe239f6b7b157693b9da85fac3fc5",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_001_summary.csv",
+      "summarySha256": "ab3e0590b0b9eea12d818a50ae306bd0780d3a55028579a71aff845171a3b35d"
+    },
+    {
+      "frameStart": 101000,
+      "frameEnd": 101499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_002_samples.csv",
+      "samplesSha256": "397d57136663f4d04014209a60ee9b1417cb7b06be2f1040fcf4f58a4acee7f1",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_002_summary.csv",
+      "summarySha256": "8830ea46911293ec4811173287388702c312d550c596c918c8680e76f565e931"
+    },
+    {
+      "frameStart": 101500,
+      "frameEnd": 101999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_003_samples.csv",
+      "samplesSha256": "6b8319b37d5a2505f08fcf8a2499c1d33fdcc2e0c67484287094dbf0d2aa1b1c",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_003_summary.csv",
+      "summarySha256": "231d59bfa628c472bb04f69113dbfddcc6c9e2ec7bfc54807733db91c2efdc2c"
+    },
+    {
+      "frameStart": 102000,
+      "frameEnd": 102499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_004_samples.csv",
+      "samplesSha256": "9063980d1a9ff2fcea86cdc5e48145fc0ebb914535d284f5c2cbaf34c8267d22",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_004_summary.csv",
+      "summarySha256": "f5185fa1d746a9343599243ae4cd6c2d32818a8baad048e205d3c6df20e3f0ef"
+    },
+    {
+      "frameStart": 102500,
+      "frameEnd": 102999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_005_samples.csv",
+      "samplesSha256": "c7138ddf9f9a3f588af0b936613feb8edd81843110e12d1e004fc084d2c095bf",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_005_summary.csv",
+      "summarySha256": "ba76a80a2e08c6200ceea2504eac936f5611bfa1fe2dba13b6ecc9c31d44516f"
+    },
+    {
+      "frameStart": 103000,
+      "frameEnd": 103499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_006_samples.csv",
+      "samplesSha256": "a94dc7fa21515996f5d4e10a3feb6cc793f47c140e9788e46cdcebcc0f5558e7",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_006_summary.csv",
+      "summarySha256": "ebb0b09e4e727843a8698d6d2d678ca5ddd79c239f5fc9cf9ecbf117573ab9c4"
+    },
+    {
+      "frameStart": 103500,
+      "frameEnd": 103999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_007_samples.csv",
+      "samplesSha256": "148ad892253de371d6906a07ef54126684434d7cae155d8ed979e2d04c6ee205",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_007_summary.csv",
+      "summarySha256": "a257dd9d5eea088d2d8847e4f80620ab52be1ac4938182e95b014740cd5e0c3b"
+    },
+    {
+      "frameStart": 104000,
+      "frameEnd": 104499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_008_samples.csv",
+      "samplesSha256": "8f5392d50198f825930b6f6b343f4460a866e3707e89a2244a8cc0a204f8254d",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_008_summary.csv",
+      "summarySha256": "6069010a7fc66d670ae3a996a6964ca8aa321070e4c0f964a38a818d3c0f9fea"
+    },
+    {
+      "frameStart": 104500,
+      "frameEnd": 104999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_009_samples.csv",
+      "samplesSha256": "e2d42ed77815b6dd44a6ced9df6431f62955c90e93e028db78f5d038a2b5df53",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_009_summary.csv",
+      "summarySha256": "45dea1d1c5792ce69f90f1670d47c111030e3f06a1d6d5faa0c9fa441b62d9c1"
+    },
+    {
+      "frameStart": 105000,
+      "frameEnd": 105499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_010_samples.csv",
+      "samplesSha256": "8f1f8c088e1cc74fdd79598d8510a500da97682f2c2f7019b108b62f2ec21d2c",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_010_summary.csv",
+      "summarySha256": "0bf2148efeb921971487aaa27d409da5c225afb07e45629ea6a4c8133f3ae1b9"
+    },
+    {
+      "frameStart": 105500,
+      "frameEnd": 105999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_011_samples.csv",
+      "samplesSha256": "28ea424c7386a25288a9830b918b96bba87b4316eaa4d967b199270ce711e4cc",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_011_summary.csv",
+      "summarySha256": "c1de856045f47a6b6c8b41016a0633acc4f0af76b93386b9ee88fd20b7f5ea42"
+    },
+    {
+      "frameStart": 106000,
+      "frameEnd": 106499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_012_samples.csv",
+      "samplesSha256": "30662eb063bfcad68bfd3d88630efb43baaf21bf2596b5875ab890caf5bb60dd",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_012_summary.csv",
+      "summarySha256": "c2e58f55606ee2f6f46f16ff59cc5866ba1c1f8d4c1cd2f9bdd1856e298b908b"
+    },
+    {
+      "frameStart": 106500,
+      "frameEnd": 106999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_013_samples.csv",
+      "samplesSha256": "76936b96fd8cd5c4377188cd9bc06487c7d2c2e182d6245329b402942ce78846",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_013_summary.csv",
+      "summarySha256": "025753da0120b2ffb1359c5df1dc088495ec0213210e8fca6522a8ca6cd8dd43"
+    },
+    {
+      "frameStart": 107000,
+      "frameEnd": 107499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_014_samples.csv",
+      "samplesSha256": "c8eacb52901705b1c45bf51782249e12bc9b044aa0a354d64ecb6d76ce0f5452",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_014_summary.csv",
+      "summarySha256": "c4290fa3b18fc9bdcf7a225dc4c970a221fee4a845a8e3c6df8bcd5e7fb8b0db"
+    },
+    {
+      "frameStart": 107500,
+      "frameEnd": 107999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_015_samples.csv",
+      "samplesSha256": "1f45af2d783f107788927542deeed2153bd57d319449a794cb0fb9ef0ebdf012",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_015_summary.csv",
+      "summarySha256": "4f76bf0128ae6afd08a4ba65cbd8125eaefc2be4913a003d6b75d04f085eaed3"
+    },
+    {
+      "frameStart": 108000,
+      "frameEnd": 108499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_016_samples.csv",
+      "samplesSha256": "fc2fb01a7d0e7a8fc2ea4b122c2abd3624c78a2b8ba3fefdda2439868a3386bf",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_016_summary.csv",
+      "summarySha256": "c57d8961c5570cd4b446d873638f5348147c77724fca15881903a327e881cb7c"
+    },
+    {
+      "frameStart": 108500,
+      "frameEnd": 108999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_017_samples.csv",
+      "samplesSha256": "702dc04fdcbf97ff7ba67bfa123628defc2258b3dd7cabd09bd2b4ee6564027f",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_017_summary.csv",
+      "summarySha256": "1dac1ee7cf4a9ca3bddd572933bcc7d1084b399514c43a1c2c585765567fb952"
+    },
+    {
+      "frameStart": 109000,
+      "frameEnd": 109499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_018_samples.csv",
+      "samplesSha256": "91ad2eabf2f4d923221a6365b37df334e5674757da13dcde301618ba878eef2c",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_018_summary.csv",
+      "summarySha256": "f13b6120015e4a284a2e5a95f477c6c96a3691394203be89c8377592835dc3db"
+    },
+    {
+      "frameStart": 109500,
+      "frameEnd": 109999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_019_samples.csv",
+      "samplesSha256": "9802b4dea5c73cd7bc47e1971b3d37a4e6d015197c89e9691d18dfc31da35967",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_019_summary.csv",
+      "summarySha256": "a2a109f12312a1abcfdf71cf81551e6108278591d98a3d0c1006846a3dd1a7cc"
+    },
+    {
+      "frameStart": 110000,
+      "frameEnd": 110499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_020_samples.csv",
+      "samplesSha256": "b0f2cd7a54866290e73344e658465f4074ffee8910a47bfd2f743af8ea9c2537",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_020_summary.csv",
+      "summarySha256": "d951c60f0d641b829765ff49fd4e371b1224d6ac74e3e86c968c82b58a6dd366"
+    },
+    {
+      "frameStart": 110500,
+      "frameEnd": 110999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_021_samples.csv",
+      "samplesSha256": "aa5d5b27b138ccee356cc6e4f479613426bec936e3422456b4d239138a520e40",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_021_summary.csv",
+      "summarySha256": "39a0d20be5e5e85093496343d2236f1c5388440384aac0a7617a1c7749c0ed9d"
+    },
+    {
+      "frameStart": 111000,
+      "frameEnd": 111499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_022_samples.csv",
+      "samplesSha256": "acc4e239ae748bb5341db102b5975bc1d1270ea5e44acea0e8296abfbb8b11af",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_022_summary.csv",
+      "summarySha256": "7a751c2d8f65f8540ba95b1171784a6c700ba2bb51eaa3c18b005b8ad9786017"
+    },
+    {
+      "frameStart": 111500,
+      "frameEnd": 111999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_023_samples.csv",
+      "samplesSha256": "ffa2a37224b6d0460418c7943bbd29bf39c816673fd59b21f54f03a6e77e140a",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_023_summary.csv",
+      "summarySha256": "2dd264a04ae18a34b6a5a211b9fd09eef94ebc0d5841a0056cd13d466a54a2f1"
+    },
+    {
+      "frameStart": 112000,
+      "frameEnd": 112499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_024_samples.csv",
+      "samplesSha256": "1ab1ae51131a3f28a4948c8d5eb0f106a4bc60c7faf1325e731f344a52d26777",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_024_summary.csv",
+      "summarySha256": "83bd150e7a7cfee97c09defbcca7b5d7c98736925e630f4d61c64909f606a527"
+    },
+    {
+      "frameStart": 112500,
+      "frameEnd": 112999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_025_samples.csv",
+      "samplesSha256": "d991480da642042b0e794f029ad2e56afe0158696c63f4cbbac9e2251f7626c4",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_025_summary.csv",
+      "summarySha256": "a479a2be90ba3133e41e3592c796b3986eb91d9a821920240ff0957d2592eb2e"
+    },
+    {
+      "frameStart": 113000,
+      "frameEnd": 113499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_026_samples.csv",
+      "samplesSha256": "49bf1db1e6d01c5768bef9aa71d5561c5d3706559f33a8a9da82986b1994c6d6",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_026_summary.csv",
+      "summarySha256": "0feb2ddb5890437ac2dd128d62fd3616608e06c6205855eaa7a3eecf1019f7a3"
+    },
+    {
+      "frameStart": 113500,
+      "frameEnd": 113999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_027_samples.csv",
+      "samplesSha256": "a82416fe45707129a67ac51406e4e9831a23410c3ac4eae0d14df25776c8501d",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_027_summary.csv",
+      "summarySha256": "cc850960da89196bdedc46d28475780b3f905a213c93d5282619f02935024f01"
+    },
+    {
+      "frameStart": 114000,
+      "frameEnd": 114499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_028_samples.csv",
+      "samplesSha256": "3b7bfa8dce5c4ca8e57bca8a65ce4e3924675ebd723999f791d491af8519d84a",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_028_summary.csv",
+      "summarySha256": "09a7bb615a4d71bc3d8304a71af6d6be19c5775e19fc5a4dec8b99b60b169732"
+    },
+    {
+      "frameStart": 114500,
+      "frameEnd": 114999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_029_samples.csv",
+      "samplesSha256": "ba96312e15acac553c38f69f85b3be57178a80ebf7cade190f1be37f9ecc28e7",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_029_summary.csv",
+      "summarySha256": "ec846d1a76ba633ed591f5bddc38450b7647de9a55ab9a8a7f4960472998fcce"
+    },
+    {
+      "frameStart": 115000,
+      "frameEnd": 115499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_030_samples.csv",
+      "samplesSha256": "c8af9c69d3a7ff3d77befbd6721a68a9cb3cab3494d4385da18af3b8a6457aae",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_030_summary.csv",
+      "summarySha256": "9238419f860168f97051c01fe556789c660ad4e7c90d31aa7c929c50a8b47707"
+    },
+    {
+      "frameStart": 115500,
+      "frameEnd": 115999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_031_samples.csv",
+      "samplesSha256": "bf4d14fa08a221f4e7f856182d11a52735671b0cc93321bfde584c8e4bb66a6f",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_031_summary.csv",
+      "summarySha256": "2d992b902c0e945c1606b0a744c8e45e521934f4966a10a11399c70b0db9f1d5"
+    },
+    {
+      "frameStart": 116000,
+      "frameEnd": 116499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_032_samples.csv",
+      "samplesSha256": "a4f0fb12a64bbd6f477540a1fa667a38a65743c877ccd8ce3d984891f6da8077",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_032_summary.csv",
+      "summarySha256": "2966cb9ae0df3ce15bd473368b2e6b01bb4cd02c63cf44b2995d023947244807"
+    },
+    {
+      "frameStart": 116500,
+      "frameEnd": 116999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_033_samples.csv",
+      "samplesSha256": "de7d56b828ab0f2b64e7ca38ae573fe202ac23639ad17a5923fb807e32c5ca4c",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_033_summary.csv",
+      "summarySha256": "83538915d66504e3a4d37569329b50fd93a0cdef6c3aa8c6bc4848d2b89d0d86"
+    },
+    {
+      "frameStart": 117000,
+      "frameEnd": 117499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_034_samples.csv",
+      "samplesSha256": "ec096d0c39103cb73f642853e0e674e68cc2a5768515e6d449e2b7f8fd9fd3b0",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_034_summary.csv",
+      "summarySha256": "023c561b036218f60b1666ea09f948aa6f83b74ccd792e9bdc4450e26a452758"
+    },
+    {
+      "frameStart": 117500,
+      "frameEnd": 117999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_035_samples.csv",
+      "samplesSha256": "9f0bad09eba01270296d84e1667c6177f039ca639b21d52de8d8199516b8610f",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_035_summary.csv",
+      "summarySha256": "b20b414b08b23704c42e3966146965a9b5f559be1aec5bda6acb37be63dd41ce"
+    },
+    {
+      "frameStart": 118000,
+      "frameEnd": 118499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_036_samples.csv",
+      "samplesSha256": "53d585647850e62a14621e589dcfed45171e81849262e794f020f7d1876c8cb9",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_036_summary.csv",
+      "summarySha256": "592a67b6acfc05a4db86751c75fa63535fcef52de0644c0cbfff5378e56e621e"
+    },
+    {
+      "frameStart": 118500,
+      "frameEnd": 118999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_037_samples.csv",
+      "samplesSha256": "ae7532dbd078aa2512ff407d12f42d261eae0bd5e30fcb27376c751a56ca2856",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_037_summary.csv",
+      "summarySha256": "692eb25ecc2aaa5a8b04395e76982acd3bf33015a21c9e1a8bf5297ad70fb709"
+    },
+    {
+      "frameStart": 119000,
+      "frameEnd": 119499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_038_samples.csv",
+      "samplesSha256": "7a610197ea31f509499162005c4e2860e2d72251fc9b868fa6719017da1ff3b8",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_038_summary.csv",
+      "summarySha256": "c8f35d46e4a963513968dd73757eb286c04868c3ccdb0bd6674d620874b6cf4a"
+    },
+    {
+      "frameStart": 119500,
+      "frameEnd": 119999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_039_samples.csv",
+      "samplesSha256": "e938a5119d14576a0ec2c74b6556ff3e37d0e487c3f7809c08a0408457f0d3ad",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_039_summary.csv",
+      "summarySha256": "2ef8e3750f2ee396713fa8eed5eac625c4e57d20e7d5109aeee3098396098179"
+    },
+    {
+      "frameStart": 120000,
+      "frameEnd": 120499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_040_samples.csv",
+      "samplesSha256": "9a886d40f5b2bc1e9f074578489f3b4d57b4949870cfb8e0c24c790d2cc9a374",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_040_summary.csv",
+      "summarySha256": "2531faaefd031f50910c088632a5be303bcb39dac03af0a8867bc882bcf403d7"
+    },
+    {
+      "frameStart": 120500,
+      "frameEnd": 120999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_041_samples.csv",
+      "samplesSha256": "d2af881025b3e2978ba760ad35c249f66df02a30759511aaa477eace5628a80e",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_041_summary.csv",
+      "summarySha256": "dfb0a6ba3a516326fef3c06e9373c58bd0f12d49ae6ec87820dfb5198aa8990a"
+    },
+    {
+      "frameStart": 121000,
+      "frameEnd": 121499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_042_samples.csv",
+      "samplesSha256": "d800a3f26bb610e9f297fdbd4ab62454c90c13b2dac80e25e59ed092122261fd",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_042_summary.csv",
+      "summarySha256": "39a5c2c8ec7cbbccea17923ab3e09b25948eb19a931873a239793a96fb87415d"
+    },
+    {
+      "frameStart": 121500,
+      "frameEnd": 121999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_043_samples.csv",
+      "samplesSha256": "053b60e48a3b11c3e14ab533fda7ee2b288e784b2df9e6672d2e2753f761a395",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_043_summary.csv",
+      "summarySha256": "52e0b6a2dbe4c5676d4f4fa122e2c38daa865b7e1b2eaff39f7de674ab0b1ece"
+    },
+    {
+      "frameStart": 122000,
+      "frameEnd": 122499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_044_samples.csv",
+      "samplesSha256": "e9e49142e87b73d70b95356535e13166fed292c37ee593610640782309e94e34",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_044_summary.csv",
+      "summarySha256": "eabd97b4b6d61ec3bd2be90566c09998c81c3f38496fbcf513c937ae48bc050c"
+    },
+    {
+      "frameStart": 122500,
+      "frameEnd": 122999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_045_samples.csv",
+      "samplesSha256": "8c7c3ff2077687df686a9dd4404af1ce15781dfc972b60660461f3772229cd9f",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_045_summary.csv",
+      "summarySha256": "51d5288ce0cb17b6bdba3c53c1b458872bc6239bb8939cf2d7e44bc3b454ee54"
+    },
+    {
+      "frameStart": 123000,
+      "frameEnd": 123499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_046_samples.csv",
+      "samplesSha256": "0541f826ef3caa5b30aac6c6b5b05a9dffa0b0a63079b577a4ba79340eef3db8",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_046_summary.csv",
+      "summarySha256": "82e519a3996051a61b90fa9ab1108b7b8f9f39ba127c7ced1c06e01638e22542"
+    },
+    {
+      "frameStart": 123500,
+      "frameEnd": 123999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_047_samples.csv",
+      "samplesSha256": "ce8220ba56c703a02d2f8b6ed3c381bc06a7dae54f7679ba69c5128cc3d2195e",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_047_summary.csv",
+      "summarySha256": "7f6a19e089b459fada041830ab84b15f33713d1ee488c91f335d5e5eaf60de9f"
+    },
+    {
+      "frameStart": 124000,
+      "frameEnd": 124499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_048_samples.csv",
+      "samplesSha256": "4dcbd65d762d8cfe69fe3556d05cc4bb8240fbe6897aa7acfb3352699578d783",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_048_summary.csv",
+      "summarySha256": "c5ec40ed2b5ac894bede7f699966e8e466fc00b14938ebc5a8d7e1d9145b7498"
+    },
+    {
+      "frameStart": 124500,
+      "frameEnd": 124999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_049_samples.csv",
+      "samplesSha256": "22c12f351dc852344773e88c03950177393a768e9e608df324a54791b9fe9724",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_049_summary.csv",
+      "summarySha256": "0d10b22319a2ff7817dc49d1f5c97d92e77f69f6694c7862bbe1dcee59325771"
+    },
+    {
+      "frameStart": 125000,
+      "frameEnd": 125499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_050_samples.csv",
+      "samplesSha256": "b304d993684fc4900518d7d49293d2c096b5f98608fdf6aeeeb59e5f5014fb2b",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_050_summary.csv",
+      "summarySha256": "b1be1a5ee9432413cce1bc2590aafcfd0c160323395575c1eea6b01912fc7b60"
+    },
+    {
+      "frameStart": 125500,
+      "frameEnd": 125999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_051_samples.csv",
+      "samplesSha256": "e869acff2f815949c2cf669db15c4be3d43938172a869f3512bfb38d80eb97b1",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_051_summary.csv",
+      "summarySha256": "27b152a874f4e73a322ea6bcda87f213b14b8803dc9cf5b473b084a00881fb8e"
+    },
+    {
+      "frameStart": 126000,
+      "frameEnd": 126499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_052_samples.csv",
+      "samplesSha256": "a49f7444520df6a890e7fd7935cb0fcdcc7622bc540f04a397fa3b04597ab665",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_052_summary.csv",
+      "summarySha256": "f6e35c5daf65c244944b79b210663a54101f2c88cd0ec35b42ee52042055a64c"
+    },
+    {
+      "frameStart": 126500,
+      "frameEnd": 126999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_053_samples.csv",
+      "samplesSha256": "48d80c811faa4bb4a3edb434d9962ec10597a535e28da3cc940922fa630178f1",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_053_summary.csv",
+      "summarySha256": "4cefb951b046c34a3bc57898f9a053ffad19c8ebde0f24a3cca826369db5740e"
+    },
+    {
+      "frameStart": 127000,
+      "frameEnd": 127499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_054_samples.csv",
+      "samplesSha256": "f4578c71c920c62e14256da4e51d6795318bbb319718dcb925b89229715e267b",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_054_summary.csv",
+      "summarySha256": "4415c523e2fc6c585dfb9b32fc03969910aa0e47614dbb3faa71643f094f9c6b"
+    },
+    {
+      "frameStart": 127500,
+      "frameEnd": 127999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_055_samples.csv",
+      "samplesSha256": "af3105d786b29334d56bf01e1c16f5acb0e99c0981660d122777a38a9efa2623",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_055_summary.csv",
+      "summarySha256": "ab1aa9dcf0d6604b9ae79450224e8f2e2416b9b96e46371b57435fe3541d1b95"
+    },
+    {
+      "frameStart": 128000,
+      "frameEnd": 128499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_056_samples.csv",
+      "samplesSha256": "3d59461f6f22725a5cb55845beff33001b09f39e718f487a252979ce0a3baf15",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_056_summary.csv",
+      "summarySha256": "915f18741d878934a0d30ac32c06f79d64153dae93f04328e348d554bcbf1cec"
+    },
+    {
+      "frameStart": 128500,
+      "frameEnd": 128999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_057_samples.csv",
+      "samplesSha256": "8c0504c6180d2401468f4be3c8f98dae87f249e1e15b1a935845b3548b8fd92b",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_057_summary.csv",
+      "summarySha256": "289c3ae62343b1014031e6ebee9f4c3302e0a07ff413e4d44a7377b3532ed2f4"
+    },
+    {
+      "frameStart": 129000,
+      "frameEnd": 129499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_058_samples.csv",
+      "samplesSha256": "72396103a5d3bb1c84bfc405268b97266378bae4b0e855390f9f831e8577f78e",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_058_summary.csv",
+      "summarySha256": "c1002e84909c113262d301787c54f11838b289e607fc715cd33312c6e95a56a3"
+    },
+    {
+      "frameStart": 129500,
+      "frameEnd": 129999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_059_samples.csv",
+      "samplesSha256": "5358651b59653bf77cb5fbb95ba3845c853cf1a3d99de9595e76137b4cc257e2",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_059_summary.csv",
+      "summarySha256": "32fbcc0d1288e426696e6423c656ebf89f01a09d637027c23e7fe996b9521655"
+    },
+    {
+      "frameStart": 130000,
+      "frameEnd": 130499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_060_samples.csv",
+      "samplesSha256": "06061ccf322dc8b7e7577ee0476d15b050ec73494e790f54839523f01f63db94",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_060_summary.csv",
+      "summarySha256": "d0b5b36901df13a83c3008c2e5744ae74c1d7e26641009f7d18aef0f891f4888"
+    },
+    {
+      "frameStart": 130500,
+      "frameEnd": 130999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_061_samples.csv",
+      "samplesSha256": "2391364c60b2d905adddf296e6a4c5a09c4471c8b7fc85b92ea6da6bc5aedefd",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_061_summary.csv",
+      "summarySha256": "204b7c726d1d10ee7d6f9ef19bef5ecbdc6dd3f1875fab63052ebf580837f992"
+    },
+    {
+      "frameStart": 131000,
+      "frameEnd": 131499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_062_samples.csv",
+      "samplesSha256": "f6be6f53cea36a32718d7a3ef0827ce3dd8d2430a8015e3cb0b5929970948ab8",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_062_summary.csv",
+      "summarySha256": "04fbc8879183fb2a4017b77ab58db332b40c0f6b47e6b0cb0b9e9ba92e4485af"
+    },
+    {
+      "frameStart": 131500,
+      "frameEnd": 131999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_063_samples.csv",
+      "samplesSha256": "671020c46ca8b78e000def6976bb3a8f9372335331b3cfdc17590e8e726b74af",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_063_summary.csv",
+      "summarySha256": "6309ccc539a4f970b40857a6a8211f73fae482f62976c2eded52e0f439ac64c5"
+    },
+    {
+      "frameStart": 132000,
+      "frameEnd": 132499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_064_samples.csv",
+      "samplesSha256": "e544c0b76b6d4f6618d4e6d31f92fe95e1adc4516c3c5060bc0592938fc0eaaa",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_064_summary.csv",
+      "summarySha256": "77a9cbf7715a30f0dee32ae1e7f09abdea9cc139295ab00630ab97e0c0ccc9ba"
+    },
+    {
+      "frameStart": 132500,
+      "frameEnd": 132999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_065_samples.csv",
+      "samplesSha256": "45577eec212c156dc8549abd46e59129de91cafa616a4afc45089b114b477243",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_065_summary.csv",
+      "summarySha256": "ea9aaaffa837cebd86ea136352a42f4c8e5b6ad9d99f96c268f899cf9934d150"
+    },
+    {
+      "frameStart": 133000,
+      "frameEnd": 133499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_066_samples.csv",
+      "samplesSha256": "e3a2bde72a1617d253c08d12e9888895ac4655e20f3f2b6b6f76c031cdb249b3",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_066_summary.csv",
+      "summarySha256": "18db53d2884ac4b7c833dd98c26518def6e29c542afd9a01eaa35e191718614c"
+    },
+    {
+      "frameStart": 133500,
+      "frameEnd": 133999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_067_samples.csv",
+      "samplesSha256": "b98a4c4db2d61324dfa3c5bc30d41200f2957d4be6a6287f29afc386875dc092",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_067_summary.csv",
+      "summarySha256": "646f85a62bf323e29788e5f6a95fb0d56a5e768faf5ae4c1b31c373db3526fd5"
+    },
+    {
+      "frameStart": 134000,
+      "frameEnd": 134499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_068_samples.csv",
+      "samplesSha256": "2d406c2b3b2eb3e43e798b52e58d04c5307276285ed2e32774287a1f06503963",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_068_summary.csv",
+      "summarySha256": "e23bb58675e1435f37de5809d0bb1f79b695ff3a9ea3336fdced8204c06c5e35"
+    },
+    {
+      "frameStart": 134500,
+      "frameEnd": 134999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_069_samples.csv",
+      "samplesSha256": "621316efcfb2d6f7ef82d6b36617bfd5616df4d84296fc60f735795a67a06745",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_069_summary.csv",
+      "summarySha256": "fe45d268105228e51c6d13442400d43df2f9557f66869325982434fd907e2d23"
+    },
+    {
+      "frameStart": 135000,
+      "frameEnd": 135499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_070_samples.csv",
+      "samplesSha256": "d42644b4596beae3d1d17d1a7b79c86a946b0b70cac7af8393cde54b00c779ef",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_070_summary.csv",
+      "summarySha256": "e7b3696d17771a730557f9095d42a4d4d0ba12df661254bd83a4768c1c443396"
+    },
+    {
+      "frameStart": 135500,
+      "frameEnd": 135999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_071_samples.csv",
+      "samplesSha256": "8fecb16a5d1a85cf5fe5edfe330d29ab27e11952d51e024bdab7c7f42152c3a1",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_071_summary.csv",
+      "summarySha256": "0c319075f6d73f19596be6d85176b7a6cc42b92098d3c8150318d3fb60aec7d6"
+    },
+    {
+      "frameStart": 136000,
+      "frameEnd": 136499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_072_samples.csv",
+      "samplesSha256": "2c9e3336c82dfc8adf40360abe45faca4815ce8fef302a4a0bef8229a8607dab",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_072_summary.csv",
+      "summarySha256": "2a5f1ddc073565e5b72c3f7682d8e03e99d951904a4803460c9d124dd51d0cad"
+    },
+    {
+      "frameStart": 136500,
+      "frameEnd": 136999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_073_samples.csv",
+      "samplesSha256": "9d0517d80316e841d2d1161c94efa62a3c189727013011e6621f505904b0956b",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_073_summary.csv",
+      "summarySha256": "16584b9adf59303faa496ac9ecab96330d94a6e417cb18b5cd565cc5059576f7"
+    },
+    {
+      "frameStart": 137000,
+      "frameEnd": 137499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_074_samples.csv",
+      "samplesSha256": "57a1a2692972c0ecd687542ec32d8274f5168a04534159b14bad5d437a796bf6",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_074_summary.csv",
+      "summarySha256": "cfbfd93c75b5a86608f9f3f88f8274caac7b2c46d259f8b5fe17c48b9cfb52d9"
+    },
+    {
+      "frameStart": 137500,
+      "frameEnd": 137999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_075_samples.csv",
+      "samplesSha256": "fb4e744fe645a334dcf4d0d2dc3ee81ee33d7d6dd890a0e6735f1786bb655d11",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_075_summary.csv",
+      "summarySha256": "7ce4f688dae8f0e1a161a836e9aa8b22eee27bd1e178524a5aa2b436047fcd59"
+    },
+    {
+      "frameStart": 138000,
+      "frameEnd": 138499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_076_samples.csv",
+      "samplesSha256": "b11b7653820813d69d34d7c198971c15bb2194bcd08d1d311e7381f46abc08d2",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_076_summary.csv",
+      "summarySha256": "ccb9665a1ea0ca85007ce29b6caa176e6400439611de7b9c332ea9cd838505d3"
+    },
+    {
+      "frameStart": 138500,
+      "frameEnd": 138999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_077_samples.csv",
+      "samplesSha256": "61d0a80e9324778e1c34f7152d7d1b2b23c0b2eeff9f8000154923df268ee1a7",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_077_summary.csv",
+      "summarySha256": "68ad511d190a98cf58535c9fb0dde907956fe7d0924fd2bab21d75ec7693b13b"
+    },
+    {
+      "frameStart": 139000,
+      "frameEnd": 139499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_078_samples.csv",
+      "samplesSha256": "96205136d42de1acfb2c74c2780eedcf8cc6e0af20dd451a0976d9297ad3c752",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_078_summary.csv",
+      "summarySha256": "556e190f3123df09fb61d8bb9da4c4eeb9ae1bf12b22d38efabbdd8aafd8e445"
+    },
+    {
+      "frameStart": 139500,
+      "frameEnd": 139999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_079_samples.csv",
+      "samplesSha256": "b3a6a950e6c63cb8c83810bce75142a063936dcfb77b41df17ef57c51a55a514",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_079_summary.csv",
+      "summarySha256": "caca81a31465dee5b294ec801987acfd8fbd20ffcbc54842a49cd2316061e678"
+    },
+    {
+      "frameStart": 140000,
+      "frameEnd": 140499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_080_samples.csv",
+      "samplesSha256": "c5dd60d78293d21e1e93c98e7e8f69590c564844cdfacffede3d585dda663416",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_080_summary.csv",
+      "summarySha256": "06fae1d0dca2e73f72b30618e2ec3429f691d3295736543e796bc3430e4daf54"
+    },
+    {
+      "frameStart": 140500,
+      "frameEnd": 140999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_081_samples.csv",
+      "samplesSha256": "2cee3fccc5790d5de984d9e7c57c2815872674294f387470ab6492b6fa4775b9",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_081_summary.csv",
+      "summarySha256": "ad63d96f2df5a8c157b6aa939294e55b3ab8348a79f5b372df121b38f6ee1644"
+    },
+    {
+      "frameStart": 141000,
+      "frameEnd": 141499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_082_samples.csv",
+      "samplesSha256": "d377165341bb73eaf2ce91041f57b11f41d60e23ba1073aabf528a112f7a5283",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_082_summary.csv",
+      "summarySha256": "32d1bf2cd36e3e2d86a55214a02d388546ea9e7f32a66e50348e2b31690d5673"
+    },
+    {
+      "frameStart": 141500,
+      "frameEnd": 141999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_083_samples.csv",
+      "samplesSha256": "0b8d915304f9ce42cb1663394a5beb0ae72f9a4c9290cece61da6b6867538b07",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_083_summary.csv",
+      "summarySha256": "c16e68fd520a5b8f5831003869529b3f719f9944b123bd0a3ec13f8b4b0e8067"
+    },
+    {
+      "frameStart": 142000,
+      "frameEnd": 142499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_084_samples.csv",
+      "samplesSha256": "8000bc990c1977521e378ce63dc014b5dd439999b8729ae740577ddf9be071a9",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_084_summary.csv",
+      "summarySha256": "e9c1b8585593c10592b4cf96679d03921a896ce0d88512e033eaf493d9e44948"
+    },
+    {
+      "frameStart": 142500,
+      "frameEnd": 142999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_085_samples.csv",
+      "samplesSha256": "7e5fa39b92bf622bf19d7b38c67ad05ab6cd39862ff9af3dde13c1cae5740f5a",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_085_summary.csv",
+      "summarySha256": "de757617917389e25176e53badc48b28892d9fba7c45fa1c045d4e202301a352"
+    },
+    {
+      "frameStart": 143000,
+      "frameEnd": 143499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_086_samples.csv",
+      "samplesSha256": "a1f86dd4f7483bb1daa65762d65b6e54fa819679b51e1b9d17add8c8fa0d9206",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_086_summary.csv",
+      "summarySha256": "4ee59aae63e60ad5f3e69bd3a4303cb7664d256c705a5359c4c3428688a7d4f0"
+    },
+    {
+      "frameStart": 143500,
+      "frameEnd": 143999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_087_samples.csv",
+      "samplesSha256": "baae7357b96e54cbd9200d749ad953510ebc6d4ebaab0aadc4e2c94507b634f8",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_087_summary.csv",
+      "summarySha256": "8d271201faa1cadf5069d32240aebbe19033b53d27962ca874cac51395471a4b"
+    },
+    {
+      "frameStart": 144000,
+      "frameEnd": 144499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_088_samples.csv",
+      "samplesSha256": "c177649cafb5fead6f87a46aab61b203c4a819a02a95c1da0515d15ff5931d7a",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_088_summary.csv",
+      "summarySha256": "3847d3c7a0974d25c4eb363274fcb10da28022d49265a1800958b5e3b384997f"
+    },
+    {
+      "frameStart": 144500,
+      "frameEnd": 144999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_089_samples.csv",
+      "samplesSha256": "bc44720be7c1091fb117652b253b750b585867f4d1824445472df54ba4a222a6",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_089_summary.csv",
+      "summarySha256": "ac9e59c084bfcecde6051eb8a207bcda416ace61012753339810d72d737786da"
+    },
+    {
+      "frameStart": 145000,
+      "frameEnd": 145499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_090_samples.csv",
+      "samplesSha256": "9eaf51596998b65f1fd406f4ce699c0377a4882fe9d2ad3fd4e56666e169dfbf",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_090_summary.csv",
+      "summarySha256": "1ca1c8284ac57153b2f1b25ce413b70bde17e0c4180e54ee40ddc8112e4ea020"
+    },
+    {
+      "frameStart": 145500,
+      "frameEnd": 145999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_091_samples.csv",
+      "samplesSha256": "96b30bc2ad1c678be9d21cd575e38e77d3695624e2dbd991d22ba8cf1c2fb810",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_091_summary.csv",
+      "summarySha256": "20870bf03d35f7ebc171ac9fe7eea6f08622e58c37850eb524baf28ce50b2ed9"
+    },
+    {
+      "frameStart": 146000,
+      "frameEnd": 146499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_092_samples.csv",
+      "samplesSha256": "6efbac7f79f8baf29e079f50413fc7f5d658184af1ffa3ad92776a9b807dd8ab",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_092_summary.csv",
+      "summarySha256": "4b1a3ea5fac495e663b9aba44c57b30e71df5cf58f6d1867bebe58fe4f316651"
+    },
+    {
+      "frameStart": 146500,
+      "frameEnd": 146999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_093_samples.csv",
+      "samplesSha256": "c6f9448a3bd1b9dbd65f5bf781032a73f1f03f85b4f9c649fd2de80350d37cd2",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_093_summary.csv",
+      "summarySha256": "2a2c3ce5c9fb4cb18196028d189ef80c165060eef3461f9d64c32cec48c98228"
+    },
+    {
+      "frameStart": 147000,
+      "frameEnd": 147499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_094_samples.csv",
+      "samplesSha256": "d0d42895970a8cb95d38295503608699e914df0af05c8d2b58fd412382ef0c57",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_094_summary.csv",
+      "summarySha256": "7c05b6d15ac3d54a4c10b5731d0df5a78b1d421eda855dd22ab07811087f5f5e"
+    },
+    {
+      "frameStart": 147500,
+      "frameEnd": 147999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_095_samples.csv",
+      "samplesSha256": "57ac1a6d2d40f07cdee7664ddc435e5a639caab213d4326e1272ba837cc5019d",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_095_summary.csv",
+      "summarySha256": "00bd1b7c89b666471c160b027575b54548f0c9089c57bbf4fbde9e64b8d8491f"
+    },
+    {
+      "frameStart": 148000,
+      "frameEnd": 148499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_096_samples.csv",
+      "samplesSha256": "b6121f6354029e0475518be17d77eb5f0cf313ef0b4d3693981a3f8e2d3a57ad",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_096_summary.csv",
+      "summarySha256": "9dd3ba622c79bb9d7e5b0f662c484db816bc027f880048848cd760cae5e17df2"
+    },
+    {
+      "frameStart": 148500,
+      "frameEnd": 148999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_097_samples.csv",
+      "samplesSha256": "9ebe81e7dcf6dc79ca445564dab929c80371e6cb569a5bed0f90cea224410036",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_097_summary.csv",
+      "summarySha256": "1f779760d1e5854e2f605e57a60f440f608dae00e93e436a30f1d27bc4672f4b"
+    },
+    {
+      "frameStart": 149000,
+      "frameEnd": 149499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_098_samples.csv",
+      "samplesSha256": "f411b07e6732985166c66431ee70a6d18ebec49a693791dd555ef8963c75c548",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_098_summary.csv",
+      "summarySha256": "6d6e6becb188aa9180b15aded31d5b7f138980ea324b3567b6b4121ebae768f0"
+    },
+    {
+      "frameStart": 149500,
+      "frameEnd": 149999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_099_samples.csv",
+      "samplesSha256": "9f8a927ac90ed59595d1de2fc682d0aab74cb0d1728c1b60612ae1b0c614ab2e",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n640_snr_p03p5/chunks/chunk_099_summary.csv",
+      "summarySha256": "be4a82755f70823caee93125b80fa52a8919bfb55b59e23d673d1db2ba0be4ad"
+    }
+  ],
+  "algorithms": {
+    "DIRECT_LAYERED_SPA_BP": {
+      "frames": 50000,
+      "bitErrors": 0,
+      "frameErrors": 0,
+      "syndromePasses": 50000,
+      "correctValidFrames": 50000,
+      "wrongValidFrames": 0,
+      "correctInvalidFrames": 0,
+      "wrongInvalidFrames": 0,
+      "finalSyndromeWeight": 0,
+      "nanInfCount": 0,
+      "atanhClampCount": 3816079,
+      "llrClampCount": 0,
+      "messageClampCount": 0,
+      "checkNodeUpdates": 18251200,
+      "variableNodeUpdates": 127758400,
+      "messageUpdates": 127758400,
+      "tanhOperations": 255516800,
+      "atanhOperations": 127758400,
+      "absOperations": 0,
+      "comparisonOperations": 0,
+      "min1Min2Updates": 0,
+      "signOperations": 0,
+      "alphaMultiplications": 0
+    },
+    "DIRECT_LAYERED_NMS": {
+      "frames": 50000,
+      "bitErrors": 0,
+      "frameErrors": 0,
+      "syndromePasses": 50000,
+      "correctValidFrames": 50000,
+      "wrongValidFrames": 0,
+      "correctInvalidFrames": 0,
+      "wrongInvalidFrames": 0,
+      "finalSyndromeWeight": 0,
+      "nanInfCount": 0,
+      "atanhClampCount": 0,
+      "llrClampCount": 0,
+      "messageClampCount": 0,
+      "checkNodeUpdates": 18552320,
+      "variableNodeUpdates": 129866240,
+      "messageUpdates": 129866240,
+      "tanhOperations": 0,
+      "atanhOperations": 0,
+      "absOperations": 129866240,
+      "comparisonOperations": 259732480,
+      "min1Min2Updates": 83275364,
+      "signOperations": 129866240,
+      "alphaMultiplications": 129866240
+    }
+  },
+  "payloadHashXor": 4478654089032902876,
+  "codewordHashXor": 15621819794463164616,
+  "llrHashXor": 717361661007038445,
+  "createdAt": "2026-07-30T03:10:42.418444+00:00",
+  "updatedAt": "2026-07-30T03:11:06.525190+00:00",
+  "checkpointHash": "abee3996083036fb2174c0c0d651597cb4b6de5708049a053b9fed741b09685b"
+}

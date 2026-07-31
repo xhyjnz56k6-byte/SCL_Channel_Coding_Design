@@ -1,0 +1,5 @@
+newCapability,legacySource,reuse
+Direct case selection,Stage19 code5gwb_parameters.cpp,algorithm audited; rank-aware enumeration rewritten
+Direct GF(2) encoder,Stage23g make_ctx/encode_frame,transform precomputation migrated
+Direct Layered SPA/BP,Stage23g decode_frame,"layer/row order, eps and early stop migrated"
+Layered NMS,Stage15b + LDPC check-node code,min1/min2/sign/alpha kernel only

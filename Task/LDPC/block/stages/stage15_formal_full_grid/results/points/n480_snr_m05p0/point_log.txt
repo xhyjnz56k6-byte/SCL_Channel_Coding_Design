@@ -1,0 +1,7 @@
+start=2026-07-30T03:08:47.858040+00:00
+key=n480_snr_m05p0
+resumeCount=0
+complete=2026-07-30T03:08:50.173716+00:00
+frames=1000
+elapsedSeconds=2.316287
+status=COMPLETED

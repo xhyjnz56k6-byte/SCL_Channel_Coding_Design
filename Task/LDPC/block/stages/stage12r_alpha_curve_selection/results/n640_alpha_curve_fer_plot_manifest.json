@@ -1,0 +1,21 @@
+{
+  "title": "640比特LDPC不同缩放因子的误帧率对比",
+  "x": "snrDb",
+  "y": "FER",
+  "series": [
+    "BP",
+    "MS (α=1.00)",
+    "NMS (α=0.60)",
+    "NMS (α=0.65)",
+    "NMS (α=0.70)",
+    "NMS (α=0.75)",
+    "NMS (α=0.80)",
+    "NMS (α=0.85)",
+    "NMS (α=0.90)",
+    "NMS (α=0.95)"
+  ],
+  "source": "n640_alpha_curve_fer_figure_data.csv",
+  "pngSha256": "6eee90dfde40c22d4a9946526ba22254ad110bb4e952b1e8d5b66204125e0f65",
+  "interpolation": false,
+  "smoothing": false
+}

@@ -1,0 +1,2 @@
+interruptedAfterFrames,resumedFrames,totalFrames,firstFrame,lastFrame,noDuplicateFrame,noMissingFrame,immutableChunkHashVerified,deterministicFieldsSource,wallClockTiming,status
+10,30,40,91000,91039,True,True,True,same immutable chunks,MEASURED_NOT_RECOMPUTED,PASS

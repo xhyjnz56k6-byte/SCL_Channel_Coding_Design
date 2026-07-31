@@ -1,0 +1,151 @@
+{
+  "caseId": "LDPC_BG2_K300_N560",
+  "actualLength": 560,
+  "snrDb": 5.0,
+  "frameStart": 100000,
+  "nextFrameIndex": 103787,
+  "framesCompleted": 3787,
+  "seed": {
+    "payload": 2026072001,
+    "noise": 2026073001
+  },
+  "runId": 140001,
+  "alpha": 0.95,
+  "maxIterations": 32,
+  "configHash": "7c571bfd784eb622ed7b51fbd286473bdf226b970668e6c605e5c4ebd0e1547e",
+  "codeCommit": "989d8b590d858a01457df3c60d05012d79c30363",
+  "checkpointResumeCount": 0,
+  "status": "COMPLETED",
+  "chunks": [
+    {
+      "frameStart": 100000,
+      "frameEnd": 100499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_000_samples.csv",
+      "samplesSha256": "280f34911b9616acabeb6da180bb8afa75ad6126d7d98e54930103fdc5974a91",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_000_summary.csv",
+      "summarySha256": "f1c13b73851e34e45678f049e4d399d17641a36691dd5462a61bf5d7d1915712"
+    },
+    {
+      "frameStart": 100500,
+      "frameEnd": 100999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_001_samples.csv",
+      "samplesSha256": "2a0de19acdb2a0a876fde1fbbcc1800c3c95bf04065f20fc4140130d83de0546",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_001_summary.csv",
+      "summarySha256": "2f037f162b37358166aed0d8726f76d15f6e1bb6793d497dc42f5e21aa52f055"
+    },
+    {
+      "frameStart": 101000,
+      "frameEnd": 101499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_002_samples.csv",
+      "samplesSha256": "939b21a0a833e2c70a5f719bf3ae04618b939d2ef19c4c83b4861b4b32a517fe",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_002_summary.csv",
+      "summarySha256": "9b6bfb7e11140b7f859d5216b60fac393d514d44c09dbf3084a4690b4ab1432c"
+    },
+    {
+      "frameStart": 101500,
+      "frameEnd": 101999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_003_samples.csv",
+      "samplesSha256": "4188a6bcb36ce2a02d6bf7dd9dd7dcb93c3c66c24f549c215d588ea74c2455c7",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_003_summary.csv",
+      "summarySha256": "843bc7900d46688f4a585ae8ccc18a5a3251d2c4411338d854e07d0029968efe"
+    },
+    {
+      "frameStart": 102000,
+      "frameEnd": 102499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_004_samples.csv",
+      "samplesSha256": "1114be07638b516eb7e20058927d33d3492473d0cd9d61f8110bbab63bdabf03",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_004_summary.csv",
+      "summarySha256": "05ea14496f5159133211489b1b621bdfddd0be679e6bea1512e85a017e327bfd"
+    },
+    {
+      "frameStart": 102500,
+      "frameEnd": 102999,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_005_samples.csv",
+      "samplesSha256": "1f489dfdc070f86b0eeda445a85a2ad3e989abf0b660ddac02f32537f0f8053f",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_005_summary.csv",
+      "summarySha256": "79cd25a4d502a95d49f38d268e622f355b337dfc29ca5b0c5cd427d5687dcdce"
+    },
+    {
+      "frameStart": 103000,
+      "frameEnd": 103499,
+      "frames": 500,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_006_samples.csv",
+      "samplesSha256": "bb94a34a3b9f0ab00155055f2880c2890518cbdb8936716a60642845d9b1a52b",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_006_summary.csv",
+      "summarySha256": "540f92c532715b111631b9cfafaabf3a5e98b495fefdd1b8aad3e43f93d60bf8"
+    },
+    {
+      "frameStart": 103500,
+      "frameEnd": 103786,
+      "frames": 287,
+      "samplesPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_007_samples.csv",
+      "samplesSha256": "e8142c29da6d5dcc6934a1d413dfd6f02f26824962113324b4b474ac5fec83d5",
+      "summaryPath": "Task/LDPC/block/formal_runtime/n560_snr_p05p0/chunks/chunk_007_summary.csv",
+      "summarySha256": "e331780c08f57921a570d88f31534719d309c221bbde444cd7db9f1a92ecedeb"
+    }
+  ],
+  "algorithms": {
+    "DIRECT_LAYERED_SPA_BP": {
+      "frames": 3787,
+      "bitErrors": 288,
+      "frameErrors": 200,
+      "syndromePasses": 3768,
+      "correctValidFrames": 3581,
+      "wrongValidFrames": 187,
+      "correctInvalidFrames": 6,
+      "wrongInvalidFrames": 13,
+      "finalSyndromeWeight": 19,
+      "nanInfCount": 0,
+      "atanhClampCount": 0,
+      "llrClampCount": 0,
+      "messageClampCount": 0,
+      "checkNodeUpdates": 524496,
+      "variableNodeUpdates": 3671472,
+      "messageUpdates": 3671472,
+      "tanhOperations": 7342944,
+      "atanhOperations": 3671472,
+      "absOperations": 0,
+      "comparisonOperations": 0,
+      "min1Min2Updates": 0,
+      "signOperations": 0,
+      "alphaMultiplications": 0
+    },
+    "DIRECT_LAYERED_NMS": {
+      "frames": 3787,
+      "bitErrors": 289,
+      "frameErrors": 206,
+      "syndromePasses": 3735,
+      "correctValidFrames": 3560,
+      "wrongValidFrames": 175,
+      "correctInvalidFrames": 21,
+      "wrongInvalidFrames": 31,
+      "finalSyndromeWeight": 52,
+      "nanInfCount": 0,
+      "atanhClampCount": 0,
+      "llrClampCount": 0,
+      "messageClampCount": 0,
+      "checkNodeUpdates": 637728,
+      "variableNodeUpdates": 4464096,
+      "messageUpdates": 4464096,
+      "tanhOperations": 0,
+      "atanhOperations": 0,
+      "absOperations": 4464096,
+      "comparisonOperations": 8928192,
+      "min1Min2Updates": 2777505,
+      "signOperations": 4464096,
+      "alphaMultiplications": 4464096
+    }
+  },
+  "payloadHashXor": 1519644867615295185,
+  "codewordHashXor": 14539858891088004406,
+  "llrHashXor": 12701103363845850189,
+  "createdAt": "2026-07-30T03:09:24.796700+00:00",
+  "updatedAt": "2026-07-30T03:09:25.978820+00:00",
+  "checkpointHash": "36970ef45c0238d494b9a8ad10c094c5f5ec1bffd8cf3dcca19d697756233784"
+}

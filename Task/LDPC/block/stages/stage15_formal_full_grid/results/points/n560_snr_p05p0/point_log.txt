@@ -1,0 +1,7 @@
+start=2026-07-30T03:09:24.796700+00:00
+key=n560_snr_p05p0
+resumeCount=0
+complete=2026-07-30T03:09:26.289127+00:00
+frames=3787
+elapsedSeconds=1.491925
+status=COMPLETED
