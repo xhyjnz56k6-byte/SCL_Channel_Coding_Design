@@ -1,7 +1,9 @@
 metric,value
-coarse_rows,372
-dense_final_rows,146
+hard_rows,372
+soft_rows,372
+all_rows,744
 rates,3
-organizations,"Block300,50x6,100x3,150x2"
-boundary_offsets,-10..+9
-main_plots,18
+organizations,4
+snr_points_per_case,31
+core_plots,26
+gate,PASS_STAGE14_FINAL_DELIVERY

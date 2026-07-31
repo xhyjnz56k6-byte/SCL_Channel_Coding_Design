@@ -1,19 +1,21 @@
 # stage14_block_continuous_comparison validation report
 
 - Branch: `stage01-cc`
-- Gate: `PASS_STAGE14_ONLINE_SLOT_REVISION`
-- Remote functional commits verified: PASS
+- Functional range: `661480f684e2ba9793f4a804d96bb07b794ea4fa...199a225d342ca3b192d590587eb4d068e73eea63`
+- Remote functional commit verified: PASS
 - Merge status: NOT_MERGED
 
 ## Executed checks
 
-- Release MinGW build and online smoke: PASS
-- eight coarse and eight dense shards: PASS
-- slot-driven arrival/output event accounting: PASS
-- boundary, latency, buffer and goodput checker: PASS
+- Release MinGW build with warnings as errors: PASS
+- Hard smoke (10 frames): PASS
+- Hard formal grid: 372 rows, 93/93 main units and 93/93 offset units: PASS
+- Soft formal reuse: 372 archived rows, no rerun: PASS
+- Unified Hard/Soft table: 744 rows: PASS
+- Three rates, four organizations, 31 SNR points per case: PASS
+- BER/FER/goodput arithmetic and stopping rules: PASS
+- Slot/window/output-batch evidence: PASS
+- Core PNG and figure-data coverage: 26/26 non-empty: PASS
+- `python scripts/check_stage14.py`: PASS
 
-## Functional ranges
-
-- `bee31ab24f5652df4e1f213f96e4d9e42ffadee1...86188ee7d964b1c15fb9eb42a30dc68a40ed397c` (4 files)
-
-Final status: **PASS_STAGE14_ONLINE_SLOT_REVISION**
+Final status: **PASS_STAGE14_FINAL_DELIVERY**

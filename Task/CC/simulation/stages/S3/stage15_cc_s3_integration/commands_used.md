@@ -1,8 +1,8 @@
-# stage15_cc_s3_integration commands used
+# Stage15 final-delivery commands
 
-- Release build: `cmake -DCMAKE_BUILD_TYPE=Release`
-- Formal stopping: `--min-frames 1000 --target-frame-errors 200 --max-frames 50000`
-- Coarse grid: `-5:0.5:10 dB`
-- Dense grid: `0.1 dB` in the measured waterfall range
-- Shards were merged only after every shard emitted its PASS sentinel and stderr remained empty.
-- Plot processors generated pointwise figure-data CSVs, PNGs, plot manifests and SHA-256 checks.
+- Rebuild from formal CSVs: `python scripts/process_final_delivery.py`
+- Substantive checker: `python scripts/check_stage15_revision.py`
+- Reproducible entry: `python scripts/run_stage15.py`
+- Git checks: `git diff --check`, explicit Stage14/15 staging, remote branch verification.
+
+Stage09, Stage10, Stage11, Stage13 and Stage14 Soft were read only and not rerun.

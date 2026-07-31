@@ -1,19 +1,20 @@
 # stage15_cc_s3_integration validation report
 
 - Branch: `stage01-cc`
-- Gate: `PASS_CC_S3_INTEGRATION`
-- Remote functional commits verified: PASS
+- Functional range: `661480f684e2ba9793f4a804d96bb07b794ea4fa...199a225d342ca3b192d590587eb4d068e73eea63`
+- Remote functional commit verified: PASS
 - Merge status: NOT_MERGED
 
 ## Executed checks
 
-- formal-source-only matrix checker: PASS
-- unified coarse/dense SNR coverage: PASS
-- eight final pointwise plots and source hashes: PASS
-- core-question and all-figures documents: PASS
+- Formal-source-only matrix: 3447 rows: PASS
+- Stage14 matrix contribution: Hard 372 + Soft 372, all four organizations: PASS
+- Stage10 real filter values printed and verified; FER_010 finite-depth points: 18: PASS
+- Twelve focused plots and figure-data CSVs: non-empty PASS
+- Representative latency/reliability points: 9: PASS
+- Fair recommendation bases: fixed FER=0.1 or fixed Es/N0=2.0 dB: PASS
+- Five recommendation classes, all `coveredByData=true`: PASS
+- Chinese Stage14/15 analysis and final report with valid image paths: PASS
+- `python scripts/check_stage15_revision.py`: PASS
 
-## Functional ranges
-
-- `86188ee7d964b1c15fb9eb42a30dc68a40ed397c...f5fe1b1d4a74bde5cd792636cfa9773f7b27c218` (2 files)
-
-Final status: **PASS_CC_S3_INTEGRATION**
+Final status: **PASS_CC_S3_FINAL_DELIVERY**

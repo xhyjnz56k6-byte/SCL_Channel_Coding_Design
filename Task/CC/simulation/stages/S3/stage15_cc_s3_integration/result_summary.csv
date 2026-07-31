@@ -1,6 +1,9 @@
 metric,value
-required_plots,8
-scheme_matrix,PASS
-core_questions,5
-recommendation_classes,6
-channel_model,symbol-level discrete BPSK-AWGN
+scheme_matrix_rows,3447
+stage14_hard_rows,372
+stage14_soft_rows,372
+traceback_figure_points,18
+pareto_points,9
+core_plots,12
+recommendation_classes,5
+gate,PASS_CC_S3_FINAL_DELIVERY

@@ -11,128 +11,230 @@
         "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/check_stage15_revision.py",
         "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/process_stage15_revision.py"
       ]
+    },
+    {
+      "name": "finalDelivery20260731",
+      "baseCommit": "661480f684e2ba9793f4a804d96bb07b794ea4fa",
+      "contentCommit": "199a225d342ca3b192d590587eb4d068e73eea63",
+      "files": [
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/archive_manifest.json",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_cpu_decode_latency.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_final_ber.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_final_fer.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_first_output_latency.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_goodput_fer_pareto.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_latency_reliability_pareto.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_quantization_snr_loss.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/figure_data/stage15_traceback_memory_reliability.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/plot_check.md",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/results_analysis.md",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_all_figures_guide.md",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_core_questions_answer.md",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_cpu_decode_latency.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_final_ber.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_final_fer.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_final_recommendations.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_final_scheme_matrix.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_first_output_latency.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_goodput_fer_pareto.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_latency_reliability_pareto.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_quantization_snr_loss.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/archive/v03_20260731_before_final_delivery_rebuild/stage15_traceback_memory_reliability.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/readme.txt",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/cc_s3_final_formal_report.md",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_block_hard_soft_fer.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_block_soft_ber_by_rate.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_block_soft_fer_by_rate.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_latency_reliability_pareto.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_quantization_snr_loss.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_sliding_parameter_summary.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_slot_avg_p95_latency.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_slot_first_output_latency.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_slot_hard_fer.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_slot_soft_fer.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_slot_soft_goodput.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/figure_data/stage15_traceback_memory_reliability.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/plot_manifest.json",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/results_analysis.md",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_block_hard_soft_fer.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_block_soft_ber_by_rate.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_block_soft_fer_by_rate.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_fair_operating_points.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_final_recommendations.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_final_scheme_matrix.csv",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_latency_reliability_pareto.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_quantization_snr_loss.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_sliding_parameter_summary.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_slot_avg_p95_latency.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_slot_first_output_latency.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_slot_hard_fer.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_slot_soft_fer.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_slot_soft_goodput.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/results/stage15_traceback_memory_reliability.png",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/archive_final_delivery_results.py",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/check_stage15_revision.py",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/process_final_delivery.py",
+        "Task/CC/simulation/stages/S3/stage15_cc_s3_integration/scripts/run_stage15.py"
+      ]
     }
   ],
-  "gate": "PASS_CC_S3_INTEGRATION",
+  "gate": "PASS_CC_S3_FINAL_DELIVERY",
   "formalResults": [
     {
-      "path": "results/figure_data/stage15_cpu_decode_latency.csv",
-      "bytes": 39962,
-      "sha256": "9a7baef2016d7fa96750abafcd8187d7918365100af1ac411b10b0d05905fed3"
+      "path": "results/cc_s3_final_formal_report.md",
+      "bytes": 2829,
+      "sha256": "cc51f6f95791259ae88dd1d9d41eef857810d5f6673ad3d10d89df450316b98a"
     },
     {
-      "path": "results/figure_data/stage15_final_ber.csv",
-      "bytes": 861033,
-      "sha256": "85e2c259e58a4ac20ac1aacaa2af5bce576d204b4067035ab6cd442bf9fdb2ef"
+      "path": "results/figure_data/stage15_block_hard_soft_fer.csv",
+      "bytes": 117605,
+      "sha256": "3208df5dc402114254b28a1c94408c586672e4ad043f3402f8553f33d5c666a0"
     },
     {
-      "path": "results/figure_data/stage15_final_fer.csv",
-      "bytes": 861033,
-      "sha256": "85e2c259e58a4ac20ac1aacaa2af5bce576d204b4067035ab6cd442bf9fdb2ef"
+      "path": "results/figure_data/stage15_block_soft_ber_by_rate.csv",
+      "bytes": 60128,
+      "sha256": "5e78d2c416673a5f8c65603f52a78bbe6f98a11408a8db6c2a664cc0d9dfc8d2"
     },
     {
-      "path": "results/figure_data/stage15_first_output_latency.csv",
-      "bytes": 34573,
-      "sha256": "079df3e3ca9d3ce12f83a465de2230a9fae08ab28a09beb81c70c627e206fe7f"
-    },
-    {
-      "path": "results/figure_data/stage15_goodput_fer_pareto.csv",
-      "bytes": 39962,
-      "sha256": "9a7baef2016d7fa96750abafcd8187d7918365100af1ac411b10b0d05905fed3"
+      "path": "results/figure_data/stage15_block_soft_fer_by_rate.csv",
+      "bytes": 60128,
+      "sha256": "5e78d2c416673a5f8c65603f52a78bbe6f98a11408a8db6c2a664cc0d9dfc8d2"
     },
     {
       "path": "results/figure_data/stage15_latency_reliability_pareto.csv",
-      "bytes": 34573,
-      "sha256": "079df3e3ca9d3ce12f83a465de2230a9fae08ab28a09beb81c70c627e206fe7f"
+      "bytes": 1999,
+      "sha256": "73171d2670c887d0a09369cb456d2fcba9948b37ff0271122ec7b3d07acd2499"
     },
     {
       "path": "results/figure_data/stage15_quantization_snr_loss.csv",
-      "bytes": 4719,
-      "sha256": "cdf91a5b0fcffa2cc3170645b2e0354ca0ff437a7f32a2aab8617977e3827bee"
+      "bytes": 2410,
+      "sha256": "95d941efec0c5ea1f44aebf7afcc07cbe35890d080a2f294c8b0a6b3a3cf69ff"
+    },
+    {
+      "path": "results/figure_data/stage15_sliding_parameter_summary.csv",
+      "bytes": 2425,
+      "sha256": "eaa96bf8d5a3ca02b2b98d023d844a8f6b99bf8340f0b6da204b6ad7769f5e10"
+    },
+    {
+      "path": "results/figure_data/stage15_slot_avg_p95_latency.csv",
+      "bytes": 1118,
+      "sha256": "3bd4f3e93b53259820568923ebaa97b18ee9cce72dca5332d5309b42b021de7f"
+    },
+    {
+      "path": "results/figure_data/stage15_slot_first_output_latency.csv",
+      "bytes": 2008,
+      "sha256": "4795414fe950d2bbac94edfb0d86e13ea8f65c8561aa4453e0a98def6a48d5d7"
+    },
+    {
+      "path": "results/figure_data/stage15_slot_hard_fer.csv",
+      "bytes": 187993,
+      "sha256": "21f69f63f3a85b1e8c4fd616bb277b0791a81106fc5aaf1b19811c0ad252ad4a"
+    },
+    {
+      "path": "results/figure_data/stage15_slot_soft_fer.csv",
+      "bytes": 192721,
+      "sha256": "5db7425b020e751b839bddbd8f0d91263c23084eecc03a359f0a30bed166b331"
+    },
+    {
+      "path": "results/figure_data/stage15_slot_soft_goodput.csv",
+      "bytes": 192721,
+      "sha256": "5db7425b020e751b839bddbd8f0d91263c23084eecc03a359f0a30bed166b331"
     },
     {
       "path": "results/figure_data/stage15_traceback_memory_reliability.csv",
-      "bytes": 626,
-      "sha256": "e2f39936035b921d1f95a2c03b28977f492961e13203e06106cce8a6d491f144"
-    },
-    {
-      "path": "results/plot_check.md",
-      "bytes": 284,
-      "sha256": "c14467262f05e60889638c13ed3c6ed0e056a5ea036133868b1b46a7b2436a14"
+      "bytes": 9171,
+      "sha256": "b7e87cc001cd532c709e8a5ab98730d5f683565cbbfcb09919927bfff22d9712"
     },
     {
       "path": "results/plot_manifest.json",
-      "bytes": 2718,
-      "sha256": "4ee46906163712490973aa2a76783d1325b79b3158b4192ae0cce57fb7284f18"
+      "bytes": 4095,
+      "sha256": "1652fae970c6024f24a428bd5cfe944c370624b0f5168e29bcc964594bb40050"
     },
     {
       "path": "results/results_analysis.md",
-      "bytes": 2101,
-      "sha256": "e9cf7cc7cb36ac8bbeb67f26804a6e39c044958de21dc9fae6995b2aea9bca78"
+      "bytes": 5109,
+      "sha256": "15a8c561b9e2fe0454949389beb7d274241ac0b8bdba2513c19e440f39f71e57"
     },
     {
-      "path": "results/stage15_all_figures_guide.md",
-      "bytes": 24955,
-      "sha256": "bdb8a47eeb81f84186e04a58b0c9721c27d232b4fbbf1d0626515aa5e994ed18"
+      "path": "results/stage15_block_hard_soft_fer.png",
+      "bytes": 112281,
+      "sha256": "a73ca8a464b7bafa99d8c7fba6b1b2629964343e3d0b2acb6af61ee608fd59f3"
     },
     {
-      "path": "results/stage15_core_questions_answer.md",
-      "bytes": 4535,
-      "sha256": "8eb40e37d3d07884aa9ca17450f8cb663f7c43d3f0216d64b4b8753b9295d10b"
+      "path": "results/stage15_block_soft_ber_by_rate.png",
+      "bytes": 89775,
+      "sha256": "ebe01e0813a31b660e8682a44172d91cfe142e2fcae046b73b472c61071c8951"
     },
     {
-      "path": "results/stage15_cpu_decode_latency.png",
-      "bytes": 176574,
-      "sha256": "d8c16a0f395b0d5417ebcaba75e7d2ab0567fc687c4b09163c5259f45f3df0d4"
+      "path": "results/stage15_block_soft_fer_by_rate.png",
+      "bytes": 80838,
+      "sha256": "838a203df3929fbb23ee87348c93d78d030d68c1e4ec7a9a770ef1c58e14aa30"
     },
     {
-      "path": "results/stage15_final_ber.png",
-      "bytes": 266214,
-      "sha256": "468444e6c1b160db90fdce9619f842b4253e3cfffec1602b4af2cdadfe01d60b"
-    },
-    {
-      "path": "results/stage15_final_fer.png",
-      "bytes": 257906,
-      "sha256": "9edb900fa55fc354dae14eb1c3aa100745d9de45b665d2bd00d43f5ecb104703"
+      "path": "results/stage15_fair_operating_points.csv",
+      "bytes": 12943,
+      "sha256": "0c3ae8546174bfe5acf35a6083c5b1f619ce45485f66cc023f0b2a29e41b4261"
     },
     {
       "path": "results/stage15_final_recommendations.csv",
-      "bytes": 1759,
-      "sha256": "91d03c8fdf0bc19b875d6f9416dec3e7df1fdda52f9b02127889242ecd3304c6"
+      "bytes": 1363,
+      "sha256": "97c50565cad5e2fb9b93300819ad258323577d972c82f8771b55abaa55868063"
     },
     {
       "path": "results/stage15_final_scheme_matrix.csv",
-      "bytes": 1109386,
-      "sha256": "d430260d92f183e2fb7765d6d7ae481532c06fad80766806e2de858fd2c3b51e"
-    },
-    {
-      "path": "results/stage15_first_output_latency.png",
-      "bytes": 165248,
-      "sha256": "b1ac9a74b430fa855029ee843d03f510a2e8039f01993f98765126760efa9b6d"
-    },
-    {
-      "path": "results/stage15_goodput_fer_pareto.png",
-      "bytes": 43525,
-      "sha256": "c5f6452cac4c3fd2f7e9054c946619e77ae7c3cc237b2a8fc45cc8b4663077e1"
+      "bytes": 1707583,
+      "sha256": "31c6e4c2ba4423a74c4d626cc37341bf3a0e3c148d54239298e6d433e641a744"
     },
     {
       "path": "results/stage15_latency_reliability_pareto.png",
-      "bytes": 89436,
-      "sha256": "0a8647246d1ea7e297f601b05f14cb78fa70fc14524ce407d4d50528ed73c638"
+      "bytes": 58816,
+      "sha256": "db5ee322ff730b0e734fd488bcd349aed10e50712849772817fe84fbb17d2b15"
     },
     {
       "path": "results/stage15_quantization_snr_loss.png",
-      "bytes": 92730,
-      "sha256": "4749c4a483c9ee652b26c438cdc4bbc6cb2ed63d018bafcf9608611f0722e037"
+      "bytes": 91485,
+      "sha256": "5587a0aac515ecd5ceca9a224e000292d3b475cc459485989a27be8bd54e8e17"
+    },
+    {
+      "path": "results/stage15_sliding_parameter_summary.png",
+      "bytes": 119399,
+      "sha256": "a27baaa7ce5ac98cd939c038cf66f3aeca5c02961033a489bd0186c1b443504d"
+    },
+    {
+      "path": "results/stage15_slot_avg_p95_latency.png",
+      "bytes": 54253,
+      "sha256": "086acd9b864da291b2e92a70d72980a35e83a9353ccee8ff31cf49cd51dc6058"
+    },
+    {
+      "path": "results/stage15_slot_first_output_latency.png",
+      "bytes": 134368,
+      "sha256": "622067f7696ffc3b525c776c2a961684f449880dc1c1b7a34a8db92b721da693"
+    },
+    {
+      "path": "results/stage15_slot_hard_fer.png",
+      "bytes": 94047,
+      "sha256": "03dfd02ee5a2dc3cbdf3edd8a4be3020de7870a0fddcc05c43951c2fcc05707f"
+    },
+    {
+      "path": "results/stage15_slot_soft_fer.png",
+      "bytes": 93858,
+      "sha256": "dee39e4cc3f17232218b762875b657fd908265e27bb7310c967e1a2e33782d94"
+    },
+    {
+      "path": "results/stage15_slot_soft_goodput.png",
+      "bytes": 83608,
+      "sha256": "3a4adaf86adaba5c22f4bb8150e47a088f801e8a96f3a6592ba8c28ac9e04c64"
     },
     {
       "path": "results/stage15_traceback_memory_reliability.png",
-      "bytes": 43588,
-      "sha256": "e36ddb361fd648e32967a2b0796647cc1d471366138ea83392837b6bcccb4273"
+      "bytes": 66861,
+      "sha256": "0a828ddfc5f4247fc7ed36cc71ab4482975cd9e373774618d70f06d8cb4b90a7"
     }
   ],
-  "formalResultCount": 23,
+  "formalResultCount": 30,
   "remoteVerified": true,
+  "remoteBranch": "origin/stage01-cc",
   "mergeStatus": "NOT_MERGED",
-  "balancedWeights": null
+  "finalDeliveryDate": "2026-07-31"
 }
