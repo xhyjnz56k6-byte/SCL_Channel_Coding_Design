@@ -1,0 +1,31 @@
+{
+  "figureName": "l8_s16_org_k300_fer_overview",
+  "title": "300比特BCH突发信道适应性（统一L=8）",
+  "xAxis": "SNR",
+  "yAxis": "FER",
+  "scale": "log",
+  "sourceCsv": "results/l8_unified/stage16_burst_interleaving_comparison_raw_results.csv",
+  "sourceCsvSha256": "09c62db714a1b00e21c12a5e25c9312b0ed380544c63d4770a06054042572527",
+  "seriesCountExpected": 12,
+  "seriesCountRendered": 12,
+  "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
+  "usesZeroSurrogate": false,
+  "usesPointMarkers": true,
+  "seriesColorPolicy": "same_color_per_code_family",
+  "organizationStylePolicy": {
+    "NONE_L0": "solid",
+    "NONE_LREP": "dashed",
+    "BEST_LREP": "solid_with_hollow_circle"
+  },
+  "tailPointExclusions": [],
+  "rawFigureDataPath": "results/l8_unified/replots/s16_org/figure_data/l8_s16_org_k300_fer_overview_raw_figure_data.csv",
+  "rawFigureDataSha256": "8b85b7a4b7dbcf71ec096c06f661aaa0221d5a6165a0a383fa7efcad75e1f869",
+  "publicationFigureDataPath": "results/l8_unified/replots/s16_org/figure_data/l8_s16_org_k300_fer_overview_publication_figure_data.csv",
+  "publicationFigureDataSha256": "05b76355cfe4f893186e4013ab91165d4ecfefdd4fb205c721c6532dc292dbba",
+  "seriesAuditPath": "results/l8_unified/replots/s16_org/audit/l8_s16_org_k300_fer_overview_series_audit.csv",
+  "seriesAuditSha256": "30a565933c20f1d9beb62ec8b4f61ad697d848e6b582063546734bdd755d1a66",
+  "pngPath": "results/l8_unified/replots/s16_org/figures/l8_s16_org_k300_fer_overview.png",
+  "sha256": "055a115e813ded326e873862de174f307cd001df3ee34b361acf78d49b7d2ba4",
+  "generatedAt": "2026-07-31T01:49:21.183129+00:00",
+  "gitHead": "1ef10ee8fe32bb6b353084e14ba42264096b2fe8"
+}

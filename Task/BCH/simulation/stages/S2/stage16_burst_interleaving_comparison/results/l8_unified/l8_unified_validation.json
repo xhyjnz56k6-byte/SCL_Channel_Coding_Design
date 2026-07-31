@@ -1,0 +1,11 @@
+{
+  "gate": "PASS_STAGE16_L8_UNIFIED",
+  "formalPointCount": 888,
+  "rerunK200BurstPoints": 296,
+  "reusedVerifiedPoints": 592,
+  "burstLengthBits": 8,
+  "matlabVectorComparisons": 96,
+  "matlabSnrComparisons": 888,
+  "pngFiles": 4,
+  "style": "same_color_per_code_family; solid/dashed/solid_with_hollow_circle"
+}

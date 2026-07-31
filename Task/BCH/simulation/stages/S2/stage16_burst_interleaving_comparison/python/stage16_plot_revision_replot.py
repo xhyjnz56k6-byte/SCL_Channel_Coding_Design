@@ -1,3 +1,4 @@
+import argparse
 import csv
 import hashlib
 import html
@@ -562,6 +563,27 @@ def write_gallery(manifests):
 
 
 def main():
+    global SOURCE, REVISION_ROOT, FIGURES, FIGURE_DATA, MANIFESTS, REPORTS, AUDIT
+    global LEGACY_INPUT_AUDIT, REVISION_ID, FIGURE_SPECS
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source-csv", type=Path, default=SOURCE)
+    parser.add_argument("--revision-root", type=Path, default=REVISION_ROOT)
+    parser.add_argument("--revision-id", default=REVISION_ID)
+    parser.add_argument("--title-suffix", default="")
+    args = parser.parse_args()
+    SOURCE = args.source_csv.resolve()
+    REVISION_ROOT = args.revision_root.resolve()
+    FIGURES = REVISION_ROOT / "figures"
+    FIGURE_DATA = REVISION_ROOT / "figure_data"
+    MANIFESTS = REVISION_ROOT / "manifests"
+    REPORTS = REVISION_ROOT / "reports"
+    AUDIT = REVISION_ROOT / "audit"
+    LEGACY_INPUT_AUDIT = REVISION_ROOT.parent / f"{args.revision_id}_input_audit.csv"
+    REVISION_ID = args.revision_id
+    FIGURE_SPECS = [
+        (payload, metric, kind, title + args.title_suffix)
+        for payload, metric, kind, title in FIGURE_SPECS
+    ]
     plt.rcParams["font.sans-serif"] = [
         "Microsoft YaHei",
         "SimHei",
