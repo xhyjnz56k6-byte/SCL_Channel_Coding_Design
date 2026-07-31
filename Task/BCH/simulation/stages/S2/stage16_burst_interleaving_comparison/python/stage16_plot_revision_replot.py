@@ -17,15 +17,15 @@ import matplotlib.pyplot as plt
 STAGE = Path(__file__).resolve().parents[1]
 RESULTS = STAGE / "results"
 SOURCE = RESULTS / "stage16_burst_interleaving_comparison_raw_results.csv"
-REVISION_ROOT = RESULTS / "replots" / "s16_style"
+REVISION_ROOT = RESULTS / "replots" / "s16_org"
 FIGURES = REVISION_ROOT / "figures"
 FIGURE_DATA = REVISION_ROOT / "figure_data"
 MANIFESTS = REVISION_ROOT / "manifests"
 REPORTS = REVISION_ROOT / "reports"
 AUDIT = REVISION_ROOT / "audit"
-LEGACY_INPUT_AUDIT = RESULTS / "replots" / "s16_style_input_audit.csv"
+LEGACY_INPUT_AUDIT = RESULTS / "replots" / "s16_org_input_audit.csv"
 STAGE_ID = "stage16_burst_interleaving_comparison"
-REVISION_ID = "s16_style"
+REVISION_ID = "s16_org"
 
 CASES = [
     "K200_S15",
@@ -54,32 +54,17 @@ BURST_CONFIGS = ["NONE_LREP", "BEST_LREP"]
 CONFIG_INFO = {
     "NONE_L0": {"label": "无突发", "line": "-", "marker": "o"},
     "NONE_LREP": {"label": "无交织突发", "line": "--", "marker": "s"},
-    "BEST_LREP": {"label": "交织突发", "line": "-.", "marker": "^"},
+    "BEST_LREP": {"label": "交织突发", "line": "-", "marker": "o"},
 }
 
-# Every code/configuration series has a distinct color; line style remains a
-# second, redundant cue for the three channel/interleaving configurations.
-SERIES_COLORS = {
-    ("K200_S15", "NONE_L0"): "#0072B2",
-    ("K200_S15", "NONE_LREP"): "#D55E00",
-    ("K200_S15", "BEST_LREP"): "#009E73",
-    ("K200_M255K207", "NONE_L0"): "#CC79A7",
-    ("K200_M255K207", "NONE_LREP"): "#56B4E9",
-    ("K200_M255K207", "BEST_LREP"): "#E69F00",
-    ("K200_M511K421", "NONE_L0"): "#6A3D9A",
-    ("K200_M511K421", "NONE_LREP"): "#A65628",
-    ("K200_M511K421", "BEST_LREP"): "#1B9E77",
-    ("K200_M511K385", "NONE_L0"): "#E7298A",
-    ("K200_M511K385", "NONE_LREP"): "#66A61E",
-    ("K200_M511K385", "BEST_LREP"): "#7570B3",
+# Color identifies code family; channel/interleaving organization is encoded
+# by line style: solid, dashed, and solid with hollow circles respectively.
+CODE_COLORS = {
+    "分块": "#1f77b4",
+    "255": "#ff7f0e",
+    "421": "#2ca02c",
+    "385": "#d62728",
 }
-SERIES_COLORS.update(
-    {
-        (case_id.replace("K200", "K300"), config): color
-        for (case_id, config), color in list(SERIES_COLORS.items())
-        if case_id.startswith("K200")
-    }
-)
 
 FIGURE_SPECS = [
     (200, "ber", "overview", "200比特BCH突发信道适应性"),
@@ -365,9 +350,14 @@ def render_figure(rows, payload, metric, kind, title, head):
                 axis.plot(
                     [as_float(row, "targetSnrDb") for row in plot_group],
                     [recompute_metric(row, metric) for row in plot_group],
-                    color=SERIES_COLORS[(case_id, config)],
+                    color=CODE_COLORS[CASE_INFO[case_id]["code"]],
                     linestyle=CONFIG_INFO[config]["line"],
                     linewidth=2.2,
+                    marker="o" if config == "BEST_LREP" else None,
+                    markerfacecolor="none" if config == "BEST_LREP" else None,
+                    markeredgewidth=1.4 if config == "BEST_LREP" else None,
+                    markersize=5.8 if config == "BEST_LREP" else None,
+                    markevery=1 if config == "BEST_LREP" else None,
                     label=label,
                 )
 
@@ -448,8 +438,13 @@ def render_figure(rows, payload, metric, kind, title, head):
         "seriesCountRendered": rendered_count,
         "zeroHandlingPolicy": "remove_zero_points_for_publication_plot",
         "usesZeroSurrogate": False,
-        "usesPointMarkers": False,
-        "seriesColorPolicy": "distinct_color_per_case_and_configuration",
+        "usesPointMarkers": True,
+        "seriesColorPolicy": "same_color_per_code_family",
+        "organizationStylePolicy": {
+            "NONE_L0": "solid",
+            "NONE_LREP": "dashed",
+            "BEST_LREP": "solid_with_hollow_circle",
+        },
         "tailPointExclusions": tail_point_exclusions,
         "rawFigureDataPath": rel(raw_path),
         "rawFigureDataSha256": sha256(raw_path),
