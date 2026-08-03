@@ -33,8 +33,8 @@ LEGEND = {
 }
 CHANNEL_TITLE = {
     "AWGN": "AWGN", "FIXED_MULTIPATH_REAL_MMSE": "固定多径",
-    "CFO_30_DEG": "30°载波频偏", "LINEAR_TIME_VARYING_FREQUENCY": "线性时变频偏",
-    "KNOWN_BLOCKAGE_5_PERCENT": "5%已知连续擦除",
+    "CFO_30_DEG": "30°载波频偏", "LINEAR_TIME_VARYING_FREQUENCY": "多普勒频移",
+    "KNOWN_BLOCKAGE_5_PERCENT": "短时遮挡（5%）",
     "UNKNOWN_BURST_5_PERCENT_ISR_10DB": "5%未知突发干扰（ISR=10 dB）",
 }
 GROUP_TITLE = {"RATE_NEAR_2_3": "近2/3码率组", "RATE_NEAR_1_2": "近1/2码率组", "LDPC_ONLY": "LDPC"}
@@ -265,7 +265,7 @@ def tables():
                 "maxDecodeLatencyUs": selected["lat"]["maxDecodeTimeUs"],
                 "recommendationConfidence": confidence,
                 "reason": primary,
-                "limitations": ("仅适用于5%已知连续擦除Formal；10%历史结果仅为压力场景。"
+                "limitations": ("仅适用于5%短时遮挡Formal；10%历史结果仅为压力场景。"
                                 if channel == "KNOWN_BLOCKAGE_5_PERCENT" else "仅适用于冻结的S5受控模型，不外推为真实卫星信道结论。"),
             })
     write_csv(OUTPUT / "s5_latency_comparison.csv", list(latency_rows[0]), latency_rows)

@@ -26,8 +26,8 @@ CHANNELS = {
     "AWGN": ("AWGN", "-", "o"),
     "FIXED_MULTIPATH_REAL_MMSE": ("固定多径", "--", "s"),
     "CFO_30_DEG": ("30°载波频偏", "-.", "^"),
-    "LINEAR_TIME_VARYING_FREQUENCY": ("线性时变频偏", ":", "D"),
-    "KNOWN_BLOCKAGE_5_PERCENT": ("5%已知连续擦除", (0, (8, 3)), "v"),
+    "LINEAR_TIME_VARYING_FREQUENCY": ("多普勒频移", ":", "D"),
+    "KNOWN_BLOCKAGE_5_PERCENT": ("短时遮挡（5%）", (0, (8, 3)), "v"),
     "UNKNOWN_BURST_5_PERCENT_ISR_10DB": ("5%未知突发干扰", (0, (6, 2, 1, 2)), "p"),
 }
 REGULAR = list(CHANNELS)[:4]
