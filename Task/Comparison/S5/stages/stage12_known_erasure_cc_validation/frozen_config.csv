@@ -1,0 +1,15 @@
+key,value
+stage,stage12_known_erasure_cc_validation
+payloadBits,300
+constraintLength,7
+generatorsOctal,171/133
+tailBits,6
+r12Ntx,612
+r23Ntx,459
+r23PunctureMask,1101_phase0
+interleaver,17x27_full_459
+fractionsR23,0/0.01/0.02/0.03/0.05
+esN0Db,0/4/8/10
+stopping,1000_min_200_frame_errors_10000_max
+matlabHighSnrGate,FER_ge_0.99_or_FER_ge_0.98_and_CI_overlap
+formalCsvSha256,dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947

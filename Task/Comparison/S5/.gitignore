@@ -1,0 +1,8 @@
+/build/
+/results/
+/archive/
+*.exe
+*.obj
+*.pdb
+__pycache__/
+*.pyc

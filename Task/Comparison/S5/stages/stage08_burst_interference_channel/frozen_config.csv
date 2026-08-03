@@ -1,0 +1,6 @@
+parameter,value
+fraction,0.05
+isrDb,10
+beta,sqrt(10^(ISR_dB/10)/2)
+knownMask,false
+noInterleaving,true

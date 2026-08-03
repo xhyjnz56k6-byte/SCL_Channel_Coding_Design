@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "s5.aggregate.audit.v1",
+  "figureCount": 20,
+  "passedFigures": 20,
+  "sourceFormalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "stage12DataMixed": false,
+  "gate": "PASS_S5_AGGREGATE_PLOT_AUDIT"
+}

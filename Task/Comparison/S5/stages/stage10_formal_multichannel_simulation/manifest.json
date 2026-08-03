@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "s5.stage_manifest.v2",
+  "stage": "stage10_formal_multichannel_simulation",
+  "branch": "S5-Compare",
+  "status": "PASS",
+  "functionalRanges": [
+    {
+      "name": "stage10PathFilteredSubsetOfBatchCommit",
+      "baseCommit": "ef56314e06cf2169744ee33b56ad2aea6d9815ca",
+      "contentCommit": "70572ad999f17339fb4a4a3d4b0fbfbda6dd168f",
+      "pathScope": "Task/Comparison/S5/stages/stage10_formal_multichannel_simulation/",
+      "sharedBatchCommit": true
+    }
+  ],
+  "gitAuditStatus": "EXISTING_REMOTE_BATCH_COMMIT_PATH_SCOPE_VERIFIED_CURRENT_MANIFEST_UPDATE_UNCOMMITTED",
+  "remoteVerification": "PASS_ORIGIN_S5_COMPARE_CONTAINS_70572AD999F17339FB4A4A3D4B0FBFBDA6DD168F",
+  "mergeStatus": "NOT_MERGED",
+  "gateEvidence": "PASS_S5_FORMAL; exact 744 unique rows, legal stops, finite metrics, paired counts, policies and hashes. Stage12 independently supports the 5% known-erasure CC result without changing Formal data.",
+  "resultFiles": [
+    {
+      "path": "results/formal_merged_results.csv",
+      "sha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+    },
+    {
+      "path": "results/formal_merge_audit.json",
+      "sha256": "8d42cf4ae9eecb5ad81a7eaefee2042bdfdda2cca2ce4aad8482fd8e7df1c05e"
+    },
+    {
+      "path": "results/formal_merge_audit.md",
+      "sha256": "464ff66503e42638ce04253bafd94efd9506012143d0573ecb12a369112de1dc"
+    },
+    {
+      "path": "results/formal_execution_plan.csv",
+      "sha256": "a46bfa7e244932638ec509aef29244412894ef4b54a5d9d0609424cb3b241c3c"
+    }
+  ]
+}

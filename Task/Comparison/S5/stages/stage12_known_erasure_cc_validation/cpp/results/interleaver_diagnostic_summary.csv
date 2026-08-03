@@ -1,0 +1,7 @@
+scheme,erasureFraction,esN0Db,interleaver,rows,columns,processedFrames,payloadBitErrors,frameErrors,BER,FER,status
+CC_R23,0.05,4,NONE,17,27,1000,4637,998,0.015456666666666667,0.998,diagnostic_only
+CC_R23,0.05,4,BLOCK_17X27,17,27,5000,0,0,0,0,diagnostic_only
+CC_R23,0.05,8,NONE,17,27,1000,4577,998,0.015256666666666667,0.998,diagnostic_only
+CC_R23,0.05,8,BLOCK_17X27,17,27,5000,0,0,0,0,diagnostic_only
+CC_R23,0.05,10,NONE,17,27,1000,4577,998,0.015256666666666667,0.998,diagnostic_only
+CC_R23,0.05,10,BLOCK_17X27,17,27,5000,0,0,0,0,diagnostic_only

@@ -1,0 +1,4 @@
+candidateFrame,start,selected,reason
+0,92,true,anchor
+1,282,true,distance_check
+31,286,false,representative_fallback

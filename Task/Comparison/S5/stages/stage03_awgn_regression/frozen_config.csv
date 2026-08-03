@@ -1,0 +1,4 @@
+parameter,value
+sigmaSquared,1/(2*10^(EsN0Db/10))
+llr,2*real(y)/sigmaSquared
+ccDecoder,complete_block_soft_float

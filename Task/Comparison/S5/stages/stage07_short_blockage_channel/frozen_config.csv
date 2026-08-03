@@ -1,0 +1,5 @@
+parameter,value
+fraction,0.10
+knownMask,true
+blockedLlr,0
+noInterleaving,true

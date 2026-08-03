@@ -1,0 +1,18 @@
+{
+  "scheme": "CC_R23",
+  "frameIndex": 1,
+  "esN0Db": 4.000000,
+  "erasureFraction": 0.05,
+  "erasureStart": 282,
+  "erasureLength": 23,
+  "payloadBitErrors": 8,
+  "frameError": true,
+  "firstPayloadErrorIndex": 188,
+  "lastPayloadErrorIndex": 196,
+  "payloadErrorSpan": 9,
+  "affectedPayloadStart": 188,
+  "affectedPayloadEnd": 202,
+  "errorsBeforeAffectedRegion": 0,
+  "errorsInsideAffectedRegion": 8,
+  "errorsAfterAffectedRegion": 0
+}
