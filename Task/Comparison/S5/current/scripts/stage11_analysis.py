@@ -9,6 +9,7 @@ import pathlib
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[5]
@@ -27,15 +28,26 @@ SCHEME_ORDER = (
     "CC_R12_BLOCK_FLOAT", "LDPC_BG2_N640_NMS",
 )
 LEGEND = {
-    "CC_R23_BLOCK_FLOAT": "CC R2/3", "LDPC_BG2_N480_NMS": "LDPC N480",
-    "CC_R12_BLOCK_FLOAT": "CC R1/2", "LDPC_BG2_N640_NMS": "LDPC N640",
+    "CC_R23_BLOCK_FLOAT": "卷积码 R2/3", "LDPC_BG2_N480_NMS": "LDPC N480",
+    "CC_R12_BLOCK_FLOAT": "卷积码 R1/2", "LDPC_BG2_N640_NMS": "LDPC N640",
 }
 CHANNEL_TITLE = {
-    "AWGN": "AWGN", "FIXED_MULTIPATH_REAL_MMSE": "Fixed multipath",
-    "CFO_30_DEG": "30 deg CFO", "LINEAR_TIME_VARYING_FREQUENCY": "Linear time-varying frequency",
-    "KNOWN_BLOCKAGE_5_PERCENT": "5% known contiguous erasure",
-    "UNKNOWN_BURST_5_PERCENT_ISR_10DB": "5% unknown burst ISR 10 dB",
+    "AWGN": "AWGN", "FIXED_MULTIPATH_REAL_MMSE": "固定多径",
+    "CFO_30_DEG": "30°载波频偏", "LINEAR_TIME_VARYING_FREQUENCY": "线性时变频偏",
+    "KNOWN_BLOCKAGE_5_PERCENT": "5%已知连续擦除",
+    "UNKNOWN_BURST_5_PERCENT_ISR_10DB": "5%未知突发干扰（ISR=10 dB）",
 }
+GROUP_TITLE = {"RATE_NEAR_2_3": "近2/3码率组", "RATE_NEAR_1_2": "近1/2码率组", "LDPC_ONLY": "LDPC"}
+
+
+def configure_chinese_font():
+    available = {item.name for item in font_manager.fontManager.ttflist}
+    for name in ("Microsoft YaHei", "SimHei", "Noto Sans CJK SC"):
+        if name in available:
+            plt.rcParams["font.sans-serif"] = [name]
+            plt.rcParams["axes.unicode_minus"] = False
+            return name
+    raise RuntimeError("BLOCKED: no approved Chinese font is available")
 
 
 def sha256(path):
@@ -80,12 +92,12 @@ def make_plot(rows, figure_id, title, group, channel, y_fields, y_labels,
         curves += 1
     if log_axis:
         plt.yscale("log")
-    plt.xlabel("Symbol SNR Es/N0 (dB)")
+    plt.xlabel("符号信噪比 Es/N0（dB）")
     plt.ylabel(ylabel)
     plt.title(title)
     plt.grid(True, which="both", alpha=0.25)
     plt.legend()
-    note = "Observed zero-error points are omitted on the log axis." if log_axis else ""
+    note = "观测零错误点未在对数坐标中绘制。" if log_axis else ""
     if note:
         plt.figtext(0.5, 0.01, note, ha="center", fontsize=8)
     plt.tight_layout(rect=(0, 0.035 if note else 0, 1, 1))
@@ -101,6 +113,7 @@ def make_plot(rows, figure_id, title, group, channel, y_fields, y_labels,
         "logAxis": log_axis,
         "zeroHandling": "retain zero in CSV; omit zero from log plot" if log_axis else "plot exact value",
         "interpolation": "NONE", "smoothing": "NONE", "plotType": "LINE",
+        "language": "zh-CN", "chineseFont": CHINESE_FONT,
         "schemeOrder": list(SCHEME_ORDER), "channel": channel, "comparisonGroup": group,
         "configHash": config_hash, "scriptPath": SCRIPT.relative_to(ROOT).as_posix(),
         "scriptSha256": sha256(SCRIPT), "generatedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
@@ -175,10 +188,12 @@ def tables():
         avg_ber = sum(float(r["BER"]) for r in values) / 31
         avg_decode = sum(float(r["avgDecodeTimeUs"]) for r in values) / 31
         p95_decode = sum(float(r["p95DecodeTimeUs"]) for r in values) / 31
+        max_decode = max(float(r["maxDecodeTimeUs"]) for r in values)
         avg_receiver = sum(float(r["avgTotalReceiverAlgorithmTimeUs"]) for r in values) / 31
         p95_receiver = sum(float(r["p95TotalReceiverAlgorithmTimeUs"]) for r in values) / 31
         latency_rows.append({"channel": channel, "group": group, "scheme": scheme,
                              "meanAvgDecodeTimeUs": avg_decode, "meanP95DecodeTimeUs": p95_decode,
+                             "maxDecodeTimeUs": max_decode,
                              "meanAvgTotalReceiverAlgorithmTimeUs": avg_receiver,
                              "meanP95TotalReceiverAlgorithmTimeUs": p95_receiver})
         delta_fer = sum(float(v["FER"]) - float(a["FER"]) for v, a in zip(sorted(values, key=lambda r: float(r["esN0Db"])),
@@ -212,20 +227,46 @@ def tables():
             schemes = group_schemes(group)
             robust = [r for r in robustness_rows if r["channel"] == channel and r["group"] == group]
             latency = [r for r in latency_rows if r["channel"] == channel and r["group"] == group]
-            fer_best = min(robust, key=lambda r: r["meanFER"])["scheme"]
-            degradation_best = min(robust, key=lambda r: r["meanDeltaFerVsOwnAwgn"])["scheme"]
-            decode_best = min(latency, key=lambda r: r["meanAvgDecodeTimeUs"])["scheme"]
-            receiver_best = min(latency, key=lambda r: r["meanP95TotalReceiverAlgorithmTimeUs"])["scheme"]
+            candidates = []
+            for scheme in schemes:
+                values = by[(channel, group, scheme)]
+                awgn = by[("AWGN", group, scheme)]
+                fer01 = interpolate_target(values, 0.1)
+                fer001 = interpolate_target(values, 0.01)
+                awgn01 = interpolate_target(awgn, 0.1)
+                loss01 = fer01["snr"] - awgn01["snr"] if fer01 and awgn01 else None
+                lat = next(r for r in latency if r["scheme"] == scheme)
+                high = [float(r["FER"]) for r in values if 6.0 <= float(r["esN0Db"]) <= 10.0]
+                candidates.append({"scheme": scheme, "fer01": fer01, "fer001": fer001, "loss01": loss01,
+                                   "lat": lat, "highFer": sum(high) / len(high)})
+            if any(c["fer01"] for c in candidates):
+                def rank(c):
+                    return (0 if c["fer01"] else 1, 0 if c["fer001"] else 1,
+                            c["fer01"]["snr"] if c["fer01"] else math.inf,
+                            c["fer001"]["snr"] if c["fer001"] else math.inf,
+                            c["loss01"] if c["loss01"] is not None else math.inf,
+                            c["lat"]["meanAvgDecodeTimeUs"], c["lat"]["meanP95DecodeTimeUs"], c["lat"]["maxDecodeTimeUs"])
+                selected = min(candidates, key=rank)
+                primary = "优先比较FER=0.1/0.01覆盖与达到目标所需Es/N0"
+                confidence = "HIGH" if all(c["fer01"] is not None for c in candidates) else "MEDIUM"
+            else:
+                selected = min(candidates, key=lambda c: (c["highFer"], c["lat"]["meanAvgDecodeTimeUs"]))
+                primary = "双方均未覆盖FER=0.1；比较6–10 dB实测FER"
+                confidence = "LOW"
             recommendations.append({
-                "channel": channel, "comparisonGroup": group, "absoluteFerBetterScheme": fer_best,
-                "relativeAwgnDegradationSmallerScheme": degradation_best,
-                "averageDecodeLatencyBetterScheme": decode_best,
-                "p95TotalReceiverLatencyBetterScheme": receiver_best,
-                "recommendedScheme": fer_best,
-                "mainBasis": "Lower measured mean FER over the frozen 31-point grid; latency reported separately.",
-                "mainCost": "Reliability recommendation may not minimize software decode latency or transmitted length.",
-                "applicabilityBoundary": ("5% known contiguous erasure Formal; historical 10% result is stress-only."
-                                           if channel == "KNOWN_BLOCKAGE_5_PERCENT" else "Frozen S5 model only; no real-satellite generalization."),
+                "channel": channel, "comparisonGroup": group, "recommendedScheme": selected["scheme"],
+                "primaryCriterion": primary, "fer01Covered": selected["fer01"] is not None,
+                "fer001Covered": selected["fer001"] is not None,
+                "requiredEsN0AtFer01": selected["fer01"]["snr"] if selected["fer01"] else "",
+                "requiredEsN0AtFer001": selected["fer001"]["snr"] if selected["fer001"] else "",
+                "channelLossAtFer01": selected["loss01"] if selected["loss01"] is not None else "",
+                "avgDecodeLatencyUs": selected["lat"]["meanAvgDecodeTimeUs"],
+                "p95DecodeLatencyUs": selected["lat"]["meanP95DecodeTimeUs"],
+                "maxDecodeLatencyUs": selected["lat"]["maxDecodeTimeUs"],
+                "recommendationConfidence": confidence,
+                "reason": primary,
+                "limitations": ("仅适用于5%已知连续擦除Formal；10%历史结果仅为压力场景。"
+                                if channel == "KNOWN_BLOCKAGE_5_PERCENT" else "仅适用于冻结的S5受控模型，不外推为真实卫星信道结论。"),
             })
     write_csv(OUTPUT / "s5_latency_comparison.csv", list(latency_rows[0]), latency_rows)
     write_csv(OUTPUT / "s5_robustness_summary.csv", list(robustness_rows[0]), robustness_rows)
@@ -256,13 +297,13 @@ def main():
                         row[field] = next(r[metric] for r in selected if float(r["esN0Db"]) == snr and r["scheme"] == scheme)
                     wide.append(row)
                 gates.append(make_plot(wide, figure_id,
-                    f"{CHANNEL_TITLE[channel]} {group} {metric}", group, channel, fields,
-                    [LEGEND[s] for s in group_schemes(group)], True, metric))
+                    f"{CHANNEL_TITLE[channel]}下{GROUP_TITLE[group]}{'误码率' if metric == 'BER' else '误帧率'}对比", group, channel, fields,
+                    [LEGEND[s] for s in group_schemes(group)], True, "误码率 BER" if metric == "BER" else "误帧率 FER"))
             timing_metrics = (
-                ("avgDecodeTimeUs", "Average decode latency (us)"),
-                ("p95DecodeTimeUs", "P95 decode latency (us)"),
-                ("avgTotalReceiverAlgorithmTimeUs", "Average total receiver latency (us)"),
-                ("p95TotalReceiverAlgorithmTimeUs", "P95 total receiver latency (us)"),
+                ("avgDecodeTimeUs", "平均译码时延（μs）"),
+                ("p95DecodeTimeUs", "P95译码时延（μs）"),
+                ("avgTotalReceiverAlgorithmTimeUs", "平均接收机算法时延（μs）"),
+                ("p95TotalReceiverAlgorithmTimeUs", "P95接收机算法时延（μs）"),
             )
             for metric, label in timing_metrics:
                 figure_id = f"{group.lower()}__{channel.lower()}__{metric.lower()}"
@@ -274,12 +315,12 @@ def main():
                     for scheme, field in zip(group_schemes(group), fields):
                         row[field] = next(r[metric] for r in selected if float(r["esN0Db"]) == snr and r["scheme"] == scheme)
                     wide.append(row)
-                gates.append(make_plot(wide, figure_id, f"{CHANNEL_TITLE[channel]} {label}", group, channel,
+                gates.append(make_plot(wide, figure_id, f"{CHANNEL_TITLE[channel]}下{GROUP_TITLE[group]}{label}对比", group, channel,
                                        fields, [LEGEND[s] for s in group_schemes(group)], False, label))
     for channel in CHANNELS:
         ldpc_rows = [r for r in FORMAL_ROWS if r["channel"] == channel and r["iterationsApplicable"] == "true"]
-        for metric, label in (("avgIterations", "Average LDPC iterations"),
-                              ("maxIterationRate", "Maximum-iteration frame rate")):
+        for metric, label in (("avgIterations", "平均译码迭代次数"),
+                              ("maxIterationRate", "最大迭代帧比例")):
             fields = [metric + "__" + scheme for scheme in ("LDPC_BG2_N480_NMS", "LDPC_BG2_N640_NMS")]
             wide = []
             for snr in sorted({float(r["esN0Db"]) for r in ldpc_rows}):
@@ -289,7 +330,7 @@ def main():
                     row[field] = next(r[metric] for r in ldpc_rows if float(r["esN0Db"]) == snr and r["scheme"] == scheme)
                 wide.append(row)
             gates.append(make_plot(wide, f"ldpc__{channel.lower()}__{metric.lower()}",
-                                   f"{CHANNEL_TITLE[channel]} {label}", "LDPC_ONLY", channel, fields,
+                                   f"{CHANNEL_TITLE[channel]}下LDPC{label}", "LDPC_ONLY", channel, fields,
                                    ["LDPC N480", "LDPC N640"], False, label,
                                    {"channel": channel, "iterationsApplicable": True}))
     for group in GROUPS:
@@ -312,8 +353,8 @@ def main():
                                     and r["scheme"] == scheme and float(r["esN0Db"]) == snr)
                     row[f"deltaFer__{channel}__{scheme}"] = float(channel_row["FER"]) - float(awgn_row["FER"])
             wide.append(row)
-        gates.append(make_plot(wide, f"{group.lower()}__deltafer", f"{group} FER degradation vs own AWGN",
-                               group, "NON_AWGN", fields, labels, False, "delta FER",
+        gates.append(make_plot(wide, f"{group.lower()}__deltafer", f"{GROUP_TITLE[group]}相对AWGN的误帧率劣化",
+                               group, "NON_AWGN", fields, labels, False, "相对AWGN的误帧率劣化",
                                {"group": group, "definition": "channel FER - own-scheme AWGN FER"}))
     tables()
     gate = "PASS_S5_PLOT_AUDIT" if all(gates) else "FAIL_S5_PLOT_AUDIT"
@@ -327,5 +368,6 @@ def main():
 
 
 FORMAL_ROWS = []
+CHINESE_FONT = configure_chinese_font()
 if __name__ == "__main__":
     raise SystemExit(main())

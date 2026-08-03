@@ -3,11 +3,19 @@
   "stage": "stage10_formal_multichannel_simulation",
   "branch": "S5-Compare",
   "status": "PASS",
-  "functionalRanges": [],
-  "gitAuditStatus": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
-  "remoteVerification": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
+  "functionalRanges": [
+    {
+      "name": "stage10PathFilteredSubsetOfBatchCommit",
+      "baseCommit": "ef56314e06cf2169744ee33b56ad2aea6d9815ca",
+      "contentCommit": "70572ad999f17339fb4a4a3d4b0fbfbda6dd168f",
+      "pathScope": "Task/Comparison/S5/stages/stage10_formal_multichannel_simulation/",
+      "sharedBatchCommit": true
+    }
+  ],
+  "gitAuditStatus": "EXISTING_REMOTE_BATCH_COMMIT_PATH_SCOPE_VERIFIED_CURRENT_MANIFEST_UPDATE_UNCOMMITTED",
+  "remoteVerification": "PASS_ORIGIN_S5_COMPARE_CONTAINS_70572AD999F17339FB4A4A3D4B0FBFBDA6DD168F",
   "mergeStatus": "NOT_MERGED",
-  "gateEvidence": "PASS_S5_FORMAL; exact 744 unique rows, legal stops, finite metrics, paired counts, policies and hashes.",
+  "gateEvidence": "PASS_S5_FORMAL; exact 744 unique rows, legal stops, finite metrics, paired counts, policies and hashes. Stage12 independently supports the 5% known-erasure CC result without changing Formal data.",
   "resultFiles": [
     {
       "path": "results/formal_merged_results.csv",

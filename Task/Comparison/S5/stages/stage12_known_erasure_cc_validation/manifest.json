@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "s5.stage_manifest.v2",
+  "stage": "stage12_known_erasure_cc_validation",
+  "branch": "S5-Compare",
+  "status": "PASS",
+  "functionalRanges": [],
+  "gitAuditStatus": "CURRENT_FUNCTIONAL_WORK_UNCOMMITTED_NO_COMMIT_AUTHORIZATION",
+  "remoteVerification": "NOT_APPLICABLE_CURRENT_WORK_UNCOMMITTED",
+  "mergeStatus": "NOT_MERGED",
+  "gateEvidence": "PASS_STAGE12_KNOWN_ERASURE_CC_VALIDATION; 13/13 checks; C++ and MATLAB independently reproduce the high-FER platform.",
+  "formalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "commit": "NOT_CREATED_NO_AUTHORIZATION",
+  "push": "NOT_RUN_NO_AUTHORIZATION"
+}

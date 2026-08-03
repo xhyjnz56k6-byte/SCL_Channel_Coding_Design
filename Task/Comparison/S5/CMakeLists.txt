@@ -31,6 +31,10 @@ target_link_libraries(s5_runner PRIVATE s5_core)
 add_executable(s5_unit_tests current/tests/test_s5.cpp)
 target_link_libraries(s5_unit_tests PRIVATE s5_core)
 
+add_executable(s5_stage12_cc_validation
+    stages/stage12_known_erasure_cc_validation/cpp/src/stage12_cc_validation.cpp)
+target_link_libraries(s5_stage12_cc_validation PRIVATE s5_core)
+
 if(MSVC)
     target_compile_options(s5_core PRIVATE /O2 /W4)
 else()

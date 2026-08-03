@@ -3,11 +3,26 @@
   "stage": "stage11_plot_audit_and_final_integration",
   "branch": "S5-Compare",
   "status": "PASS",
-  "functionalRanges": [],
-  "gitAuditStatus": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
-  "remoteVerification": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
+  "functionalRanges": [
+    {
+      "name": "originalStage11PathFilteredSubsetOfBatchCommit",
+      "baseCommit": "ef56314e06cf2169744ee33b56ad2aea6d9815ca",
+      "contentCommit": "70572ad999f17339fb4a4a3d4b0fbfbda6dd168f",
+      "pathScope": "Task/Comparison/S5/stages/stage11_plot_audit_and_final_integration/",
+      "sharedBatchCommit": true
+    }
+  ],
+  "uncommittedFunctionalWork": [
+    "Task/Comparison/S5/current/scripts/stage11_analysis.py",
+    "Task/Comparison/S5/current/scripts/archive_stage11_before_replot.py",
+    "Task/Comparison/S5/current/scripts/stage12_aggregate_plots.py",
+    "Task/Comparison/S5/results/stage11/",
+    "Task/Comparison/S5/results/Aggregate/"
+  ],
+  "gitAuditStatus": "EXISTING_REMOTE_BATCH_COMMIT_PATH_SCOPE_VERIFIED_CURRENT_REPLOT_WORK_UNCOMMITTED",
+  "remoteVerification": "PASS_ORIGIN_S5_COMPARE_CONTAINS_70572AD999F17339FB4A4A3D4B0FBFBDA6DD168F",
   "mergeStatus": "NOT_MERGED",
-  "gateEvidence": "PASS_S5_PLOT_AUDIT and PASS_S5_FINAL_INTEGRATION.",
+  "gateEvidence": "PASS_S5_STAGE11_CHINESE_REPLOT (86/86) and PASS_S5_AGGREGATE_PLOT_AUDIT (20/20); same Formal CSV hash.",
   "resultFiles": [
     {
       "path": "results/plot_audit_summary.json",
@@ -15,7 +30,7 @@
     },
     {
       "path": "results/s5_scenario_recommendation.csv",
-      "sha256": "b5399ad4022121226b5c7b4477e4ed3343e1cb8ffdd1499c574b662a2d2c141a"
+      "sha256": "230f579dcc536d38ffa5a511dd7a88f3876a63fbe04125c24cbb4d3925f047cf"
     },
     {
       "path": "results/s5_channel_loss_table.csv",
@@ -23,11 +38,19 @@
     },
     {
       "path": "results/s5_latency_comparison.csv",
-      "sha256": "8a24bfdc74204376a567dc6470b01b166d7b6e513cbaf51a49ef3f52478ef772"
+      "sha256": "60039923dcccbd2c6a5bce0fb27c3b505334a7bbf3491c31ef8a0dbd9fee5213"
     },
     {
       "path": "results/s5_robustness_summary.csv",
       "sha256": "56022e7f91fa75decb286a8ca432034ce1557ff0541a8711d442202e7cbd863e"
+    },
+    {
+      "path": "results/aggregate_plot_audit_summary.json",
+      "sha256": "e473960b52bdf77482e979a2ea40bd960cbb896fa4a55376ee37507d6c01f169"
+    },
+    {
+      "path": "results/aggregate_manifest.json",
+      "sha256": "116e3b4d181c0ee729f50df8895c67ceffdf2f7a03c0cba60f47df0d6322e4c1"
     }
   ]
 }

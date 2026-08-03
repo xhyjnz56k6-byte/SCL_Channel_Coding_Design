@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "s5.stage12_replot.integration.v1",
+  "checks": {
+    "formalHashUnchanged": true,
+    "stage12Pass": true,
+    "chineseReplotCount": true,
+    "chineseReplotSource": true,
+    "chinesePlotSidecars": true,
+    "chineseFontAndLanguage": true,
+    "oldStage11Archived": true,
+    "aggregatePass": true,
+    "aggregateCountAndSidecars": true,
+    "aggregateFormalOnly": true,
+    "recommendationFieldsUpdated": true,
+    "noFormalRerunEvidence": true
+  },
+  "passed": 12,
+  "total": 12,
+  "formalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "stage12Gate": "PASS_STAGE12_KNOWN_ERASURE_CC_VALIDATION",
+  "stage11Gate": "PASS_S5_STAGE11_CHINESE_REPLOT",
+  "aggregateGate": "PASS_S5_AGGREGATE_PLOT_AUDIT",
+  "integrationGate": "PASS_S5_STAGE11_STAGE12_FINAL_INTEGRATION",
+  "finalGate": "PASS_S5_STAGE12_AND_REPLOT_COMPLETE"
+}

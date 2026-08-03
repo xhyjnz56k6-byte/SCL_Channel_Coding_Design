@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "s5.stage12.gate.v1",
+  "checks": {
+    "formalCsvHashUnchanged": true,
+    "fixedMotherTxPayloadBitExact": true,
+    "fixedPayloadNoiselessZeroError": true,
+    "finiteMetrics": true,
+    "integerCountsRecalculate": true,
+    "cppHighSnrFerPlatform": true,
+    "cppErasureTrend": true,
+    "matlabHighSnrFerPlatform": true,
+    "blockedLlrNeutral": true,
+    "allNoiselessUndamagedTracesZeroError": true,
+    "twoRepresentativeR23TracePositions": true,
+    "erasureActsOn459TransmittedSymbols": true,
+    "interleaverFull459AndRoundtrip": true
+  },
+  "passed": 13,
+  "total": 13,
+  "formalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "gate": "PASS_STAGE12_KNOWN_ERASURE_CC_VALIDATION"
+}

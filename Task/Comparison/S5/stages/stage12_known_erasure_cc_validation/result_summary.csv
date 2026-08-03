@@ -1,0 +1,10 @@
+source,scheme,erasureFraction,esN0Db,frames,bitErrors,frameErrors,BER,FER,interpretation
+C++,CC_R23,0.05,4,1000,4637,998,0.015456666666666667,0.998,independent_statistics
+C++,CC_R23,0.05,8,1000,4577,998,0.015256666666666667,0.998,independent_statistics
+C++,CC_R23,0.05,10,1000,4577,998,0.015256666666666667,0.998,independent_statistics
+MATLAB,CC_R23,0.05,4,1000,4490,999,0.014966666666666666,0.999,official_independent_statistics
+MATLAB,CC_R23,0.05,8,1000,4515,999,0.015049999999999999,0.999,official_independent_statistics
+MATLAB,CC_R23,0.05,10,1000,4500,1000,0.014999999999999999,1.0,official_independent_statistics
+C++,CC_R23_INTERLEAVED_17X27,0.05,4,5000,0,0,0,0,diagnostic_only
+C++,CC_R23_INTERLEAVED_17X27,0.05,8,5000,0,0,0,0,diagnostic_only
+C++,CC_R23_INTERLEAVED_17X27,0.05,10,5000,0,0,0,0,diagnostic_only

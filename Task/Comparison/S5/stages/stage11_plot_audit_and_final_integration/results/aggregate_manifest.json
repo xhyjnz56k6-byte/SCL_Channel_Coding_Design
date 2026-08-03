@@ -1,0 +1,30 @@
+{
+  "figures": [
+    "01_rate_near_2_3_regular_fer",
+    "02_rate_near_2_3_local_damage_fer",
+    "03_rate_near_1_2_regular_fer",
+    "04_rate_near_1_2_local_damage_fer",
+    "05_rate_near_2_3_regular_ber",
+    "06_rate_near_2_3_local_damage_ber",
+    "07_rate_near_1_2_regular_ber",
+    "08_rate_near_1_2_local_damage_ber",
+    "09_rate_near_2_3_avg_decode_latency",
+    "10_rate_near_1_2_avg_decode_latency",
+    "11_rate_near_2_3_max_decode_latency",
+    "12_rate_near_1_2_max_decode_latency",
+    "13_cc_r23_all_channels_fer",
+    "14_ldpc_n480_all_channels_fer",
+    "15_cc_r12_all_channels_fer",
+    "16_ldpc_n640_all_channels_fer",
+    "17_ldpc_n480_avg_iterations",
+    "18_ldpc_n640_avg_iterations",
+    "19_ldpc_n480_max_iteration_rate",
+    "20_ldpc_n640_max_iteration_rate"
+  ],
+  "schemaVersion": "s5.aggregate.audit.v1",
+  "figureCount": 20,
+  "passedFigures": 20,
+  "sourceFormalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "stage12DataMixed": false,
+  "gate": "PASS_S5_AGGREGATE_PLOT_AUDIT"
+}
