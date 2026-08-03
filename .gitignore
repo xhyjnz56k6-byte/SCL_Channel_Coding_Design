@@ -5,3 +5,12 @@ Task/BCH/simulation/results/S2-test/batch2_original/matlab_reference/input_vecto
 Task/BCH/simulation/results/S2-test/batch2_corrected/s2_09/corrected_cfo_matlab_vectors.csv
 Task/Common/build/
 discuss-01.md
+# S5 generated artifacts
+Task/Comparison/S5/build/
+Task/Comparison/S5/results/
+Task/Comparison/S5/archive/
+Task/Comparison/S5/**/__pycache__/
+Task/Comparison/S5/**/*.pyc
+Task/Comparison/S5/**/*.exe
+Task/Comparison/S5/**/*.obj
+Task/Comparison/S5/**/*.pdb
