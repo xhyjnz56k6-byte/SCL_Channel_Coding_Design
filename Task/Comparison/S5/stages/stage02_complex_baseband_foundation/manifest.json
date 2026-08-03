@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "s5.stage.manifest.v1",
+  "stage": "s5_stage02_complex_baseband_foundation",
+  "branch": "S5-Compare",
+  "baseCommit": "ef56314e06cf2169744ee33b56ad2aea6d9815ca",
+  "contentCommit": null,
+  "functionalRanges": [],
+  "functionalRangeStatus": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
+  "allowedPrefix": "Task/Comparison/S5/",
+  "forbiddenPrefixes": ["Task/BCH/", "Task/CC/", "Task/LDPC/", "Task/Common/"],
+  "functionalGate": "PASS_S5_COMPLEX",
+  "auditGate": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED"
+}

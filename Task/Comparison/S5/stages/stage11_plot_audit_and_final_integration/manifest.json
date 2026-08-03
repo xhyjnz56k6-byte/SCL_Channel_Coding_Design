@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "s5.stage_manifest.v2",
+  "stage": "stage11_plot_audit_and_final_integration",
+  "branch": "S5-Compare",
+  "status": "PASS",
+  "functionalRanges": [],
+  "gitAuditStatus": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
+  "remoteVerification": "NOT_RUN_NO_COMMIT_AUTHORIZATION",
+  "mergeStatus": "NOT_MERGED",
+  "gateEvidence": "PASS_S5_PLOT_AUDIT and PASS_S5_FINAL_INTEGRATION.",
+  "resultFiles": [
+    {
+      "path": "results/plot_audit_summary.json",
+      "sha256": "5ec0b5f4a5af3a8a58891e302191cd700bee28edc44c6065f86395e24d3d3dc5"
+    },
+    {
+      "path": "results/s5_scenario_recommendation.csv",
+      "sha256": "b5399ad4022121226b5c7b4477e4ed3343e1cb8ffdd1499c574b662a2d2c141a"
+    },
+    {
+      "path": "results/s5_channel_loss_table.csv",
+      "sha256": "8ab99b004bdf3536ba8fc86d068e4286074af1fd30068ab3eb5cea1b447e6554"
+    },
+    {
+      "path": "results/s5_latency_comparison.csv",
+      "sha256": "8a24bfdc74204376a567dc6470b01b166d7b6e513cbaf51a49ef3f52478ef772"
+    },
+    {
+      "path": "results/s5_robustness_summary.csv",
+      "sha256": "56022e7f91fa75decb286a8ca432034ce1557ff0541a8711d442202e7cbd863e"
+    }
+  ]
+}

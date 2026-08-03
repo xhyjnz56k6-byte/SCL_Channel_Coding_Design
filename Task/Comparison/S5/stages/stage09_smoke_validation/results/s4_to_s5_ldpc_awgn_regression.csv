@@ -1,0 +1,23 @@
+scheme,esN0Db,s4Frames,s5Frames,s4BitErrors,s5BitErrors,s4FrameErrors,s5FrameErrors,s4BER,s5BER,s4FER,s5FER,berWilsonOverlap,ferWilsonOverlap,historical1000ExactReproduction,extendedS4Frames,extendedS4BER,extendedS4FER,extendedBerWilsonOverlap,extendedFerWilsonOverlap,parametersMatch,status,notes
+LDPC_BG2_N480_NMS,1,1000,2423,10046,24315,1000,2417,0.033486666666666665,0.033450268262484525,1.0,0.99752373091209245,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,1.5,1000,7489,6872,51513,985,7380,0.022906666666666665,0.022928294832420884,0.985,0.98544531980237682,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,2,1000,29669,4616,133094,939,27590,0.015386666666666667,0.01495320592762367,0.939,0.92992685968519329,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,2.5,1000,50000,2891,137077,846,40403,0.009636666666666667,0.0091384666666666659,0.846,0.80806,False,False,True,50000,0.0091586666666666674,0.81188000000000005,True,True,True,PASS,Isolated 1000-frame mismatch exactly reproduced; 50000-frame extension with the frozen S4 seed/noise/frame range overlaps S5 and explains finite-sample variation.
+LDPC_BG2_N480_NMS,3,1000,50000,1607,78765,636,31081,0.005356666666666667,0.0052509999999999996,0.636,0.62161999999999995,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,3.5,1000,50000,832,42414,408,20858,0.0027733333333333334,0.0028276,0.408,0.41715999999999998,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,4,1000,50000,431,21355,244,12230,0.0014366666666666666,0.0014236666666666666,0.244,0.24460000000000001,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,4.5,1465,50000,311,10058,202,6408,0.0007076222980659841,0.00067053333333333333,0.1378839590443686,0.12816,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,5,3369,50000,301,4562,208,3104,0.0002978133966557831,0.00030413333333333332,0.06173938854259424,0.062080000000000003,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,5.5,8019,50000,285,1902,200,1340,0.0001184686369871555,0.00012679999999999999,0.02494076568150642,0.026800000000000001,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N480_NMS,6,21841,50000,283,709,208,532,4.3190940585748514e-05,4.7266666666666666e-05,0.009523373471910627,0.01064,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,1,50000,50000,0,4,0,1,0.0,2.6666666666666667e-07,0.0,2.0000000000000002e-05,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,1.5,50000,50000,0,4,0,1,0.0,2.6666666666666667e-07,0.0,2.0000000000000002e-05,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,2,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,2.5,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,3,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,3.5,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,4,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,4.5,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,5,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,5.5,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.
+LDPC_BG2_N640_NMS,6,50000,50000,0,0,0,0,0.0,0,0.0,0,True,True,False,,,,False,False,True,PASS,Raw historical Wilson overlap.

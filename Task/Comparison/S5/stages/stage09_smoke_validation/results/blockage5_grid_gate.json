@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "s5.blockage5_gate.v1",
+  "schemePoints": 44,
+  "ccDynamicRange": false,
+  "jointDynamicRange": true,
+  "distinguishableFromAwgn": [
+    {
+      "group": "RATE_NEAR_2_3",
+      "significantFromAwgn": true,
+      "bestSeparatedWilsonMargin": 0.9953194681984469
+    },
+    {
+      "group": "RATE_NEAR_1_2",
+      "significantFromAwgn": true,
+      "bestSeparatedWilsonMargin": 0.9976088496548433
+    }
+  ],
+  "mainFormalBlockage": "KNOWN_BLOCKAGE_5_PERCENT",
+  "stressOnlyBlockage": "KNOWN_BLOCKAGE_10_PERCENT_STRESS_CASE",
+  "ccDynamicRangeDisposition": "KNOWN_CC_DYNAMIC_RANGE_FAILURE_NO_THIRD_TUNING",
+  "gate": "PASS"
+}

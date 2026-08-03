@@ -1,0 +1,4 @@
+parameter,value
+model,single_path_linear_time_varying_frequency_phase
+span,2/(3*(Ntx-1))
+compensation,false

@@ -1,0 +1,4 @@
+parameter,value
+noiseStrategy,s5_complex_pair_v1
+noisePrimitivePolicyVersion,2
+noiselessSoftMagnitude,100

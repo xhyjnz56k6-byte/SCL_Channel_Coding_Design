@@ -1,0 +1,4 @@
+parameter,value
+initialPhaseDeg,0
+endPhaseDeg,30
+compensation,false

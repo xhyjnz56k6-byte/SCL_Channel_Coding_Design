@@ -1,0 +1,6 @@
+parameter,value
+configHash,41ee48b2e2a5d33e9e0177157ea6986c936a5abbe4d8ec54aa500c0aa05e528f
+figureCount,86
+plotType,LINE_ONLY
+smoothing,NONE
+interpolation,ADJACENT_NONZERO_LOG_FER_ONLY

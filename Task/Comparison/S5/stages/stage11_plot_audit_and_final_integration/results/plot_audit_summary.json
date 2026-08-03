@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "s5.plot_audit_summary.v1",
+  "figureCount": 86,
+  "passedFigures": 86,
+  "sourceFormalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "gate": "PASS_S5_PLOT_AUDIT"
+}

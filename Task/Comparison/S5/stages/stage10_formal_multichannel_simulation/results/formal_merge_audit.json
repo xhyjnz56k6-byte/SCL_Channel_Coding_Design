@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "s5.formal_merge_audit.v1",
+  "expectedSchemePoints": 744,
+  "actualSchemePoints": 744,
+  "uniqueSchemePoints": 744,
+  "configHash": "41ee48b2e2a5d33e9e0177157ea6986c936a5abbe4d8ec54aa500c0aa05e528f",
+  "mergedResultSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "failures": [],
+  "gate": "PASS_S5_FORMAL"
+}
