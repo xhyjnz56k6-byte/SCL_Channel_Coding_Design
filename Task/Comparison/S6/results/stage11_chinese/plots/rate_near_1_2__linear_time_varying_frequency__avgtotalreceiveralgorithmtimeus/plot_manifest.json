@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_1_2__linear_time_varying_frequency__avgtotalreceiveralgorithmtimeus",
+  "title": "多普勒频移下近1/2码率组平均接收机算法时延（μs）对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_1_2__linear_time_varying_frequency__avgtotalreceiveralgorithmtimeus/figure.png",
+  "sourceOldFigureSha256": "6eb7a8cfba9f496169943c79c660a20da737b1e190e6684694f445a30163878c",
+  "sourceOldManifestSha256": "1a5aafb9243784c02a362359fbe56c6b2e3034770de280414dd5d2bf987eb24f",
+  "filterConditions": {
+    "group": "RATE_NEAR_1_2",
+    "channel": "LINEAR_TIME_VARYING_FREQUENCY"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "avgTotalReceiverAlgorithmTimeUs__CC_R12_BLOCK_FLOAT",
+    "avgTotalReceiverAlgorithmTimeUs__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "平均接收机算法时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "平均接收机算法时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R1/2",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#009E73",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "^",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__linear_time_varying_frequency__avgtotalreceiveralgorithmtimeus/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__linear_time_varying_frequency__avgtotalreceiveralgorithmtimeus/figure_data.csv",
+  "outputHash": "49bc25f5a009d310a681beb6cceb6860318862f5c110ff15bb12e382b3258596",
+  "outputCsvHash": "ec5acf2a54383bd771d6f8c7930704d817c68e2ca2fdef34bf8bbfa7d5dff5ec",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:09.620303+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

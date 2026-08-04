@@ -1,0 +1,52 @@
+{
+  "figureId": "ldpc_08_max_time",
+  "title": "N560 BP与NMS最大译码时延观测",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "66135340c79acfb05e68615eccdc75d699b7c38b3970ddb668a06d5c7b455d18"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "最大译码时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "最大译码时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "BP",
+    "NMS（α=0.95）"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/ldpc_08_max_time/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/ldpc_08_max_time/figure_data.csv",
+  "outputHash": "e78c3873e0b60d626975fea8baef086f922e2a86da5266210e893f1bbb48433f",
+  "outputCsvHash": "2c52fd8640d3c16e41adf4ad7654598cbe270a79902db9f3ba0a5e8f2b7ac88e",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:53.067977+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

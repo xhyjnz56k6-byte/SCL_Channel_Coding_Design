@@ -36,6 +36,37 @@ double percentile(std::vector<double> values, double fraction) {
     return values[lower] * (1.0 - weight) + values[upper] * weight;
 }
 
+double percentileCounts(std::vector<std::uint64_t> values, double fraction) {
+    if (values.empty()) return 0.0;
+    std::sort(values.begin(), values.end());
+    const double position = fraction * static_cast<double>(values.size() - 1U);
+    const std::size_t lower = static_cast<std::size_t>(position);
+    const std::size_t upper = std::min(lower + 1U, values.size() - 1U);
+    const double weight = position - static_cast<double>(lower);
+    return static_cast<double>(values[lower]) * (1.0 - weight) +
+           static_cast<double>(values[upper]) * weight;
+}
+
+void updatePeakMemory(BchFrameMemory& peak, const BchFrameMemory& sample) {
+    peak.staticMemoryBytes = std::max(peak.staticMemoryBytes, sample.staticMemoryBytes);
+    peak.decoderObjectBytes = std::max(peak.decoderObjectBytes, sample.decoderObjectBytes);
+    peak.lookupTableBytes = std::max(peak.lookupTableBytes, sample.lookupTableBytes);
+    peak.gfTableBytes = std::max(peak.gfTableBytes, sample.gfTableBytes);
+    peak.syndromeBufferBytes = std::max(peak.syndromeBufferBytes, sample.syndromeBufferBytes);
+    peak.locatorPolynomialBytes = std::max(peak.locatorPolynomialBytes, sample.locatorPolynomialBytes);
+    peak.temporaryPolynomialBytes = std::max(peak.temporaryPolynomialBytes, sample.temporaryPolynomialBytes);
+    peak.receivedBufferBytes = std::max(peak.receivedBufferBytes, sample.receivedBufferBytes);
+    peak.correctedBufferBytes = std::max(peak.correctedBufferBytes, sample.correctedBufferBytes);
+    peak.payloadBufferBytes = std::max(peak.payloadBufferBytes, sample.payloadBufferBytes);
+    peak.perFrameWorkspaceBytes = std::max(peak.perFrameWorkspaceBytes, sample.perFrameWorkspaceBytes);
+    peak.peakWorkspaceBytes = std::max(peak.peakWorkspaceBytes, sample.peakWorkspaceBytes);
+    peak.totalDecoderMemoryBytes = std::max(peak.totalDecoderMemoryBytes, sample.totalDecoderMemoryBytes);
+    if (peak.memoryMeasurementMethod.empty()) peak.memoryMeasurementMethod = sample.memoryMeasurementMethod;
+    if (peak.memoryMeasurementMethod != sample.memoryMeasurementMethod) {
+        throw std::logic_error("memory measurement method changed within one AWGN point");
+    }
+}
+
 std::string timestampUtc() {
     const auto now = std::chrono::system_clock::now();
     const std::time_t value = std::chrono::system_clock::to_time_t(now);
@@ -249,10 +280,18 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
     result.configHash = common::computeConfigHash(common::canonicalConfigText(
         simulationCase.caseName, simulationCase.payloadLength, simulationCase.encodedLength,
         std::to_string(result.config.ebN0Db), pool.framePoolId(), noiseId, stopText,
-        decoderTypeName(simulationCase.decoderType) + ";schema=bch.group4.result.v1;configVersion=bch14.v1"));
+        decoderTypeName(simulationCase.decoderType) + ";schema=bch.s6.result.v1;configVersion=s6.v1"));
     result.noiseSigma = common::computeAwgnSigma(lengths, config.ebN0Db);
     result.noiseVariance = result.noiseSigma * result.noiseSigma;
+    if (result.config.esN0IsPrimary) {
+        const double expectedVariance = 1.0 / (2.0 * std::pow(10.0, result.config.esN0Db / 10.0));
+        if (!std::isfinite(result.config.esN0Db) ||
+            std::abs(result.noiseVariance - expectedVariance) > 1e-12) {
+            throw std::logic_error("Es/N0 to noise variance formula mismatch");
+        }
+    }
     result.decodeTimesUs.reserve(static_cast<std::size_t>(config.frameCount));
+    result.complexitySamples.reserve(static_cast<std::size_t>(config.frameCount));
     const std::uint64_t noiseGroup = pairedNoiseGroupId(simulationCase.payloadLength, config.snrIndex);
     prepareBchCase(simulationCase);
 
@@ -299,6 +338,10 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
         auto decoded = decodeBchFrame(simulationCase, hard);
         const auto decodeEnd = std::chrono::steady_clock::now();
         auditDecodedBchFrame(payload, decoded);
+        decoded.complexity.miscorrectionCount = decoded.miscorrected ? 1U : 0U;
+        if (simulationCase.organization == BchOrganization::WholeBlockShortened) {
+            decoded.complexity.decoderFailureCount = decoded.decoderFailure ? 1U : 0U;
+        }
         const std::uint64_t decodedErrors = common::countBitErrors(payload, decoded.payload);
         const double encodeUs = std::chrono::duration<double, std::micro>(encodeEnd - encodeStart).count();
         const double decodeUs = std::chrono::duration<double, std::micro>(decodeEnd - decodeStart).count();
@@ -318,6 +361,8 @@ AwgnPointResult runAwgnPoint(const AwgnPointConfig& config) {
         result.encodeTimeUsSum += encodeUs;
         result.decodeTimeUsSum += decodeUs;
         result.decodeTimesUs.push_back(decodeUs);
+        result.complexitySamples.push_back(decoded.complexity);
+        updatePeakMemory(result.decoderMemory, decoded.memory);
         if (detail) {
             detail << simulationCase.caseName << ',' << config.ebN0Db << ',' << config.snrIndex << ','
                    << frameIndex << ',' << noiseHash << ',' << channelErrors << ',' << decodedErrors << ','
@@ -373,10 +418,11 @@ void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& pat
     const double maxDecode = result.decodeTimesUs.empty() ? 0.0 : *std::max_element(result.decodeTimesUs.begin(), result.decodeTimesUs.end());
     std::ofstream out(path);
     if (!out) throw std::runtime_error("failed to open summary output");
-    out << "schemaVersion,stage,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,ebn0Db,ebn0Linear,noiseSigma,noiseVariance,globalSeed,noisePolicyVersion,snrIndex,frameStart,requestedFrameCount,logicalFrameCount,processedFrames,processedPayloadBits,channelHardBitErrors,channelHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,avgEncodeTimeUs,avgDecodeTimeUs,p50DecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,firstNoiseHash,lastNoiseHash,stopReason,targetFrameErrors,minFrames,maxFrames,checkpointCount,resumeCount,shardIndex,shardCount,configHash\n";
-    out << "bch.group4.result.v1," << result.config.stage << ',' << value.caseName << ','
+    out << "schemaVersion,stage,caseName,organization,decoderType,payloadLength,encodedLength,frameRate,esN0Db,ebn0Db,ebn0Linear,noiseSigma,noiseVariance,globalSeed,noisePolicyVersion,snrIndex,frameStart,requestedFrameCount,logicalFrameCount,processedFrames,processedPayloadBits,channelHardBitErrors,channelHardFrameErrors,decodedBitErrors,decodedFrameErrors,BER,FER,trueSuccessFrames,trueSuccessRate,reportedSuccessFrames,reportedSuccessRate,miscorrectedFrames,miscorrectionRate,decoderFailureFrames,decoderFailureRate,noErrorStatusFrames,correctedStatusFrames,failedStatusFrames,avgEncodeTimeUs,avgDecodeTimeUs,medianDecodeTimeUs,p95DecodeTimeUs,p99DecodeTimeUs,maxDecodeTimeUs,totalDecodeTimeUs,timedFrames,decoderMemoryBytes,peakWorkspaceBytes,memoryMeasurementMethod,firstNoiseHash,lastNoiseHash,stopReason,targetFrameErrors,minFrames,maxFrames,checkpointCount,resumeCount,shardIndex,shardCount,configHash\n";
+    out << "bch.s6.result.v1," << result.config.stage << ',' << value.caseName << ','
         << organizationName(value.organization) << ',' << decoderTypeName(value.decoderType) << ','
         << value.payloadLength << ',' << value.encodedLength << ',' << std::setprecision(17) << value.frameRate << ','
+        << (result.config.esN0IsPrimary ? std::to_string(result.config.esN0Db) : "") << ','
         << result.config.ebN0Db << ',' << common::ebN0Linear(result.config.ebN0Db) << ','
         << result.noiseSigma << ',' << result.noiseVariance << ',' << result.config.globalSeed << ','
         << kBchNoisePolicyVersion << ',' << result.config.snrIndex << ',' << result.config.frameStart << ','
@@ -390,11 +436,91 @@ void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& pat
         << result.noErrorStatusFrames << ',' << result.correctedStatusFrames << ',' << result.failedStatusFrames << ','
         << result.encodeTimeUsSum / frames << ',' << result.decodeTimeUsSum / frames << ','
         << percentile(result.decodeTimesUs, 0.50) << ',' << percentile(result.decodeTimesUs, 0.95) << ','
-        << percentile(result.decodeTimesUs, 0.99) << ',' << maxDecode << ',' << result.firstNoiseHash << ','
+        << percentile(result.decodeTimesUs, 0.99) << ',' << maxDecode << ',' << result.decodeTimeUsSum << ','
+        << result.decodeTimesUs.size() << ',' << result.decoderMemory.totalDecoderMemoryBytes << ','
+        << result.decoderMemory.peakWorkspaceBytes << ',' << result.decoderMemory.memoryMeasurementMethod << ','
+        << result.firstNoiseHash << ','
         << result.lastNoiseHash << ',' << result.stopReason << ',' << result.config.targetFrameErrors << ','
         << result.config.minFrames << ',' << result.config.maxFrames << ',' << result.checkpointCount << ','
         << result.resumeCount << ',' << result.config.shardIndex << ',' << result.config.shardCount << ','
         << result.configHash << '\n';
+}
+
+void writeAwgnComplexitySummary(const AwgnPointResult& result, const std::string& path) {
+    using Member = std::uint64_t BchFrameComplexity::*;
+    const std::vector<std::pair<const char*, Member>> fields = {
+        {"segmentCount", &BchFrameComplexity::segmentCount},
+        {"initialSyndromeCount", &BchFrameComplexity::initialSyndromeCount},
+        {"nonzeroSyndromeCount", &BchFrameComplexity::nonzeroSyndromeCount},
+        {"syndromeCalculationCount", &BchFrameComplexity::syndromeCalculationCount},
+        {"syndromeBitTestCount", &BchFrameComplexity::syndromeBitTestCount},
+        {"syndromeXorCount", &BchFrameComplexity::syndromeXorCount},
+        {"syndromeShiftCount", &BchFrameComplexity::syndromeShiftCount},
+        {"tableLookupCount", &BchFrameComplexity::tableLookupCount},
+        {"lookupHitCount", &BchFrameComplexity::lookupHitCount},
+        {"lookupMissCount", &BchFrameComplexity::lookupMissCount},
+        {"bitFlipCount", &BchFrameComplexity::bitFlipCount},
+        {"postSyndromeCheckCount", &BchFrameComplexity::postSyndromeCheckCount},
+        {"correctedSegmentCount", &BchFrameComplexity::correctedSegmentCount},
+        {"failedSegmentCount", &BchFrameComplexity::failedSegmentCount},
+        {"miscorrectedSegmentCount", &BchFrameComplexity::miscorrectedSegmentCount},
+        {"reportedSuccessButPayloadWrongCount", &BchFrameComplexity::reportedSuccessButPayloadWrongCount},
+        {"syndromeValueCount", &BchFrameComplexity::syndromeValueCount},
+        {"syndromeEvaluationCount", &BchFrameComplexity::syndromeEvaluationCount},
+        {"bmIterationCount", &BchFrameComplexity::bmIterationCount},
+        {"bmDiscrepancyCount", &BchFrameComplexity::bmDiscrepancyCount},
+        {"bmLocatorUpdateCount", &BchFrameComplexity::bmLocatorUpdateCount},
+        {"bmPolynomialCopyCount", &BchFrameComplexity::bmPolynomialCopyCount},
+        {"chienPositionTestCount", &BchFrameComplexity::chienPositionTestCount},
+        {"chienPolynomialEvaluationCount", &BchFrameComplexity::chienPolynomialEvaluationCount},
+        {"chienRootCount", &BchFrameComplexity::chienRootCount},
+        {"gfAddCount", &BchFrameComplexity::gfAddCount},
+        {"gfMultiplyCount", &BchFrameComplexity::gfMultiplyCount},
+        {"gfDivideCount", &BchFrameComplexity::gfDivideCount},
+        {"gfInverseCount", &BchFrameComplexity::gfInverseCount},
+        {"locatorDegree", &BchFrameComplexity::locatorDegree},
+        {"rootCount", &BchFrameComplexity::rootCount},
+        {"decoderFailureCount", &BchFrameComplexity::decoderFailureCount},
+        {"miscorrectionCount", &BchFrameComplexity::miscorrectionCount}};
+    std::ofstream out(path);
+    if (!out) throw std::runtime_error("failed to open complexity summary output");
+    out << "caseName,snrIndex,esN0Db,metric,total,average,p95,maximum\n";
+    for (const auto& field : fields) {
+        std::vector<std::uint64_t> values;
+        values.reserve(result.complexitySamples.size());
+        std::uint64_t total = 0U;
+        std::uint64_t maximum = 0U;
+        for (const auto& sample : result.complexitySamples) {
+            const auto value = sample.*(field.second);
+            values.push_back(value);
+            total += value;
+            maximum = std::max(maximum, value);
+        }
+        const double average = values.empty() ? 0.0 :
+            static_cast<double>(total) / static_cast<double>(values.size());
+        out << bchSimulationCase(result.config.caseId).caseName << ',' << result.config.snrIndex << ','
+            << (result.config.esN0IsPrimary ? std::to_string(result.config.esN0Db) : "") << ','
+            << field.first << ',' << total << ',' << std::setprecision(17) << average << ','
+            << percentileCounts(values, 0.95) << ',' << maximum << '\n';
+    }
+}
+
+void writeAwgnMemorySummary(const AwgnPointResult& result, const std::string& path) {
+    std::ofstream out(path);
+    if (!out) throw std::runtime_error("failed to open memory summary output");
+    const auto& memory = result.decoderMemory;
+    out << "caseName,snrIndex,esN0Db,staticMemoryBytes,decoderObjectBytes,lookupTableBytes,gfTableBytes,"
+           "syndromeBufferBytes,locatorPolynomialBytes,temporaryPolynomialBytes,receivedBufferBytes,"
+           "correctedBufferBytes,payloadBufferBytes,perFrameWorkspaceBytes,peakWorkspaceBytes,"
+           "totalDecoderMemoryBytes,memoryMeasurementMethod\n";
+    out << bchSimulationCase(result.config.caseId).caseName << ',' << result.config.snrIndex << ','
+        << (result.config.esN0IsPrimary ? std::to_string(result.config.esN0Db) : "") << ','
+        << memory.staticMemoryBytes << ',' << memory.decoderObjectBytes << ',' << memory.lookupTableBytes << ','
+        << memory.gfTableBytes << ',' << memory.syndromeBufferBytes << ',' << memory.locatorPolynomialBytes << ','
+        << memory.temporaryPolynomialBytes << ',' << memory.receivedBufferBytes << ','
+        << memory.correctedBufferBytes << ',' << memory.payloadBufferBytes << ','
+        << memory.perFrameWorkspaceBytes << ',' << memory.peakWorkspaceBytes << ','
+        << memory.totalDecoderMemoryBytes << ',' << memory.memoryMeasurementMethod << '\n';
 }
 
 }  // namespace scl::bch::simulation

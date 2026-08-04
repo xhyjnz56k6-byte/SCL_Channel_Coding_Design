@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "s6.ldpc.n560.integration.v1",
+  "formalRerun": false,
+  "selectedRows": 62,
+  "pairedSnrPoints": 31,
+  "sharedPayloadCodewordLlr": true,
+  "sharedEarlyStop": "SYNDROME_AFTER_FULL_ITERATION",
+  "maxIterations": 32,
+  "nmsAlpha": 0.95,
+  "formalIterationComparisonsAvailable": [
+    32
+  ],
+  "notFormallyCompared": [
+    10,
+    20,
+    30
+  ],
+  "sourceSha256": "6c72c89fbac5e846fc7a68483dc18fa5e2238cd9740e48b2d29163ea0c6e5e3e",
+  "gate": "PASS_LDPC_N560_RESULT_INTEGRATION"
+}

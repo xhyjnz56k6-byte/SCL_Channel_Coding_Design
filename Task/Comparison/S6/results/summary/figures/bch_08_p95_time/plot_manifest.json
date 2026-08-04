@@ -1,0 +1,52 @@
+{
+  "figureId": "bch_08_p95_time",
+  "title": "200比特BCH第95百分位译码时延",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/bch/formal_v02_20260804/bch_formal_results.csv"
+  ],
+  "sourceFileHashes": [
+    "d251bb0b46ab49aa3ccd97f6c32fedc10220b5fe32409d399cf88ff1ad0507ac"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "P95译码时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "P95译码时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "分组 BCH-S200",
+    "整块 BCH-B200"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/bch_08_p95_time/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/bch_08_p95_time/figure_data.csv",
+  "outputHash": "03320d1764cae59c40bd4ebb3565796f5a5f00379f5e5f61344b6bef0b523929",
+  "outputCsvHash": "0709e6e993c51ebba7c42d7aa65e9dd8a599789f226407a7a26b5e9540ed594d",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:47.829602+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

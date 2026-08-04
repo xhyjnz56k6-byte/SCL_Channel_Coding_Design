@@ -1,0 +1,9 @@
+{
+  "stage": "stage07_s6_scientific_plots",
+  "branch": "S6-Comparision",
+  "output": "Task/Comparison/S6/results/summary/figures",
+  "figureCount": 26,
+  "moduleCounts": {"BCH": 10, "CC": 8, "LDPC": 8},
+  "gate": "PASS_S6_SCIENTIFIC_PLOTS",
+  "mergeStatus": "NOT_MERGED"
+}

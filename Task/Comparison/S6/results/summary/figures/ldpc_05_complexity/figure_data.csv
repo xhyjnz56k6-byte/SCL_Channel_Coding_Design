@@ -1,0 +1,13 @@
+figureId,series,category,rawValue,plotValue,isPlotted,isZero,zeroErrorUpperBound95
+ldpc_05_complexity,BP,tanh,25780.657504554234,25780.657504554234,true,false,
+ldpc_05_complexity,BP,atanh,12890.328752277117,12890.328752277117,true,false,
+ldpc_05_complexity,BP,绝对值,0,0,true,true,
+ldpc_05_complexity,BP,比较,0,0,true,true,
+ldpc_05_complexity,BP,最小值,0,0,true,true,
+ldpc_05_complexity,BP,α缩放,0,0,true,true,
+ldpc_05_complexity,NMS（α=0.95）,tanh,0,0,true,true,
+ldpc_05_complexity,NMS（α=0.95）,atanh,0,0,true,true,
+ldpc_05_complexity,NMS（α=0.95）,绝对值,10280.703596726758,10280.703596726758,true,false,
+ldpc_05_complexity,NMS（α=0.95）,比较,20561.407193453517,20561.407193453517,true,false,
+ldpc_05_complexity,NMS（α=0.95）,最小值,6190.30171962448,6190.30171962448,true,false,
+ldpc_05_complexity,NMS（α=0.95）,α缩放,10280.703596726758,10280.703596726758,true,false,

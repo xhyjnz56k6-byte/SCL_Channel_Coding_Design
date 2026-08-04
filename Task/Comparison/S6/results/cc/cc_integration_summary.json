@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "s6.cc.integration.v1",
+  "formalRerun": false,
+  "selectedRows": 248,
+  "schemeRows": {
+    "BLOCK_FLOAT_SOFT": 31,
+    "BLOCK_HARD": 31,
+    "B_CONT_50x6_FLOAT_SOFT": 31,
+    "B_CONT_50x6_HARD": 31,
+    "C_CONT_100x3_FLOAT_SOFT": 31,
+    "C_CONT_100x3_HARD": 31,
+    "D_CONT_150x2_FLOAT_SOFT": 31,
+    "D_CONT_150x2_HARD": 31
+  },
+  "sourceSha256": "427c0c0efd20135457f0a9d5ddab3b9e43ee539809178ef47852286094f508e8",
+  "inputPrecision": {
+    "Hard": "1 bit",
+    "Float Soft": "Float"
+  },
+  "limitations": [
+    "非严格pair-stop",
+    "CPU译码时间与实时决策时延不可混用",
+    "Q4/Q6/Q8不是主Float Soft"
+  ],
+  "gate": "PASS_CC_RESULT_INTEGRATION"
+}

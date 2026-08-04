@@ -1,0 +1,5 @@
+figureId,series,category,rawValue,plotValue,isPlotted,isZero,zeroErrorUpperBound95
+bch_06_memory,译码器总内存,分组 BCH-S200,1580,1580,true,false,
+bch_06_memory,译码器总内存,整块 BCH-B200,2408,2408,true,false,
+bch_06_memory,峰值工作区,分组 BCH-S200,779,779,true,false,
+bch_06_memory,峰值工作区,整块 BCH-B200,810,810,true,false,

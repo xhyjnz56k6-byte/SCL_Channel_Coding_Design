@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_2_3__fixed_multipath_real_mmse__fer",
+  "title": "固定多径下近2/3码率组误帧率对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_2_3__fixed_multipath_real_mmse__fer/figure.png",
+  "sourceOldFigureSha256": "87321c91847f9a772c891d2ba94a5526ddad669e2eddbec74d035da711cb7c05",
+  "sourceOldManifestSha256": "c02de7c51ff9a7f3b3cbb25bbf9284c9421caa29bbc4f859e312e5ada4cd25c9",
+  "filterConditions": {
+    "group": "RATE_NEAR_2_3",
+    "channel": "FIXED_MULTIPATH_REAL_MMSE"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "FER__CC_R23_BLOCK_FLOAT",
+    "FER__LDPC_BG2_N480_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "误帧率 FER",
+  "xUnit": "dB",
+  "yUnit": "误帧率 FER",
+  "xTransform": "NONE",
+  "yTransform": "LOG10_DISPLAY",
+  "logScale": true,
+  "zeroValuePolicy": "原始零值保留；对数轴不绘制，plotValue 留空且曲线不跨零连接",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R2/3",
+    "LDPC N480"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__fixed_multipath_real_mmse__fer/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__fixed_multipath_real_mmse__fer/figure_data.csv",
+  "outputHash": "f914a57f79ed0dac31528a4b71e05e2757b546bd14d26bbca5ab0ee873e9b5b6",
+  "outputCsvHash": "9cd2db9420418720f1dc0b409caf8a6f2dd119516db55b5595e510e89030c047",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:18.214929+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

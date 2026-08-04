@@ -1,0 +1,3 @@
+figureId,series,category,rawValue,plotValue,isPlotted,isZero,zeroErrorUpperBound95
+ldpc_06_memory,译码内存,BP,11312,11312,true,false,
+ldpc_06_memory,译码内存,NMS（α=0.95）,11312,11312,true,false,

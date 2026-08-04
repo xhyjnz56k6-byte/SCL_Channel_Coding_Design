@@ -1,0 +1,5 @@
+figureId,series,category,rawValue,plotValue,isPlotted,isZero,zeroErrorUpperBound95
+bch_05_operation_structure,网格均值（操作/帧）,S200综合征计算,26.923442439901415,26.923442439901415,true,false,
+bch_05_operation_structure,网格均值（操作/帧）,S200查表,7.9234424399014154,7.9234424399014154,true,false,
+bch_05_operation_structure,网格均值（操作/帧）,B200 BM迭代,8.6364270726727419,8.6364270726727419,true,false,
+bch_05_operation_structure,网格均值（操作/帧）,B200 Chien位置测试,183.07029292264653,183.07029292264653,true,false,

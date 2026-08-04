@@ -1,0 +1,3 @@
+﻿"caseName","snrIndex","esN0Db","staticMemoryBytes","decoderObjectBytes","lookupTableBytes","gfTableBytes","syndromeBufferBytes","locatorPolynomialBytes","temporaryPolynomialBytes","receivedBufferBytes","correctedBufferBytes","payloadBufferBytes","perFrameWorkspaceBytes","peakWorkspaceBytes","totalDecoderMemoryBytes","memoryMeasurementMethod"
+"BCH-S200","0","-5.000000","64","512","801","0","0","0","0","285","285","209","779","779","1580","EXACT_FROM_TYPE_AND_COUNT"
+"BCH-B200","0","-5.000000","128","64","0","1534","48","24","32","255","255","200","810","810","2408","EXACT_FROM_TYPE_AND_COUNT"

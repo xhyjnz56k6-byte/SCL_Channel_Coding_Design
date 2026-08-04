@@ -1,0 +1,98 @@
+{
+  "figureId": "rate_near_1_2__deltafer",
+  "title": "近1/2码率组相对AWGN的误帧率劣化",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_1_2__deltafer/figure.png",
+  "sourceOldFigureSha256": "6bbbfcd0576698796739892e3bb982a871c326ea408ab680331e122493da7200",
+  "sourceOldManifestSha256": "b4f889e262d6a0d3d8289b7aa00246564becc2b6d2505ca5f78786913ccc4216",
+  "filterConditions": {
+    "group": "RATE_NEAR_1_2",
+    "definition": "channel FER - own-scheme AWGN FER"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "deltaFer__FIXED_MULTIPATH_REAL_MMSE__CC_R12_BLOCK_FLOAT",
+    "deltaFer__FIXED_MULTIPATH_REAL_MMSE__LDPC_BG2_N640_NMS",
+    "deltaFer__CFO_30_DEG__CC_R12_BLOCK_FLOAT",
+    "deltaFer__CFO_30_DEG__LDPC_BG2_N640_NMS",
+    "deltaFer__LINEAR_TIME_VARYING_FREQUENCY__CC_R12_BLOCK_FLOAT",
+    "deltaFer__LINEAR_TIME_VARYING_FREQUENCY__LDPC_BG2_N640_NMS",
+    "deltaFer__KNOWN_BLOCKAGE_5_PERCENT__CC_R12_BLOCK_FLOAT",
+    "deltaFer__KNOWN_BLOCKAGE_5_PERCENT__LDPC_BG2_N640_NMS",
+    "deltaFer__UNKNOWN_BURST_5_PERCENT_ISR_10DB__CC_R12_BLOCK_FLOAT",
+    "deltaFer__UNKNOWN_BURST_5_PERCENT_ISR_10DB__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "相对AWGN的误帧率劣化",
+  "xUnit": "dB",
+  "yUnit": "相对AWGN的误帧率劣化",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "固定多径 / 卷积码 R1/2",
+    "固定多径 / LDPC N640",
+    "30°载波频偏 / 卷积码 R1/2",
+    "30°载波频偏 / LDPC N640",
+    "多普勒频移 / 卷积码 R1/2",
+    "多普勒频移 / LDPC N640",
+    "短时遮挡（5%） / 卷积码 R1/2",
+    "短时遮挡（5%） / LDPC N640",
+    "未知突发干扰（5%，ISR=10 dB） / 卷积码 R1/2",
+    "未知突发干扰（5%，ISR=10 dB） / LDPC N640"
+  ],
+  "colors": [
+    "#D55E00",
+    "#D55E00",
+    "#009E73",
+    "#009E73",
+    "#CC79A7",
+    "#CC79A7",
+    "#E69F00",
+    "#E69F00",
+    "#56B4E9",
+    "#56B4E9"
+  ],
+  "lineStyles": [
+    "-.",
+    ":",
+    "-.",
+    ":",
+    "-.",
+    ":",
+    "-.",
+    ":",
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "^",
+    "D",
+    "^",
+    "D",
+    "^",
+    "D",
+    "^",
+    "D",
+    "^",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__deltafer/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__deltafer/figure_data.csv",
+  "outputHash": "bf90beaaa46875d1f42a936ab8eea9730d0c7a47fa1dcffaad797bf6d450529b",
+  "outputCsvHash": "b5ef8ea1d3f84dabdaf58c3aec78f0c35f5e7053c91499e1f9ace49197e8b206",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:05.662090+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

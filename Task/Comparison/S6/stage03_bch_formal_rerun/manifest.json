@@ -1,0 +1,13 @@
+{
+  "stage": "stage03_bch_formal_rerun",
+  "branch": "S6-Comparision",
+  "baseCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "contentState": "WORKTREE_UNCOMMITTED_BY_USER_REQUIREMENT",
+  "functionalRanges": [],
+  "formalResult": "Task/Comparison/S6/results/bch/formal_v02_20260804/bch_formal_results.csv",
+  "pointCount": 62,
+  "environmentHashCount": 1,
+  "archiveVersions": ["v01_20260804_before_smoke_driver_retry", "v02_20260804_before_memory_peak_fix"],
+  "gate": "PASS_BCH_NOISE_FORMULA;PASS_BCH_FORMAL_GRID;PASS_BCH_RESULT_SCHEMA;PASS_EXECUTION_ENVIRONMENT_CAPTURE;PASS_TIMING_SCOPE_DOCUMENTATION",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,58 @@
+{
+  "figureId": "ldpc__cfo_30_deg__maxiterationrate",
+  "title": "30°载波频偏下LDPC最大迭代帧比例",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/ldpc__cfo_30_deg__maxiterationrate/figure.png",
+  "sourceOldFigureSha256": "a1ef1f6bf432231a04626af560ed9fd8c2d2c5bed5e32e77c5137f6ff6756248",
+  "sourceOldManifestSha256": "7919aa87a80a2f0354a3ce6340e97c028bd1afac44e6f5845e90a8d803c9658f",
+  "filterConditions": {
+    "channel": "CFO_30_DEG",
+    "iterationsApplicable": true
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "maxIterationRate__LDPC_BG2_N480_NMS",
+    "maxIterationRate__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "最大迭代帧比例",
+  "xUnit": "dB",
+  "yUnit": "最大迭代帧比例",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "LDPC N480",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#D55E00",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "--",
+    ":"
+  ],
+  "markers": [
+    "s",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/ldpc__cfo_30_deg__maxiterationrate/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/ldpc__cfo_30_deg__maxiterationrate/figure_data.csv",
+  "outputHash": "4b73134b05be2d2f304a041826ac02b91ea962916db21863d396e55705777380",
+  "outputCsvHash": "0751bd11f884259f03a2ee0dadf9808f2065743019cec09b8582b82e4b831c0e",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:29:59.489601+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

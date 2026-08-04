@@ -1,0 +1,12 @@
+{
+  "stage": "stage02_bch_complexity_instrumentation",
+  "branch": "S6-Comparision",
+  "baseCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "contentState": "WORKTREE_UNCOMMITTED_BY_USER_REQUIREMENT",
+  "functionalRanges": [],
+  "modules": ["Task/BCH/segmented/current", "Task/BCH/block/current", "Task/BCH/simulation/current"],
+  "tests": ["bch_s6_metrics_unit", "BCH simulation CTest 8/8"],
+  "memoryMeasurementMethod": "EXACT_FROM_TYPE_AND_COUNT",
+  "gate": "PASS_BCH_COUNTER_UNIT_TESTS;PASS_BCH_MEMORY_ACCOUNTING",
+  "mergeStatus": "NOT_MERGED"
+}

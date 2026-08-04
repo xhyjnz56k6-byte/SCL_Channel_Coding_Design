@@ -1,0 +1,9 @@
+{
+  "stage": "stage01_scope_and_schema_freeze",
+  "branch": "S6-Comparision",
+  "baseCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "contentState": "WORKTREE_UNCOMMITTED_BY_USER_REQUIREMENT",
+  "gate": "PASS_REPOSITORY_SCOPE",
+  "mergeStatus": "NOT_MERGED",
+  "formalExecution": {"BCH": true, "CC": false, "LDPC": false}
+}

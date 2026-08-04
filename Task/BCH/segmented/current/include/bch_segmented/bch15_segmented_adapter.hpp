@@ -49,6 +49,30 @@ struct Bch15SegmentedFrameDetail {
     common::Length miscorrectedBlocks = 0U;
     common::Length paddingBits = 0U;
     common::Length blockCount = 0U;
+    std::uint64_t initialSyndromeCount = 0U;
+    std::uint64_t nonzeroSyndromeCount = 0U;
+    std::uint64_t syndromeCalculationCount = 0U;
+    std::uint64_t syndromeBitTestCount = 0U;
+    std::uint64_t syndromeXorCount = 0U;
+    std::uint64_t syndromeShiftCount = 0U;
+    std::uint64_t tableLookupCount = 0U;
+    std::uint64_t lookupHitCount = 0U;
+    std::uint64_t lookupMissCount = 0U;
+    std::uint64_t bitFlipCount = 0U;
+    std::uint64_t postSyndromeCheckCount = 0U;
+};
+
+struct Bch15SegmentedMemoryAccounting {
+    std::size_t staticMemoryBytes = 0U;
+    std::size_t decoderObjectBytes = 0U;
+    std::size_t lookupTableBytes = 0U;
+    std::size_t receivedBufferBytes = 0U;
+    std::size_t correctedBufferBytes = 0U;
+    std::size_t payloadBufferBytes = 0U;
+    std::size_t perFrameWorkspaceBytes = 0U;
+    std::size_t peakWorkspaceBytes = 0U;
+    std::size_t totalDecoderMemoryBytes = 0U;
+    const char* memoryMeasurementMethod = "EXACT_FROM_TYPE_AND_COUNT";
 };
 
 struct Bch15SegmentedEncodeResult {
@@ -74,6 +98,8 @@ Bch15SegmentedDecodeResult decodeBch15Segmented(Bch15SegmentedCase caseId,
                                                   const SyndromeTable& table);
 void auditBch15SegmentedRecovery(const common::BitVector& originalPayload,
                                   Bch15SegmentedDecodeResult& result);
+Bch15SegmentedMemoryAccounting bch15SegmentedMemoryAccounting(
+    Bch15SegmentedCase caseId, const SyndromeTable& table);
 
 }  // namespace scl::bch::segmented
 

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "s6.final.manifest.v1",
+  "branch": "S6-Comparision",
+  "head": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "workingTreeState": "UNCOMMITTED_BY_USER_REQUIREMENT",
+  "mergeStatus": "NOT_MERGED",
+  "formalExecution": {
+    "BCH": true,
+    "CC": false,
+    "LDPC": false
+  },
+  "resultRows": {
+    "BCH": 62,
+    "BCHComplexity": 2046,
+    "BCHMemory": 62,
+    "CC": 248,
+    "LDPC": 62
+  },
+  "plots": {
+    "Stage11": 86,
+    "S6": 26
+  },
+  "archiveFilesVerified": 854,
+  "readmeDirectoriesVerified": 357,
+  "gates": [
+    "PASS_REPOSITORY_SCOPE",
+    "PASS_ARCHIVE_INTEGRITY",
+    "PASS_README_COVERAGE",
+    "PASS_BCH_COUNTER_UNIT_TESTS",
+    "PASS_BCH_MEMORY_ACCOUNTING",
+    "PASS_BCH_NOISE_FORMULA",
+    "PASS_BCH_FORMAL_GRID",
+    "PASS_BCH_RESULT_SCHEMA",
+    "PASS_BCH_ZERO_VALUE_POLICY",
+    "PASS_STAGE11_86_FIGURES_FOUND",
+    "PASS_STAGE11_CHINESE_TITLES",
+    "PASS_STAGE11_AXIS_VALIDATION",
+    "PASS_STAGE11_ZERO_VALUE_POLICY",
+    "PASS_STAGE11_PLOT_MANIFESTS",
+    "PASS_CC_RESULT_INTEGRATION",
+    "PASS_LDPC_N560_RESULT_INTEGRATION",
+    "PASS_EXECUTION_ENVIRONMENT_CAPTURE",
+    "PASS_TIMING_SCOPE_DOCUMENTATION",
+    "PASS_SHA256_MANIFEST",
+    "PASS_S6_FINAL_REPORT"
+  ],
+  "finalStatus": "PASS"
+}

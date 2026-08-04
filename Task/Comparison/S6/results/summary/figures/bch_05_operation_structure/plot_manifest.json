@@ -1,0 +1,48 @@
+{
+  "figureId": "bch_05_operation_structure",
+  "title": "BCH译码操作结构对比",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/bch/formal_v02_20260804/bch_complexity_results.csv"
+  ],
+  "sourceFileHashes": [
+    "54fb7dd7d5fa0c1a7879978471925cbe85aab542f89ff2addc161ff808404d63"
+  ],
+  "xColumn": "category",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "方案/操作类别",
+  "yLabel": "平均操作次数/帧",
+  "xUnit": "category",
+  "yUnit": "平均操作次数/帧",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "网格均值（操作/帧）"
+  ],
+  "colors": [
+    "#0072B2"
+  ],
+  "lineStyles": [
+    "bar"
+  ],
+  "markers": [
+    "none"
+  ],
+  "derivation": "各类别分别统计；不同操作类型并非等价硬件代价，不做总和",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/bch_05_operation_structure/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/bch_05_operation_structure/figure_data.csv",
+  "outputHash": "6bfa4b7b75f82a5eea7415942490a6c71fee59d774cb5ce514f08fa6884e47b9",
+  "outputCsvHash": "7cbe3e0bfa763f94d53d595521e482ac27e7f6712c0285570e23191b89056125",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:48.740005+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

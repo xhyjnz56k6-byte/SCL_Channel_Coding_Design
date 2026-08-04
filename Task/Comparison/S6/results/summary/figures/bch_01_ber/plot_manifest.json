@@ -1,0 +1,52 @@
+{
+  "figureId": "bch_01_ber",
+  "title": "200比特BCH误码率对比",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/bch/formal_v02_20260804/bch_formal_results.csv"
+  ],
+  "sourceFileHashes": [
+    "d251bb0b46ab49aa3ccd97f6c32fedc10220b5fe32409d399cf88ff1ad0507ac"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "误码率 BER",
+  "xUnit": "dB",
+  "yUnit": "误码率 BER",
+  "xTransform": "NONE",
+  "yTransform": "LOG10_DISPLAY",
+  "logScale": true,
+  "zeroValuePolicy": "原始零值保留，plotValue留空且不在对数轴绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "分组 BCH-S200",
+    "整块 BCH-B200"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/bch_01_ber/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/bch_01_ber/figure_data.csv",
+  "outputHash": "8a6c2138d139aab8902e2761229a9a1666857679817b02439f3a6a2e6e8672af",
+  "outputCsvHash": "cfb3723ac675e347a5f4cd1037f8fbf2633dad0a2a0d1715de027ff55d87410d",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:46.908746+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 13
+}

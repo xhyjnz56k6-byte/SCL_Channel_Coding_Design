@@ -1,0 +1,8 @@
+{
+  "stage": "stage00_repository_audit",
+  "branch": "S6-Comparision",
+  "contentState": "READ_ONLY_AUDIT",
+  "primaryReport": "S6_本地审查汇总.md",
+  "gate": "PASS_REPOSITORY_AUDIT",
+  "mergeStatus": "NOT_MERGED"
+}

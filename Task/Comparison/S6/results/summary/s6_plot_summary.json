@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "s6.scientific.plots.v1",
+  "figureCount": 26,
+  "moduleCounts": {
+    "BCH": 10,
+    "CC": 8,
+    "LDPC": 8
+  },
+  "preservedZeroRows": 194,
+  "figures": [
+    {
+      "figureId": "bch_01_ber",
+      "title": "200比特BCH误码率对比",
+      "pngSha256": "8a6c2138d139aab8902e2761229a9a1666857679817b02439f3a6a2e6e8672af",
+      "zeroRows": 13,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_02_fer",
+      "title": "200比特BCH误帧率对比",
+      "pngSha256": "2910ed325cdb9ba3b6ce1e7b1b82881addf7badb69cacf64c4df062e4a121a6b",
+      "zeroRows": 13,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_07_avg_time",
+      "title": "200比特BCH平均译码时延",
+      "pngSha256": "7d4fe2476b2e4e9aa720f081f1fdb7b26827e4a4ab6abbb733cdd936acee1f27",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_08_p95_time",
+      "title": "200比特BCH第95百分位译码时延",
+      "pngSha256": "03320d1764cae59c40bd4ebb3565796f5a5f00379f5e5f61344b6bef0b523929",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_09_p99_time",
+      "title": "200比特BCH第99百分位译码时延",
+      "pngSha256": "1a5e86cb2f54c5dc8cb5103beffbbb4897128d57f4d1417cd67a572995a862ed",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_10_max_time",
+      "title": "200比特BCH最大译码时延观测",
+      "pngSha256": "a737054a4581f2e28f2692f4bc4b646a6aca9a9ef69ff3a188f94daffc1cf2f3",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_03_segmented_operations",
+      "title": "分组BCH平均译码操作量",
+      "pngSha256": "0b0084e74bc10e819d842b01b4e44025831a22b38bc4391febf6c7ba2c5f33ac",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_04_block_operations",
+      "title": "整块BCH平均译码操作量",
+      "pngSha256": "321755a4f3dcecfdfdb4f032c9a0accc24d4b5d597fb43962e0ca1f194dacd06",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_05_operation_structure",
+      "title": "BCH译码操作结构对比",
+      "pngSha256": "6bfa4b7b75f82a5eea7415942490a6c71fee59d774cb5ce514f08fa6884e47b9",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "bch_06_memory",
+      "title": "BCH译码存储开销对比",
+      "pngSha256": "7e34f621cb538c1b96e94ddf38afe0b5d166c5dcd41dbc3631d5cea7400c2b90",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_01_block_ber",
+      "title": "整块卷积码硬软判决误码率",
+      "pngSha256": "e2566d1bad49bcd18ea7d8f59193250271e442cbd28bf7f1360539d8efd72c0a",
+      "zeroRows": 27,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_02_block_fer",
+      "title": "整块卷积码硬软判决误帧率",
+      "pngSha256": "8757aff3787227164f562c89184d11bc6109a03267d6ecd6a1b947e5ae92009e",
+      "zeroRows": 27,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_03_slot_fer",
+      "title": "时隙卷积码硬软判决误帧率",
+      "pngSha256": "1f6251c1dbde30c97df34d9aee8ab2008d84d510196ab60f4bacbf8d8e17b7d5",
+      "zeroRows": 81,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_04_complexity",
+      "title": "卷积码译码复杂度对比",
+      "pngSha256": "3ab604bf5f15a38210916312ae9bde17f6ec8d275215361d61db68ce111203c9",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_05_memory",
+      "title": "卷积码译码存储开销对比",
+      "pngSha256": "6a664174106a1dbcd17a2c041793b606fb5d5e19219a962c90d6a6c178e9ea90",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_06_avg_time",
+      "title": "卷积码平均译码时延",
+      "pngSha256": "b76cf0fced0d31663fb0a99fd9f74a6ba2fd6a7db61f86550652988fb6d0f7ab",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_07_first_output",
+      "title": "时隙卷积码首输出时延",
+      "pngSha256": "738292a8262ff2f0c57d39d9a78e9deaff0c91983df59285733368feae2b245a",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "cc_08_decision_delay",
+      "title": "时隙卷积码决策时延",
+      "pngSha256": "24f9f210721c8225785079673f87dadd3ffab514e9ecc197b5942560c71dfdce",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_01_ber",
+      "title": "N560 BP与NMS误码率",
+      "pngSha256": "ebf47af98240aaab096691939d5f6c84e12680fd5880a94af62dd1462037dc5f",
+      "zeroRows": 8,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_02_fer",
+      "title": "N560 BP与NMS误帧率",
+      "pngSha256": "4e5aebbb1d948110e04bc5a76192ccafb2f3e8b52d5d1336be80f0c1804f83a9",
+      "zeroRows": 8,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_03_iterations",
+      "title": "N560 BP与NMS平均迭代次数",
+      "pngSha256": "8fc13340c3f9371be43d6c6712a0e7e2058d038e616a6d2b1b6fafe88f88ecc2",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_04_early_stop",
+      "title": "N560 BP与NMS提前停止比例",
+      "pngSha256": "aa04cb99b44d90f7451470e334335795ebd805ad6e2692ebdfd36f0f42611550",
+      "zeroRows": 11,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_07_avg_time",
+      "title": "N560 BP与NMS平均译码时延",
+      "pngSha256": "5cca2f4a68450d98636b859f25058bf57c36c342cf08aa866a944dfe4f7a2d9e",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_08_max_time",
+      "title": "N560 BP与NMS最大译码时延观测",
+      "pngSha256": "e78c3873e0b60d626975fea8baef086f922e2a86da5266210e893f1bbb48433f",
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_05_complexity",
+      "title": "N560 BP与NMS译码复杂度",
+      "pngSha256": "fce468c4e97cc71e1c900c71734865d2ed8681fbcacea09a7555b91ea41f7e41",
+      "zeroRows": 6,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc_06_memory",
+      "title": "N560 BP与NMS存储开销",
+      "pngSha256": "517272c844f0e5175577d35ffea06890d79d3d13be8a27ec608a3af23cc50101",
+      "zeroRows": 0,
+      "gate": "PASS"
+    }
+  ],
+  "gate": "PASS_S6_SCIENTIFIC_PLOTS"
+}

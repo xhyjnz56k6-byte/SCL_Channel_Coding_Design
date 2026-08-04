@@ -1,0 +1,76 @@
+{
+  "figureId": "cc_06_avg_time",
+  "title": "卷积码平均译码时延",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/cc/cc_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "f447eb9613d6fbb0e4b710fe4eff92e501d6fd0a1c8e0c1124edec395bf8d952"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "CPU平均译码时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "CPU平均译码时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "BLOCK 浮点软判决",
+    "BLOCK 硬判决",
+    "B_CONT_50x6 浮点软判决",
+    "B_CONT_50x6 硬判决",
+    "C_CONT_100x3 浮点软判决",
+    "C_CONT_100x3 硬判决",
+    "D_CONT_150x2 浮点软判决",
+    "D_CONT_150x2 硬判决"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00",
+    "#009E73",
+    "#CC79A7",
+    "#E69F00",
+    "#56B4E9",
+    "#000000",
+    "#999999"
+  ],
+  "lineStyles": [
+    "-",
+    "--",
+    "-.",
+    ":",
+    "-",
+    "--",
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "o",
+    "s",
+    "^",
+    "D",
+    "v",
+    "P",
+    "X",
+    "h"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/cc_06_avg_time/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/cc_06_avg_time/figure_data.csv",
+  "outputHash": "b76cf0fced0d31663fb0a99fd9f74a6ba2fd6a7db61f86550652988fb6d0f7ab",
+  "outputCsvHash": "a8c1ea1d2a2f85f02e934aace9340abb2a47749e7c58070aadd0df9753e40d86",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:50.848067+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

@@ -1,0 +1,2 @@
+caseName,snrIndex,esN0Db,staticMemoryBytes,decoderObjectBytes,lookupTableBytes,gfTableBytes,syndromeBufferBytes,locatorPolynomialBytes,temporaryPolynomialBytes,receivedBufferBytes,correctedBufferBytes,payloadBufferBytes,perFrameWorkspaceBytes,peakWorkspaceBytes,totalDecoderMemoryBytes,memoryMeasurementMethod
+BCH-S200,29,9.500000,64,512,801,0,0,0,0,285,285,209,779,779,1580,EXACT_FROM_TYPE_AND_COUNT

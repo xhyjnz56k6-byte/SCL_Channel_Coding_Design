@@ -1,0 +1,52 @@
+{
+  "figureId": "cc_04_complexity",
+  "title": "卷积码译码复杂度对比",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/cc/cc_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "f447eb9613d6fbb0e4b710fe4eff92e501d6fd0a1c8e0c1124edec395bf8d952"
+  ],
+  "xColumn": "category",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "方案/操作类别",
+  "yLabel": "平均操作次数/帧",
+  "xUnit": "category",
+  "yUnit": "平均操作次数/帧",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "ACS/帧",
+    "回溯操作/帧"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "bar",
+    "bar"
+  ],
+  "markers": [
+    "none",
+    "none"
+  ],
+  "derivation": "全Es/N0网格逐点每帧计数的均值；ACS与回溯操作不视为等价代价",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/cc_04_complexity/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/cc_04_complexity/figure_data.csv",
+  "outputHash": "3ab604bf5f15a38210916312ae9bde17f6ec8d275215361d61db68ce111203c9",
+  "outputCsvHash": "97713019f71104f4349d3151fbdfe82012e906b71dcabb093f22b5211010ad6e",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:50.393791+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

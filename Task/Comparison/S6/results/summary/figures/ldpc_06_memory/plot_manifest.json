@@ -1,0 +1,48 @@
+{
+  "figureId": "ldpc_06_memory",
+  "title": "N560 BP与NMS存储开销",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "66135340c79acfb05e68615eccdc75d699b7c38b3970ddb668a06d5c7b455d18"
+  ],
+  "xColumn": "category",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "方案/操作类别",
+  "yLabel": "存储量（byte）",
+  "xUnit": "category",
+  "yUnit": "存储量（byte）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "译码内存"
+  ],
+  "colors": [
+    "#0072B2"
+  ],
+  "lineStyles": [
+    "bar"
+  ],
+  "markers": [
+    "none"
+  ],
+  "derivation": "源Formal decoderMemoryBytes",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/ldpc_06_memory/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/ldpc_06_memory/figure_data.csv",
+  "outputHash": "517272c844f0e5175577d35ffea06890d79d3d13be8a27ec608a3af23cc50101",
+  "outputCsvHash": "99a8851c4b4af1aec87af891616cd0c5f987a5e9c3c22fead0c38477b7e12525",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:53.322890+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

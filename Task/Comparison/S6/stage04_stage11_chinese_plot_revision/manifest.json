@@ -1,0 +1,11 @@
+{
+  "stage": "stage04_stage11_chinese_plot_revision",
+  "branch": "S6-Comparision",
+  "sourceFigureCount": 86,
+  "outputFigureCount": 86,
+  "sourceFormalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "archive": "Task/Comparison/S6/archive/v03_20260804_before_chinese_plot_revision",
+  "output": "Task/Comparison/S6/results/stage11_chinese/plots",
+  "gate": "PASS_STAGE11_CHINESE_PLOT_REVISION",
+  "mergeStatus": "NOT_MERGED"
+}

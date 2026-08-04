@@ -1,0 +1,15 @@
+parameter,value
+cases,S200;B200
+payloadBits,200
+esN0StartDb,-5.0
+esN0StopDb,10.0
+esN0StepDb,0.5
+snrPointCount,31
+minFrames,1000
+targetFrameErrors,200
+maxFrames,50000
+globalSeed,20260804
+timingWarmupFrames,100
+buildType,Release
+threadCount,1
+channel,BPSK+AWGN

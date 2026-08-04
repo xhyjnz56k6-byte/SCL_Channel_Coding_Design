@@ -1,0 +1,52 @@
+{
+  "figureId": "ldpc_05_complexity",
+  "title": "N560 BP与NMS译码复杂度",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "66135340c79acfb05e68615eccdc75d699b7c38b3970ddb668a06d5c7b455d18"
+  ],
+  "xColumn": "category",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "方案/操作类别",
+  "yLabel": "平均操作次数/帧",
+  "xUnit": "category",
+  "yUnit": "平均操作次数/帧",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "BP",
+    "NMS（α=0.95）"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "bar",
+    "bar"
+  ],
+  "markers": [
+    "none",
+    "none"
+  ],
+  "derivation": "全Es/N0网格逐点每帧操作计数均值；不同类别不相加",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/ldpc_05_complexity/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/ldpc_05_complexity/figure_data.csv",
+  "outputHash": "fce468c4e97cc71e1c900c71734865d2ed8681fbcacea09a7555b91ea41f7e41",
+  "outputCsvHash": "d58843d32f6057c4fd0c949a8738af75620f83c0013218403febf3cb957dc288",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:53.210334+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 6
+}
