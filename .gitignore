@@ -14,3 +14,12 @@ Task/Comparison/S5/**/*.pyc
 Task/Comparison/S5/**/*.exe
 Task/Comparison/S5/**/*.obj
 Task/Comparison/S5/**/*.pdb
+
+# S6 generated artifacts
+Task/Comparison/S6/archive/
+Task/Comparison/S6/**/__pycache__/
+Task/Comparison/S6/**/*.pyc
+Task/Comparison/S6/**/*.exe
+Task/Comparison/S6/**/*.obj
+Task/Comparison/S6/**/*.pdb
+Task/Comparison/S5/build/
