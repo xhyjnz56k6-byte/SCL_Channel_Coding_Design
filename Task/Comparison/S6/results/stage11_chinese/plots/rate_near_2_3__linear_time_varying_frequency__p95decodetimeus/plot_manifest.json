@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_2_3__linear_time_varying_frequency__p95decodetimeus",
+  "title": "多普勒频移下近2/3码率组P95译码时延（μs）对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_2_3__linear_time_varying_frequency__p95decodetimeus/figure.png",
+  "sourceOldFigureSha256": "f5ef3fead03cdf0719c343176e7013e6cebcb6d76c678dcdc99d9a23fae2b664",
+  "sourceOldManifestSha256": "6e2b38dde4226f75d4fb82cdb2ce32a6c4993c8a9a152ef3005862b284fdc54f",
+  "filterConditions": {
+    "group": "RATE_NEAR_2_3",
+    "channel": "LINEAR_TIME_VARYING_FREQUENCY"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "p95DecodeTimeUs__CC_R23_BLOCK_FLOAT",
+    "p95DecodeTimeUs__LDPC_BG2_N480_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "P95译码时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "P95译码时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R2/3",
+    "LDPC N480"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__linear_time_varying_frequency__p95decodetimeus/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__linear_time_varying_frequency__p95decodetimeus/figure_data.csv",
+  "outputHash": "6524020db98fa35f01c4144cba2494e4deeb737ebfcc5ee883b2bda2c3515a53",
+  "outputCsvHash": "c6d8a93f99a5abd5b38f0a631c27c2245b1b0a71c3c40f48d91b4672808dd55b",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:22.289180+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

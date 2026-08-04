@@ -1,0 +1,52 @@
+{
+  "figureId": "ldpc_01_ber",
+  "title": "N560 BP与NMS误码率",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "66135340c79acfb05e68615eccdc75d699b7c38b3970ddb668a06d5c7b455d18"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "误码率 BER",
+  "xUnit": "dB",
+  "yUnit": "误码率 BER",
+  "xTransform": "NONE",
+  "yTransform": "LOG10_DISPLAY",
+  "logScale": true,
+  "zeroValuePolicy": "原始零值保留，plotValue留空且不在对数轴绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "BP",
+    "NMS（α=0.95）"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/ldpc_01_ber/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/ldpc_01_ber/figure_data.csv",
+  "outputHash": "ebf47af98240aaab096691939d5f6c84e12680fd5880a94af62dd1462037dc5f",
+  "outputCsvHash": "4e6c7f883fd27eb8e26f3535ea90cee3ca5a33ee5605f1d13fa811373aeb55d4",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:51.823605+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 8
+}

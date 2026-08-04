@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_1_2__known_blockage_5_percent__p95totalreceiveralgorithmtimeus",
+  "title": "短时遮挡（5%）下近1/2码率组P95接收机算法时延（μs）对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_1_2__known_blockage_5_percent__p95totalreceiveralgorithmtimeus/figure.png",
+  "sourceOldFigureSha256": "20650627d9b6d04ce980240d4e66d0e2753ea373087b4af7e94148c2a03c34b1",
+  "sourceOldManifestSha256": "fece4851606821947c64ab3e6cf6b220954e9f7e96fcbc37b702b18169ed81f8",
+  "filterConditions": {
+    "group": "RATE_NEAR_1_2",
+    "channel": "KNOWN_BLOCKAGE_5_PERCENT"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "p95TotalReceiverAlgorithmTimeUs__CC_R12_BLOCK_FLOAT",
+    "p95TotalReceiverAlgorithmTimeUs__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "P95接收机算法时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "P95接收机算法时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R1/2",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#009E73",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "^",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__known_blockage_5_percent__p95totalreceiveralgorithmtimeus/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__known_blockage_5_percent__p95totalreceiveralgorithmtimeus/figure_data.csv",
+  "outputHash": "5bdbeadba2a585d170b8679340e64c7bea35badcb1b72247fc69cbebd79a6a28",
+  "outputCsvHash": "c999010a31601b72415bd1a0c4888f2310ce28ab8f19c24f8eb56a057a44d6a0",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:09.200722+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

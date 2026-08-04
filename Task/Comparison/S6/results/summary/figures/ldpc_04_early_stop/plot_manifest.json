@@ -1,0 +1,52 @@
+{
+  "figureId": "ldpc_04_early_stop",
+  "title": "N560 BP与NMS提前停止比例",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "66135340c79acfb05e68615eccdc75d699b7c38b3970ddb668a06d5c7b455d18"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "提前停止比例",
+  "xUnit": "dB",
+  "yUnit": "提前停止比例",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "BP",
+    "NMS（α=0.95）"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/ldpc_04_early_stop/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/ldpc_04_early_stop/figure_data.csv",
+  "outputHash": "aa04cb99b44d90f7451470e334335795ebd805ad6e2692ebdfd36f0f42611550",
+  "outputCsvHash": "72373607993aacc102aa8e14f8df037fbd2a56dc131516e153e10e46dcf0b277",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:52.590573+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 11
+}

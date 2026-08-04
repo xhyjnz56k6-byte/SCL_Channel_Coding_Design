@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_1_2__cfo_30_deg__avgtotalreceiveralgorithmtimeus",
+  "title": "30°载波频偏下近1/2码率组平均接收机算法时延（μs）对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_1_2__cfo_30_deg__avgtotalreceiveralgorithmtimeus/figure.png",
+  "sourceOldFigureSha256": "7958fd2d6d12538c049e63fbc413633467d1edd2f2df89abd887e38bc13c0d4d",
+  "sourceOldManifestSha256": "9bbbe362a2ad4882b561e76c77c8e45faa80be95c3301fc4c24457a3ac5e0524",
+  "filterConditions": {
+    "group": "RATE_NEAR_1_2",
+    "channel": "CFO_30_DEG"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "avgTotalReceiverAlgorithmTimeUs__CC_R12_BLOCK_FLOAT",
+    "avgTotalReceiverAlgorithmTimeUs__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "平均接收机算法时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "平均接收机算法时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R1/2",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#009E73",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "^",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__cfo_30_deg__avgtotalreceiveralgorithmtimeus/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__cfo_30_deg__avgtotalreceiveralgorithmtimeus/figure_data.csv",
+  "outputHash": "1bda67a8ed18155e45d1e1036329d3457427fefc2936c42ab67958691403caa7",
+  "outputCsvHash": "97303abc9e50752e1eb9670f54ded6286e1ea122b3c7569d8cbf0c2c18b39441",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:03.862231+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

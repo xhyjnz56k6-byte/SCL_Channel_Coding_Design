@@ -1,0 +1,1 @@
+{"timestamp":"2026-08-04T02:19:02Z","stage":"stage03_bch_formal_rerun","caseName":"BCH-B200","ebn0Db":0.934217,"processedFrames":1000,"frameErrors":999,"bitErrors":15499,"elapsedSeconds":0.126895,"framesPerSecond":7880.51,"etaSeconds":6.21787,"checkpointCount":1,"shardIndex":0,"shardCount":1,"status":"COMPLETE"}

@@ -1,0 +1,21 @@
+{
+  "source_file_exists": true,
+  "source_sha256_recorded": true,
+  "x_point_count_matches": true,
+  "y_point_count_matches": true,
+  "all_raw_values_finite_or_explicitly_missing": true,
+  "raw_zero_values_preserved": true,
+  "zero_values_not_replaced": true,
+  "zero_values_not_plotted_on_log_axis": true,
+  "no_artificial_floor_line": true,
+  "no_interpolation": true,
+  "no_smoothing": true,
+  "legend_entries_unique": true,
+  "title_is_chinese": true,
+  "axis_labels_are_valid": true,
+  "png_exists": true,
+  "figure_data_exists": true,
+  "manifest_exists": true,
+  "readme_exists": true,
+  "output_sha256_recorded": true
+}

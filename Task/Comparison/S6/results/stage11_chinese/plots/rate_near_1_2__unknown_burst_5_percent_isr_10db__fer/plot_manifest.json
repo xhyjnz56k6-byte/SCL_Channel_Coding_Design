@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__fer",
+  "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组误帧率对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_1_2__unknown_burst_5_percent_isr_10db__fer/figure.png",
+  "sourceOldFigureSha256": "79f8d46a02a8ac21efca78689abab423d6ee0f92a818698548aac6cb51c5463d",
+  "sourceOldManifestSha256": "608524718bef310e2c14a66ba1e4029c0fe0d27dd25fb2b25c3c7ce6b0778ce5",
+  "filterConditions": {
+    "group": "RATE_NEAR_1_2",
+    "channel": "UNKNOWN_BURST_5_PERCENT_ISR_10DB"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "FER__CC_R12_BLOCK_FLOAT",
+    "FER__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "误帧率 FER",
+  "xUnit": "dB",
+  "yUnit": "误帧率 FER",
+  "xTransform": "NONE",
+  "yTransform": "LOG10_DISPLAY",
+  "logScale": true,
+  "zeroValuePolicy": "原始零值保留；对数轴不绘制，plotValue 留空且曲线不跨零连接",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R1/2",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#009E73",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "^",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__unknown_burst_5_percent_isr_10db__fer/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__unknown_burst_5_percent_isr_10db__fer/figure_data.csv",
+  "outputHash": "97db69cdb312b2046a4127a0a1550196e164fb4f50d800d716382373cbe6ab23",
+  "outputCsvHash": "cd73ec270c29057a980b8505c6063ee6b2df9280d45d84ea85b6c1b8e198a101",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:12.255922+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

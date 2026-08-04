@@ -1,0 +1,11 @@
+{
+  "stage": "stage05_cc_result_integration",
+  "branch": "S6-Comparision",
+  "formalRerun": false,
+  "source": "Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/results/stage14_online_slot_formal_results_all_decisions.csv",
+  "output": "Task/Comparison/S6/results/cc/cc_integrated_results.csv",
+  "rows": 248,
+  "schemes": 8,
+  "gate": "PASS_CC_RESULT_INTEGRATION",
+  "mergeStatus": "NOT_MERGED"
+}

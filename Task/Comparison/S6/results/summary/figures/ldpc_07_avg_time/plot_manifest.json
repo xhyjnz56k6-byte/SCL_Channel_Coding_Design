@@ -1,0 +1,52 @@
+{
+  "figureId": "ldpc_07_avg_time",
+  "title": "N560 BP与NMS平均译码时延",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "66135340c79acfb05e68615eccdc75d699b7c38b3970ddb668a06d5c7b455d18"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "平均译码时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "平均译码时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "BP",
+    "NMS（α=0.95）"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/ldpc_07_avg_time/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/ldpc_07_avg_time/figure_data.csv",
+  "outputHash": "5cca2f4a68450d98636b859f25058bf57c36c342cf08aa866a944dfe4f7a2d9e",
+  "outputCsvHash": "5d33a481be8b03f069bc9fe4bddb0ed060fdd5142c1b826aeea947bf908c7ad5",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:52.782920+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

@@ -1,0 +1,10 @@
+{
+  "stage": "stage08_s6_final_report",
+  "branch": "S6-Comparision",
+  "baseCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "contentState": "WORKTREE_UNCOMMITTED_BY_USER_REQUIREMENT",
+  "functionalRanges": [],
+  "finalReport": "Task/Comparison/S6/S6_final_report.md",
+  "gate": "PASS_S6_FINAL_REPORT",
+  "mergeStatus": "NOT_MERGED"
+}

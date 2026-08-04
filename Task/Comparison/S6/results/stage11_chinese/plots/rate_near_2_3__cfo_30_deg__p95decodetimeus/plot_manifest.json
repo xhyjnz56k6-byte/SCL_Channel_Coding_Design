@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_2_3__cfo_30_deg__p95decodetimeus",
+  "title": "30°载波频偏下近2/3码率组P95译码时延（μs）对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_2_3__cfo_30_deg__p95decodetimeus/figure.png",
+  "sourceOldFigureSha256": "185b6481478af7d53ea34b4a333b1813d569e6389edea1b601471530aebce76e",
+  "sourceOldManifestSha256": "ea1b4a71292d3b64b83fd78a15bb7fad79cb5c61e0160aa87ed29952f8b8b52a",
+  "filterConditions": {
+    "group": "RATE_NEAR_2_3",
+    "channel": "CFO_30_DEG"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "p95DecodeTimeUs__CC_R23_BLOCK_FLOAT",
+    "p95DecodeTimeUs__LDPC_BG2_N480_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "P95译码时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "P95译码时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R2/3",
+    "LDPC N480"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__cfo_30_deg__p95decodetimeus/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__cfo_30_deg__p95decodetimeus/figure_data.csv",
+  "outputHash": "e533c2b2af8561d31cf2940d71d08dc49dae1422880959d3693eaa02d2f3f7ce",
+  "outputCsvHash": "019e47b264c05f594c14e7f8f6025876627572e5aa4f9d7973fd77111ca438d6",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:16.191115+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

@@ -42,11 +42,39 @@ void addBlockStatistics(Bch15SegmentedFrameDetail& frame, const Bch15DecodeDetai
     if (detail.status == Bch15DecodeStatus::POST_CHECK_FAILED) ++frame.postCheckFailedBlocks;
     if (detail.status == Bch15DecodeStatus::UNRECOGNIZED_SYNDROME) ++frame.unrecognizedSyndromeBlocks;
     if (detail.status == Bch15DecodeStatus::NO_ERROR || detail.status == Bch15DecodeStatus::CORRECTED_SINGLE_ERROR) ++frame.reportedSuccessBlocks;
+    frame.initialSyndromeCount += detail.initialSyndromeCount;
+    frame.nonzeroSyndromeCount += detail.nonzeroSyndromeCount;
+    frame.syndromeCalculationCount += detail.syndromeMetrics.calculationCount;
+    frame.syndromeBitTestCount += detail.syndromeMetrics.bitTestCount;
+    frame.syndromeXorCount += detail.syndromeMetrics.xorCount;
+    frame.syndromeShiftCount += detail.syndromeMetrics.shiftCount;
+    frame.tableLookupCount += detail.tableLookupCount;
+    frame.lookupHitCount += detail.lookupHitCount;
+    frame.lookupMissCount += detail.lookupMissCount;
+    frame.bitFlipCount += detail.bitFlipCount;
+    frame.postSyndromeCheckCount += detail.postSyndromeCheckCount;
     // True miscorrection requires the original block as an oracle.  The
     // adapter preserves decoder facts; the test audit compares them to truth.
 }
 
 }  // namespace
+
+Bch15SegmentedMemoryAccounting bch15SegmentedMemoryAccounting(
+    Bch15SegmentedCase caseId, const SyndromeTable& table) {
+    const auto& config = bch15SegmentedConfig(caseId);
+    Bch15SegmentedMemoryAccounting memory;
+    memory.staticMemoryBytes = sizeof(Bch15SegmentedConfig);
+    memory.lookupTableBytes = exactSyndromeTableBytes(table);
+    memory.decoderObjectBytes = sizeof(SyndromeTable);
+    memory.receivedBufferBytes = config.encodedLength * sizeof(common::Bit);
+    memory.correctedBufferBytes = config.encodedLength * sizeof(common::Bit);
+    memory.payloadBufferBytes = (config.payloadLength + config.fillerBits) * sizeof(common::Bit);
+    memory.perFrameWorkspaceBytes = memory.receivedBufferBytes + memory.correctedBufferBytes
+                                  + memory.payloadBufferBytes;
+    memory.peakWorkspaceBytes = memory.perFrameWorkspaceBytes;
+    memory.totalDecoderMemoryBytes = memory.lookupTableBytes + memory.peakWorkspaceBytes;
+    return memory;
+}
 
 const Bch15SegmentedConfig& bch15SegmentedConfig(Bch15SegmentedCase caseId) {
     if (caseId == Bch15SegmentedCase::S200) return kS200;

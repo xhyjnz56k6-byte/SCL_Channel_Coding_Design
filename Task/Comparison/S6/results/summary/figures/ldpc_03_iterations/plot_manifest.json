@@ -1,0 +1,52 @@
+{
+  "figureId": "ldpc_03_iterations",
+  "title": "N560 BP与NMS平均迭代次数",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "66135340c79acfb05e68615eccdc75d699b7c38b3970ddb668a06d5c7b455d18"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "平均迭代次数",
+  "xUnit": "dB",
+  "yUnit": "平均迭代次数",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "BP",
+    "NMS（α=0.95）"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/ldpc_03_iterations/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/ldpc_03_iterations/figure_data.csv",
+  "outputHash": "8fc13340c3f9371be43d6c6712a0e7e2058d038e616a6d2b1b6fafe88f88ecc2",
+  "outputCsvHash": "84fa7a656c2d79643ba627a70a59e62a5cf08d97b5830ef1b73a399dda0eec87",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:52.427461+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

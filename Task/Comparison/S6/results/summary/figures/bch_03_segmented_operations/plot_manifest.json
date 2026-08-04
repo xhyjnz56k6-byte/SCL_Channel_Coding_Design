@@ -1,0 +1,64 @@
+{
+  "figureId": "bch_03_segmented_operations",
+  "title": "分组BCH平均译码操作量",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/bch/formal_v02_20260804/bch_complexity_results.csv"
+  ],
+  "sourceFileHashes": [
+    "54fb7dd7d5fa0c1a7879978471925cbe85aab542f89ff2addc161ff808404d63"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "平均操作次数/帧",
+  "xUnit": "dB",
+  "yUnit": "平均操作次数/帧",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "综合征计算",
+    "综合征位测试",
+    "查表",
+    "比特翻转",
+    "译后综合征检查"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00",
+    "#009E73",
+    "#CC79A7",
+    "#E69F00"
+  ],
+  "lineStyles": [
+    "-",
+    "--",
+    "-.",
+    ":",
+    "-"
+  ],
+  "markers": [
+    "o",
+    "s",
+    "^",
+    "D",
+    "v"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/bch_03_segmented_operations/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/bch_03_segmented_operations/figure_data.csv",
+  "outputHash": "0b0084e74bc10e819d842b01b4e44025831a22b38bc4391febf6c7ba2c5f33ac",
+  "outputCsvHash": "eaac524c23b81cc5f8aacda9a93cf4f66cdc9ea4405a3a122db4d7ebf11fd5eb",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:48.420696+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

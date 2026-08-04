@@ -1,0 +1,58 @@
+{
+  "figureId": "ldpc__fixed_multipath_real_mmse__avgiterations",
+  "title": "固定多径下LDPC平均译码迭代次数",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/ldpc__fixed_multipath_real_mmse__avgiterations/figure.png",
+  "sourceOldFigureSha256": "3353b9a0c7fabbc9fa291aae68419c520b6a0a67d881dab633c442947ab39cfb",
+  "sourceOldManifestSha256": "411c7bd9a9e917ed3df864a1b1b49174eca81beefaa67b4e4e27029186cbd195",
+  "filterConditions": {
+    "channel": "FIXED_MULTIPATH_REAL_MMSE",
+    "iterationsApplicable": true
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "avgIterations__LDPC_BG2_N480_NMS",
+    "avgIterations__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "平均译码迭代次数",
+  "xUnit": "dB",
+  "yUnit": "平均译码迭代次数",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "LDPC N480",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#D55E00",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "--",
+    ":"
+  ],
+  "markers": [
+    "s",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/ldpc__fixed_multipath_real_mmse__avgiterations/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/ldpc__fixed_multipath_real_mmse__avgiterations/figure_data.csv",
+  "outputHash": "9347a15f35ecf029336b4f1257857b1425949abc5473525c3a17dc1dac657a70",
+  "outputCsvHash": "605fbdf8f4b7768e471f834f44e51a8d66d20f2e14f3147a4f91ffca930e62cf",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:29:59.764768+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

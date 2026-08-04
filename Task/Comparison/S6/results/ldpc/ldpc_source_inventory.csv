@@ -1,0 +1,2 @@
+sourceFile,fileSizeBytes,sha256,sourceRows,selectedRows,selection
+Task/LDPC/block/stages/stage23_s4_final_reintegration/results/s4_revised_formal_point_results.csv,157413,6c72c89fbac5e846fc7a68483dc18fa5e2238cd9740e48b2d29163ea0c6e5e3e,186,62,LDPC_BG2_K300_N560; BP/NMS; maxIter=32; NMS alpha=0.95

@@ -1,0 +1,68 @@
+{
+  "figureId": "cc_07_first_output",
+  "title": "时隙卷积码首输出时延",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/cc/cc_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "f447eb9613d6fbb0e4b710fe4eff92e501d6fd0a1c8e0c1124edec395bf8d952"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "首输出时延（符号）",
+  "xUnit": "dB",
+  "yUnit": "首输出时延（符号）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "B_CONT_50x6 浮点软判决",
+    "B_CONT_50x6 硬判决",
+    "C_CONT_100x3 浮点软判决",
+    "C_CONT_100x3 硬判决",
+    "D_CONT_150x2 浮点软判决",
+    "D_CONT_150x2 硬判决"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00",
+    "#009E73",
+    "#CC79A7",
+    "#E69F00",
+    "#56B4E9"
+  ],
+  "lineStyles": [
+    "-",
+    "--",
+    "-.",
+    ":",
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s",
+    "^",
+    "D",
+    "v",
+    "P"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/cc_07_first_output/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/cc_07_first_output/figure_data.csv",
+  "outputHash": "738292a8262ff2f0c57d39d9a78e9deaff0c91983df59285733368feae2b245a",
+  "outputCsvHash": "c582de2ae9358af3cb3a7839aa70aafc87787997efa7972d6d0e63dca1c41791",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:51.128722+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_1_2__awgn__ber",
+  "title": "AWGN下近1/2码率组误码率对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_1_2__awgn__ber/figure.png",
+  "sourceOldFigureSha256": "a196b2dc5cf4f743d7f198eca9a69408959ca682ed09e965d0ef53e847cc7476",
+  "sourceOldManifestSha256": "3be96cbdf687a514923b9c404159cbcf05949dd120a4a070edd714890d7e9d1c",
+  "filterConditions": {
+    "group": "RATE_NEAR_1_2",
+    "channel": "AWGN"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "BER__CC_R12_BLOCK_FLOAT",
+    "BER__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "误码率 BER",
+  "xUnit": "dB",
+  "yUnit": "误码率 BER",
+  "xTransform": "NONE",
+  "yTransform": "LOG10_DISPLAY",
+  "logScale": true,
+  "zeroValuePolicy": "原始零值保留；对数轴不绘制，plotValue 留空且曲线不跨零连接",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R1/2",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#009E73",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "^",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__awgn__ber/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__awgn__ber/figure_data.csv",
+  "outputHash": "97e31d1fdc4157902f58382dd91b2194c036b41f5227cda5d2589fb13f8b72da",
+  "outputCsvHash": "efb178b05c1b35a41da0bb50f8708c4e2f3e1d80b7c9f6f4b402ec3507d66d73",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:02.444222+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

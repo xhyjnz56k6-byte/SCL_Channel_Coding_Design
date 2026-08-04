@@ -1,0 +1,9 @@
+figureId,series,category,rawValue,plotValue,isPlotted,isZero,zeroErrorUpperBound95
+cc_05_memory,译码内存,BLOCK_FLOAT_SOFT,59776,59776,true,false,
+cc_05_memory,译码内存,BLOCK_HARD,59776,59776,true,false,
+cc_05_memory,译码内存,B_CONT_50x6_FLOAT_SOFT,26112,26112,true,false,
+cc_05_memory,译码内存,B_CONT_50x6_HARD,26112,26112,true,false,
+cc_05_memory,译码内存,C_CONT_100x3_FLOAT_SOFT,26112,26112,true,false,
+cc_05_memory,译码内存,C_CONT_100x3_HARD,26112,26112,true,false,
+cc_05_memory,译码内存,D_CONT_150x2_FLOAT_SOFT,26112,26112,true,false,
+cc_05_memory,译码内存,D_CONT_150x2_HARD,26112,26112,true,false,

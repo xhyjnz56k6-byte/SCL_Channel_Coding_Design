@@ -1,0 +1,785 @@
+{
+  "schemaVersion": "s6.stage11.plot_audit.v1",
+  "figureCount": 86,
+  "passedFigures": 86,
+  "logScaleFigures": 24,
+  "preservedZeroRows": 654,
+  "sourceFormalCsvSha256": "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947",
+  "gate": "PASS_STAGE11_CHINESE_PLOT_REVISION",
+  "figures": [
+    {
+      "figureId": "ldpc__awgn__avgiterations",
+      "title": "AWGN下LDPC平均译码迭代次数",
+      "pngSha256": "eb5b074c166cb2402772cbcac6799260cb67ab5dba161716d57906492ce80d5d",
+      "dataSha256": "39173e602db8315a4725a50f19a50aa118d2dc40fdb228332e158716254e9e91",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__awgn__maxiterationrate",
+      "title": "AWGN下LDPC最大迭代帧比例",
+      "pngSha256": "1ef2680cb387ef373998927a5cbf1a78c20cfefd43eac8e70e9088b83b2cf62d",
+      "dataSha256": "bc097a090f39a24edae57e083397f7dd0a282fa7e51c79aee515b237896e8ea4",
+      "logScale": false,
+      "zeroRows": 21,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__cfo_30_deg__avgiterations",
+      "title": "30°载波频偏下LDPC平均译码迭代次数",
+      "pngSha256": "829314782287b640dc44a30889517884135a0ed7b1314b5eab3cf2213cf5d7b4",
+      "dataSha256": "eaae4378180146c6e7265b3fa16628348aec6b3bcf7e1173b7c5de2d2076e40e",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__cfo_30_deg__maxiterationrate",
+      "title": "30°载波频偏下LDPC最大迭代帧比例",
+      "pngSha256": "4b73134b05be2d2f304a041826ac02b91ea962916db21863d396e55705777380",
+      "dataSha256": "0751bd11f884259f03a2ee0dadf9808f2065743019cec09b8582b82e4b831c0e",
+      "logScale": false,
+      "zeroRows": 18,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__fixed_multipath_real_mmse__avgiterations",
+      "title": "固定多径下LDPC平均译码迭代次数",
+      "pngSha256": "9347a15f35ecf029336b4f1257857b1425949abc5473525c3a17dc1dac657a70",
+      "dataSha256": "605fbdf8f4b7768e471f834f44e51a8d66d20f2e14f3147a4f91ffca930e62cf",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__fixed_multipath_real_mmse__maxiterationrate",
+      "title": "固定多径下LDPC最大迭代帧比例",
+      "pngSha256": "4ac20a49bfdb0a83f18e001ad46203d269896602c98061c345ebec8510d0028b",
+      "dataSha256": "67592d99cc08e41b4b8a5dbdb578d235dff4a41462c17790993ee8533b68dd11",
+      "logScale": false,
+      "zeroRows": 15,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__known_blockage_5_percent__avgiterations",
+      "title": "短时遮挡（5%）下LDPC平均译码迭代次数",
+      "pngSha256": "86b1a04933fb07eb40a55e26b3177a7ab6ddf6ca45f8fcea2233f4814960e216",
+      "dataSha256": "97f38aa2911b2318e2b0ffd7282296e4555e30b653c4bb5b51a5a1d58f6b1a00",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__known_blockage_5_percent__maxiterationrate",
+      "title": "短时遮挡（5%）下LDPC最大迭代帧比例",
+      "pngSha256": "0a0bd815ccb9c71290f04a58f7e493c7a5cf4c4dac41a70e5fcf36656935a2e5",
+      "dataSha256": "986c05ff1a490543a1a116a062e1184a325c2a1188874a092f6272706f1b4da2",
+      "logScale": false,
+      "zeroRows": 15,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__linear_time_varying_frequency__avgiterations",
+      "title": "多普勒频移下LDPC平均译码迭代次数",
+      "pngSha256": "a04221e96a3fb9f7cfa2424cc4ec75563ff74e8e9d33761ee16a059789a8783c",
+      "dataSha256": "19f4c4a3cf4ddffa0a732d0bda908ccbe235cbf385b01c0f63ab8915b87d62b0",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__linear_time_varying_frequency__maxiterationrate",
+      "title": "多普勒频移下LDPC最大迭代帧比例",
+      "pngSha256": "0d5140a1c3816583e1f4c49994ac90d25ccf5ad7e0e03a4e3229505efdf47648",
+      "dataSha256": "b96a228f411a19f5cee9e4c4be2b0f57650e90ee34586d0ab20db0f81d008a29",
+      "logScale": false,
+      "zeroRows": 18,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__unknown_burst_5_percent_isr_10db__avgiterations",
+      "title": "5%未知突发干扰（ISR=10 dB）下LDPC平均译码迭代次数",
+      "pngSha256": "e22ba80b88a2ed219cce2b390d4d5047358c058a2765f887ae05b9d06e1e3c8f",
+      "dataSha256": "a8a410865f8c5d5ede5d163a9ebedba7c949a72421ef4401c9c9840f7f8680ea",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "ldpc__unknown_burst_5_percent_isr_10db__maxiterationrate",
+      "title": "5%未知突发干扰（ISR=10 dB）下LDPC最大迭代帧比例",
+      "pngSha256": "00947a0917341502fe0ee1a744d20b0a46592e0d307b69f53c2d84318633d81d",
+      "dataSha256": "b0ab3695b5142c354ba48fa16ccaa84b40902874eb94e31299734f32354f5ff5",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__awgn__avgdecodetimeus",
+      "title": "AWGN下近1/2码率组平均译码时延（μs）对比",
+      "pngSha256": "62e22547c55e4fb14f424f6d7e4f21dc6f900f78bbe29eaf6dea6d8447ffe3c8",
+      "dataSha256": "59427a766dda504ac9a2d9c01a573346c93a81f42205ff96e77069786a8bedd5",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__awgn__avgtotalreceiveralgorithmtimeus",
+      "title": "AWGN下近1/2码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "c1c7e464b66ee34853cc5e6b76ff3ab12809b6d449ad9aac24eed423be89f58e",
+      "dataSha256": "07606de0cb9181fcc66be81fbc6f3f6d2bccc5cdc774668df42760fc15a0d951",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__awgn__ber",
+      "title": "AWGN下近1/2码率组误码率对比",
+      "pngSha256": "97e31d1fdc4157902f58382dd91b2194c036b41f5227cda5d2589fb13f8b72da",
+      "dataSha256": "efb178b05c1b35a41da0bb50f8708c4e2f3e1d80b7c9f6f4b402ec3507d66d73",
+      "logScale": true,
+      "zeroRows": 33,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__awgn__fer",
+      "title": "AWGN下近1/2码率组误帧率对比",
+      "pngSha256": "f9a03ed6b469c27ba771d4f03e572a8de4a705eb547a26bbbfe405a13a927e79",
+      "dataSha256": "8d04646c67a43dff25116597b70207e4b0785d732e15118e6f0067ad1c7405c7",
+      "logScale": true,
+      "zeroRows": 33,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__awgn__p95decodetimeus",
+      "title": "AWGN下近1/2码率组P95译码时延（μs）对比",
+      "pngSha256": "3ba954e55c290897c416c8fd2858a37aeae1c3b27f55cbe1c9ebfd22fae37c66",
+      "dataSha256": "9477b9c9876339897caf590885939ba18b6b1141067c438b3bf2d0ee91568280",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__awgn__p95totalreceiveralgorithmtimeus",
+      "title": "AWGN下近1/2码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "b53f706a7c2c6b9327bd6ae32d8964d15e4d73d31448c38b9efb373bb5aa8bac",
+      "dataSha256": "f6c277ff3acb724de3a5e2cf1ef8c35149ff0a1a6241da2ee332ccc6568426bb",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__cfo_30_deg__avgdecodetimeus",
+      "title": "30°载波频偏下近1/2码率组平均译码时延（μs）对比",
+      "pngSha256": "c9b809886641db31e42d24869118152bf65e2d789bea10880d722ba31a8f8cb5",
+      "dataSha256": "1ee7488a32613c6c3ef879bcff7c5df8ff59ef3ebbb309aff1b91c8396f51314",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__cfo_30_deg__avgtotalreceiveralgorithmtimeus",
+      "title": "30°载波频偏下近1/2码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "1bda67a8ed18155e45d1e1036329d3457427fefc2936c42ab67958691403caa7",
+      "dataSha256": "97303abc9e50752e1eb9670f54ded6286e1ea122b3c7569d8cbf0c2c18b39441",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__cfo_30_deg__ber",
+      "title": "30°载波频偏下近1/2码率组误码率对比",
+      "pngSha256": "671a733b35f9938b217435a1650aec8f587e36d03e7d5bb28664096165a94e62",
+      "dataSha256": "52abbc0f7c92037652bc083db2bb99f05e000d6eb644f8539ea55c01d7f416c8",
+      "logScale": true,
+      "zeroRows": 30,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__cfo_30_deg__fer",
+      "title": "30°载波频偏下近1/2码率组误帧率对比",
+      "pngSha256": "6436a0ad8bc6c8b6dab737a484561be45367c3b2c14059b63cad3582cc39d279",
+      "dataSha256": "6ac237cced6d4cbfb74314a15d539c5308dc52688047b78380369cb2722e2d70",
+      "logScale": true,
+      "zeroRows": 30,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__cfo_30_deg__p95decodetimeus",
+      "title": "30°载波频偏下近1/2码率组P95译码时延（μs）对比",
+      "pngSha256": "5b1c08699f1e782cbc15ffba9b7ec95dcdd2fc1f4dac2ad30ae2b852b8369ab7",
+      "dataSha256": "17acee2d5748fd703dca66c71ba032a4ef7f2b92fc4f3061f044c94f023f948b",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__cfo_30_deg__p95totalreceiveralgorithmtimeus",
+      "title": "30°载波频偏下近1/2码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "245bd50ee9edbf00868203e1dad7b2cf1ea7633ec0f11c7e551d67a098da30b0",
+      "dataSha256": "8aeaabf1723f91d92f24b8fe227a7120169c7b7e07a5640ed91b95f7cfe97bc0",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__deltafer",
+      "title": "近1/2码率组相对AWGN的误帧率劣化",
+      "pngSha256": "bf90beaaa46875d1f42a936ab8eea9730d0c7a47fa1dcffaad797bf6d450529b",
+      "dataSha256": "b5ef8ea1d3f84dabdaf58c3aec78f0c35f5e7053c91499e1f9ace49197e8b206",
+      "logScale": false,
+      "zeroRows": 122,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__fixed_multipath_real_mmse__avgdecodetimeus",
+      "title": "固定多径下近1/2码率组平均译码时延（μs）对比",
+      "pngSha256": "2904e99ef46ebb9b0491cf2c1e55c763bc01ed3d276778fc24460a11d9df3648",
+      "dataSha256": "52b8f7e79e163c51a2f1eff52bf828d47d45a9c8234b3838f002e2ae0f02ba92",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__fixed_multipath_real_mmse__avgtotalreceiveralgorithmtimeus",
+      "title": "固定多径下近1/2码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "af70a1d05cfd990499f59176270a7ec022e4c9e45976c80219470c01a571a255",
+      "dataSha256": "a0701a32e9b05831fbd455b47563369037fdb74c35067db32aa02abf75d49d1f",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__fixed_multipath_real_mmse__ber",
+      "title": "固定多径下近1/2码率组误码率对比",
+      "pngSha256": "c196951714834ddce107304e4e3c2f6c84419ea45525362232185fa3fa058ca0",
+      "dataSha256": "6b61092ab75ea607189c539b274441491f7c0e724f3ce77cb4892f47bf1b8bed",
+      "logScale": true,
+      "zeroRows": 15,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__fixed_multipath_real_mmse__fer",
+      "title": "固定多径下近1/2码率组误帧率对比",
+      "pngSha256": "3c37b4602cba8a3a5455d4d469d449cd1f60987bd3c4c9c21366aef74579f44c",
+      "dataSha256": "931275a33826969da27679cf90374bcf022afb21ebfb3e61fe4be24736f1626d",
+      "logScale": true,
+      "zeroRows": 15,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__fixed_multipath_real_mmse__p95decodetimeus",
+      "title": "固定多径下近1/2码率组P95译码时延（μs）对比",
+      "pngSha256": "b530927609edf63d5d039c470f94f1a4f5cdfbbd1ea89fe3712312ec93459974",
+      "dataSha256": "d61c2eeb8c426fde6998e33800a919f4522a023d99ce97c64b2461c4b44d4940",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__fixed_multipath_real_mmse__p95totalreceiveralgorithmtimeus",
+      "title": "固定多径下近1/2码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "f669ab0ad44f8ae0fd75f52d3bc4a75bf142a61169129fd0b19a412fad7d7988",
+      "dataSha256": "23cdc7c04867d9e1cdbef9f2c195a3b229add55f618ba168fcdf0f9e0c7f6835",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__known_blockage_5_percent__avgdecodetimeus",
+      "title": "短时遮挡（5%）下近1/2码率组平均译码时延（μs）对比",
+      "pngSha256": "003e00e902421c79d138f4b764de073fe50752709ae550249d9a18e77b630cbe",
+      "dataSha256": "3e3f15e39532349a80629bfeecd641df9ef88179f93f8bed53367861208fe799",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__known_blockage_5_percent__avgtotalreceiveralgorithmtimeus",
+      "title": "短时遮挡（5%）下近1/2码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "68f4d8a1c6af9150f7c85d12b4fd302067da8c5bbee90eadc0ee4fde98996d90",
+      "dataSha256": "939f0c0e47dfbc57ff8a5b8ce0b54535e16d22a96db6a121986dd0acd5bfae0a",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__known_blockage_5_percent__ber",
+      "title": "短时遮挡（5%）下近1/2码率组误码率对比",
+      "pngSha256": "8948d2d6f873ca4b7523248856072118d2167a14ceadf3fa3410ec9796a3dbbd",
+      "dataSha256": "7709ecfb21ecbdc52fa9991674c889b383f715c8d016e8065bac747f89a8f894",
+      "logScale": true,
+      "zeroRows": 15,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__known_blockage_5_percent__fer",
+      "title": "短时遮挡（5%）下近1/2码率组误帧率对比",
+      "pngSha256": "b371419479a4d8af33761daaf824e6972db6792c210edf640b22fd6551bff2a5",
+      "dataSha256": "4ad0d730970cae3c4f61a83e6654d1b69a1235b46bc17f35a5deb7b5a1ca2a52",
+      "logScale": true,
+      "zeroRows": 15,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__known_blockage_5_percent__p95decodetimeus",
+      "title": "短时遮挡（5%）下近1/2码率组P95译码时延（μs）对比",
+      "pngSha256": "e99394f5d5459e726142864a4f634ae38e5e9c9c72088265162fe1d32eaa96a9",
+      "dataSha256": "2b45d8e61af5405f0a25b394d087276080c30a1aafdce82029c098bf29a603f6",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__known_blockage_5_percent__p95totalreceiveralgorithmtimeus",
+      "title": "短时遮挡（5%）下近1/2码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "5bdbeadba2a585d170b8679340e64c7bea35badcb1b72247fc69cbebd79a6a28",
+      "dataSha256": "c999010a31601b72415bd1a0c4888f2310ce28ab8f19c24f8eb56a057a44d6a0",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__linear_time_varying_frequency__avgdecodetimeus",
+      "title": "多普勒频移下近1/2码率组平均译码时延（μs）对比",
+      "pngSha256": "b0473a25d1c4888f1479b46882580b349ebfcfa948e7050869b2bdefe687f9d7",
+      "dataSha256": "6236bdfafc5b2298bc06f9395b70204683277999df79df58ca6168c0f3c21bab",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__linear_time_varying_frequency__avgtotalreceiveralgorithmtimeus",
+      "title": "多普勒频移下近1/2码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "49bc25f5a009d310a681beb6cceb6860318862f5c110ff15bb12e382b3258596",
+      "dataSha256": "ec5acf2a54383bd771d6f8c7930704d817c68e2ca2fdef34bf8bbfa7d5dff5ec",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__linear_time_varying_frequency__ber",
+      "title": "多普勒频移下近1/2码率组误码率对比",
+      "pngSha256": "0f48f6c1c4430c538dbc9bdd547f86898bf821a43ef4e4b70b30ede6fff3c7ca",
+      "dataSha256": "4ebee52c5e8725a1980626883781f5a7ad99b54f4494520ae136b9e4c863a4a8",
+      "logScale": true,
+      "zeroRows": 30,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__linear_time_varying_frequency__fer",
+      "title": "多普勒频移下近1/2码率组误帧率对比",
+      "pngSha256": "b81b76aa9834278b80fc59f138625c1fa871b6be95d4b60f48a417c18d1ea15c",
+      "dataSha256": "26c93618682f55a14ffefd48820f0b3a8d67ec896d082e94d91b672e41d1ed11",
+      "logScale": true,
+      "zeroRows": 30,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__linear_time_varying_frequency__p95decodetimeus",
+      "title": "多普勒频移下近1/2码率组P95译码时延（μs）对比",
+      "pngSha256": "e23cc102a4fbc271850a44c0cdf7a1d7a893614e087367b5d410c7d698cfa0bf",
+      "dataSha256": "3b214aa47db0fd3e90af793d836409b170b7b5a86775784ec6d0f3978a4573c5",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__linear_time_varying_frequency__p95totalreceiveralgorithmtimeus",
+      "title": "多普勒频移下近1/2码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "e77174b2119082fca9b20e9c343f696222a08e93dc473202ba01ba611cf2819d",
+      "dataSha256": "24afc99441db82d03dc098aab08e97d33bf9c10e402070b9c1860cf2748301b4",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__avgdecodetimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组平均译码时延（μs）对比",
+      "pngSha256": "772f9977acb9446da81234890a6f28a2ed1cd19a9d4d7d7941de18911eb133a0",
+      "dataSha256": "537f398190eef39694289d431e10c64310588491b064c27aeca0d0094a6c9542",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__avgtotalreceiveralgorithmtimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "045c3ce3adb21c06f316f0c1db3fc05508e584f263d5251ec980ac2a28a3770c",
+      "dataSha256": "1ae47604d8be82602403a489eb8f82b133ce1a789e7439ac07bc567c9e9c68b8",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__ber",
+      "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组误码率对比",
+      "pngSha256": "320e1a07682b3921263ef4c5378d8a82efe0bf95f260a56621ae851bee7e2969",
+      "dataSha256": "d974bcc23cda47415a72d47e7df2d492824973bd8d8850c093a06626ebb47fba",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__fer",
+      "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组误帧率对比",
+      "pngSha256": "97db69cdb312b2046a4127a0a1550196e164fb4f50d800d716382373cbe6ab23",
+      "dataSha256": "cd73ec270c29057a980b8505c6063ee6b2df9280d45d84ea85b6c1b8e198a101",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__p95decodetimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组P95译码时延（μs）对比",
+      "pngSha256": "7964631d74e010017847019d9a653a4ccf5316fa2057a288c0f61d479e3f4d78",
+      "dataSha256": "1b9aa26ea140db8fe1c0726d8f91528a07607f3cfcbf5e2c4acaf26104a1c207",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__p95totalreceiveralgorithmtimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "187edfc78cbf8f756fb8953af9ac0fc46407d4a771d054cfb75646a2c70c660b",
+      "dataSha256": "34c617e8e93348f82a3a39f82db64a031d6c57c35282e97f221e7419bf33404b",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__awgn__avgdecodetimeus",
+      "title": "AWGN下近2/3码率组平均译码时延（μs）对比",
+      "pngSha256": "fd8fba535aed7402ac664bb9ea2b223d10d9c74fd47e9deb894d2892384eb399",
+      "dataSha256": "01388576dbd37a797c05c679619b9e20c17a7926cbebb454a9ca8715caa242bf",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__awgn__avgtotalreceiveralgorithmtimeus",
+      "title": "AWGN下近2/3码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "1d522179a2463f5263a01441d6da44276c4e5b9a78460cda4a595e963e493dcd",
+      "dataSha256": "21acc9c30c36ff771893392a0e2b042a36a9e814edbdd920c4c310aa8ebb4843",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__awgn__ber",
+      "title": "AWGN下近2/3码率组误码率对比",
+      "pngSha256": "2766b771b34541e408d7f03d3f42bf6ebee7c01eb51b197eaac217d0a3430dd7",
+      "dataSha256": "42f9ba10b8d737bac18297231cbe171dbfd732d0d40dcbe65edc0b68f2e08c05",
+      "logScale": true,
+      "zeroRows": 14,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__awgn__fer",
+      "title": "AWGN下近2/3码率组误帧率对比",
+      "pngSha256": "9dcf208ae3e9ba3709266a520422d591846240fffe4aea0969f56a3c6dd377f6",
+      "dataSha256": "c42a616c671f85e637114c6626670eec34e466696485a18484576870e6f90c8c",
+      "logScale": true,
+      "zeroRows": 14,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__awgn__p95decodetimeus",
+      "title": "AWGN下近2/3码率组P95译码时延（μs）对比",
+      "pngSha256": "30e7af441ccd8d9ab9bafcf634cfe9da94d4968e089eb90e1aaf616a8ab12ea1",
+      "dataSha256": "53cbc62a9bc8300bd6adb8bcfda124b403f888de06b9eb7d61d92dfe386d7673",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__awgn__p95totalreceiveralgorithmtimeus",
+      "title": "AWGN下近2/3码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "289af3b38437f220b4faffa78494b48106b0be3a3902980d9eae72a414e38f9f",
+      "dataSha256": "41a61d9745347b788ada11df5b3e5caf8594e61f8f7b0fc6e6b8fb4a7d6319b0",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__cfo_30_deg__avgdecodetimeus",
+      "title": "30°载波频偏下近2/3码率组平均译码时延（μs）对比",
+      "pngSha256": "ecc76a52916fca8e27872a2c0d6f144a35a3de78609804f728fc52814c825896",
+      "dataSha256": "f38685b9201bcf80a0fcbb56177805cf88959f13fa19214495792e9fb5814a8d",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__cfo_30_deg__avgtotalreceiveralgorithmtimeus",
+      "title": "30°载波频偏下近2/3码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "1c19a9e7b6a5575dff74736d96ecb9d6c78183c0225f15f8569ca77412534ab4",
+      "dataSha256": "e5c25afd66c9a9fdc37fc7dc1271bc5ad6a000e012a5e73803558aac72bdfe0d",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__cfo_30_deg__ber",
+      "title": "30°载波频偏下近2/3码率组误码率对比",
+      "pngSha256": "3dc091ddf6bc9063a376f7f17b5fb9062c57e193b81229e83bbc285a87e87478",
+      "dataSha256": "6a59fe07d0edbf11a6945eacd915000b00398f724a79d6c1ac672ddfd108535e",
+      "logScale": true,
+      "zeroRows": 13,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__cfo_30_deg__fer",
+      "title": "30°载波频偏下近2/3码率组误帧率对比",
+      "pngSha256": "217b93180451b293408bfa6c1fd685f2cc1e191a0884fb84c14cc6ccc573b7f5",
+      "dataSha256": "b4ecdf760c15737276b255d2767280bab7fe3a5659caa07520f321dc7f796201",
+      "logScale": true,
+      "zeroRows": 13,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__cfo_30_deg__p95decodetimeus",
+      "title": "30°载波频偏下近2/3码率组P95译码时延（μs）对比",
+      "pngSha256": "e533c2b2af8561d31cf2940d71d08dc49dae1422880959d3693eaa02d2f3f7ce",
+      "dataSha256": "019e47b264c05f594c14e7f8f6025876627572e5aa4f9d7973fd77111ca438d6",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__cfo_30_deg__p95totalreceiveralgorithmtimeus",
+      "title": "30°载波频偏下近2/3码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "dd3fb46a08621c0edcc0def511290aeef09096cb0b66802da856ec34939700f6",
+      "dataSha256": "f2819d5c949ccc9a5ae9e40f5d387a5fffc4ee2c239da9fbe677ad491f24ee4c",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__deltafer",
+      "title": "近2/3码率组相对AWGN的误帧率劣化",
+      "pngSha256": "cb24139f92793260bce72d66e0a0926daf22720d1438632cf25ae4dc4901bb6f",
+      "dataSha256": "227e51e44a8a5976742e18c3ad0f31e1c9c75761d0f5a5c0bfb44488382b1e3a",
+      "logScale": false,
+      "zeroRows": 121,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__fixed_multipath_real_mmse__avgdecodetimeus",
+      "title": "固定多径下近2/3码率组平均译码时延（μs）对比",
+      "pngSha256": "e970c0b61329a49ee8760bb89d287c9f9811a267ed601fb4762c17fab3b48ea9",
+      "dataSha256": "4319b2c2af5cab0275fa5b2ee8268ebfb616fa90f9586df84565b9e8b87f45ea",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__fixed_multipath_real_mmse__avgtotalreceiveralgorithmtimeus",
+      "title": "固定多径下近2/3码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "f532b484c4d89c20a23a4d86aeb69e4998e8141bfb7053307eda59eb1da019a0",
+      "dataSha256": "baebe8a774096e0121d9cc54b72ff05ad53217746050db022bb90fe9facb35b9",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__fixed_multipath_real_mmse__ber",
+      "title": "固定多径下近2/3码率组误码率对比",
+      "pngSha256": "c7dea2529121930d3e7ce93b0012b7d5ce6f5e68773ea8e21c33998f9e9ff9d4",
+      "dataSha256": "abed0b27a82181683b4620f954eafa4e9e5aa9dafe52a845fc97bc0813c0ec20",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__fixed_multipath_real_mmse__fer",
+      "title": "固定多径下近2/3码率组误帧率对比",
+      "pngSha256": "f914a57f79ed0dac31528a4b71e05e2757b546bd14d26bbca5ab0ee873e9b5b6",
+      "dataSha256": "9cd2db9420418720f1dc0b409caf8a6f2dd119516db55b5595e510e89030c047",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__fixed_multipath_real_mmse__p95decodetimeus",
+      "title": "固定多径下近2/3码率组P95译码时延（μs）对比",
+      "pngSha256": "2544bce2dfb1b9ffcc0c39d0c5ee4dd55530f379bca44034ff8a2f412660ed89",
+      "dataSha256": "69eed4426d174fab5c29fa46901d65eeeac31c60f59c3fc56533b6c945fc3ce3",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__fixed_multipath_real_mmse__p95totalreceiveralgorithmtimeus",
+      "title": "固定多径下近2/3码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "421bf8f02d8a8ecce802096c15f68b094490786844e0978521a3e3af90db48c1",
+      "dataSha256": "1a02c3ccda97d1d29756254c4323bb069bd19755d87122c54fd1c4a95c51c8ee",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__known_blockage_5_percent__avgdecodetimeus",
+      "title": "短时遮挡（5%）下近2/3码率组平均译码时延（μs）对比",
+      "pngSha256": "9edd94d5ab13043bdd71b2a1316cb17312349d7330f211beda0c3b2a4f922782",
+      "dataSha256": "6164ae42c7113e44396a4314df5b3f641e6b252ac7c95bbe533b2002cf313370",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__known_blockage_5_percent__avgtotalreceiveralgorithmtimeus",
+      "title": "短时遮挡（5%）下近2/3码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "f67556f2b30e2df0463ed800c9040f0c81e4db94b8ffe06968dad408331e88aa",
+      "dataSha256": "dd8bac504b2e4a6547f15feae364e7b8cda9a11f66ed95d62b62f193c8b97369",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__known_blockage_5_percent__ber",
+      "title": "短时遮挡（5%）下近2/3码率组误码率对比",
+      "pngSha256": "fc64f6d3c55527d478001eee97a41b5f2d29b63c00433bcc4c5162119aa921d5",
+      "dataSha256": "c9010eb873692f1f3212d1b2fde44a47c6c179374fb4f1a37bce8857b09f81a3",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__known_blockage_5_percent__fer",
+      "title": "短时遮挡（5%）下近2/3码率组误帧率对比",
+      "pngSha256": "9ed91bf3311eb6399bde133c1ce080d63a6828f93884d343963fc0674aa1b98e",
+      "dataSha256": "35cc5392dc9007d3fa827d0ecdce99daa5e38bbde6bb0fe745ca68b1704c005b",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__known_blockage_5_percent__p95decodetimeus",
+      "title": "短时遮挡（5%）下近2/3码率组P95译码时延（μs）对比",
+      "pngSha256": "58d88fccf8243b778d4f8b353461c1c7e6ec652cfc230a1f7c8b66d281652cc1",
+      "dataSha256": "3c6d9e09fc92f016f6cb978ac02abd2e68ede1cac8d4541120b00db073f281df",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__known_blockage_5_percent__p95totalreceiveralgorithmtimeus",
+      "title": "短时遮挡（5%）下近2/3码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "2177649c6b85e587dcde224d57c9e10cfa86bfeffdc4442a20ef7a50afcecf9d",
+      "dataSha256": "e753a26920ac8909f1509ef7d1f06ecd76f752b4b5526c2aa2a70abe7d1056c4",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__linear_time_varying_frequency__avgdecodetimeus",
+      "title": "多普勒频移下近2/3码率组平均译码时延（μs）对比",
+      "pngSha256": "f531ef23b1d83f014f657662876a6dcb85379e6fa9a900e50a406b10993bf2e8",
+      "dataSha256": "9cbe3d48d1c07419d5bdedc4275e5fbe1c789fba49e3765dda05842ce0a22e69",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__linear_time_varying_frequency__avgtotalreceiveralgorithmtimeus",
+      "title": "多普勒频移下近2/3码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "a6bdd8e7b83850b08a94ff03a1bde102c6c2b7666d712c32ac35e6e6d9191c1c",
+      "dataSha256": "f891c2f8a5142a11d5b3762293eaba953c8075c426168d8355a84766477b47ec",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__linear_time_varying_frequency__ber",
+      "title": "多普勒频移下近2/3码率组误码率对比",
+      "pngSha256": "87ded66857f3ffbbb13940953bb1d26f5bacf1424cfa70b7ae6517e2b671e551",
+      "dataSha256": "c8cd7aa1721a78f5c34d7d7f2f67e400137bd375aee34b1559a24e845e0b6aab",
+      "logScale": true,
+      "zeroRows": 12,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__linear_time_varying_frequency__fer",
+      "title": "多普勒频移下近2/3码率组误帧率对比",
+      "pngSha256": "1d117e74faaaa1c807692d2c37c933b2865d4fa746d44c50bd197686fbeccf5b",
+      "dataSha256": "ce8100cb97533b789e55ac717df3b41a2f4c1e107e391ad2ea9afdbd620562b7",
+      "logScale": true,
+      "zeroRows": 12,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__linear_time_varying_frequency__p95decodetimeus",
+      "title": "多普勒频移下近2/3码率组P95译码时延（μs）对比",
+      "pngSha256": "6524020db98fa35f01c4144cba2494e4deeb737ebfcc5ee883b2bda2c3515a53",
+      "dataSha256": "c6d8a93f99a5abd5b38f0a631c27c2245b1b0a71c3c40f48d91b4672808dd55b",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__linear_time_varying_frequency__p95totalreceiveralgorithmtimeus",
+      "title": "多普勒频移下近2/3码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "c2b6c0728f2a958df98382636303f4e76ef00f840a88d5910059315ff9b3e37b",
+      "dataSha256": "5f5af9107295fe6d49a1d1af0c9f6215f0c5aed92aa44d82b76c0c8c6f3208ba",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__unknown_burst_5_percent_isr_10db__avgdecodetimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近2/3码率组平均译码时延（μs）对比",
+      "pngSha256": "7e8683de2438129e9e41694f95753797c8bbf8486f12ee150edd378ca9590ef7",
+      "dataSha256": "ac8789a28ac046ca8b4716c99adb9b6ed93c85506095f037028a5d3567f7510e",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__unknown_burst_5_percent_isr_10db__avgtotalreceiveralgorithmtimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近2/3码率组平均接收机算法时延（μs）对比",
+      "pngSha256": "e932952d98969fd469da88afddf3ac4d3aa416fda5006528e472d5ec524d7600",
+      "dataSha256": "1d5f4ddf94c0f1c047cbc7f67354dce91ceb517a64d81d1eed889c5a26924e8c",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__unknown_burst_5_percent_isr_10db__ber",
+      "title": "5%未知突发干扰（ISR=10 dB）下近2/3码率组误码率对比",
+      "pngSha256": "a40eac9211c054b9f0f8c62e01f5249542f8637b9ee21aaf5222dbcbc40fd8a1",
+      "dataSha256": "897a7b9a4d8ae5d17106e344dd2ce31541149c44ddb97498be383c46976bca69",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__unknown_burst_5_percent_isr_10db__fer",
+      "title": "5%未知突发干扰（ISR=10 dB）下近2/3码率组误帧率对比",
+      "pngSha256": "6f8c3f730181c7768a014b5c29803f40b2237466a728f433a9465cca0efecd6c",
+      "dataSha256": "fb686339b0a07f7ddf8872a99e91153ef65069bbeedd73fe0c7f6fa7679b7d59",
+      "logScale": true,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__unknown_burst_5_percent_isr_10db__p95decodetimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近2/3码率组P95译码时延（μs）对比",
+      "pngSha256": "4fcfaee20a194edaccd784433743534e986cd7c2777034fad47245623fb1f80f",
+      "dataSha256": "6d8a2c69478b1da44eb335d0da751e002ab4bbf41d7786bb361c4bdcfa003d22",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    },
+    {
+      "figureId": "rate_near_2_3__unknown_burst_5_percent_isr_10db__p95totalreceiveralgorithmtimeus",
+      "title": "5%未知突发干扰（ISR=10 dB）下近2/3码率组P95接收机算法时延（μs）对比",
+      "pngSha256": "93abe0fcd5e761dd257302e6f409030e8fd63f8e5776b5b199a16c79ce5f83e4",
+      "dataSha256": "fd3711f893c1d8d6b98b42f7dcfd23b95ae0252b6c6e53e660d8d75628d10fe6",
+      "logScale": false,
+      "zeroRows": 0,
+      "gate": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "figureId": "cc_08_decision_delay",
+  "title": "时隙卷积码决策时延",
+  "sourceFiles": [
+    "Task/Comparison/S6/results/cc/cc_integrated_results.csv"
+  ],
+  "sourceFileHashes": [
+    "f447eb9613d6fbb0e4b710fe4eff92e501d6fd0a1c8e0c1124edec395bf8d952"
+  ],
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "rawValue"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "P95决策时延（符号）",
+  "xUnit": "dB",
+  "yUnit": "P95决策时延（符号）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按值绘制",
+  "missingValuePolicy": "缺失即阻断",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "B_CONT_50x6 浮点软判决",
+    "B_CONT_50x6 硬判决",
+    "C_CONT_100x3 浮点软判决",
+    "C_CONT_100x3 硬判决",
+    "D_CONT_150x2 浮点软判决",
+    "D_CONT_150x2 硬判决"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00",
+    "#009E73",
+    "#CC79A7",
+    "#E69F00",
+    "#56B4E9"
+  ],
+  "lineStyles": [
+    "-",
+    "--",
+    "-.",
+    ":",
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s",
+    "^",
+    "D",
+    "v",
+    "P"
+  ],
+  "derivation": "NONE",
+  "outputPng": "Task/Comparison/S6/results/summary/figures/cc_08_decision_delay/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/summary/figures/cc_08_decision_delay/figure_data.csv",
+  "outputHash": "24f9f210721c8225785079673f87dadd3ffab514e9ecc197b5942560c71dfdce",
+  "outputCsvHash": "5d1231c90dfc3492b6658ced2dc1794731a1f40a181b0442f498a935538be848",
+  "scriptPath": "Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py",
+  "scriptSha256": "2b18838eaaf454b98c48d051cb5547547b10c8eb49d777cda9038124dcd50f72",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:37:51.343632+00:00",
+  "chineseFont": "Microsoft YaHei",
+  "preservedZeroRows": 0
+}

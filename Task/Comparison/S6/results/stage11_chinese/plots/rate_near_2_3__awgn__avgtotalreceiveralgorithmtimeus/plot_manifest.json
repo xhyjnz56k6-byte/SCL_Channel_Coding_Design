@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_2_3__awgn__avgtotalreceiveralgorithmtimeus",
+  "title": "AWGN下近2/3码率组平均接收机算法时延（μs）对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_2_3__awgn__avgtotalreceiveralgorithmtimeus/figure.png",
+  "sourceOldFigureSha256": "e2ed3b486ebfe6611b4dcaa3b5b1a0d24a75f9b2a9bc05e3e2bc9090bf9fa885",
+  "sourceOldManifestSha256": "71d85f21478e3d6f6472bd16a8cb312b0ad5cd69989b4654c1281a83230f1b6e",
+  "filterConditions": {
+    "group": "RATE_NEAR_2_3",
+    "channel": "AWGN"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "avgTotalReceiverAlgorithmTimeUs__CC_R23_BLOCK_FLOAT",
+    "avgTotalReceiverAlgorithmTimeUs__LDPC_BG2_N480_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "平均接收机算法时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "平均接收机算法时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R2/3",
+    "LDPC N480"
+  ],
+  "colors": [
+    "#0072B2",
+    "#D55E00"
+  ],
+  "lineStyles": [
+    "-",
+    "--"
+  ],
+  "markers": [
+    "o",
+    "s"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__awgn__avgtotalreceiveralgorithmtimeus/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_2_3__awgn__avgtotalreceiveralgorithmtimeus/figure_data.csv",
+  "outputHash": "1d522179a2463f5263a01441d6da44276c4e5b9a78460cda4a595e963e493dcd",
+  "outputCsvHash": "21acc9c30c36ff771893392a0e2b042a36a9e814edbdd920c4c310aa8ebb4843",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:13.286593+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

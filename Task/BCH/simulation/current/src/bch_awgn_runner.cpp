@@ -1,5 +1,6 @@
 #include "bch_simulation/bch_awgn_simulation.hpp"
 
+#include <cmath>
 #include <filesystem>
 #include <iostream>
 #include <map>
@@ -38,7 +39,14 @@ int main(int argc, char** argv) {
         scl::bch::simulation::AwgnPointConfig config;
         config.stage = required(args, "--stage");
         config.caseId = scl::bch::simulation::bchSimulationCase(required(args, "--case")).id;
-        config.ebN0Db = std::stod(required(args, "--ebn0-db"));
+        if (args.count("--esn0-db") != 0U) {
+            config.esN0Db = std::stod(args.at("--esn0-db"));
+            config.esN0IsPrimary = true;
+            const auto& simulationCase = scl::bch::simulation::bchSimulationCase(config.caseId);
+            config.ebN0Db = config.esN0Db - 10.0 * std::log10(simulationCase.frameRate);
+        } else {
+            config.ebN0Db = std::stod(required(args, "--ebn0-db"));
+        }
         config.snrIndex = static_cast<std::size_t>(std::stoull(required(args, "--snr-index")));
         config.frameStart = static_cast<std::uint64_t>(std::stoull(required(args, "--frame-start")));
         config.frameCount = static_cast<std::uint64_t>(std::stoull(required(args, "--frame-count")));
@@ -70,6 +78,10 @@ int main(int argc, char** argv) {
         if (args.count("--shard-count") != 0U) config.shardCount = static_cast<std::uint64_t>(std::stoull(args.at("--shard-count")));
         const auto result = scl::bch::simulation::runAwgnPoint(config);
         scl::bch::simulation::writeAwgnPointSummary(result, (fs::path(config.outputDirectory) / "summary.csv").string());
+        scl::bch::simulation::writeAwgnComplexitySummary(
+            result, (fs::path(config.outputDirectory) / "complexity_summary.csv").string());
+        scl::bch::simulation::writeAwgnMemorySummary(
+            result, (fs::path(config.outputDirectory) / "memory_summary.csv").string());
         std::cout << "PASS_" << config.stage << '_' << scl::bch::simulation::bchSimulationCase(config.caseId).caseName << '_'
                   << config.snrIndex << '\n';
         return 0;

@@ -1,0 +1,58 @@
+{
+  "figureId": "rate_near_1_2__unknown_burst_5_percent_isr_10db__p95totalreceiveralgorithmtimeus",
+  "title": "5%未知突发干扰（ISR=10 dB）下近1/2码率组P95接收机算法时延（μs）对比",
+  "sourceFiles": [
+    "Task/Comparison/S5/results/formal/merged/formal_merged_results.csv"
+  ],
+  "sourceFileHashes": [
+    "dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947"
+  ],
+  "sourceOldFigure": "Task/Comparison/S5/results/stage11/plots/rate_near_1_2__unknown_burst_5_percent_isr_10db__p95totalreceiveralgorithmtimeus/figure.png",
+  "sourceOldFigureSha256": "ea7795ca9e254dbed1f44606b7c2b51a727fbc5047abe9bda95d9b3569346d3b",
+  "sourceOldManifestSha256": "dfc4a3e237edfd65efff841eba00134e81d4b30d8ab13a18af7cfbbf05178afc",
+  "filterConditions": {
+    "group": "RATE_NEAR_1_2",
+    "channel": "UNKNOWN_BURST_5_PERCENT_ISR_10DB"
+  },
+  "xColumn": "esN0Db",
+  "yColumns": [
+    "p95TotalReceiverAlgorithmTimeUs__CC_R12_BLOCK_FLOAT",
+    "p95TotalReceiverAlgorithmTimeUs__LDPC_BG2_N640_NMS"
+  ],
+  "xLabel": "符号信噪比 Es/N0（dB）",
+  "yLabel": "P95接收机算法时延（μs）",
+  "xUnit": "dB",
+  "yUnit": "P95接收机算法时延（μs）",
+  "xTransform": "NONE",
+  "yTransform": "NONE",
+  "logScale": false,
+  "zeroValuePolicy": "按原始值绘制",
+  "missingValuePolicy": "缺失即阻断发布",
+  "interpolation": "NONE",
+  "smoothing": "NONE",
+  "legendEntries": [
+    "卷积码 R1/2",
+    "LDPC N640"
+  ],
+  "colors": [
+    "#009E73",
+    "#CC79A7"
+  ],
+  "lineStyles": [
+    "-.",
+    ":"
+  ],
+  "markers": [
+    "^",
+    "D"
+  ],
+  "outputPng": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__unknown_burst_5_percent_isr_10db__p95totalreceiveralgorithmtimeus/figure.png",
+  "outputCsv": "Task/Comparison/S6/results/stage11_chinese/plots/rate_near_1_2__unknown_burst_5_percent_isr_10db__p95totalreceiveralgorithmtimeus/figure_data.csv",
+  "outputHash": "187edfc78cbf8f756fb8953af9ac0fc46407d4a771d054cfb75646a2c70c660b",
+  "outputCsvHash": "34c617e8e93348f82a3a39f82db64a031d6c57c35282e97f221e7419bf33404b",
+  "scriptPath": "Task/Comparison/S6/stage04_stage11_chinese_plot_revision/replot_stage11.py",
+  "scriptSha256": "7ff7d4ca53378a61331682d873092a9a8c80dec0097fb69aa3a71eda8472a147",
+  "gitCommit": "9d51fabdaa8446966f70c395d552576b3ab7fb52",
+  "timestamp": "2026-08-04T02:30:12.763951+00:00",
+  "chineseFont": "Microsoft YaHei"
+}

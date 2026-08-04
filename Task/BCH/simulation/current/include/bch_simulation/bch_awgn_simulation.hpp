@@ -6,6 +6,7 @@
 #include "common/frame_pool.hpp"
 
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,8 @@ struct AwgnPointConfig {
     std::string stage;
     BchCaseId caseId = BchCaseId::S200;
     double ebN0Db = 0.0;
+    double esN0Db = std::numeric_limits<double>::quiet_NaN();
+    bool esN0IsPrimary = false;
     std::size_t snrIndex = 0U;
     std::uint64_t frameStart = 0U;
     std::uint64_t frameCount = 0U;
@@ -60,6 +63,8 @@ struct AwgnPointResult {
     double encodeTimeUsSum = 0.0;
     double decodeTimeUsSum = 0.0;
     std::vector<double> decodeTimesUs;
+    std::vector<BchFrameComplexity> complexitySamples;
+    BchFrameMemory decoderMemory;
     std::string firstNoiseHash;
     std::string lastNoiseHash;
     std::string stopReason = "CONTINUE";
@@ -73,6 +78,8 @@ double independentSigmaReference(const BchSimulationCase& simulationCase, double
 std::string standardNoiseHash(const common::RealVector& standardNoise);
 AwgnPointResult runAwgnPoint(const AwgnPointConfig& config);
 void writeAwgnPointSummary(const AwgnPointResult& result, const std::string& path);
+void writeAwgnComplexitySummary(const AwgnPointResult& result, const std::string& path);
+void writeAwgnMemorySummary(const AwgnPointResult& result, const std::string& path);
 
 }  // namespace scl::bch::simulation
 

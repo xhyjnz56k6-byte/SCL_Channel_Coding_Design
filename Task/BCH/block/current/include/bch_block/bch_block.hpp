@@ -24,6 +24,7 @@ public:
     Element alphaPower(std::int64_t exponent) const;
     int logarithm(Element a) const;
     Element evaluate(const std::vector<Element>& ascendingCoefficients, Element x) const;
+    std::size_t tableBytes() const;
 private:
     void validate(Element value) const;
     unsigned degree_;
@@ -74,6 +75,45 @@ bool isCodewordDivisibleByGenerator(const common::BitVector& codeword, const com
 enum class DecodeStatus { NoError, Corrected, LocatorDegreeExceedsT, InvalidRootCount,
                            RootInShortenedPrefix, PostSyndromeNonzero, InvalidConfiguration,
                            InvalidInputLength, InvalidInputBits, RootOutOfRange, DecodeFailure };
+struct BlockOperationCounts {
+    std::uint64_t gfAddCount = 0U;
+    std::uint64_t gfMultiplyCount = 0U;
+    std::uint64_t gfDivideCount = 0U;
+    std::uint64_t gfInverseCount = 0U;
+};
+struct BlockDecodeMetrics {
+    std::uint64_t syndromeValueCount = 0U;
+    std::uint64_t syndromeEvaluationCount = 0U;
+    std::uint64_t bmIterationCount = 0U;
+    std::uint64_t bmDiscrepancyCount = 0U;
+    std::uint64_t bmLocatorUpdateCount = 0U;
+    std::uint64_t bmPolynomialCopyCount = 0U;
+    std::uint64_t chienPositionTestCount = 0U;
+    std::uint64_t chienPolynomialEvaluationCount = 0U;
+    std::uint64_t chienRootCount = 0U;
+    std::uint64_t bitFlipCount = 0U;
+    std::uint64_t postSyndromeCheckCount = 0U;
+    std::uint64_t decoderFailureCount = 0U;
+    BlockOperationCounts syndromeOperations;
+    BlockOperationCounts bmOperations;
+    BlockOperationCounts chienOperations;
+    BlockOperationCounts postSyndromeOperations;
+};
+struct BlockMemoryAccounting {
+    std::size_t staticMemoryBytes = 0U;
+    std::size_t decoderObjectBytes = 0U;
+    std::size_t gfTableBytes = 0U;
+    std::size_t syndromeBufferBytes = 0U;
+    std::size_t locatorPolynomialBytes = 0U;
+    std::size_t temporaryPolynomialBytes = 0U;
+    std::size_t receivedBufferBytes = 0U;
+    std::size_t correctedBufferBytes = 0U;
+    std::size_t payloadBufferBytes = 0U;
+    std::size_t perFrameWorkspaceBytes = 0U;
+    std::size_t peakWorkspaceBytes = 0U;
+    std::size_t totalDecoderMemoryBytes = 0U;
+    const char* memoryMeasurementMethod = "EXACT_FROM_TYPE_AND_COUNT";
+};
 struct DecodeResult {
     DecodeStatus status;
     common::BitVector payload;
@@ -93,6 +133,8 @@ struct DecodeResult {
     bool postSyndromeZero = false;
     std::size_t bmIterationCount = 0U;
     std::string failureReason;
+    BlockDecodeMetrics metrics;
+    BlockMemoryAccounting memory;
 };
 DecodeResult decodeShortened(const BlockBchProfile& profile, const common::BitVector& received);
 DecodeResult decodeShortenedNoThrow(const BlockBchProfile& profile, const common::BitVector& received);

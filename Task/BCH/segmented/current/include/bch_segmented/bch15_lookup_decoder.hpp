@@ -19,6 +19,14 @@ struct Bch15DecodeDetail {
     common::BitVector syndromeAfter;
     int correctedPosition = -1;
     bool lookupHit = false;
+    std::uint64_t initialSyndromeCount = 0U;
+    std::uint64_t nonzeroSyndromeCount = 0U;
+    std::uint64_t tableLookupCount = 0U;
+    std::uint64_t lookupHitCount = 0U;
+    std::uint64_t lookupMissCount = 0U;
+    std::uint64_t bitFlipCount = 0U;
+    std::uint64_t postSyndromeCheckCount = 0U;
+    Bch15SyndromeMetrics syndromeMetrics;
     Bch15DecodeStatus status = Bch15DecodeStatus::NO_ERROR;
 };
 

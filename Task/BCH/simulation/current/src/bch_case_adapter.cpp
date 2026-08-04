@@ -135,6 +135,35 @@ DecodedBchFrame decodeBchFrame(const BchSimulationCase& simulationCase,
         result.decoderFailure = !result.reportedSuccess;
         result.frameStatus = result.decoderFailure ? "DECODER_FAILURE" :
                              (result.correctedBlockCount == 0U ? "NO_ERROR" : "CORRECTED");
+        const auto& metrics = decoded.frameDetail;
+        result.complexity.segmentCount = metrics.totalBlocks;
+        result.complexity.initialSyndromeCount = metrics.initialSyndromeCount;
+        result.complexity.nonzeroSyndromeCount = metrics.nonzeroSyndromeCount;
+        result.complexity.syndromeCalculationCount = metrics.syndromeCalculationCount;
+        result.complexity.syndromeBitTestCount = metrics.syndromeBitTestCount;
+        result.complexity.syndromeXorCount = metrics.syndromeXorCount;
+        result.complexity.syndromeShiftCount = metrics.syndromeShiftCount;
+        result.complexity.tableLookupCount = metrics.tableLookupCount;
+        result.complexity.lookupHitCount = metrics.lookupHitCount;
+        result.complexity.lookupMissCount = metrics.lookupMissCount;
+        result.complexity.bitFlipCount = metrics.bitFlipCount;
+        result.complexity.postSyndromeCheckCount = metrics.postSyndromeCheckCount;
+        result.complexity.correctedSegmentCount = metrics.correctedBlocks;
+        result.complexity.failedSegmentCount = metrics.postCheckFailedBlocks + metrics.lookupMissBlocks;
+        result.complexity.miscorrectedSegmentCount = metrics.miscorrectedBlocks;
+        result.complexity.reportedSuccessButPayloadWrongCount = metrics.reportedSuccessWrongOriginalPayload;
+        const auto memory = segmented::bch15SegmentedMemoryAccounting(
+            segmentedCase(simulationCase.id), segmentedSyndromeTable());
+        result.memory.staticMemoryBytes = memory.staticMemoryBytes;
+        result.memory.decoderObjectBytes = memory.decoderObjectBytes;
+        result.memory.lookupTableBytes = memory.lookupTableBytes;
+        result.memory.receivedBufferBytes = memory.receivedBufferBytes;
+        result.memory.correctedBufferBytes = memory.correctedBufferBytes;
+        result.memory.payloadBufferBytes = memory.payloadBufferBytes;
+        result.memory.perFrameWorkspaceBytes = memory.perFrameWorkspaceBytes;
+        result.memory.peakWorkspaceBytes = memory.peakWorkspaceBytes;
+        result.memory.totalDecoderMemoryBytes = memory.totalDecoderMemoryBytes;
+        result.memory.memoryMeasurementMethod = memory.memoryMeasurementMethod;
         std::ostringstream detail;
         detail << "blocks=" << decoded.frameDetail.totalBlocks
                << ";noError=" << result.noErrorBlockCount
@@ -151,6 +180,42 @@ DecodedBchFrame decodeBchFrame(const BchSimulationCase& simulationCase,
         result.correctedBlockCount = decoded.status == block::DecodeStatus::Corrected ? 1U : 0U;
         result.failedBlockCount = result.reportedSuccess ? 0U : 1U;
         result.frameStatus = result.wholeBlockStatus;
+        const auto& metrics = decoded.metrics;
+        result.complexity.syndromeValueCount = metrics.syndromeValueCount;
+        result.complexity.syndromeEvaluationCount = metrics.syndromeEvaluationCount;
+        result.complexity.bmIterationCount = metrics.bmIterationCount;
+        result.complexity.bmDiscrepancyCount = metrics.bmDiscrepancyCount;
+        result.complexity.bmLocatorUpdateCount = metrics.bmLocatorUpdateCount;
+        result.complexity.bmPolynomialCopyCount = metrics.bmPolynomialCopyCount;
+        result.complexity.chienPositionTestCount = metrics.chienPositionTestCount;
+        result.complexity.chienPolynomialEvaluationCount = metrics.chienPolynomialEvaluationCount;
+        result.complexity.chienRootCount = metrics.chienRootCount;
+        result.complexity.bitFlipCount = metrics.bitFlipCount;
+        result.complexity.postSyndromeCheckCount = metrics.postSyndromeCheckCount;
+        result.complexity.rootCount = metrics.chienRootCount;
+        result.complexity.locatorDegree = decoded.locatorDegree;
+        result.complexity.decoderFailureCount = metrics.decoderFailureCount;
+        for (const auto* stage : {&metrics.syndromeOperations, &metrics.bmOperations,
+                                  &metrics.chienOperations, &metrics.postSyndromeOperations}) {
+            result.complexity.gfAddCount += stage->gfAddCount;
+            result.complexity.gfMultiplyCount += stage->gfMultiplyCount;
+            result.complexity.gfDivideCount += stage->gfDivideCount;
+            result.complexity.gfInverseCount += stage->gfInverseCount;
+        }
+        const auto& memory = decoded.memory;
+        result.memory.staticMemoryBytes = memory.staticMemoryBytes;
+        result.memory.decoderObjectBytes = memory.decoderObjectBytes;
+        result.memory.gfTableBytes = memory.gfTableBytes;
+        result.memory.syndromeBufferBytes = memory.syndromeBufferBytes;
+        result.memory.locatorPolynomialBytes = memory.locatorPolynomialBytes;
+        result.memory.temporaryPolynomialBytes = memory.temporaryPolynomialBytes;
+        result.memory.receivedBufferBytes = memory.receivedBufferBytes;
+        result.memory.correctedBufferBytes = memory.correctedBufferBytes;
+        result.memory.payloadBufferBytes = memory.payloadBufferBytes;
+        result.memory.perFrameWorkspaceBytes = memory.perFrameWorkspaceBytes;
+        result.memory.peakWorkspaceBytes = memory.peakWorkspaceBytes;
+        result.memory.totalDecoderMemoryBytes = memory.totalDecoderMemoryBytes;
+        result.memory.memoryMeasurementMethod = memory.memoryMeasurementMethod;
         std::ostringstream detail;
         detail << "nonzeroSyndromes=" << decoded.nonzeroSyndromeCount
                << ";locatorDegree=" << decoded.locatorDegree
