@@ -1,0 +1,2 @@
+{"stage":"stage02_parameter_freeze","branch":"S7-Comparision","functionalRanges":[],"files":["Task/Comparison/S7/configs/s7_smoke_frozen_config.json","Task/Comparison/S7/configs/s7_formal_frozen_config.json","Task/Comparison/S7/S7_experiment_design_plan.md"],"gate":"PASS","remoteVerification":"NOT_REQUESTED","mergeStatus":"NOT_MERGED"}
+

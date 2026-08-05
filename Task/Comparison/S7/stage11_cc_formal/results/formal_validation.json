@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "scheme": "CC",
+  "rowCount": 2232,
+  "groupCount": 558,
+  "zeroBerRows": 0,
+  "zeroFerRows": 0,
+  "rawCsvAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage11_cc_formal\\results\\formal_results.csv",
+  "checkpointAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage11_cc_formal\\results\\checkpoint.bin",
+  "configHash": "bc6830db87407420c2fe2f2e1292fac674218423ab9ecdddf7e0933adf540c5e",
+  "mergeStatus": "NOT_MERGED"
+}

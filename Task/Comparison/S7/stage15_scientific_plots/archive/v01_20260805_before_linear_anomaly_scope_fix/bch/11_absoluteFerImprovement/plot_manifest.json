@@ -1,0 +1,17 @@
+{
+  "plotId": "11_absoluteFerImprovement",
+  "scheme": "BCH",
+  "title": "BCH FER绝对改善量",
+  "xAxis": "符号信噪比 Es/N0（dB）",
+  "yAxis": "FER绝对改善量",
+  "logYAxis": false,
+  "sourceAbsolutePaths": [
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv"
+  ],
+  "historicalReferenceAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S6\\results\\ldpc\\ldpc_n560_integrated_results.csv",
+  "historicalReferenceUsedInFigure": false,
+  "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation",
+  "smoothingApplied": false,
+  "forbiddenAnnotations": [],
+  "mergeStatus": "NOT_MERGED"
+}

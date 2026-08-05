@@ -1,0 +1,2209 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+无交织,0,1.0,true,,false
+无交织,1,1.0,true,,false
+无交织,2,1.0,true,,false
+无交织,3,1.0,true,,false
+无交织,4,1.0,true,,false
+无交织,5,1.0,true,,false
+无交织,6,1.0,true,,false
+无交织,7,1.0,true,,false
+无交织,8,1.0,true,,false
+无交织,9,1.0,true,,false
+无交织,10,1.0,true,,false
+无交织,11,1.0,true,,false
+无交织,12,1.0,true,,false
+无交织,13,1.0,true,,false
+无交织,14,1.0,true,,false
+无交织,15,1.0,true,,false
+无交织,16,1.0,true,,false
+无交织,17,1.0,true,,false
+无交织,18,1.0,true,,false
+无交织,19,1.0,true,,false
+无交织,20,1.0,true,,false
+无交织,21,1.0,true,,false
+无交织,22,1.0,true,,false
+无交织,23,1.0,true,,false
+无交织,24,1.0,true,,false
+无交织,25,1.0,true,,false
+无交织,26,1.0,true,,false
+无交织,27,1.0,true,,false
+无交织,28,1.0,true,,false
+无交织,29,1.0,true,,false
+无交织,30,1.0,true,,false
+无交织,31,1.0,true,,false
+无交织,32,1.0,true,,false
+无交织,33,1.0,true,,false
+无交织,34,1.0,true,,false
+无交织,35,1.0,true,,false
+无交织,36,1.0,true,,false
+无交织,37,1.0,true,,false
+无交织,38,1.0,true,,false
+无交织,39,1.0,true,,false
+无交织,40,1.0,true,,false
+无交织,41,1.0,true,,false
+无交织,42,1.0,true,,false
+无交织,43,1.0,true,,false
+无交织,44,1.0,true,,false
+无交织,45,1.0,true,,false
+无交织,46,1.0,true,,false
+无交织,47,1.0,true,,false
+无交织,48,1.0,true,,false
+无交织,49,1.0,true,,false
+无交织,50,1.0,true,,false
+无交织,51,1.0,true,,false
+无交织,52,1.0,true,,false
+无交织,53,1.0,true,,false
+无交织,54,1.0,true,,false
+无交织,55,1.0,true,,false
+无交织,56,1.0,true,,false
+无交织,57,1.0,true,,false
+无交织,58,1.0,true,,false
+无交织,59,1.0,true,,false
+无交织,60,1.0,true,,false
+无交织,61,1.0,true,,false
+无交织,62,1.0,true,,false
+无交织,63,1.0,true,,false
+无交织,64,1.0,true,,false
+无交织,65,1.0,true,,false
+无交织,66,1.0,true,,false
+无交织,67,1.0,true,,false
+无交织,68,1.0,true,,false
+无交织,69,1.0,true,,false
+无交织,70,1.0,true,,false
+无交织,71,1.0,true,,false
+无交织,72,1.0,true,,false
+无交织,73,1.0,true,,false
+无交织,74,1.0,true,,false
+无交织,75,1.0,true,,false
+无交织,76,1.0,true,,false
+无交织,77,1.0,true,,false
+无交织,78,1.0,true,,false
+无交织,79,1.0,true,,false
+无交织,80,1.0,true,,false
+无交织,81,1.0,true,,false
+无交织,82,1.0,true,,false
+无交织,83,1.0,true,,false
+无交织,84,1.0,true,,false
+无交织,85,1.0,true,,false
+无交织,86,1.0,true,,false
+无交织,87,1.0,true,,false
+无交织,88,1.0,true,,false
+无交织,89,1.0,true,,false
+无交织,90,1.0,true,,false
+无交织,91,1.0,true,,false
+无交织,92,1.0,true,,false
+无交织,93,1.0,true,,false
+无交织,94,1.0,true,,false
+无交织,95,1.0,true,,false
+无交织,96,1.0,true,,false
+无交织,97,1.0,true,,false
+无交织,98,1.0,true,,false
+无交织,99,1.0,true,,false
+无交织,100,1.0,true,,false
+无交织,101,1.0,true,,false
+无交织,102,1.0,true,,false
+无交织,103,1.0,true,,false
+无交织,104,1.0,true,,false
+无交织,105,1.0,true,,false
+无交织,106,1.0,true,,false
+无交织,107,1.0,true,,false
+无交织,108,1.0,true,,false
+无交织,109,1.0,true,,false
+无交织,110,1.0,true,,false
+无交织,111,1.0,true,,false
+无交织,112,1.0,true,,false
+无交织,113,1.0,true,,false
+无交织,114,1.0,true,,false
+无交织,115,1.0,true,,false
+无交织,116,1.0,true,,false
+无交织,117,1.0,true,,false
+无交织,118,1.0,true,,false
+无交织,119,1.0,true,,false
+无交织,120,1.0,true,,false
+无交织,121,1.0,true,,false
+无交织,122,1.0,true,,false
+无交织,123,1.0,true,,false
+无交织,124,1.0,true,,false
+无交织,125,1.0,true,,false
+无交织,126,1.0,true,,false
+无交织,127,1.0,true,,false
+无交织,128,1.0,true,,false
+无交织,129,1.0,true,,false
+无交织,130,1.0,true,,false
+无交织,131,1.0,true,,false
+无交织,132,1.0,true,,false
+无交织,133,1.0,true,,false
+无交织,134,1.0,true,,false
+无交织,135,1.0,true,,false
+无交织,136,1.0,true,,false
+无交织,137,1.0,true,,false
+无交织,138,1.0,true,,false
+无交织,139,1.0,true,,false
+无交织,140,1.0,true,,false
+无交织,141,1.0,true,,false
+无交织,142,1.0,true,,false
+无交织,143,1.0,true,,false
+无交织,144,1.0,true,,false
+无交织,145,1.0,true,,false
+无交织,146,1.0,true,,false
+无交织,147,1.0,true,,false
+无交织,148,1.0,true,,false
+无交织,149,1.0,true,,false
+无交织,150,1.0,true,,false
+无交织,151,1.0,true,,false
+无交织,152,1.0,true,,false
+无交织,153,1.0,true,,false
+无交织,154,1.0,true,,false
+无交织,155,1.0,true,,false
+无交织,156,1.0,true,,false
+无交织,157,1.0,true,,false
+无交织,158,1.0,true,,false
+无交织,159,1.0,true,,false
+无交织,160,1.0,true,,false
+无交织,161,1.0,true,,false
+无交织,162,1.0,true,,false
+无交织,163,1.0,true,,false
+无交织,164,1.0,true,,false
+无交织,165,1.0,true,,false
+无交织,166,1.0,true,,false
+无交织,167,1.0,true,,false
+无交织,168,1.0,true,,false
+无交织,169,1.0,true,,false
+无交织,170,1.0,true,,false
+无交织,171,1.0,true,,false
+无交织,172,1.0,true,,false
+无交织,173,1.0,true,,false
+无交织,174,1.0,true,,false
+无交织,175,1.0,true,,false
+无交织,176,1.0,true,,false
+无交织,177,1.0,true,,false
+无交织,178,1.0,true,,false
+无交织,179,1.0,true,,false
+无交织,180,1.0,true,,false
+无交织,181,1.0,true,,false
+无交织,182,1.0,true,,false
+无交织,183,1.0,true,,false
+无交织,184,1.0,true,,false
+无交织,185,1.0,true,,false
+无交织,186,1.0,true,,false
+无交织,187,1.0,true,,false
+无交织,188,1.0,true,,false
+无交织,189,1.0,true,,false
+无交织,190,1.0,true,,false
+无交织,191,1.0,true,,false
+无交织,192,1.0,true,,false
+无交织,193,1.0,true,,false
+无交织,194,1.0,true,,false
+无交织,195,1.0,true,,false
+无交织,196,1.0,true,,false
+无交织,197,1.0,true,,false
+无交织,198,1.0,true,,false
+无交织,199,1.0,true,,false
+无交织,200,1.0,true,,false
+无交织,201,1.0,true,,false
+无交织,202,1.0,true,,false
+无交织,203,1.0,true,,false
+无交织,204,1.0,true,,false
+无交织,205,1.0,true,,false
+无交织,206,1.0,true,,false
+无交织,207,1.0,true,,false
+无交织,208,1.0,true,,false
+无交织,209,1.0,true,,false
+无交织,210,1.0,true,,false
+无交织,211,1.0,true,,false
+无交织,212,1.0,true,,false
+无交织,213,1.0,true,,false
+无交织,214,1.0,true,,false
+无交织,215,1.0,true,,false
+无交织,216,1.0,true,,false
+无交织,217,1.0,true,,false
+无交织,218,1.0,true,,false
+无交织,219,1.0,true,,false
+无交织,220,1.0,true,,false
+无交织,221,1.0,true,,false
+无交织,222,1.0,true,,false
+无交织,223,1.0,true,,false
+无交织,224,1.0,true,,false
+无交织,225,1.0,true,,false
+无交织,226,1.0,true,,false
+无交织,227,1.0,true,,false
+无交织,228,1.0,true,,false
+无交织,229,1.0,true,,false
+无交织,230,1.0,true,,false
+无交织,231,1.0,true,,false
+无交织,232,1.0,true,,false
+无交织,233,1.0,true,,false
+无交织,234,1.0,true,,false
+无交织,235,1.0,true,,false
+无交织,236,1.0,true,,false
+无交织,237,1.0,true,,false
+无交织,238,1.0,true,,false
+无交织,239,1.0,true,,false
+无交织,240,1.0,true,,false
+无交织,241,1.0,true,,false
+无交织,242,1.0,true,,false
+无交织,243,1.0,true,,false
+无交织,244,1.0,true,,false
+无交织,245,1.0,true,,false
+无交织,246,1.0,true,,false
+无交织,247,1.0,true,,false
+无交织,248,1.0,true,,false
+无交织,249,1.0,true,,false
+无交织,250,1.0,true,,false
+无交织,251,1.0,true,,false
+无交织,252,1.0,true,,false
+无交织,253,1.0,true,,false
+无交织,254,1.0,true,,false
+无交织,255,1.0,true,,false
+无交织,256,1.0,true,,false
+无交织,257,1.0,true,,false
+无交织,258,1.0,true,,false
+无交织,259,1.0,true,,false
+无交织,260,1.0,true,,false
+无交织,261,1.0,true,,false
+无交织,262,1.0,true,,false
+无交织,263,1.0,true,,false
+无交织,264,1.0,true,,false
+无交织,265,1.0,true,,false
+无交织,266,1.0,true,,false
+无交织,267,1.0,true,,false
+无交织,268,1.0,true,,false
+无交织,269,1.0,true,,false
+无交织,270,1.0,true,,false
+无交织,271,1.0,true,,false
+无交织,272,1.0,true,,false
+无交织,273,1.0,true,,false
+无交织,274,1.0,true,,false
+无交织,275,1.0,true,,false
+无交织,276,1.0,true,,false
+无交织,277,1.0,true,,false
+无交织,278,1.0,true,,false
+无交织,279,1.0,true,,false
+无交织,280,1.0,true,,false
+无交织,281,1.0,true,,false
+无交织,282,1.0,true,,false
+无交织,283,1.0,true,,false
+无交织,284,1.0,true,,false
+无交织,285,1.0,true,,false
+无交织,286,1.0,true,,false
+无交织,287,1.0,true,,false
+无交织,288,1.0,true,,false
+无交织,289,1.0,true,,false
+无交织,290,1.0,true,,false
+无交织,291,1.0,true,,false
+无交织,292,1.0,true,,false
+无交织,293,1.0,true,,false
+无交织,294,1.0,true,,false
+无交织,295,1.0,true,,false
+无交织,296,1.0,true,,false
+无交织,297,1.0,true,,false
+无交织,298,1.0,true,,false
+无交织,299,1.0,true,,false
+无交织,300,1.0,true,,false
+无交织,301,1.0,true,,false
+无交织,302,1.0,true,,false
+无交织,303,1.0,true,,false
+无交织,304,1.0,true,,false
+无交织,305,1.0,true,,false
+无交织,306,1.0,true,,false
+无交织,307,1.0,true,,false
+无交织,308,1.0,true,,false
+无交织,309,1.0,true,,false
+无交织,310,1.0,true,,false
+无交织,311,1.0,true,,false
+无交织,312,1.0,true,,false
+无交织,313,1.0,true,,false
+无交织,314,1.0,true,,false
+无交织,315,1.0,true,,false
+无交织,316,1.0,true,,false
+无交织,317,1.0,true,,false
+无交织,318,1.0,true,,false
+无交织,319,1.0,true,,false
+无交织,320,1.0,true,,false
+无交织,321,1.0,true,,false
+无交织,322,1.0,true,,false
+无交织,323,1.0,true,,false
+无交织,324,1.0,true,,false
+无交织,325,1.0,true,,false
+无交织,326,1.0,true,,false
+无交织,327,1.0,true,,false
+无交织,328,1.0,true,,false
+无交织,329,1.0,true,,false
+无交织,330,1.0,true,,false
+无交织,331,1.0,true,,false
+无交织,332,1.0,true,,false
+无交织,333,1.0,true,,false
+无交织,334,1.0,true,,false
+无交织,335,1.0,true,,false
+无交织,336,1.0,true,,false
+无交织,337,1.0,true,,false
+无交织,338,1.0,true,,false
+无交织,339,1.0,true,,false
+无交织,340,1.0,true,,false
+无交织,341,1.0,true,,false
+无交织,342,1.0,true,,false
+无交织,343,1.0,true,,false
+无交织,344,1.0,true,,false
+无交织,345,1.0,true,,false
+无交织,346,1.0,true,,false
+无交织,347,1.0,true,,false
+无交织,348,1.0,true,,false
+无交织,349,1.0,true,,false
+无交织,350,1.0,true,,false
+无交织,351,1.0,true,,false
+无交织,352,1.0,true,,false
+无交织,353,1.0,true,,false
+无交织,354,1.0,true,,false
+无交织,355,1.0,true,,false
+无交织,356,1.0,true,,false
+无交织,357,1.0,true,,false
+无交织,358,1.0,true,,false
+无交织,359,1.0,true,,false
+无交织,360,1.0,true,,false
+无交织,361,1.0,true,,false
+无交织,362,1.0,true,,false
+无交织,363,1.0,true,,false
+无交织,364,1.0,true,,false
+无交织,365,1.0,true,,false
+无交织,366,1.0,true,,false
+无交织,367,1.0,true,,false
+无交织,368,1.0,true,,false
+无交织,369,1.0,true,,false
+无交织,370,1.0,true,,false
+无交织,371,1.0,true,,false
+无交织,372,1.0,true,,false
+无交织,373,1.0,true,,false
+无交织,374,1.0,true,,false
+无交织,375,1.0,true,,false
+无交织,376,1.0,true,,false
+无交织,377,1.0,true,,false
+无交织,378,1.0,true,,false
+无交织,379,1.0,true,,false
+无交织,380,1.0,true,,false
+无交织,381,1.0,true,,false
+无交织,382,1.0,true,,false
+无交织,383,1.0,true,,false
+无交织,384,1.0,true,,false
+无交织,385,1.0,true,,false
+无交织,386,1.0,true,,false
+无交织,387,1.0,true,,false
+无交织,388,1.0,true,,false
+无交织,389,1.0,true,,false
+无交织,390,1.0,true,,false
+无交织,391,1.0,true,,false
+无交织,392,1.0,true,,false
+无交织,393,1.0,true,,false
+无交织,394,1.0,true,,false
+无交织,395,1.0,true,,false
+无交织,396,1.0,true,,false
+无交织,397,1.0,true,,false
+无交织,398,1.0,true,,false
+无交织,399,1.0,true,,false
+无交织,400,1.0,true,,false
+无交织,401,1.0,true,,false
+无交织,402,1.0,true,,false
+无交织,403,1.0,true,,false
+无交织,404,1.0,true,,false
+无交织,405,1.0,true,,false
+无交织,406,1.0,true,,false
+无交织,407,1.0,true,,false
+无交织,408,1.0,true,,false
+无交织,409,1.0,true,,false
+无交织,410,1.0,true,,false
+无交织,411,1.0,true,,false
+无交织,412,1.0,true,,false
+无交织,413,1.0,true,,false
+无交织,414,1.0,true,,false
+无交织,415,1.0,true,,false
+无交织,416,1.0,true,,false
+无交织,417,1.0,true,,false
+无交织,418,1.0,true,,false
+无交织,419,1.0,true,,false
+无交织,420,1.0,true,,false
+无交织,421,1.0,true,,false
+无交织,422,1.0,true,,false
+无交织,423,1.0,true,,false
+无交织,424,1.0,true,,false
+无交织,425,1.0,true,,false
+无交织,426,1.0,true,,false
+无交织,427,1.0,true,,false
+无交织,428,1.0,true,,false
+无交织,429,1.0,true,,false
+无交织,430,1.0,true,,false
+无交织,431,1.0,true,,false
+无交织,432,1.0,true,,false
+无交织,433,1.0,true,,false
+无交织,434,1.0,true,,false
+无交织,435,1.0,true,,false
+无交织,436,1.0,true,,false
+无交织,437,1.0,true,,false
+无交织,438,1.0,true,,false
+无交织,439,1.0,true,,false
+无交织,440,1.0,true,,false
+无交织,441,1.0,true,,false
+无交织,442,1.0,true,,false
+无交织,443,1.0,true,,false
+无交织,444,1.0,true,,false
+无交织,445,1.0,true,,false
+无交织,446,1.0,true,,false
+无交织,447,1.0,true,,false
+无交织,448,1.0,true,,false
+无交织,449,1.0,true,,false
+无交织,450,1.0,true,,false
+无交织,451,1.0,true,,false
+无交织,452,1.0,true,,false
+无交织,453,1.0,true,,false
+无交织,454,1.0,true,,false
+无交织,455,1.0,true,,false
+无交织,456,1.0,true,,false
+无交织,457,1.0,true,,false
+无交织,458,1.0,true,,false
+无交织,459,1.0,true,,false
+无交织,460,1.0,true,,false
+无交织,461,1.0,true,,false
+无交织,462,1.0,true,,false
+无交织,463,1.0,true,,false
+无交织,464,1.0,true,,false
+无交织,465,1.0,true,,false
+无交织,466,1.0,true,,false
+无交织,467,1.0,true,,false
+无交织,468,1.0,true,,false
+无交织,469,1.0,true,,false
+无交织,470,1.0,true,,false
+无交织,471,1.0,true,,false
+无交织,472,1.0,true,,false
+无交织,473,1.0,true,,false
+无交织,474,1.0,true,,false
+无交织,475,1.0,true,,false
+无交织,476,1.0,true,,false
+无交织,477,1.0,true,,false
+无交织,478,1.0,true,,false
+无交织,479,1.0,true,,false
+无交织,480,1.0,true,,false
+无交织,481,1.0,true,,false
+无交织,482,1.0,true,,false
+无交织,483,1.0,true,,false
+无交织,484,1.0,true,,false
+无交织,485,1.0,true,,false
+无交织,486,1.0,true,,false
+无交织,487,1.0,true,,false
+无交织,488,1.0,true,,false
+无交织,489,1.0,true,,false
+无交织,490,1.0,true,,false
+无交织,491,1.0,true,,false
+无交织,492,1.0,true,,false
+无交织,493,1.0,true,,false
+无交织,494,1.0,true,,false
+无交织,495,1.0,true,,false
+无交织,496,1.0,true,,false
+无交织,497,1.0,true,,false
+无交织,498,1.0,true,,false
+无交织,499,1.0,true,,false
+无交织,500,1.0,true,,false
+无交织,501,1.0,true,,false
+无交织,502,1.0,true,,false
+无交织,503,1.0,true,,false
+无交织,504,1.0,true,,false
+无交织,505,1.0,true,,false
+无交织,506,1.0,true,,false
+无交织,507,1.0,true,,false
+无交织,508,1.0,true,,false
+无交织,509,1.0,true,,false
+无交织,510,1.0,true,,false
+无交织,511,1.0,true,,false
+无交织,512,1.0,true,,false
+无交织,513,1.0,true,,false
+无交织,514,1.0,true,,false
+无交织,515,1.0,true,,false
+无交织,516,1.0,true,,false
+无交织,517,1.0,true,,false
+无交织,518,1.0,true,,false
+无交织,519,1.0,true,,false
+无交织,520,1.0,true,,false
+无交织,521,1.0,true,,false
+无交织,522,1.0,true,,false
+无交织,523,1.0,true,,false
+无交织,524,1.0,true,,false
+无交织,525,1.0,true,,false
+无交织,526,1.0,true,,false
+无交织,527,1.0,true,,false
+无交织,528,1.0,true,,false
+无交织,529,1.0,true,,false
+无交织,530,1.0,true,,false
+无交织,531,1.0,true,,false
+无交织,532,1.0,true,,false
+无交织,533,1.0,true,,false
+无交织,534,1.0,true,,false
+无交织,535,1.0,true,,false
+无交织,536,1.0,true,,false
+无交织,537,1.0,true,,false
+无交织,538,1.0,true,,false
+无交织,539,1.0,true,,false
+无交织,540,1.0,true,,false
+无交织,541,1.0,true,,false
+无交织,542,1.0,true,,false
+无交织,543,1.0,true,,false
+无交织,544,1.0,true,,false
+无交织,545,1.0,true,,false
+无交织,546,1.0,true,,false
+无交织,547,1.0,true,,false
+无交织,548,1.0,true,,false
+无交织,549,1.0,true,,false
+无交织,550,1.0,true,,false
+无交织,551,1.0,true,,false
+伪随机交织 span=128,0,1.0,true,,false
+伪随机交织 span=128,1,1.0,true,,false
+伪随机交织 span=128,2,1.0,true,,false
+伪随机交织 span=128,3,1.0,true,,false
+伪随机交织 span=128,4,1.0,true,,false
+伪随机交织 span=128,5,1.0,true,,false
+伪随机交织 span=128,6,1.0,true,,false
+伪随机交织 span=128,7,1.0,true,,false
+伪随机交织 span=128,8,1.0,true,,false
+伪随机交织 span=128,9,1.0,true,,false
+伪随机交织 span=128,10,1.0,true,,false
+伪随机交织 span=128,11,1.0,true,,false
+伪随机交织 span=128,12,1.0,true,,false
+伪随机交织 span=128,13,1.0,true,,false
+伪随机交织 span=128,14,1.0,true,,false
+伪随机交织 span=128,15,1.0,true,,false
+伪随机交织 span=128,16,1.0,true,,false
+伪随机交织 span=128,17,1.0,true,,false
+伪随机交织 span=128,18,1.0,true,,false
+伪随机交织 span=128,19,1.0,true,,false
+伪随机交织 span=128,20,1.0,true,,false
+伪随机交织 span=128,21,1.0,true,,false
+伪随机交织 span=128,22,1.0,true,,false
+伪随机交织 span=128,23,1.0,true,,false
+伪随机交织 span=128,24,1.0,true,,false
+伪随机交织 span=128,25,1.0,true,,false
+伪随机交织 span=128,26,1.0,true,,false
+伪随机交织 span=128,27,1.0,true,,false
+伪随机交织 span=128,28,1.0,true,,false
+伪随机交织 span=128,29,1.0,true,,false
+伪随机交织 span=128,30,1.0,true,,false
+伪随机交织 span=128,31,1.0,true,,false
+伪随机交织 span=128,32,1.0,true,,false
+伪随机交织 span=128,33,1.0,true,,false
+伪随机交织 span=128,34,1.0,true,,false
+伪随机交织 span=128,35,1.0,true,,false
+伪随机交织 span=128,36,1.0,true,,false
+伪随机交织 span=128,37,1.0,true,,false
+伪随机交织 span=128,38,1.0,true,,false
+伪随机交织 span=128,39,1.0,true,,false
+伪随机交织 span=128,40,1.0,true,,false
+伪随机交织 span=128,41,1.0,true,,false
+伪随机交织 span=128,42,1.0,true,,false
+伪随机交织 span=128,43,1.0,true,,false
+伪随机交织 span=128,44,1.0,true,,false
+伪随机交织 span=128,45,1.0,true,,false
+伪随机交织 span=128,46,1.0,true,,false
+伪随机交织 span=128,47,1.0,true,,false
+伪随机交织 span=128,48,1.0,true,,false
+伪随机交织 span=128,49,1.0,true,,false
+伪随机交织 span=128,50,1.0,true,,false
+伪随机交织 span=128,51,1.0,true,,false
+伪随机交织 span=128,52,1.0,true,,false
+伪随机交织 span=128,53,1.0,true,,false
+伪随机交织 span=128,54,1.0,true,,false
+伪随机交织 span=128,55,1.0,true,,false
+伪随机交织 span=128,56,1.0,true,,false
+伪随机交织 span=128,57,1.0,true,,false
+伪随机交织 span=128,58,1.0,true,,false
+伪随机交织 span=128,59,1.0,true,,false
+伪随机交织 span=128,60,1.0,true,,false
+伪随机交织 span=128,61,1.0,true,,false
+伪随机交织 span=128,62,1.0,true,,false
+伪随机交织 span=128,63,1.0,true,,false
+伪随机交织 span=128,64,1.0,true,,false
+伪随机交织 span=128,65,1.0,true,,false
+伪随机交织 span=128,66,1.0,true,,false
+伪随机交织 span=128,67,1.0,true,,false
+伪随机交织 span=128,68,1.0,true,,false
+伪随机交织 span=128,69,1.0,true,,false
+伪随机交织 span=128,70,1.0,true,,false
+伪随机交织 span=128,71,1.0,true,,false
+伪随机交织 span=128,72,1.0,true,,false
+伪随机交织 span=128,73,1.0,true,,false
+伪随机交织 span=128,74,1.0,true,,false
+伪随机交织 span=128,75,1.0,true,,false
+伪随机交织 span=128,76,1.0,true,,false
+伪随机交织 span=128,77,1.0,true,,false
+伪随机交织 span=128,78,1.0,true,,false
+伪随机交织 span=128,79,1.0,true,,false
+伪随机交织 span=128,80,1.0,true,,false
+伪随机交织 span=128,81,1.0,true,,false
+伪随机交织 span=128,82,1.0,true,,false
+伪随机交织 span=128,83,1.0,true,,false
+伪随机交织 span=128,84,1.0,true,,false
+伪随机交织 span=128,85,1.0,true,,false
+伪随机交织 span=128,86,1.0,true,,false
+伪随机交织 span=128,87,1.0,true,,false
+伪随机交织 span=128,88,1.0,true,,false
+伪随机交织 span=128,89,1.0,true,,false
+伪随机交织 span=128,90,1.0,true,,false
+伪随机交织 span=128,91,1.0,true,,false
+伪随机交织 span=128,92,1.0,true,,false
+伪随机交织 span=128,93,1.0,true,,false
+伪随机交织 span=128,94,1.0,true,,false
+伪随机交织 span=128,95,1.0,true,,false
+伪随机交织 span=128,96,1.0,true,,false
+伪随机交织 span=128,97,1.0,true,,false
+伪随机交织 span=128,98,1.0,true,,false
+伪随机交织 span=128,99,1.0,true,,false
+伪随机交织 span=128,100,1.0,true,,false
+伪随机交织 span=128,101,1.0,true,,false
+伪随机交织 span=128,102,1.0,true,,false
+伪随机交织 span=128,103,1.0,true,,false
+伪随机交织 span=128,104,1.0,true,,false
+伪随机交织 span=128,105,1.0,true,,false
+伪随机交织 span=128,106,1.0,true,,false
+伪随机交织 span=128,107,1.0,true,,false
+伪随机交织 span=128,108,1.0,true,,false
+伪随机交织 span=128,109,1.0,true,,false
+伪随机交织 span=128,110,1.0,true,,false
+伪随机交织 span=128,111,1.0,true,,false
+伪随机交织 span=128,112,1.0,true,,false
+伪随机交织 span=128,113,1.0,true,,false
+伪随机交织 span=128,114,1.0,true,,false
+伪随机交织 span=128,115,1.0,true,,false
+伪随机交织 span=128,116,1.0,true,,false
+伪随机交织 span=128,117,1.0,true,,false
+伪随机交织 span=128,118,1.0,true,,false
+伪随机交织 span=128,119,1.0,true,,false
+伪随机交织 span=128,120,1.0,true,,false
+伪随机交织 span=128,121,1.0,true,,false
+伪随机交织 span=128,122,1.0,true,,false
+伪随机交织 span=128,123,1.0,true,,false
+伪随机交织 span=128,124,1.0,true,,false
+伪随机交织 span=128,125,1.0,true,,false
+伪随机交织 span=128,126,1.0,true,,false
+伪随机交织 span=128,127,1.0,true,,false
+伪随机交织 span=128,128,1.0,true,,false
+伪随机交织 span=128,129,1.0,true,,false
+伪随机交织 span=128,130,1.0,true,,false
+伪随机交织 span=128,131,1.0,true,,false
+伪随机交织 span=128,132,1.0,true,,false
+伪随机交织 span=128,133,1.0,true,,false
+伪随机交织 span=128,134,1.0,true,,false
+伪随机交织 span=128,135,1.0,true,,false
+伪随机交织 span=128,136,1.0,true,,false
+伪随机交织 span=128,137,1.0,true,,false
+伪随机交织 span=128,138,1.0,true,,false
+伪随机交织 span=128,139,1.0,true,,false
+伪随机交织 span=128,140,1.0,true,,false
+伪随机交织 span=128,141,1.0,true,,false
+伪随机交织 span=128,142,1.0,true,,false
+伪随机交织 span=128,143,1.0,true,,false
+伪随机交织 span=128,144,1.0,true,,false
+伪随机交织 span=128,145,1.0,true,,false
+伪随机交织 span=128,146,1.0,true,,false
+伪随机交织 span=128,147,1.0,true,,false
+伪随机交织 span=128,148,1.0,true,,false
+伪随机交织 span=128,149,1.0,true,,false
+伪随机交织 span=128,150,1.0,true,,false
+伪随机交织 span=128,151,1.0,true,,false
+伪随机交织 span=128,152,1.0,true,,false
+伪随机交织 span=128,153,1.0,true,,false
+伪随机交织 span=128,154,1.0,true,,false
+伪随机交织 span=128,155,1.0,true,,false
+伪随机交织 span=128,156,1.0,true,,false
+伪随机交织 span=128,157,1.0,true,,false
+伪随机交织 span=128,158,1.0,true,,false
+伪随机交织 span=128,159,1.0,true,,false
+伪随机交织 span=128,160,1.0,true,,false
+伪随机交织 span=128,161,1.0,true,,false
+伪随机交织 span=128,162,1.0,true,,false
+伪随机交织 span=128,163,1.0,true,,false
+伪随机交织 span=128,164,1.0,true,,false
+伪随机交织 span=128,165,1.0,true,,false
+伪随机交织 span=128,166,1.0,true,,false
+伪随机交织 span=128,167,1.0,true,,false
+伪随机交织 span=128,168,1.0,true,,false
+伪随机交织 span=128,169,1.0,true,,false
+伪随机交织 span=128,170,1.0,true,,false
+伪随机交织 span=128,171,1.0,true,,false
+伪随机交织 span=128,172,1.0,true,,false
+伪随机交织 span=128,173,1.0,true,,false
+伪随机交织 span=128,174,1.0,true,,false
+伪随机交织 span=128,175,1.0,true,,false
+伪随机交织 span=128,176,1.0,true,,false
+伪随机交织 span=128,177,1.0,true,,false
+伪随机交织 span=128,178,1.0,true,,false
+伪随机交织 span=128,179,1.0,true,,false
+伪随机交织 span=128,180,1.0,true,,false
+伪随机交织 span=128,181,1.0,true,,false
+伪随机交织 span=128,182,1.0,true,,false
+伪随机交织 span=128,183,1.0,true,,false
+伪随机交织 span=128,184,1.0,true,,false
+伪随机交织 span=128,185,1.0,true,,false
+伪随机交织 span=128,186,1.0,true,,false
+伪随机交织 span=128,187,1.0,true,,false
+伪随机交织 span=128,188,1.0,true,,false
+伪随机交织 span=128,189,1.0,true,,false
+伪随机交织 span=128,190,1.0,true,,false
+伪随机交织 span=128,191,1.0,true,,false
+伪随机交织 span=128,192,1.0,true,,false
+伪随机交织 span=128,193,1.0,true,,false
+伪随机交织 span=128,194,1.0,true,,false
+伪随机交织 span=128,195,1.0,true,,false
+伪随机交织 span=128,196,1.0,true,,false
+伪随机交织 span=128,197,1.0,true,,false
+伪随机交织 span=128,198,1.0,true,,false
+伪随机交织 span=128,199,1.0,true,,false
+伪随机交织 span=128,200,1.0,true,,false
+伪随机交织 span=128,201,1.0,true,,false
+伪随机交织 span=128,202,1.0,true,,false
+伪随机交织 span=128,203,1.0,true,,false
+伪随机交织 span=128,204,1.0,true,,false
+伪随机交织 span=128,205,1.0,true,,false
+伪随机交织 span=128,206,1.0,true,,false
+伪随机交织 span=128,207,1.0,true,,false
+伪随机交织 span=128,208,1.0,true,,false
+伪随机交织 span=128,209,1.0,true,,false
+伪随机交织 span=128,210,1.0,true,,false
+伪随机交织 span=128,211,1.0,true,,false
+伪随机交织 span=128,212,1.0,true,,false
+伪随机交织 span=128,213,1.0,true,,false
+伪随机交织 span=128,214,1.0,true,,false
+伪随机交织 span=128,215,1.0,true,,false
+伪随机交织 span=128,216,1.0,true,,false
+伪随机交织 span=128,217,1.0,true,,false
+伪随机交织 span=128,218,1.0,true,,false
+伪随机交织 span=128,219,1.0,true,,false
+伪随机交织 span=128,220,1.0,true,,false
+伪随机交织 span=128,221,1.0,true,,false
+伪随机交织 span=128,222,1.0,true,,false
+伪随机交织 span=128,223,1.0,true,,false
+伪随机交织 span=128,224,1.0,true,,false
+伪随机交织 span=128,225,1.0,true,,false
+伪随机交织 span=128,226,1.0,true,,false
+伪随机交织 span=128,227,1.0,true,,false
+伪随机交织 span=128,228,1.0,true,,false
+伪随机交织 span=128,229,1.0,true,,false
+伪随机交织 span=128,230,1.0,true,,false
+伪随机交织 span=128,231,1.0,true,,false
+伪随机交织 span=128,232,1.0,true,,false
+伪随机交织 span=128,233,1.0,true,,false
+伪随机交织 span=128,234,1.0,true,,false
+伪随机交织 span=128,235,1.0,true,,false
+伪随机交织 span=128,236,1.0,true,,false
+伪随机交织 span=128,237,1.0,true,,false
+伪随机交织 span=128,238,1.0,true,,false
+伪随机交织 span=128,239,1.0,true,,false
+伪随机交织 span=128,240,1.0,true,,false
+伪随机交织 span=128,241,1.0,true,,false
+伪随机交织 span=128,242,1.0,true,,false
+伪随机交织 span=128,243,1.0,true,,false
+伪随机交织 span=128,244,1.0,true,,false
+伪随机交织 span=128,245,1.0,true,,false
+伪随机交织 span=128,246,1.0,true,,false
+伪随机交织 span=128,247,1.0,true,,false
+伪随机交织 span=128,248,1.0,true,,false
+伪随机交织 span=128,249,1.0,true,,false
+伪随机交织 span=128,250,1.0,true,,false
+伪随机交织 span=128,251,1.0,true,,false
+伪随机交织 span=128,252,1.0,true,,false
+伪随机交织 span=128,253,1.0,true,,false
+伪随机交织 span=128,254,1.0,true,,false
+伪随机交织 span=128,255,1.0,true,,false
+伪随机交织 span=128,256,1.0,true,,false
+伪随机交织 span=128,257,1.0,true,,false
+伪随机交织 span=128,258,1.0,true,,false
+伪随机交织 span=128,259,1.0,true,,false
+伪随机交织 span=128,260,1.0,true,,false
+伪随机交织 span=128,261,1.0,true,,false
+伪随机交织 span=128,262,1.0,true,,false
+伪随机交织 span=128,263,1.0,true,,false
+伪随机交织 span=128,264,1.0,true,,false
+伪随机交织 span=128,265,1.0,true,,false
+伪随机交织 span=128,266,1.0,true,,false
+伪随机交织 span=128,267,1.0,true,,false
+伪随机交织 span=128,268,1.0,true,,false
+伪随机交织 span=128,269,1.0,true,,false
+伪随机交织 span=128,270,1.0,true,,false
+伪随机交织 span=128,271,1.0,true,,false
+伪随机交织 span=128,272,1.0,true,,false
+伪随机交织 span=128,273,1.0,true,,false
+伪随机交织 span=128,274,1.0,true,,false
+伪随机交织 span=128,275,1.0,true,,false
+伪随机交织 span=128,276,1.0,true,,false
+伪随机交织 span=128,277,1.0,true,,false
+伪随机交织 span=128,278,1.0,true,,false
+伪随机交织 span=128,279,1.0,true,,false
+伪随机交织 span=128,280,1.0,true,,false
+伪随机交织 span=128,281,1.0,true,,false
+伪随机交织 span=128,282,1.0,true,,false
+伪随机交织 span=128,283,1.0,true,,false
+伪随机交织 span=128,284,1.0,true,,false
+伪随机交织 span=128,285,1.0,true,,false
+伪随机交织 span=128,286,1.0,true,,false
+伪随机交织 span=128,287,1.0,true,,false
+伪随机交织 span=128,288,1.0,true,,false
+伪随机交织 span=128,289,1.0,true,,false
+伪随机交织 span=128,290,1.0,true,,false
+伪随机交织 span=128,291,1.0,true,,false
+伪随机交织 span=128,292,1.0,true,,false
+伪随机交织 span=128,293,1.0,true,,false
+伪随机交织 span=128,294,1.0,true,,false
+伪随机交织 span=128,295,1.0,true,,false
+伪随机交织 span=128,296,1.0,true,,false
+伪随机交织 span=128,297,1.0,true,,false
+伪随机交织 span=128,298,1.0,true,,false
+伪随机交织 span=128,299,1.0,true,,false
+伪随机交织 span=128,300,1.0,true,,false
+伪随机交织 span=128,301,1.0,true,,false
+伪随机交织 span=128,302,1.0,true,,false
+伪随机交织 span=128,303,1.0,true,,false
+伪随机交织 span=128,304,1.0,true,,false
+伪随机交织 span=128,305,1.0,true,,false
+伪随机交织 span=128,306,1.0,true,,false
+伪随机交织 span=128,307,1.0,true,,false
+伪随机交织 span=128,308,1.0,true,,false
+伪随机交织 span=128,309,1.0,true,,false
+伪随机交织 span=128,310,1.0,true,,false
+伪随机交织 span=128,311,1.0,true,,false
+伪随机交织 span=128,312,1.0,true,,false
+伪随机交织 span=128,313,1.0,true,,false
+伪随机交织 span=128,314,1.0,true,,false
+伪随机交织 span=128,315,1.0,true,,false
+伪随机交织 span=128,316,1.0,true,,false
+伪随机交织 span=128,317,1.0,true,,false
+伪随机交织 span=128,318,1.0,true,,false
+伪随机交织 span=128,319,1.0,true,,false
+伪随机交织 span=128,320,1.0,true,,false
+伪随机交织 span=128,321,1.0,true,,false
+伪随机交织 span=128,322,1.0,true,,false
+伪随机交织 span=128,323,1.0,true,,false
+伪随机交织 span=128,324,1.0,true,,false
+伪随机交织 span=128,325,1.0,true,,false
+伪随机交织 span=128,326,1.0,true,,false
+伪随机交织 span=128,327,1.0,true,,false
+伪随机交织 span=128,328,1.0,true,,false
+伪随机交织 span=128,329,1.0,true,,false
+伪随机交织 span=128,330,1.0,true,,false
+伪随机交织 span=128,331,1.0,true,,false
+伪随机交织 span=128,332,1.0,true,,false
+伪随机交织 span=128,333,1.0,true,,false
+伪随机交织 span=128,334,1.0,true,,false
+伪随机交织 span=128,335,1.0,true,,false
+伪随机交织 span=128,336,1.0,true,,false
+伪随机交织 span=128,337,1.0,true,,false
+伪随机交织 span=128,338,1.0,true,,false
+伪随机交织 span=128,339,1.0,true,,false
+伪随机交织 span=128,340,1.0,true,,false
+伪随机交织 span=128,341,1.0,true,,false
+伪随机交织 span=128,342,1.0,true,,false
+伪随机交织 span=128,343,1.0,true,,false
+伪随机交织 span=128,344,1.0,true,,false
+伪随机交织 span=128,345,1.0,true,,false
+伪随机交织 span=128,346,1.0,true,,false
+伪随机交织 span=128,347,1.0,true,,false
+伪随机交织 span=128,348,1.0,true,,false
+伪随机交织 span=128,349,1.0,true,,false
+伪随机交织 span=128,350,1.0,true,,false
+伪随机交织 span=128,351,1.0,true,,false
+伪随机交织 span=128,352,1.0,true,,false
+伪随机交织 span=128,353,1.0,true,,false
+伪随机交织 span=128,354,1.0,true,,false
+伪随机交织 span=128,355,1.0,true,,false
+伪随机交织 span=128,356,1.0,true,,false
+伪随机交织 span=128,357,1.0,true,,false
+伪随机交织 span=128,358,1.0,true,,false
+伪随机交织 span=128,359,1.0,true,,false
+伪随机交织 span=128,360,1.0,true,,false
+伪随机交织 span=128,361,1.0,true,,false
+伪随机交织 span=128,362,1.0,true,,false
+伪随机交织 span=128,363,1.0,true,,false
+伪随机交织 span=128,364,1.0,true,,false
+伪随机交织 span=128,365,1.0,true,,false
+伪随机交织 span=128,366,1.0,true,,false
+伪随机交织 span=128,367,1.0,true,,false
+伪随机交织 span=128,368,1.0,true,,false
+伪随机交织 span=128,369,1.0,true,,false
+伪随机交织 span=128,370,1.0,true,,false
+伪随机交织 span=128,371,1.0,true,,false
+伪随机交织 span=128,372,1.0,true,,false
+伪随机交织 span=128,373,1.0,true,,false
+伪随机交织 span=128,374,1.0,true,,false
+伪随机交织 span=128,375,1.0,true,,false
+伪随机交织 span=128,376,1.0,true,,false
+伪随机交织 span=128,377,1.0,true,,false
+伪随机交织 span=128,378,1.0,true,,false
+伪随机交织 span=128,379,1.0,true,,false
+伪随机交织 span=128,380,1.0,true,,false
+伪随机交织 span=128,381,1.0,true,,false
+伪随机交织 span=128,382,1.0,true,,false
+伪随机交织 span=128,383,1.0,true,,false
+伪随机交织 span=128,384,1.0,true,,false
+伪随机交织 span=128,385,1.0,true,,false
+伪随机交织 span=128,386,1.0,true,,false
+伪随机交织 span=128,387,1.0,true,,false
+伪随机交织 span=128,388,1.0,true,,false
+伪随机交织 span=128,389,1.0,true,,false
+伪随机交织 span=128,390,1.0,true,,false
+伪随机交织 span=128,391,1.0,true,,false
+伪随机交织 span=128,392,1.0,true,,false
+伪随机交织 span=128,393,1.0,true,,false
+伪随机交织 span=128,394,1.0,true,,false
+伪随机交织 span=128,395,1.0,true,,false
+伪随机交织 span=128,396,1.0,true,,false
+伪随机交织 span=128,397,1.0,true,,false
+伪随机交织 span=128,398,1.0,true,,false
+伪随机交织 span=128,399,1.0,true,,false
+伪随机交织 span=128,400,1.0,true,,false
+伪随机交织 span=128,401,1.0,true,,false
+伪随机交织 span=128,402,1.0,true,,false
+伪随机交织 span=128,403,1.0,true,,false
+伪随机交织 span=128,404,1.0,true,,false
+伪随机交织 span=128,405,1.0,true,,false
+伪随机交织 span=128,406,1.0,true,,false
+伪随机交织 span=128,407,1.0,true,,false
+伪随机交织 span=128,408,1.0,true,,false
+伪随机交织 span=128,409,1.0,true,,false
+伪随机交织 span=128,410,1.0,true,,false
+伪随机交织 span=128,411,1.0,true,,false
+伪随机交织 span=128,412,1.0,true,,false
+伪随机交织 span=128,413,1.0,true,,false
+伪随机交织 span=128,414,1.0,true,,false
+伪随机交织 span=128,415,1.0,true,,false
+伪随机交织 span=128,416,1.0,true,,false
+伪随机交织 span=128,417,1.0,true,,false
+伪随机交织 span=128,418,1.0,true,,false
+伪随机交织 span=128,419,1.0,true,,false
+伪随机交织 span=128,420,1.0,true,,false
+伪随机交织 span=128,421,1.0,true,,false
+伪随机交织 span=128,422,1.0,true,,false
+伪随机交织 span=128,423,1.0,true,,false
+伪随机交织 span=128,424,1.0,true,,false
+伪随机交织 span=128,425,1.0,true,,false
+伪随机交织 span=128,426,1.0,true,,false
+伪随机交织 span=128,427,1.0,true,,false
+伪随机交织 span=128,428,1.0,true,,false
+伪随机交织 span=128,429,1.0,true,,false
+伪随机交织 span=128,430,1.0,true,,false
+伪随机交织 span=128,431,1.0,true,,false
+伪随机交织 span=128,432,1.0,true,,false
+伪随机交织 span=128,433,1.0,true,,false
+伪随机交织 span=128,434,1.0,true,,false
+伪随机交织 span=128,435,1.0,true,,false
+伪随机交织 span=128,436,1.0,true,,false
+伪随机交织 span=128,437,1.0,true,,false
+伪随机交织 span=128,438,1.0,true,,false
+伪随机交织 span=128,439,1.0,true,,false
+伪随机交织 span=128,440,1.0,true,,false
+伪随机交织 span=128,441,1.0,true,,false
+伪随机交织 span=128,442,1.0,true,,false
+伪随机交织 span=128,443,1.0,true,,false
+伪随机交织 span=128,444,1.0,true,,false
+伪随机交织 span=128,445,1.0,true,,false
+伪随机交织 span=128,446,1.0,true,,false
+伪随机交织 span=128,447,1.0,true,,false
+伪随机交织 span=128,448,1.0,true,,false
+伪随机交织 span=128,449,1.0,true,,false
+伪随机交织 span=128,450,1.0,true,,false
+伪随机交织 span=128,451,1.0,true,,false
+伪随机交织 span=128,452,1.0,true,,false
+伪随机交织 span=128,453,1.0,true,,false
+伪随机交织 span=128,454,1.0,true,,false
+伪随机交织 span=128,455,1.0,true,,false
+伪随机交织 span=128,456,1.0,true,,false
+伪随机交织 span=128,457,1.0,true,,false
+伪随机交织 span=128,458,1.0,true,,false
+伪随机交织 span=128,459,1.0,true,,false
+伪随机交织 span=128,460,1.0,true,,false
+伪随机交织 span=128,461,1.0,true,,false
+伪随机交织 span=128,462,1.0,true,,false
+伪随机交织 span=128,463,1.0,true,,false
+伪随机交织 span=128,464,1.0,true,,false
+伪随机交织 span=128,465,1.0,true,,false
+伪随机交织 span=128,466,1.0,true,,false
+伪随机交织 span=128,467,1.0,true,,false
+伪随机交织 span=128,468,1.0,true,,false
+伪随机交织 span=128,469,1.0,true,,false
+伪随机交织 span=128,470,1.0,true,,false
+伪随机交织 span=128,471,1.0,true,,false
+伪随机交织 span=128,472,1.0,true,,false
+伪随机交织 span=128,473,1.0,true,,false
+伪随机交织 span=128,474,1.0,true,,false
+伪随机交织 span=128,475,1.0,true,,false
+伪随机交织 span=128,476,1.0,true,,false
+伪随机交织 span=128,477,1.0,true,,false
+伪随机交织 span=128,478,1.0,true,,false
+伪随机交织 span=128,479,1.0,true,,false
+伪随机交织 span=128,480,1.0,true,,false
+伪随机交织 span=128,481,1.0,true,,false
+伪随机交织 span=128,482,1.0,true,,false
+伪随机交织 span=128,483,1.0,true,,false
+伪随机交织 span=128,484,1.0,true,,false
+伪随机交织 span=128,485,1.0,true,,false
+伪随机交织 span=128,486,1.0,true,,false
+伪随机交织 span=128,487,1.0,true,,false
+伪随机交织 span=128,488,1.0,true,,false
+伪随机交织 span=128,489,1.0,true,,false
+伪随机交织 span=128,490,1.0,true,,false
+伪随机交织 span=128,491,1.0,true,,false
+伪随机交织 span=128,492,1.0,true,,false
+伪随机交织 span=128,493,1.0,true,,false
+伪随机交织 span=128,494,1.0,true,,false
+伪随机交织 span=128,495,1.0,true,,false
+伪随机交织 span=128,496,1.0,true,,false
+伪随机交织 span=128,497,1.0,true,,false
+伪随机交织 span=128,498,1.0,true,,false
+伪随机交织 span=128,499,1.0,true,,false
+伪随机交织 span=128,500,1.0,true,,false
+伪随机交织 span=128,501,1.0,true,,false
+伪随机交织 span=128,502,1.0,true,,false
+伪随机交织 span=128,503,1.0,true,,false
+伪随机交织 span=128,504,1.0,true,,false
+伪随机交织 span=128,505,1.0,true,,false
+伪随机交织 span=128,506,1.0,true,,false
+伪随机交织 span=128,507,1.0,true,,false
+伪随机交织 span=128,508,1.0,true,,false
+伪随机交织 span=128,509,1.0,true,,false
+伪随机交织 span=128,510,1.0,true,,false
+伪随机交织 span=128,511,1.0,true,,false
+伪随机交织 span=128,512,1.0,true,,false
+伪随机交织 span=128,513,1.0,true,,false
+伪随机交织 span=128,514,1.0,true,,false
+伪随机交织 span=128,515,1.0,true,,false
+伪随机交织 span=128,516,1.0,true,,false
+伪随机交织 span=128,517,1.0,true,,false
+伪随机交织 span=128,518,1.0,true,,false
+伪随机交织 span=128,519,1.0,true,,false
+伪随机交织 span=128,520,1.0,true,,false
+伪随机交织 span=128,521,1.0,true,,false
+伪随机交织 span=128,522,1.0,true,,false
+伪随机交织 span=128,523,1.0,true,,false
+伪随机交织 span=128,524,1.0,true,,false
+伪随机交织 span=128,525,1.0,true,,false
+伪随机交织 span=128,526,1.0,true,,false
+伪随机交织 span=128,527,1.0,true,,false
+伪随机交织 span=128,528,1.0,true,,false
+伪随机交织 span=128,529,1.0,true,,false
+伪随机交织 span=128,530,1.0,true,,false
+伪随机交织 span=128,531,1.0,true,,false
+伪随机交织 span=128,532,1.0,true,,false
+伪随机交织 span=128,533,1.0,true,,false
+伪随机交织 span=128,534,1.0,true,,false
+伪随机交织 span=128,535,1.0,true,,false
+伪随机交织 span=128,536,1.0,true,,false
+伪随机交织 span=128,537,1.0,true,,false
+伪随机交织 span=128,538,1.0,true,,false
+伪随机交织 span=128,539,1.0,true,,false
+伪随机交织 span=128,540,1.0,true,,false
+伪随机交织 span=128,541,1.0,true,,false
+伪随机交织 span=128,542,1.0,true,,false
+伪随机交织 span=128,543,1.0,true,,false
+伪随机交织 span=128,544,1.0,true,,false
+伪随机交织 span=128,545,1.0,true,,false
+伪随机交织 span=128,546,1.0,true,,false
+伪随机交织 span=128,547,1.0,true,,false
+伪随机交织 span=128,548,1.0,true,,false
+伪随机交织 span=128,549,1.0,true,,false
+伪随机交织 span=128,550,1.0,true,,false
+伪随机交织 span=128,551,1.0,true,,false
+短深度块交织 D=16,0,1.0,true,,false
+短深度块交织 D=16,1,1.0,true,,false
+短深度块交织 D=16,2,1.0,true,,false
+短深度块交织 D=16,3,1.0,true,,false
+短深度块交织 D=16,4,1.0,true,,false
+短深度块交织 D=16,5,1.0,true,,false
+短深度块交织 D=16,6,1.0,true,,false
+短深度块交织 D=16,7,1.0,true,,false
+短深度块交织 D=16,8,1.0,true,,false
+短深度块交织 D=16,9,1.0,true,,false
+短深度块交织 D=16,10,1.0,true,,false
+短深度块交织 D=16,11,1.0,true,,false
+短深度块交织 D=16,12,1.0,true,,false
+短深度块交织 D=16,13,1.0,true,,false
+短深度块交织 D=16,14,1.0,true,,false
+短深度块交织 D=16,15,1.0,true,,false
+短深度块交织 D=16,16,1.0,true,,false
+短深度块交织 D=16,17,1.0,true,,false
+短深度块交织 D=16,18,1.0,true,,false
+短深度块交织 D=16,19,1.0,true,,false
+短深度块交织 D=16,20,1.0,true,,false
+短深度块交织 D=16,21,1.0,true,,false
+短深度块交织 D=16,22,1.0,true,,false
+短深度块交织 D=16,23,1.0,true,,false
+短深度块交织 D=16,24,1.0,true,,false
+短深度块交织 D=16,25,1.0,true,,false
+短深度块交织 D=16,26,1.0,true,,false
+短深度块交织 D=16,27,1.0,true,,false
+短深度块交织 D=16,28,1.0,true,,false
+短深度块交织 D=16,29,1.0,true,,false
+短深度块交织 D=16,30,1.0,true,,false
+短深度块交织 D=16,31,1.0,true,,false
+短深度块交织 D=16,32,1.0,true,,false
+短深度块交织 D=16,33,1.0,true,,false
+短深度块交织 D=16,34,1.0,true,,false
+短深度块交织 D=16,35,1.0,true,,false
+短深度块交织 D=16,36,1.0,true,,false
+短深度块交织 D=16,37,1.0,true,,false
+短深度块交织 D=16,38,1.0,true,,false
+短深度块交织 D=16,39,1.0,true,,false
+短深度块交织 D=16,40,1.0,true,,false
+短深度块交织 D=16,41,1.0,true,,false
+短深度块交织 D=16,42,1.0,true,,false
+短深度块交织 D=16,43,1.0,true,,false
+短深度块交织 D=16,44,1.0,true,,false
+短深度块交织 D=16,45,1.0,true,,false
+短深度块交织 D=16,46,1.0,true,,false
+短深度块交织 D=16,47,1.0,true,,false
+短深度块交织 D=16,48,1.0,true,,false
+短深度块交织 D=16,49,1.0,true,,false
+短深度块交织 D=16,50,1.0,true,,false
+短深度块交织 D=16,51,1.0,true,,false
+短深度块交织 D=16,52,1.0,true,,false
+短深度块交织 D=16,53,1.0,true,,false
+短深度块交织 D=16,54,1.0,true,,false
+短深度块交织 D=16,55,1.0,true,,false
+短深度块交织 D=16,56,1.0,true,,false
+短深度块交织 D=16,57,1.0,true,,false
+短深度块交织 D=16,58,1.0,true,,false
+短深度块交织 D=16,59,1.0,true,,false
+短深度块交织 D=16,60,1.0,true,,false
+短深度块交织 D=16,61,1.0,true,,false
+短深度块交织 D=16,62,1.0,true,,false
+短深度块交织 D=16,63,1.0,true,,false
+短深度块交织 D=16,64,1.0,true,,false
+短深度块交织 D=16,65,1.0,true,,false
+短深度块交织 D=16,66,1.0,true,,false
+短深度块交织 D=16,67,1.0,true,,false
+短深度块交织 D=16,68,1.0,true,,false
+短深度块交织 D=16,69,1.0,true,,false
+短深度块交织 D=16,70,1.0,true,,false
+短深度块交织 D=16,71,1.0,true,,false
+短深度块交织 D=16,72,1.0,true,,false
+短深度块交织 D=16,73,1.0,true,,false
+短深度块交织 D=16,74,1.0,true,,false
+短深度块交织 D=16,75,1.0,true,,false
+短深度块交织 D=16,76,1.0,true,,false
+短深度块交织 D=16,77,1.0,true,,false
+短深度块交织 D=16,78,1.0,true,,false
+短深度块交织 D=16,79,1.0,true,,false
+短深度块交织 D=16,80,1.0,true,,false
+短深度块交织 D=16,81,1.0,true,,false
+短深度块交织 D=16,82,1.0,true,,false
+短深度块交织 D=16,83,1.0,true,,false
+短深度块交织 D=16,84,1.0,true,,false
+短深度块交织 D=16,85,1.0,true,,false
+短深度块交织 D=16,86,1.0,true,,false
+短深度块交织 D=16,87,1.0,true,,false
+短深度块交织 D=16,88,1.0,true,,false
+短深度块交织 D=16,89,1.0,true,,false
+短深度块交织 D=16,90,1.0,true,,false
+短深度块交织 D=16,91,1.0,true,,false
+短深度块交织 D=16,92,1.0,true,,false
+短深度块交织 D=16,93,1.0,true,,false
+短深度块交织 D=16,94,1.0,true,,false
+短深度块交织 D=16,95,1.0,true,,false
+短深度块交织 D=16,96,1.0,true,,false
+短深度块交织 D=16,97,1.0,true,,false
+短深度块交织 D=16,98,1.0,true,,false
+短深度块交织 D=16,99,1.0,true,,false
+短深度块交织 D=16,100,1.0,true,,false
+短深度块交织 D=16,101,1.0,true,,false
+短深度块交织 D=16,102,1.0,true,,false
+短深度块交织 D=16,103,1.0,true,,false
+短深度块交织 D=16,104,1.0,true,,false
+短深度块交织 D=16,105,1.0,true,,false
+短深度块交织 D=16,106,1.0,true,,false
+短深度块交织 D=16,107,1.0,true,,false
+短深度块交织 D=16,108,1.0,true,,false
+短深度块交织 D=16,109,1.0,true,,false
+短深度块交织 D=16,110,1.0,true,,false
+短深度块交织 D=16,111,1.0,true,,false
+短深度块交织 D=16,112,1.0,true,,false
+短深度块交织 D=16,113,1.0,true,,false
+短深度块交织 D=16,114,1.0,true,,false
+短深度块交织 D=16,115,1.0,true,,false
+短深度块交织 D=16,116,1.0,true,,false
+短深度块交织 D=16,117,1.0,true,,false
+短深度块交织 D=16,118,1.0,true,,false
+短深度块交织 D=16,119,1.0,true,,false
+短深度块交织 D=16,120,1.0,true,,false
+短深度块交织 D=16,121,1.0,true,,false
+短深度块交织 D=16,122,1.0,true,,false
+短深度块交织 D=16,123,1.0,true,,false
+短深度块交织 D=16,124,1.0,true,,false
+短深度块交织 D=16,125,1.0,true,,false
+短深度块交织 D=16,126,1.0,true,,false
+短深度块交织 D=16,127,1.0,true,,false
+短深度块交织 D=16,128,1.0,true,,false
+短深度块交织 D=16,129,1.0,true,,false
+短深度块交织 D=16,130,1.0,true,,false
+短深度块交织 D=16,131,1.0,true,,false
+短深度块交织 D=16,132,1.0,true,,false
+短深度块交织 D=16,133,1.0,true,,false
+短深度块交织 D=16,134,1.0,true,,false
+短深度块交织 D=16,135,1.0,true,,false
+短深度块交织 D=16,136,1.0,true,,false
+短深度块交织 D=16,137,1.0,true,,false
+短深度块交织 D=16,138,1.0,true,,false
+短深度块交织 D=16,139,1.0,true,,false
+短深度块交织 D=16,140,1.0,true,,false
+短深度块交织 D=16,141,1.0,true,,false
+短深度块交织 D=16,142,1.0,true,,false
+短深度块交织 D=16,143,1.0,true,,false
+短深度块交织 D=16,144,1.0,true,,false
+短深度块交织 D=16,145,1.0,true,,false
+短深度块交织 D=16,146,1.0,true,,false
+短深度块交织 D=16,147,1.0,true,,false
+短深度块交织 D=16,148,1.0,true,,false
+短深度块交织 D=16,149,1.0,true,,false
+短深度块交织 D=16,150,1.0,true,,false
+短深度块交织 D=16,151,1.0,true,,false
+短深度块交织 D=16,152,1.0,true,,false
+短深度块交织 D=16,153,1.0,true,,false
+短深度块交织 D=16,154,1.0,true,,false
+短深度块交织 D=16,155,1.0,true,,false
+短深度块交织 D=16,156,1.0,true,,false
+短深度块交织 D=16,157,1.0,true,,false
+短深度块交织 D=16,158,1.0,true,,false
+短深度块交织 D=16,159,1.0,true,,false
+短深度块交织 D=16,160,1.0,true,,false
+短深度块交织 D=16,161,1.0,true,,false
+短深度块交织 D=16,162,1.0,true,,false
+短深度块交织 D=16,163,1.0,true,,false
+短深度块交织 D=16,164,1.0,true,,false
+短深度块交织 D=16,165,1.0,true,,false
+短深度块交织 D=16,166,1.0,true,,false
+短深度块交织 D=16,167,1.0,true,,false
+短深度块交织 D=16,168,1.0,true,,false
+短深度块交织 D=16,169,1.0,true,,false
+短深度块交织 D=16,170,1.0,true,,false
+短深度块交织 D=16,171,1.0,true,,false
+短深度块交织 D=16,172,1.0,true,,false
+短深度块交织 D=16,173,1.0,true,,false
+短深度块交织 D=16,174,1.0,true,,false
+短深度块交织 D=16,175,1.0,true,,false
+短深度块交织 D=16,176,1.0,true,,false
+短深度块交织 D=16,177,1.0,true,,false
+短深度块交织 D=16,178,1.0,true,,false
+短深度块交织 D=16,179,1.0,true,,false
+短深度块交织 D=16,180,1.0,true,,false
+短深度块交织 D=16,181,1.0,true,,false
+短深度块交织 D=16,182,1.0,true,,false
+短深度块交织 D=16,183,1.0,true,,false
+短深度块交织 D=16,184,1.0,true,,false
+短深度块交织 D=16,185,1.0,true,,false
+短深度块交织 D=16,186,1.0,true,,false
+短深度块交织 D=16,187,1.0,true,,false
+短深度块交织 D=16,188,1.0,true,,false
+短深度块交织 D=16,189,1.0,true,,false
+短深度块交织 D=16,190,1.0,true,,false
+短深度块交织 D=16,191,1.0,true,,false
+短深度块交织 D=16,192,1.0,true,,false
+短深度块交织 D=16,193,1.0,true,,false
+短深度块交织 D=16,194,1.0,true,,false
+短深度块交织 D=16,195,1.0,true,,false
+短深度块交织 D=16,196,1.0,true,,false
+短深度块交织 D=16,197,1.0,true,,false
+短深度块交织 D=16,198,1.0,true,,false
+短深度块交织 D=16,199,1.0,true,,false
+短深度块交织 D=16,200,1.0,true,,false
+短深度块交织 D=16,201,1.0,true,,false
+短深度块交织 D=16,202,1.0,true,,false
+短深度块交织 D=16,203,1.0,true,,false
+短深度块交织 D=16,204,1.0,true,,false
+短深度块交织 D=16,205,1.0,true,,false
+短深度块交织 D=16,206,1.0,true,,false
+短深度块交织 D=16,207,1.0,true,,false
+短深度块交织 D=16,208,1.0,true,,false
+短深度块交织 D=16,209,1.0,true,,false
+短深度块交织 D=16,210,1.0,true,,false
+短深度块交织 D=16,211,1.0,true,,false
+短深度块交织 D=16,212,1.0,true,,false
+短深度块交织 D=16,213,1.0,true,,false
+短深度块交织 D=16,214,1.0,true,,false
+短深度块交织 D=16,215,1.0,true,,false
+短深度块交织 D=16,216,1.0,true,,false
+短深度块交织 D=16,217,1.0,true,,false
+短深度块交织 D=16,218,1.0,true,,false
+短深度块交织 D=16,219,1.0,true,,false
+短深度块交织 D=16,220,1.0,true,,false
+短深度块交织 D=16,221,1.0,true,,false
+短深度块交织 D=16,222,1.0,true,,false
+短深度块交织 D=16,223,1.0,true,,false
+短深度块交织 D=16,224,1.0,true,,false
+短深度块交织 D=16,225,1.0,true,,false
+短深度块交织 D=16,226,1.0,true,,false
+短深度块交织 D=16,227,1.0,true,,false
+短深度块交织 D=16,228,1.0,true,,false
+短深度块交织 D=16,229,1.0,true,,false
+短深度块交织 D=16,230,1.0,true,,false
+短深度块交织 D=16,231,1.0,true,,false
+短深度块交织 D=16,232,1.0,true,,false
+短深度块交织 D=16,233,1.0,true,,false
+短深度块交织 D=16,234,1.0,true,,false
+短深度块交织 D=16,235,1.0,true,,false
+短深度块交织 D=16,236,1.0,true,,false
+短深度块交织 D=16,237,1.0,true,,false
+短深度块交织 D=16,238,1.0,true,,false
+短深度块交织 D=16,239,1.0,true,,false
+短深度块交织 D=16,240,1.0,true,,false
+短深度块交织 D=16,241,1.0,true,,false
+短深度块交织 D=16,242,1.0,true,,false
+短深度块交织 D=16,243,1.0,true,,false
+短深度块交织 D=16,244,1.0,true,,false
+短深度块交织 D=16,245,1.0,true,,false
+短深度块交织 D=16,246,1.0,true,,false
+短深度块交织 D=16,247,1.0,true,,false
+短深度块交织 D=16,248,1.0,true,,false
+短深度块交织 D=16,249,1.0,true,,false
+短深度块交织 D=16,250,1.0,true,,false
+短深度块交织 D=16,251,1.0,true,,false
+短深度块交织 D=16,252,1.0,true,,false
+短深度块交织 D=16,253,1.0,true,,false
+短深度块交织 D=16,254,1.0,true,,false
+短深度块交织 D=16,255,1.0,true,,false
+短深度块交织 D=16,256,1.0,true,,false
+短深度块交织 D=16,257,1.0,true,,false
+短深度块交织 D=16,258,1.0,true,,false
+短深度块交织 D=16,259,1.0,true,,false
+短深度块交织 D=16,260,1.0,true,,false
+短深度块交织 D=16,261,1.0,true,,false
+短深度块交织 D=16,262,1.0,true,,false
+短深度块交织 D=16,263,1.0,true,,false
+短深度块交织 D=16,264,1.0,true,,false
+短深度块交织 D=16,265,1.0,true,,false
+短深度块交织 D=16,266,1.0,true,,false
+短深度块交织 D=16,267,1.0,true,,false
+短深度块交织 D=16,268,1.0,true,,false
+短深度块交织 D=16,269,1.0,true,,false
+短深度块交织 D=16,270,1.0,true,,false
+短深度块交织 D=16,271,1.0,true,,false
+短深度块交织 D=16,272,1.0,true,,false
+短深度块交织 D=16,273,1.0,true,,false
+短深度块交织 D=16,274,1.0,true,,false
+短深度块交织 D=16,275,1.0,true,,false
+短深度块交织 D=16,276,1.0,true,,false
+短深度块交织 D=16,277,1.0,true,,false
+短深度块交织 D=16,278,1.0,true,,false
+短深度块交织 D=16,279,1.0,true,,false
+短深度块交织 D=16,280,1.0,true,,false
+短深度块交织 D=16,281,1.0,true,,false
+短深度块交织 D=16,282,1.0,true,,false
+短深度块交织 D=16,283,1.0,true,,false
+短深度块交织 D=16,284,1.0,true,,false
+短深度块交织 D=16,285,1.0,true,,false
+短深度块交织 D=16,286,1.0,true,,false
+短深度块交织 D=16,287,1.0,true,,false
+短深度块交织 D=16,288,1.0,true,,false
+短深度块交织 D=16,289,1.0,true,,false
+短深度块交织 D=16,290,1.0,true,,false
+短深度块交织 D=16,291,1.0,true,,false
+短深度块交织 D=16,292,1.0,true,,false
+短深度块交织 D=16,293,1.0,true,,false
+短深度块交织 D=16,294,1.0,true,,false
+短深度块交织 D=16,295,1.0,true,,false
+短深度块交织 D=16,296,1.0,true,,false
+短深度块交织 D=16,297,1.0,true,,false
+短深度块交织 D=16,298,1.0,true,,false
+短深度块交织 D=16,299,1.0,true,,false
+短深度块交织 D=16,300,1.0,true,,false
+短深度块交织 D=16,301,1.0,true,,false
+短深度块交织 D=16,302,1.0,true,,false
+短深度块交织 D=16,303,1.0,true,,false
+短深度块交织 D=16,304,1.0,true,,false
+短深度块交织 D=16,305,1.0,true,,false
+短深度块交织 D=16,306,1.0,true,,false
+短深度块交织 D=16,307,1.0,true,,false
+短深度块交织 D=16,308,1.0,true,,false
+短深度块交织 D=16,309,1.0,true,,false
+短深度块交织 D=16,310,1.0,true,,false
+短深度块交织 D=16,311,1.0,true,,false
+短深度块交织 D=16,312,1.0,true,,false
+短深度块交织 D=16,313,1.0,true,,false
+短深度块交织 D=16,314,1.0,true,,false
+短深度块交织 D=16,315,1.0,true,,false
+短深度块交织 D=16,316,1.0,true,,false
+短深度块交织 D=16,317,1.0,true,,false
+短深度块交织 D=16,318,1.0,true,,false
+短深度块交织 D=16,319,1.0,true,,false
+短深度块交织 D=16,320,1.0,true,,false
+短深度块交织 D=16,321,1.0,true,,false
+短深度块交织 D=16,322,1.0,true,,false
+短深度块交织 D=16,323,1.0,true,,false
+短深度块交织 D=16,324,1.0,true,,false
+短深度块交织 D=16,325,1.0,true,,false
+短深度块交织 D=16,326,1.0,true,,false
+短深度块交织 D=16,327,1.0,true,,false
+短深度块交织 D=16,328,1.0,true,,false
+短深度块交织 D=16,329,1.0,true,,false
+短深度块交织 D=16,330,1.0,true,,false
+短深度块交织 D=16,331,1.0,true,,false
+短深度块交织 D=16,332,1.0,true,,false
+短深度块交织 D=16,333,1.0,true,,false
+短深度块交织 D=16,334,1.0,true,,false
+短深度块交织 D=16,335,1.0,true,,false
+短深度块交织 D=16,336,1.0,true,,false
+短深度块交织 D=16,337,1.0,true,,false
+短深度块交织 D=16,338,1.0,true,,false
+短深度块交织 D=16,339,1.0,true,,false
+短深度块交织 D=16,340,1.0,true,,false
+短深度块交织 D=16,341,1.0,true,,false
+短深度块交织 D=16,342,1.0,true,,false
+短深度块交织 D=16,343,1.0,true,,false
+短深度块交织 D=16,344,1.0,true,,false
+短深度块交织 D=16,345,1.0,true,,false
+短深度块交织 D=16,346,1.0,true,,false
+短深度块交织 D=16,347,1.0,true,,false
+短深度块交织 D=16,348,1.0,true,,false
+短深度块交织 D=16,349,1.0,true,,false
+短深度块交织 D=16,350,1.0,true,,false
+短深度块交织 D=16,351,1.0,true,,false
+短深度块交织 D=16,352,1.0,true,,false
+短深度块交织 D=16,353,1.0,true,,false
+短深度块交织 D=16,354,1.0,true,,false
+短深度块交织 D=16,355,1.0,true,,false
+短深度块交织 D=16,356,1.0,true,,false
+短深度块交织 D=16,357,1.0,true,,false
+短深度块交织 D=16,358,1.0,true,,false
+短深度块交织 D=16,359,1.0,true,,false
+短深度块交织 D=16,360,1.0,true,,false
+短深度块交织 D=16,361,1.0,true,,false
+短深度块交织 D=16,362,1.0,true,,false
+短深度块交织 D=16,363,1.0,true,,false
+短深度块交织 D=16,364,1.0,true,,false
+短深度块交织 D=16,365,1.0,true,,false
+短深度块交织 D=16,366,1.0,true,,false
+短深度块交织 D=16,367,1.0,true,,false
+短深度块交织 D=16,368,1.0,true,,false
+短深度块交织 D=16,369,1.0,true,,false
+短深度块交织 D=16,370,1.0,true,,false
+短深度块交织 D=16,371,1.0,true,,false
+短深度块交织 D=16,372,1.0,true,,false
+短深度块交织 D=16,373,1.0,true,,false
+短深度块交织 D=16,374,1.0,true,,false
+短深度块交织 D=16,375,1.0,true,,false
+短深度块交织 D=16,376,1.0,true,,false
+短深度块交织 D=16,377,1.0,true,,false
+短深度块交织 D=16,378,1.0,true,,false
+短深度块交织 D=16,379,1.0,true,,false
+短深度块交织 D=16,380,1.0,true,,false
+短深度块交织 D=16,381,1.0,true,,false
+短深度块交织 D=16,382,1.0,true,,false
+短深度块交织 D=16,383,1.0,true,,false
+短深度块交织 D=16,384,1.0,true,,false
+短深度块交织 D=16,385,1.0,true,,false
+短深度块交织 D=16,386,1.0,true,,false
+短深度块交织 D=16,387,1.0,true,,false
+短深度块交织 D=16,388,1.0,true,,false
+短深度块交织 D=16,389,1.0,true,,false
+短深度块交织 D=16,390,1.0,true,,false
+短深度块交织 D=16,391,1.0,true,,false
+短深度块交织 D=16,392,1.0,true,,false
+短深度块交织 D=16,393,1.0,true,,false
+短深度块交织 D=16,394,1.0,true,,false
+短深度块交织 D=16,395,1.0,true,,false
+短深度块交织 D=16,396,1.0,true,,false
+短深度块交织 D=16,397,1.0,true,,false
+短深度块交织 D=16,398,1.0,true,,false
+短深度块交织 D=16,399,1.0,true,,false
+短深度块交织 D=16,400,1.0,true,,false
+短深度块交织 D=16,401,1.0,true,,false
+短深度块交织 D=16,402,1.0,true,,false
+短深度块交织 D=16,403,1.0,true,,false
+短深度块交织 D=16,404,1.0,true,,false
+短深度块交织 D=16,405,1.0,true,,false
+短深度块交织 D=16,406,1.0,true,,false
+短深度块交织 D=16,407,1.0,true,,false
+短深度块交织 D=16,408,1.0,true,,false
+短深度块交织 D=16,409,1.0,true,,false
+短深度块交织 D=16,410,1.0,true,,false
+短深度块交织 D=16,411,1.0,true,,false
+短深度块交织 D=16,412,1.0,true,,false
+短深度块交织 D=16,413,1.0,true,,false
+短深度块交织 D=16,414,1.0,true,,false
+短深度块交织 D=16,415,1.0,true,,false
+短深度块交织 D=16,416,1.0,true,,false
+短深度块交织 D=16,417,1.0,true,,false
+短深度块交织 D=16,418,1.0,true,,false
+短深度块交织 D=16,419,1.0,true,,false
+短深度块交织 D=16,420,1.0,true,,false
+短深度块交织 D=16,421,1.0,true,,false
+短深度块交织 D=16,422,1.0,true,,false
+短深度块交织 D=16,423,1.0,true,,false
+短深度块交织 D=16,424,1.0,true,,false
+短深度块交织 D=16,425,1.0,true,,false
+短深度块交织 D=16,426,1.0,true,,false
+短深度块交织 D=16,427,1.0,true,,false
+短深度块交织 D=16,428,1.0,true,,false
+短深度块交织 D=16,429,1.0,true,,false
+短深度块交织 D=16,430,1.0,true,,false
+短深度块交织 D=16,431,1.0,true,,false
+短深度块交织 D=16,432,1.0,true,,false
+短深度块交织 D=16,433,1.0,true,,false
+短深度块交织 D=16,434,1.0,true,,false
+短深度块交织 D=16,435,1.0,true,,false
+短深度块交织 D=16,436,1.0,true,,false
+短深度块交织 D=16,437,1.0,true,,false
+短深度块交织 D=16,438,1.0,true,,false
+短深度块交织 D=16,439,1.0,true,,false
+短深度块交织 D=16,440,1.0,true,,false
+短深度块交织 D=16,441,1.0,true,,false
+短深度块交织 D=16,442,1.0,true,,false
+短深度块交织 D=16,443,1.0,true,,false
+短深度块交织 D=16,444,1.0,true,,false
+短深度块交织 D=16,445,1.0,true,,false
+短深度块交织 D=16,446,1.0,true,,false
+短深度块交织 D=16,447,1.0,true,,false
+短深度块交织 D=16,448,1.0,true,,false
+短深度块交织 D=16,449,1.0,true,,false
+短深度块交织 D=16,450,1.0,true,,false
+短深度块交织 D=16,451,1.0,true,,false
+短深度块交织 D=16,452,1.0,true,,false
+短深度块交织 D=16,453,1.0,true,,false
+短深度块交织 D=16,454,1.0,true,,false
+短深度块交织 D=16,455,1.0,true,,false
+短深度块交织 D=16,456,1.0,true,,false
+短深度块交织 D=16,457,1.0,true,,false
+短深度块交织 D=16,458,1.0,true,,false
+短深度块交织 D=16,459,1.0,true,,false
+短深度块交织 D=16,460,1.0,true,,false
+短深度块交织 D=16,461,1.0,true,,false
+短深度块交织 D=16,462,1.0,true,,false
+短深度块交织 D=16,463,1.0,true,,false
+短深度块交织 D=16,464,1.0,true,,false
+短深度块交织 D=16,465,1.0,true,,false
+短深度块交织 D=16,466,1.0,true,,false
+短深度块交织 D=16,467,1.0,true,,false
+短深度块交织 D=16,468,1.0,true,,false
+短深度块交织 D=16,469,1.0,true,,false
+短深度块交织 D=16,470,1.0,true,,false
+短深度块交织 D=16,471,1.0,true,,false
+短深度块交织 D=16,472,1.0,true,,false
+短深度块交织 D=16,473,1.0,true,,false
+短深度块交织 D=16,474,1.0,true,,false
+短深度块交织 D=16,475,1.0,true,,false
+短深度块交织 D=16,476,1.0,true,,false
+短深度块交织 D=16,477,1.0,true,,false
+短深度块交织 D=16,478,1.0,true,,false
+短深度块交织 D=16,479,1.0,true,,false
+短深度块交织 D=16,480,1.0,true,,false
+短深度块交织 D=16,481,1.0,true,,false
+短深度块交织 D=16,482,1.0,true,,false
+短深度块交织 D=16,483,1.0,true,,false
+短深度块交织 D=16,484,1.0,true,,false
+短深度块交织 D=16,485,1.0,true,,false
+短深度块交织 D=16,486,1.0,true,,false
+短深度块交织 D=16,487,1.0,true,,false
+短深度块交织 D=16,488,1.0,true,,false
+短深度块交织 D=16,489,1.0,true,,false
+短深度块交织 D=16,490,1.0,true,,false
+短深度块交织 D=16,491,1.0,true,,false
+短深度块交织 D=16,492,1.0,true,,false
+短深度块交织 D=16,493,1.0,true,,false
+短深度块交织 D=16,494,1.0,true,,false
+短深度块交织 D=16,495,1.0,true,,false
+短深度块交织 D=16,496,1.0,true,,false
+短深度块交织 D=16,497,1.0,true,,false
+短深度块交织 D=16,498,1.0,true,,false
+短深度块交织 D=16,499,1.0,true,,false
+短深度块交织 D=16,500,1.0,true,,false
+短深度块交织 D=16,501,1.0,true,,false
+短深度块交织 D=16,502,1.0,true,,false
+短深度块交织 D=16,503,1.0,true,,false
+短深度块交织 D=16,504,1.0,true,,false
+短深度块交织 D=16,505,1.0,true,,false
+短深度块交织 D=16,506,1.0,true,,false
+短深度块交织 D=16,507,1.0,true,,false
+短深度块交织 D=16,508,1.0,true,,false
+短深度块交织 D=16,509,1.0,true,,false
+短深度块交织 D=16,510,1.0,true,,false
+短深度块交织 D=16,511,1.0,true,,false
+短深度块交织 D=16,512,1.0,true,,false
+短深度块交织 D=16,513,1.0,true,,false
+短深度块交织 D=16,514,1.0,true,,false
+短深度块交织 D=16,515,1.0,true,,false
+短深度块交织 D=16,516,1.0,true,,false
+短深度块交织 D=16,517,1.0,true,,false
+短深度块交织 D=16,518,1.0,true,,false
+短深度块交织 D=16,519,1.0,true,,false
+短深度块交织 D=16,520,1.0,true,,false
+短深度块交织 D=16,521,1.0,true,,false
+短深度块交织 D=16,522,1.0,true,,false
+短深度块交织 D=16,523,1.0,true,,false
+短深度块交织 D=16,524,1.0,true,,false
+短深度块交织 D=16,525,1.0,true,,false
+短深度块交织 D=16,526,1.0,true,,false
+短深度块交织 D=16,527,1.0,true,,false
+短深度块交织 D=16,528,1.0,true,,false
+短深度块交织 D=16,529,1.0,true,,false
+短深度块交织 D=16,530,1.0,true,,false
+短深度块交织 D=16,531,1.0,true,,false
+短深度块交织 D=16,532,1.0,true,,false
+短深度块交织 D=16,533,1.0,true,,false
+短深度块交织 D=16,534,1.0,true,,false
+短深度块交织 D=16,535,1.0,true,,false
+短深度块交织 D=16,536,1.0,true,,false
+短深度块交织 D=16,537,1.0,true,,false
+短深度块交织 D=16,538,1.0,true,,false
+短深度块交织 D=16,539,1.0,true,,false
+短深度块交织 D=16,540,1.0,true,,false
+短深度块交织 D=16,541,1.0,true,,false
+短深度块交织 D=16,542,1.0,true,,false
+短深度块交织 D=16,543,1.0,true,,false
+短深度块交织 D=16,544,1.0,true,,false
+短深度块交织 D=16,545,1.0,true,,false
+短深度块交织 D=16,546,1.0,true,,false
+短深度块交织 D=16,547,1.0,true,,false
+短深度块交织 D=16,548,1.0,true,,false
+短深度块交织 D=16,549,1.0,true,,false
+短深度块交织 D=16,550,1.0,true,,false
+短深度块交织 D=16,551,1.0,true,,false
+短深度块交织 D=8,0,1.0,true,,false
+短深度块交织 D=8,1,1.0,true,,false
+短深度块交织 D=8,2,1.0,true,,false
+短深度块交织 D=8,3,1.0,true,,false
+短深度块交织 D=8,4,1.0,true,,false
+短深度块交织 D=8,5,1.0,true,,false
+短深度块交织 D=8,6,1.0,true,,false
+短深度块交织 D=8,7,1.0,true,,false
+短深度块交织 D=8,8,1.0,true,,false
+短深度块交织 D=8,9,1.0,true,,false
+短深度块交织 D=8,10,1.0,true,,false
+短深度块交织 D=8,11,1.0,true,,false
+短深度块交织 D=8,12,1.0,true,,false
+短深度块交织 D=8,13,1.0,true,,false
+短深度块交织 D=8,14,1.0,true,,false
+短深度块交织 D=8,15,1.0,true,,false
+短深度块交织 D=8,16,1.0,true,,false
+短深度块交织 D=8,17,1.0,true,,false
+短深度块交织 D=8,18,1.0,true,,false
+短深度块交织 D=8,19,1.0,true,,false
+短深度块交织 D=8,20,1.0,true,,false
+短深度块交织 D=8,21,1.0,true,,false
+短深度块交织 D=8,22,1.0,true,,false
+短深度块交织 D=8,23,1.0,true,,false
+短深度块交织 D=8,24,1.0,true,,false
+短深度块交织 D=8,25,1.0,true,,false
+短深度块交织 D=8,26,1.0,true,,false
+短深度块交织 D=8,27,1.0,true,,false
+短深度块交织 D=8,28,1.0,true,,false
+短深度块交织 D=8,29,1.0,true,,false
+短深度块交织 D=8,30,1.0,true,,false
+短深度块交织 D=8,31,1.0,true,,false
+短深度块交织 D=8,32,1.0,true,,false
+短深度块交织 D=8,33,1.0,true,,false
+短深度块交织 D=8,34,1.0,true,,false
+短深度块交织 D=8,35,1.0,true,,false
+短深度块交织 D=8,36,1.0,true,,false
+短深度块交织 D=8,37,1.0,true,,false
+短深度块交织 D=8,38,1.0,true,,false
+短深度块交织 D=8,39,1.0,true,,false
+短深度块交织 D=8,40,1.0,true,,false
+短深度块交织 D=8,41,1.0,true,,false
+短深度块交织 D=8,42,1.0,true,,false
+短深度块交织 D=8,43,1.0,true,,false
+短深度块交织 D=8,44,1.0,true,,false
+短深度块交织 D=8,45,1.0,true,,false
+短深度块交织 D=8,46,1.0,true,,false
+短深度块交织 D=8,47,1.0,true,,false
+短深度块交织 D=8,48,1.0,true,,false
+短深度块交织 D=8,49,1.0,true,,false
+短深度块交织 D=8,50,1.0,true,,false
+短深度块交织 D=8,51,1.0,true,,false
+短深度块交织 D=8,52,1.0,true,,false
+短深度块交织 D=8,53,1.0,true,,false
+短深度块交织 D=8,54,1.0,true,,false
+短深度块交织 D=8,55,1.0,true,,false
+短深度块交织 D=8,56,1.0,true,,false
+短深度块交织 D=8,57,1.0,true,,false
+短深度块交织 D=8,58,1.0,true,,false
+短深度块交织 D=8,59,1.0,true,,false
+短深度块交织 D=8,60,1.0,true,,false
+短深度块交织 D=8,61,1.0,true,,false
+短深度块交织 D=8,62,1.0,true,,false
+短深度块交织 D=8,63,1.0,true,,false
+短深度块交织 D=8,64,1.0,true,,false
+短深度块交织 D=8,65,1.0,true,,false
+短深度块交织 D=8,66,1.0,true,,false
+短深度块交织 D=8,67,1.0,true,,false
+短深度块交织 D=8,68,1.0,true,,false
+短深度块交织 D=8,69,1.0,true,,false
+短深度块交织 D=8,70,1.0,true,,false
+短深度块交织 D=8,71,1.0,true,,false
+短深度块交织 D=8,72,1.0,true,,false
+短深度块交织 D=8,73,1.0,true,,false
+短深度块交织 D=8,74,1.0,true,,false
+短深度块交织 D=8,75,1.0,true,,false
+短深度块交织 D=8,76,1.0,true,,false
+短深度块交织 D=8,77,1.0,true,,false
+短深度块交织 D=8,78,1.0,true,,false
+短深度块交织 D=8,79,1.0,true,,false
+短深度块交织 D=8,80,1.0,true,,false
+短深度块交织 D=8,81,1.0,true,,false
+短深度块交织 D=8,82,1.0,true,,false
+短深度块交织 D=8,83,1.0,true,,false
+短深度块交织 D=8,84,1.0,true,,false
+短深度块交织 D=8,85,1.0,true,,false
+短深度块交织 D=8,86,1.0,true,,false
+短深度块交织 D=8,87,1.0,true,,false
+短深度块交织 D=8,88,1.0,true,,false
+短深度块交织 D=8,89,1.0,true,,false
+短深度块交织 D=8,90,1.0,true,,false
+短深度块交织 D=8,91,1.0,true,,false
+短深度块交织 D=8,92,1.0,true,,false
+短深度块交织 D=8,93,1.0,true,,false
+短深度块交织 D=8,94,1.0,true,,false
+短深度块交织 D=8,95,1.0,true,,false
+短深度块交织 D=8,96,1.0,true,,false
+短深度块交织 D=8,97,1.0,true,,false
+短深度块交织 D=8,98,1.0,true,,false
+短深度块交织 D=8,99,1.0,true,,false
+短深度块交织 D=8,100,1.0,true,,false
+短深度块交织 D=8,101,1.0,true,,false
+短深度块交织 D=8,102,1.0,true,,false
+短深度块交织 D=8,103,1.0,true,,false
+短深度块交织 D=8,104,1.0,true,,false
+短深度块交织 D=8,105,1.0,true,,false
+短深度块交织 D=8,106,1.0,true,,false
+短深度块交织 D=8,107,1.0,true,,false
+短深度块交织 D=8,108,1.0,true,,false
+短深度块交织 D=8,109,1.0,true,,false
+短深度块交织 D=8,110,1.0,true,,false
+短深度块交织 D=8,111,1.0,true,,false
+短深度块交织 D=8,112,1.0,true,,false
+短深度块交织 D=8,113,1.0,true,,false
+短深度块交织 D=8,114,1.0,true,,false
+短深度块交织 D=8,115,1.0,true,,false
+短深度块交织 D=8,116,1.0,true,,false
+短深度块交织 D=8,117,1.0,true,,false
+短深度块交织 D=8,118,1.0,true,,false
+短深度块交织 D=8,119,1.0,true,,false
+短深度块交织 D=8,120,1.0,true,,false
+短深度块交织 D=8,121,1.0,true,,false
+短深度块交织 D=8,122,1.0,true,,false
+短深度块交织 D=8,123,1.0,true,,false
+短深度块交织 D=8,124,1.0,true,,false
+短深度块交织 D=8,125,1.0,true,,false
+短深度块交织 D=8,126,1.0,true,,false
+短深度块交织 D=8,127,1.0,true,,false
+短深度块交织 D=8,128,1.0,true,,false
+短深度块交织 D=8,129,1.0,true,,false
+短深度块交织 D=8,130,1.0,true,,false
+短深度块交织 D=8,131,1.0,true,,false
+短深度块交织 D=8,132,1.0,true,,false
+短深度块交织 D=8,133,1.0,true,,false
+短深度块交织 D=8,134,1.0,true,,false
+短深度块交织 D=8,135,1.0,true,,false
+短深度块交织 D=8,136,1.0,true,,false
+短深度块交织 D=8,137,1.0,true,,false
+短深度块交织 D=8,138,1.0,true,,false
+短深度块交织 D=8,139,1.0,true,,false
+短深度块交织 D=8,140,1.0,true,,false
+短深度块交织 D=8,141,1.0,true,,false
+短深度块交织 D=8,142,1.0,true,,false
+短深度块交织 D=8,143,1.0,true,,false
+短深度块交织 D=8,144,1.0,true,,false
+短深度块交织 D=8,145,1.0,true,,false
+短深度块交织 D=8,146,1.0,true,,false
+短深度块交织 D=8,147,1.0,true,,false
+短深度块交织 D=8,148,1.0,true,,false
+短深度块交织 D=8,149,1.0,true,,false
+短深度块交织 D=8,150,1.0,true,,false
+短深度块交织 D=8,151,1.0,true,,false
+短深度块交织 D=8,152,1.0,true,,false
+短深度块交织 D=8,153,1.0,true,,false
+短深度块交织 D=8,154,1.0,true,,false
+短深度块交织 D=8,155,1.0,true,,false
+短深度块交织 D=8,156,1.0,true,,false
+短深度块交织 D=8,157,1.0,true,,false
+短深度块交织 D=8,158,1.0,true,,false
+短深度块交织 D=8,159,1.0,true,,false
+短深度块交织 D=8,160,1.0,true,,false
+短深度块交织 D=8,161,1.0,true,,false
+短深度块交织 D=8,162,1.0,true,,false
+短深度块交织 D=8,163,1.0,true,,false
+短深度块交织 D=8,164,1.0,true,,false
+短深度块交织 D=8,165,1.0,true,,false
+短深度块交织 D=8,166,1.0,true,,false
+短深度块交织 D=8,167,1.0,true,,false
+短深度块交织 D=8,168,1.0,true,,false
+短深度块交织 D=8,169,1.0,true,,false
+短深度块交织 D=8,170,1.0,true,,false
+短深度块交织 D=8,171,1.0,true,,false
+短深度块交织 D=8,172,1.0,true,,false
+短深度块交织 D=8,173,1.0,true,,false
+短深度块交织 D=8,174,1.0,true,,false
+短深度块交织 D=8,175,1.0,true,,false
+短深度块交织 D=8,176,1.0,true,,false
+短深度块交织 D=8,177,1.0,true,,false
+短深度块交织 D=8,178,1.0,true,,false
+短深度块交织 D=8,179,1.0,true,,false
+短深度块交织 D=8,180,1.0,true,,false
+短深度块交织 D=8,181,1.0,true,,false
+短深度块交织 D=8,182,1.0,true,,false
+短深度块交织 D=8,183,1.0,true,,false
+短深度块交织 D=8,184,1.0,true,,false
+短深度块交织 D=8,185,1.0,true,,false
+短深度块交织 D=8,186,1.0,true,,false
+短深度块交织 D=8,187,1.0,true,,false
+短深度块交织 D=8,188,1.0,true,,false
+短深度块交织 D=8,189,1.0,true,,false
+短深度块交织 D=8,190,1.0,true,,false
+短深度块交织 D=8,191,1.0,true,,false
+短深度块交织 D=8,192,1.0,true,,false
+短深度块交织 D=8,193,1.0,true,,false
+短深度块交织 D=8,194,1.0,true,,false
+短深度块交织 D=8,195,1.0,true,,false
+短深度块交织 D=8,196,1.0,true,,false
+短深度块交织 D=8,197,1.0,true,,false
+短深度块交织 D=8,198,1.0,true,,false
+短深度块交织 D=8,199,1.0,true,,false
+短深度块交织 D=8,200,1.0,true,,false
+短深度块交织 D=8,201,1.0,true,,false
+短深度块交织 D=8,202,1.0,true,,false
+短深度块交织 D=8,203,1.0,true,,false
+短深度块交织 D=8,204,1.0,true,,false
+短深度块交织 D=8,205,1.0,true,,false
+短深度块交织 D=8,206,1.0,true,,false
+短深度块交织 D=8,207,1.0,true,,false
+短深度块交织 D=8,208,1.0,true,,false
+短深度块交织 D=8,209,1.0,true,,false
+短深度块交织 D=8,210,1.0,true,,false
+短深度块交织 D=8,211,1.0,true,,false
+短深度块交织 D=8,212,1.0,true,,false
+短深度块交织 D=8,213,1.0,true,,false
+短深度块交织 D=8,214,1.0,true,,false
+短深度块交织 D=8,215,1.0,true,,false
+短深度块交织 D=8,216,1.0,true,,false
+短深度块交织 D=8,217,1.0,true,,false
+短深度块交织 D=8,218,1.0,true,,false
+短深度块交织 D=8,219,1.0,true,,false
+短深度块交织 D=8,220,1.0,true,,false
+短深度块交织 D=8,221,1.0,true,,false
+短深度块交织 D=8,222,1.0,true,,false
+短深度块交织 D=8,223,1.0,true,,false
+短深度块交织 D=8,224,1.0,true,,false
+短深度块交织 D=8,225,1.0,true,,false
+短深度块交织 D=8,226,1.0,true,,false
+短深度块交织 D=8,227,1.0,true,,false
+短深度块交织 D=8,228,1.0,true,,false
+短深度块交织 D=8,229,1.0,true,,false
+短深度块交织 D=8,230,1.0,true,,false
+短深度块交织 D=8,231,1.0,true,,false
+短深度块交织 D=8,232,1.0,true,,false
+短深度块交织 D=8,233,1.0,true,,false
+短深度块交织 D=8,234,1.0,true,,false
+短深度块交织 D=8,235,1.0,true,,false
+短深度块交织 D=8,236,1.0,true,,false
+短深度块交织 D=8,237,1.0,true,,false
+短深度块交织 D=8,238,1.0,true,,false
+短深度块交织 D=8,239,1.0,true,,false
+短深度块交织 D=8,240,1.0,true,,false
+短深度块交织 D=8,241,1.0,true,,false
+短深度块交织 D=8,242,1.0,true,,false
+短深度块交织 D=8,243,1.0,true,,false
+短深度块交织 D=8,244,1.0,true,,false
+短深度块交织 D=8,245,1.0,true,,false
+短深度块交织 D=8,246,1.0,true,,false
+短深度块交织 D=8,247,1.0,true,,false
+短深度块交织 D=8,248,1.0,true,,false
+短深度块交织 D=8,249,1.0,true,,false
+短深度块交织 D=8,250,1.0,true,,false
+短深度块交织 D=8,251,1.0,true,,false
+短深度块交织 D=8,252,1.0,true,,false
+短深度块交织 D=8,253,1.0,true,,false
+短深度块交织 D=8,254,1.0,true,,false
+短深度块交织 D=8,255,1.0,true,,false
+短深度块交织 D=8,256,1.0,true,,false
+短深度块交织 D=8,257,1.0,true,,false
+短深度块交织 D=8,258,1.0,true,,false
+短深度块交织 D=8,259,1.0,true,,false
+短深度块交织 D=8,260,1.0,true,,false
+短深度块交织 D=8,261,1.0,true,,false
+短深度块交织 D=8,262,1.0,true,,false
+短深度块交织 D=8,263,1.0,true,,false
+短深度块交织 D=8,264,1.0,true,,false
+短深度块交织 D=8,265,1.0,true,,false
+短深度块交织 D=8,266,1.0,true,,false
+短深度块交织 D=8,267,1.0,true,,false
+短深度块交织 D=8,268,1.0,true,,false
+短深度块交织 D=8,269,1.0,true,,false
+短深度块交织 D=8,270,1.0,true,,false
+短深度块交织 D=8,271,1.0,true,,false
+短深度块交织 D=8,272,1.0,true,,false
+短深度块交织 D=8,273,1.0,true,,false
+短深度块交织 D=8,274,1.0,true,,false
+短深度块交织 D=8,275,1.0,true,,false
+短深度块交织 D=8,276,1.0,true,,false
+短深度块交织 D=8,277,1.0,true,,false
+短深度块交织 D=8,278,1.0,true,,false
+短深度块交织 D=8,279,1.0,true,,false
+短深度块交织 D=8,280,1.0,true,,false
+短深度块交织 D=8,281,1.0,true,,false
+短深度块交织 D=8,282,1.0,true,,false
+短深度块交织 D=8,283,1.0,true,,false
+短深度块交织 D=8,284,1.0,true,,false
+短深度块交织 D=8,285,1.0,true,,false
+短深度块交织 D=8,286,1.0,true,,false
+短深度块交织 D=8,287,1.0,true,,false
+短深度块交织 D=8,288,1.0,true,,false
+短深度块交织 D=8,289,1.0,true,,false
+短深度块交织 D=8,290,1.0,true,,false
+短深度块交织 D=8,291,1.0,true,,false
+短深度块交织 D=8,292,1.0,true,,false
+短深度块交织 D=8,293,1.0,true,,false
+短深度块交织 D=8,294,1.0,true,,false
+短深度块交织 D=8,295,1.0,true,,false
+短深度块交织 D=8,296,1.0,true,,false
+短深度块交织 D=8,297,1.0,true,,false
+短深度块交织 D=8,298,1.0,true,,false
+短深度块交织 D=8,299,1.0,true,,false
+短深度块交织 D=8,300,1.0,true,,false
+短深度块交织 D=8,301,1.0,true,,false
+短深度块交织 D=8,302,1.0,true,,false
+短深度块交织 D=8,303,1.0,true,,false
+短深度块交织 D=8,304,1.0,true,,false
+短深度块交织 D=8,305,1.0,true,,false
+短深度块交织 D=8,306,1.0,true,,false
+短深度块交织 D=8,307,1.0,true,,false
+短深度块交织 D=8,308,1.0,true,,false
+短深度块交织 D=8,309,1.0,true,,false
+短深度块交织 D=8,310,1.0,true,,false
+短深度块交织 D=8,311,1.0,true,,false
+短深度块交织 D=8,312,1.0,true,,false
+短深度块交织 D=8,313,1.0,true,,false
+短深度块交织 D=8,314,1.0,true,,false
+短深度块交织 D=8,315,1.0,true,,false
+短深度块交织 D=8,316,1.0,true,,false
+短深度块交织 D=8,317,1.0,true,,false
+短深度块交织 D=8,318,1.0,true,,false
+短深度块交织 D=8,319,1.0,true,,false
+短深度块交织 D=8,320,1.0,true,,false
+短深度块交织 D=8,321,1.0,true,,false
+短深度块交织 D=8,322,1.0,true,,false
+短深度块交织 D=8,323,1.0,true,,false
+短深度块交织 D=8,324,1.0,true,,false
+短深度块交织 D=8,325,1.0,true,,false
+短深度块交织 D=8,326,1.0,true,,false
+短深度块交织 D=8,327,1.0,true,,false
+短深度块交织 D=8,328,1.0,true,,false
+短深度块交织 D=8,329,1.0,true,,false
+短深度块交织 D=8,330,1.0,true,,false
+短深度块交织 D=8,331,1.0,true,,false
+短深度块交织 D=8,332,1.0,true,,false
+短深度块交织 D=8,333,1.0,true,,false
+短深度块交织 D=8,334,1.0,true,,false
+短深度块交织 D=8,335,1.0,true,,false
+短深度块交织 D=8,336,1.0,true,,false
+短深度块交织 D=8,337,1.0,true,,false
+短深度块交织 D=8,338,1.0,true,,false
+短深度块交织 D=8,339,1.0,true,,false
+短深度块交织 D=8,340,1.0,true,,false
+短深度块交织 D=8,341,1.0,true,,false
+短深度块交织 D=8,342,1.0,true,,false
+短深度块交织 D=8,343,1.0,true,,false
+短深度块交织 D=8,344,1.0,true,,false
+短深度块交织 D=8,345,1.0,true,,false
+短深度块交织 D=8,346,1.0,true,,false
+短深度块交织 D=8,347,1.0,true,,false
+短深度块交织 D=8,348,1.0,true,,false
+短深度块交织 D=8,349,1.0,true,,false
+短深度块交织 D=8,350,1.0,true,,false
+短深度块交织 D=8,351,1.0,true,,false
+短深度块交织 D=8,352,1.0,true,,false
+短深度块交织 D=8,353,1.0,true,,false
+短深度块交织 D=8,354,1.0,true,,false
+短深度块交织 D=8,355,1.0,true,,false
+短深度块交织 D=8,356,1.0,true,,false
+短深度块交织 D=8,357,1.0,true,,false
+短深度块交织 D=8,358,1.0,true,,false
+短深度块交织 D=8,359,1.0,true,,false
+短深度块交织 D=8,360,1.0,true,,false
+短深度块交织 D=8,361,1.0,true,,false
+短深度块交织 D=8,362,1.0,true,,false
+短深度块交织 D=8,363,1.0,true,,false
+短深度块交织 D=8,364,1.0,true,,false
+短深度块交织 D=8,365,1.0,true,,false
+短深度块交织 D=8,366,1.0,true,,false
+短深度块交织 D=8,367,1.0,true,,false
+短深度块交织 D=8,368,1.0,true,,false
+短深度块交织 D=8,369,1.0,true,,false
+短深度块交织 D=8,370,1.0,true,,false
+短深度块交织 D=8,371,1.0,true,,false
+短深度块交织 D=8,372,1.0,true,,false
+短深度块交织 D=8,373,1.0,true,,false
+短深度块交织 D=8,374,1.0,true,,false
+短深度块交织 D=8,375,1.0,true,,false
+短深度块交织 D=8,376,1.0,true,,false
+短深度块交织 D=8,377,1.0,true,,false
+短深度块交织 D=8,378,1.0,true,,false
+短深度块交织 D=8,379,1.0,true,,false
+短深度块交织 D=8,380,1.0,true,,false
+短深度块交织 D=8,381,1.0,true,,false
+短深度块交织 D=8,382,1.0,true,,false
+短深度块交织 D=8,383,1.0,true,,false
+短深度块交织 D=8,384,1.0,true,,false
+短深度块交织 D=8,385,1.0,true,,false
+短深度块交织 D=8,386,1.0,true,,false
+短深度块交织 D=8,387,1.0,true,,false
+短深度块交织 D=8,388,1.0,true,,false
+短深度块交织 D=8,389,1.0,true,,false
+短深度块交织 D=8,390,1.0,true,,false
+短深度块交织 D=8,391,1.0,true,,false
+短深度块交织 D=8,392,1.0,true,,false
+短深度块交织 D=8,393,1.0,true,,false
+短深度块交织 D=8,394,1.0,true,,false
+短深度块交织 D=8,395,1.0,true,,false
+短深度块交织 D=8,396,1.0,true,,false
+短深度块交织 D=8,397,1.0,true,,false
+短深度块交织 D=8,398,1.0,true,,false
+短深度块交织 D=8,399,1.0,true,,false
+短深度块交织 D=8,400,1.0,true,,false
+短深度块交织 D=8,401,1.0,true,,false
+短深度块交织 D=8,402,1.0,true,,false
+短深度块交织 D=8,403,1.0,true,,false
+短深度块交织 D=8,404,1.0,true,,false
+短深度块交织 D=8,405,1.0,true,,false
+短深度块交织 D=8,406,1.0,true,,false
+短深度块交织 D=8,407,1.0,true,,false
+短深度块交织 D=8,408,1.0,true,,false
+短深度块交织 D=8,409,1.0,true,,false
+短深度块交织 D=8,410,1.0,true,,false
+短深度块交织 D=8,411,1.0,true,,false
+短深度块交织 D=8,412,1.0,true,,false
+短深度块交织 D=8,413,1.0,true,,false
+短深度块交织 D=8,414,1.0,true,,false
+短深度块交织 D=8,415,1.0,true,,false
+短深度块交织 D=8,416,1.0,true,,false
+短深度块交织 D=8,417,1.0,true,,false
+短深度块交织 D=8,418,1.0,true,,false
+短深度块交织 D=8,419,1.0,true,,false
+短深度块交织 D=8,420,1.0,true,,false
+短深度块交织 D=8,421,1.0,true,,false
+短深度块交织 D=8,422,1.0,true,,false
+短深度块交织 D=8,423,1.0,true,,false
+短深度块交织 D=8,424,1.0,true,,false
+短深度块交织 D=8,425,1.0,true,,false
+短深度块交织 D=8,426,1.0,true,,false
+短深度块交织 D=8,427,1.0,true,,false
+短深度块交织 D=8,428,1.0,true,,false
+短深度块交织 D=8,429,1.0,true,,false
+短深度块交织 D=8,430,1.0,true,,false
+短深度块交织 D=8,431,1.0,true,,false
+短深度块交织 D=8,432,1.0,true,,false
+短深度块交织 D=8,433,1.0,true,,false
+短深度块交织 D=8,434,1.0,true,,false
+短深度块交织 D=8,435,1.0,true,,false
+短深度块交织 D=8,436,1.0,true,,false
+短深度块交织 D=8,437,1.0,true,,false
+短深度块交织 D=8,438,1.0,true,,false
+短深度块交织 D=8,439,1.0,true,,false
+短深度块交织 D=8,440,1.0,true,,false
+短深度块交织 D=8,441,1.0,true,,false
+短深度块交织 D=8,442,1.0,true,,false
+短深度块交织 D=8,443,1.0,true,,false
+短深度块交织 D=8,444,1.0,true,,false
+短深度块交织 D=8,445,1.0,true,,false
+短深度块交织 D=8,446,1.0,true,,false
+短深度块交织 D=8,447,1.0,true,,false
+短深度块交织 D=8,448,1.0,true,,false
+短深度块交织 D=8,449,1.0,true,,false
+短深度块交织 D=8,450,1.0,true,,false
+短深度块交织 D=8,451,1.0,true,,false
+短深度块交织 D=8,452,1.0,true,,false
+短深度块交织 D=8,453,1.0,true,,false
+短深度块交织 D=8,454,1.0,true,,false
+短深度块交织 D=8,455,1.0,true,,false
+短深度块交织 D=8,456,1.0,true,,false
+短深度块交织 D=8,457,1.0,true,,false
+短深度块交织 D=8,458,1.0,true,,false
+短深度块交织 D=8,459,1.0,true,,false
+短深度块交织 D=8,460,1.0,true,,false
+短深度块交织 D=8,461,1.0,true,,false
+短深度块交织 D=8,462,1.0,true,,false
+短深度块交织 D=8,463,1.0,true,,false
+短深度块交织 D=8,464,1.0,true,,false
+短深度块交织 D=8,465,1.0,true,,false
+短深度块交织 D=8,466,1.0,true,,false
+短深度块交织 D=8,467,1.0,true,,false
+短深度块交织 D=8,468,1.0,true,,false
+短深度块交织 D=8,469,1.0,true,,false
+短深度块交织 D=8,470,1.0,true,,false
+短深度块交织 D=8,471,1.0,true,,false
+短深度块交织 D=8,472,1.0,true,,false
+短深度块交织 D=8,473,1.0,true,,false
+短深度块交织 D=8,474,1.0,true,,false
+短深度块交织 D=8,475,1.0,true,,false
+短深度块交织 D=8,476,1.0,true,,false
+短深度块交织 D=8,477,1.0,true,,false
+短深度块交织 D=8,478,1.0,true,,false
+短深度块交织 D=8,479,1.0,true,,false
+短深度块交织 D=8,480,1.0,true,,false
+短深度块交织 D=8,481,1.0,true,,false
+短深度块交织 D=8,482,1.0,true,,false
+短深度块交织 D=8,483,1.0,true,,false
+短深度块交织 D=8,484,1.0,true,,false
+短深度块交织 D=8,485,1.0,true,,false
+短深度块交织 D=8,486,1.0,true,,false
+短深度块交织 D=8,487,1.0,true,,false
+短深度块交织 D=8,488,1.0,true,,false
+短深度块交织 D=8,489,1.0,true,,false
+短深度块交织 D=8,490,1.0,true,,false
+短深度块交织 D=8,491,1.0,true,,false
+短深度块交织 D=8,492,1.0,true,,false
+短深度块交织 D=8,493,1.0,true,,false
+短深度块交织 D=8,494,1.0,true,,false
+短深度块交织 D=8,495,1.0,true,,false
+短深度块交织 D=8,496,1.0,true,,false
+短深度块交织 D=8,497,1.0,true,,false
+短深度块交织 D=8,498,1.0,true,,false
+短深度块交织 D=8,499,1.0,true,,false
+短深度块交织 D=8,500,1.0,true,,false
+短深度块交织 D=8,501,1.0,true,,false
+短深度块交织 D=8,502,1.0,true,,false
+短深度块交织 D=8,503,1.0,true,,false
+短深度块交织 D=8,504,1.0,true,,false
+短深度块交织 D=8,505,1.0,true,,false
+短深度块交织 D=8,506,1.0,true,,false
+短深度块交织 D=8,507,1.0,true,,false
+短深度块交织 D=8,508,1.0,true,,false
+短深度块交织 D=8,509,1.0,true,,false
+短深度块交织 D=8,510,1.0,true,,false
+短深度块交织 D=8,511,1.0,true,,false
+短深度块交织 D=8,512,1.0,true,,false
+短深度块交织 D=8,513,1.0,true,,false
+短深度块交织 D=8,514,1.0,true,,false
+短深度块交织 D=8,515,1.0,true,,false
+短深度块交织 D=8,516,1.0,true,,false
+短深度块交织 D=8,517,1.0,true,,false
+短深度块交织 D=8,518,1.0,true,,false
+短深度块交织 D=8,519,1.0,true,,false
+短深度块交织 D=8,520,1.0,true,,false
+短深度块交织 D=8,521,1.0,true,,false
+短深度块交织 D=8,522,1.0,true,,false
+短深度块交织 D=8,523,1.0,true,,false
+短深度块交织 D=8,524,1.0,true,,false
+短深度块交织 D=8,525,1.0,true,,false
+短深度块交织 D=8,526,1.0,true,,false
+短深度块交织 D=8,527,1.0,true,,false
+短深度块交织 D=8,528,1.0,true,,false
+短深度块交织 D=8,529,1.0,true,,false
+短深度块交织 D=8,530,1.0,true,,false
+短深度块交织 D=8,531,1.0,true,,false
+短深度块交织 D=8,532,1.0,true,,false
+短深度块交织 D=8,533,1.0,true,,false
+短深度块交织 D=8,534,1.0,true,,false
+短深度块交织 D=8,535,1.0,true,,false
+短深度块交织 D=8,536,1.0,true,,false
+短深度块交织 D=8,537,1.0,true,,false
+短深度块交织 D=8,538,1.0,true,,false
+短深度块交织 D=8,539,1.0,true,,false
+短深度块交织 D=8,540,1.0,true,,false
+短深度块交织 D=8,541,1.0,true,,false
+短深度块交织 D=8,542,1.0,true,,false
+短深度块交织 D=8,543,1.0,true,,false
+短深度块交织 D=8,544,1.0,true,,false
+短深度块交织 D=8,545,1.0,true,,false
+短深度块交织 D=8,546,1.0,true,,false
+短深度块交织 D=8,547,1.0,true,,false
+短深度块交织 D=8,548,1.0,true,,false
+短深度块交织 D=8,549,1.0,true,,false
+短深度块交织 D=8,550,1.0,true,,false
+短深度块交织 D=8,551,1.0,true,,false

@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "branch": "S7-Comparision",
+  "checkCount": 12,
+  "checks": [
+    "PASS_BRANCH",
+    "PASS_FROZEN_SCOPE_PATH",
+    "PASS_STAGE_RECORDS",
+    "PASS_README_COVERAGE",
+    "PASS_NO_GENERATED_BINARY",
+    "PASS_CONFIG",
+    "PASS_ZERO_POLICY",
+    "PASS_FORMAL_AUTHORIZATION_AND_CC_CONTROL",
+    "PASS_CPP_MATLAB_72",
+    "PASS_PRESCAN_612",
+    "PASS_ARCHIVE_INTEGRITY",
+    "PASS_READY_TO_START_STAGE10"
+  ],
+  "stage10Authorized": true,
+  "mergeStatus": "NOT_MERGED"
+}

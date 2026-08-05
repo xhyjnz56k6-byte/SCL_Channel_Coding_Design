@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "rowCount": 612,
+  "candidateCount": 17,
+  "fairnessGroupCount": 72,
+  "informativeFairnessGroupCount": 36,
+  "weights": {
+    "meanFer": 0.4,
+    "worstPositionFer": 0.3,
+    "bufferFraction": 0.15,
+    "deinterleaveCost": 0.15
+  },
+  "formal": {
+    "comparisonGroupsPerScheme": 558,
+    "comparisonGroupsTotal": 1116,
+    "schemePoints": {
+      "BCH": 2232,
+      "CC": 1674
+    },
+    "totalSchemePoints": 3906,
+    "runtimeHoursMinFrames": 0.199935920218254,
+    "runtimeHoursPlannedFrames": 0.99967960109127,
+    "runtimeHoursMaxFrames": 9.9967960109127,
+    "diskMaxMiB": 770.51953125
+  },
+  "recommendations": {
+    "BCH": {
+      "method": "ROW_COLUMN",
+      "parameter": 15,
+      "score": 0.15655512778505892,
+      "rank": 1
+    },
+    "CC": {
+      "method": "PSEUDORANDOM",
+      "parameter": 128,
+      "score": 0.25,
+      "rank": 1
+    }
+  },
+  "rawCsvAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage09_parameter_prescan\\results\\prescan_raw.csv",
+  "rankingCsvAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage09_parameter_prescan\\results\\candidate_ranking.csv"
+}

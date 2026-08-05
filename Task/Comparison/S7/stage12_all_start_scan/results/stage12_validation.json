@@ -1,0 +1,14 @@
+{
+  "BCH": {
+    "rows": 6348,
+    "groups": 1587,
+    "expectedGroups": 1587
+  },
+  "CC": {
+    "rows": 13608,
+    "groups": 3402,
+    "expectedGroups": 3402
+  },
+  "status": "PASS",
+  "mergeStatus": "NOT_MERGED"
+}

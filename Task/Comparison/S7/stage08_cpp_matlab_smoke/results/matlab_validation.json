@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "checkCount": 72,
+  "failedCount": 0,
+  "mappingCsvAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage08_cpp_matlab_smoke\\results\\mapping_vectors.csv",
+  "channelCsvAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage08_cpp_matlab_smoke\\results\\channel_vector.csv"
+}

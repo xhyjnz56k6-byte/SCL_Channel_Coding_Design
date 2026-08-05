@@ -1,0 +1,5 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+BCH码块交织 D=19,,332.20992703953624,true,,false
+全帧伪随机交织,,334.713929019136,true,,false
+无交织,,314.8911628408961,true,,false
+行列交织 rows=15,,327.0572873305971,true,,false

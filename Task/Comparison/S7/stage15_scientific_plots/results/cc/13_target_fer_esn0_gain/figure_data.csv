@@ -1,0 +1,10 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+伪随机交织 span=128,2%,,false,INTERPOLATED,false
+短深度块交织 D=16,2%,,false,TARGET_NOT_BRACKETED,false
+短深度块交织 D=8,2%,,false,TARGET_NOT_BRACKETED,false
+伪随机交织 span=128,5%,,false,TARGET_NOT_BRACKETED,false
+短深度块交织 D=16,5%,,false,TARGET_NOT_BRACKETED,false
+短深度块交织 D=8,5%,,false,TARGET_NOT_BRACKETED,false
+伪随机交织 span=128,10%,,false,TARGET_NOT_BRACKETED,false
+短深度块交织 D=16,10%,,false,TARGET_NOT_BRACKETED,false
+短深度块交织 D=8,10%,,false,TARGET_NOT_BRACKETED,false

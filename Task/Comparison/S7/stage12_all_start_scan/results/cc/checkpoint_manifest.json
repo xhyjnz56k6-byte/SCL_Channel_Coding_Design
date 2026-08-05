@@ -1,0 +1,10 @@
+{
+  "status": "COMPLETE",
+  "scheme": "CC",
+  "configHash": "d5e8479688e461251dba53d24c4ac102b24fb82a9e99b5a8b7afd67f12004b45",
+  "completedGroups": 3402,
+  "totalGroups": 3402,
+  "framesPerStart": 200,
+  "resumeSource": "validated_csv_row_count",
+  "mergeStatus": "NOT_MERGED"
+}

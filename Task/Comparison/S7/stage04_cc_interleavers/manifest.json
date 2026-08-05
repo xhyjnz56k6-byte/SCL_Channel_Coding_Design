@@ -1,0 +1,2 @@
+{"stage":"stage04_cc_interleavers","branch":"S7-Comparision","functionalRanges":[],"files":["Task/Comparison/S7/current/include/s7/s7.hpp","Task/Comparison/S7/current/src/s7.cpp","Task/Comparison/S7/current/tests/test_s7.cpp"],"gate":"PASS","remoteVerification":"NOT_REQUESTED","mergeStatus":"NOT_MERGED"}
+

@@ -1,0 +1,3 @@
+scheme,method,parameter,payload_bits,encoded_bits,decoded_bits,bit_errors,traceback_final_state,mapping_sha256
+BCH,BCH_CODEBLOCK,19,200,285,200,0,NA,df44ec62eb0e5d19c68e38cc1e90d8bcfe3dc86f8d43caee9ec245092b1d89f0
+CC,PSEUDORANDOM,64,300,612,300,0,0,5eb08fb5c35c0440564a4c5cb5802aa6eb73fb98418ca44d9d63c76670cd9d63
