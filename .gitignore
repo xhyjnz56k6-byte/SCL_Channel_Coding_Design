@@ -30,3 +30,18 @@ Task/Comparison/S6/**/*.pdb
 # S7 generated artifacts
 Task/Comparison/**/build/
 
+# Latex文件限制
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.synctex.gz
+*.xdv
+_build/
+
