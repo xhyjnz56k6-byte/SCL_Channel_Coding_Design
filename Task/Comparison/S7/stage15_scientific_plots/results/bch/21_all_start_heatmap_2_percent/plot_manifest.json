@@ -1,0 +1,31 @@
+{
+  "plotId": "21_all_start_heatmap_2_percent",
+  "scheme": "BCH",
+  "title": "BCH 2%突发全起点热力图",
+  "xAxis": "突发起点（编码 bit，零基）",
+  "yAxis": "交织配置",
+  "colorAxis": "误帧率",
+  "colorRange": [
+    0,
+    1
+  ],
+  "logYAxis": false,
+  "sourceAbsolutePaths": [
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage12_all_start_scan\\results\\bch_2_percent\\all_start_results.csv"
+  ],
+  "historicalReferenceAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S6\\results\\ldpc\\ldpc_n560_integrated_results.csv",
+  "historicalReferenceUsedInFigure": false,
+  "burstRatioRequested": 0.02,
+  "burstLengthBits": 6,
+  "encodedLengthBits": 285,
+  "framesPerStart": 200,
+  "startRange": [
+    0,
+    279
+  ],
+  "zeroPolicy": "linear heatmap retains and displays raw zero",
+  "smoothingApplied": false,
+  "interpolation": "nearest",
+  "forbiddenAnnotations": [],
+  "mergeStatus": "NOT_MERGED"
+}

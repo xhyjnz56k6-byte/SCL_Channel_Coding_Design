@@ -31,7 +31,7 @@ BCH Formal 比较 NONE、BCH_CODEBLOCK D=19、ROW_COLUMN rows=15 和 GLOBAL_PSEU
 - BCH Formal：2232 行、558 组，PASS。
 - CC Formal：2232 行、558 组，PASS。
 - Stage12：BCH 6348 行/1587 组；CC 13608 行/3402 组，PASS。
-- 科研图：BCH 21、CC 21，共 42 张，资产与 SHA Gate PASS。
+- 科研图：BCH 29、CC 21，共 50 张，资产与 SHA Gate PASS。BCH 全起点热力图正式展示 2%与5%；10%下所有起点和配置 FER=1 的旧图已归档，原始数据仍保留。
 
 ## 6. BCH 结果与推荐
 

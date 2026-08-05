@@ -110,16 +110,22 @@ void writeHeader(std::ofstream& out) {
 int main(int argc, char** argv) {
     try {
         if (argc < 6)
-            throw std::invalid_argument("usage: s7_all_start_runner BCH|CC OUTPUT_DIR LOW MID HIGH [--group-limit N]");
+            throw std::invalid_argument("usage: s7_all_start_runner BCH|CC OUTPUT_DIR LOW MID HIGH [--group-limit N] [--ratio R]");
         const std::string scheme = argv[1];
         if (scheme != "BCH" && scheme != "CC") throw std::invalid_argument("scheme must be BCH or CC");
         const fs::path output = fs::absolute(argv[2]);
         const std::vector<double> snrs{std::stod(argv[3]), std::stod(argv[4]), std::stod(argv[5])};
         if (!(snrs[0] < snrs[1] && snrs[1] < snrs[2])) throw std::invalid_argument("workpoints must be strictly increasing");
         std::size_t groupLimit = static_cast<std::size_t>(-1);
+        std::vector<double> ratios{0.05, 0.10};
         for (int i = 6; i < argc; ++i) {
             const std::string option = argv[i];
             if (option == "--group-limit" && i + 1 < argc) groupLimit = std::stoull(argv[++i]);
+            else if (option == "--ratio" && i + 1 < argc) {
+                const double ratio = std::stod(argv[++i]);
+                if (!(ratio > 0.0 && ratio <= 1.0)) throw std::invalid_argument("ratio must be in (0,1]");
+                ratios = {ratio};
+            }
             else throw std::invalid_argument("unknown Stage12 runner option");
         }
 
@@ -127,7 +133,6 @@ int main(int argc, char** argv) {
         const auto candidates = candidatesFor(scheme);
         const std::size_t payloadLength = scheme == "BCH" ? s7::kBchPayloadBits : s7::kCcPayloadBits;
         const std::size_t encodedLength = scheme == "BCH" ? s7::kBchEncodedBits : s7::kCcEncodedBits;
-        const std::vector<double> ratios{0.05, 0.10};
         std::size_t totalGroups = 0;
         for (double ratio : ratios) totalGroups += encodedLength - static_cast<std::size_t>(std::llround(ratio * encodedLength)) + 1;
         totalGroups *= snrs.size();

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "rowCount": 1088,
+  "plottedRows": 1088,
+  "zeroExcludedRows": 0,
+  "nonMonotonicHighSnrAnomaly": false,
+  "sourcePathsExist": true,
+  "sha256PendingAtValidationWrite": true
+}

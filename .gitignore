@@ -23,3 +23,9 @@ Task/Comparison/S6/**/*.exe
 Task/Comparison/S6/**/*.obj
 Task/Comparison/S6/**/*.pdb
 Task/Comparison/S5/build/
+# else
+/build/
+**/__pycache__/
+*.exe
+*.obj
+*.pdb

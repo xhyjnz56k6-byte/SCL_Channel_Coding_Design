@@ -12,7 +12,7 @@ Task/Comparison/S7/
 ├─ stage13_latency_complexity/      时延和结构代价汇总
 ├─ stage14_fer_improvement/         FER 改善、容限和推荐排名
 ├─ stage15_scientific_plots/
-│  ├─ results/bch/                  21 个当前有效 BCH 图目录
+│  ├─ results/bch/                  29 个当前有效 BCH 图目录（含 2%/5%全起点热力图与 BER 图）
 │  ├─ results/cc/                   21 个当前有效 CC 图目录
 │  └─ archive/                      失败或被替换图，仅供审计
 ├─ stage16_final_integration/       最终统一 Gate
@@ -24,7 +24,7 @@ Task/Comparison/S7/
 ├─ S7_final_report.md               最终中文报告
 ├─ S7_metric_summary.csv            八配置核心指标
 ├─ S7_result_inventory.csv          正式结果索引
-├─ S7_plot_inventory.csv            42 图索引
+├─ S7_plot_inventory.csv            50 图索引
 ├─ S7_source_inventory.csv          源码/脚本/配置 SHA
 └─ S7_sha256.txt                    非 build 当前资产 SHA
 ```

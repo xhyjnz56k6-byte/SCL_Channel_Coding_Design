@@ -34,8 +34,8 @@ def main() -> int:
         if not directory.is_dir() or (ROOT/"build" in directory.parents) or directory==ROOT/"build": continue
         require((directory/"readme.txt").is_file(),f"missing directory readme: {directory.relative_to(ROOT)}")
     results=list(csv.DictReader((ROOT/"S7_result_inventory.csv").open(encoding="utf-8")))
-    require(len(results)==8 and all(Path(row["absolutePath"]).is_file() for row in results),"result inventory mismatch")
-    plots=list(csv.DictReader((ROOT/"S7_plot_inventory.csv").open(encoding="utf-8"))); require(len(plots)==42,"plot inventory mismatch")
+    require(len(results)==9 and all(Path(row["absolutePath"]).is_file() for row in results),"result inventory mismatch")
+    plots=list(csv.DictReader((ROOT/"S7_plot_inventory.csv").open(encoding="utf-8"))); require(len(plots)==50,"plot inventory mismatch")
     metrics=list(csv.DictReader((ROOT/"S7_metric_summary.csv").open(encoding="utf-8"))); require(len(metrics)==8,"metric summary mismatch")
     ldpc=list(csv.DictReader((ROOT/"results"/"ldpc_baseline"/"ldpc_baseline_reference.csv").open(encoding="utf-8")))
     require(len(ldpc)==62 and all(row["s7ChannelCompatibility"].startswith("INCOMPATIBLE") for row in ldpc),"LDPC restriction mismatch")

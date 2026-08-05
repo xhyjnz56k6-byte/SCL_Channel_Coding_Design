@@ -8,7 +8,7 @@
 - Stage12 全起点：BCH 6348 行，CC 13608 行，PASS。
 - Stage13 时延复杂度：8 配置，PASS。
 - Stage14 FER 改善与推荐：744 改善行、6 排名行，PASS。
-- Stage15 科研图：42 张，资产/SHA/零值政策 PASS。
+- Stage15 科研图：50 张（BCH 29、CC 21），资产/SHA/零值政策 PASS；BCH 2%补扫 3360 行/840 组通过。
 - Stage16 结果、图、源码、SHA 和 LDPC 独立参考集成：PASS。
 - archive/readme/绝对路径/每图独立目录：PASS。
 - NaN/Inf、伪零值、平滑、error-floor 标记：0。

@@ -43,6 +43,7 @@ def main() -> int:
     important=[
         ("BCH_FORMAL",formal["BCH"],"FORMAL_PRIMARY"),("CC_FORMAL",formal["CC"],"FORMAL_PRIMARY"),
         ("ALL_START_BCH",ROOT/"stage12_all_start_scan"/"results"/"bch"/"all_start_results.csv","FORMAL_SPECIALTY"),
+        ("ALL_START_BCH_2_PERCENT",ROOT/"stage12_all_start_scan"/"results"/"bch_2_percent"/"all_start_results.csv","FORMAL_SPECIALTY_SUPPLEMENT"),
         ("ALL_START_CC",ROOT/"stage12_all_start_scan"/"results"/"cc"/"all_start_results.csv","FORMAL_SPECIALTY"),
         ("LATENCY",ROOT/"stage13_latency_complexity"/"results"/"latency_complexity_summary.csv","DERIVED_VALIDATED"),
         ("RECOMMENDATION",ROOT/"stage14_fer_improvement"/"results"/"recommendation_ranking.csv","DERIVED_VALIDATED"),

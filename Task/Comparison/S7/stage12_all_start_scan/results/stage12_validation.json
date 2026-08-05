@@ -9,6 +9,11 @@
     "groups": 3402,
     "expectedGroups": 3402
   },
+  "BCH_2_PERCENT_SUPPLEMENT": {
+    "rows": 3360,
+    "groups": 840,
+    "expectedGroups": 840
+  },
   "status": "PASS",
   "mergeStatus": "NOT_MERGED"
 }
