@@ -6,7 +6,6 @@ Task/BCH/simulation/results/S2-test/batch2_corrected/s2_09/corrected_cfo_matlab_
 Task/Common/build/
 discuss-01.md
 # S5 generated artifacts
-Task/Comparison/S5/build/
 Task/Comparison/S5/results/
 Task/Comparison/S5/archive/
 Task/Comparison/S5/**/__pycache__/
@@ -22,4 +21,12 @@ Task/Comparison/S6/**/*.pyc
 Task/Comparison/S6/**/*.exe
 Task/Comparison/S6/**/*.obj
 Task/Comparison/S6/**/*.pdb
-Task/Comparison/S5/build/
+# else
+/build/
+**/__pycache__/
+*.exe
+*.obj
+*.pdb
+# S7 generated artifacts
+Task/Comparison/**/build/
+
