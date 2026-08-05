@@ -1,0 +1,6 @@
+{
+  "schemaVersion": "s7-checkpoint-v1",
+  "checkpointIntervalFrames": 1000,
+  "requiredFields": ["configHash","caseKey","nextFrameIndex","counts","timingSamples","frameSequenceHash"],
+  "resumeGate": "NO_DUPLICATE_OR_SKIPPED_FRAME_AND_HASH_EQUAL"
+}

@@ -1,0 +1,10 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+BCH码块交织 D=19,2%,,false,INTERPOLATED,false
+全帧伪随机交织,2%,,false,INTERPOLATED,false
+行列交织 rows=15,2%,,false,INTERPOLATED,false
+BCH码块交织 D=19,5%,,false,INTERPOLATED,false
+全帧伪随机交织,5%,,false,TARGET_NOT_BRACKETED,false
+行列交织 rows=15,5%,,false,INTERPOLATED,false
+BCH码块交织 D=19,10%,,false,TARGET_NOT_BRACKETED,false
+全帧伪随机交织,10%,,false,TARGET_NOT_BRACKETED,false
+行列交织 rows=15,10%,,false,TARGET_NOT_BRACKETED,false

@@ -1,0 +1,5 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+无交织,,0.0,true,,false
+伪随机交织 span=128,,256.0,true,,false
+短深度块交织 D=16,,256.0,true,,false
+短深度块交织 D=8,,128.0,true,,false

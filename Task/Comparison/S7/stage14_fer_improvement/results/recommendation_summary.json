@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "recommendations": {
+    "BCH": "BCH_ROW_COLUMN_R15",
+    "CC": "CC_PSEUDO_128_RECOMMENDED"
+  },
+  "weights": {
+    "meanFormalFer": 0.4,
+    "worstHighWorkpointStartFer": 0.3,
+    "bufferBits": 0.15,
+    "deinterleaveTime": 0.15
+  },
+  "ccInterpretationRestriction": "D8 versus PSEUDO128 is an engineering-configuration comparison; only D16 versus PSEUDO128 is controlled equal-span 128.",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "FROZEN",
+  "method": "formal endpoints plus maximum adjacent mean FER+BER decrease",
+  "sources": {
+    "BCH": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv",
+    "CC": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage11_cc_formal\\results\\formal_results.csv"
+  },
+  "schemes": {
+    "BCH": {
+      "lowEsN0Db": -5.0,
+      "waterfallEsN0Db": 5.5,
+      "highEsN0Db": 10.0,
+      "waterfallLeftEsN0Db": 5.0,
+      "waterfallScore": 0.05842791666666684,
+      "ferDrop": 0.05538888888888904,
+      "berDrop": 0.0030390277777778,
+      "selectionPopulation": "non-baseline configurations, burst ratios 5% and 10%, six positions"
+    },
+    "CC": {
+      "lowEsN0Db": -5.0,
+      "waterfallEsN0Db": -3.0,
+      "highEsN0Db": 10.0,
+      "waterfallLeftEsN0Db": -3.5,
+      "waterfallScore": 0.0509608333333334,
+      "ferDrop": 0.0,
+      "berDrop": 0.0509608333333334,
+      "selectionPopulation": "non-baseline configurations, burst ratios 5% and 10%, six positions"
+    }
+  },
+  "mergeStatus": "NOT_MERGED"
+}

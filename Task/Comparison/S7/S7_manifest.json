@@ -1,0 +1,16 @@
+{
+  "stage": "S7_stage00_stage16",
+  "branch": "S7-Comparision",
+  "baseCommit": "d01b366ea84d38cc73c7b11cc9a7534446987ac2",
+  "functionalRanges": [],
+  "completedStages": ["stage00_repository_audit","stage01_scope_and_schema_freeze","stage02_parameter_freeze","stage03_bch_interleavers","stage04_cc_interleavers","stage05_burst_channel","stage06_bch_chain","stage07_cc_chain","stage08_cpp_matlab_smoke","stage09_parameter_prescan","stage10_bch_formal","stage11_cc_formal","stage12_all_start_scan","stage13_latency_complexity","stage14_fer_improvement","stage15_scientific_plots","stage16_final_integration"],
+  "cppMatlabChecks": {"passed": 72, "failed": 0},
+  "formal": {"authorized": true, "bchRows": 2232, "ccRows": 2232, "comparisonGroupsPerScheme": 558},
+  "allStart": {"bchRows": 6348, "bchTwoPercentSupplementRows": 3360, "ccRows": 13608, "framesPerStart": 200},
+  "plots": {"bch": 29, "cc": 21, "blocked": 0},
+  "recommendations": {"bch": "BCH_ROW_COLUMN_R15", "cc": "CC_PSEUDO_128_RECOMMENDED"},
+  "gate": "PASS",
+  "remoteVerification": "NOT_REQUESTED",
+  "mergeStatus": "NOT_MERGED",
+  "note": "No content commit was requested; functional ranges are intentionally empty rather than fabricated."
+}

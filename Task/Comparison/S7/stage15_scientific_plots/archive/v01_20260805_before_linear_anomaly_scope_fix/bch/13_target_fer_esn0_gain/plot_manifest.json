@@ -1,0 +1,17 @@
+{
+  "plotId": "13_target_fer_esn0_gain",
+  "scheme": "BCH",
+  "title": "BCH 目标 FER 下 Es/N0 改善",
+  "xAxis": "配置或类别",
+  "yAxis": "Es/N0 改善（dB）",
+  "logYAxis": false,
+  "sourceAbsolutePaths": [
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv"
+  ],
+  "historicalReferenceAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S6\\results\\ldpc\\ldpc_n560_integrated_results.csv",
+  "historicalReferenceUsedInFigure": false,
+  "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation",
+  "smoothingApplied": false,
+  "forbiddenAnnotations": [],
+  "mergeStatus": "NOT_MERGED"
+}

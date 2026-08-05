@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "subGates": [
+    "PASS_S7_STAGE01_09_GATE",
+    "PASS_S7_BCH_FORMAL rows=2232 groups=558",
+    "PASS_S7_CC_FORMAL rows=2232 groups=558",
+    "PASS_S7_STAGE12 BCH=6348 CC=13608",
+    "PASS_S7_STAGE13 rows=8",
+    "PASS_S7_STAGE14",
+    "PASS_S7_STAGE15 plots=50"
+  ],
+  "resultInventoryRows": 9,
+  "plotCount": 50,
+  "metricRows": 8,
+  "ldpcReferenceRows": 62,
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,1 @@
+{"stage":"stage12_all_start_scan","branch":"S7-Comparision","functionalRanges":[],"bchRows":6348,"bchGroups":1587,"bchTwoPercentSupplementRows":3360,"bchTwoPercentSupplementGroups":840,"ccRows":13608,"ccGroups":3402,"summaryRows":48,"framesPerStart":200,"checkpointRecoveryPreflight":"PASS","gate":"PASS","remoteVerification":"NOT_REQUESTED","mergeStatus":"NOT_MERGED"}

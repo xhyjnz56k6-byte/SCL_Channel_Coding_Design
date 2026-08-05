@@ -1,0 +1,125 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+BCH码块交织 D=19,-5.0,1.0,true,,false
+BCH码块交织 D=19,-4.5,1.0,true,,false
+BCH码块交织 D=19,-4.0,1.0,true,,false
+BCH码块交织 D=19,-3.5,1.0,true,,false
+BCH码块交织 D=19,-3.0,1.0,true,,false
+BCH码块交织 D=19,-2.5,1.0,true,,false
+BCH码块交织 D=19,-2.0,1.0,true,,false
+BCH码块交织 D=19,-1.5,1.0,true,,false
+BCH码块交织 D=19,-1.0,1.0,true,,false
+BCH码块交织 D=19,-0.5,1.0,true,,false
+BCH码块交织 D=19,0.0,1.0,true,,false
+BCH码块交织 D=19,0.5,1.0,true,,false
+BCH码块交织 D=19,1.0,1.0,true,,false
+BCH码块交织 D=19,1.5,1.0,true,,false
+BCH码块交织 D=19,2.0,0.999,true,,false
+BCH码块交织 D=19,2.5,0.996,true,,false
+BCH码块交织 D=19,3.0,0.99,true,,false
+BCH码块交织 D=19,3.5,0.965,true,,false
+BCH码块交织 D=19,4.0,0.902,true,,false
+BCH码块交织 D=19,4.5,0.81,true,,false
+BCH码块交织 D=19,5.0,0.677,true,,false
+BCH码块交织 D=19,5.5,0.501,true,,false
+BCH码块交织 D=19,6.0,0.345,true,,false
+BCH码块交织 D=19,6.5,0.23,true,,false
+BCH码块交织 D=19,7.0,0.12453300124533001,true,,false
+BCH码块交织 D=19,7.5,0.06278297615454272,true,,false
+BCH码块交织 D=19,8.0,0.033670592137999666,true,,false
+BCH码块交织 D=19,8.5,0.014286734766769055,true,,false
+BCH码块交织 D=19,9.0,0.006107099879663056,true,,false
+BCH码块交织 D=19,9.5,0.00232,true,,false
+BCH码块交织 D=19,10.0,0.00082,true,,false
+全帧伪随机交织,-5.0,1.0,true,,false
+全帧伪随机交织,-4.5,1.0,true,,false
+全帧伪随机交织,-4.0,1.0,true,,false
+全帧伪随机交织,-3.5,1.0,true,,false
+全帧伪随机交织,-3.0,1.0,true,,false
+全帧伪随机交织,-2.5,1.0,true,,false
+全帧伪随机交织,-2.0,1.0,true,,false
+全帧伪随机交织,-1.5,1.0,true,,false
+全帧伪随机交织,-1.0,1.0,true,,false
+全帧伪随机交织,-0.5,1.0,true,,false
+全帧伪随机交织,0.0,1.0,true,,false
+全帧伪随机交织,0.5,1.0,true,,false
+全帧伪随机交织,1.0,1.0,true,,false
+全帧伪随机交织,1.5,1.0,true,,false
+全帧伪随机交织,2.0,1.0,true,,false
+全帧伪随机交织,2.5,1.0,true,,false
+全帧伪随机交织,3.0,1.0,true,,false
+全帧伪随机交织,3.5,0.999,true,,false
+全帧伪随机交织,4.0,0.998,true,,false
+全帧伪随机交织,4.5,0.996,true,,false
+全帧伪随机交织,5.0,0.997,true,,false
+全帧伪随机交织,5.5,0.997,true,,false
+全帧伪随机交织,6.0,0.996,true,,false
+全帧伪随机交织,6.5,0.994,true,,false
+全帧伪随机交织,7.0,0.9940633245382586,true,,false
+全帧伪随机交织,7.5,0.9931529181610694,true,,false
+全帧伪随机交织,8.0,0.9929232444202504,true,,false
+全帧伪随机交织,8.5,0.9928582640087898,true,,false
+全帧伪随机交织,9.0,0.9928102926337034,true,,false
+全帧伪随机交织,9.5,0.99296,true,,false
+全帧伪随机交织,10.0,0.99296,true,,false
+无交织,-5.0,1.0,true,,false
+无交织,-4.5,1.0,true,,false
+无交织,-4.0,1.0,true,,false
+无交织,-3.5,1.0,true,,false
+无交织,-3.0,1.0,true,,false
+无交织,-2.5,1.0,true,,false
+无交织,-2.0,1.0,true,,false
+无交织,-1.5,1.0,true,,false
+无交织,-1.0,1.0,true,,false
+无交织,-0.5,1.0,true,,false
+无交织,0.0,1.0,true,,false
+无交织,0.5,1.0,true,,false
+无交织,1.0,1.0,true,,false
+无交织,1.5,0.997,true,,false
+无交织,2.0,0.988,true,,false
+无交织,2.5,0.984,true,,false
+无交织,3.0,0.981,true,,false
+无交织,3.5,0.976,true,,false
+无交织,4.0,0.975,true,,false
+无交织,4.5,0.98,true,,false
+无交织,5.0,0.985,true,,false
+无交织,5.5,0.99,true,,false
+无交织,6.0,0.994,true,,false
+无交织,6.5,0.997,true,,false
+无交织,7.0,0.9993773349937733,true,,false
+无交织,7.5,1.0,true,,false
+无交织,8.0,1.0,true,,false
+无交织,8.5,1.0,true,,false
+无交织,9.0,0.9999704229517894,true,,false
+无交织,9.5,1.0,true,,false
+无交织,10.0,1.0,true,,false
+行列交织 rows=15,-5.0,1.0,true,,false
+行列交织 rows=15,-4.5,1.0,true,,false
+行列交织 rows=15,-4.0,1.0,true,,false
+行列交织 rows=15,-3.5,1.0,true,,false
+行列交织 rows=15,-3.0,1.0,true,,false
+行列交织 rows=15,-2.5,1.0,true,,false
+行列交织 rows=15,-2.0,1.0,true,,false
+行列交织 rows=15,-1.5,1.0,true,,false
+行列交织 rows=15,-1.0,1.0,true,,false
+行列交织 rows=15,-0.5,1.0,true,,false
+行列交织 rows=15,0.0,1.0,true,,false
+行列交织 rows=15,0.5,1.0,true,,false
+行列交织 rows=15,1.0,1.0,true,,false
+行列交织 rows=15,1.5,0.999,true,,false
+行列交织 rows=15,2.0,0.999,true,,false
+行列交织 rows=15,2.5,0.996,true,,false
+行列交织 rows=15,3.0,0.983,true,,false
+行列交织 rows=15,3.5,0.953,true,,false
+行列交织 rows=15,4.0,0.891,true,,false
+行列交织 rows=15,4.5,0.788,true,,false
+行列交织 rows=15,5.0,0.651,true,,false
+行列交织 rows=15,5.5,0.497,true,,false
+行列交织 rows=15,6.0,0.337,true,,false
+行列交织 rows=15,6.5,0.229,true,,false
+行列交织 rows=15,7.0,0.12618296529968454,true,,false
+行列交织 rows=15,7.5,0.06036824630244492,true,,false
+行列交织 rows=15,8.0,0.03317299718029524,true,,false
+行列交织 rows=15,8.5,0.01600114293878134,true,,false
+行列交织 rows=15,9.0,0.005915409642117717,true,,false
+行列交织 rows=15,9.5,0.00216,true,,false
+行列交织 rows=15,10.0,0.00062,true,,false

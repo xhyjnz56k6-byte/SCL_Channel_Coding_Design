@@ -1,0 +1,8 @@
+{
+  "status": "COMPLETE",
+  "scheme": "BCH",
+  "configHash": "bc6830db87407420c2fe2f2e1292fac674218423ab9ecdddf7e0933adf540c5e",
+  "completedGroups": 2,
+  "checkpointIntervalFrames": 1000,
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "s7-v1",
+  "authorized": true,
+  "authorizationDate": "2026-08-04",
+  "hardPauseBeforeStage": 10,
+  "channel": "AWGN_CONTIGUOUS_BPSK_POLARITY_REVERSAL",
+  "esN0Db": {"start": -5.0, "stop": 10.0, "step": 0.5, "count": 31},
+  "burstRatios": [0.02, 0.05, 0.10],
+  "burstPositions": ["HEAD", "QUARTER", "MIDDLE", "THREE_QUARTER", "TAIL", "RANDOM"],
+  "bchMethods": ["NONE", "BCH_CODEBLOCK", "ROW_COLUMN", "GLOBAL_PSEUDORANDOM"],
+  "ccConfigurations": [
+    {"id": "CC_NONE", "method": "NONE", "parameter": 0, "spanTrellisSteps": 1, "comparisonRole": "BASELINE"},
+    {"id": "CC_SHORT_D8_RECOMMENDED", "method": "SHORT_DEPTH_BLOCK", "parameter": 8, "spanTrellisSteps": 64, "comparisonRole": "RECOMMENDED_ENGINEERING_CONFIGURATION"},
+    {"id": "CC_PSEUDO_128_RECOMMENDED", "method": "PSEUDORANDOM", "parameter": 128, "spanTrellisSteps": 128, "comparisonRole": "RECOMMENDED_ENGINEERING_CONFIGURATION"},
+    {"id": "CC_SHORT_D16_CONTROL_128", "method": "SHORT_DEPTH_BLOCK", "parameter": 16, "spanTrellisSteps": 128, "comparisonRole": "CONTROLLED_EQUAL_SPAN_128"}
+  ],
+  "ccInterpretationGate": {
+    "recommendedEngineeringComparison": ["CC_SHORT_D8_RECOMMENDED", "CC_PSEUDO_128_RECOMMENDED"],
+    "pureMethodDifferenceAllowed": false,
+    "controlledEqualSpanComparison": ["CC_SHORT_D16_CONTROL_128", "CC_PSEUDO_128_RECOMMENDED"]
+  },
+  "selectedParameters": {"BCH_CODEBLOCK": 19, "ROW_COLUMN": 15, "GLOBAL_PSEUDORANDOM": 285, "SHORT_DEPTH_BLOCK": 8, "PSEUDORANDOM": 128},
+  "selectionSource": "Task/Comparison/S7/stage09_parameter_prescan/results/parameter_selection_report.md",
+  "stop": {"minFrames": 1000, "targetFrameErrors": 200, "maxFrames": 50000, "checkpointIntervalFrames": 1000, "paired": true},
+  "zeroPolicy": {"rawCsvKeepsZero": true, "plotZeroOnLogAxis": false, "pseudoSmallValue": false, "horizontalExtension": false, "errorFloorOrUpperBoundAnnotation": false},
+  "formalMatrix": {"comparisonGroupsPerScheme": 558, "bchSchemePoints": 2232, "ccSchemePoints": 2232, "totalSchemePoints": 4464},
+  "resourceEstimate": {"singleThreadHoursMinFrames": 0.26, "singleThreadHoursPlanned5000Frames": 1.28, "singleThreadHoursMaxFrames": 12.82, "diskMaxMiB": 880.6},
+  "note": "User explicitly authorized Formal after Stage09 metadata, CC comparison-role, and BCH syndrome-table reuse corrections pass regression."
+}

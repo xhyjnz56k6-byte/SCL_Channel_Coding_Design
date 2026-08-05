@@ -1,0 +1,2 @@
+{"stage":"stage08_cpp_matlab_smoke","branch":"S7-Comparision","functionalRanges":[],"files":["Task/Comparison/S7/current/src/s7_smoke_export.cpp","Task/Comparison/S7/current/matlab/run_s7_smoke_reference.m","Task/Comparison/S7/stage08_cpp_matlab_smoke/results/matlab_validation.json","Task/Comparison/S7/stage08_cpp_matlab_smoke/results/matlab_comparison.csv"],"gate":"PASS","checkCount":72,"failedCount":0,"remoteVerification":"NOT_REQUESTED","mergeStatus":"NOT_MERGED"}
+

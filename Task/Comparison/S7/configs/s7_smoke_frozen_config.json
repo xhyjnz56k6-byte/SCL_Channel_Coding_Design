@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "s7-v1",
+  "channel": {
+    "type": "AWGN_CONTIGUOUS_BPSK_POLARITY_REVERSAL",
+    "receiverKnowsBurst": false,
+    "burstWrapAround": false,
+    "impairmentOrder": ["BPSK_MODULATION", "POLARITY_REVERSAL", "AWGN"],
+    "mainFormal": true,
+    "extensions": {
+      "KNOWN_CONTIGUOUS_ERASURE": "SMOKE_ONLY_OR_NOT_DONE",
+      "UNKNOWN_CONTIGUOUS_STRONG_INTERFERENCE": "SMOKE_ONLY_OR_NOT_DONE"
+    }
+  },
+  "bch": {
+    "payloadBits": 200,
+    "componentCode": "BCH(15,11,1)",
+    "blockCount": 19,
+    "encodedBits": 285,
+    "decision": "HARD",
+    "decoder": "SYNDROME_LOOKUP",
+    "codeblockDepths": [4, 8, 16, 19],
+    "rowColumnRows": [4, 8, 15, 19],
+    "globalPseudorandomSpanBits": 285,
+    "comparisonLayers": ["EQUAL_SPAN_METHOD", "WITHIN_METHOD_PARAMETER_SENSITIVITY"]
+  },
+  "cc": {
+    "payloadBits": 300,
+    "constraintLength": 7,
+    "generatorsOctal": [171, 133],
+    "generatorOutputOrder": [171, 133],
+    "tailBits": 6,
+    "encodedBits": 612,
+    "decision": "FLOAT_SOFT",
+    "permutationUnit": "TRELLIS_STEP",
+    "preserveMotherOutputPair": true,
+    "shortDepths": [4, 8, 16],
+    "shortDepthColumns": 8,
+    "pseudorandomSpansTrellisSteps": [32, 64, 128]
+  },
+  "burstRatios": [0.02, 0.05, 0.10],
+  "burstPositions": ["HEAD", "QUARTER", "MIDDLE", "THREE_QUARTER", "TAIL", "RANDOM"],
+  "smokeEsN0Db": [-2.0, 2.0, 6.0],
+  "formalEsN0": {"startDb": -5.0, "stopDb": 10.0, "stepDb": 0.5, "pointCount": 31},
+  "sigmaSquaredFormula": "1/(2*10^(EsN0Db/10))",
+  "stop": {"minFrames": 1000, "targetFrameErrors": 200, "maxFrames": 50000, "checkpointIntervalFrames": 1000, "paired": true},
+  "random": {"mappingSeedBch": 2026080407, "mappingSeedCc": 2026080417, "burstSeed": 2026080427, "payloadSeed": 2026080437, "noiseSeed": 2026080447},
+  "cppMatlab": {
+    "indexBaseInTrace": 0,
+    "stateNumbering": "REGISTER_CONTENT_0_TO_63",
+    "viterbiTieBreak": ["LOWER_PREDECESSOR_STATE", "INPUT_BIT_0"],
+    "tracebackInitialFinalState": 0,
+    "bchSyndromeConvention": "EXISTING_BCH15_SYNDROME_FIXED_VECTOR"
+  },
+  "zeroPolicy": {
+    "rawCsvKeepsZero": true,
+    "plotZeroOnLogAxis": false,
+    "replaceWithPseudoSmallValue": false,
+    "extendHorizontalLine": false,
+    "showErrorFloorMarker": false,
+    "showZeroErrorUpperBoundMarker": false,
+    "anomalyAfterZero": "BLOCK_PUBLICATION_AND_REVIEW"
+  },
+  "assetGate": {"archiveBeforeOverwrite": true, "readmeInEveryDirectory": true, "oneDirectoryPerFigure": true, "absoluteDataPathRequired": true, "sha256Required": true}
+}
+

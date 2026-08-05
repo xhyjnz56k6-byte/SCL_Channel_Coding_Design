@@ -1,0 +1,13 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+BCH码块交织 D=19,2%,0.00044,true,,false
+BCH码块交织 D=19,5%,0.00102,true,,false
+BCH码块交织 D=19,10%,1.0,true,,false
+全帧伪随机交织,2%,0.99998,true,,false
+全帧伪随机交织,5%,1.0,true,,false
+全帧伪随机交织,10%,1.0,true,,false
+无交织,2%,1.0,true,,false
+无交织,5%,1.0,true,,false
+无交织,10%,1.0,true,,false
+行列交织 rows=15,2%,0.0005,true,,false
+行列交织 rows=15,5%,0.00088,true,,false
+行列交织 rows=15,10%,1.0,true,,false

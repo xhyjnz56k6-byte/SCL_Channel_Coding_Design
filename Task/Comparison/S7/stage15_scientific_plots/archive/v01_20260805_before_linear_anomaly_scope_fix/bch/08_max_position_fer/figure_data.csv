@@ -1,0 +1,125 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+BCH码块交织 D=19,-5.0,1.0,true,,false
+BCH码块交织 D=19,-4.5,1.0,true,,false
+BCH码块交织 D=19,-4.0,1.0,true,,false
+BCH码块交织 D=19,-3.5,1.0,true,,false
+BCH码块交织 D=19,-3.0,1.0,true,,false
+BCH码块交织 D=19,-2.5,1.0,true,,false
+BCH码块交织 D=19,-2.0,1.0,true,,false
+BCH码块交织 D=19,-1.5,1.0,true,,false
+BCH码块交织 D=19,-1.0,1.0,true,,false
+BCH码块交织 D=19,-0.5,1.0,true,,false
+BCH码块交织 D=19,0.0,1.0,true,,false
+BCH码块交织 D=19,0.5,1.0,true,,false
+BCH码块交织 D=19,1.0,1.0,true,,false
+BCH码块交织 D=19,1.5,1.0,true,,false
+BCH码块交织 D=19,2.0,1.0,true,,false
+BCH码块交织 D=19,2.5,0.999,true,,false
+BCH码块交织 D=19,3.0,0.996,true,,false
+BCH码块交织 D=19,3.5,0.975,true,,false
+BCH码块交织 D=19,4.0,0.917,true,,false
+BCH码块交织 D=19,4.5,0.835,true,,false
+BCH码块交织 D=19,5.0,0.699,true,,false
+BCH码块交织 D=19,5.5,0.535,true,,false
+BCH码块交织 D=19,6.0,0.361,true,,false
+BCH码块交织 D=19,6.5,0.246,true,,false
+BCH码块交织 D=19,7.0,0.13745019920318724,true,,false
+BCH码块交织 D=19,7.5,0.06686429512516469,true,,false
+BCH码块交织 D=19,8.0,0.03720758887456253,true,,false
+BCH码块交织 D=19,8.5,0.01569612305760477,true,,false
+BCH码块交织 D=19,9.0,0.006953739675492149,true,,false
+BCH码块交织 D=19,9.5,0.00264,true,,false
+BCH码块交织 D=19,10.0,0.00102,true,,false
+全帧伪随机交织,-5.0,1.0,true,,false
+全帧伪随机交织,-4.5,1.0,true,,false
+全帧伪随机交织,-4.0,1.0,true,,false
+全帧伪随机交织,-3.5,1.0,true,,false
+全帧伪随机交织,-3.0,1.0,true,,false
+全帧伪随机交织,-2.5,1.0,true,,false
+全帧伪随机交织,-2.0,1.0,true,,false
+全帧伪随机交织,-1.5,1.0,true,,false
+全帧伪随机交织,-1.0,1.0,true,,false
+全帧伪随机交织,-0.5,1.0,true,,false
+全帧伪随机交织,0.0,1.0,true,,false
+全帧伪随机交织,0.5,1.0,true,,false
+全帧伪随机交织,1.0,1.0,true,,false
+全帧伪随机交织,1.5,1.0,true,,false
+全帧伪随机交织,2.0,1.0,true,,false
+全帧伪随机交织,2.5,1.0,true,,false
+全帧伪随机交织,3.0,1.0,true,,false
+全帧伪随机交织,3.5,1.0,true,,false
+全帧伪随机交织,4.0,1.0,true,,false
+全帧伪随机交织,4.5,1.0,true,,false
+全帧伪随机交织,5.0,1.0,true,,false
+全帧伪随机交织,5.5,1.0,true,,false
+全帧伪随机交织,6.0,1.0,true,,false
+全帧伪随机交织,6.5,1.0,true,,false
+全帧伪随机交织,7.0,1.0,true,,false
+全帧伪随机交织,7.5,1.0,true,,false
+全帧伪随机交织,8.0,1.0,true,,false
+全帧伪随机交织,8.5,1.0,true,,false
+全帧伪随机交织,9.0,1.0,true,,false
+全帧伪随机交织,9.5,1.0,true,,false
+全帧伪随机交织,10.0,1.0,true,,false
+无交织,-5.0,1.0,true,,false
+无交织,-4.5,1.0,true,,false
+无交织,-4.0,1.0,true,,false
+无交织,-3.5,1.0,true,,false
+无交织,-3.0,1.0,true,,false
+无交织,-2.5,1.0,true,,false
+无交织,-2.0,1.0,true,,false
+无交织,-1.5,1.0,true,,false
+无交织,-1.0,1.0,true,,false
+无交织,-0.5,1.0,true,,false
+无交织,0.0,1.0,true,,false
+无交织,0.5,1.0,true,,false
+无交织,1.0,1.0,true,,false
+无交织,1.5,1.0,true,,false
+无交织,2.0,1.0,true,,false
+无交织,2.5,1.0,true,,false
+无交织,3.0,1.0,true,,false
+无交织,3.5,1.0,true,,false
+无交织,4.0,1.0,true,,false
+无交织,4.5,1.0,true,,false
+无交织,5.0,1.0,true,,false
+无交织,5.5,1.0,true,,false
+无交织,6.0,1.0,true,,false
+无交织,6.5,1.0,true,,false
+无交织,7.0,1.0,true,,false
+无交织,7.5,1.0,true,,false
+无交织,8.0,1.0,true,,false
+无交织,8.5,1.0,true,,false
+无交织,9.0,1.0,true,,false
+无交织,9.5,1.0,true,,false
+无交织,10.0,1.0,true,,false
+行列交织 rows=15,-5.0,1.0,true,,false
+行列交织 rows=15,-4.5,1.0,true,,false
+行列交织 rows=15,-4.0,1.0,true,,false
+行列交织 rows=15,-3.5,1.0,true,,false
+行列交织 rows=15,-3.0,1.0,true,,false
+行列交织 rows=15,-2.5,1.0,true,,false
+行列交织 rows=15,-2.0,1.0,true,,false
+行列交织 rows=15,-1.5,1.0,true,,false
+行列交织 rows=15,-1.0,1.0,true,,false
+行列交织 rows=15,-0.5,1.0,true,,false
+行列交织 rows=15,0.0,1.0,true,,false
+行列交织 rows=15,0.5,1.0,true,,false
+行列交织 rows=15,1.0,1.0,true,,false
+行列交织 rows=15,1.5,1.0,true,,false
+行列交织 rows=15,2.0,1.0,true,,false
+行列交织 rows=15,2.5,1.0,true,,false
+行列交织 rows=15,3.0,0.996,true,,false
+行列交织 rows=15,3.5,0.976,true,,false
+行列交织 rows=15,4.0,0.926,true,,false
+行列交织 rows=15,4.5,0.836,true,,false
+行列交织 rows=15,5.0,0.707,true,,false
+行列交织 rows=15,5.5,0.544,true,,false
+行列交织 rows=15,6.0,0.383,true,,false
+行列交织 rows=15,6.5,0.264,true,,false
+行列交织 rows=15,7.0,0.13573770491803278,true,,false
+行列交织 rows=15,7.5,0.0680379746835443,true,,false
+行列交织 rows=15,8.0,0.03923374470436544,true,,false
+行列交织 rows=15,8.5,0.017489552700820307,true,,false
+行列交织 rows=15,9.0,0.006529333028631125,true,,false
+行列交织 rows=15,9.5,0.00248,true,,false
+行列交织 rows=15,10.0,0.00088,true,,false

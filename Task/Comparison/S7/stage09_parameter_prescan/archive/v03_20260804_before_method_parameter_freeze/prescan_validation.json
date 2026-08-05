@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "rowCount": 612,
+  "candidateCount": 17,
+  "fairnessGroupCount": 72,
+  "informativeFairnessGroupCount": 36,
+  "equalSpanMethodComparisonGroups": [
+    "BCH:FULL_FRAME_285",
+    "CC:TRELLIS_SPAN_128",
+    "CC:TRELLIS_SPAN_32",
+    "CC:TRELLIS_SPAN_64"
+  ],
+  "weights": {
+    "meanFer": 0.4,
+    "worstPositionFer": 0.3,
+    "bufferFraction": 0.15,
+    "deinterleaveCost": 0.15
+  },
+  "formal": {
+    "comparisonGroupsPerScheme": 558,
+    "comparisonGroupsTotal": 1116,
+    "schemePoints": {
+      "BCH": 2232,
+      "CC": 1674
+    },
+    "totalSchemePoints": 3906,
+    "runtimeHoursMinFrames": 0.2561787712103175,
+    "runtimeHoursPlannedFrames": 1.2808938560515875,
+    "runtimeHoursMaxFrames": 12.808938560515875,
+    "diskMaxMiB": 770.51953125
+  },
+  "recommendations": {
+    "BCH": {
+      "method": "BCH_CODEBLOCK",
+      "parameter": 19,
+      "score": 0.18336071015474753,
+      "rank": 1
+    },
+    "CC": {
+      "method": "SHORT_DEPTH_BLOCK",
+      "parameter": 8,
+      "score": 0.20398874223602514,
+      "rank": 1
+    }
+  },
+  "rawCsvAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage09_parameter_prescan\\results\\prescan_raw.csv",
+  "rankingCsvAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage09_parameter_prescan\\results\\candidate_ranking.csv"
+}

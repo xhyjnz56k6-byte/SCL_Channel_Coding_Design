@@ -1,0 +1,17 @@
+{
+  "plotId": "06_six_positions_fer",
+  "scheme": "BCH",
+  "title": "BCH 六种突发位置误帧率",
+  "xAxis": "符号信噪比 Es/N0（dB）",
+  "yAxis": "误帧率",
+  "logYAxis": true,
+  "sourceAbsolutePaths": [
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv"
+  ],
+  "historicalReferenceAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S6\\results\\ldpc\\ldpc_n560_integrated_results.csv",
+  "historicalReferenceUsedInFigure": false,
+  "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation",
+  "smoothingApplied": false,
+  "forbiddenAnnotations": [],
+  "mergeStatus": "NOT_MERGED"
+}

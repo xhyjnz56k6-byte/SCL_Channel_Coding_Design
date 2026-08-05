@@ -1,0 +1,9 @@
+{
+  "status": "BLOCKED_NON_MONOTONIC_HIGH_SNR",
+  "rowCount": 124,
+  "plottedRows": 124,
+  "zeroExcludedRows": 0,
+  "nonMonotonicHighSnrAnomaly": true,
+  "sourcePathsExist": true,
+  "sha256PendingAtValidationWrite": true
+}
