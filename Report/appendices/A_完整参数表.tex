@@ -1,2 +1,101 @@
 \chapter{完整参数表}\label{app:parameters}
-\textbf{TODO：}从经复核的参数 manifest 与正式 CSV 自动或人工汇总。
+
+本附录先列出已经由 Common 文档、源码和 Stage 审计材料确认的公共参数。BCH、CC、LDPC 及 S1--S7 的任务参数将在对应章节完成证据审计后续填，不用规划值代替正式配置。
+
+\section{Common长度与码率字段}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Common长度、附加位和码率参数}
+  \label{tab:app-common-lengths}
+  \begin{tabular}{p{0.27\textwidth}p{0.23\textwidth}p{0.40\textwidth}}
+    \toprule
+    字段 & 冻结值或类型 & 含义 \\
+    \midrule
+    payloadLength & 200或300 bit & 原始有效payload长度 \\
+    codecInputLength & 任务确定 & 编码器实际输入长度 \\
+    encodedLength & 正整数，不超过任务约束 & Common码率分母 \\
+    transmittedLength & 正整数，任务扩展输出 & 实际进入BPSK和信道的长度 \\
+    filler/crc/tailLength & 非负整数 & 不增加payload码率分子 \\
+    打孔/缩短长度 & 非负整数 & 分别记录打孔和缩短规模 \\
+    codeRate & $K_{\mathrm{payload}}/N_{\mathrm{encoded}}$ & 由\texttt{computeCodeRate}计算 \\
+    maxCodeBlockLength & 1000 bit & 教师要求和Common配置的单块上限 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Common调制、噪声与停止参数}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Common基础仿真参数}
+  \label{tab:app-common-simulation}
+  \begin{tabular}{p{0.29\textwidth}p{0.29\textwidth}p{0.32\textwidth}}
+    \toprule
+    参数 & 冻结值 & 说明 \\
+    \midrule
+    BPSK mapping & $0\mapsto+1,\ 1\mapsto-1$ & 实值离散符号模型 \\
+    SNR input & Eb/N0 in dB & \texttt{computeAwgnSigma}输入 \\
+    AWGN sigma & $\sqrt{1/(2R10^{\mathrm{EbN0dB}/10})}$ & 返回标准差 \\
+    hard decision & $y\ge0\mapsto0$；$y<0\mapsto1$ & 零点判0 \\
+    LLR & $2y/\sigma^2$ & 正值倾向bit 0 \\
+    masterNoiseSeed & uint64 & 标准高斯主种子 \\
+    noiseGroupId & uint64，默认0 & 公平对比组身份 \\
+    noisePolicyVersion & 1 & 当前噪声策略版本 \\
+    NoiseKey & seed、group、frame、symbol、version & 不包含snrIndex \\
+    formal minFrames & 5000 & 达到前不按目标错误数停止 \\
+    formal targetFrameErrors & 200 & 达到最小帧数后生效 \\
+    formal maxFrames & 50000 & 优先级最高的上限判断 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Pool、Schema和时延字段}
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Common pool及结果身份参数}
+  \label{tab:app-common-pool-schema}
+  \begin{tabular}{p{0.25\textwidth}p{0.29\textwidth}p{0.36\textwidth}}
+    \toprule
+    项目 & 冻结值 & 说明 \\
+    \midrule
+    Frame Pool schema & manifest v2 & 完整标识为common03 frame pool manifest v2；packed bits，LSB-first \\
+    Frame generator & splitmix64\_payload\_v2 & payloadPolicyVersion=1 \\
+    Frame shard size & 默认1000帧 & 单片SHA-256和overall hash \\
+    Noise Pool schema & manifest v1 & 完整标识为common04 noise pool manifest v1；float64 little-endian \\
+    Noise generator & splitmix64\_box\_muller\_v1 & 保存未缩放标准高斯样本 \\
+    Noise shard size & 默认1000帧 & 版本化头、分片SHA-256 \\
+    Checkpoint schema & common04.checkpoint.v1 & 保存身份、进度、计数和累计时间 \\
+    Result schema & common04.result\_summary.v1 & 基础SummaryRow \\
+    Metadata schema & common04.metadata.v1 & createdTime仅用于运行时元数据 \\
+    Config hash & SHA-256 canonical config & 排除时间和临时路径 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+基础结果字段包括实验身份、payload/encoded长度、codeRate、Eb/N0、SNR索引、处理帧数、payload总比特、错误计数、成功帧、BER、FER、successRate、基础时延、stopReason、pool ID和configHash。transmittedLength、误纠、声明成功率、置信区间、零错误标志、迭代次数、复杂度和交织参数由任务Schema扩展。
+
+Common基础时延覆盖encode、channel、decode、recovery和total阶段的平均时间，并保存decode与total的最大观测时间。identity pipeline 的前两项包含payload或噪声生成/池读取，不能直接解释为排除I/O的纯编码和纯信道算法时间。
+
+\section{任务参数占位}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{后续章节参数表的填充状态}
+  \label{tab:app-task-parameter-status}
+  \begin{tabular}{p{0.24\textwidth}p{0.28\textwidth}p{0.36\textwidth}}
+    \toprule
+    模块/任务 & 状态 & 填充条件 \\
+    \midrule
+    BCH与S1/S2 & 待第4章审计 & 绑定正式源码、配置、CSV和教师要求 \\
+    CC与S3 & 待第5章审计 & 绑定母码、打孔、时隙和Viterbi配置 \\
+    LDPC与S4 & 待第6章审计 & 绑定BG2子矩阵、Z、Direct链和迭代配置 \\
+    S5--S7 & 待专题章节审计 & 绑定信道、译码器、交织器和正式结果 \\
+    \bottomrule
+  \end{tabular}
+\end{table}

@@ -1,2 +1,53 @@
 \chapter{仿真可复现性说明}\label{app:reproducibility}
-\textbf{TODO：}依据 seeds、frame/noise pool manifest、命令记录与 Git 范围复核。
+
+\section{随机输入与噪声身份}
+
+可复现性首先要求一帧 payload 和一条标准高斯噪声能够由稳定身份重新定位。Frame Pool 的 payload 由主种子、payload长度、帧索引和payload策略版本确定；Noise Pool 的样本由主噪声种子、noiseGroupId、frameIndex、symbolIndex和noisePolicyVersion确定。两套派生过程使用不同的域和算法标识，避免把payload随机字与噪声随机字混为同一键空间。
+
+NoiseKey不包含SNR、码型、译码器名称、进程号、线程号或调用顺序。改变Eb/N0时，Common保持标准高斯 $z$ 不变并通过 $\sigma$ 缩放；改变frameIndex时生成另一帧噪声。同一公平对比组可据此共享噪声样本，而硬/软Viterbi或BP/NMS不会因为译码器名称不同重新过信道。
+
+\section{Frame Pool与Noise Pool}
+
+Frame Pool只保存payload bits。manifest记录schemaVersion、framePoolId、payloadLength、总帧数、分片大小、masterSeed、payloadPolicyVersion、生成算法、位存储方式、每帧字节数、各分片范围和SHA-256。payload按LSB-first打包，未使用的高位固定为0。overall hash对稳定的manifest身份字段和各分片hash计算，排除绝对路径、用户名、临时目录和创建时间。
+
+Noise Pool分片由固定头和float64 little-endian样本构成。头中保存magic、版本、首帧、帧数、每帧符号数、主噪声种子、噪声组和策略版本；样本按frame-major顺序排列。读取器先验证manifest，再验证完整分片SHA-256和头字段。noisePoolId由overall hash派生，用于结果、checkpoint和配置之间的身份绑定。
+
+大型正式Frame Pool和Noise Pool不进入Git。仓库只保存格式、生成算法、参数、hash摘要和必要的小型fixture；正式运行环境可在外部目录重新生成或分发大文件，但结果必须记录对应pool ID及manifest位置。
+
+\section{Manifest、SHA-256与configHash}
+
+Pool manifest验证文件内容身份，任务manifest验证源码、配置和结果的审计范围，二者用途不同。每个二进制分片的SHA-256覆盖完整文件内容；overall hash覆盖稳定manifest字段和分片hash。文件名或分片范围不一致、重复、重叠、空洞、错误字节数以及hash不匹配都应拒绝读取。
+
+Common-04的configHash由规范化文本计算，当前包含caseName、payloadLength、encodedLength、Eb/N0列表、frame/noise pool ID、停止配置和译码输入模式。createdTime、临时目录和运行平台不进入configHash。具体编码任务增加配置字段时，应建立自己的规范化顺序，并保存算法版本、码型参数、量化、信道和停止规则。
+
+\section{Checkpoint与resume}
+
+Checkpoint保存下一帧索引而不是仅保存“完成百分比”。恢复前验证schemaVersion、experimentId、configHash、framePoolId、noisePoolId、payloadLength、encodedLength、snrIndex、Eb/N0、noisePolicyVersion、globalSeed、shardIndex和shardCount；随后检查nextFrameIndex位于请求范围内，processedFrames与已经跨过的帧数相等，totalPayloadBits与payload长度一致，成功帧和错误帧之和等于已处理帧数。
+
+Common checkpoint JSON还保存各阶段时间累计、最大时间、reported success、miscorrection、decoder failure及译码状态计数。公共结构支持这些字段并不意味着每个runner都会填充非零真实值；任务必须用中断前后对比测试确认实际写入字段。Common-04 identity测试验证了连续运行与37帧checkpoint后恢复到100帧的计数等价性，但具体码译码器仍需独立进行resume测试。
+
+写入时先创建目标路径加 \texttt{.tmp} 后缀的临时文件，完成flush后再替换正式checkpoint。Windows使用 \texttt{MoveFileExW}，并设置 \path{MOVEFILE_REPLACE_EXISTING} 与 \path{MOVEFILE_WRITE_THROUGH} 两个标志。替换失败时删除临时文件并报错，恢复逻辑不得加载半写入文件。
+
+\section{Shard执行与merge}
+
+仿真分片用shardIndex、frameStart和frameCount描述。合并前按frameStart排序，要求shardIndex唯一、每片非空、帧范围连续且没有重叠或空洞。experimentId、configHash、pool ID、payload/encoded长度、snrIndex和Eb/N0必须完全一致。
+
+每片processedFrames应等于frameCount，totalPayloadBits应等于frameCount乘payloadLength，successfulFrames加frameErrors应等于frameCount。合并时计数与时间和相加，最大时间取最大值；BER、FER、successRate和平均时间从合并后的总量重新计算。任务扩展的误纠、声明状态、迭代和复杂度计数也应遵循“先合并计数、后计算比例”的规则。
+
+\section{CSV身份字段与结果追溯}
+
+基础CSV至少保留schemaVersion、experimentId、stage、codeType、caseName、payloadLength、encodedLength、codeRate、ebN0\_dB、snrIndex、processedFrames、原始错误计数、基础时延、stopReason、framePoolId、noisePoolId和configHash。正式绘图数据另保留esN0Db、actualRate、snrInputType和plotXAxisType；Es/N0只作为展示坐标，不覆盖原始Eb/N0。
+
+任务级CSV需增加transmittedLength、附加位、译码器声明状态、误纠、迭代、复杂度、量化和交织参数。任何派生图表都应能回查到原始CSV行、配置hash、pool ID、执行命令及Git功能提交。
+
+\section{Git记录与大型资产原则}
+
+源码和小型配置由Git功能提交保存，Stage审计文件记录被审计的功能提交SHA，不记录审计提交自身SHA。批次分支中的单个Stage只使用manifest声明的functional range，不把整个 \texttt{main...HEAD} 误当作自身功能边界。报告引用实验结论时，记录对应代码版本、任务Stage和正式结果路径。
+
+大型池文件、正式checkpoint、formal中间结果、build目录、可执行文件和临时绘图文件默认不提交。可以提交小型golden vector、fixture hash、冻结配置和结果摘要，但必须在Stage计划中明确用途。未进入Git的大型资产依靠manifest、SHA-256、pool ID、configHash和命令记录完成身份核验，而不是依靠文件修改时间。
+
+\section{当前适用边界}
+
+Common-04已验证identity基线、pool-backed smoke/prescan、checkpoint恢复、C++/Python噪声一致性及分片合并，但没有在Common Stage运行BCH、卷积码或LDPC正式曲线。Wilson区间、零错误标志和P95等字段在Common-01定义中冻结，尚未进入Common-04基础SummaryRow。后续任务应在使用前确认实现，不得把文档中的预留定义当作已经生成的结果。
+
+本附录说明公共机制和复现步骤；具体BCH、CC、LDPC以及S1--S7的命令、配置、数据hash和功能提交由相应章节及任务审计文件补充。

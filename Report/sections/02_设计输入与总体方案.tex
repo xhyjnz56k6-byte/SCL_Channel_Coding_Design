@@ -1,19 +1,150 @@
 \chapter{设计输入与总体方案}\label{chap:design}
-% EVIDENCE: evidence/round03/common/common_parameter_audit.csv
-\section{设计输入}
-设计输入由 payload、电文类型、目标码率、信道模型和接收端输出共同组成。$K_{\mathrm{payload}}$ 表示原始有效输入，$K_{\mathrm{codec}}$ 表示进入编码器的输入长度，$N_{\mathrm{encoded}}$ 表示编码器输出，而 $N_{\mathrm{tx}}$ 表示实际发送长度。对于 shortening、filler、尾比特和打孔，四个量不应无条件视为相同。
 
-\section{总体编码方案}
-BCH 构成低速短电文路径，可采用分组或整块组织并以硬判决 BCH 译码恢复 payload。卷积码构成高速连续电文候选，支持硬、软 Viterbi 以及整块或时隙连续处理。LDPC 构成另一高速候选；本工程使用 Direct BG2 实现、比较 BP 与 NMS，且不配置交织。以上内容仅说明总体功能分工。
+\section{总体设计思路}
 
-\section{低速与高速处理路径}
-低速路径依次为随机 payload、BCH 组织与编码、BPSK、信道、接收端补偿或判决、BCH 译码、payload 恢复和指标统计。高速路径共享调制、信道、统计与审计框架，但分别采用卷积码或 LDPC 的编译码模块；各自的具体参数由任务级配置冻结。
+本项目采用“公共仿真基础、可替换编码模块、任务级信道与统计配置”的组织方式。Common 位于三类编码模块之外，提供公共数据结构、BPSK、基础 AWGN、硬判决与 LLR、帧池和噪声池、payload 误码统计、停止控制、checkpoint、分片合并及公共结果字段。它不生成 BCH、卷积码或 LDPC 校验关系，也不执行三类码的核心译码，因此不是第四种编码算法。
 
-\section{统一通信处理链路}
-\reportfigure{figures/visio/common/overall_scenario_architecture.png}{总体场景与编码方案选择}{fig:overall-scenario}{输入电文、三类编码分支、BPSK、信道、接收处理、译码、恢复和指标统计。}
+BCH、CC 和 LDPC 模块接收相同类型的 payload 和公共控制信息，但各自负责码长适配、编码、译码、payload 恢复、算法状态以及任务专用指标。多径、频偏、遮挡和突发错误等扩展信道也由具体任务配置，不因 Common 提供 AWGN 基础接口就自动具有统一实现。
 
-\section{任务逻辑与综合评价}
-S1、S3、S4 分别完成码内候选筛选；S2 和 S5 处理信道适应性；S6 分离实现代价；S7 分离交织收益。综合评价从可靠性、冗余、复杂度、时延、存储、信道适应性、交织收益和工程限制八个方面进行，不能在本章预设性能排序。
+这种分工允许对比时固定公共环节，只替换目标变量。例如，比较卷积码硬、软 Viterbi 时可共享 payload、码字、打孔结果和接收符号；比较 LDPC BP 与 NMS 时可共享 payload、校验矩阵、噪声和 LLR。若具体任务没有做到这些共享条件，必须在对应章节记录偏离，不能借用 Common 的设计原则替代实际审计。
+
+\section{数据对象与长度关系}
+
+一帧电文经过适配、编码、速率调整和恢复时会出现多个长度。表~\ref{tab:data-length-objects}给出报告中的统一名称；各任务即使使用不同字段名，也应能够映射到这些对象。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{数据对象、长度符号及附加位关系}
+  \label{tab:data-length-objects}
+  \begin{tabular}{p{0.20\textwidth}p{0.20\textwidth}p{0.38\textwidth}p{0.14\textwidth}}
+    \toprule
+    符号 & 数据对象 & 含义 & 附加位关系 \\
+    \midrule
+    $K_{\mathrm{payload}}$ & 原始有效电文 & 用户需要恢复并用于 BER/FER 的比特 & 不含附加位 \\
+    $K_{\mathrm{codec\ input}}$ & 编码器输入 & 编码器实际接收的信息侧序列 & 可含 filler、CRC 或适配位 \\
+    $N_{\mathrm{encoded}}$ & 编码输出 & Common 码率分母对应的最终编码长度 & 含校验、尾比特等 \\
+    $N_{\mathrm{transmitted}}$ & 实际发送序列 & 映射到 BPSK 并进入信道的比特数 & 不含未发送缩短位和打孔位 \\
+    $N_{\mathrm{received}}$ & 接收观测 & 进入硬判决或软信息计算的有效观测数 & 受接收处理影响 \\
+    $K_{\mathrm{recovered}}$ & 恢复 payload & 去除附加位后提交统计的比特序列 & 应等于 $K_{\mathrm{payload}}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Filler 用于把短 payload 补到编码结构要求的输入规模，不增加码率分子；CRC 用于检错或停止判断，也不属于 payload；卷积码 tail 把编码器状态终止到约定状态，会增加编码输出长度；puncturing 从母码输出中删除部分比特，使实际码率提高；shortening 则把已知的信息位从发送序列中省略，接收端译码前按约定恢复这些位置。相同的 $K_{\mathrm{payload}}$ 因此可能对应不同的 $K_{\mathrm{codec\ input}}$、$N_{\mathrm{encoded}}$ 和 $N_{\mathrm{transmitted}}$。
+
+Common 的 \texttt{CodeLengths} 已定义上述主要长度和附加位字段。Common-04 基础汇总行只统一输出 payload length 与 encoded length；transmitted length、CRC、tail、filler、puncturing 和 shortening 需要由任务结果 Schema 补充。公共汇总表缺少字段时，不能据此假定这些长度相等。
+
+\section{Common与编码模块的职责分工}
+
+表~\ref{tab:common-codec-responsibility}按数据流列出 Common 和编码任务的边界。公共接口的存在表示三类码可以接入同一处理框架，不表示具体任务已经使用完全相同的信道、统计字段或停止参数。
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Common 与三类编码任务的职责分工}
+  \label{tab:common-codec-responsibility}
+  \begin{tabular}{p{0.15\textwidth}p{0.35\textwidth}p{0.40\textwidth}}
+    \toprule
+    环节 & Common & 编码任务 \\
+    \midrule
+    payload 输入 & 确定性生成或从 Frame Pool 按帧索引读取 & 选择 200/300 bit 业务长度 \\
+    码长适配 & 提供长度结构和公共字段 & 实现 filler、CRC、shortening、tail、puncturing \\
+    编码 & 提供编码器接口 & 实现 BCH、卷积码或 BG2 Direct LDPC \\
+    调制 & 固定实值 BPSK，0 映射 $+1$，1 映射 $-1$ & 通常直接复用 \\
+    信道 & AWGN 实现和信道接口 & 增加多径、频偏、遮挡、突发错误等 \\
+    解调 & 硬判决和未量化 LLR & 设置量化、裁剪、饱和或补偿 \\
+    译码 & 提供输入/输出接口 & 实现查表、代数、Viterbi、BP 或 NMS \\
+    payload 恢复 & 提供统计入口和长度校验 & 去除 filler、CRC、tail 等附加位 \\
+    统计 & payload BER/FER、基础成功率、平均和最大时间 & 增加误纠、声明成功、迭代、复杂度、分位数等 \\
+    审计 & pool ID、hash、checkpoint、configHash、shard/merge & 保存任务配置、manifest、命令和实现版本 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{低速BCH处理路径}
+
+低速路径从 \SI{200}{bit} 或 \SI{300}{bit} payload 开始。分组方案先按 BCH 信息位长度切分，不足一组时补入 filler；整块方案把完整 payload 映射到较长 BCH 母码并执行 shortening。编码产生一个或多个系统 BCH 码字，S7 可在编码后加入交织，随后进行 BPSK 和信道传输。接收端先硬判决，再在启用交织时去交织，之后执行查表或代数 BCH 译码，删除补入或缩短对应的非 payload 位置，最后提交固定长度的恢复结果。
+
+分组方案会产生多个短码字，一帧 FER 的判定取决于所有子块恢复后的 payload：只要任一 payload 位错误，整帧计为错误帧。整块方案的纠错边界、缩短位置和误纠状态由 BCH 章节结合实际实现说明。本章只规定数据如何流转，不据此预测哪种组织方式性能更好。
+
+\section{高速卷积码处理路径}
+
+高速卷积码输入固定为 \SI{300}{bit} payload。整块组织可在电文末尾加入零尾，使移位寄存器回到约定状态；按时隙处理可保留连续状态，并通过滑窗 Viterbi 降低等待完整电文的时间。项目以 $1/2$ 母码为基础，通过打孔形成接近 $2/3$、$3/4$ 的发送码率。打孔后的实际编码长度、尾比特数量和时隙边界都需要随结果保存。
+
+接收端可将符号硬判为 0/1，也可把实值观测转换为 LLR 或量化软值。硬、软 Viterbi 共用相同码字和接收符号时，差异主要来自分支度量；回溯深度、滑窗长度、软值位宽和饱和策略会同时影响存储、首输出和译码时间。整块零尾、连续状态和时隙分块还会改变结构时延，不能只比较函数调用的 CPU 平均时间。
+
+\section{高速LDPC处理路径}
+
+LDPC 路径只处理 \SI{300}{bit} 整块 payload。编码模块依据 BG2 短块结构选择提升因子和使用的子矩阵，通过 filler 或 shortening 适配编码输入，并由 Direct QC-LDPC 编码器生成校验位。接收端计算软信息后，分别使用 Layered BP 和 Layered NMS 迭代译码；两者设置最大迭代次数，并在校验方程全部满足时允许提前停止。恢复阶段删除 filler 等非 payload 位置，只把原始 \SI{300}{bit} 范围交给公共统计。
+
+本项目使用的是基于 5G NR BG2 结构的短块 Direct 实现，而不是默认完整复现 5G NR 物理层传输链。是否加入标准 CRC、完整速率匹配、比特选择和接收恢复，必须以 LDPC 任务的实际源码、配置和结果字段为准。教师附件示例中的 \SI{576}{bit} 与后续项目某些 \SI{560}{bit} 实现偏离在冲突台账登记，前三章不提前裁定其性能影响。LDPC 不配置交织。
+
+\section{统一通信与仿真链路}
+
+三类码共享的上层数据流为：payload、码长适配、编码、可选交织、BPSK、信道、硬判决或 LLR、去交织、译码、payload 恢复和统计。下层控制链不改变码字内容，而是给每一帧绑定 Frame Pool、Noise Pool、seed/noise key、停止条件、checkpoint、分片范围、合并条件、CSV Schema 和 hash。
+
+% VISIO-ABSOLUTE-PATH: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Report/figures/visio/common/overall_scenario_architecture.png
+\begin{figure}[htbp]
+  \centering
+  \fbox{\begin{minipage}[c][0.15\textheight][c]{0.82\textwidth}
+    \centering 待插入：总体编码与仿真架构图
+  \end{minipage}}
+  \caption{总体编码与仿真架构图}
+  \label{fig:overall-scenario}
+\end{figure}
+
+结果整理阶段保留内部 \texttt{ebN0Db} 和实际码率，按每个点的 $R$ 计算正式横轴 Es/N0。该步骤只增加展示坐标，不改动接收符号、错误计数或停止结果。图中下层控制与审计链应明确连接到每个仿真点，而不是画成与数据流无关的附加说明。
+
+\section{S1--S7的方案筛选关系}
+
+第1章按任务要求解释 S1--S7“做什么”，本节只说明候选如何向后传递。S1、S3、S4分别在 BCH、卷积码和 LDPC 内部筛选结构与参数；S2接收 S1 的低速候选，S5接收 S3、S4 的高速候选；S6在固定方案和信道下替换译码器；S7在固定 BCH 或卷积码方案下替换交织器。最终推荐只使用完成相应 Gate 的候选。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{任务输出候选及后续使用关系}
+  \label{tab:task-dependency}
+  \begin{tabular}{p{0.20\textwidth}p{0.32\textwidth}p{0.38\textwidth}}
+    \toprule
+    前序任务 & 输出候选或边界 & 后续使用 \\
+    \midrule
+    S1 & 低速 BCH 码长与分组/整块候选 & S2 信道检查、S6 译码、S7 交织 \\
+    S3 & 高速卷积码码率、组织和 Viterbi 参数 & S5 多信道、S6 译码、S7 交织 \\
+    S4 & 高速 LDPC 码长、BP/NMS 和迭代配置 & S5 多信道、S6 译码；不进入交织支路 \\
+    S2、S5 & 候选在指定信道下的可靠性和时延记录 & 场景适用性判断 \\
+    S6 & 同条件下译码性能、复杂度、存储和时间 & 实现代价判断 \\
+    S7 & 交织改善和附加时延 & 突发错误场景配置 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{综合评价和结果组织}
+
+工程决策首先检查候选在目标信道和可靠性指标下是否满足要求；未满足可靠性门限的方案不因码率高或平均时间短而优先。通过可靠性检查后，比较实际码率和附加冗余，再比较操作计数、存储、迭代次数、平均/尾部时间和结构时延。最后检查多信道损失、突发错误敏感性及交织代价，并按低速、高速及具体信道场景给出推荐。
+
+结果文件按“身份、配置、原始计数、派生比例、时间、停止原因、审计字段”的顺序组织。报告不把所有指标压缩为无权重的综合分数，也不给出跨业务的单一绝对排名。可靠性门限、复杂度预算和时延上限若尚未由任务明确，则保留为适用条件，而不是替作者虚构阈值。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{三类编码处理路径的主要组织差异}
+  \label{tab:codec-path-comparison}
+  \begin{tabular}{p{0.17\textwidth}p{0.23\textwidth}p{0.24\textwidth}p{0.26\textwidth}}
+    \toprule
+    项目 & BCH & 卷积码 & BG2 Direct LDPC \\
+    \midrule
+    业务输入 & 200/300 bit 低速 & 300 bit 高速 & 300 bit 高速 \\
+    组织 & 分组或整块缩短 & 整块零尾或时隙连续 & 整块短块适配 \\
+    码率调整 & 码型选择、缩短、填充 & 母码、尾比特、打孔 & 提升因子、filler、Direct 结构 \\
+    译码输入 & 硬判决 & 硬比特或量化软信息 & LLR 或量化软信息 \\
+    译码状态 & 无错、纠错、失败、误纠 & 路径输出及任务状态 & 校验满足、迭代上限等 \\
+    交织 & S7 可选 & S7 可选 & 禁止配置 \\
+    关键时延 & 子块处理与整帧完成 & 首输出、回溯、滑窗 & 迭代次数和尾部时间 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \section{本章小结}
-总体方案将共享通信链路与任务级参数分离，为后续章节的可比性和边界说明提供结构基础。
+
+总体方案把公共数据和控制链与三类编译码实现分开：Common 固定可复用的基础调制、AWGN、随机样本、统计和审计机制，编码模块决定码长适配、编译码和专用状态。低速 BCH、高速卷积码和高速 BG2 Direct LDPC 因组织方式不同保留独立长度和时延字段；S1--S7按内部筛选、场景检验、实现代价和交织专题逐级使用候选。

@@ -1,0 +1,20 @@
+\chapter{设计输入与总体方案}\label{chap:design}
+% EVIDENCE: evidence/round03/common/common_parameter_audit.csv
+\section{设计输入}
+设计输入由 payload、电文类型、目标码率、信道模型和接收端输出共同组成。$K_{\mathrm{payload}}$ 表示原始有效输入，$K_{\mathrm{codec}}$ 表示进入编码器的输入长度，$N_{\mathrm{encoded}}$ 表示编码器输出，而 $N_{\mathrm{tx}}$ 表示实际发送长度。对于 shortening、filler、尾比特和打孔，四个量不应无条件视为相同。
+
+\section{总体编码方案}
+BCH 构成低速短电文路径，可采用分组或整块组织并以硬判决 BCH 译码恢复 payload。卷积码构成高速连续电文候选，支持硬、软 Viterbi 以及整块或时隙连续处理。LDPC 构成另一高速候选；本工程使用 Direct BG2 实现、比较 BP 与 NMS，且不配置交织。以上内容仅说明总体功能分工。
+
+\section{低速与高速处理路径}
+低速路径依次为随机 payload、BCH 组织与编码、BPSK、信道、接收端补偿或判决、BCH 译码、payload 恢复和指标统计。高速路径共享调制、信道、统计与审计框架，但分别采用卷积码或 LDPC 的编译码模块；各自的具体参数由任务级配置冻结。
+
+\section{统一通信处理链路}
+\reportfigure{figures/visio/common/overall_scenario_architecture.png}{总体场景与编码方案选择}{fig:overall-scenario}{输入电文、三类编码分支、BPSK、信道、接收处理、译码、恢复和指标统计。}
+
+\section{任务逻辑与综合评价}
+S1、S3、S4 分别完成码内候选筛选；S2 和 S5 处理信道适应性；S6 分离实现代价；S7 分离交织收益。综合评价从可靠性、冗余、复杂度、时延、存储、信道适应性、交织收益和工程限制八个方面进行，不能在本章预设性能排序。
+
+\section{本章小结}
+总体方案将共享通信链路与任务级参数分离，为后续章节的可比性和边界说明提供结构基础。
+

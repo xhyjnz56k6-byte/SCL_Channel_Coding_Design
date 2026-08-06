@@ -1,0 +1,22 @@
+\chapter{统一仿真方法}\label{chap:simulation}
+% FORMULA: F-301--F-316; evidence/round04/chapter01_03_formula_audit.csv
+\section{帧结构与码率定义}
+实际码率以原始有效输入和实际发送长度定义：
+\begin{equation}R=\frac{K_{\mathrm{payload}}}{N_{\mathrm{tx}}}.\label{eq:actual-code-rate}\end{equation}
+当某任务的 $N_{\mathrm{encoded}}=N_{\mathrm{tx}}$ 时，CSV 中的 payload/encoded 比率与\cref{eq:actual-code-rate}等价；否则必须保留两者区别。
+\section{BPSK、信噪比与 AWGN}
+Common 调制接口采用
+\begin{equation}x_i=1-2c_i,\quad c_i\in\{0,1\},\ x_i\in\{+1,-1\}.\label{eq:bpsk-mapping}\end{equation}
+S1 正式 CSV 的横轴字段为 Eb/N0。Common 的 \texttt{computeAwgnSigma} 接口按码长与 Eb/N0 计算噪声标准差；噪声方差中是否包含码率因子须按任务实现说明，不能将不同任务强制换为同一横轴。一般地，$\gamma_b=10^{(E_b/N_0)/10}$；只有在单位能量与实际码率口径已确认时才进行 $E_s/N_0$ 换算。
+\section{硬判决与软信息}
+与\cref{eq:bpsk-mapping}一致的硬判决为 $y_i\geq0$ 判为 0，否则判为 1。软输入的定义为
+\begin{equation}L_i=\ln\frac{\Pr(c_i=0\mid y_i)}{\Pr(c_i=1\mid y_i)}.\label{eq:llr-definition}\end{equation}
+在实值 BPSK--AWGN 且方差口径一致时，$L_i=2y_i/\sigma^2$。BCH 路径使用硬判决；软信息的裁剪或量化仅在对应卷积码、LDPC 任务中进一步说明。
+\section{性能统计与公平性}
+\begin{equation}\mathrm{BER}=N_b^{\mathrm{err}}/N_b,\qquad \mathrm{FER}=N_f^{\mathrm{err}}/N_f.\label{eq:ber-fer}\end{equation}
+统计以 payload 为范围。reported success 描述译码器报告状态，true success 描述恢复 payload 正确的帧，两者差额须以 miscorrection 或 failure 字段说明。frame/noise pool、seed、NoiseKey、frameIndex、checkpoint、resume、shard 与 merge 用于重现实验和支持成对比较；具体共享范围由任务级配置限定。
+\section{停止、时延与审计}
+统一控制包含最小帧数、目标错误帧数和最大帧数；实际正式数值以任务 CSV 的 stop reason、minFrames、targetFrameErrors 与 maxFrames 为准。编码时间、译码 CPU 时间、首输出时间、分位数、最大观测时间、结构时延和缓冲时延必须区分。软件时间受 CPU、编译模式、单线程、预热和操作系统调度影响，不能直接等价为硬件时延。
+\section{任务级差异与小结}
+公共接口提供可比框架，但任务仍可在 SNR 网格、停止参数、硬软输入、译码器、信道模型和时延字段上不同。\reportfigure{figures/visio/common/unified_simulation_chain.png}{统一仿真处理链路}{fig:unified-simulation-chain}{payload、编码、调制、信道、接收处理、译码、统计、checkpoint 与审计。}
+

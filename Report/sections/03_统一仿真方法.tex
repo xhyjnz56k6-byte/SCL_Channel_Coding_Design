@@ -1,21 +1,329 @@
 \chapter{统一仿真方法}\label{chap:simulation}
-% FORMULA: F-301--F-316; evidence/round04/chapter01_03_formula_audit.csv
-\section{帧结构与码率定义}
-实际码率以原始有效输入和实际发送长度定义：
-\begin{equation}R=\frac{K_{\mathrm{payload}}}{N_{\mathrm{tx}}}.\label{eq:actual-code-rate}\end{equation}
-当某任务的 $N_{\mathrm{encoded}}=N_{\mathrm{tx}}$ 时，CSV 中的 payload/encoded 比率与\cref{eq:actual-code-rate}等价；否则必须保留两者区别。
-\section{BPSK、信噪比与 AWGN}
-Common 调制接口采用
-\begin{equation}x_i=1-2c_i,\quad c_i\in\{0,1\},\ x_i\in\{+1,-1\}.\label{eq:bpsk-mapping}\end{equation}
-S1 正式 CSV 的横轴字段为 Eb/N0。Common 的 \texttt{computeAwgnSigma} 接口按码长与 Eb/N0 计算噪声标准差；噪声方差中是否包含码率因子须按任务实现说明，不能将不同任务强制换为同一横轴。一般地，$\gamma_b=10^{(E_b/N_0)/10}$；只有在单位能量与实际码率口径已确认时才进行 $E_s/N_0$ 换算。
+% FORMULA-AUDIT: Report/evidence/round04/r3_formula_audit.csv
+
+\section{Common公共仿真基础}
+
+Common 是三类编码共同使用的仿真与审计基础，不参与 BCH 生成多项式计算、卷积码状态转移或 LDPC 校验矩阵迭代。它提供统一类型和接口，固定实值 BPSK、基础 AWGN、硬判决和未量化 LLR 的定义，并通过 Frame Pool、Noise Pool、停止控制、checkpoint、分片合并和结果身份字段约束实验输入与输出。
+
+公共实现解决的是“相同环节如何用同一种方式执行和记录”，不能替代任务级说明。BCH、CC 和 LDPC 的 filler、CRC、tail、puncturing、shortening、量化、译码状态、复杂度字段及扩展信道仍由各任务负责；历史实验是否调用当前 Common 接口，也需要在对应章节逐项复核。
+
+% VISIO-ABSOLUTE-PATH: C:/Users/V3169/Desktop/Project/SCL_Channel_Coding_Design/Report/figures/visio/common/unified_simulation_chain.png
+\begin{figure}[htbp]
+  \centering
+  \fbox{\begin{minipage}[c][0.15\textheight][c]{0.82\textwidth}
+    \centering 待插入：Common统一仿真与审计链路图
+  \end{minipage}}
+  \caption{Common统一仿真与审计链路图}
+  \label{fig:unified-simulation-chain}
+\end{figure}
+
+图\ref{fig:unified-simulation-chain}的上层应展示 payload、编码、BPSK、信道、判决或 LLR、译码、恢复和统计；下层应展示 frame/noise pool、seed、stop、checkpoint、shard/merge、CSV 和 hash。两层以帧索引、pool ID、配置 hash 和结果行连接，使一个性能点能够追溯到确定的输入与执行范围。
+
+\section{帧结构与长度定义}
+
+$K_{\mathrm{payload}}$ 是原始有效信息长度，也是 BER 分母中每帧贡献的比特数。$K_{\mathrm{codec\ input}}$ 是编码器实际输入，可在 payload 之外包含 filler、CRC 或其他适配位。$N_{\mathrm{encoded}}$ 是 Common \texttt{computeCodeRate} 使用的编码输出长度；具体任务需要说明该字段是否已经完成打孔或速率匹配。$N_{\mathrm{transmitted}}$ 是实际映射到 BPSK 并进入信道的比特数，$K_{\mathrm{recovered}}$ 是去除附加位后的恢复长度。
+
+Shortening 对应的已知位不进入发送序列；punctured 位从母码输出中删除；tail 和 CRC 即使参与译码，也不属于 payload。统计前必须把恢复结果裁剪或映射回 $K_{\mathrm{payload}}$。若恢复长度不同，Common 的 \texttt{countBitErrors} 会拒绝比较，不能用补零或截断掩盖配置错误。
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{长度字段及附加位对各长度的影响}
+  \label{tab:length-field-effects}
+  \begin{tabular}{p{0.17\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.21\textwidth}}
+    \toprule
+    项目 & 是否属于 payload & 影响编码器输入 & 影响编码输出/发送 & 统计处理 \\
+    \midrule
+    filler & 否 & 增加 & 可能增加 & 恢复后删除 \\
+    CRC & 否 & 通常增加 & 增加 & 可用于状态判断，不计 BER \\
+    tail & 否 & 改变卷积码输入过程 & 增加输出 & 不计 payload BER \\
+    puncturing & 否 & 不改变 & 删除部分母码比特 & 记录打孔后长度 \\
+    shortening & 否 & 逻辑上补已知位 & 已知位不发送 & 译码前恢复约定位置 \\
+    parity & 否 & 不属于信息侧 & 构成编码冗余 & 不直接计 payload BER \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{实际码率定义}
+
+现行源码在 \texttt{types.hpp} 的 \texttt{computeCodeRate} 中给出唯一公共码率：
+\begin{equation}
+  R=\frac{K_{\mathrm{payload}}}{N_{\mathrm{encoded}}}.
+  \label{eq:actual-code-rate}
+\end{equation}
+分子不包含 filler、CRC 或 tail；分块方案的分母使用所有子块最终编码长度之和；打孔后若任务把打孔结果记为 \texttt{encodedLength}，分母使用打孔后长度。母码理论码率不能代替式~\eqref{eq:actual-code-rate}。
+
+$N_{\mathrm{transmitted}}$ 仍需独立保存，用于解释物理发送效率和未发送位。Common-04 基础 \texttt{SummaryRow} 尚未输出该字段，因此正文中的 Common 码率必须按源码写为 payload/encoded，而不能把旧稿中的 payload/transmitted 定义强加给公共函数。若任务结果以 $N_{\mathrm{transmitted}}$ 生成噪声或计算横轴，则在该任务章节登记偏离，并保证 AWGN 和横轴换算使用同一个 $R$。
+
+\section{BPSK离散符号模型}
+
+Common 的 BPSK 调制按逐比特实值映射：
+\begin{equation}
+  x_i=1-2c_i,qquad c_i\in\{0,1\},\quad x_i\in\{+1,-1\}.
+  \label{eq:bpsk-mapping}
+\end{equation}
+式~\eqref{eq:bpsk-mapping}把比特 0 映射为 $+1$，把比特 1 映射为 $-1$，每个实际编码比特对应一个实值符号。当前 Common 是离散符号级模型，不显式设置采样率、过采样倍数、成形滤波器或载波相位；涉及这些物理层环节的实验不能直接用本节公式覆盖。
+
+\section{Eb/N0驱动的AWGN实现}
+
+\texttt{computeAwgnSigma} 的输入字段为 \texttt{ebN0\_dB}。函数先完成 dB 到线性量的转换：
+\begin{equation}
+  \gamma_b=10^{(E_b/N_0)_{\mathrm{dB}}/10}.
+  \label{eq:ebn0-linear}
+\end{equation}
+式~\eqref{eq:ebn0-linear}完成 dB 到线性量的转换；随后调用式~\eqref{eq:actual-code-rate}计算实际码率，并返回标准差
+\begin{equation}
+  \sigma=\sqrt{\frac{1}{2R\gamma_b}},
+  \qquad \sigma^2=\frac{1}{2R\gamma_b}.
+  \label{eq:awgn-sigma}
+\end{equation}
+式~\eqref{eq:awgn-sigma}中的 $\sigma$ 进入下列接收模型：
+\begin{equation}
+  y_i=x_i+\sigma z_i,qquad z_i\sim\mathcal{N}(0,1).
+  \label{eq:awgn-channel}
+\end{equation}
+式~\eqref{eq:awgn-channel}由 \texttt{applyAwgn} 实现；该函数要求符号向量和标准高斯向量等长，并拒绝非有限或非正的 $\sigma$。这里的 $\sigma$ 是标准差而不是方差；Noise Pool 保存的是标准高斯 $z_i$，不是已经按某个 SNR 缩放的噪声。
+
+上述闭式只直接适用于确实调用 Common \texttt{computeAwgnSigma} 和 \texttt{applyAwgn} 的实值 BPSK--AWGN 任务。多径、频偏、遮挡、突发错误或历史 runner 可能采用不同的输入 SNR 和归一化方式，对应章节必须从源码和正式配置重新确认。
+
+\section{Es/N0正式绘图口径}
+
+教师附件要求给出信噪比条件下的 BER、FER 曲线，没有强制横轴为 Eb/N0 或 Es/N0。本报告把正式主图横轴规定为符号信噪比 $E_s/N_0$，同时保留仿真输入 \texttt{ebN0Db}。在一编码比特对应一个 BPSK 符号且使用式~\eqref{eq:actual-code-rate}时，线性关系为
+\begin{equation}
+  \gamma_s=R\gamma_b.
+  \label{eq:es-eb-linear}
+\end{equation}
+式~\eqref{eq:es-eb-linear}对应的 dB 换算为
+\begin{equation}
+  (E_s/N_0)_{\mathrm{dB}}
+  =(E_b/N_0)_{\mathrm{dB}}+10\log_{10}R.
+  \label{eq:es-eb-db}
+\end{equation}
+
+式~\eqref{eq:es-eb-db}的换算只增加 \texttt{esN0Db} 展示字段，原始 Eb/N0、噪声样本、$\sigma$、BER、FER、处理帧数和错误计数均保持不变。不得把 \texttt{ebN0Db} 直接改名为 \texttt{esN0Db}，不得用母码率替代实际 $R$，也不得对所有曲线统一减 \SI{3}{dB}。不同码率曲线换算后横坐标不必重合；若需要在同一目标 FER 比较，应限定在各自数据覆盖范围内插值，不能为了对齐网格改变原始点。
+
 \section{硬判决与软信息}
-与\cref{eq:bpsk-mapping}一致的硬判决为 $y_i\geq0$ 判为 0，否则判为 1。软输入的定义为
-\begin{equation}L_i=\ln\frac{\Pr(c_i=0\mid y_i)}{\Pr(c_i=1\mid y_i)}.\label{eq:llr-definition}\end{equation}
-在实值 BPSK--AWGN 且方差口径一致时，$L_i=2y_i/\sigma^2$。BCH 路径使用硬判决；软信息的裁剪或量化仅在对应卷积码、LDPC 任务中进一步说明。
-\section{性能统计与公平性}
-\begin{equation}\mathrm{BER}=N_b^{\mathrm{err}}/N_b,\qquad \mathrm{FER}=N_f^{\mathrm{err}}/N_f.\label{eq:ber-fer}\end{equation}
-统计以 payload 为范围。reported success 描述译码器报告状态，true success 描述恢复 payload 正确的帧，两者差额须以 miscorrection 或 failure 字段说明。frame/noise pool、seed、NoiseKey、frameIndex、checkpoint、resume、shard 与 merge 用于重现实验和支持成对比较；具体共享范围由任务级配置限定。
-\section{停止、时延与审计}
-统一控制包含最小帧数、目标错误帧数和最大帧数；实际正式数值以任务 CSV 的 stop reason、minFrames、targetFrameErrors 与 maxFrames 为准。编码时间、译码 CPU 时间、首输出时间、分位数、最大观测时间、结构时延和缓冲时延必须区分。软件时间受 CPU、编译模式、单线程、预热和操作系统调度影响，不能直接等价为硬件时延。
-\section{任务级差异与小结}
-公共接口提供可比框架，但任务仍可在 SNR 网格、停止参数、硬软输入、译码器、信道模型和时延字段上不同。\reportfigure{figures/visio/common/unified_simulation_chain.png}{统一仿真处理链路}{fig:unified-simulation-chain}{payload、编码、调制、信道、接收处理、译码、统计、checkpoint 与审计。}
+
+Common 的硬判决在零点明确归入 bit 0：
+\begin{equation}
+  \hat c_i=
+  \begin{cases}
+    0, & y_i\ge 0,\\
+    1, & y_i<0.
+  \end{cases}
+  \label{eq:hard-decision}
+\end{equation}
+式~\eqref{eq:hard-decision}给出硬判决；实值 BPSK--AWGN 的未量化对数似然比为
+\begin{equation}
+  L_i=\ln\frac{\Pr(c_i=0\mid y_i)}{\Pr(c_i=1\mid y_i)}
+     =\frac{2y_i}{\sigma^2}.
+  \label{eq:llr}
+\end{equation}
+由式~\eqref{eq:llr}可知，正 LLR 倾向 bit 0，负 LLR 倾向 bit 1，绝对值表示可靠性。Common 基础接口不执行裁剪、定点量化或饱和；CC 和 LDPC 对软值的位宽、缩放、裁剪和溢出处理必须在任务章节说明。BCH 使用硬判决输入。
+
+\section{BER、FER与译码状态}
+
+公共错误统计只比较原始 payload 和恢复 payload：
+\begin{align}
+  \mathrm{BER}&=\frac{N_{b,\mathrm{err}}}{N_{b,\mathrm{payload}}},
+  \label{eq:ber}\\
+  \mathrm{FER}&=\frac{N_{f,\mathrm{err}}}{N_{f,\mathrm{processed}}},
+  \label{eq:fer}\\
+  S_{\mathrm{payload}}&=\frac{N_{f,\mathrm{correct}}}{N_{f,\mathrm{processed}}}
+  =1-\mathrm{FER}.
+  \label{eq:payload-success}
+\end{align}
+式~\eqref{eq:ber}和式~\eqref{eq:fer}分别按 payload 比特与帧计数。Common-04 \texttt{SummaryRow} 中的 \texttt{successRate} 对应式~\eqref{eq:payload-success}，即 payload 无误帧比例，不是译码器声明成功率。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{译码器声明与payload结果的联合状态}
+  \label{tab:decoder-status}
+  \begin{tabular}{p{0.20\textwidth}p{0.20\textwidth}p{0.48\textwidth}}
+    \toprule
+    译码器声明 & payload结果 & 统计解释 \\
+    \midrule
+    成功 & 正确 & true success，同时可计入 declared success \\
+    成功 & 错误 & miscorrection 或 undetected error，不能计入 payload success \\
+    失败 & 错误 & decoder failure，同时是 frame error \\
+    失败 & 正确 & 需由任务状态字段解释，基础 SummaryRow 不单列 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Common checkpoint 结构已预留 reported success、miscorrected 和 decoder failure 等扩展计数，但基础 \texttt{SummaryRow} 没有统一输出这些比例。只有任务结果实际包含相应计数且定义与本表一致时，才能报告译码器声明成功率或误纠率。
+
+\section{确定性随机噪声与公平比较}
+
+Common 的每个标准高斯样本由完整 NoiseKey 决定：
+\begin{equation}
+  \mathcal{K}_{\mathrm{noise}}=
+  (s_{\mathrm{master}},g_{\mathrm{noise}},f,i,v_{\mathrm{policy}}),
+  \label{eq:noise-key}
+\end{equation}
+式~\eqref{eq:noise-key}的五个分量依次表示主噪声种子、噪声组、帧索引、符号索引和策略版本，对应源码中的 NoiseKey 字段。固定完整键产生相同样本，不依赖随机函数调用顺序。源码使用 SplitMix64 派生均匀字，并用 Box--Muller 变换生成标准高斯值。
+
+\texttt{snrIndex} 和 Eb/N0 不直接进入 NoiseKey。不同 SNR 点通过式~\eqref{eq:awgn-sigma}改变 $\sigma$；是否跨 SNR 复用同一标准高斯底噪，取决于 \texttt{noiseGroupId} 及任务配置。不同 \texttt{frameIndex} 仍生成不同帧噪声，跨 SNR 复用不等于所有帧复用一条噪声。
+
+CC 硬、软 Viterbi 的公平比较应共享 payload、母码输出、打孔结果和 \texttt{receivedSymbols}，只替换译码输入和分支度量。LDPC BP/NMS 应共享 payload、码字、校验矩阵、噪声和 LLR，只替换校验节点更新规则。共享随机样本使结果差异不再同时混入另一组 Monte Carlo 噪声；具体任务是否完全遵守这些条件，仍由对应章节的配置和调用链审计。
+
+\section{帧池和噪声池}
+
+Frame Pool 和 Noise Pool 都支持确定性分片与完整性检查，但文件内容和格式不同，不能互相类推。Frame Pool 保存 payload bits，manifest schema 为 \texttt{common03.frame\_pool\_manifest.v2}；payload 使用 \texttt{splitmix64\_payload\_v2} 生成，按 packed bits、LSB-first 写入。分片必须从 frame 0 开始连续覆盖，每片记录文件名、帧范围、字节数和 SHA-256，overall hash 对稳定 manifest 身份字段和分片 hash 计算。读取器默认复核分片长度与 SHA-256。
+
+Noise Pool 保存未缩放的标准高斯样本，格式为 float64 little-endian，生成算法标识为 \texttt{splitmix64\_box\_muller\_v1}。每个二进制分片含版本化头字段，包括首帧、帧数、每帧符号数、主种子、噪声组和策略版本。manifest 要求连续帧范围、分片 SHA-256 和 overall hash，\texttt{noisePoolId} 取 overall hash 的前16个十六进制字符；读取时同时复核文件 hash 和头字段。
+
+两个 pool 的大型正式文件不进入 Git。报告和 checkpoint 保存 pool ID 或 hash、配置 hash、帧范围和策略版本，使外部存储中的池文件仍能与结果绑定。
+
+\section{仿真停止控制}
+
+Common 正式停止配置为 \texttt{minFrames=5000}、\texttt{targetFrameErrors=200}、\texttt{maxFrames=50000}。\texttt{evaluateStop} 的实际判断顺序如下：
+
+\begin{verbatim}
+if processedFrames >= maxFrames:
+    MAX_FRAMES
+elif processedFrames < minFrames:
+    CONTINUE
+elif frameErrors >= targetFrameErrors:
+    TARGET_FRAME_ERRORS
+else:
+    CONTINUE
+\end{verbatim}
+
+最小帧数防止在错误较多的点过早停止；达到最小帧数后，目标错误帧数提供基本的错误事件数量；最大帧数限制高 SNR 点或低错误率点的计算量。由于每个 SNR 点独立判断，\texttt{processedFrames} 可以不同，不能笼统写成“所有正式点均仿真50000帧”。历史实验或特殊任务若使用其他停止参数，需要在结果表中保存停止配置和 \texttt{stopReason}。
+
+\section{时延统计口径}
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Common基础时延字段、实际计时边界和限制}
+  \label{tab:common-latency-fields}
+  \begin{tabular}{p{0.24\textwidth}p{0.38\textwidth}p{0.10\textwidth}p{0.20\textwidth}}
+    \toprule
+    指标 & Common-04 identity pipeline实际边界 & 提供 & 限制 \\
+    \midrule
+    \texttt{avgEncodeTimeUs} & payload 生成/Frame Pool读取、恒等编码、BPSK & 是 & 不是纯编码时间 \\
+    \texttt{avgChannelTimeUs} & 噪声生成/Noise Pool读取及 AWGN 叠加 & 是 & 包含池读取或生成 \\
+    \texttt{avgDecodeTimeUs} & 硬判决，或 LLR 计算后按符号判决 & 是 & identity 基线不是码译码器 \\
+    \texttt{maxDecodeTimeUs} & 单帧上述 decode 阶段最大观测值 & 是 & 软件观测最大值 \\
+    \texttt{avgRecoveryTimeUs} & 从 decoded 序列截取 payload & 是 & 具体码型恢复更复杂 \\
+    \texttt{avgTotalTimeUs} & 单帧主链路起点至恢复完成 & 是 & 受平台与调度影响 \\
+    \texttt{maxTotalTimeUs} & 单帧 total 最大观测值 & 是 & 不等于硬件确定上界 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Common-01 文档把理想算法计时定义为不包含帧池和噪声文件读取；Common-04 identity pipeline 的函数边界实际上包含这些操作。正文按已执行源码边界解释现有基础字段，并把“排除 I/O 的纯算法计时”作为任务 runner 需要单独实现的扩展口径。P50/P95/P99、first-output、decision delay、structural delay、interleave time 也不是基础 SummaryRow 字段，只有任务实际输出时才报告。
+
+\section{Checkpoint与恢复}
+
+Common-04 checkpoint JSON 保存 schema、实验和配置身份、frame/noise pool ID、payload/encoded 长度、SNR 索引和 Eb/N0、下一帧索引、已处理帧数、payload 总比特、错误与成功计数、各阶段累计时间、最大时间、扩展译码状态、噪声策略、全局种子、分片信息、checkpoint 次数、时间戳和停止原因。
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Checkpoint恢复前的身份与一致性检查}
+  \label{tab:checkpoint-identity}
+  \begin{tabular}{p{0.28\textwidth}p{0.26\textwidth}p{0.36\textwidth}}
+    \toprule
+    检查类别 & 字段 & 不一致时的处理 \\
+    \midrule
+    Schema与实验 & schemaVersion、experimentId & 拒绝恢复 \\
+    配置与输入 & configHash、framePoolId、noisePoolId & 拒绝混合配置或池身份 \\
+    长度 & payloadLength、encodedLength & 拒绝长度不同的累计状态 \\
+    SNR & snrIndex、ebN0\_dB & 拒绝跨点恢复 \\
+    随机策略 & noisePolicyVersion、globalSeed & 拒绝随机身份变化 \\
+    分片 & shardIndex、shardCount & 拒绝分片身份变化 \\
+    进度 & nextFrameIndex、processedFrames、totalPayloadBits & 必须与请求帧范围及长度一致 \\
+    计数 & successfulFrames、frameErrors & 两者之和必须等于已处理帧数 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+记录结构和序列化格式已经包含扩展字段，但 Common-04 identity runner 创建 checkpoint 时未把所有噪声策略和分片字段显式赋为任务配置；这些字段可能保持默认值。报告因此只能说公共 Schema 支持并校验相应字段，不能据此断言所有历史 checkpoint 都已填充真实任务值。具体任务 runner 应在恢复测试中验证实际写入内容。
+
+写文件时先生成同目录临时文件，刷新成功后再替换目标。Windows 实现使用带替换和写穿语义的 \texttt{MoveFileExW}；这一平台细节放在附录\ref{app:reproducibility}，正文关注恢复身份和计数一致性。
+
+\section{分片与结果合并}
+
+\texttt{mergeSimulationShards} 先按 \texttt{frameStart} 排序，再检查 \texttt{shardIndex} 不重复、每片帧数非零、帧范围连续且没有重叠或空洞。各分片的 experimentId、configHash、frame/noise pool ID、payload/encoded 长度、SNR 索引和 Eb/N0 必须一致；分片统计还要满足 processedFrames 等于 frameCount、totalPayloadBits 等于 frameCount 与 payloadLength 的乘积，并且成功帧与错误帧之和等于分片帧数。
+
+合并时原始计数和时间累计值求和，最大译码时间与最大总时间取各片最大值。BER、FER、成功率和平均时间应在合并后用总计数重新计算，不能直接平均各分片比例。当前基础合并结构未统一覆盖误纠、声明成功、迭代次数或复杂度扩展，具体任务若分片运行，需要为这些字段实现同样的计数一致性和合并规则。
+
+\section{公共结果Schema}
+
+Common-04 基础汇总使用 \texttt{common04.result\_summary.v1}。表~\ref{tab:common-result-schema}按用途归类，而不是按 CSV 列顺序逐字复制。
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Common基础结果Schema的字段类别}
+  \label{tab:common-result-schema}
+  \begin{tabular}{p{0.16\textwidth}p{0.48\textwidth}p{0.26\textwidth}}
+    \toprule
+    类别 & 基础字段 & 作用 \\
+    \midrule
+    身份 & schemaVersion、experimentId、stage、codeType、caseName & 识别结果版本和实验用例 \\
+    长度/SNR & payloadLength、encodedLength、codeRate、ebN0\_dB、snrIndex & 绑定长度、内部SNR和点序号 \\
+    可靠性 & 处理帧、payload总比特、bit/frame errors、成功帧、BER、FER、successRate & 保存原始计数及payload派生比例 \\
+    时延 & encode/channel/decode/recovery/total平均时间及decode/total最大时间 & 描述基础阶段平均与最大观测时间 \\
+    审计 & stopReason、framePoolId、noisePoolId、configHash & 绑定停止、输入池和配置 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+基础 Schema 尚未统一包含 \texttt{transmittedLength}、miscorrectionRate、decoderDeclaredSuccessRate、置信区间、零错误标志、平均迭代次数、复杂度或交织参数。它们由 BCH、CC、LDPC 或专题任务扩展；扩展结果必须保留基础身份和原始计数，避免只输出无法复核的比例。
+
+\section{零错误点与统计不确定性}
+
+Common-01 定义和 JSON 配置已经冻结 Wilson 95\% 区间、绘图专用 BER/FER 及零错误标志。Common-04 的 C++ 基础汇总结构和指标实现尚未输出这些字段。因此，现阶段把它们作为报告绘图规则和任务扩展要求，不写成公共 runner 已经生成的字段。
+
+原始 CSV 在未观测到错误时保留真实 0。对数坐标图可以使用空点、向下箭头或单独上界标记，不得把 0 静默替换为固定 $10^{-5}$、$10^{-6}$，也不得绘制人为 error floor。若采用零观测事件的三倍法则近似 95\% 上界，则
+\begin{align}
+  p_{b,\mathrm{upper}}&\approx\frac{3}{N_{b,\mathrm{payload}}},
+  \label{eq:zero-ber-upper}\\
+  p_{f,\mathrm{upper}}&\approx\frac{3}{N_{f,\mathrm{processed}}}.
+  \label{eq:zero-fer-upper}
+\end{align}
+式~\eqref{eq:zero-ber-upper}和式~\eqref{eq:zero-fer-upper}给出的是统计上界，而不是实测 BER/FER。零观测错误只表示有限样本内未出现事件，不能解释为真实误码概率等于零。
+
+\section{任务级差异和适用边界}
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Common公共定义与任务级差异}
+  \label{tab:common-task-boundary}
+  \begin{tabular}{p{0.18\textwidth}p{0.34\textwidth}p{0.38\textwidth}}
+    \toprule
+    项目 & Common公共定义 & 任务级差异 \\
+    \midrule
+    payload & 支持 200/300 bit 帧池 & 按业务选择长度 \\
+    BPSK & 0到$+1$，1到$-1$ & 通常复用；其他调制另行定义 \\
+    内部SNR & AWGN接口输入 Eb/N0 & 历史或特殊信道可能采用其他归一化 \\
+    正式横轴 & 按实际码率换算 Es/N0 & 非SNR图不适用；未确认码率不转换 \\
+    停止 & 正式模板5000/200/50000 & 历史实验和专项试验可能不同 \\
+    译码输入 & 硬比特、接收符号或LLR接口 & 量化、裁剪、饱和依码型设置 \\
+    信道 & 基础AWGN和接口 & 多径、频偏、遮挡、突发错误扩展 \\
+    时延 & 基础平均和最大观测字段 & P95、首输出、结构和交织时延扩展 \\
+    结果字段 & 基础身份、计数、比例、时间和hash & 迭代、误纠、复杂度、交织参数扩展 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+后续章节引用本章定义时，应同时说明所用 runner、实际码率分母、SNR 输入类型、停止配置和扩展字段。尤其是历史任务不能因为字段名含 \texttt{ebn0} 或 \texttt{snr} 就自动认定与 Common 当前接口相同。
+
+在目标错误率 $p_0$ 上比较候选与参考曲线时，正式 Es/N0 编码增益定义为
+\begin{equation}
+  G_{\mathrm{coding}}(p_0)=
+  \left.\frac{E_s}{N_0}\right|_{\mathrm{reference},p_0}
+  -\left.\frac{E_s}{N_0}\right|_{\mathrm{candidate},p_0}.
+  \label{eq:coding-gain-esn0}
+\end{equation}
+式~\eqref{eq:coding-gain-esn0}要求两条曲线都覆盖 $p_0$；只能在局部数据范围内插值，不进行远距离外推。若任一曲线未覆盖目标点，编码增益记为 N/A。
+
+\section{本章小结}
+
+Common 固定了 payload/encoded 码率、实值 BPSK、Eb/N0 驱动的 AWGN、硬判决、LLR、payload BER/FER、确定性随机样本、正式停止控制以及基础 checkpoint、分片和结果身份。正式图按每个点的实际码率把内部 Eb/N0 转换为 Es/N0，原始统计保持不变。任务仍需补充发送长度、附加位、扩展译码状态、量化、专用时延、复杂度和特殊信道；历史结果是否满足公共定义将在第4章以后逐章审计。
