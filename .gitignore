@@ -44,4 +44,8 @@ Task/Comparison/**/build/
 *.synctex.gz
 *.xdv
 _build/
-
+# 报告
+Report/evidence/
+Report/data/
+Report/figures/
+Report/config/
