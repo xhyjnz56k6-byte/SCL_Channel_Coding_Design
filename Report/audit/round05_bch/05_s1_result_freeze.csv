@@ -1,0 +1,9 @@
+assetType,classification,path,scope,axis,decision,notes
+RAW_MASTER,MASTER,Report/data/frozen/bch/s1_01_five_case_formal_summary.csv,五方案S1正式计数与BER/FER,Eb/N0,USE,74行；报告侧已冻结副本
+SOURCE_MASTER,MASTER,Task/BCH/simulation/stages/bch16w8_five_case_comparison/five_case_formal_summary.csv,五方案S1正式源数据,Eb/N0,USE,与报告冻结副本对应
+FIGURE_MASTER,MASTER_WITH_AXIS_CONVERSION,Task/BCH/simulation/stages/bch16w9_decode_timing_snr_figures/figures/bch_200bit_fer_snr_cn.png,200 bit FER,Es/N0,USE,图源CSV保留sourceEbN0Db/frameRate/snrDb
+FIGURE_MASTER,MASTER_WITH_AXIS_CONVERSION,Task/BCH/simulation/stages/bch16w9_decode_timing_snr_figures/figures/bch_300bit_fer_snr_cn.png,300 bit FER,Es/N0,USE,同时包含B300-390与B300-426
+FIGURE_SUPPORT,CURRENT_SUPPORT,Task/BCH/simulation/stages/bch16w9_decode_timing_snr_figures/figures/bch_200bit_ber_snr_cn.png,200 bit BER,Es/N0,APPENDIX_OR_OPTIONAL,正文优先FER
+FIGURE_SUPPORT,CURRENT_SUPPORT,Task/BCH/simulation/stages/bch16w9_decode_timing_snr_figures/figures/bch_300bit_ber_snr_cn.png,300 bit BER,Es/N0,APPENDIX_OR_OPTIONAL,正文优先FER
+TIMING_SUPPORT,CURRENT_SUPPORT,Task/BCH/simulation/stages/bch16w9_decode_timing_snr_figures/result_summary.csv,修复后的软件译码时延,NOT_SNR_CURVE,USE_AS_TABLE,仅代表本机Windows/MinGW Release
+OLD_FOUR_CASE,SUPERSEDED,Task/BCH/simulation/results/formal/formal_summary.csv,旧四方案S1,Eb/N0,AUDIT_ONLY,不含B300-426且旧时延受profile重复构造污染
