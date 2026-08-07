@@ -1,2 +1,217 @@
 \chapter{BCH编码方案与仿真分析}\label{chap:bch}
-\textbf{TODO：}仅在正式 CSV、图源和 BCH 审计记录相互印证后编写。本节所需证据：BCH 正式 CSV、源码、审计；待补 Visio：分块与整块结构图。
+
+\section{BCH在低速电文中的任务定位}
+
+本章面向200 bit和300 bit低速电文，比较两条BCH实现路线：一条将电文切成11 bit子块并逐块采用BCH(15,11,1)，另一条把电文装入缩短二元BCH母码。S1在AWGN下辨析码率、冗余、纠错跨度和软件译码代价之间的关系；S2固定相同的八个方案，考察多径、帧内相位漂移、连续遮挡和连续硬比特翻转。公共调制、噪声、BER与FER口径沿用第\ref{chap:simulation}章，本章只列出实际实验取值。
+
+BCH在这里是低速电文候选，而不是三类编码的预设最终方案。第\ref{chap:decoder}章再比较译码复杂度，第\ref{chap:interleaving}章再展开交织，因此本章只保留支撑BCH内部选择所需的算法说明与正式结果。
+
+\section{BCH编码方案}
+
+\subsection{分组BCH方案}
+
+分组路线按11 bit切分payload；末组不足部分补零，每组独立形成15 bit系统码字，发送时串接全部子码字。200 bit电文需要19组，末组填充9 bit，编码长度为285 bit；300 bit电文需要28组，填充8 bit，编码长度为420 bit。译码后先拼接各组信息位，再删除末尾填充位。FER由恢复后的完整payload判定：任何一个payload位错误即记一帧错误，不能把单个子块状态直接当作整帧FER。
+
+对每个子块，系统编码可写为
+\begin{equation}
+  c(x)=x^{n-k}m(x)+r(x),
+\end{equation}
+其中$r(x)$是$x^{n-k}m(x)$除以生成多项式的余式。BCH(15,11,1)只校正单比特错误；它的工程优势是译码路径短、子块失效范围局部，但整帧包含19或28次独立译码，且填充与逐块校验降低了实际帧码率。
+
+\subsection{整块缩短BCH方案}
+
+整块路线在母码信息区前端补入已知零，完成母码系统编码后删除这些已知位；译码时补回零前缀，再在母码长度上计算综合。缩短不改变母码设计纠错能力$t$，但报告中的码率必须按实际发送帧计算：
+\begin{equation}
+  R=\frac{K_{\mathrm{payload}}}{N_{\mathrm{encoded}}}.
+\end{equation}
+
+正式实验包含多个整块候选。200 bit电文分别装入三种母码：BCH(255,207,6)、BCH(511,421,10)和BCH(511,385,14)。300 bit电文除两个511位母码外，还采用两个独立的缩短BCH(255,207,6)子块，每块承载150 bit。BCH(511,421)的300 bit方案输出390 bit，是较高码率基线；BCH(511,385)输出426 bit，是增加冗余的候选。二者均为正式方案，不作“旧版/新版”解释。
+
+\subsection{正式方案参数比较}
+
+表\ref{tab:bch-schemes}由S1人工确认目录的296行正式结果与当前编译码配置交叉核对。八个case覆盖两种payload长度，每个case均有37个信噪比点。
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{BCH正式实验方案参数}
+  \label{tab:bch-schemes}
+  \begin{tabular}{p{0.16\textwidth}r p{0.16\textwidth}r r r r p{0.15\textwidth}}
+    \toprule
+    方案ID & payload & 母码/组织 & 子块数 & 填充/缩短 & 编码长度 & $R$ & $t$/译码 \\
+    \midrule
+    K200\_S15 & 200 & BCH(15,11)分组 & 19 & 填充9 & 285 & 0.7018 & 每块1，查表 \\
+    K200\_M255K207 & 200 & BCH(255,207) & 1 & 缩短7 & 248 & 0.8065 & 6，BM/Chien \\
+    K200\_M511K421 & 200 & BCH(511,421) & 1 & 缩短221 & 290 & 0.6897 & 10，BM/Chien \\
+    K200\_M511K385 & 200 & BCH(511,385) & 1 & 缩短185 & 326 & 0.6135 & 14，BM/Chien \\
+    K300\_S15 & 300 & BCH(15,11)分组 & 28 & 填充8 & 420 & 0.7143 & 每块1，查表 \\
+    K300\_M255K207 & 300 & 两个BCH(255,207) & 2 & 每块缩短57 & 396 & 0.7576 & 每块6，BM/Chien \\
+    K300\_M511K421 & 300 & BCH(511,421) & 1 & 缩短121 & 390 & 0.7692 & 10，BM/Chien \\
+    K300\_M511K385 & 300 & BCH(511,385) & 1 & 缩短85 & 426 & 0.7042 & 14，BM/Chien \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+表中编码长度同时是进入BPSK的发送长度。不同曲线同时改变码率、纠错能力和错误分布跨度，因此结果差异不能只归因于“长码”或某一种译码算法。
+
+\section{BCH编译码方法}
+
+\subsection{系统编码与码长适配}
+
+编码器先验证payload长度和二进制取值。分组方案补齐末组后逐块系统编码；整块方案构造“已知零前缀+payload”的母码信息区，再删除缩短前缀。接收端执行相反的长度适配，并只把恢复的原始payload送入BER/FER统计。BCH(255,207)与BCH(511,421)/(511,385)分别在$\mathrm{GF}(2^8)$和$\mathrm{GF}(2^9)$上实现，后两者采用本原多项式表示\texttt{0x211}。
+
+\subsection{分组BCH查表译码}
+
+每个15 bit接收子块先计算综合$S_j=r(\alpha^j)$。零综合直接判为无错；非零综合查表定位单错误位置，翻转该位后再次检查综合。不能通过后验检查的子块返回失败状态。由于$t=1$，超过能力的错误可能导致失败，也可能落入另一合法码字而形成误纠；统计层必须回到已知payload比较，不能仅相信译码器声明。
+
+\subsection{整块BCH代数译码}
+
+整块译码补回缩短零前缀后，依次计算$2t$个综合、用Berlekamp--Massey算法求错误定位多项式，再用Chien搜索遍历母码位置。根数与多项式次数一致、根不落入缩短前缀且纠错后的综合为零时，译码器才声明成功。最后移除缩短前缀与校验位，恢复payload。纠错能力满足
+\begin{equation}
+  t=\left\lfloor\frac{d_{\min}-1}{2}\right\rfloor,
+\end{equation}
+但这只是有保证的最坏情况界，不是对超过$t$个错误时结果的承诺。
+
+\subsection{译码状态与电文恢复}
+
+正式CSV同时保留电文真值与译码器状态。\emph{reported success}表示译码器声明无错或纠正完成；\emph{true success}表示最终payload逐位等于发送payload；声明成功但payload仍错误为\emph{miscorrection}；不能形成有效输出为\emph{decoder failure}。正式FER按payload错误帧计数，满足“true success帧数+payload错误帧数=处理帧数”。
+
+\section{S1：AWGN条件下的BCH方案比较}
+
+\subsection{仿真配置}
+
+S1数值仅取自人工确认的AWGN稠密正式目录，完整路径见附录\ref{app:reproducibility}。八个case共享0至18 dB、步长0.5 dB的原始waveform-SNR网格，主种子为2026072707；每点至少1000帧，达到200个payload错误帧后可停止，最多50000帧。总计处理8824146帧，其中127点因达到目标错误帧停止，169点达到最大帧数。
+
+该目录的\texttt{snrDb}满足$\sigma^2=10^{-\mathrm{snrDb}/10}$。对幅度为$\pm1$的实值BPSK，$N_0=2\sigma^2$，故报告横轴采用
+\begin{equation}
+  \frac{E_s}{N_0}\mathrm{(dB)}=\mathrm{snrDb}-10\log_{10}2
+  =\mathrm{Eb/N0(dB)}+10\log_{10}R.
+\end{equation}
+因此S1报告网格为$-3.0103$至$14.9897$ dB。报告版CSV同时保留原始\texttt{snrDb}、原始\texttt{ebn0Db}、实际码率和换算后的\texttt{esN0Db}，没有改写BER、FER或错误计数。零观测错误仍为0；对数图省略这些点，不绘制人为error floor。
+
+\subsection{200 bit结果}
+
+图\ref{fig:bch-s1-k200-fer}比较四个200 bit方案。相同FER门限下，增加整块纠错能力带来的左移超过了低码率所需的额外发送符号：按相邻非零正式点对$\log_{10}(\mathrm{FER})$插值，FER=$10^{-2}$时，K200\_M511K385、K200\_M511K421、K200\_M255K207和K200\_S15分别约需2.95、3.52、4.39和5.98 dB。该顺序只适用于当前硬判决AWGN链路；它同时包含码率、母码$t$值和整帧组织方式的影响。
+
+\reportfigure[0.86\textwidth]{figures/bch/s1_awgn_k200_fer.png}
+  {200 bit电文的AWGN帧错误率}{fig:bch-s1-k200-fer}
+  {数据来自S1人工确认正式CSV，横轴换算为$E_s/N_0$。}
+
+K200\_M255K207的实际码率最高、发送长度最短，但$t=6$；它在中低FER区间没有超过两个511位母码方案。分组方案每块只能保证单错纠正，整帧又包含19个子块，因此较容易由某一子块的多错事件触发payload帧错误。K200\_M511K385以326 bit发送长度换取$t=14$，可靠性最强，但冗余与代数译码开销也最大。
+
+\subsection{300 bit结果}
+
+图\ref{fig:bch-s1-k300-fer}给出300 bit结果。FER=$10^{-2}$的插值位置按$t=14$整块、$t=10$整块、双块$t=6$和分组方案的顺序，分别约为3.46、4.03、4.27和6.18 dB。390 bit的K300\_M511K421比396 bit双块方案略靠左，说明在当前AWGN条件下，单块$t=10$的错误跨度收益抵消了很小的码率差异。426 bit增强候选再向左移动约0.57 dB，但多发送36 bit。
+
+\reportfigure[0.86\textwidth]{figures/bch/s1_awgn_k300_fer.png}
+  {300 bit电文的AWGN帧错误率}{fig:bch-s1-k300-fer}
+  {数据来自S1人工确认正式CSV，零观测点未作为非零曲线绘制。}
+
+在最高信噪比处，多条曲线出现零观测错误；这只表示最多50000帧样本内未观察到错误，不表示理论BER或FER为零。高信噪比点达到最大帧数，是停止规则在低错误区间的预期结果。
+
+\subsection{译码时延}
+
+图\ref{fig:bch-s1-latency}汇总同一正式目录中的每帧平均译码时间。按全部点的累计译码时间除以累计帧数，200 bit四个方案约为12.73、20.54、43.66和63.67~$\mu$s/帧；300 bit四个方案约为18.52、28.60、39.00和50.96~$\mu$s/帧，顺序均从分组查表到更强的整块代数译码逐步增加。该值是本地Windows/MinGW软件实现的CPU测量，包含一个payload内全部子块的译码，不代表硬件流水线时延；偶发调度抖动也使最大观测值不宜作为算法常数。
+
+\reportfigure[0.92\textwidth]{figures/bch/s1_decode_latency.png}
+  {AWGN正式仿真的软件译码时间}{fig:bch-s1-latency}
+  {纵轴为正式CSV中的平均CPU译码时间。}
+
+\subsection{S1结论}
+
+200 bit场景中，K200\_M511K385提供本组最强AWGN可靠性，K200\_M255K207提供最高码率和较低的整块译码代价，分组方案提供最短软件译码时间。300 bit场景中，390 bit的K300\_M511K421是可靠性、长度和时延较均衡的基线；426 bit候选以额外冗余和CPU时间换取约0.57 dB的FER=$10^{-2}$位置改善。选择应按允许的发送长度和处理预算裁定，不把单一FER曲线直接等同于最终系统推荐。
+
+\section{S2：不同信道下的BCH适应性}
+
+\subsection{信道设置}
+
+S2继续使用表\ref{tab:bch-schemes}的八个case。正式结果直接来自S2下相应的formal目录，不采用历史integration汇总。表\ref{tab:bch-s2-channels}列出本章实际进入正文的四类信道；AWGN基准直接引用S1，不重复绘图。
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{S2正式信道模型与参数}
+  \label{tab:bch-s2-channels}
+  \begin{tabular}{p{0.17\textwidth}p{0.36\textwidth}p{0.35\textwidth}}
+    \toprule
+    场景 & 冻结模型 & 接收处理与范围 \\
+    \midrule
+    固定多径 & 归一化实数冲激响应$[0.80452,0.52294,0,0.28158]$ & 已知信道，块线性MMSE；$E_s/N_0=-3.01{:}0.5{:}14.99$ dB \\
+    帧内相位漂移 & 相位从$0^\circ$线性变化到$30^\circ$ & 不补偿，取实部硬判决；$E_s/N_0=0{:}0.5{:}8$ dB \\
+    连续遮挡 & 随机起点的连续约10\%调制符号幅度置零，遮挡区仍加噪声 & 无交织；$E_s/N_0=0{:}0.5{:}8$ dB \\
+    连续硬翻转 & 随机起点连续翻转0--50 bit，无AWGN & 无环回、无交织；离散长度共16档 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{AWGN基准}
+
+S2的AWGN正式数据与S1采用同一人工确认的稠密结果目录，因此基准即图\ref{fig:bch-s1-k200-fer}和图\ref{fig:bch-s1-k300-fer}。这种处理避免把同一批数据包装成两套结论，也为后续信道只讨论相对于AWGN链路新增的结构化失真。
+
+\subsection{固定多径信道}
+
+多径模型为$y_i=\sum_{\ell}h_\ell x_{i-\ell}+n_i$，冲激响应能量归一化为1，接收端使用已知$h_\ell$构造块线性MMSE均衡器。原始\texttt{waveformSnrDb}仍满足$\sigma^2=10^{-\mathrm{waveformSnrDb}/10}$，故报告图同样减去$10\log_{10}2$。
+
+\reportfigure[0.96\textwidth]{figures/bch/s2_multipath_fer.png}
+  {固定实数多径与MMSE均衡后的FER}{fig:bch-s2-multipath}
+  {数据来自S2固定多径common-SNR正式CSV。}
+
+图\ref{fig:bch-s2-multipath}中八条曲线仍随信噪比下降，说明冻结的已知信道均衡没有产生不可消除的平台；但相对AWGN，下降区间整体后移，分组方案在14.99 dB仍分别观察到$2.4\times10^{-4}$和$4.4\times10^{-4}$的FER。不同方案排序总体保持，但该结论依赖固定实数tap、完全已知信道和当前MMSE实现，不能外推到信道估计误差或时变多径。
+
+\subsection{帧内线性相位漂移}
+
+该实验不是固定30度相位偏差，也不是随机多普勒。第$i$个符号乘以$\exp(j\theta_i)$，$\theta_i$在一个编码帧内从$0^\circ$线性增加到$30^\circ$；接收端不作相位补偿，只取实部硬判决。由于$\sigma^2=1/(2\,10^{E_s/N_0/10})$，正式CSV的\texttt{snrDb}已经是$E_s/N_0$，不再作3.0103 dB平移。
+
+\reportfigure[0.96\textwidth]{figures/bch/s2_phase_drift_fer.png}
+  {帧内0度至30度线性相位漂移下的FER}{fig:bch-s2-phase}
+  {数据来自S2频偏formal目录；标题按实际线性相位律命名。}
+
+相位漂移降低了实部判决裕量，但没有改变错误的连续位置结构。至8 dB时，分组200/300方案仍分别观察到$6.4\times10^{-4}$和$6.0\times10^{-4}$ FER，其余方案的若干高信噪比点为零观测错误。这里的差异不能解释成载波同步算法性能，因为实验明确关闭补偿。
+
+\subsection{连续遮挡场景}
+
+遮挡在调制符号域把随机起点、约10\%长度的连续片段幅度置零，噪声在该区间仍存在；接收端不知道受损位置，未采用擦除标记或交织。各方案因编码长度取整而具有约10.08\%至10.18\%的实际遮挡比例。
+
+\reportfigure[0.96\textwidth]{figures/bch/s2_blockage_fer.png}
+  {约10\%连续符号置零遮挡下的FER}{fig:bch-s2-blockage}
+  {数据来自S2遮挡formal目录的SNR实验。}
+
+在0--8 dB范围内，遮挡造成的集中损伤主导FER；提高AWGN信噪比不能恢复被置零的符号。8 dB处，200 bit的K200\_M511K385约为0.538，低于K200\_M511K421的0.702、K200\_M255K207的0.894和分组方案的1.0；300 bit对应值约为0.787、0.851、0.897和1.0。更大的$t$降低了失败概率，却没有消除平台，说明这类场景需要接收端受损位置利用或交织等结构性措施，而不只是提高SNR。
+
+\subsection{连续硬比特翻转场景}
+
+突发实验在无AWGN条件下，从每帧随机起点连续翻转硬比特，不环回、不交织。图\ref{fig:bch-s2-burst}直接用翻转长度作横轴，因此不存在SNR换算。
+
+\reportfigure[0.96\textwidth]{figures/bch/s2_burst_fer.png}
+  {无AWGN、无交织的连续硬比特翻转FER}{fig:bch-s2-burst}
+  {零观测FER保留为0；横轴为实际连续翻转长度。}
+
+50000帧样本中，分组方案只在突发长度不超过1 bit时保持零观测FER；BCH(255,207)、BCH(511,421)和BCH(511,385)方案分别在不超过6、10和12 bit时保持零观测FER，与各母码的保证纠错能力一致。超过该范围后，突发起点与子块边界共同决定单块承受的错误数，曲线并不等同于随机独立错误性能。交织能够改变错误在码字中的空间分布，但不改变BCH码本身的$t$，完整比较留至第\ref{chap:interleaving}章。
+
+\subsection{多信道结果分析}
+
+AWGN和经MMSE处理后的固定多径主要形成分散错误，整块强码可以在较大的码字范围内吸收错误；帧内相位漂移改变判决裕量，但当前30度终相位仍保留随SNR改善的下降趋势。连续遮挡与硬比特翻转则把错误集中到局部，容易一次超过某个子块或整块码的$t$，因此产生平台或突变。分组方案的局部性只有在突发跨越多个子块、且每块错误数不超过1时才可能有利；在本轮无交织连续翻转中，该条件并未形成普遍优势。
+
+这些场景的网格和横轴并不完全相同，遮挡与纯突发实验也不具备统一的SNR定义，故不建立“跨全部信道”的单一排名。报告只在同一正式CSV、同一信道和同一指标内比较方案。
+
+\section{BCH方案阶段性结论}
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{BCH方案的场景化结论}
+  \label{tab:bch-conclusions}
+  \begin{tabular}{p{0.18\textwidth}p{0.23\textwidth}p{0.31\textwidth}p{0.18\textwidth}}
+    \toprule
+    应用条件 & 候选方案 & 主要依据 & 代价与限制 \\
+    \midrule
+    200 bit，可靠性优先 & K200\_M511K385 & AWGN门限最靠左，集中损伤下FER最低 & 326 bit，软件译码时间最高 \\
+    200 bit，长度优先 & K200\_M255K207 & 248 bit、码率0.8065 & AWGN可靠性弱于两个511母码候选 \\
+    300 bit，均衡基线 & K300\_M511K421 & 390 bit；AWGN与时延折中较好 & 集中遮挡仍有高FER平台 \\
+    300 bit，可靠性优先 & K300\_M511K385 & AWGN的FER=$10^{-2}$位置较390 bit方案低约0.57 dB & 多36 bit，CPU译码时间增加 \\
+    强连续损伤 & 不单靠BCH定案 & 10\%遮挡形成平台，纯突发由$t$和边界主导 & 需在后续章节评估交织/受损位置利用 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+因此，BCH内部不存在脱离场景的唯一最优方案。511位母码的$t=14$候选提供最强可靠性，$t=10$候选在300 bit场景形成较紧凑的390 bit基线，255位母码候选强调发送长度和译码代价，分组方案强调实现简单与低CPU时间。最终系统选择还需与卷积码、LDPC以及交织和接收处理共同比较。

@@ -1,2 +1,13 @@
 \chapter{补充结果图}\label{app:figures}
-\textbf{TODO：}仅纳入能够追溯至正式 CSV 或绘图脚本的既有图。
+
+本附录只补充第\ref{chap:bch}章正文未采用、但能提供独立信息的BER曲线。图源来自S1人工确认正式CSV，横轴按相同规则换算为$E_s/N_0$；零观测错误不替换为人为非零值。
+
+\section{BCH在AWGN下的BER}
+
+\reportfigure[0.88\textwidth]{figures/bch/s1_awgn_k200_ber.png}
+  {200 bit电文的AWGN比特错误率}{fig:app-bch-k200-ber}
+  {报告版数据见\texttt{Report/data/chapter04/bch/s1\_awgn\_report\_data.csv}。}
+
+\reportfigure[0.88\textwidth]{figures/bch/s1_awgn_k300_ber.png}
+  {300 bit电文的AWGN比特错误率}{fig:app-bch-k300-ber}
+  {报告版数据保留原始SNR、Eb/N0、实际码率与处理帧数。}

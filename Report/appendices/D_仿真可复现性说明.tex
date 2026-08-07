@@ -46,6 +46,25 @@ Common checkpoint JSON还保存各阶段时间累计、最大时间、reported s
 
 大型池文件、正式checkpoint、formal中间结果、build目录、可执行文件和临时绘图文件默认不提交。可以提交小型golden vector、fixture hash、冻结配置和结果摘要，但必须在Stage计划中明确用途。未进入Git的大型资产依靠manifest、SHA-256、pool ID、configHash和命令记录完成身份核验，而不是依靠文件修改时间。
 
+\section{BCH第4章结果追溯}
+
+\begingroup
+\small
+\sloppy
+
+S1最高权威目录及主数据为：
+\begin{itemize}
+  \item \path{Task/BCH/simulation/stages/S1/stage07_awgn_dense_formal}；
+  \item \path{published_results/stage07_awgn_dense_formal_results.csv}。
+\end{itemize}
+S2按场景直接使用多径common-SNR、CFO、遮挡和突发四个formal目录中的正式CSV；未采用历史integration汇总替换这些结果。完整映射见\path{Report/audit/round05_bch_write/01_authoritative_result_sources.md}。
+
+第4章报告版图源位于\path{Report/data/chapter04/bch}，图位于\path{Report/figures/bch}，生成入口见\path{Report/scripts/build_chapter04_bch_assets.py}。S1和固定多径的原始waveform-SNR按$E_s/N_0=\mathrm{sourceSnrDb}-10\log_{10}2$换算；相位漂移和遮挡CSV中的\texttt{snrDb}已由$E_b/N_0+10\log_{10}R$得到，直接作为$E_s/N_0$。派生CSV保留来源路径和原始坐标，BER、FER与处理帧数不作改写。
+
+本轮报告基于分支\texttt{S8-PaperDocu}、起始提交\texttt{c1a8238a}生成；Round05-B未重跑formal、未修改Task目录，也未创建提交。
+
+\endgroup
+
 \section{当前适用边界}
 
 Common-04已验证identity基线、pool-backed smoke/prescan、checkpoint恢复、C++/Python噪声一致性及分片合并，但没有在Common Stage运行BCH、卷积码或LDPC正式曲线。Wilson区间、零错误标志和P95等字段在Common-01定义中冻结，尚未进入Common-04基础SummaryRow。后续任务应在使用前确认实现，不得把文档中的预留定义当作已经生成的结果。

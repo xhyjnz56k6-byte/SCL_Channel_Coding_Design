@@ -1,6 +1,6 @@
 \chapter{完整参数表}\label{app:parameters}
 
-本附录先列出已经由 Common 文档、源码和 Stage 审计材料确认的公共参数。BCH、CC、LDPC 及 S1--S7 的任务参数将在对应章节完成证据审计后续填，不用规划值代替正式配置。
+本附录列出已经由Common文档、源码和任务审计材料确认的公共参数。BCH参数已随第\ref{chap:bch}章冻结；CC、LDPC及后续任务仍在对应章节完成证据审计后补充，不用规划值代替正式配置。
 
 \section{Common长度与码率字段}
 
@@ -81,21 +81,27 @@
 
 Common基础时延覆盖encode、channel、decode、recovery和total阶段的平均时间，并保存decode与total的最大观测时间。identity pipeline 的前两项包含payload或噪声生成/池读取，不能直接解释为排除I/O的纯编码和纯信道算法时间。
 
-\section{任务参数占位}
+\section{BCH母码与长度适配参数}
 
 \begin{table}[htbp]
   \centering
-  \small
-  \caption{后续章节参数表的填充状态}
-  \label{tab:app-task-parameter-status}
-  \begin{tabular}{p{0.24\textwidth}p{0.28\textwidth}p{0.36\textwidth}}
+  \scriptsize
+  \caption{BCH正式方案的完整长度参数}
+  \label{tab:app-bch-parameters}
+  \begin{tabular}{p{0.18\textwidth}rrrrrrp{0.18\textwidth}}
     \toprule
-    模块/任务 & 状态 & 填充条件 \\
+    方案 & $K_p$ & 母码$n$ & 母码$k$ & $t$ & 子块 & 填充/缩短 & 输出/说明 \\
     \midrule
-    BCH与S1/S2 & 待第4章审计 & 绑定正式源码、配置、CSV和教师要求 \\
-    CC与S3 & 待第5章审计 & 绑定母码、打孔、时隙和Viterbi配置 \\
-    LDPC与S4 & 待第6章审计 & 绑定BG2子矩阵、Z、Direct链和迭代配置 \\
-    S5--S7 & 待专题章节审计 & 绑定信道、译码器、交织器和正式结果 \\
+    K200\_S15 & 200 & 15 & 11 & 1 & 19 & 填充9 & 285，逐块查表 \\
+    K200\_M255K207 & 200 & 255 & 207 & 6 & 1 & 缩短7 & 248，GF$(2^8)$ \\
+    K200\_M511K421 & 200 & 511 & 421 & 10 & 1 & 缩短221 & 290，GF$(2^9)$ \\
+    K200\_M511K385 & 200 & 511 & 385 & 14 & 1 & 缩短185 & 326，GF$(2^9)$ \\
+    K300\_S15 & 300 & 15 & 11 & 1 & 28 & 填充8 & 420，逐块查表 \\
+    K300\_M255K207 & 300 & 255 & 207 & 6 & 2 & 每块缩短57 & 396，每块150 bit \\
+    K300\_M511K421 & 300 & 511 & 421 & 10 & 1 & 缩短121 & 390，GF$(2^9)$ \\
+    K300\_M511K385 & 300 & 511 & 385 & 14 & 1 & 缩短85 & 426，GF$(2^9)$ \\
     \bottomrule
   \end{tabular}
 \end{table}
+
+BCH(511,421)与BCH(511,385)使用本原多项式表示\texttt{0x211}；实际码率均按payload除以输出长度计算。300 bit的BCH(255,207)方案是两个独立缩短块，不应误写为一个396 bit母码。CC、LDPC及S5--S7参数分别在后续对应章节完成审计后补充。
