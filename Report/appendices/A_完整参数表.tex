@@ -104,4 +104,14 @@ Common基础时延覆盖encode、channel、decode、recovery和total阶段的平
   \end{tabular}
 \end{table}
 
-BCH(511,421)与BCH(511,385)使用本原多项式表示\texttt{0x211}；实际码率均按payload除以输出长度计算。300 bit的BCH(255,207)方案是两个独立缩短块，不应误写为一个396 bit母码。CC、LDPC及S5--S7参数分别在后续对应章节完成审计后补充。
+BCH(511,421)与BCH(511,385)使用本原多项式表示\texttt{0x211}；实际码率均按payload除以输出长度计算。300 bit的BCH(255,207)方案是两个独立缩短块，不应误写为一个396 bit母码。
+
+\section{LDPC正式参数}\label{app:ldpc-parameters}
+\begin{table}[htbp]\centering\scriptsize\caption{LDPC正式配置摘要}\label{tab:app-ldpc-parameters}
+\resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c c c c}\toprule
+输入 & BG & 实际码长 & $Z_c$ & $k_b/n_b/m_b$ & 填充位 & 码率 & 最大迭代 & Stage15 NMS $\alpha$ & 信噪比\\\midrule
+300 bit & 2 & 480 & 48 & 8/10/2 & 84 & 0.6250 & 32 & 0.95 & $E_s/N_0=-5\sim10$ dB\\
+300 bit & 2 & 560（目标576） & 56 & 8/10/2 & 148 & 0.5357 & 32 & 0.95 & $E_s/N_0=-5\sim10$ dB\\
+300 bit & 2 & 640 & 40 & 8/16/8 & 20 & 0.4688 & 32 & 0.80 & $E_s/N_0=-5\sim10$ dB\\\bottomrule
+\end{tabular}}\end{table}
+表中$\alpha$仅为Stage15正式仿真配置；N480/N560的Stage12R推荐值为0.90，参数证据差异见第\ref{chap:ldpc}章，不把0.95写作已证明最优。
