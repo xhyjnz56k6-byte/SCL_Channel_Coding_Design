@@ -1,8 +1,11 @@
-阶段名称：AWGN prescan
-实验目的：支撑卷积码 CC S3 的 AWGN prescan 验证。
-主要参数：payloadLength=300 bit；300 bit smoke/prescan。
-完成内容：保留既有实现，并按本轮要求补充审计、结果或图。
-主要输出：stage_plan.md、manifest.json、validation_report.md、known_issues.md 和 results。
-当前结论：以 validation_report.md 和本轮结果 CSV 为准，不使用未验证数据。
-已知问题：Stage09 完整 -5..10 dB 粗网格尚需继续正式补跑。
-阶段状态：PASS
+阶段：Stage08 - AWGN 预扫描
+
+目的：在低成本仿真中为六个码率/判决组合定位瀑布区，确定 Stage09 正式仿真的 SNR 采样范围。
+
+作用：先以 60 帧 smoke 粗定位 FER 约 0.5 的中心，再按 0.5 dB 形成联合 prescan 范围；Hard/Soft 在同码率下共享电文、编码和母噪声，保证公平。
+
+得到的结果：六个 Case 的 smoke、逐点公式与停止条件检查均通过，生成 BER/FER 预扫描图、推荐正式范围和图文件清单，Gate 为 PASS_STAGE08_CC_AWGN_PRESCAN。
+
+主要文件：src/stage08_awgn_prescan_runner.cpp 是仿真程序；scripts/run_stage08.py 和 plot_and_check_stage08.py 负责运行、绘图和检查；results/stage08_awgn_prescan_formal_recommendations.csv 是正式范围建议。
+
+交付关系：这是选点工具。预扫描 PNG 仅供过程说明，最终提交应优先使用 Stage09 及 Stage15 的正式图。

@@ -20,14 +20,14 @@ BLOCK = ROOT / "Task/BCH/simulation/stages/S2/stage12_blockage_formal/results/st
 BURST = ROOT / "Task/BCH/simulation/stages/S2/stage14_burst_formal/results/stage14_burst_formal_summary.csv"
 
 LABELS = {
-    "K200_S15": "分组BCH(15,11)，200 bit",
-    "K200_M255K207": "缩短BCH(255,207)，200 bit",
-    "K200_M511K421": "缩短BCH(511,421)，200 bit",
-    "K200_M511K385": "缩短BCH(511,385)，200 bit",
-    "K300_S15": "分组BCH(15,11)，300 bit",
-    "K300_M255K207": "双块缩短BCH(255,207)，300 bit",
-    "K300_M511K421": "缩短BCH(511,421)，300 bit",
-    "K300_M511K385": "缩短BCH(511,385)，300 bit",
+    "K200_S15": "200 bit分组BCH(15,11)方案",
+    "K200_M255K207": "200 bit BCH(255,207)整块方案",
+    "K200_M511K421": "200 bit BCH(511,421)整块方案",
+    "K200_M511K385": "200 bit BCH(511,385)整块方案",
+    "K300_S15": "300 bit分组BCH(15,11)方案",
+    "K300_M255K207": "300 bit双块BCH(255,207)方案",
+    "K300_M511K421": "300 bit BCH(511,421)整块方案",
+    "K300_M511K385": "300 bit BCH(511,385)整块方案",
 }
 
 
@@ -132,8 +132,8 @@ def main() -> None:
         ax.set_xlabel(r"符号信噪比 $E_s/N_0$（dB）")
         ax.grid(True, linewidth=0.45, alpha=0.45)
         ax.legend(fontsize=6.5)
-    axes[0].set_ylabel("平均译码CPU时间（μs/帧）")
-    fig.suptitle("AWGN正式仿真的软件译码时间")
+    axes[0].set_ylabel("平均软件译码时间（μs/帧）")
+    fig.suptitle("AWGN条件下各BCH方案的软件译码时间")
     fig.tight_layout()
     fig.savefig(FIG / "s1_decode_latency.png", bbox_inches="tight")
     plt.close(fig)
@@ -146,7 +146,7 @@ def main() -> None:
     cfo_raw = pd.read_csv(CFO)
     cfo = report_frame(cfo_raw, CFO, "snrDb", "ebn0Db", lambda x: x.sourceSnrDb)
     cfo.to_csv(DATA / "s2_phase_drift_report_data.csv", index=False, encoding="utf-8-sig")
-    draw_two_panel(cfo, "帧内0°至30°线性相位漂移下的FER", FIG / "s2_phase_drift_fer.png")
+    draw_two_panel(cfo, "频偏引起的帧内相位累积（累计30°）条件下的FER", FIG / "s2_phase_drift_fer.png")
 
     block_raw = pd.read_csv(BLOCK)
     block_raw = block_raw[block_raw.experimentType == "SNR"].copy()

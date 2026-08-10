@@ -1,0 +1,24 @@
+{
+  "stage": "round05_bch_rewrite",
+  "branch": "S8-PaperDocu",
+  "baseCommit": "28a1cd19",
+  "functionalRanges": [],
+  "workingTreeFiles": [
+    "Report/sections/04_BCH编码方案与仿真分析.tex",
+    "Report/scripts/build_chapter04_bch_assets.py",
+    "Report/audit/round05_bch_rewrite/readme.txt",
+    "Report/audit/round05_bch_rewrite/stage_plan.md",
+    "Report/audit/round05_bch_rewrite/manifest.json",
+    "Report/audit/round05_bch_rewrite/validation_report.md",
+    "Report/audit/round05_bch_rewrite/known_issues.md",
+    "Report/audit/round05_bch_rewrite/commands_used.md"
+  ],
+  "generatedArtifacts": [
+    "Report/figures/bch/*.png",
+    "Report/main.pdf"
+  ],
+  "gate": "PASS",
+  "commitStatus": "NOT_COMMITTED_BY_REQUEST",
+  "remoteVerification": "NOT_REQUIRED",
+  "mergeStatus": "NOT_MERGED"
+}
