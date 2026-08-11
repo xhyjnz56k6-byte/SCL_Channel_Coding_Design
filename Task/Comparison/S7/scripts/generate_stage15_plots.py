@@ -21,6 +21,9 @@ FORMAL = {
 HISTORICAL = ROOT.parents[1] / "Comparison" / "S6" / "results" / "ldpc" / "ldpc_n560_integrated_results.csv"
 NO_BURST = STAGE / "no_burst_baseline"
 NO_BURST_LABEL = "无突发信道（AWGN）"
+CC_NO_BURST_LABEL = "CC无突发（AWGN）"
+LDPC_BASELINE = STAGE / "ldpc_baseline" / "selected_ldpc_baseline_points.csv"
+LDPC_LABEL = "LDPC无交织近码率基线（AWGN，R=0.46875）"
 FONT = FontProperties(fname=r"C:\Windows\Fonts\msyh.ttc")
 plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
 plt.rcParams["axes.unicode_minus"] = False
@@ -45,9 +48,11 @@ CC_STYLE_MAP = {
     "CC_PSEUDO_128_RECOMMENDED": {"color": "#ff7f0e", "linestyle": "--", "marker": "^", "markerfacecolor": "none", "markeredgewidth": 1.3, "zorder": 4, "drawOrder": 2},
     "CC_SHORT_D8_RECOMMENDED": {"color": "#d62728", "linestyle": "-.", "marker": "s", "markerfacecolor": "#d62728", "markeredgewidth": 1.0, "zorder": 5, "drawOrder": 3},
     "CC_SHORT_D16_CONTROL_128": {"color": "#2ca02c", "linestyle": ":", "marker": "o", "markerfacecolor": "none", "markeredgewidth": 1.3, "zorder": 3, "drawOrder": 4},
+    "LDPC_NO_INTERLEAVER_NEAR_RATE_AWGN": {"color": "#9467bd", "linestyle": (0, (5, 2, 1, 2)), "marker": "p", "markerfacecolor": "none", "markeredgewidth": 1.4, "linewidth": 2.0, "zorder": 9, "drawOrder": 1},
 }
 BCH_STYLE_README = """绘图样式：
 - 无突发信道（AWGN）：黑色实线、空心菱形、线宽2.0、最高层级；
+- LDPC无交织近码率AWGN基线：紫色复合虚线、空心五边形、线宽2.0；
 - 无交织：实线、实心圆；
 - BCH码块交织 D=19：虚线、空心圆；
 - 行列交织 rows=15：点划线、实心方块；
@@ -65,8 +70,10 @@ CC_STYLE_README = """绘图样式：
 
 
 def style_config_id(series, style_map):
-    if series == NO_BURST_LABEL:
+    if series in (NO_BURST_LABEL, CC_NO_BURST_LABEL):
         return "NO_BURST_AWGN"
+    if series == LDPC_LABEL:
+        return "LDPC_NO_INTERLEAVER_NEAR_RATE_AWGN"
     if style_map is BCH_STYLE_MAP and series == CONFIG_LABELS["BCH_NONE"]:
         return "BCH_NONE"
     return LABEL_TO_CONFIG.get(series)
@@ -92,7 +99,7 @@ def aggregate(rows, value_field, ratio=None, configs=None, position=None, reduce
         value = sum(values) / len(values) if reducer == "mean" else (max(values) if reducer == "max" else min(values))
         members = [row for row in rows if row["configurationId"] == config and abs(float(row["EsN0Db"]) - snr) < 1e-12 and (ratio is None or abs(float(row["burstRatioRequested"]) - ratio) < 1e-12) and (position is None or row["burstPositionType"] == position)]
         row_keys = ";".join(f"{row['configurationId']}|{row['EsN0Db']}|{row['burstRatioRequested']}|{row['burstPositionType']}" for row in members)
-        output.append({"series": CONFIG_LABELS[config], "configurationId": config, "channelCondition": "BURST_POLARITY_REVERSAL_AWGN", "burstRatio": ratio if ratio is not None else "", "x": snr, "EsN0Db": snr, "rawY": value, "sourceType": "S7_FORMAL", "sourceCsvAbsolutePath": str(Path(source_path).resolve()) if source_path else "", "sourceStage": source_stage, "sourceRowKey": row_keys, "interpolated": "false"})
+        output.append({"series": CONFIG_LABELS[config], "scheme": config.split("_", 1)[0], "configurationId": config, "comparisonRole": members[0].get("comparisonRole", "S7_INTERLEAVER_CONFIGURATION"), "channelCondition": "BURST_POLARITY_REVERSAL_AWGN", "interleaver": members[0].get("method", ""), "payloadBits": 200 if config.startswith("BCH_") else 300, "encodedBits": 285 if config.startswith("BCH_") else 612, "actualRate": 200/285 if config.startswith("BCH_") else 300/612, "burstRatio": ratio if ratio is not None else "", "x": snr, "EsN0Db": snr, "metric": value_field, "rawY": value, "sourceType": "S7_FORMAL", "sourceCsvAbsolutePath": str(Path(source_path).resolve()) if source_path else "", "sourceStage": source_stage, "sourceRowKey": row_keys, "interpolated": "false", "synthetic": "false"})
     return output
 
 
@@ -100,7 +107,14 @@ def no_burst_series(scheme, metric):
     path = NO_BURST / scheme.lower() / "no_burst_baseline.csv"
     output = []
     for row in read(path):
-        output.append({"series": NO_BURST_LABEL, "configurationId": "NO_BURST_AWGN", "channelCondition": "NO_BURST_AWGN", "burstRatio": 0, "x": float(row["EsN0Db"]), "EsN0Db": float(row["EsN0Db"]), "rawY": float(row[metric]), "sourceType": "HISTORICAL_FORMAL", "sourceCsvAbsolutePath": row["sourceCsvAbsolutePath"], "sourceStage": row["sourceStage"], "sourceRowKey": row["sourceRowKey"], "interpolated": row["interpolated"]})
+        output.append({"series": CC_NO_BURST_LABEL if scheme == "CC" else NO_BURST_LABEL, "scheme": scheme, "configurationId": "NO_BURST_AWGN", "comparisonRole": "NO_BURST_AWGN_REFERENCE", "channelCondition": "NO_BURST_AWGN", "interleaver": "NONE", "payloadBits": 200 if scheme == "BCH" else 300, "encodedBits": 285 if scheme == "BCH" else 612, "actualRate": 200/285 if scheme == "BCH" else 300/612, "burstRatio": 0, "x": float(row["EsN0Db"]), "EsN0Db": float(row["EsN0Db"]), "metric": metric, "rawY": float(row[metric]), "sourceType": "HISTORICAL_FORMAL", "sourceCsvAbsolutePath": row["sourceCsvAbsolutePath"], "sourceStage": row["sourceStage"], "sourceRowKey": row["sourceRowKey"], "interpolated": row["interpolated"], "synthetic": "false"})
+    return output
+
+
+def ldpc_baseline_series(metric):
+    output = []
+    for row in read(LDPC_BASELINE):
+        output.append({"series": LDPC_LABEL, "scheme": "LDPC", "configurationId": row["configurationId"], "comparisonRole": row["comparisonRole"], "channelCondition": row["channelCondition"], "interleaver": row["interleaver"], "payloadBits": row["payloadBits"], "encodedBits": row["encodedBits"], "actualRate": row["actualRate"], "burstRatio": 0, "x": float(row["EsN0Db"]), "EsN0Db": float(row["EsN0Db"]), "metric": metric, "rawY": float(row[metric]), "sourceType": "HISTORICAL_FORMAL_EXACT_ROW", "sourceCsvAbsolutePath": row["sourceCsvAbsolutePath"], "sourceStage": row["sourceStage"], "sourceRowKey": f"{row['sourceConfigurationId']}|line={row['sourceRowNumber']}|EsN0Db={row['EsN0Db']}", "interpolated": row["interpolated"], "synthetic": row["synthetic"]})
     return output
 
 
@@ -109,6 +123,13 @@ def historical_latency_bar(scheme):
     weights = [int(row["framesProcessed"]) for row in points]
     value = sum(float(row["decodeTimeMeanNs"]) * weight for row, weight in zip(points, weights)) / sum(weights)
     return {"series": NO_BURST_LABEL, "configurationId": "NO_BURST_AWGN", "channelCondition": "NO_BURST_AWGN", "burstRatio": 0, "x": "", "EsN0Db": "", "rawY": value, "sourceType": "HISTORICAL_FORMAL_WEIGHTED_SUMMARY", "sourceCsvAbsolutePath": points[0]["sourceCsvAbsolutePath"], "sourceStage": points[0]["sourceStage"], "sourceRowKey": ";".join(row["sourceRowKey"] for row in points), "interpolated": "false"}
+
+
+def ldpc_latency_bar():
+    points = read(LDPC_BASELINE)
+    frames = [int(row["frames"]) for row in points]
+    value_ns = sum(float(row["avgDecodeTimeUs"]) * 1000.0 * weight for row, weight in zip(points, frames)) / sum(frames)
+    return {"series": LDPC_LABEL, "scheme": "LDPC", "configurationId": points[0]["configurationId"], "comparisonRole": points[0]["comparisonRole"], "channelCondition": "NO_BURST_AWGN", "interleaver": "NONE", "payloadBits": 300, "encodedBits": 640, "actualRate": 300/640, "burstRatio": 0, "x": "", "EsN0Db": "", "metric": "decodeTimeMeanNsWeighted", "rawY": value_ns, "sourceType": "HISTORICAL_FORMAL_WEIGHTED_SUMMARY", "sourceCsvAbsolutePath": points[0]["sourceCsvAbsolutePath"], "sourceStage": points[0]["sourceStage"], "sourceRowKey": ";".join(f"line={row['sourceRowNumber']}" for row in points), "interpolated": "false", "synthetic": "false"}
 
 
 def finalize_assets(directory, manifest, validation, readme):
@@ -122,7 +143,7 @@ def finalize_assets(directory, manifest, validation, readme):
 def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="line", note="", style_map=None):
     directory = STAGE / "results" / scheme.lower() / plot_id
     directory.mkdir(parents=True, exist_ok=True)
-    fields = ["series", "configurationId", "channelCondition", "burstRatio", "x", "EsN0Db", "rawY", "plotted", "sourceType", "sourceCsvAbsolutePath", "sourceStage", "sourceRowKey", "interpolated", "exclusionReason", "nonMonotonicHighSnrAnomaly"]
+    fields = ["series", "scheme", "configurationId", "comparisonRole", "channelCondition", "interleaver", "payloadBits", "encodedBits", "actualRate", "burstRatio", "x", "EsN0Db", "metric", "rawY", "plotted", "sourceType", "sourceCsvAbsolutePath", "sourceStage", "sourceRowKey", "interpolated", "synthetic", "exclusionReason", "nonMonotonicHighSnrAnomaly"]
     processed = []
     by_series = defaultdict(list)
     for item in data:
@@ -135,7 +156,7 @@ def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="
             plotted, reason = False, "NONPOSITIVE_ON_LOG_AXIS"
         else:
             plotted, reason = True, ""
-        row = {"series": item["series"], "configurationId": item.get("configurationId", style_config_id(item["series"], style_map) or ""), "channelCondition": item.get("channelCondition", ""), "burstRatio": item.get("burstRatio", ""), "x": item["x"], "EsN0Db": item.get("EsN0Db", item["x"] if kind != "bar" else ""), "rawY": raw, "plotted": str(plotted).lower(), "sourceType": item.get("sourceType", "DERIVED_VALIDATED"), "sourceCsvAbsolutePath": item.get("sourceCsvAbsolutePath", str(Path(source_paths[0]).resolve()) if source_paths else ""), "sourceStage": item.get("sourceStage", "S7_DERIVED"), "sourceRowKey": item.get("sourceRowKey", ""), "interpolated": item.get("interpolated", "false"), "exclusionReason": reason, "nonMonotonicHighSnrAnomaly": "false"}
+        row = {"series": item["series"], "scheme": item.get("scheme", scheme), "configurationId": item.get("configurationId", style_config_id(item["series"], style_map) or ""), "comparisonRole": item.get("comparisonRole", "S7_DERIVED"), "channelCondition": item.get("channelCondition", ""), "interleaver": item.get("interleaver", ""), "payloadBits": item.get("payloadBits", ""), "encodedBits": item.get("encodedBits", ""), "actualRate": item.get("actualRate", ""), "burstRatio": item.get("burstRatio", ""), "x": item["x"], "EsN0Db": item.get("EsN0Db", item["x"] if kind != "bar" else ""), "metric": item.get("metric", ylabel), "rawY": raw, "plotted": str(plotted).lower(), "sourceType": item.get("sourceType", "DERIVED_VALIDATED"), "sourceCsvAbsolutePath": item.get("sourceCsvAbsolutePath", str(Path(source_paths[0]).resolve()) if source_paths else ""), "sourceStage": item.get("sourceStage", "S7_DERIVED"), "sourceRowKey": item.get("sourceRowKey", ""), "interpolated": item.get("interpolated", "false"), "synthetic": item.get("synthetic", "false"), "exclusionReason": reason, "nonMonotonicHighSnrAnomaly": "false"}
         processed.append(row); by_series[row["series"]].append(row)
     anomaly = False
     if log_y:
@@ -152,7 +173,8 @@ def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="
     if kind == "bar":
         plotted_rows = [row for row in processed if row["plotted"] == "true"]
         labels = [f"{row['series']}\n{row['x']}" if str(row["x"]) else row["series"] for row in plotted_rows]
-        ax.bar(range(len(plotted_rows)), [float(row["rawY"]) for row in plotted_rows], color="#4472C4")
+        colors = [(style_map or {}).get(style_config_id(row["series"], style_map), {}).get("color", "#4472C4") for row in plotted_rows]
+        ax.bar(range(len(plotted_rows)), [float(row["rawY"]) for row in plotted_rows], color=colors)
         ax.set_xticks(range(len(labels)), labels, rotation=25, ha="right", fontproperties=FONT, fontsize=8)
     else:
         ordered_series = list(by_series.items())
@@ -164,16 +186,16 @@ def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="
             if points:
                 style = style_map.get(style_config_id(series, style_map), {}) if style_map else {}
                 ax.plot([float(row["x"]) for row in points], [float(row["rawY"]) for row in points],
-                        marker=style.get("marker", "o"), markersize=5.0 if style_config_id(series, style_map) == "NO_BURST_AWGN" else (4.5 if style else 3), linewidth=style.get("linewidth", 1.2), color=style.get("color"),
+                        marker=style.get("marker", "o"), markersize=5.0 if style_config_id(series, style_map) in ("NO_BURST_AWGN", "LDPC_NO_INTERLEAVER_NEAR_RATE_AWGN") else (4.5 if style else 3), linewidth=style.get("linewidth", 1.2), color=style.get("color"),
                         linestyle=style.get("linestyle", "-"), markerfacecolor=style.get("markerfacecolor", None),
                         markeredgewidth=style.get("markeredgewidth", 1.0), zorder=style.get("zorder", 2), label=series)
         if len(by_series) > 1:
             handles, labels = ax.get_legend_handles_labels()
             if style_map:
-                legend_order = {"NO_BURST_AWGN": 0, "BCH_NONE": 1, "BCH_CODEBLOCK_D19": 2, "BCH_ROW_COLUMN_R15": 3, "BCH_GLOBAL_PSEUDO_285": 4, "CC_NONE": 1, "CC_PSEUDO_128_RECOMMENDED": 2, "CC_SHORT_D8_RECOMMENDED": 3, "CC_SHORT_D16_CONTROL_128": 4}
+                legend_order = {"NO_BURST_AWGN": 0, "LDPC_NO_INTERLEAVER_NEAR_RATE_AWGN": 1, "BCH_NONE": 2, "BCH_CODEBLOCK_D19": 3, "BCH_ROW_COLUMN_R15": 4, "BCH_GLOBAL_PSEUDO_285": 5, "CC_NONE": 2, "CC_PSEUDO_128_RECOMMENDED": 3, "CC_SHORT_D8_RECOMMENDED": 4, "CC_SHORT_D16_CONTROL_128": 5}
                 ordered = sorted(zip(handles, labels), key=lambda item: legend_order.get(style_config_id(item[1], style_map), 99))
                 handles, labels = zip(*ordered)
-                ax.legend(handles, labels, prop=FONT, fontsize=8, ncol=1)
+                ax.legend(handles, labels, prop=FONT, fontsize=8, ncol=2 if any(label == LDPC_LABEL for label in labels) else 1)
             else:
                 ax.legend(handles, labels, prop=FONT, fontsize=8, ncol=2)
         ax.set_xlabel("符号信噪比 Es/N0（dB）", fontproperties=FONT)
@@ -184,7 +206,8 @@ def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="
     validation_status = "BLOCKED_NON_MONOTONIC_HIGH_SNR" if anomaly else "PASS"
     baseline_rows = [row for row in processed if row["channelCondition"] == "NO_BURST_AWGN"]
     baseline_sources = sorted({row["sourceCsvAbsolutePath"] for row in baseline_rows})
-    manifest = {"plotId": plot_id, "scheme": scheme, "title": title, "xAxis": "符号信噪比 Es/N0（dB）" if kind != "bar" else "配置或类别", "yAxis": ylabel, "logYAxis": log_y, "sourceAbsolutePaths": absolute_sources, "historicalReferenceAbsolutePath": str(HISTORICAL.resolve()), "historicalReferenceUsedInFigure": False, "containsNoBurstBaseline": bool(baseline_rows), "noBurstBaselineSource": baseline_sources[0] if len(baseline_sources) == 1 else baseline_sources, "noBurstBaselineHistorical": bool(baseline_rows), "noBurstSimulationRerun": False, "noInterpolation": True, "originalSnrGridPreserved": True, "interpolation": False, "smoothing": False, "syntheticData": False, "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation", "smoothingApplied": False, "forbiddenAnnotations": [], "configurationStyleMap": style_map or {}, "mergeStatus": "NOT_MERGED"}
+    ldpc_rows = [row for row in processed if row["scheme"] == "LDPC"]
+    manifest = {"plotId": plot_id, "scheme": scheme, "title": title, "xAxis": "符号信噪比 Es/N0（dB）" if kind != "bar" else "配置或类别", "yAxis": ylabel, "logYAxis": log_y, "sourceAbsolutePaths": absolute_sources, "historicalReferenceAbsolutePath": str(HISTORICAL.resolve()), "historicalReferenceUsedInFigure": False, "containsNoBurstBaseline": bool(baseline_rows), "noBurstBaselineSource": baseline_sources[0] if len(baseline_sources) == 1 else baseline_sources, "noBurstBaselineHistorical": bool(baseline_rows), "containsLdpcNearRateBaseline": bool(ldpc_rows), "ldpcComparisonRole": "NO_INTERLEAVING_NEAR_RATE_REFERENCE" if ldpc_rows else "N/A", "ldpcChannelCondition": "NO_BURST_AWGN" if ldpc_rows else "N/A", "ldpcActualRate": 300/640 if ldpc_rows else None, "ldpcParticipatesInInterleaverRanking": False, "ldpcFormalRerun": False, "noBurstSimulationRerun": False, "noInterpolation": True, "originalSnrGridPreserved": True, "interpolation": False, "smoothing": False, "syntheticData": False, "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation", "smoothingApplied": False, "forbiddenAnnotations": [], "configurationStyleMap": style_map or {}, "mergeStatus": "NOT_MERGED"}
     validation = {"status": validation_status, "rowCount": len(processed), "plottedRows": sum(row["plotted"] == "true" for row in processed), "zeroExcludedRows": sum(row["exclusionReason"] == "ZERO_ON_LOG_AXIS" for row in processed), "nonMonotonicHighSnrAnomaly": anomaly, "sourcePathsExist": all(Path(path).is_file() for path in absolute_sources), "sha256PendingAtValidationWrite": True}
     readme_text = f"""图名称：{title}
 实验目的：展示 S7 {scheme} 的{ylabel}。
@@ -199,11 +222,12 @@ SNR 范围：来自原始数据，不外推。
 原始数据来源：{'; '.join(absolute_sources)}
 数据文件名称：figure_data.csv。
 数据绝对路径：{str((directory / 'figure_data.csv').resolve())}
-历史工程数据来源：S6 LDPC 独立参考，仅记录、不混入本图。
+历史工程数据来源：S6 LDPC 旧独立参考仍仅记录；本轮 LDPC 曲线来自经审计的 Stage23 N640 正式结果。
 历史数据绝对路径：{str(HISTORICAL.resolve())}
 绘图过滤规则：不平滑、不删除非零异常点。
 零值处理规则：原始 0 保留；对数图不绘制，不替换、不延伸、不标 error floor 或上界。
 无突发基线：{'已加入历史正式 AWGN 原始点；与“有突发但无交织”严格区分。' if baseline_rows else '本图不适用或没有合法历史基线，未补画。'}
+LDPC基线：{'已加入无交织近码率 AWGN 原始点；LDPC没有经历图题所示突发，不参与交织排名。' if ldpc_rows else '本图不适用，未加入LDPC。'}
 插值与平滑：均未使用；每一点通过 figure_data.csv 回溯到源 CSV。
 主要结论：仅由可见原始点支持；{note or '参见 Stage14 推荐报告。'}
 已知限制：CPU 时延依赖本机；强突发下 FER 可能饱和。
@@ -316,37 +340,45 @@ def baseline_source(scheme):
     return Path(read(NO_BURST / scheme.lower() / "no_burst_baseline.csv")[0]["sourceCsvAbsolutePath"])
 
 
-def performance_data(scheme, formal, metric, ratio):
+def performance_data(scheme, formal, metric, ratio, include_ldpc=False):
     burst = aggregate(formal, metric, ratio, source_path=FORMAL[scheme], source_stage=f"S7_stage{'10_bch' if scheme == 'BCH' else '11_cc'}_formal")
-    return no_burst_series(scheme, metric) + burst
+    ldpc = ldpc_baseline_series(metric) if include_ldpc else []
+    return no_burst_series(scheme, metric) + ldpc + burst
 
 
-def targeted_no_burst_revision(scheme):
+def targeted_no_burst_revision(scheme, include_ldpc=False):
     formal = read(FORMAL[scheme])
     style_map = BCH_STYLE_MAP if scheme == "BCH" else CC_STYLE_MAP
     generated = []
-    sources = [FORMAL[scheme], baseline_source(scheme)]
+    sources = [FORMAL[scheme], baseline_source(scheme)] + ([LDPC_BASELINE] if include_ldpc else [])
 
     def add(plot_id, ratio, metric, title):
-        generated.append(emit(plot_id, scheme, title, "误帧率" if metric == "FER" else "误码率", performance_data(scheme, formal, metric, ratio), sources, log_y=True, style_map=style_map,
-                              note="黑色空心菱形为无突发 AWGN；其余曲线均含指定比例连续极性反转。"))
+        generated.append(emit(plot_id, scheme, title, "误帧率" if metric == "FER" else "误码率", performance_data(scheme, formal, metric, ratio, include_ldpc), sources, log_y=True, style_map=style_map,
+                              note="黑色空心菱形为CC无突发AWGN；紫色空心五边形为LDPC无交织近码率AWGN参考；其余CC曲线均含指定比例连续极性反转。不得由LDPC AWGN曲线推断突发性能。"))
 
-    add("01_methods_fer", 0.05, "FER", f"{scheme} 5%突发下不同交织配置误帧率")
-    add("02_methods_ber", 0.05, "BER", f"{scheme} 5%突发下不同交织配置误码率")
-    add("03_burst_2_fer", 0.02, "FER", f"{scheme} 2%突发下不同交织配置误帧率")
-    add("04_burst_5_fer", 0.05, "FER", f"{scheme} 5%突发下不同交织配置误帧率")
-    add("05_burst_10_fer", 0.10, "FER", f"{scheme} 10%突发下不同交织配置误帧率")
+    suffix = "及近码率LDPC无突发基线" if include_ldpc else ""
+    add("01_methods_fer", 0.05, "FER", f"{scheme} 5%突发下不同交织配置误帧率{suffix}")
+    add("02_methods_ber", 0.05, "BER", f"{scheme} 5%突发下不同交织配置误码率{suffix}")
+    add("03_burst_2_fer", 0.02, "FER", f"{scheme} 2%突发交织性能{suffix}")
+    add("04_burst_5_fer", 0.05, "FER", f"{scheme} 5%突发交织性能{suffix}")
+    add("05_burst_10_fer", 0.10, "FER", f"{scheme} 10%突发交织性能{suffix}")
     if scheme == "BCH":
         add("22_burst_5_ber", 0.05, "BER", "BCH 5%突发下不同交织配置误码率")
         add("23_burst_10_ber", 0.10, "BER", "BCH 10%突发下不同交织配置误码率")
 
-    latency_source = ROOT / "stage13_latency_complexity" / "results" / "latency_complexity_summary.csv"
-    latency_rows = [row for row in read(latency_source) if row["scheme"] == scheme]
-    latency_data = [historical_latency_bar(scheme)]
-    for row in latency_rows:
-        latency_data.append({"series": CONFIG_LABELS[row["configurationId"]], "configurationId": row["configurationId"], "channelCondition": "BURST_POLARITY_REVERSAL_AWGN", "burstRatio": "2%,5%,10% weighted", "x": "", "EsN0Db": "", "rawY": float(row["decodeTimeMeanNsWeighted"]), "sourceType": "S7_DERIVED_VALIDATED", "sourceCsvAbsolutePath": str(latency_source.resolve()), "sourceStage": "S7_stage13_latency_complexity", "sourceRowKey": row["configurationId"], "interpolated": "false"})
-    generated.append(emit("16_decodeTimeMeanNsWeighted", scheme, f"{scheme} 纯译码 CPU 时间（含无突发 AWGN 基线）", "纯译码时间（ns）", latency_data, [latency_source, baseline_source(scheme)], kind="bar",
-                          note="无突发柱为历史 AWGN 各纳入 SNR 原始点的帧数加权平均；不包含交织、解交织或缓冲等待。"))
+    if not include_ldpc:
+        latency_source = ROOT / "stage13_latency_complexity" / "results" / "latency_complexity_summary.csv"
+        latency_rows = [row for row in read(latency_source) if row["scheme"] == scheme]
+        latency_data = [historical_latency_bar(scheme)]
+        for row in latency_rows:
+            latency_data.append({"series": CONFIG_LABELS[row["configurationId"]], "configurationId": row["configurationId"], "channelCondition": "BURST_POLARITY_REVERSAL_AWGN", "burstRatio": "2%,5%,10% weighted", "x": "", "EsN0Db": "", "rawY": float(row["decodeTimeMeanNsWeighted"]), "sourceType": "S7_DERIVED_VALIDATED", "sourceCsvAbsolutePath": str(latency_source.resolve()), "sourceStage": "S7_stage13_latency_complexity", "sourceRowKey": row["configurationId"], "interpolated": "false"})
+        generated.append(emit("16_decodeTimeMeanNsWeighted", scheme, f"{scheme} 纯译码 CPU 时间（含无突发 AWGN 基线）", "纯译码时间（ns）", latency_data, [latency_source, baseline_source(scheme)], kind="bar",
+                              note="无突发柱为历史 AWGN 各纳入 SNR 原始点的帧数加权平均；不包含交织、解交织或缓冲等待。"))
+    if include_ldpc:
+        cc_latency = historical_latency_bar("CC")
+        cc_latency.update({"series": CC_NO_BURST_LABEL, "scheme": "CC", "comparisonRole": "NO_BURST_AWGN_REFERENCE", "interleaver": "NONE", "payloadBits": 300, "encodedBits": 612, "actualRate": 300/612, "metric": "decodeTimeMeanNsWeighted", "synthetic": "false"})
+        generated.append(emit("22_cc_ldpc_no_burst_decode_latency", "CC", "CC与近码率LDPC无突发译码CPU时间参考", "纯译码时间（ns/帧）", [cc_latency, ldpc_latency_bar()], [baseline_source("CC"), LDPC_BASELINE], kind="bar", style_map=CC_STYLE_MAP,
+                              note="两项均由steady_clock只包围译码函数并按各SNR帧数加权；这是跨实现软件CPU时间参考，不等价于硬件复杂度或统一operation count。"))
     return generated
 
 
@@ -385,13 +417,10 @@ def generate_bch_revision():
 
 def main() -> int:
     existing = read(STAGE / "results" / "plot_inventory.csv")
-    replaced = {
-        "BCH": {"01_methods_fer", "02_methods_ber", "03_burst_2_fer", "04_burst_5_fer", "05_burst_10_fer", "16_decodeTimeMeanNsWeighted", "22_burst_5_ber", "23_burst_10_ber"},
-        "CC": {"01_methods_fer", "02_methods_ber", "03_burst_2_fer", "04_burst_5_fer", "05_burst_10_fer", "16_decodeTimeMeanNsWeighted"},
-    }
+    replaced = {"CC": {"01_methods_fer", "02_methods_ber", "03_burst_2_fer", "04_burst_5_fer", "05_burst_10_fer", "22_cc_ldpc_no_burst_decode_latency"}}
     inventory = [row for row in existing if row["plotId"] not in replaced.get(row["scheme"], set())]
-    inventory += targeted_no_burst_revision("BCH")
-    inventory += targeted_no_burst_revision("CC")
+    generated = targeted_no_burst_revision("CC", include_ldpc=True)
+    inventory += [row for row in generated if row["plotId"] in replaced["CC"]]
     inventory.sort(key=lambda row: (0 if row["scheme"] == "BCH" else 1, row["plotId"]))
     fields=["plotId","scheme","title","directory","status","sourceAbsolutePaths"]
     with (STAGE/"results"/"plot_inventory.csv").open("w",newline="",encoding="utf-8") as handle:

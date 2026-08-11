@@ -1,0 +1,16 @@
+{
+  "capturedAt": "2026-08-11",
+  "noS7FormalRerun": true,
+  "noLdpcFormalRerun": true,
+  "before": {
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv": "adbd8d2499b220525195fb115c989469ed00e0965d5f69ed6d28637f48ad4c9d",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage11_cc_formal\\results\\formal_results.csv": "86f7ff8e46712406714887050d06de8ccd55e0c47ed7e6facd92c09556db886d",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage15_scientific_plots\\no_burst_baseline\\bch\\no_burst_baseline.csv": "82baf7228f94e4308bbc7f88794d288d71db85146c2058dfd86fb1f09513bb5c",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage15_scientific_plots\\no_burst_baseline\\cc\\no_burst_baseline.csv": "2835f48dc3cb95a9fbc33d477421044948aba5a03b1372d4a315f08f1b24d6a1",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design_LDPC\\Task\\LDPC\\block\\stages\\stage23_s4_final_reintegration\\results\\s4_revised_formal_point_results.csv": "6c72c89fbac5e846fc7a68483dc18fa5e2238cd9740e48b2d29163ea0c6e5e3e",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design_LDPC\\Task\\LDPC\\block\\stages\\stage23_s4_final_reintegration\\results\\s4_revised_formal_config.json": "83e4cf591a3c7f946019b5922aa6deae624397309c9e2306a947e45c89c1587d",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design_LDPC\\Task\\LDPC\\block\\stages\\stage23_s4_final_reintegration\\results\\s4_revised_case_metadata.csv": "abc45e6a529c85c2b4b334510e459bf3ab6d88637ee3e0932f163c3f0cdb0963",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design_LDPC\\Task\\LDPC\\block\\current\\src\\main.cpp": "c7c9359bb16bf96d1af2a81499299c8430c1732fbcfb6a719c829bba67ecbb2e",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design_LDPC\\Task\\LDPC\\block\\current\\src\\s4_ldpc.cpp": "5d1d7fd7423781df0cc256317b896e9bc7b6dffeaa841c6de33a00d1fbd604b9"
+  }
+}

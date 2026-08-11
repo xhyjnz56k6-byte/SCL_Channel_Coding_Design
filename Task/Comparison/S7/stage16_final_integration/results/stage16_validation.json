@@ -7,11 +7,15 @@
     "PASS_S7_STAGE12 BCH=6348 CC=13608",
     "PASS_S7_STAGE13 rows=8",
     "PASS_S7_STAGE14",
-    "PASS_S7_STAGE15 plots=50"
+    "PASS_S7_STAGE15 plots=51"
   ],
-  "resultInventoryRows": 13,
-  "plotCount": 50,
+  "resultInventoryRows": 19,
+  "plotCount": 51,
   "metricRows": 8,
-  "ldpcReferenceRows": 62,
+  "legacyLdpcReferenceRows": 62,
+  "selectedLdpcBaselineRows": 31,
+  "ldpcFormalRerun": false,
+  "s7FormalRerun": false,
+  "ldpcInInterleaverRanking": false,
   "mergeStatus": "NOT_MERGED"
 }

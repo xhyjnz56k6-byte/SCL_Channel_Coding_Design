@@ -8,7 +8,7 @@
 
 - BCH：200 bit payload，补齐为 19×BCH(15,11,1)，发送 285 bit，硬判决后解交织并查表译码。
 - 卷积码：300 bit payload，K=7，171/133（八进制），6 个清零尾比特，发送 612 bit；LLR 解交织后使用浮点软判 Viterbi，从状态 0 traceback。
-- LDPC：S6 Direct BG2 N560 历史表仅使用普通 BPSK+AWGN，和 S7 突发信道不兼容，只进入独立参考表。
+- LDPC：按老师新增要求不配置交织；从独立 LDPC 工程正式结果中选取 payload=300、N=640、R=0.46875 的 Direct Layered NMS（alpha=0.80）作为无突发 AWGN 近码率编码基线。
 
 ## 3. 信道、随机性和统计
 
@@ -31,7 +31,7 @@ BCH Formal 比较 NONE、BCH_CODEBLOCK D=19、ROW_COLUMN rows=15 和 GLOBAL_PSEU
 - BCH Formal：2232 行、558 组，PASS。
 - CC Formal：2232 行、558 组，PASS。
 - Stage12：BCH 6348 行/1587 组；CC 13608 行/3402 组，PASS。
-- 科研图：BCH 29、CC 21，共 50 张，资产与 SHA Gate PASS。BCH 全起点热力图正式展示 2%与5%；10%下所有起点和配置 FER=1 的旧图已归档，原始数据仍保留。
+- 科研图：BCH 29、CC 22，共 51 张。6 张 CC 图体现 LDPC 无交织近码率 AWGN 基线；BCH 全起点热力图正式展示 2%与5%，10%旧图已归档。
 
 ## 6. BCH 结果与推荐
 
@@ -65,9 +65,11 @@ FER 绝对改善、相对降低和改善倍数均使用同 scheme、同 SNR、�
 
 BCH Formal 记录 `undetectedFrameErrors=5,439,787`、`miscorrectedBlocks=23,251,548`、`detectedFailureFrames=0`。这是完美 Hamming 型 BCH(15,11,1) syndrome 查表在多错误模式下可能映射到错误单比特纠正的固有限制。BCH 性能结论必须与该限制一起使用。
 
-## 11. LDPC 独立参考
+## 11. LDPC 无交织近码率参考
 
-独立表保留 BP/NMS 共 62 行：Direct BG2、K=300、N=560、Zc=56、filler=148、parity=112、maxIter=32，NMS alpha=0.95。其信道无连续极性反转、位置扫描或 S7 paired stopping，禁止进入交织收益排名、突发容限和 BCH/CC 统一结论。
+当前正式参考为 `LDPC_BG2_K300_N640_DIRECT_LAYERED_NMS_A0P80`：payload=300、information capacity=320、filler=20、发送640 bit、BG2、Zc=40、maxIter=32、无 rate matching、无交织。其码率0.46875与CC码率0.4901960784的绝对差为0.0214460784、相对差为4.375%，因此只能称为“近码率”，不能称为同码率或同码长。
+
+LDPC与CC都使用Es/N0和相同噪声方差公式，BER/FER也都以300-bit payload定义，所以无突发AWGN BER/FER可直接作编码基线参考。LDPC历史数据没有连续极性反转、2%/5%/10%突发或位置扫描，因此不能评价其S7突发容限，不能从AWGN曲线推断突发性能，也不参加交织收益或推荐排名。旧S6 N560 BP/NMS 62行表仍作为独立历史记录保留，但不替代本轮经审计选择的N640基线。
 
 ## 12. 高 SNR 零值与绘图
 
@@ -75,13 +77,13 @@ S7 Formal 原始 CSV 保留真实零值；本次 BCH/CC 突发 Formal 均无 BER
 
 ## 12.1 无突发时延和复杂度口径
 
-历史无突发纯译码时间按纳入点帧数加权后，BCH 约 10226.5 ns、CC 约 428650.0 ns。它们与 `T_interleave`、`T_deinterleave`、buffer wait 分开，且跨 Stage CPU 数值只作描述性参考。历史无突发实验没有可兼容的复杂度操作计数，复杂度基线明确为 N/A；无突发交织/解交织 CPU 也为 N/A。无突发/无交织的 interleaver buffer=0 属于结构定义，不是仿真统计值。
+历史无突发纯译码时间按纳入点帧数加权后，BCH 约10226.5 ns、CC约428650.0 ns、LDPC N640 NMS约93743.2 ns。CC与LDPC都用steady_clock只包围译码函数，故可作软件实现CPU时间参考，但跨工程差值不等价于硬件复杂度。复杂度只按算法分别记录：CC固定306 trellis steps/64 states，LDPC为N=640/2240 edges及迭代、边更新；两者没有统一operation-count口径，不进行数值排名。LDPC交织附加缓冲量为0，不包含LDPC译码器内部消息存储。
 
 ## 13. 推荐结论
 
 - BCH 低速电文：推荐 ROW_COLUMN rows=15；在冻结判据和测试网格内支持 5% 连续极性反转，10% 不支持。
 - 卷积码高速电文：相对推荐 PSEUDORANDOM span=128；2% 的最坏位置 FER 仍不满足 0.1，不能声明已达到测试网格内突发容限。
-- LDPC：仅保留 AWGN-only 独立历史参考，不参与上述推荐。
+- LDPC：保留无交织近码率 AWGN 编码基线，不参与交织推荐；没有兼容突发数据，不能给出 S7 突发容限结论。
 
 ## 14. 限制与后续建议
 

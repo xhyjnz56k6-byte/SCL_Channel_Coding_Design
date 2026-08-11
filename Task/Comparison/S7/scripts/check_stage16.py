@@ -34,17 +34,23 @@ def main() -> int:
         if not directory.is_dir() or (ROOT/"build" in directory.parents) or directory==ROOT/"build" or "__pycache__" in directory.parts: continue
         require((directory/"readme.txt").is_file(),f"missing directory readme: {directory.relative_to(ROOT)}")
     results=list(csv.DictReader((ROOT/"S7_result_inventory.csv").open(encoding="utf-8")))
-    require(len(results)==13 and all(Path(row["absolutePath"]).is_file() for row in results),"result inventory mismatch")
-    plots=list(csv.DictReader((ROOT/"S7_plot_inventory.csv").open(encoding="utf-8"))); require(len(plots)==50,"plot inventory mismatch")
+    require(len(results)==19 and all(Path(row["absolutePath"]).is_file() for row in results),"result inventory mismatch")
+    plots=list(csv.DictReader((ROOT/"S7_plot_inventory.csv").open(encoding="utf-8"))); require(len(plots)==51,"plot inventory mismatch")
     metrics=list(csv.DictReader((ROOT/"S7_metric_summary.csv").open(encoding="utf-8"))); require(len(metrics)==8,"metric summary mismatch")
     ldpc=list(csv.DictReader((ROOT/"results"/"ldpc_baseline"/"ldpc_baseline_reference.csv").open(encoding="utf-8")))
     require(len(ldpc)==62 and all(row["s7ChannelCompatibility"].startswith("INCOMPATIBLE") for row in ldpc),"LDPC restriction mismatch")
+    selected=list(csv.DictReader((ROOT/"stage15_scientific_plots"/"ldpc_baseline"/"selected_ldpc_baseline_points.csv").open(encoding="utf-8")))
+    require(len(selected)==31 and all(row["comparisonRole"]=="NO_INTERLEAVING_NEAR_RATE_REFERENCE" and row["channelCondition"]=="NO_BURST_AWGN" and row["interleaver"]=="NONE" for row in selected),"selected LDPC baseline mismatch")
+    coding=list(csv.DictReader((ROOT/"S7_coding_reference_summary.csv").open(encoding="utf-8")))
+    require(len(coding)==6 and sum(row["scheme"]=="LDPC" for row in coding)==1 and next(row for row in coding if row["scheme"]=="LDPC")["burst2FerAtSelectedSnr"]=="N/A","coding reference summary mismatch")
+    ranking=list(csv.DictReader((ROOT/"stage14_fer_improvement"/"results"/"recommendation_ranking.csv").open(encoding="utf-8")))
+    require(not any(row.get("scheme")=="LDPC" or row.get("configurationId","").startswith("LDPC") for row in ranking),"LDPC entered interleaver ranking")
     for line in (ROOT/"S7_sha256.txt").read_text(encoding="utf-8").splitlines():
         expected,relative=line.split("  ",1); path=ROOT/relative; require(path.is_file() and digest(path)==expected,f"top-level SHA mismatch: {relative}")
     forbidden=("Pending","PENDING","to be run","NOT_PUSHED","TO_VERIFY_AFTER_PUSH")
     for name in ("S7_final_report.md","S7_validation_report.md","S7_manifest.json"):
         text=(ROOT/name).read_text(encoding="utf-8"); require(not any(token in text for token in forbidden),f"unfinished token in {name}")
-    report={"status":"PASS","subGates":outputs,"resultInventoryRows":len(results),"plotCount":len(plots),"metricRows":len(metrics),"ldpcReferenceRows":len(ldpc),"mergeStatus":"NOT_MERGED"}
+    report={"status":"PASS","subGates":outputs,"resultInventoryRows":len(results),"plotCount":len(plots),"metricRows":len(metrics),"legacyLdpcReferenceRows":len(ldpc),"selectedLdpcBaselineRows":len(selected),"ldpcFormalRerun":False,"s7FormalRerun":False,"ldpcInInterleaverRanking":False,"mergeStatus":"NOT_MERGED"}
     (ROOT/"stage16_final_integration"/"results"/"stage16_validation.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("PASS_S7_STAGE16_FINAL_AUDIT")
     return 0

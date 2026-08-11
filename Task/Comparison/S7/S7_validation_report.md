@@ -8,12 +8,13 @@
 - Stage12 全起点：BCH 6348 行，CC 13608 行，PASS。
 - Stage13 时延复杂度：8 配置，PASS。
 - Stage14 FER 改善与推荐：744 改善行、6 排名行，PASS。
-- Stage15 科研图：50 张（BCH 29、CC 21），其中 14 张适用图加入历史无突发 AWGN 基线；BCH 27 点、CC 31 点逐点可追溯，配置匹配/无插值/无平滑/无合成/归档/资产/SHA/零值政策 PASS；BCH 2%补扫 3360 行/840 组通过。
-- Stage16 结果、图、源码、SHA 和 LDPC 独立参考集成：PASS。
+- Stage15 科研图：51张（BCH 29、CC 22）；历史BCH/CC无突发基线保持，6张CC图体现LDPC无交织近码率AWGN参考。LDPC候选6项、选中N640 NMS alpha=0.80共31个原始点，来源/码率/SNR/BER/FER/无重跑/无插值/无平滑/无合成/归档/排名隔离 Gate PASS。
+- Stage16 结果、图、源码、SHA、旧S6独立参考与当前LDPC N640近码率基线集成：PASS。
 - archive/readme/绝对路径/每图独立目录：PASS。
 - NaN/Inf、伪零值、平滑、error-floor 标记：0。
-- 原始输入 SHA：Stage10、Stage11、BCH 历史 AWGN、CC 历史 AWGN 前后完全一致；NO_FORMAL_RERUN。
-- 历史复杂度操作计数无兼容基线，明确为 N/A；位置图未制造 NO_BURST 位置。
+- 原始输入 SHA：Stage10、Stage11、BCH历史AWGN、CC历史AWGN、LDPC Stage23源CSV/配置/元数据/源码前后完全一致；S7与LDPC均NO_FORMAL_RERUN。
+- CC与LDPC没有统一operation-count口径，复杂度只分算法报告；位置图未制造NO_BURST或LDPC位置，LDPC未进入交织排名。
+- 独立LDPC仓库开始前已有23个readme修改；前后status与dirty文件SHA一致，本轮新增修改为0。
 - 分支：S8-PaperDocu；远程验证未请求；mergeStatus=NOT_MERGED。
 
 S7_FINAL_STATUS = PASS
