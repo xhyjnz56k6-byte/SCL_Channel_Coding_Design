@@ -1,0 +1,23 @@
+{
+  "stage": "round08_b_s5_chapter7",
+  "branch": "S8-PaperDocu",
+  "baseCommit": "ebfabbed6b82a94f395c62bbf43e9944ed5c0e76",
+  "functionalRanges": [],
+  "workingTreeOnly": true,
+  "functionalFiles": [
+    "Report/sections/07_多信道综合对比.tex",
+    "Report/figures/s5_round08b/readme.txt",
+    "Report/figures/s5_round08b/01_awgn_r23_fer.png through 22_ldpc_n640_avg_iterations.png",
+    "Task/Comparison/S5/report_scan_round08A/round08a_scan.py",
+    "Task/Comparison/S5/report_scan_round08A/generated scan outputs",
+    "Report/audit/round08_b_s5_chapter7/stage_plan.md",
+    "Report/audit/round08_b_s5_chapter7/manifest.json",
+    "Report/audit/round08_b_s5_chapter7/validation_report.md",
+    "Report/audit/round08_b_s5_chapter7/known_issues.md"
+  ],
+  "gate": "PASS_ROUND08_B_S5_CHAPTER7_FORMAL_WRITING",
+  "commitStatus": "NOT_REQUESTED",
+  "pushStatus": "NOT_REQUESTED",
+  "remoteVerification": "NOT_APPLICABLE",
+  "mergeStatus": "NOT_MERGED"
+}

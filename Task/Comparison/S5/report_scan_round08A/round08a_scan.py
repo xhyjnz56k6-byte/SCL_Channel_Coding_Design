@@ -74,13 +74,13 @@ def load_csv(path: Path) -> list[dict]:
 
 
 def bracket(rows: list[dict], target: float) -> float | None:
-    """Adjacent nonzero measured FER interpolation; never extrapolates."""
+    """Adjacent nonzero measured FER log-domain interpolation; no extrapolation."""
     ordered = sorted(rows, key=lambda x: float(x["esN0Db"]))
     for left, right in zip(ordered, ordered[1:]):
         fl, fr = float(left["FER"]), float(right["FER"])
         if fl > 0.0 and fr > 0.0 and fl >= target >= fr and fl != fr:
             xl, xr = float(left["esN0Db"]), float(right["esN0Db"])
-            return xl + (target - fl) * (xr - xl) / (fr - fl)
+            return xl + (math.log10(target) - math.log10(fl)) * (xr - xl) / (math.log10(fr) - math.log10(fl))
     return None
 
 
@@ -305,7 +305,7 @@ def plan_text(stage_figs: list[dict], aggregate_figs: list[dict]) -> tuple[str, 
 | A 正式候选方案与比较组 | 01 参数冻结表 | payload、发送长度、实际码率、编译码器 | 配置/源码 | 否 | 明确同组公平配对范围 |
 | B 六类信道模型与接收处理 | 02 信道冻结表 | 数学模型、参数、CSI、LLR | 源码/配置 | 否 | 防止把不同损伤与接收假设混写 |
 | C Formal 共同参数与公平性 | 03 公平性审计 | 31 点、停机、种子、relativeStart | 配置/源码 | 否 | 说明配对停止和随机性可比性 |
-| D 各信道 FER=0.1/0.01 门限 | 12 结果矩阵 | 相邻真实非零点线性夹逼 | 是 | 仅已夹逼 | 比较绝对门限，不外推 |
+| D 各信道 FER=0.1/0.01 门限 | 12 结果矩阵 | 相邻真实非零点的 FER 对数域插值 | 是 | 仅已夹逼 | 比较绝对门限，不外推 |
 | E 相对 AWGN 信道损失 | 07/08 | 同一方案的 channel threshold − AWGN threshold | 是 | 同表规则 | 比较相对退化，不混同绝对 FER |
 | F 译码与接收机算法时延 | 09 + Formal CSV | avg/P95/max 观测值 | 是 | 否 | 说明软件复杂度代价 |
 | G LDPC 迭代行为 | 09 + Formal CSV | all-frame avg、P95、max、达 32 次比例 | 是 | 否 | 说明收敛压力 |
@@ -431,7 +431,7 @@ def main() -> None:
 """)
     copied_loss = []
     for row in loss_rows:
-        copied_loss.append({**row, "interpolationRule": "相邻真实非零 FER 点线性插值；无夹逼=N/A；不外推", "source": rel(STAGE11 / "s5_channel_loss_table.csv")})
+        copied_loss.append({**row, "interpolationRule": "相邻真实非零 FER 点的对数域插值；无夹逼=N/A；不外推", "source": rel(STAGE11 / "s5_channel_loss_table.csv")})
     write_csv("07_s5_channel_loss_report_ready.csv", list(copied_loss[0]), copied_loss)
     matrix_lines = ["# 相对 AWGN 信道损失矩阵", "", "仅列出可由相邻真实非零 FER 点夹住的值；N/A 不外推。CC/LDPC 的 loss 均相对各自 AWGN 基线。", ""]
     for group in GROUPS:
