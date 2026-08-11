@@ -1,0 +1,31 @@
+{
+  "stage": "round07_c_ldpc_rewrite",
+  "branch": "S8-PaperDocu",
+  "baseCommit": "4e4eaba7e31b2f88cde1a226ccf412c5c2b991e7",
+  "executionMode": "WORKING_TREE_ONLY",
+  "functionalRanges": [],
+  "functionalFiles": [
+    "Report/sections/06_LDPC方案与仿真分析.tex",
+    "Report/appendices/A_完整参数表.tex"
+  ],
+  "auditFiles": [
+    "Report/audit/round07_c_ldpc_rewrite/stage_plan.md",
+    "Report/audit/round07_c_ldpc_rewrite/frozen_config.csv",
+    "Report/audit/round07_c_ldpc_rewrite/derived_fer_workpoints.csv",
+    "Report/audit/round07_c_ldpc_rewrite/alpha_key_results.csv",
+    "Report/audit/round07_c_ldpc_rewrite/result_summary.csv",
+    "Report/audit/round07_c_ldpc_rewrite/input_hashes.csv",
+    "Report/audit/round07_c_ldpc_rewrite/commands_used.md",
+    "Report/audit/round07_c_ldpc_rewrite/validation_report.md",
+    "Report/audit/round07_c_ldpc_rewrite/known_issues.md"
+  ],
+  "sourceDataPolicy": {
+    "monteCarloRerun": false,
+    "ldpcSourceModified": false,
+    "formalCsvModified": false,
+    "formalPngModified": false
+  },
+  "gate": "PASS_WORKING_TREE",
+  "remoteVerification": "NOT_APPLICABLE_USER_PROHIBITED_GIT_PUBLICATION",
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,11 +1,8 @@
-阶段名称：Stage09 Smoke validation and Formal readiness repair
-实验目的：Close all pre-Formal audit findings without changing frozen codec sources.
-主要输入：Archived 264-point Smoke, fixed vectors, S3/S4 historical Formal CSV, and approved review record.
-信道数学模型：Six frozen S5 channel models; 10% blockage retained only as KNOWN_BLOCKAGE_10_PERCENT_STRESS_CASE.
-冻结参数：Readiness config SHA-256 41ee48b2e2a5d33e9e0177157ea6986c936a5abbe4d8ec54aa500c0aa05e528f; 5% supplemental blockage grid 44 points.
-完成内容：Cached decoder objects, fair timing, complete timing fields, exact resume tests, S4 extension audit, and 5% blockage grid.
-验证结果：PASS_S5_FORMAL_READINESS (22/22); four continuous/resume cases exact; 2160 fixed vectors checked.
-主要输出：Readiness report, timing regression, S4 regression, blockage Gate, fixed clarification.
-当前结论：Formal is authorized; 5% blockage is main Formal and 10% is stress-only.
-已知问题：Both CC blockage curves remain near FER 0.998–1.0 at 5%; approved fallback forbids a third tuning. S4 N480 2.5 dB raw 1000-frame interval mismatch was explained by an exact 50000-frame frozen-seed extension.
-阶段状态：PASS
+阶段名称：Stage09 Smoke 验证与 Formal 就绪检查
+
+任务目的：在不改变已冻结编译码源代码的前提下，关闭 Formal 前的审计问题，验证程序、固定向量、恢复执行和网格 Smoke 是否可进入正式实验。
+任务作用：这是 Stage10 Formal 的串行前置门禁；Smoke 未通过时不得执行正式 BER/FER 统计。
+完成内容：完成 Release 编译和单元测试；检查 2160 条固定向量；进行 264 个唯一方案点、7,929,674 个 scheme-frame 的网格 Smoke；核验四个中断后恢复任务与连续运行完全一致；补充 5% 短时遮挡网格。
+结果：22/22 就绪检查通过，功能门禁为 PASS_S5_FORMAL_READINESS，并获得 PASS_S5_SMOKE。5% 短时遮挡成为 Formal 主场景，10% 遮挡仅保留为压力测试。
+已知限制：两条卷积码短时遮挡曲线在 5% 遮挡下仍接近 FER 0.998 至 1.0；该现象随后由 Stage12 独立验证，未进行第三次调参。
+如何使用本目录：result_summary.csv 汇总所有 Gate；formula_audit.md 记录公式审计；commands_used.md 记录复现命令。

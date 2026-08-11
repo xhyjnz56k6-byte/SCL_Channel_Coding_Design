@@ -1,7 +1,8 @@
-阶段名称：stage12_known_erasure_cc_validation
-实验目的：独立验证Stage10中卷积码R1/2与R2/3在5%已知连续擦除下FER接近1的现象，重点复核R2/3。
-验证手段：参数审计、固定trace、C++最小擦除比例扫描、MATLAB官方独立链路、17×27块交织诊断、C++/MATLAB统计比较。
-固定向量：仅共享原始payload；C++和MATLAB独立编码、打孔、译码，母码、发送位、无噪声payload逐bit一致。
-统计验证：C++和MATLAB使用独立payload seed与AWGN seed，仅比较BER、FER、置信区间和趋势。
-实验边界：正确性验证，不属于新S5 Formal；MATLAB不替代Stage10结果；交织仅为diagnostic_only。
-阶段状态：PASS_STAGE12_KNOWN_ERASURE_CC_VALIDATION
+阶段名称：Stage12 短时遮挡下卷积码独立验证
+
+任务目的：独立复核 Stage10 中卷积码 R1/2 与 R2/3 在 5% 已知短时遮挡下 FER 接近 1 的现象，重点验证 R2/3。
+任务作用：判断该平台现象是否来自实现错误；它是 Stage10 正式结论的正确性审计，不是新增 Formal，也不替代 Stage10 的统计数据。
+完成内容：进行参数审计、固定 trace、C++ 最小遮挡比例扫描、MATLAB 官方卷积码独立链路和 17×27 块交织诊断。固定向量共享原始 payload，但 C++ 与 MATLAB 独立编码、打孔和译码；独立统计使用不同 payload 与 AWGN 随机种子。
+结果：C++ 在 4、8、10 dB 的 CC R2/3 FER 均为 0.998；MATLAB 对应 FER 为 0.999、0.999、1.000。17×27 交织诊断在这三个点的 5000 帧统计中 FER 为 0，仅用于解释机制，未写入 Stage10 方案比较或推荐。
+结论与边界：门禁 PASS_STAGE12_KNOWN_ERASURE_CC_VALIDATION。验证支持 Stage10 的短时遮挡结论；MATLAB 不参与 LDPC 对比，交织不属于正式方案。
+如何使用本目录：result_summary.csv 提供 C++/MATLAB 统计值；stage12_parameter_audit.md、validation_report.md 和 commands_used.md 提供审计证据。

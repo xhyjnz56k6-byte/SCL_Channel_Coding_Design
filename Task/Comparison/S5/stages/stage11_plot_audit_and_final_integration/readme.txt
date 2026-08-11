@@ -1,11 +1,8 @@
-阶段名称：Stage11 plot audit and final integration
-实验目的：Audit Formal data, generate traceable scientific line plots/tables, and integrate conclusions.
-主要输入：PASS_S5_FORMAL and the exact merged Formal CSV.
-信道数学模型：All comparisons remain relative to each scheme's own AWGN baseline; target-FER interpolation uses adjacent nonzero measured points only.
-冻结参数：Source Formal SHA-256 dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947; no smoothing, fitting, extrapolation, bars, or zero replacement.
-完成内容：原86张英文图已版本化归档；使用同一Formal CSV生成86张中文图和20张Aggregate图，并按目标FER覆盖优先级更新推荐表。
-验证结果：PASS_S5_STAGE11_CHINESE_REPLOT；PASS_S5_AGGREGATE_PLOT_AUDIT。
-主要输出：Plot tree, plot audit summary, scenario recommendation, channel loss, latency comparison, robustness summary.
-当前结论：未重跑Formal，Formal CSV哈希未改变；中文图和Aggregate均可追溯到同一Formal CSV。
-已知问题：Zero-error points are retained as 0 in CSV and omitted on log axes. Target FER loss is unavailable where adjacent nonzero measured points do not bracket the target. No unified robustness score is produced.
-阶段状态：PASS
+阶段名称：Stage11 绘图审计与最终结果集成
+
+任务目的：对 Stage10 正式数据进行可追溯绘图、汇总和方案推荐，形成最终报告可直接引用的图表与 CSV。
+任务作用：将 744 个正式数据点转化为 BER/FER 曲线、时延与鲁棒性比较表、信道损失表和场景推荐表；不重新运行 Formal。
+完成内容：以 Formal 合并 CSV（SHA-256：dbeb75842f8ecd5874e58153f908505884395750614ab75a6a33cdc3e3739947）为唯一数据源；归档旧英文图；生成 86 张中文单指标折线图和 20 张 Aggregate 汇总图；禁止平滑、拟合、外推、柱图或以正数替换零误差点。
+结果：中文重绘门禁 PASS_S5_STAGE11_CHINESE_REPLOT 与 Aggregate 图审计门禁 PASS_S5_AGGREGATE_PLOT_AUDIT 均通过。图和表位于 results/stage11/ 与 results/Aggregate/。
+已知限制：CSV 中零误差点保留为 0，但不在对数坐标中绘制；只有相邻非零实测点夹住目标 FER 时才报告信道损失；不构造统一“鲁棒性总分”。
+如何使用本目录：s5_scenario_recommendation.csv 用于方案结论；s5_channel_loss_table.csv、s5_latency_comparison.csv、s5_robustness_summary.csv 用于报告表格；plots/ 用于插图。

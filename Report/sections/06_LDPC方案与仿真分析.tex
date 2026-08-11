@@ -1,214 +1,425 @@
 \chapter{LDPC方案与仿真分析}\label{chap:ldpc}
 
-\section{高速电文LDPC设计目标与实现边界}
+\section{高速电文LDPC设计方案}
 
-本章面向300 bit高速二进制电文，研究LDPC作为卷积码之外的短块纠错方案。设计目标是在不进行LDPC分块、不配置交织的条件下，比较不同实际码长以及BP、NMS两类软译码器的可靠性、软件译码时间和运算事件规模。正式实现采用\textbf{基于5G NR BG2准循环结构的Direct（直接短块构造）LDPC实现}。这里的BG2用于提供准循环校验矩阵结构，不等同于完整5G NR物理层传输链路。
+面向300 bit高速二进制电文，LDPC码可作为卷积码之外的高可靠短块编码方案。本章采用整块编码组织，300 bit信息在一个LDPC码字内完成编码与恢复，不进行LDPC分块，也不配置交织。编码器基于5G NR BG2准循环结构进行短块构造，比较实际码长480 bit、560 bit和640 bit，并分别采用BP与NMS软译码器。评价内容包括BER、FER、编码增益、迭代次数、平均与尾部软件译码时间、最大观测时间以及运算规模。
 
-\begin{table}[htbp]\centering\small
-\caption{本章LDPC方案实现范围}\label{tab:ldpc-scope}
-\begin{tabular}{p{0.22\textwidth}p{0.63\textwidth}}\toprule
-类别 & 内容 \\\midrule
-已实现 & BG2结构、提升、QC校验矩阵展开、填充位、GF(2)系统编码、分层BP/NMS软译码、综合校验与提前停止。\\
-未实现 & CRC、HARQ、完整传输块分段、速率匹配、速率恢复、LDPC分块、交织及完整5G NR物理层信道编码链。\\\bottomrule
-\end{tabular}\end{table}
+本章实现主要复用BG2结构、提升过程和稀疏校验矩阵构造，不包含完整5G NR物理层中的传输块分段、HARQ与完整速率匹配流程。三种方案共享300 bit原始信息、BPSK调制和AWGN信道，使可靠性、传输效率与译码负担之间的差异能够在统一链路条件下比较。
 
-因此，本章的结果回答的是固定300 bit短电文在该直接短块构造下的工程取舍，而不是对完整5G NR链路吞吐或时延的声明。
+\section{BG2短块编码结构与参数}
 
-\section{300 bit高速电文的BG2短块码长适配}
-\subsection{Direct短块构造方法}
-设提升因子为$Z_c$，BG2信息列数为$k_b=8$，选取的基图列数和行数分别为$n_b$与$m_b$。本实现使用
-\begin{equation}K_{\mathrm{cap}}=k_bZ_c,\quad F=K_{\mathrm{cap}}-300,\quad N=n_bZ_c,\quad R=\frac{300}{N}.\end{equation}
-300 bit输入信息放在系统信息区前部，其余$F$个位置补零；校验部分通过GF(2)线性方程求解。只有当校验子矩阵满足$\mathrm{rank}(H_p)=m_bZ_c$时，校验位才可唯一求得。编码完成后检查$Hc^\mathrm{T}=0$。
-
-\begin{figure}[htbp]\centering\fbox{\begin{minipage}[c][0.20\textheight][c]{0.86\textwidth}\centering\Large 待插入Visio：300 bit高速电文Direct BG2短块LDPC编码结构\\[0.7em]\normalsize 300 bit输入信息 $\rightarrow$ BG2适配 $\rightarrow Z_c$与信息容量 $\rightarrow$ 填充位 $\rightarrow$ QC矩阵展开 $\rightarrow$ GF(2)系统编码 $\rightarrow$ 校验位 $\rightarrow$ 480/560/640 bit码字 $\rightarrow$ syndrome检查\end{minipage}}\caption{300 bit高速电文Direct BG2短块LDPC编码结构}\label{fig:ldpc-encoder-placeholder}\end{figure}
-
-\begin{table}[htbp]\centering\scriptsize
-\caption{300 bit高速电文LDPC正式编码参数}\label{tab:ldpc-parameters}
-\begin{tabular}{c c c c c c c c c c c c c}\toprule
-方案 & 教师目标 & 实际$N$ & BG & $Z_c$ & $k_b$ & $n_b$ & $m_b$ & 信息容量 & 填充位 & 校验位 & $R$ & rank$H_p$\\\midrule
-N480 & 480 & 480 & 2 & 48 & 8 & 10 & 2 & 384 & 84 & 96 & 0.6250 & 96\\
-N560 & 576 & 560 & 2 & 56 & 8 & 10 & 2 & 448 & 148 & 112 & 0.5357 & 112\\
-N640 & $\leq640$ & 640 & 2 & 40 & 8 & 16 & 8 & 320 & 20 & 320 & 0.4688 & 320\\\bottomrule
-\end{tabular}\end{table}
-
-\subsection{576 bit目标向560 bit实际方案的适配}
-576 bit并非被人为改写。枚举结果显示两个精确576 bit候选的$H_p$均不满秩，因而不满足直接系统编码条件；560 bit是距离576 bit最近的合法候选。
-
-\begin{table}[htbp]\centering\small\caption{576 bit目标附近Direct BG2候选可编码性}\label{tab:ldpc-576}
-\begin{tabular}{c c c c c c p{0.24\textwidth}}\toprule
-候选 & $Z_c$ & $n_b$ & 实际码长 & 校验位 & rank$H_p$ & 结论\\\midrule
-候选1 & 48 & 12 & 576 & 192 & 190 & 不可编码，$H_p$不满秩\\
-候选2 & 64 & 9 & 576 & 64 & 0 & 不可编码，$H_p$不满秩\\
-正式方案 & 56 & 10 & 560 & 112 & 112 & 合法可编码，距目标16 bit\\\bottomrule
-\end{tabular}\end{table}
-
-\begin{figure}[htbp]\centering\fbox{\begin{minipage}[c][0.17\textheight][c]{0.82\textwidth}\centering\Large 待插入Visio：576 bit目标向560 bit合法Direct BG2方案的码长适配流程\\[0.6em]\normalsize 教师目标576 $\rightarrow$ 枚举$Z_c,n_b$ $\rightarrow$ 两个576候选秩检查失败 $\rightarrow$ 搜索最近合法方案 $\rightarrow$ 560 bit正式冻结\end{minipage}}\caption{576 bit目标向560 bit合法方案的适配流程}\label{fig:ldpc-length-placeholder}\end{figure}
-
-\section{BP与NMS分层译码结构及统计口径}
-\subsection{BP与NMS分层译码}
-BP采用分层和积算法。对每条边，先以后验LLR减去旧消息形成外信息；校验节点利用$\tanh$和$\operatorname{atanh}$形成新消息，再立即更新变量节点后验信息。NMS同样分层更新，但以最小值、次小值和符号积近似BP校验节点，核心消息可写为
-\begin{equation}L_{c\rightarrow v}=\alpha\,s_{c\rightarrow v}\min_{v'\neq v}|L_{v'\rightarrow c}|.\end{equation}
-两者均在完整一轮分层更新后硬判决并检查syndrome；通过则提前停止，否则至多迭代32次。
-
-\begin{figure}[htbp]\centering\fbox{\begin{minipage}[c][0.20\textheight][c]{0.85\textwidth}\centering\Large 待插入Visio：BP与NMS分层迭代译码流程\\[0.6em]\normalsize 接收LLR $\rightarrow$ 分层校验节点；BP：tanh/atanh，NMS：绝对值/min1/min2/符号/$\alpha$ $\rightarrow$ 后验更新 $\rightarrow$ 硬判决 $\rightarrow$ syndrome $\rightarrow$ 提前停止或下一轮\end{minipage}}\caption{BP与NMS分层迭代译码流程}\label{fig:ldpc-decoder-placeholder}\end{figure}
-
-\begin{table}[htbp]\centering\small\caption{BP与NMS主要运算构成}\label{tab:ldpc-operations}
-\begin{tabular}{p{0.25\textwidth}p{0.29\textwidth}p{0.29\textwidth}}\toprule
-类别 & BP & NMS\\\midrule
-共同统计 & 校验节点更新、变量节点更新、消息更新 & 校验节点更新、变量节点更新、消息更新\\
-校验节点主要操作 & tanh、atanh & 绝对值、比较、min1/min2、符号、$\alpha$乘法\\
-辅助指标 & 平均边消息更新、未加权基础事件数、译码器内存 & 平均边消息更新、未加权基础事件数、译码器内存\\\bottomrule
-\end{tabular}\end{table}
-
-\subsection{复杂度与时间口径}
-\texttt{avgTheoreticalOperationCount}是各类基础事件的未加权计数和，不可将一次atanh与一次比较视作相同代价。因此复杂度结论必须结合迭代数、边消息更新、操作类型和实测软件时间。软件译码时间从调用BP/NMS函数前开始，到函数返回后结束；LLR已生成。它不是端到端通信时延，也不能直接等同专用硬件译码器时延。
-
-\begin{table}[htbp]\centering\small\caption{软件译码时延统计边界}\label{tab:ldpc-latency-boundary}
-\begin{tabular}{p{0.36\textwidth}c p{0.32\textwidth}}\toprule
-环节 & 是否计入 & 说明\\\midrule
-随机信息、LDPC编码、BPSK、AWGN、LLR生成 & 否 & 计时前完成\\
-BP/NMS迭代、校验/变量节点、硬判决、syndrome、提前停止 & 是 & 译码函数内部执行\\
-BER/FER统计、CSV写盘、Python后处理、绘图 & 否 & 函数返回后进行\\\bottomrule
-\end{tabular}\end{table}
-
-\begin{table}[htbp]\centering\small\caption{软件译码时间测试平台}\label{tab:ldpc-platform}
-\begin{tabular}{p{0.30\textwidth}p{0.53\textwidth}}\toprule
-项目 & 配置\\\midrule
-正式Stage15记录 & Windows-10-10.0.26200-SP0；Intel64 Family 6 Model 191；Release/O3；6进程\\
-报告整理工作站 & Windows 11家庭中文版，10.0.26200，64位；Intel(R) Core(TM) i5-14400F；10物理核心/16逻辑处理器；31.72 GiB内存\\
-编译与计时 & CMake Release build；\texttt{std::chrono::steady\_clock}；单位$\mu$s\\\bottomrule
-\end{tabular}\end{table}
-Stage15未保存完整CPU商品型号，故表中当前工作站只作时延解释参考，不冒充为正式Monte Carlo运行平台。
-
-\section{NMS归一化因子选择与现有证据}
-Stage12R扫描$0.60\sim1.00$、步长0.05，并考察FER、迭代、软件时间、错误合法码字率与有效码字率。$\alpha=1.00$存在错误合法码字风险。N640的选择链与正式配置一致；N480/N560存在尚未消除的参数链差异，故本章保留事实而不宣称0.95已被证明最优。
-
-\begin{table}[htbp]\centering\small\caption{NMS归一化因子证据状态}\label{tab:ldpc-alpha}
-\begin{tabular}{c c c p{0.35\textwidth}}\toprule
-实际码长 & Stage12R推荐 & Stage15正式值 & 当前状态\\\midrule
-480 & 0.90 & 0.95 & 参数选择证据待补充裁定\\
-560 & 0.90 & 0.95 & 参数选择证据待补充裁定\\
-640 & 0.80 & 0.80 & 选择证据与正式配置一致\\\bottomrule
-\end{tabular}\end{table}
-
-\section{正式仿真条件}
-\begin{figure}[htbp]\centering\fbox{\begin{minipage}[c][0.18\textheight][c]{0.83\textwidth}\centering\Large 待插入Visio：S4正式LDPC仿真链路与译码时间统计位置\\[0.6em]\normalsize 300 bit随机信息 $\rightarrow$ 编码 $\rightarrow$ BPSK $\rightarrow$ AWGN $\rightarrow$ LLR $\rightarrow$【计时开始】BP/NMS【计时结束】$\rightarrow$ 信息恢复与BER/FER/迭代/时延/复杂度统计\end{minipage}}\caption{S4正式LDPC仿真链路与译码时间统计位置}\label{fig:ldpc-chain-placeholder}\end{figure}
-
-\begin{table}[htbp]\centering\small\caption{S4正式LDPC仿真参数}\label{tab:ldpc-simulation}
-\begin{tabular}{p{0.30\textwidth}p{0.55\textwidth}}\toprule
-项目 & 冻结设置\\\midrule
-信息长度、实际码长 & 300 bit；480/560/640 bit\\
-调制与信道 & BPSK；AWGN\\
-基础信噪比 & $E_s/N_0=-5\sim10$ dB，步长0.5 dB，共31点\\
-停止规则 & 最少1000帧；目标200错误帧；最多50000帧\\
-译码 & BP/NMS；最多32次；每完整迭代后syndrome提前停止\\
-种子与任务 & payload 2026072001；noise 2026073001；runId 140001；起始帧100000\\
-checkpoint与配对 & 500帧或60秒；同一payload、codeword、noise、LLR和frameIndex\\
-并行与记录 & 6进程；93个配对任务；186条算法记录\\\bottomrule
-\end{tabular}\end{table}
-
-基础性能图统一使用$E_s/N_0$。不同实际码率方案间的相对编码增益则换算为$E_b/N_0=E_s/N_0-10\log_{10}R$，以避免把每信息比特能量口径混入增益比较。
-
-对幅度为$\pm1$的BPSK符号，正式程序使用的噪声方差与LLR分别为
-\begin{equation}\sigma^2=\frac{1}{2}\,10^{-(E_s/N_0)/10}.\end{equation}
-\begin{equation}L=\frac{2y}{\sigma^2}.\end{equation}
-其中$y$为接收符号。两算法在同一码长、同一信噪比和同一帧索引上共享该LLR，因此BP/NMS差异主要来自译码更新规则。用于相对编码增益的横轴口径另写为
+设BG2信息列数为$k_b$，选取的基图列数和行数分别为$n_b$与$m_b$，提升因子为$Z_c$。系统信息容量$K_{\mathrm{cap}}$、填充位数$F$、实际码长$N$与实际码率$R$为
 \begin{equation}
-\begin{aligned}
-\left(E_b/N_0\right)_{\mathrm{dB}}
-&=\left(E_s/N_0\right)_{\mathrm{dB}}\\
-&\quad-10\log_{10}R.
-\end{aligned}
+K_{\mathrm{cap}}=k_bZ_c,\qquad F=K_{\mathrm{cap}}-300,\qquad
+N=n_bZ_c,\qquad R=\frac{300}{N}.
 \end{equation}
-而候选方案相对参考方案的增益定义为
-\begin{equation}G=\left(E_b/N_0\right)_{\mathrm{reference}}-\left(E_b/N_0\right)_{\mathrm{candidate}}.\end{equation}
-正$G$仅表示候选在该目标误差率下所需$E_b/N_0$更低；它不是将不同码率曲线在$E_s/N_0$坐标上直接相减。
+300 bit原始信息放入系统信息区，其余位置填零，再由准循环校验矩阵生成校验位并形成完整码字。该组织方式保留了系统码结构，接收端译码后可直接从信息区恢复300 bit电文。
 
-\section{BP与NMS误码性能分析}
-\reportfigure[0.92\textwidth]{figures/ldpc/formal_ber.png}{300 bit LDPC误比特率对比}{fig:ldpc-ber}{横轴为$E_s/N_0$；零错误点保留真实观测并以95\%上界标识。}
-\reportfigure[0.92\textwidth]{figures/ldpc/formal_fer.png}{300 bit LDPC误帧率对比}{fig:ldpc-fer}{横轴为$E_s/N_0$；不把有限帧零错误观测解释为error floor。}
+\begin{figure}[htbp]
+  \centering
+  \fbox{\begin{minipage}[c][0.18\textheight][c]{0.86\textwidth}
+    \centering\Large 待插入Visio：300 bit高速电文BG2短块LDPC编码结构\\[0.7em]
+    \normalsize 300 bit输入信息 $\rightarrow$ BG2结构参数 $\rightarrow$ 提升因子$Z_c$
+    $\rightarrow$ 信息容量与填充位 $\rightarrow$ 准循环校验矩阵
+    $\rightarrow$ 系统编码 $\rightarrow$ 校验位 $\rightarrow$ 480/560/640 bit码字
+  \end{minipage}}
+  \caption{300 bit高速电文BG2短块LDPC编码结构}
+  \label{fig:ldpc-encoder-placeholder}
+\end{figure}
 
-N640在较低$E_s/N_0$已进入低FER区域，显示出最高冗余方案的可靠性优势；N480发送开销最小但需要更高信噪比。N560虽处于长度中间，不能据此称为默认折中最优。图中BP与NMS在正式冻结参数下总体接近，但N480/N560的NMS参数证据仍须按表\ref{tab:ldpc-alpha}保留边界。
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{300 bit高速电文LDPC编码参数}
+  \label{tab:ldpc-parameters}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c c c c c}
+    \toprule
+    方案 & 目标码长 & 实际码长 & $Z_c$ & $k_b$ & $n_b$ & $m_b$ & 信息容量 & 填充位 & 校验位 & 实际码率\\
+    \midrule
+    N480 & 480 & 480 & 48 & 8 & 10 & 2 & 384 & 84 & 96 & 0.6250\\
+    N560 & 576 & 560 & 56 & 8 & 10 & 2 & 448 & 148 & 112 & 0.5357\\
+    N640 & $\leq640$ & 640 & 40 & 8 & 16 & 8 & 320 & 20 & 320 & 0.4688\\
+    \bottomrule
+  \end{tabular}}
+\end{table}
 
-\begin{table}[htbp]\centering\scriptsize\caption{代表工作点BER/FER与译码统计}\label{tab:ldpc-workpoints}
-\resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c c}\toprule
-码长 & 算法 & $E_s/N_0$/dB & BER & FER & 平均迭代 & 平均时间/$\mu$s & 错误合法码字率\\\midrule
-480 & BP & 4.5 & $7.12\times10^{-4}$ & 0.1365 & 1.575 & 113.65 & 0.1256\\
-480 & NMS & 4.5 & $7.08\times10^{-4}$ & 0.1379 & 1.968 & 33.58 & 0.1181\\
-560 & BP & 4.5 & $5.42\times10^{-4}$ & 0.1059 & 1.533 & 82.58 & 0.0980\\
-560 & NMS & 4.5 & $5.58\times10^{-4}$ & 0.1118 & 2.071 & 29.59 & 0.0938\\
-640 & BP & -1.0 & $1.89\times10^{-3}$ & 0.0368 & 6.540 & 1333.81 & 0\\
-640 & NMS & -1.0 & $2.42\times10^{-3}$ & 0.0451 & 7.281 & 359.67 & 0\\\bottomrule
-\end{tabular}}\end{table}
+教师给出的中间目标码长为576 bit。BG2短块构造受到提升因子与校验矩阵可编码条件的共同约束，精确576 bit候选未满足本系统的编码条件，因此采用距离目标最近的560 bit合法方案。后续仿真、码率和性能比较均按560 bit实际发送长度计算。
 
-表\ref{tab:ldpc-workpoints}仅列出CSV中的代表网格点，不作0.01 dB级插值结论；各行工作点不同，不能横向解释为固定信噪比下的时间排名。
+三种构造的差异不仅体现为发送长度变化，还包括提升因子、基图截取范围、填充量和校验约束分布的同步变化。N640包含320个校验位且填充位仅20 bit；N560虽然发送长度居中，但信息容量达到448 bit，其中148 bit为填充位。完整校验图结构由此成为短块性能分析的重要基础。
 
-\section{译码迭代次数与软件译码时延分析}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_avg_iterations.png}{BP与NMS平均迭代次数}{fig:ldpc-avg-iter}{横轴为$E_s/N_0$。}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_p95_iterations.png}{BP与NMS第95百分位迭代次数}{fig:ldpc-p95-iter}{用于观察大多数帧的迭代尾部。}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_avg_delay.png}{BP与NMS平均软件译码时延}{fig:ldpc-avg-delay}{仅适用于表\ref{tab:ldpc-platform}所述软件实现与平台边界。}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_p95_delay.png}{BP与NMS第95百分位软件译码时延}{fig:ldpc-p95-delay}{单位为$\mu$s。}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_max_delay.png}{BP与NMS最大观测软件译码时延}{fig:ldpc-max-delay}{最大值受系统调度、后台任务和频率变化影响，主要报告平均值与P95。}
+\section{BP与NMS分层译码}
 
-分层提前停止使高信噪比下的平均迭代与时间下降。NMS避免BP的tanh/atanh运算，在当前软件实现中通常具有更低时间；该结论是软件实现结果，不应外推为硬件时延结论。
+BP译码器采用分层和积更新。每一层先从变量节点后验LLR中扣除旧校验消息，校验节点再通过双曲正切与反双曲正切运算形成新消息，并立即更新变量节点后验信息。NMS译码器保持相同分层顺序，以绝对值、最小值、次小值和符号积近似校验节点计算，并用归一化因子$\alpha$修正消息幅度，其核心形式为
+\begin{equation}
+L_{c\rightarrow v}^{\mathrm{NMS}}
+=\alpha\,s_{c\rightarrow v}\min_{v'\neq v}\left|L_{v'\rightarrow c}\right|.
+\end{equation}
+每轮分层更新结束后，两种译码器均执行硬判决和综合校验。校验方程全部满足时提前输出，否则进入下一轮，最大迭代次数为32。
 
-\begin{table}[htbp]\centering\small\caption{BP/NMS软件译码时延解释口径}\label{tab:ldpc-timing-summary}
-\begin{tabular}{p{0.25\textwidth}p{0.58\textwidth}}\toprule
-指标 & 使用规则\\\midrule
-平均时间 & 反映整个网格上的典型软件内核执行时间\\
-P95时间 & 反映大多数帧而非极端样本的尾部时间\\
-最大时间 & 仅为最坏观测样本，受Windows调度等外部因素影响\\
-比较边界 & 仅限同一实现、同一计时器与相近运行环境；不能写为硬件时延\\\bottomrule
-\end{tabular}\end{table}
+\begin{figure}[htbp]
+  \centering
+  \fbox{\begin{minipage}[c][0.20\textheight][c]{0.86\textwidth}
+    \centering\Large 待插入Visio：BP与NMS分层迭代译码流程\\[0.7em]
+    \normalsize 接收LLR $\rightarrow$ 校验节点分层处理；
+    BP：双曲正切/反双曲正切，NMS：绝对值/最小值/次小值/符号/缩放
+    $\rightarrow$ 变量节点更新 $\rightarrow$ 硬判决 $\rightarrow$ 校验方程\\[0.4em]
+    通过 $\rightarrow$ 输出；未通过 $\rightarrow$ 下一迭代
+  \end{minipage}}
+  \caption{BP与NMS分层迭代译码流程}
+  \label{fig:ldpc-decoder-placeholder}
+\end{figure}
 
-\section{复杂度及错误合法码字分析}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_avg_edge_updates.png}{BP与NMS平均边消息更新次数}{fig:ldpc-edge-updates}{横轴为$E_s/N_0$。}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_operation_count.png}{BP与NMS未加权基础运算事件数}{fig:ldpc-operation-count}{不同操作未作硬件代价加权。}
-\reportfigure[0.88\textwidth]{figures/ldpc/formal_wrong_valid_rate.png}{BP与NMS错误合法码字率}{fig:ldpc-wrong-valid}{syndrome通过不保证300 bit输入信息正确。}
+\begin{table}[htbp]
+  \centering\small
+  \caption{BP与NMS译码运算结构}
+  \label{tab:ldpc-operations}
+  \begin{tabular}{p{0.20\textwidth}p{0.34\textwidth}p{0.34\textwidth}}
+    \toprule
+    项目 & BP & NMS\\
+    \midrule
+    校验节点 & 双曲正切、乘积、反双曲正切 & 绝对值、最小值/次小值、符号、缩放\\
+    变量节点 & 外信息形成与后验LLR更新 & 外信息形成与后验LLR更新\\
+    收敛控制 & 硬判决、综合校验、提前停止 & 硬判决、综合校验、提前停止\\
+    性能定位 & 和积软译码基准 & 低代价近似软译码\\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
-错误合法码字指译码结果满足校验方程、但恢复的300 bit信息仍有错误。它说明仅凭syndrome不能代替端到端信息正确性判断，也是NMS参数筛选必须观察的质量指标。
+BP与NMS的基础运算类型存在明显差异。BP校验节点包含双曲正切与反双曲正切等非线性运算，NMS主要由绝对值、比较、符号判断和缩放乘法构成。因此，消息更新次数表示传播规模，基础运算事件数表示计算事件规模，而软件译码时间进一步反映这些运算在处理器上的综合执行代价。
 
-\begin{table}[htbp]\centering\small\caption{BP/NMS复杂度与有效码字统计解释}\label{tab:ldpc-complexity}
-\begin{tabular}{p{0.30\textwidth}p{0.54\textwidth}}\toprule
-指标 & 用途与限制\\\midrule
-平均迭代与边消息更新 & 描述提前停止后的更新规模，可与时间共同解释\\
-BP tanh/atanh；NMS最小值/比较/符号 & 反映不同算法的主要操作构成，不能等权合并后直接判优\\
-错误合法码字率 & 检查校验通过但输入信息错误的风险\\
-有效码字率 & 仅表示syndrome通过率，不等同信息正确率\\\bottomrule
-\end{tabular}\end{table}
+\section{NMS归一化因子性能分析}
 
-\section{不同码长性能与相对编码增益}
-\reportfigure[0.82\textwidth]{figures/ldpc/formal_rate_length.png}{LDPC实际码率与码长关系}{fig:ldpc-rate-length}{N480、N560、N640实际码率分别为0.6250、0.5357、0.4688。}
-\reportfigure[0.88\textwidth]{figures/ldpc/bp_ber_relative_coding_gain_25points.png}{BP BER相对编码增益}{fig:ldpc-bp-ber-gain}{派生比较横轴为目标BER，增益口径为$E_b/N_0$。}
-\reportfigure[0.88\textwidth]{figures/ldpc/bp_fer_relative_coding_gain_25points.png}{BP FER相对编码增益}{fig:ldpc-bp-fer-gain}{仅在共同非零有效范围内插值。}
-\reportfigure[0.88\textwidth]{figures/ldpc/nms_ber_relative_coding_gain_25points.png}{NMS BER相对编码增益}{fig:ldpc-nms-ber-gain}{零错误点不参与插值。}
-\reportfigure[0.88\textwidth]{figures/ldpc/nms_fer_relative_coding_gain_25points.png}{NMS FER相对编码增益}{fig:ldpc-nms-fer-gain}{正值表示候选方案所需$E_b/N_0$较低。}
+NMS以$\alpha$修正最小和近似产生的消息幅度。较小的$\alpha$会压缩校验消息，使部分帧需要更多迭代才能收敛；较大的$\alpha$提高消息幅度，同时也增强错误信息在图中的传播。归一化因子在$0.60\sim1.00$范围内按0.05步长比较，表\ref{tab:ldpc-alpha}列出四个关键取值。平均FER、平均迭代和平均时间由每个码长的五个扫描点计算；错误合法码字率来自瀑布区末端两个工作点的600帧专项分类统计。
 
-\begin{table}[htbp]\centering\small\caption{三码长平均相对编码增益}\label{tab:ldpc-gain}
-\begin{tabular}{c c c c c}\toprule
-算法 & 指标 & N560相对N480/dB & N640相对N480/dB & N640相对N560/dB\\\midrule
-BP & BER & -0.587 & 3.462 & 4.049\\
-BP & FER & -0.576 & 5.167 & 5.742\\
-NMS & BER & -0.598 & 3.591 & 4.189\\
-NMS & FER & -0.532 & 5.318 & 5.849\\\bottomrule
-\end{tabular}\end{table}
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{NMS归一化因子关键性能比较}
+  \label{tab:ldpc-alpha}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c}
+    \toprule
+    码长 & $\alpha$ & 扫描$E_s/N_0$/dB & 平均FER & 平均迭代 & 平均时间/$\mu$s & 错误合法码字率\\
+    \midrule
+    480 & 0.80 & $2.5\sim4.5$ & 0.4707 & 11.437 & 90.65 & 7.33\%\\
+    480 & 0.90 & $2.5\sim4.5$ & 0.4427 & 7.187 & 58.10 & 11.00\%\\
+    480 & 0.95 & $2.5\sim4.5$ & 0.4273 & 4.279 & 35.83 & 14.17\%\\
+    480 & 1.00 & $2.5\sim4.5$ & 0.4200 & 1.485 & 13.69 & 17.33\%\\
+    \midrule
+    560 & 0.80 & $2.5\sim4.5$ & 0.5047 & 13.753 & 120.38 & 7.17\%\\
+    560 & 0.90 & $2.5\sim4.5$ & 0.4753 & 8.448 & 77.02 & 11.50\%\\
+    560 & 0.95 & $2.5\sim4.5$ & 0.4673 & 5.287 & 49.68 & 14.67\%\\
+    560 & 1.00 & $2.5\sim4.5$ & 0.4613 & 1.537 & 16.45 & 19.50\%\\
+    \midrule
+    640 & 0.80 & $-2.5\sim-0.5$ & 0.3653 & 15.949 & 542.20 & 0\\
+    640 & 0.90 & $-2.5\sim-0.5$ & 0.3820 & 16.611 & 567.07 & 0\\
+    640 & 0.95 & $-2.5\sim-0.5$ & 0.4153 & 17.592 & 604.48 & 0\\
+    640 & 1.00 & $-2.5\sim-0.5$ & 0.4760 & 19.243 & 657.36 & 0\\
+    \bottomrule
+  \end{tabular}}
+\end{table}
 
-表\ref{tab:ldpc-gain}来自25个目标误差率点的正式派生CSV。它比较的是完整冻结方案，而非单独改变码长的因果实验：码率、$Z_c$、填充量和矩阵结构同时变化。N560相对N480平均增益为负，故不能因其处于中间长度而主观称为折中最优；N640提供最强可靠性趋势，代价是最低实际码率和最长发送长度。
+N480在$\alpha=0.90$与0.95时的平均FER分别为0.4427和0.4273，绝对差为0.0154；N560对应差值为0.0080。0.95使两种码长的平均迭代和软件时间进一步下降，但错误合法码字率均比0.90增加3.17个百分点。因此，N480与N560在$0.90\sim0.95$附近形成可靠性、收敛速度与错误收敛风险之间的综合取舍区间，后续大规模性能比较采用$\alpha=0.95$。
 
-\section{工程取舍与阶段性推荐}
-\begin{table}[htbp]\centering\small\caption{三种LDPC码长工程取舍}\label{tab:ldpc-length-tradeoff}
-\begin{tabular}{c c c p{0.24\textwidth}p{0.24\textwidth}}\toprule
-方案 & 实际码率 & 主要定位 & 优势 & 限制\\\midrule
-N480 & 0.6250 & 传输效率优先 & 发送长度最短、码率最高 & 相比N640可靠性余量较小\\
-N560 & 0.5357 & 非默认中间候选 & 接近576 bit目标且合法可编码 & 当前相对N480未显示平均可靠性增益\\
-N640 & 0.4688 & 可靠性优先 & 正式结果中可靠性趋势最强 & 冗余、发送长度和软件译码负担最大\\\bottomrule
-\end{tabular}\end{table}
+N640的变化方向不同：$\alpha=0.80$的平均FER为0.3653，低于0.90、0.95和1.00，对应较优区间向较小系数移动，性能比较采用$\alpha=0.80$。N480与N560在$\alpha=1.00$时表现出最低的表面平均FER和最短时间，同时错误合法码字率升至17.33\%和19.50\%。该现象说明较大的消息幅度会使部分错误帧快速进入错误但满足校验方程的码字，较短的迭代过程由此未必对应更可靠的恢复结果。
 
-\begin{table}[htbp]\centering\small\caption{BP与NMS工程取舍}\label{tab:ldpc-decoder-tradeoff}
-\begin{tabular}{p{0.20\textwidth}p{0.32\textwidth}p{0.33\textwidth}}\toprule
-算法 & 工程定位 & 本章结论\\\midrule
-BP & 高精度软译码性能基准 & 使用tanh/atanh；作为性能参照，软件时间较高\\
-NMS & 低代价近似译码 & 以最小值、比较、符号和缩放近似BP；正式冻结参数下性能接近且软件时间较低，但N480/N560的$\alpha$证据待补裁定\\\bottomrule
-\end{tabular}\end{table}
+\section{仿真条件与评价指标}
 
-综上，N480适用于链路余量充足且发送效率优先的场景，N640适用于可靠性优先的高速电文，N560保留为接近576 bit目标的合法候选但不作为默认折中最优。在正式仿真采用的冻结参数下，NMS呈现较好的性能与软件执行效率；不过其N480/N560归一化因子选择依据仍需后续专项补充裁定。本章不据有限帧零错误点声明存在error floor，也不把未加权基础事件数写成严格理论复杂度。
+\begin{figure}[htbp]
+  \centering
+  \fbox{\begin{minipage}[c][0.18\textheight][c]{0.86\textwidth}
+    \centering\Large 待插入Visio：LDPC仿真链路与软件译码时间统计位置\\[0.7em]
+    \normalsize 300 bit信息 $\rightarrow$ LDPC编码 $\rightarrow$ BPSK $\rightarrow$ AWGN
+    $\rightarrow$ LLR $\rightarrow$【计时起点】BP/NMS【计时终点】
+    $\rightarrow$ 信息恢复 $\rightarrow$ BER/FER/迭代/时间/复杂度
+  \end{minipage}}
+  \caption{LDPC仿真链路与软件译码时间统计位置}
+  \label{fig:ldpc-chain-placeholder}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{软件译码时间统计范围与运行环境}
+  \label{tab:ldpc-latency-boundary}
+  \begin{tabular}{p{0.27\textwidth}p{0.61\textwidth}}
+    \toprule
+    项目 & 内容\\
+    \midrule
+    计时范围 & BP/NMS迭代、校验节点更新、变量节点更新、硬判决、综合校验与提前停止\\
+    计时外环节 & LDPC编码、BPSK、AWGN、LLR生成、BER/FER汇总、文件I/O与绘图\\
+    操作系统 & Windows 10.0.26200\\
+    处理器架构 & Intel64 Family 6 Model 191\\
+    编译与并行 & Release/O3；6进程\\
+    计时器与单位 & \texttt{std::chrono::steady\_clock}；$\mu$s\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+运行记录保存了处理器架构信息，未包含完整商品型号，因此软件译码时间用于同一实现环境中的相对比较。计时边界位于译码函数入口和返回位置，反映软件译码内核时间，而非端到端通信时延。
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{LDPC性能仿真参数}
+  \label{tab:ldpc-simulation}
+  \begin{tabular}{p{0.30\textwidth}p{0.56\textwidth}}
+    \toprule
+    参数 & 设置\\
+    \midrule
+    信息长度与实际码长 & 300 bit；480/560/640 bit\\
+    调制与信道 & BPSK；AWGN\\
+    信噪比范围与步长 & $E_s/N_0=-5\sim10$ dB；0.5 dB\\
+    仿真帧停止条件 & 最少1000帧；目标200错误帧；最多50000帧\\
+    译码控制 & 最大32次迭代；每个完整迭代后进行综合校验并提前停止\\
+    公平比较条件 & 同一码长、信噪比与帧索引共享信息、码字、噪声样本和LLR\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+对幅度为$\pm1$的BPSK符号，噪声方差与输入译码器的LLR为
+\begin{equation}
+\sigma^2=\frac{1}{2}10^{-(E_s/N_0)/10},\qquad L=\frac{2y}{\sigma^2},
+\end{equation}
+其中$y$为接收符号。BER与FER基础曲线采用$E_s/N_0$，用于观察相同符号能量条件下的译码表现。不同实际码率之间的编码增益采用
+\begin{equation}
+\left(E_b/N_0\right)_{\mathrm{dB}}
+=\left(E_s/N_0\right)_{\mathrm{dB}}-10\log_{10}R,
+\end{equation}
+并定义候选方案相对参考方案的增益为
+\begin{equation}
+G=\left(E_b/N_0\right)_{\mathrm{reference}}
+-\left(E_b/N_0\right)_{\mathrm{candidate}}.
+\end{equation}
+正增益表示候选方案在相同目标误差率下所需$E_b/N_0$更低。
+
+\section{误码性能分析}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_ber.png}\\[-0.3em]
+    \small（a）BER
+  \end{minipage}\\[0.3em]
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_fer.png}\\[-0.3em]
+    \small（b）FER
+  \end{minipage}
+  \caption{不同LDPC码长及BP/NMS译码的误码性能}
+  \label{fig:ldpc-error-performance}\label{fig:ldpc-ber}\label{fig:ldpc-fer}
+\end{figure}
+
+图\ref{fig:ldpc-error-performance}显示，三种码长均随$E_s/N_0$提高进入明显瀑布区，N640的BER与FER曲线整体位于N480和N560左侧。表\ref{tab:ldpc-fer-workpoints}采用相邻非零FER点的对数线性插值，给出统一可靠性目标下所需的$E_s/N_0$；全部目标均位于原始采样区间内。
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{不同方案典型FER工作点}
+  \label{tab:ldpc-fer-workpoints}
+  \begin{tabular}{c c c c c}
+    \toprule
+    码长 & 算法 & FER$=0.1$/$E_s/N_0$/dB & FER$=0.01$/$E_s/N_0$/dB & 实际码率\\
+    \midrule
+    480 & BP  & 4.687 & 5.956 & 0.6250\\
+    480 & NMS & 4.700 & 5.975 & 0.6250\\
+    560 & BP  & 4.541 & 5.866 & 0.5357\\
+    560 & NMS & 4.577 & 5.875 & 0.5357\\
+    640 & BP  & $-1.283$ & $-0.678$ & 0.4688\\
+    640 & NMS & $-1.230$ & $-0.663$ & 0.4688\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+在FER$=0.1$处，N640相对N480所需$E_s/N_0$分别降低5.970 dB（BP）和5.930 dB（NMS）；FER$=0.01$处对应降低6.634 dB和6.638 dB。该优势来自更低实际码率、更多校验约束、不同提升因子、准循环结构以及较小填充占比的共同作用。当前完整N640构造由此适合可靠性优先的高速电文。
+
+N560在FER$=0.1$处相对N480仅降低0.146 dB（BP）和0.123 dB（NMS），FER$=0.01$处仅降低0.090 dB和0.100 dB，没有形成随发送长度增加而自然增长的中间可靠性收益。N560的$Z_c=56$、信息容量448 bit和填充位148 bit均与N480不同，截取矩阵结构与校验约束分布也同步改变。较大的填充量是影响短块结构与有效约束利用的重要差异之一，但性能变化由完整校验图共同决定。
+
+同一码长下，BP与NMS的FER目标点十分接近：FER$=0.1$时所需$E_s/N_0$差值为0.013～0.053 dB，FER$=0.01$时为0.009～0.019 dB。NMS在适当归一化系数下保持了接近BP的可靠性，为后续降低软件计算时间提供了基础。
+
+\section{迭代次数与软件译码时间}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_avg_iterations.png}\\[-0.3em]
+    \small（a）平均迭代次数
+  \end{minipage}\\[0.3em]
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_p95_iterations.png}\\[-0.3em]
+    \small（b）P95迭代次数
+  \end{minipage}
+  \caption{BP与NMS译码迭代特性}
+  \label{fig:ldpc-iterations}\label{fig:ldpc-avg-iter}\label{fig:ldpc-p95-iter}
+\end{figure}
+
+\begin{figure}[!t]
+  \centering
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_avg_delay.png}\\[-0.3em]
+    \small（a）平均软件译码时间
+  \end{minipage}\\[0.2em]
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_p95_delay.png}\\[-0.3em]
+    \small（b）P95软件译码时间
+  \end{minipage}
+  \caption{BP与NMS软件译码时间}
+  \label{fig:ldpc-delay}\label{fig:ldpc-avg-delay}\label{fig:ldpc-p95-delay}
+\end{figure}
+
+低信噪比区域的LLR可靠性较弱，校验方程长期未满足，大量帧运行至32次迭代上限，平均与P95迭代数处于高位。进入瀑布区后，更多帧在较少迭代内通过综合校验，提前停止比例提高，平均迭代次数和软件时间随之快速下降。高信噪比区域的可靠LLR使多数帧在1～2次迭代内收敛，形成曲线右侧的平台。
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{相同FER条件下的BP/NMS迭代与软件时间比较}
+  \label{tab:ldpc-timing-summary}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c c c}
+    \toprule
+    码长 & 算法 & FER目标 & $E_s/N_0$/dB & 平均迭代 & P95迭代 & 平均时间/$\mu$s & P95时间/$\mu$s & 最大观测/$\mu$s\\
+    \midrule
+    480 & BP  & 0.1 & 4.687 & 1.418 & 2.00 & 103.17 & 155.03 & 4200.3\\
+    480 & NMS & 0.1 & 4.700 & 1.779 & 2.00 & 31.76 & 43.34 & 1950.2\\
+    560 & BP  & 0.1 & 4.541 & 1.508 & 2.00 & 82.06 & 132.49 & 4068.7\\
+    560 & NMS & 0.1 & 4.577 & 1.983 & 2.00 & 28.84 & 38.44 & 750.6\\
+    640 & BP  & 0.1 & $-1.283$ & 10.205 & 24.88 & 2178.41 & 5869.05 & 15850.9\\
+    640 & NMS & 0.1 & $-1.230$ & 10.741 & 26.59 & 554.95 & 1471.03 & 5185.5\\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+在FER$=0.1$的统一可靠性条件下，NMS平均迭代数比BP高5.3\%～31.5\%，但平均软件时间分别降低69.2\%（N480）、64.9\%（N560）和74.5\%（N640）；P95时间分别降低72.0\%、71.0\%和74.9\%。NMS单次校验节点更新由比较、绝对值、符号和缩放构成，其较低单次计算代价抵消了增加的迭代次数。
+
+表\ref{tab:ldpc-timing-summary}保留了最大观测软件译码时间。最大值同时受到译码负载与Windows任务调度影响，反映观测期间的极端样本；平均值与P95对典型软件执行时间的描述更稳定。N640在相同FER目标下仍具有较高迭代和时间负担，源于其2240条边和更大的校验图规模，体现了可靠性提升与译码资源之间的交换关系。
+
+\section{译码复杂度与错误合法码字特性}
+
+\begin{figure}[!t]
+  \centering
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_avg_edge_updates.png}\\[-0.3em]
+    \small（a）平均边消息更新次数
+  \end{minipage}\\[0.2em]
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_operation_count.png}\\[-0.3em]
+    \small（b）基础运算事件数
+  \end{minipage}
+  \caption{BP与NMS译码计算规模}
+  \label{fig:ldpc-computation}\label{fig:ldpc-edge-updates}\label{fig:ldpc-operation-count}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{figures/ldpc/formal_wrong_valid_rate.png}
+  \caption{BP与NMS错误合法码字率}
+  \label{fig:ldpc-wrong-valid}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{BP/NMS复杂度与错误合法码字关键结果}
+  \label{tab:ldpc-complexity}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c c}
+    \toprule
+    码长 & 算法 & FER工作点 & 平均迭代 & 平均边消息更新 & 基础运算事件数 & 平均时间/$\mu$s & 错误合法码字率\\
+    \midrule
+    480 & BP  & 0.1 & 1.418 & 952.6 & 3810.5 & 103.17 & 10.017\%\\
+    480 & NMS & 0.1 & 1.779 & 1195.2 & 7910.8 & 31.76 & 9.164\%\\
+    560 & BP  & 0.1 & 1.508 & 1182.5 & 4730.1 & 82.06 & 9.396\%\\
+    560 & NMS & 0.1 & 1.983 & 1555.0 & 10290.3 & 28.84 & 8.641\%\\
+    640 & BP  & 0.1 & 10.205 & 22859.2 & 91436.7 & 2178.41 & 0\\
+    640 & NMS & 0.1 & 10.741 & 24060.3 & 159431.0 & 554.95 & 0\\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+迭代次数决定消息传播轮数，边消息更新数进一步体现每帧执行了多少次稀疏图消息传播。基础运算事件数加入不同算法的操作项目后，NMS在FER$=0.1$处的未加权事件数高于BP；然而NMS的平均软件时间仍显著更低。该差异表明基础事件的单次代价并不相同，BP的非线性函数计算在当前CPU实现中占据了更高成本。
+
+错误合法码字表示译码输出满足全部校验方程，但恢复的300 bit信息仍然错误。图\ref{fig:ldpc-wrong-valid}呈现出明显的信噪比分区：低信噪比下，大量帧无法进入任何合法码字，错误合法码字比例处于低位；中等信噪比下，部分错误帧能够收敛到错误但合法的码字，N480与N560形成峰值；高信噪比下，正确码字成为主要收敛结果，错误合法码字率随总错误数共同下降。
+
+N480的峰值为49.1\%（BP，2.5 dB）和64.5\%（NMS，2.0 dB），N560对应为44.9\%和60.8\%（均在2.5 dB）。N640仅在$-0.5$ dB附近出现约$2.41\times10^{-5}$的极低观测值。归一化因子分析中N480与N560在$\alpha=1.00$时错误合法码字增多，与中等信噪比下较强消息幅度引起的错误收敛相吻合。工程接收机因而同时利用信息正确性统计与综合校验结果评价译码质量。
+
+\section{不同码长及编码增益分析}
+
+\begin{figure}[!t]
+  \centering
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/bp_ber_relative_coding_gain_25points.png}\\[-0.3em]
+    \small（a）BER相对编码增益
+  \end{minipage}\\[0.2em]
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/bp_fer_relative_coding_gain_25points.png}\\[-0.3em]
+    \small（b）FER相对编码增益
+  \end{minipage}
+  \caption{BP译码下不同LDPC方案的相对编码增益}
+  \label{fig:ldpc-bp-gain}\label{fig:ldpc-bp-ber-gain}\label{fig:ldpc-bp-fer-gain}
+\end{figure}
+
+\begin{figure}[!t]
+  \centering
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/nms_ber_relative_coding_gain_25points.png}\\[-0.3em]
+    \small（a）BER相对编码增益
+  \end{minipage}\\[0.2em]
+  \begin{minipage}{0.96\textwidth}\centering
+    \includegraphics[width=0.68\textwidth]{figures/ldpc/nms_fer_relative_coding_gain_25points.png}\\[-0.3em]
+    \small（b）FER相对编码增益
+  \end{minipage}
+  \caption{NMS译码下不同LDPC方案的相对编码增益}
+  \label{fig:ldpc-nms-gain}\label{fig:ldpc-nms-ber-gain}\label{fig:ldpc-nms-fer-gain}
+\end{figure}
+
+\clearpage
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{三码长平均相对编码增益}
+  \label{tab:ldpc-gain}
+  \begin{tabular}{c c c c c}
+    \toprule
+    算法 & 指标 & N560相对N480/dB & N640相对N480/dB & N640相对N560/dB\\
+    \midrule
+    BP  & BER & $-0.587$ & 3.462 & 4.049\\
+    BP  & FER & $-0.576$ & 5.167 & 5.742\\
+    NMS & BER & $-0.598$ & 3.591 & 4.189\\
+    NMS & FER & $-0.532$ & 5.318 & 5.849\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+在25个共同目标误差率点上，N560相对N480的平均增益约为$-0.5\sim-0.6$ dB。固定FER时，N560在$E_s/N_0$坐标上仅获得0.09～0.15 dB改善；换算到每信息比特能量后，其较低码率对应的能量归一化量抵消了这部分改善，平均$E_b/N_0$增益由此为负。N560的提升因子、信息容量、148 bit填充量、基图截取范围和校验约束分布同时发生变化，额外发送长度没有转化为同比例的可靠性收益。
+
+N640相对N480的平均BER增益为3.462 dB（BP）和3.591 dB（NMS），平均FER增益达到5.167 dB和5.318 dB；相对N560的FER增益进一步达到5.742 dB和5.849 dB。当前完整N640构造具有0.46875的实际码率、320个校验位、20个填充位、$Z_c=40$以及$n_b/m_b=16/8$结构，其优势由更低码率、更多校验约束、不同准循环结构和较小填充占比共同产生。相应代价是640 bit发送长度和更大的译码图规模。
+
+\section{LDPC方案选择}
+
+\begin{table}[!ht]
+  \centering\small
+  \caption{不同LDPC码长方案工程取舍}
+  \label{tab:ldpc-length-tradeoff}
+  \begin{tabular}{c c c p{0.20\textwidth}p{0.25\textwidth}}
+    \toprule
+    方案 & 码长 & 实际码率 & 主要优势 & 适用场景\\
+    \midrule
+    N480 & 480 & 0.6250 & 发送最短、码率最高 & 链路余量充足、传输效率优先\\
+    N560 & 560 & 0.5357 & 接近576 bit目标 & 特定码长接口适配；非默认性能折中\\
+    N640 & 640 & 0.4688 & 误码性能最强 & 高速电文可靠性优先\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[!ht]
+  \centering\small
+  \caption{BP与NMS译码工程比较}
+  \label{tab:ldpc-decoder-tradeoff}
+  \begin{tabular}{c p{0.21\textwidth}p{0.25\textwidth}p{0.22\textwidth}p{0.18\textwidth}}
+    \toprule
+    算法 & 误码与迭代特性 & 主要运算 & 软件时间 & 工程定位\\
+    \midrule
+    BP & 可靠性基准；迭代数通常较少 & 双曲正切、反双曲正切与消息更新 & 同等FER下较长 & 性能基准与高精度软译码\\
+    NMS & 性能接近BP；迭代数略高 & 最小值、比较、符号与缩放 & 同等FER下降约65\%～75\% & 低计算代价工程实现\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+N480以最高码率和最短发送长度满足传输效率优先场景；N640以更长码字和更大校验图换取显著可靠性增益，适合链路可靠性优先的高速电文。N560接近576 bit目标，但在当前短块构造中没有形成明显的中间性能优势，其价值主要体现在特定码长接口适配。
+
+BP提供和积译码性能基准，NMS在适当归一化系数下维持接近BP的BER与FER，同时显著降低平均与P95软件译码时间。综合可靠性、软件实时性与实现复杂度，NMS适合作为工程译码器，BP适合作为性能参照；码长则依据传输效率与可靠性优先级在N480和N640之间选择。
+
+以FER$=0.1$为链路设计点时，N480的BP/NMS门限约为4.69/4.70 dB，N640约为$-1.28/-1.23$ dB，两种完整构造之间形成约5.9 dB的$E_s/N_0$余量差。链路可提供较高接收信噪比时，N480以160 bit的码长节省获得更高传输效率；弱信号或衰落余量较小时，N640用较低实际码率换取更早进入低FER区域。N560的门限仅比N480降低约0.12～0.15 dB，其使用条件更多取决于576 bit附近的接口长度需求。
+
+软件实时性进一步区分了译码器选择。在FER$=0.1$处，N640采用NMS时的平均与P95译码时间约为555 $\mu$s和1471 $\mu$s，明显低于BP的2178 $\mu$s和5869 $\mu$s；N480与N560的NMS平均时间均低于32 $\mu$s。由此，可靠性优先且具有毫秒级软件预算的场景可采用N640与NMS组合，传输效率和低处理负担优先的场景可采用N480与NMS组合。
+
+码长由目标FER、可用$E_s/N_0$与发送长度共同确定，译码算法由软件时间预算和实现资源确定。
