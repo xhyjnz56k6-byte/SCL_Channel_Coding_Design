@@ -50,3 +50,5 @@ Report/data/
 Report/figures/
 Report/config/
 Task/BCH/simulation/stages/S1/
+Task/Comparison/S5/report_scan_round08A/*.csv
+Task/Comparison/S5/report_scan_round08A/*.md
