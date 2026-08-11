@@ -1,12 +1,9 @@
 \chapter{高速电文不同信道下卷积码与LDPC对比}\label{chap:multichannel}
 
 \begingroup
-\linespread{0.94}\selectfont
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\captionsetup{font=small,labelfont=normalfont,skip=0.6em}
 
-\section{对比方案与系统级评价思路}
+\section{对比方案与系统级评价指标}
 
 本章面向300 bit高速二进制电文，比较前文确定的卷积码与LDPC工程候选。比较对象按实际码率组织为两组：近$2/3$码率组由卷积码R2/3与LDPC N480构成，实际码率分别为0.6536和0.6250；近$1/2$码率组由卷积码R1/2与LDPC N640构成，实际码率分别为0.4902和0.46875。这样的分组避免将冗余度差异过大的方案直接横向排序，使可靠性、发送开销和软件处理代价具有可解释的比较基础。
 
@@ -28,11 +25,11 @@
   \end{tabular}}
 \end{table}
 
-系统评价不采用把BER、FER、时延和迭代次数压缩成单一分数的方法。首先在AWGN下建立每个方案自身的可靠性基准，再分别观察受损信道中的绝对BER/FER和目标FER门限；随后计算受损信道相对本方案AWGN门限的附加信噪比损失；最后结合软件译码时间、接收算法时间和LDPC迭代负担给出场景化选型。绝对性能回答“哪个方案达到目标FER所需的$E_s/N_0$更低”，相对损失回答“方案从自身AWGN基线进入受损信道后增加了多少代价”，二者不能相互替代。
+系统评价分别报告AWGN基准、各非AWGN信道条件下的BER/FER与目标FER门限、相对本方案AWGN门限的附加$E_s/N_0$，以及软件译码时间、接收算法时间和LDPC迭代负担。绝对门限表征方案在当前信道条件下达到目标FER所需的$E_s/N_0$，相对AWGN附加$E_s/N_0$表征该信道相对于方案自身基线引入的额外代价；两类指标描述不同的性能维度。本章保留各项指标的独立物理含义，不构造缺少业务权重依据的综合分数。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \fbox{\begin{minipage}[c][0.14\textheight][c]{0.88\textwidth}
+  \fbox{\begin{minipage}[c][0.18\textheight][c]{0.88\textwidth}
     \centering\bfseries Visio结构图占位\\[0.7em]
     \normalfont 300 bit高速电文 $\rightarrow$ 卷积码/LDPC候选 $\rightarrow$ BPSK
     $\rightarrow$ 六类信道 $\rightarrow$ 接收处理与软信息
@@ -49,13 +46,19 @@
 \begin{equation}
 \sigma^2=\frac{1}{2\times10^{(E_s/N_0)/10}}.
 \end{equation}
-除纯AWGN基准外，其余五类信道均先施加确定性或随机损伤，再叠加同一口径的AWGN。表\ref{tab:s5-channels}给出各模型及接收处理条件。
+除纯AWGN基准外，其余五类条件均先施加确定性信道失真或随机干扰，再叠加同一口径的AWGN。表\ref{tab:s5-channels}给出各模型及接收处理条件。
 
 固定多径采用抽头$[1,0.65,0.35]$、时延$[0,1,3]$的线性卷积，抽头按总能量归一化。接收端已知固定抽头并执行实轴MMSE处理；若均衡输出、等效增益和等效方差分别记为$\hat{x}_k$、$g_k$和$v_k$，则软信息为$L_k=2g_k\hat{x}_k/v_k$。因此，多径结果是“多径信道、已知MMSE接收处理和编码方案”的联合系统表现，不能把全部差异归因于编码器。
 
-固定频偏模型在一帧内部令相位从$0^\circ$线性累积至$30^\circ$，并未把所有符号统一旋转$30^\circ$。线性时变频率模型则使瞬时归一化频率随符号索引线性变化，相位由逐符号频率累加形成。两种模型都不执行载波补偿，但其物理含义不同；特别是时变频率模型中的轨迹与发送长度有关，459、480、612和640 bit码字经历的相位序列并不完全相同。
+固定频偏模型在一帧内部令相位从$0^\circ$线性累积至$30^\circ$，并未把所有符号统一旋转$30^\circ$。为表征多普勒类时变频偏对高速电文的影响，本章另采用线性时变频偏简化模型。对于$N_{\mathrm{tx}}>1$，其瞬时归一化频偏为
+\begin{equation}
+\epsilon_i=\frac{2}{3(N_{\mathrm{tx}}-1)}\left(\frac{i}{N_{\mathrm{tx}}-1}-\frac{1}{2}\right),
+\qquad
+\phi_0=0,\quad \phi_i=\phi_{i-1}+2\pi\epsilon_{i-1},
+\end{equation}
+即$\epsilon_i$随符号索引线性变化，累计相位由逐符号积分形成。该受控基带模型未输入载波频率、相对径向速度、轨道参数或多普勒变化率，因而不等同于依据具体运动学参数建立的实际多普勒物理信道。固定频偏与线性时变频偏均不执行载波补偿；后者的频偏与相位轨迹还随发送长度变化，因此459、480、612和640 bit码字经历的轨迹并不完全相同。
 
-局部损伤包含已知5\%连续遮挡与未知5\%突发干扰。遮挡长度取$\operatorname{round}(0.05N_{\mathrm{tx}})$，作用在实际发送符号域，接收端知道遮挡位置并将其LLR置为0。未知突发干扰在连续5\%发送符号上叠加ISR为10 dB的独立复高斯干扰，接收端不知道污染位置，仍按名义AWGN方差生成LLR。前者提供中性可靠度，后者把受污染观测作为有效软信息送入译码器，因而二者对软译码的影响机制不同。
+局部连续非理想条件包含已知5\%连续遮挡与未知5\%突发干扰。遮挡长度取$\operatorname{round}(0.05N_{\mathrm{tx}})$，作用在实际发送符号域，接收端知道遮挡位置并将其LLR置为0。未知突发干扰在连续5\%发送符号上叠加ISR为10 dB的独立复高斯干扰，接收端不知道污染位置，仍按名义AWGN方差生成LLR。前者提供中性可靠度，后者把受污染观测作为有效软信息送入译码器，因而二者对软译码的影响机制不同。
 
 \begin{table}[htbp]
   \centering\scriptsize
@@ -65,22 +68,22 @@
     \toprule
     信道 & 模型与参数 & AWGN叠加 & 接收端已知条件 & 接收处理与软信息\\
     \midrule
-    AWGN & 无附加损伤 & 是 & 噪声方差 & 实轴投影，$L=2\operatorname{Re}\{y\}/\sigma^2$\\
+    AWGN & 无附加信道扰动 & 是 & 噪声方差 & 实轴投影，$L=2\operatorname{Re}\{y\}/\sigma^2$\\
     固定多径 & 归一化三抽头$[1,0.65,0.35]$，时延$[0,1,3]$ & 是 & 固定抽头 & 实轴MMSE，$L_k=2g_k\hat{x}_k/v_k$\\
     固定频偏 & 帧内相位$0^\circ\rightarrow30^\circ$ & 是 & 不补偿相位 & 实轴投影，按名义AWGN方差生成LLR\\
-    时变频率 & 瞬时归一化频率线性变化，相位逐符号累积 & 是 & 不补偿频率 & 实轴投影，按名义AWGN方差生成LLR\\
+    时变频偏 & 瞬时归一化频率线性变化，相位逐符号累积 & 是 & 不补偿频率 & 实轴投影，按名义AWGN方差生成LLR\\
     已知遮挡 & 连续$\operatorname{round}(0.05N_{\mathrm{tx}})$个发送符号置零 & 是 & 遮挡掩码 & 遮挡位置LLR置0\\
     未知突发 & 连续5\%发送符号叠加复高斯干扰，ISR=10 dB & 是 & 不知道污染掩码 & 受污染样本仍按名义AWGN模型生成LLR\\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \fbox{\begin{minipage}[c][0.14\textheight][c]{0.88\textwidth}
+  \fbox{\begin{minipage}[c][0.18\textheight][c]{0.88\textwidth}
     \centering\bfseries Visio结构图占位\\[0.7em]
-    \normalfont 六类受控信道分为全帧连续作用与局部连续损伤：\\[0.4em]
-    AWGN、固定多径、固定频偏、线性时变频率
+    \normalfont 六类受控信道分为全帧连续作用与局部连续非理想条件：\\[0.4em]
+    AWGN、固定多径、固定频偏、线性时变频偏
     $\quad\big|\quad$ 已知遮挡、未知突发\\[0.4em]
     已知遮挡：掩码已知、LLR中性化；未知突发：掩码未知、污染观测进入译码器
   \end{minipage}}
@@ -90,7 +93,7 @@
 
 正式仿真在$-5\sim10$ dB范围内按0.5 dB步长设置31个$E_s/N_0$点。每个“比较组—信道—信噪比”任务同时推进两种候选，至少运行1000帧；当两种方案都累计到200个错误帧时停止，否则最多运行50000帧。这种配对停止使同一横向比较点的两种方案具有相同最终帧数，避免某一方案因独立提前停止而获得不同的统计样本量。
 
-相同帧索引下，各方案使用同一300 bit电文生成规则。噪声由主种子、噪声组、帧索引、符号索引和噪声策略版本共同确定；由于发送长度不同，不能声称四种方案的全部噪声样本逐个相同，但相同索引遵循一致的生成规则。局部损伤使用同一相对起点，再映射到不同$N_{\mathrm{tx}}$的发送域，因此绝对起点可以不同而相对位置保持可比。
+相同帧索引下，各方案使用同一300 bit电文生成规则。噪声由主种子、噪声组、帧索引、符号索引和噪声策略版本共同确定；由于发送长度不同，四种方案的全部噪声样本并非逐个相同，但相同索引遵循一致的生成规则。连续遮挡与突发干扰使用同一相对起点，再映射到不同$N_{\mathrm{tx}}$的发送域，因此绝对起点可以不同而相对位置保持可比。
 
 \begin{table}[htbp]
   \centering\small
@@ -118,43 +121,45 @@ AWGN是后续相对信道损失的基准。图\ref{fig:s5-awgn-fer}单独展示�
 
 近$1/2$组呈现相反关系。卷积码R1/2达到FER$=0.1$和0.01分别需要$-0.724$ dB和0.244 dB，LDPC N640分别需要$-1.241$ dB和$-0.683$ dB。N640所需门限低0.517 dB和0.926 dB，说明在该组冻结的短块构造与译码配置下，增加到640 bit码长后，LDPC的分布式校验约束在AWGN中形成了更有利的瀑布区。上述门限均由夹住目标值的相邻非零FER实测点在FER对数域内插值得到，不是原始采样点。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/01_awgn_r23_fer.png}\\[-0.2em]\small（a）近$2/3$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/01_awgn_r23_fer.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/02_awgn_r12_fer.png}\\[-0.2em]\small（b）近$1/2$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/02_awgn_r12_fer.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
   \caption{不同近似码率组在AWGN信道下的误帧性能}
   \label{fig:s5-awgn-fer}
 \end{figure}
 
-AWGN基准还揭示了“码型名称”不足以单独决定排序。N480在近$2/3$组的门限明显高于卷积码，而N640在近$1/2$组反而取得更低门限；这同时受到实际码率、短块校验结构、归一化系数和码长的影响。因此，进入受损信道后既要比较两条绝对曲线，也要以各自AWGN门限为零点计算附加损失。
+AWGN基准还表明，码型名称不足以单独决定性能排序。N480在近$2/3$组的两个目标门限分别高于卷积码3.759 dB和4.170 dB，而N640在近$1/2$组分别低0.517 dB和0.926 dB；该差异同时受到实际码率、短块校验结构、归一化系数和码长影响。各非AWGN条件下的结果同时报告绝对门限和相对各自AWGN基线的附加$E_s/N_0$。
 
-\section{常规信道损伤下的可靠性}
+\section{多径与频偏条件下的可靠性}
 
-图\ref{fig:s5-regular-fer}和图\ref{fig:s5-regular-ber}汇总AWGN、固定多径、固定频偏和线性时变频率四种条件。FER直接反映300 bit高速电文能否整帧正确恢复，BER则补充错误帧内部的比特损伤程度。两组曲线均表明，受损信道不仅使瀑布区右移，还会改变不同方案之间的间距；因此，对每类信道均采用“绝对门限—相对AWGN损失—工程条件”的统一分析顺序。
+图\ref{fig:s5-regular-fer}和图\ref{fig:s5-regular-ber}汇总AWGN、固定多径、固定频偏和线性时变频偏四种条件。FER直接反映300 bit高速电文能否整帧正确恢复，BER补充描述错误帧内部的错误比特密度。固定多径和两类频偏条件均使瀑布区相对AWGN右移，并改变同一近码率组内两种方案之间的门限间距。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/03_regular_r23_fer.png}\\[-0.2em]\small（a）近$2/3$码率组
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/03_regular_r23_fer.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/04_regular_r12_fer.png}\\[-0.2em]\small（b）近$1/2$码率组
+  \par\vspace{0.7em}
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/04_regular_r12_fer.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
   \caption{常规信道下两组候选的FER汇总}
   \label{fig:s5-regular-fer}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/05_regular_r23_ber.png}\\[-0.2em]\small（a）近$2/3$码率组
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/05_regular_r23_ber.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/06_regular_r12_ber.png}\\[-0.2em]\small（b）近$1/2$码率组
+  \par\vspace{0.7em}
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/06_regular_r12_ber.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
   \caption{常规信道下两组候选的BER汇总}
   \label{fig:s5-regular-ber}
@@ -166,57 +171,57 @@ AWGN基准还揭示了“码型名称”不足以单独决定排序。N480在近
 
 与各自AWGN比较时，近$2/3$组卷积码的附加损失为3.256/4.962 dB，N480为2.926/3.502 dB；N480相对自身基线的退化少0.330 dB和1.459 dB。近$1/2$组卷积码损失为2.423/3.628 dB，N640为1.528/1.722 dB，N640少0.895 dB和1.905 dB。由此可见，卷积码R2/3在多径中的绝对FER仍好于N480，但N480从自身AWGN基线出发的相对退化更小；绝对性能与相对鲁棒性的判断确实可能不同。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/07_multipath_r23_fer.png}\\[-0.2em]\small（a）近$2/3$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/07_multipath_r23_fer.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/08_multipath_r12_fer.png}\\[-0.2em]\small（b）近$1/2$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/08_multipath_r12_fer.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
   \caption{固定多径与实轴MMSE接收处理下的误帧性能}
   \label{fig:s5-multipath-fer}
 \end{figure}
 
-多径曲线必须与接收机条件共同解释。MMSE矩阵同时取决于归一化抽头、码字长度和噪声方差，均衡后的等效增益与方差又参与LLR形成。表中门限差异反映的是完整接收链路，而不是“编码器单独经过同一标量噪声”的结果。在当前已知抽头条件下，LDPC两种长度的相对损失均较小，但不能据此外推到未知时变多径或不同均衡器。
+多径曲线反映信道、已知抽头实轴MMSE处理与译码器的联合系统性能。MMSE矩阵同时取决于归一化抽头、码字长度和噪声方差，均衡后的等效增益与方差又参与LLR形成。在当前已知抽头条件下，LDPC两种长度的相对损失均较小；该结论限于冻结的抽头和接收机配置，不覆盖未知时变多径或其他均衡器。
 
 \subsection{固定频偏信道}
 
 固定频偏使码字内相位从$0^\circ$连续漂移到$30^\circ$。图\ref{fig:s5-cfo-fer}中，近$2/3$组卷积码与N480的FER$=0.1$门限为1.445 dB和5.089 dB，FER$=0.01$门限为2.459 dB和6.454 dB；近$1/2$组卷积码与N640对应为$-0.208/ -0.848$ dB和0.815/$-0.295$ dB。绝对排序与AWGN一致：近$2/3$组卷积码占优，近$1/2$组N640占优。
 
-相对损失的量级明显小于固定多径。近$2/3$组卷积码在两个目标处损失0.533 dB和0.603 dB，N480为0.418 dB和0.427 dB；近$1/2$组卷积码为0.516 dB和0.571 dB，N640为0.393 dB和0.387 dB。LDPC的附加代价在四个对比中均略小0.115～0.184 dB，这一差异应表述为“略小”，不宜放大为数量级上的优势。
+相对损失的量级低于固定多径。近$2/3$组卷积码在两个目标处损失0.533 dB和0.603 dB，N480为0.418 dB和0.427 dB；近$1/2$组卷积码为0.516 dB和0.571 dB，N640为0.393 dB和0.387 dB。LDPC在四个对比中的附加代价低0.115～0.184 dB，属于较小差异。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/09_cfo_r23_fer.png}\\[-0.2em]\small（a）近$2/3$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/09_cfo_r23_fer.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/10_cfo_r12_fer.png}\\[-0.2em]\small（b）近$1/2$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/10_cfo_r12_fer.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
   \caption{帧内$0^\circ\rightarrow30^\circ$固定频偏相位漂移下的误帧性能}
   \label{fig:s5-cfo-fer}
 \end{figure}
 
-\subsection{线性时变频率偏移信道}
+\subsection{线性时变频偏模型}
 
-线性时变频率偏移的门限损失约为0.74～0.90 dB，比固定频偏更大。图\ref{fig:s5-doppler-fer}中，近$2/3$组卷积码与N480达到FER$=0.1$需要1.806 dB和5.529 dB，达到0.01需要2.753 dB和6.905 dB；近$1/2$组卷积码与N640对应为0.120/$-0.502$ dB和1.108/0.075 dB。绝对排序仍与各自AWGN基准一致。
+线性时变频偏的门限损失约为0.74～0.90 dB，比固定频偏更大。图\ref{fig:s5-doppler-fer}中，近$2/3$组卷积码与N480达到FER$=0.1$需要1.806 dB和5.529 dB，达到0.01需要2.753 dB和6.905 dB；近$1/2$组卷积码与N640对应为0.120/$-0.502$ dB和1.108/0.075 dB。绝对排序仍与各自AWGN基准一致。
 
-近$2/3$组在FER$=0.1$处的相对损失为0.894 dB和0.858 dB，在0.01处为0.896 dB和0.878 dB，两者只相差0.036 dB和0.018 dB，可视为接近。近$1/2$组卷积码损失0.845/0.864 dB，N640损失0.739/0.758 dB，N640略小约0.106 dB。由于瞬时频率按符号索引变化，不同发送长度决定完整码字所经历的相位轨迹；这里观察到的差异不能完全归结为某一种码型“天然更抗时变频率”。
+近$2/3$组在FER$=0.1$处的相对损失为0.894 dB和0.858 dB，在0.01处为0.896 dB和0.878 dB，两者仅相差0.036 dB和0.018 dB，结果接近。近$1/2$组卷积码损失0.845/0.864 dB，N640损失0.739/0.758 dB，N640低约0.106 dB。由于瞬时频偏按符号索引变化，不同发送长度决定完整码字所经历的频偏与相位轨迹，因此该比较同时包含编码结构和发送长度因素。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/11_doppler_r23_fer.png}\\[-0.2em]\small（a）近$2/3$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/11_doppler_r23_fer.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
   \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/12_doppler_r12_fer.png}\\[-0.2em]\small（b）近$1/2$码率组
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/12_doppler_r12_fer.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
-  \caption{线性时变频率偏移下的误帧性能}
+  \caption{线性时变频偏下的误帧性能}
   \label{fig:s5-doppler-fer}
 \end{figure}
 
-表\ref{tab:s5-fer-thresholds}汇总六类信道的目标FER门限。N/A表示在$-5\sim10$ dB正式范围内没有相邻非零FER实测点夹住目标值；该标记不能改写为0，也不能用范围外外推补齐。
+表\ref{tab:s5-fer-thresholds}汇总六类信道的目标FER门限。N/A表示在$-5\sim10$ dB正式范围内没有相邻非零FER实测点夹住目标值，对应目标不存在可报告的门限估计。
 
 \begin{table}[htbp]
   \centering\scriptsize
@@ -231,14 +236,14 @@ AWGN基准还揭示了“码型名称”不足以单独决定排序。N480在近
     近$2/3$ & AWGN & 0.912 & 4.671 & 1.857 & 6.027\\
      & 固定多径 & 4.168 & 7.597 & 6.819 & 9.529\\
      & 固定频偏 & 1.445 & 5.089 & 2.459 & 6.454\\
-     & 时变频率 & 1.806 & 5.529 & 2.753 & 6.905\\
+     & 时变频偏 & 1.806 & 5.529 & 2.753 & 6.905\\
      & 已知5\%遮挡 & N/A & 6.331 & N/A & N/A\\
      & 未知5\%突发 & N/A & N/A & N/A & N/A\\
     \midrule
     近$1/2$ & AWGN & $-0.724$ & $-1.241$ & 0.244 & $-0.683$\\
      & 固定多径 & 1.699 & 0.288 & 3.871 & 1.040\\
      & 固定频偏 & $-0.208$ & $-0.848$ & 0.815 & $-0.295$\\
-     & 时变频率 & 0.120 & $-0.502$ & 1.108 & 0.075\\
+     & 时变频偏 & 0.120 & $-0.502$ & 1.108 & 0.075\\
      & 已知5\%遮挡 & N/A & $-0.816$ & N/A & $-0.221$\\
      & 未知5\%突发 & N/A & 3.846 & N/A & N/A\\
     \bottomrule
@@ -246,53 +251,55 @@ AWGN基准还揭示了“码型名称”不足以单独决定排序。N480在近
   \vspace{0.3em}\par\footnotesize 注：数值由夹住目标值的相邻非零FER实测点在FER对数域内插值得到；N/A表示不具备插值覆盖条件。
 \end{table}
 
-\section{连续局部损伤下的可靠性}
+\section{连续遮挡与突发干扰条件下的可靠性}
 
-局部连续损伤与全帧缓慢变化的信道不同：损伤集中在一段连续发送符号上，编码结构能否利用区段之外的可靠观测恢复该段信息成为关键。图\ref{fig:s5-local-fer}和图\ref{fig:s5-local-ber}分别给出FER与BER。FER衡量整帧成功率，BER反映错误帧中错误比特的密度；在连续损伤下，两者可能呈现“FER接近饱和而BER仍有限”的组合，说明几乎每帧都有少量局部错误，并不表示整帧比特完全随机。
+连续遮挡与突发干扰集中作用于一段连续发送符号，编码结构能否利用该区段之外的可靠观测恢复受影响信息成为关键。图\ref{fig:s5-local-fer}和图\ref{fig:s5-local-ber}分别给出FER与BER。FER衡量整帧成功率，BER反映错误比特比例；两条曲线在局部连续非理想条件下可能呈现不同的下降速度。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/13_local_r23_fer.png}\\[-0.2em]\small（a）近$2/3$码率组
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/13_local_r23_fer.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/14_local_r12_fer.png}\\[-0.2em]\small（b）近$1/2$码率组
+  \par\vspace{0.7em}
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/14_local_r12_fer.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
-  \caption{连续局部损伤下两组候选的FER}
+  \caption{连续遮挡与突发干扰条件下两组候选的FER}
   \label{fig:s5-local-fer}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/15_local_r23_ber.png}\\[-0.2em]\small（a）近$2/3$码率组
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/15_local_r23_ber.png}\\[0.2em]\small（a）近$2/3$码率组
   \end{minipage}
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/16_local_r12_ber.png}\\[-0.2em]\small（b）近$1/2$码率组
+  \par\vspace{0.7em}
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/16_local_r12_ber.png}\\[0.2em]\small（b）近$1/2$码率组
   \end{minipage}
-  \caption{连续局部损伤下两组候选的BER}
+  \caption{连续遮挡与突发干扰条件下两组候选的BER}
   \label{fig:s5-local-ber}
 \end{figure}
 
 \subsection{已知5\%短时遮挡}
 
-已知遮挡把连续5\%发送符号变为擦除式观测，掩码已知且相应LLR置0。两种无交织卷积码在当前正式信噪比范围内均未恢复到FER$=0.1$，因此其FER$=0.1/0.01$门限和相对AWGN损失均为N/A。这里的“饱和”仅描述已有测点在$-5\sim10$ dB范围内维持高FER的现象，不表示通过绘图构造了水平误码平台。
+已知遮挡把连续5\%发送符号变为擦除式观测，掩码已知且相应LLR置0。两种无交织卷积码在当前正式信噪比范围内均未恢复到FER$=0.1$，因此其FER$=0.1/0.01$门限和相对AWGN损失均为N/A。这里的“FER保持较高水平”仅描述已有测点在$-5\sim10$ dB范围内的观测现象，不对应理论误差平台。
 
-卷积码沿时间方向传播trellis状态，连续一段观测可靠度同时消失后，多条竞争路径在局部区间内缺少区分信息；在无交织条件下，连续损伤不会被分散到不同译码时刻。LDPC则可利用损伤区段之外的变量节点以及跨区段分布的校验约束进行迭代恢复。近$2/3$组N480在FER$=0.1$处仍有6.331 dB门限，相对AWGN损失为1.659 dB，但FER$=0.01$未覆盖；近$1/2$组N640在0.1和0.01处均可覆盖，门限分别为$-0.816$ dB和$-0.221$ dB，相对损失仅0.425 dB和0.462 dB。该结果说明LDPC在此已知擦除式模型中恢复能力更强，但不能表述为对遮挡免疫。
+卷积码沿时间方向传播trellis状态，连续一段观测可靠度同时消失后，多条竞争路径在局部区间内缺少区分信息；在无交织条件下，连续遮挡不会被分散到不同译码时刻。LDPC可利用遮挡区段之外的变量节点以及跨区段分布的校验约束进行迭代恢复。近$2/3$组N480在FER$=0.1$处仍有6.331 dB门限，相对AWGN损失为1.659 dB，但FER$=0.01$未覆盖；近$1/2$组N640在0.1和0.01处均可覆盖，门限分别为$-0.816$ dB和$-0.221$ dB，相对损失分别为0.425 dB和0.462 dB。该覆盖结论限于已知掩码、5\%遮挡比例和冻结配置。
 
 \subsection{未知5\%突发干扰}
 
-未知突发的困难不仅来自能量增大，还来自可靠度模型失配。接收端不知道连续污染区段，受污染样本仍按名义AWGN方差生成LLR，错误方向的高置信软信息可能进入Viterbi路径度量或LDPC消息传播。近$2/3$组两种方案在FER$=0.1$和0.01处均无覆盖；近$1/2$组只有N640达到FER$=0.1$，门限为3.846 dB，相对自身AWGN损失5.087 dB，而FER$=0.01$仍无覆盖。
+未知突发干扰的影响不仅来自能量增大，还来自可靠度模型失配。接收端不知道连续污染区段，受污染样本仍按名义AWGN方差生成LLR，错误方向的高置信软信息可能进入Viterbi路径度量或LDPC消息传播。近$2/3$组两种方案在FER$=0.1$和0.01处均无覆盖；近$1/2$组只有N640达到FER$=0.1$，门限为3.846 dB，相对自身AWGN损失5.087 dB，而FER$=0.01$仍无覆盖。
 
-BER曲线表明，提高$E_s/N_0$能够减弱背景AWGN，却不能消除固定ISR连续干扰带来的错误可靠信息，因而高信噪比区的恢复受限。对未覆盖目标保持N/A，比从曲线末端外推一个门限更能反映证据边界。工程上，单纯在两种编码之间切换不足以彻底处理未知连续强干扰；若业务环境以该类损伤为主，还需要独立评价突发位置检测、可靠度抑制或交织机制，但这些机制不属于本章比较范围。
+BER曲线表明，提高$E_s/N_0$能够减弱背景AWGN，却不能消除固定ISR连续干扰带来的错误可靠信息，因而高信噪比区的恢复受限。未覆盖目标记为N/A，不对曲线末端作门限外推。现有无交织方案在未知位置、ISR$=10$ dB的连续强干扰下可靠性受限；突发位置检测、可靠度抑制和交织属于不同的接收机设计，不在本章实测配置之内。
 
 \section{相对AWGN信道损失与鲁棒性}
 
-为分离方案固有AWGN基准与信道附加损伤，定义目标FER为$p$时的相对AWGN信道损失
+为分离方案固有AWGN基准与信道引入的附加代价，定义目标FER为$p$时的相对AWGN信道损失
 \begin{equation}
 L_{\mathrm{ch}}(p)=\gamma_{\mathrm{ch}}(p)-\gamma_{\mathrm{AWGN}}(p),
 \end{equation}
-其中$\gamma_{\mathrm{ch}}(p)$和$\gamma_{\mathrm{AWGN}}(p)$分别为受损信道与同一方案AWGN下达到$p$所需的$E_s/N_0$门限估计。两项均必须由相邻非零FER实测点在对数域内插值得到；任一项没有覆盖时，$L_{\mathrm{ch}}$记为N/A。
+其中$\gamma_{\mathrm{ch}}(p)$和$\gamma_{\mathrm{AWGN}}(p)$分别为相应非AWGN信道条件与同一方案AWGN下达到$p$所需的$E_s/N_0$门限估计。两项均由相邻非零FER实测点在对数域内插值得到；任一项没有覆盖时，$L_{\mathrm{ch}}$记为N/A。此处鲁棒性定义为方案从AWGN基线进入指定非理想信道后的性能保持能力，较小的$L_{\mathrm{ch}}$表示在目标FER处所需的附加$E_s/N_0$较低。
 
 \begin{table}[htbp]
   \centering\scriptsize
@@ -306,70 +313,96 @@ L_{\mathrm{ch}}(p)=\gamma_{\mathrm{ch}}(p)-\gamma_{\mathrm{AWGN}}(p),
     \midrule
     近$2/3$ & 固定多径 & 3.256 & 2.926 & 4.962 & 3.502\\
      & 固定频偏 & 0.533 & 0.418 & 0.603 & 0.427\\
-     & 时变频率 & 0.894 & 0.858 & 0.896 & 0.878\\
+     & 时变频偏 & 0.894 & 0.858 & 0.896 & 0.878\\
      & 已知5\%遮挡 & N/A & 1.659 & N/A & N/A\\
      & 未知5\%突发 & N/A & N/A & N/A & N/A\\
     \midrule
     近$1/2$ & 固定多径 & 2.423 & 1.528 & 3.628 & 1.722\\
      & 固定频偏 & 0.516 & 0.393 & 0.571 & 0.387\\
-     & 时变频率 & 0.845 & 0.739 & 0.864 & 0.758\\
+     & 时变频偏 & 0.845 & 0.739 & 0.864 & 0.758\\
      & 已知5\%遮挡 & N/A & 0.425 & N/A & 0.462\\
      & 未知5\%突发 & N/A & 5.087 & N/A & N/A\\
     \bottomrule
   \end{tabular}}
-  \vspace{0.3em}\par\footnotesize 注：$L_{\mathrm{ch}}=$受损信道目标FER门限$-$同一方案AWGN目标FER门限；N/A表示目标未被实测范围覆盖，未作外推。
+  \vspace{0.3em}\par\footnotesize 注：$L_{\mathrm{ch}}=$相应非AWGN信道条件下的目标FER门限$-$同一方案AWGN目标FER门限；N/A表示目标未被实测范围覆盖，未作外推。
 \end{table}
 
-表\ref{tab:s5-channel-loss}显示，常规损伤中固定多径的附加代价最大，固定频偏最小，线性时变频率居中。两组LDPC在固定多径下的损失均低于对应卷积码，尤其在FER$=0.01$时，N480和N640分别少1.459 dB和1.905 dB。固定频偏下LDPC损失略小0.115～0.184 dB；时变频率下近$2/3$组差异仅0.018～0.036 dB，近$1/2$组约0.106 dB。量级差异说明，相对鲁棒性结论需要保留“接近”“略小”和“较低”的区分。
+表\ref{tab:s5-channel-loss}显示，三类全帧非理想条件中固定多径的附加代价最大，固定频偏最小，线性时变频偏居中。两组LDPC在固定多径下的损失均低于对应卷积码；在FER$=0.01$时，N480和N640分别低1.459 dB和1.905 dB。固定频偏下LDPC损失低0.115～0.184 dB；线性时变频偏下近$2/3$组差异仅0.018～0.036 dB，近$1/2$组约0.106 dB。这些量级分别对应接近、较小差异和较低附加代价，不构成跨指标的统一排序。
 
 已知遮挡与未知突发体现出不同的覆盖边界。已知遮挡中，N640的相对损失不足0.5 dB，而卷积码没有目标覆盖；未知突发中，即使N640在FER$=0.1$处可估计门限，损失也升至5.087 dB，其余多数目标均为N/A。此处N/A本身就是重要结果：它表明在当前信噪比范围和接收假设下，目标可靠性没有得到测量支持。
 
-绝对门限与相对损失的结合避免了单一排序。例如近$2/3$固定多径中，卷积码的绝对FER门限低于N480，但N480相对自身AWGN的附加损失更小；若只看绝对FER，会忽略N480较弱的AWGN基线，若只看信道损失，又会忽略其达到业务目标仍需更高$E_s/N_0$。因此，本章将鲁棒性表述为多个可追溯指标，而不是构造带任意权重的总分。
+近$2/3$固定多径中，卷积码的绝对FER门限低于N480，而N480相对自身AWGN的附加损失更小。绝对可靠性与相对AWGN基线的性能保持能力在该条件下给出不同侧面，因而本章不采用单一标量总分。
 
 \section{软件译码时间与LDPC迭代特性}
 
-软件译码时间从LLR或软信息进入译码函数开始，到300 bit电文及译码状态输出为止。它包括卷积码去打孔与Viterbi处理，或LDPC分层NMS迭代，但不包括编码、信道损伤构造、AWGN叠加、均衡、实轴投影、LLR生成和文件I/O。接收算法时间则定义为信道处理时间与译码时间之和。表\ref{tab:s5-latency}列出的均值与P95均先在每个正式信噪比点内统计，再对31个信噪比点取算术平均；最大值属于有限样本中的最大观测软件译码时间，不是严格最坏情况时延。
+软件译码时间从LLR或软信息进入译码函数开始，到300 bit电文及译码状态输出为止。它包括卷积码去打孔与Viterbi处理，或LDPC分层NMS迭代，但不包括编码、信道扰动构造、AWGN叠加、均衡、实轴投影、LLR生成和文件I/O。接收算法时间则定义为信道处理时间与译码时间之和。表\ref{tab:s5-latency}列出的平均译码时间和P95译码时间均先在每个正式信噪比点内统计，再对31个$E_s/N_0$工作点等权取算术平均，并非将不同工作点的全部帧直接池化；最大值属于有限样本中的最大观测软件译码时间，不是严格最坏情况时延。
 
 \begin{table}[htbp]
   \centering\scriptsize
-  \caption{六类信道下的软件译码与接收算法时间}
+  \caption{六类信道下的软件译码时间统计}
   \label{tab:s5-latency}
   \resizebox{\textwidth}{!}{\begin{tabular}{c l r r r r r r}
     \toprule
-    比较组 & 信道 & \multicolumn{2}{c}{平均译码/$\mu$s} & \multicolumn{2}{c}{平均P95译码/$\mu$s} & \multicolumn{2}{c}{平均接收算法/$\mu$s}\\
+    比较组 & 信道 & \multicolumn{2}{c}{平均译码/$\mu$s} & \multicolumn{2}{c}{平均P95译码/$\mu$s} & \multicolumn{2}{c}{最大观测译码/$\mu$s}\\
     \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
      & & 卷积码 & LDPC & 卷积码 & LDPC & 卷积码 & LDPC\\
     \midrule
-    近$2/3$ & AWGN & 307.7 & 113.4 & 419.1 & 232.3 & 339.1 & 144.9\\
-     & 固定多径 & 317.1 & 148.8 & 441.1 & 317.2 & 496.3 & 348.5\\
-     & 固定频偏 & 313.7 & 122.1 & 434.9 & 253.6 & 349.2 & 157.7\\
-     & 时变频率 & 341.5 & 149.0 & 483.1 & 299.0 & 380.4 & 188.0\\
-     & 已知遮挡 & 313.3 & 124.0 & 434.3 & 274.0 & 345.9 & 156.7\\
-     & 未知突发 & 318.8 & 209.0 & 442.2 & 422.0 & 382.0 & 273.1\\
+    近$2/3$ & AWGN & 307.7 & 113.4 & 419.1 & 232.3 & 35726.7 & 12396.6\\
+     & 固定多径 & 317.1 & 148.8 & 441.1 & 317.2 & 5608.1 & 5199.8\\
+     & 固定频偏 & 313.7 & 122.1 & 434.9 & 253.6 & 59356.8 & 14438.7\\
+     & 时变频偏 & 341.5 & 149.0 & 483.1 & 299.0 & 59989.8 & 13634.0\\
+     & 已知遮挡 & 313.3 & 124.0 & 434.3 & 274.0 & 1965.7 & 1692.7\\
+     & 未知突发 & 318.8 & 209.0 & 442.2 & 422.0 & 1807.0 & 2760.5\\
     \midrule
-    近$1/2$ & AWGN & 323.2 & 364.7 & 448.5 & 570.0 & 366.4 & 408.0\\
-     & 固定多径 & 327.1 & 496.9 & 461.2 & 782.6 & 676.2 & 904.6\\
-     & 固定频偏 & 317.5 & 417.1 & 441.9 & 633.7 & 364.4 & 464.5\\
-     & 时变频率 & 332.1 & 435.3 & 466.2 & 681.4 & 381.3 & 485.0\\
-     & 已知遮挡 & 313.6 & 382.1 & 436.1 & 592.9 & 356.0 & 424.9\\
-     & 未知突发 & 323.6 & 596.1 & 449.5 & 1407.9 & 407.2 & 681.4\\
+    近$1/2$ & AWGN & 323.2 & 364.7 & 448.5 & 570.0 & 36699.3 & 42686.8\\
+     & 固定多径 & 327.1 & 496.9 & 461.2 & 782.6 & 13418.2 & 43364.4\\
+     & 固定频偏 & 317.5 & 417.1 & 441.9 & 633.7 & 38679.0 & 18152.7\\
+     & 时变频偏 & 332.1 & 435.3 & 466.2 & 681.4 & 34330.9 & 39922.8\\
+     & 已知遮挡 & 313.6 & 382.1 & 436.1 & 592.9 & 8571.6 & 3869.7\\
+     & 未知突发 & 323.6 & 596.1 & 449.5 & 1407.9 & 9167.5 & 5648.2\\
     \bottomrule
   \end{tabular}}
 \end{table}
 
+\begin{table}[htbp]
+  \ContinuedFloat
+  \centering\small
+  \caption[]{六类信道下的软件译码时间统计（续：平均接收算法时间）}
+  \begin{tabular}{c l r r}
+    \toprule
+    比较组 & 信道 & 卷积码/$\mu$s & LDPC/$\mu$s\\
+    \midrule
+    近$2/3$ & AWGN & 339.1 & 144.9\\
+     & 固定多径 & 496.3 & 348.5\\
+     & 固定频偏 & 349.2 & 157.7\\
+     & 时变频偏 & 380.4 & 188.0\\
+     & 已知遮挡 & 345.9 & 156.7\\
+     & 未知突发 & 382.0 & 273.1\\
+    \midrule
+    近$1/2$ & AWGN & 366.4 & 408.0\\
+     & 固定多径 & 676.2 & 904.6\\
+     & 固定频偏 & 364.4 & 464.5\\
+     & 时变频偏 & 381.3 & 485.0\\
+     & 已知遮挡 & 356.0 & 424.9\\
+     & 未知突发 & 407.2 & 681.4\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 近$2/3$组中，N480在六类信道下的平均译码时间均低于卷积码R2/3：AWGN下为113.4 $\mu$s，相对307.7 $\mu$s；未知突发下迭代负担升高，平均时间增至209.0 $\mu$s，但仍低于卷积码的318.8 $\mu$s。该结果表明“迭代译码必然比Viterbi慢”的预设并不成立，实际软件时间还受校验图规模、提前停止和实现访存模式影响。
 
-近$1/2$组中，N640的平均译码时间高于卷积码R1/2，AWGN下为364.7 $\mu$s对323.2 $\mu$s，固定多径下为496.9 $\mu$s对327.1 $\mu$s，未知突发下达到596.1 $\mu$s且平均P95为1407.9 $\mu$s。N640提高可靠性的同时增加了软件处理代价，尤其在难收敛的未知突发条件下尾部时间增长明显。多径接收算法时间还包含MMSE均衡，因此两种方案均高于相应译码时间。
+近$1/2$组中，N640的平均译码时间高于卷积码R1/2，AWGN下为364.7 $\mu$s对323.2 $\mu$s，固定多径下为496.9 $\mu$s对327.1 $\mu$s，未知突发下达到596.1 $\mu$s且平均P95为1407.9 $\mu$s。N640提高可靠性的同时增加了软件处理代价，未知突发条件下的平均P95比AWGN增加837.9 $\mu$s。多径接收算法时间还包含MMSE均衡，因此两种方案均高于相应译码时间。
 
-LDPC迭代统计覆盖所有帧，不仅统计成功译码帧。平均迭代次数描述总体计算负担，平均P95迭代表示31个信噪比点尾部迭代值的均值，达到32次上限的平均帧比例反映迭代耗尽程度。图\ref{fig:s5-iterations}和表\ref{tab:s5-iterations}显示，未知突发使N480和N640的平均迭代升至21.840和14.662次，平均P95均为32次，上限迭代帧比例分别为65.75\%和38.42\%，明显高于各自AWGN下的35.13\%和21.95\%。
+LDPC迭代统计覆盖所有帧，不仅统计成功译码帧。表\ref{tab:s5-iterations}中的平均迭代、P95迭代和上限迭代帧比例均先在每个正式信噪比点内统计，再对31个$E_s/N_0$工作点等权取算术平均；其中平均迭代描述总体计算负担，平均P95迭代表示各点尾部迭代值的等权均值，达到32次上限的平均帧比例反映迭代耗尽程度。图\ref{fig:s5-iterations}和表\ref{tab:s5-iterations}显示，未知突发使N480和N640的平均迭代升至21.840和14.662次，平均P95均为32次，上限迭代帧比例分别为65.75\%和38.42\%，对应AWGN下的数值为35.13\%和21.95\%。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/21_ldpc_n480_avg_iterations.png}\\[-0.2em]\small（a）LDPC N480
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/21_ldpc_n480_avg_iterations.png}\\[0.2em]\small（a）LDPC N480
   \end{minipage}
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/22_ldpc_n640_avg_iterations.png}\\[-0.2em]\small（b）LDPC N640
+  \par\vspace{0.7em}
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/22_ldpc_n640_avg_iterations.png}\\[0.2em]\small（b）LDPC N640
   \end{minipage}
   \caption{LDPC在六类信道下的平均迭代次数}
   \label{fig:s5-iterations}
@@ -386,14 +419,14 @@ LDPC迭代统计覆盖所有帧，不仅统计成功译码帧。平均迭代次�
     N480 & AWGN & 12.202 & 19.129 & 35.13\\
      & 固定多径 & 15.208 & 25.129 & 44.56\\
      & 固定频偏 & 12.930 & 20.129 & 37.46\\
-     & 时变频率 & 13.508 & 21.065 & 39.36\\
+     & 时变频偏 & 13.508 & 21.065 & 39.36\\
      & 已知遮挡 & 12.689 & 22.323 & 36.53\\
      & 未知突发 & 21.840 & 32.000 & 65.75\\
     \midrule
     N640 & AWGN & 8.712 & 10.452 & 21.95\\
      & 固定多径 & 11.655 & 14.000 & 30.86\\
      & 固定频偏 & 9.481 & 11.032 & 24.50\\
-     & 时变频率 & 10.153 & 11.871 & 26.58\\
+     & 时变频偏 & 10.153 & 11.871 & 26.58\\
      & 已知遮挡 & 9.524 & 11.161 & 24.42\\
      & 未知突发 & 14.662 & 32.000 & 38.42\\
     \bottomrule
@@ -402,29 +435,31 @@ LDPC迭代统计覆盖所有帧，不仅统计成功译码帧。平均迭代次�
 
 达到32次迭代并不等同于必然帧错误，综合校验通过也不等同于存在CRC保护。本比较中的译码失败定义为最终综合校验未通过；若综合校验通过而300 bit电文仍错误，则记录为错误合法码字，不应描述成CRC未检错。这里的LDPC是BG2 Direct QC-LDPC短块构造，不代表完整5G NR物理层链路。
 
-\section{多信道综合比较与高速电文方案选型}
+\section{多信道综合比较与高速电文方案结论}
 
-图\ref{fig:s5-allchannels-r23}和图\ref{fig:s5-allchannels-r12}从单一方案视角比较六类信道。近$2/3$组中，卷积码R2/3在AWGN、固定多径、固定频偏和时变频率下保持更低绝对FER门限，同时其平均软件译码时间约为308～341 $\mu$s；N480的绝对门限较高，但平均译码时间更低，并在已知遮挡下保留FER$=0.1$覆盖。近$1/2$组中，N640在四类常规信道和已知遮挡中均具有更低绝对门限，但平均译码和尾部时间高于卷积码R1/2。
+图\ref{fig:s5-allchannels-r23}和图\ref{fig:s5-allchannels-r12}从单一方案视角比较六类信道。近$2/3$组中，卷积码R2/3在AWGN、固定多径、固定频偏和线性时变频偏下保持更低绝对FER门限，同时其平均软件译码时间约为308～341 $\mu$s；N480的绝对门限较高，但平均译码时间更低，并在已知遮挡下保留FER$=0.1$覆盖。近$1/2$组中，N640在四类全帧条件和已知遮挡中均具有更低绝对门限，但平均译码和尾部时间高于卷积码R1/2。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/17_cc_r23_all_channels_fer.png}\\[-0.2em]\small（a）卷积码R2/3
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/17_cc_r23_all_channels_fer.png}\\[0.2em]\small（a）卷积码R2/3
   \end{minipage}
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/18_ldpc_n480_all_channels_fer.png}\\[-0.2em]\small（b）LDPC N480
+  \par\vspace{0.7em}
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/18_ldpc_n480_all_channels_fer.png}\\[0.2em]\small（b）LDPC N480
   \end{minipage}
   \caption{近$2/3$码率组单方案跨六信道FER}
   \label{fig:s5-allchannels-r23}
 \end{figure}
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/19_cc_r12_all_channels_fer.png}\\[-0.2em]\small（a）卷积码R1/2
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/19_cc_r12_all_channels_fer.png}\\[0.2em]\small（a）卷积码R1/2
   \end{minipage}
-  \begin{minipage}{0.49\textwidth}\centering
-    \includegraphics[width=0.84\linewidth]{figures/s5_round08b/20_ldpc_n640_all_channels_fer.png}\\[-0.2em]\small（b）LDPC N640
+  \par\vspace{0.7em}
+  \begin{minipage}{0.90\textwidth}\centering
+    \includegraphics[width=0.98\linewidth]{figures/s5_round08b/20_ldpc_n640_all_channels_fer.png}\\[0.2em]\small（b）LDPC N640
   \end{minipage}
   \caption{近$1/2$码率组单方案跨六信道FER}
   \label{fig:s5-allchannels-r12}
@@ -432,46 +467,46 @@ LDPC迭代统计覆盖所有帧，不仅统计成功译码帧。平均迭代次�
 
 \begin{table}[htbp]
   \centering\scriptsize
-  \caption{六信道综合方案推荐}
+  \caption{六信道综合比较结论}
   \label{tab:s5-recommendations}
   \resizebox{\textwidth}{!}{\begin{tabular}{c l l p{0.49\textwidth}}
     \toprule
-    比较组 & 信道 & 推荐方案 & 依据与工程取舍\\
+    比较组 & 信道 & 比较结论 & 实测依据与适用边界\\
     \midrule
-    近$2/3$ & AWGN & 卷积码R2/3 & 两个目标FER门限分别低3.759 dB和4.170 dB；可靠性优先\\
-     & 固定多径 & 卷积码R2/3 & 绝对门限更低；N480相对损失较小且软件时间更低，低时延实现可权衡\\
-     & 固定频偏 & 卷积码R2/3 & 绝对门限明显更低；N480附加损失仅略小约0.12～0.18 dB\\
-     & 时变频率 & 卷积码R2/3 & 绝对门限更低；两者相对损失接近，需结合不同码长相位轨迹解释\\
-     & 已知5\%遮挡 & LDPC N480 & 卷积码无目标覆盖；N480覆盖FER$=0.1$且平均译码时间较低\\
-     & 未知5\%突发 & 无唯一赢家 & 两者均未覆盖FER$=0.1$；卷积码高信噪比实测FER略低，单靠换码不足以解决强突发\\
+    近$2/3$ & AWGN & 卷积码R2/3绝对门限较低 & 两个目标FER门限分别低3.759 dB和4.170 dB\\
+     & 固定多径 & 卷积码R2/3绝对门限较低 & N480相对损失较小且平均软件译码时间较低，绝对门限与基线相对保持能力不一致\\
+     & 固定频偏 & 卷积码R2/3绝对门限较低 & N480附加损失仅低约0.12～0.18 dB\\
+     & 时变频偏 & 卷积码R2/3绝对门限较低 & 两者相对损失接近；结果包含不同发送长度造成的相位轨迹差异\\
+     & 已知5\%遮挡 & LDPC N480保留有限覆盖 & 卷积码无目标覆盖；N480覆盖FER$=0.1$且平均软件译码时间较低\\
+     & 未知5\%突发 & 未形成明确优选方案 & 两者均未覆盖FER$=0.1$；正式数据不支持基于目标FER门限形成单一方案结论\\
     \midrule
-    近$1/2$ & AWGN & LDPC N640 & 两个目标FER门限低0.517 dB和0.926 dB，但平均译码时间高约41.5 $\mu$s\\
-     & 固定多径 & LDPC N640 & 绝对门限与相对损失均更低；接收算法时间高于卷积码\\
-     & 固定频偏 & LDPC N640 & 绝对门限更低且附加损失略小，代价是更高软件时间\\
-     & 时变频率 & LDPC N640 & 绝对门限更低、相对损失略小；结论限于冻结轨迹与码长\\
-     & 已知5\%遮挡 & LDPC N640 & 覆盖FER$=0.1/0.01$，卷积码均未覆盖；不表示对遮挡免疫\\
-     & 未知5\%突发 & LDPC N640（有限） & 仅覆盖FER$=0.1$且损失5.087 dB；P95译码时间和迭代负担明显上升\\
+    近$1/2$ & AWGN & LDPC N640绝对门限较低 & 两个目标FER门限低0.517 dB和0.926 dB，平均译码时间高约41.5 $\mu$s\\
+     & 固定多径 & LDPC N640门限与相对损失均较低 & 接收算法时间高于卷积码R1/2\\
+     & 固定频偏 & LDPC N640绝对门限与附加损失均较低 & 平均软件译码时间高于卷积码R1/2\\
+     & 时变频偏 & LDPC N640绝对门限与相对损失均较低 & 结论限于冻结轨迹与发送长度\\
+     & 已知5\%遮挡 & LDPC N640覆盖两个目标 & 卷积码均未覆盖；结论限于已知掩码、5\%遮挡比例和冻结配置\\
+     & 未知5\%突发 & LDPC N640仅有有限覆盖 & 仅覆盖FER$=0.1$且损失5.087 dB；P95译码时间和迭代负担上升\\
     \bottomrule
   \end{tabular}}
 \end{table}
 
-综合来看，目标码率接近$2/3$且主要面对AWGN或常规连续损伤时，卷积码R2/3提供更低的绝对FER门限；若接收端已知连续擦除位置，N480的恢复能力和较低软件译码时间更有吸引力。目标码率接近$1/2$时，N640在六类受控信道中形成更完整的可靠性优势，尤其适合把已知短时遮挡作为关键约束的场景；卷积码R1/2的优势是软件译码时间较低且结构确定。
+近$2/3$组中，卷积码R2/3在AWGN、固定多径、固定频偏和线性时变频偏下具有较低绝对FER门限；N480在已知遮挡下保留FER$=0.1$覆盖，且六类信道的平均软件译码时间均低于卷积码R2/3。近$1/2$组中，N640在AWGN、三类全帧非理想条件和已知遮挡下具有较低绝对门限，但多种条件下的平均、P95译码时间和迭代负担高于卷积码R1/2。
 
-未知强突发是两组方案共同的困难条件。近$2/3$组没有方案达到FER$=0.1$，近$1/2$组N640虽达到0.1目标，但相对AWGN多付出5.087 dB且未达到0.01。因而，方案选择应首先确认业务目标FER与主要信道是否被实测范围覆盖，再比较相对损失和软件代价；不能为了给出唯一赢家而忽略N/A边界。
+未知5\%突发干扰对两组候选均造成较大可靠性退化。近$2/3$组两种方案均未覆盖FER$=0.1/0.01$，对应门限与相对AWGN损失均为N/A；近$1/2$组仅N640覆盖FER$=0.1$，相对损失为5.087 dB，而N640的FER$=0.01$及卷积码R1/2的两个目标均未覆盖。在无交织、未知掩码和ISR$=10$ dB的冻结配置下，连续强突发干扰构成两组方案的共同限制。
 
-\begin{figure}[!htbp]
+\begin{figure}[htbp]
   \centering
-  \fbox{\begin{minipage}[c][0.14\textheight][c]{0.88\textwidth}
+  \fbox{\begin{minipage}[c][0.18\textheight][c]{0.88\textwidth}
     \centering\bfseries Visio结构图占位\\[0.7em]
     \normalfont 目标码率 $+$ 主要信道 $+$ 绝对FER门限 $+$ 相对AWGN损失\\
     $+$ 软件译码/接收算法时间 $+$ LDPC迭代负担
-    $\rightarrow$ 目标覆盖检查 $\rightarrow$ 场景化编码方案推荐
+    $\rightarrow$ 目标覆盖检查 $\rightarrow$ 场景化编码方案结论
   \end{minipage}}
   \caption{高速电文多信道编码方案选型逻辑}
   \label{fig:s5-selection-visio}
 \end{figure}
 
-最终选型应保留三个层次：首先以实际码率和目标FER确定可行候选；其次以受损信道绝对门限与相对AWGN损失判断可靠性和鲁棒性；最后以平均、P95软件时间及LDPC迭代耗尽比例评价实现代价。该方法既保留每项指标的物理含义，也能在不同业务约束下得到可复核的选择结果。
+综合结果形成两类清晰的场景分布：近$2/3$组的卷积码R2/3在四类全帧条件下具有较低绝对门限，N480在已知遮挡下保留目标覆盖且平均软件译码时间较低；近$1/2$组的N640在五类已覆盖条件下具有较低绝对门限，同时承担较高的软件时间和迭代代价。未知突发条件下的大量N/A保留了实测证据边界，不产生超出冻结配置的方案结论。
 
 \clearpage
 \endgroup

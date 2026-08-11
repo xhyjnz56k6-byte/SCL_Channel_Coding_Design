@@ -1,0 +1,17 @@
+{
+  "stage": "round08_c_s5_chapter7",
+  "branch": "S8-PaperDocu",
+  "baseCommit": "ebfabbed6b82a94f395c62bbf43e9944ed5c0e76",
+  "functionalRanges": [],
+  "workingTreeOnly": true,
+  "functionalFiles": [
+    "Report/config/packages.tex",
+    "Report/sections/07_多信道综合对比.tex",
+    "Report/audit/round08_c_s5_chapter7/"
+  ],
+  "gate": "PASS_ROUND08_C_S5_CHAPTER7_LAYOUT_AND_METRIC_REFINEMENT",
+  "commitStatus": "NOT_REQUESTED",
+  "pushStatus": "NOT_REQUESTED",
+  "remoteVerification": "NOT_APPLICABLE",
+  "mergeStatus": "NOT_MERGED"
+}

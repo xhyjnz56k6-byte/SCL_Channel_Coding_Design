@@ -1,0 +1,29 @@
+{
+  "stage": "round08_d_s5_chapter7",
+  "branch": "S8-PaperDocu",
+  "baseCommit": "c14ef8105f7d09ae2aa909eea43f928eee1f2bb1",
+  "functionalRanges": [],
+  "workingTreeOnly": true,
+  "functionalFiles": [
+    "Report/sections/07_多信道综合对比.tex",
+    "Report/audit/round08_d_s5_chapter7/"
+  ],
+  "preservedAssets": {
+    "formalSchemePoints": 744,
+    "pngSubfigures": 22,
+    "figureEnvironments": 14,
+    "visioPlaceholders": 3,
+    "numberedCoreTables": 8
+  },
+  "pdf": {
+    "path": "Report/main.pdf",
+    "totalPages": 136,
+    "chapter7PhysicalPages": "95-119",
+    "chapter7Pages": 25
+  },
+  "gate": "PASS_ROUND08_D_S5_CHAPTER7_SCIENTIFIC_LANGUAGE_REFINEMENT",
+  "commitStatus": "NOT_REQUESTED",
+  "pushStatus": "NOT_REQUESTED",
+  "remoteVerification": "NOT_APPLICABLE",
+  "mergeStatus": "NOT_MERGED"
+}
