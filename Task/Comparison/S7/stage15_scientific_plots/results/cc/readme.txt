@@ -1,1 +1,1 @@
-目录用途：每个子目录保存一张 CC 科研图及其独立数据、manifest、validation、SHA 和 readme。
+目录用途：每个子目录保存一张 CC 科研图及其独立数据、manifest、validation、SHA 和 readme。01～05 的适用 BER/FER 图及 16 纯译码时间图包含历史无突发 AWGN 基线；位置图不加入假基线。历史无突发实验没有与 S7 一致的复杂度操作计数，明确为 N/A，不进行推断。

@@ -1,0 +1,9 @@
+{
+  "before": {
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv": "adbd8d2499b220525195fb115c989469ed00e0965d5f69ed6d28637f48ad4c9d",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage11_cc_formal\\results\\formal_results.csv": "86f7ff8e46712406714887050d06de8ccd55e0c47ed7e6facd92c09556db886d",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\BCH\\simulation\\stages\\S1\\stage07_awgn_dense_formal\\published_results\\stage07_awgn_dense_formal_results.csv": "337c1cb6f46dc8239482f9183738375dc5f7f1f8c9b320e03d5b238a310a6843",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\CC\\simulation\\stages\\S3\\stage09_awgn_formal\\results\\stage09_two_level_merged_point_results.csv": "0efd6914aca0415c0e7f7a888f8eb749d699f9f7e4f08625678746dc161fae25"
+  },
+  "noFormalRerun": true
+}

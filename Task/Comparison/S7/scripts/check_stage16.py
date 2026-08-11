@@ -31,10 +31,10 @@ def main() -> int:
         require(result.returncode==0,f"sub-gate failed: {' '.join(command)}\n{result.stdout}\n{result.stderr}")
         outputs.append(result.stdout.strip())
     for directory in ROOT.rglob("*"):
-        if not directory.is_dir() or (ROOT/"build" in directory.parents) or directory==ROOT/"build": continue
+        if not directory.is_dir() or (ROOT/"build" in directory.parents) or directory==ROOT/"build" or "__pycache__" in directory.parts: continue
         require((directory/"readme.txt").is_file(),f"missing directory readme: {directory.relative_to(ROOT)}")
     results=list(csv.DictReader((ROOT/"S7_result_inventory.csv").open(encoding="utf-8")))
-    require(len(results)==9 and all(Path(row["absolutePath"]).is_file() for row in results),"result inventory mismatch")
+    require(len(results)==13 and all(Path(row["absolutePath"]).is_file() for row in results),"result inventory mismatch")
     plots=list(csv.DictReader((ROOT/"S7_plot_inventory.csv").open(encoding="utf-8"))); require(len(plots)==50,"plot inventory mismatch")
     metrics=list(csv.DictReader((ROOT/"S7_metric_summary.csv").open(encoding="utf-8"))); require(len(metrics)==8,"metric summary mismatch")
     ldpc=list(csv.DictReader((ROOT/"results"/"ldpc_baseline"/"ldpc_baseline_reference.csv").open(encoding="utf-8")))

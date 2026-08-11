@@ -3,6 +3,12 @@
   "plotCount": 50,
   "bchPlotCount": 29,
   "ccPlotCount": 21,
+  "noBurstBaselinePlots": 14,
+  "archiveComplete": true,
+  "noSyntheticData": true,
+  "noInterpolation": true,
+  "noSmoothing": true,
+  "originalInputsUnchanged": true,
   "blockedPlots": [],
   "mergeStatus": "NOT_MERGED"
 }

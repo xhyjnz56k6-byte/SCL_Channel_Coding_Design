@@ -35,6 +35,8 @@ BCH Formal 比较 NONE、BCH_CODEBLOCK D=19、ROW_COLUMN rows=15 和 GLOBAL_PSEU
 
 ## 6. BCH 结果与推荐
 
+本轮加入严格匹配的历史无突发 AWGN 基线，形成“AWGN → 突发无交织 → 突发有交织”三层分析。BCH 历史网格经冻结噪声公式换算后与 S7 网格相差固定约 0.0103 dB，因此只画原始点、不做插值，也不把相邻横坐标的差值冒充精确增益。约 4.9897 dB 的无突发 FER 为 0.0620；在 S7 5 dB，2%/5% 突发最佳交织 FER 分别约 0.4024/0.6798。约 9.9897 dB 的无突发结果为零错观测；在 10 dB，2%/5% 最佳交织 FER 分别约 3.33×10^-4/7.63×10^-4，而 10% 仍为 1。由此可见 BCH 对 2%和5%在高 SNR 下能恢复到接近无突发量级，10%则进入饱和失效区。
+
 公开权重综合排名第一为 `BCH_ROW_COLUMN_R15`，其全 Formal 平均 FER 为 0.781811；`BCH_CODEBLOCK_D19` 为 0.782191，二者非常接近；全帧伪随机为 0.932620。
 
 在 10 dB、六位置最坏 FER≤0.1 的判据下，ROW_COLUMN R15 与 CODEBLOCK D19 均通过 2% 和 5%，但 10% 最坏 FER 为 1。因此在当前测试网格内，推荐 BCH 行列交织 rows=15，连续突发容限记为 5%；不得外推到 5%～10% 之间的未测比例。
@@ -42,6 +44,8 @@ BCH Formal 比较 NONE、BCH_CODEBLOCK D=19、ROW_COLUMN rows=15 和 GLOBAL_PSEU
 推荐方案的 frames 加权观测为：纯译码约 9053 ns，交织约 328 ns，解交织约 327 ns，附加 CPU 约 655 ns；bufferBits/startupDelayBits 均为 285。CPU 数值只代表当前机器，结构等待量不是物理时间。
 
 ## 7. 卷积码结果与推荐
+
+CC 无突发基线与 S7 使用相同 Es/N0 网格：0 dB FER≈0.02068，2 dB 及以上为零错观测。2% 突发时，最佳交织在 0/5/10 dB 的 FER 约为 0.895/0.5438/0.4489，虽然相对突发无交织 FER=1 有恢复，但远未回到 AWGN 基线。5% 突发到 10 dB 的最佳 FER 仍约 0.9945，10%则为 1，表明当前 128 trellis-step 级跨度不足以抵抗更强连续极性反转。
 
 综合排名第一为 `CC_PSEUDO_128_RECOMMENDED`，全 Formal 平均 FER 为 0.906392；D8 为 0.943758，D16 为 0.962055。PSEUDO128 同时属于推荐工程配置组和与 D16 的等跨度 128 受控组。
 
@@ -67,7 +71,11 @@ BCH Formal 记录 `undetectedFrameErrors=5,439,787`、`miscorrectedBlocks=23,251
 
 ## 12. 高 SNR 零值与绘图
 
-Formal 原始 CSV 保留真实零值；本次 BCH/CC Formal 均无 BER/FER 零值行。绘图器仍执行冻结政策：对数图不画零值，不替换伪小值、不延伸水平线、不显示 error floor、零错上界或相应标记；非零异常点不平滑、不删除。
+S7 Formal 原始 CSV 保留真实零值；本次 BCH/CC 突发 Formal 均无 BER/FER 零值行。历史无突发曲线包含零错观测，figure_data 保留原始 0，对数图不画零值，不替换伪小值、不延伸水平线、不显示 error floor、零错上界或相应标记；非零异常点不平滑、不删除。
+
+## 12.1 无突发时延和复杂度口径
+
+历史无突发纯译码时间按纳入点帧数加权后，BCH 约 10226.5 ns、CC 约 428650.0 ns。它们与 `T_interleave`、`T_deinterleave`、buffer wait 分开，且跨 Stage CPU 数值只作描述性参考。历史无突发实验没有可兼容的复杂度操作计数，复杂度基线明确为 N/A；无突发交织/解交织 CPU 也为 N/A。无突发/无交织的 interleaver buffer=0 属于结构定义，不是仿真统计值。
 
 ## 13. 推荐结论
 

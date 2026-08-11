@@ -19,6 +19,8 @@ FORMAL = {
     "CC": ROOT / "stage11_cc_formal" / "results" / "formal_results.csv",
 }
 HISTORICAL = ROOT.parents[1] / "Comparison" / "S6" / "results" / "ldpc" / "ldpc_n560_integrated_results.csv"
+NO_BURST = STAGE / "no_burst_baseline"
+NO_BURST_LABEL = "无突发信道（AWGN）"
 FONT = FontProperties(fname=r"C:\Windows\Fonts\msyh.ttc")
 plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
 plt.rcParams["axes.unicode_minus"] = False
@@ -31,21 +33,40 @@ CONFIG_LABELS = {
 POSITION_LABELS = {"HEAD": "帧首", "QUARTER": "四分之一", "MIDDLE": "帧中", "THREE_QUARTER": "四分之三", "TAIL": "帧尾", "RANDOM": "随机"}
 LABEL_TO_CONFIG = {label: config for config, label in CONFIG_LABELS.items()}
 BCH_STYLE_MAP = {
+    "NO_BURST_AWGN": {"color": "#000000", "linestyle": "-", "marker": "D", "markerfacecolor": "none", "markeredgewidth": 1.4, "linewidth": 2.0, "zorder": 10, "drawOrder": 0},
     "BCH_NONE": {"linestyle": "-", "marker": "o", "markerfacecolor": None, "markeredgewidth": 1.0, "zorder": 2, "drawOrder": 1},
     "BCH_GLOBAL_PSEUDO_285": {"linestyle": ":", "marker": "^", "markerfacecolor": "none", "markeredgewidth": 1.3, "zorder": 3, "drawOrder": 2},
     "BCH_CODEBLOCK_D19": {"linestyle": "--", "marker": "o", "markerfacecolor": "none", "markeredgewidth": 1.3, "zorder": 4, "drawOrder": 3},
     "BCH_ROW_COLUMN_R15": {"linestyle": "-.", "marker": "s", "markerfacecolor": None, "markeredgewidth": 1.0, "zorder": 5, "drawOrder": 4},
 }
+CC_STYLE_MAP = {
+    "NO_BURST_AWGN": {"color": "#000000", "linestyle": "-", "marker": "D", "markerfacecolor": "none", "markeredgewidth": 1.4, "linewidth": 2.0, "zorder": 10, "drawOrder": 0},
+    "CC_NONE": {"color": "#1f77b4", "linestyle": "-", "marker": "o", "markerfacecolor": "#1f77b4", "markeredgewidth": 1.0, "zorder": 2, "drawOrder": 1},
+    "CC_PSEUDO_128_RECOMMENDED": {"color": "#ff7f0e", "linestyle": "--", "marker": "^", "markerfacecolor": "none", "markeredgewidth": 1.3, "zorder": 4, "drawOrder": 2},
+    "CC_SHORT_D8_RECOMMENDED": {"color": "#d62728", "linestyle": "-.", "marker": "s", "markerfacecolor": "#d62728", "markeredgewidth": 1.0, "zorder": 5, "drawOrder": 3},
+    "CC_SHORT_D16_CONTROL_128": {"color": "#2ca02c", "linestyle": ":", "marker": "o", "markerfacecolor": "none", "markeredgewidth": 1.3, "zorder": 3, "drawOrder": 4},
+}
 BCH_STYLE_README = """绘图样式：
+- 无突发信道（AWGN）：黑色实线、空心菱形、线宽2.0、最高层级；
 - 无交织：实线、实心圆；
 - BCH码块交织 D=19：虚线、空心圆；
 - 行列交织 rows=15：点划线、实心方块；
 - 全帧伪随机交织：点线、空心三角。
 说明：线型和标记仅用于提高重合曲线的辨识度，不改变原始数据和统计结论。
 """
+CC_STYLE_README = """绘图样式：
+- 无突发信道（AWGN）：黑色实线、空心菱形、线宽2.0、最高层级；
+- 无交织：蓝色实线、实心圆；
+- 伪随机 span=128：橙色虚线、空心三角；
+- 短深度块 D=8：红色点划线、实心方块；
+- 短深度块 D=16：绿色点线、空心圆。
+说明：CC 全部适用图使用同一冻结样式，不改变原始数据和统计结论。
+"""
 
 
 def style_config_id(series, style_map):
+    if series == NO_BURST_LABEL:
+        return "NO_BURST_AWGN"
     if style_map is BCH_STYLE_MAP and series == CONFIG_LABELS["BCH_NONE"]:
         return "BCH_NONE"
     return LABEL_TO_CONFIG.get(series)
@@ -59,7 +80,7 @@ def sha256(path):
     digest = hashlib.sha256(); digest.update(path.read_bytes()); return digest.hexdigest()
 
 
-def aggregate(rows, value_field, ratio=None, configs=None, position=None, reducer="mean"):
+def aggregate(rows, value_field, ratio=None, configs=None, position=None, reducer="mean", source_path=None, source_stage="S7_FORMAL"):
     grouped = defaultdict(list)
     for row in rows:
         if ratio is not None and abs(float(row["burstRatioRequested"]) - ratio) > 1e-12: continue
@@ -69,8 +90,25 @@ def aggregate(rows, value_field, ratio=None, configs=None, position=None, reduce
     output = []
     for (config, snr), values in sorted(grouped.items()):
         value = sum(values) / len(values) if reducer == "mean" else (max(values) if reducer == "max" else min(values))
-        output.append({"series": CONFIG_LABELS[config], "x": snr, "rawY": value})
+        members = [row for row in rows if row["configurationId"] == config and abs(float(row["EsN0Db"]) - snr) < 1e-12 and (ratio is None or abs(float(row["burstRatioRequested"]) - ratio) < 1e-12) and (position is None or row["burstPositionType"] == position)]
+        row_keys = ";".join(f"{row['configurationId']}|{row['EsN0Db']}|{row['burstRatioRequested']}|{row['burstPositionType']}" for row in members)
+        output.append({"series": CONFIG_LABELS[config], "configurationId": config, "channelCondition": "BURST_POLARITY_REVERSAL_AWGN", "burstRatio": ratio if ratio is not None else "", "x": snr, "EsN0Db": snr, "rawY": value, "sourceType": "S7_FORMAL", "sourceCsvAbsolutePath": str(Path(source_path).resolve()) if source_path else "", "sourceStage": source_stage, "sourceRowKey": row_keys, "interpolated": "false"})
     return output
+
+
+def no_burst_series(scheme, metric):
+    path = NO_BURST / scheme.lower() / "no_burst_baseline.csv"
+    output = []
+    for row in read(path):
+        output.append({"series": NO_BURST_LABEL, "configurationId": "NO_BURST_AWGN", "channelCondition": "NO_BURST_AWGN", "burstRatio": 0, "x": float(row["EsN0Db"]), "EsN0Db": float(row["EsN0Db"]), "rawY": float(row[metric]), "sourceType": "HISTORICAL_FORMAL", "sourceCsvAbsolutePath": row["sourceCsvAbsolutePath"], "sourceStage": row["sourceStage"], "sourceRowKey": row["sourceRowKey"], "interpolated": row["interpolated"]})
+    return output
+
+
+def historical_latency_bar(scheme):
+    points = read(NO_BURST / scheme.lower() / "no_burst_baseline.csv")
+    weights = [int(row["framesProcessed"]) for row in points]
+    value = sum(float(row["decodeTimeMeanNs"]) * weight for row, weight in zip(points, weights)) / sum(weights)
+    return {"series": NO_BURST_LABEL, "configurationId": "NO_BURST_AWGN", "channelCondition": "NO_BURST_AWGN", "burstRatio": 0, "x": "", "EsN0Db": "", "rawY": value, "sourceType": "HISTORICAL_FORMAL_WEIGHTED_SUMMARY", "sourceCsvAbsolutePath": points[0]["sourceCsvAbsolutePath"], "sourceStage": points[0]["sourceStage"], "sourceRowKey": ";".join(row["sourceRowKey"] for row in points), "interpolated": "false"}
 
 
 def finalize_assets(directory, manifest, validation, readme):
@@ -84,7 +122,7 @@ def finalize_assets(directory, manifest, validation, readme):
 def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="line", note="", style_map=None):
     directory = STAGE / "results" / scheme.lower() / plot_id
     directory.mkdir(parents=True, exist_ok=True)
-    fields = ["series", "x", "rawY", "plotted", "exclusionReason", "nonMonotonicHighSnrAnomaly"]
+    fields = ["series", "configurationId", "channelCondition", "burstRatio", "x", "EsN0Db", "rawY", "plotted", "sourceType", "sourceCsvAbsolutePath", "sourceStage", "sourceRowKey", "interpolated", "exclusionReason", "nonMonotonicHighSnrAnomaly"]
     processed = []
     by_series = defaultdict(list)
     for item in data:
@@ -97,7 +135,7 @@ def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="
             plotted, reason = False, "NONPOSITIVE_ON_LOG_AXIS"
         else:
             plotted, reason = True, ""
-        row = {"series": item["series"], "x": item["x"], "rawY": raw, "plotted": str(plotted).lower(), "exclusionReason": reason, "nonMonotonicHighSnrAnomaly": "false"}
+        row = {"series": item["series"], "configurationId": item.get("configurationId", style_config_id(item["series"], style_map) or ""), "channelCondition": item.get("channelCondition", ""), "burstRatio": item.get("burstRatio", ""), "x": item["x"], "EsN0Db": item.get("EsN0Db", item["x"] if kind != "bar" else ""), "rawY": raw, "plotted": str(plotted).lower(), "sourceType": item.get("sourceType", "DERIVED_VALIDATED"), "sourceCsvAbsolutePath": item.get("sourceCsvAbsolutePath", str(Path(source_paths[0]).resolve()) if source_paths else ""), "sourceStage": item.get("sourceStage", "S7_DERIVED"), "sourceRowKey": item.get("sourceRowKey", ""), "interpolated": item.get("interpolated", "false"), "exclusionReason": reason, "nonMonotonicHighSnrAnomaly": "false"}
         processed.append(row); by_series[row["series"]].append(row)
     anomaly = False
     if log_y:
@@ -126,13 +164,13 @@ def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="
             if points:
                 style = style_map.get(style_config_id(series, style_map), {}) if style_map else {}
                 ax.plot([float(row["x"]) for row in points], [float(row["rawY"]) for row in points],
-                        marker=style.get("marker", "o"), markersize=4.5 if style else 3, linewidth=1.2,
+                        marker=style.get("marker", "o"), markersize=5.0 if style_config_id(series, style_map) == "NO_BURST_AWGN" else (4.5 if style else 3), linewidth=style.get("linewidth", 1.2), color=style.get("color"),
                         linestyle=style.get("linestyle", "-"), markerfacecolor=style.get("markerfacecolor", None),
                         markeredgewidth=style.get("markeredgewidth", 1.0), zorder=style.get("zorder", 2), label=series)
         if len(by_series) > 1:
             handles, labels = ax.get_legend_handles_labels()
             if style_map:
-                legend_order = {"BCH_NONE": 1, "BCH_CODEBLOCK_D19": 2, "BCH_ROW_COLUMN_R15": 3, "BCH_GLOBAL_PSEUDO_285": 4}
+                legend_order = {"NO_BURST_AWGN": 0, "BCH_NONE": 1, "BCH_CODEBLOCK_D19": 2, "BCH_ROW_COLUMN_R15": 3, "BCH_GLOBAL_PSEUDO_285": 4, "CC_NONE": 1, "CC_PSEUDO_128_RECOMMENDED": 2, "CC_SHORT_D8_RECOMMENDED": 3, "CC_SHORT_D16_CONTROL_128": 4}
                 ordered = sorted(zip(handles, labels), key=lambda item: legend_order.get(style_config_id(item[1], style_map), 99))
                 handles, labels = zip(*ordered)
                 ax.legend(handles, labels, prop=FONT, fontsize=8, ncol=1)
@@ -144,7 +182,9 @@ def emit(plot_id, scheme, title, ylabel, data, source_paths, log_y=False, kind="
     ax.grid(True, which="both", alpha=0.25); fig.tight_layout(); fig.savefig(directory / "figure.png"); plt.close(fig)
     absolute_sources = [str(Path(path).resolve()) for path in source_paths]
     validation_status = "BLOCKED_NON_MONOTONIC_HIGH_SNR" if anomaly else "PASS"
-    manifest = {"plotId": plot_id, "scheme": scheme, "title": title, "xAxis": "符号信噪比 Es/N0（dB）" if kind != "bar" else "配置或类别", "yAxis": ylabel, "logYAxis": log_y, "sourceAbsolutePaths": absolute_sources, "historicalReferenceAbsolutePath": str(HISTORICAL.resolve()), "historicalReferenceUsedInFigure": False, "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation", "smoothingApplied": False, "forbiddenAnnotations": [], "configurationStyleMap": style_map or {}, "mergeStatus": "NOT_MERGED"}
+    baseline_rows = [row for row in processed if row["channelCondition"] == "NO_BURST_AWGN"]
+    baseline_sources = sorted({row["sourceCsvAbsolutePath"] for row in baseline_rows})
+    manifest = {"plotId": plot_id, "scheme": scheme, "title": title, "xAxis": "符号信噪比 Es/N0（dB）" if kind != "bar" else "配置或类别", "yAxis": ylabel, "logYAxis": log_y, "sourceAbsolutePaths": absolute_sources, "historicalReferenceAbsolutePath": str(HISTORICAL.resolve()), "historicalReferenceUsedInFigure": False, "containsNoBurstBaseline": bool(baseline_rows), "noBurstBaselineSource": baseline_sources[0] if len(baseline_sources) == 1 else baseline_sources, "noBurstBaselineHistorical": bool(baseline_rows), "noBurstSimulationRerun": False, "noInterpolation": True, "originalSnrGridPreserved": True, "interpolation": False, "smoothing": False, "syntheticData": False, "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation", "smoothingApplied": False, "forbiddenAnnotations": [], "configurationStyleMap": style_map or {}, "mergeStatus": "NOT_MERGED"}
     validation = {"status": validation_status, "rowCount": len(processed), "plottedRows": sum(row["plotted"] == "true" for row in processed), "zeroExcludedRows": sum(row["exclusionReason"] == "ZERO_ON_LOG_AXIS" for row in processed), "nonMonotonicHighSnrAnomaly": anomaly, "sourcePathsExist": all(Path(path).is_file() for path in absolute_sources), "sha256PendingAtValidationWrite": True}
     readme_text = f"""图名称：{title}
 实验目的：展示 S7 {scheme} 的{ylabel}。
@@ -163,9 +203,11 @@ SNR 范围：来自原始数据，不外推。
 历史数据绝对路径：{str(HISTORICAL.resolve())}
 绘图过滤规则：不平滑、不删除非零异常点。
 零值处理规则：原始 0 保留；对数图不绘制，不替换、不延伸、不标 error floor 或上界。
+无突发基线：{'已加入历史正式 AWGN 原始点；与“有突发但无交织”严格区分。' if baseline_rows else '本图不适用或没有合法历史基线，未补画。'}
+插值与平滑：均未使用；每一点通过 figure_data.csv 回溯到源 CSV。
 主要结论：仅由可见原始点支持；{note or '参见 Stage14 推荐报告。'}
 已知限制：CPU 时延依赖本机；强突发下 FER 可能饱和。
-{BCH_STYLE_README if style_map else ''}图状态：{validation_status}
+{BCH_STYLE_README if style_map is BCH_STYLE_MAP else (CC_STYLE_README if style_map is CC_STYLE_MAP else '')}图状态：{validation_status}
 """
     finalize_assets(directory, manifest, validation, readme_text)
     return {"plotId": plot_id, "scheme": scheme, "title": title, "directory": str(directory.resolve()), "status": validation_status, "sourceAbsolutePaths": ";".join(absolute_sources)}
@@ -270,6 +312,44 @@ def bch_ber_improvement(rows, relative=False):
     return output
 
 
+def baseline_source(scheme):
+    return Path(read(NO_BURST / scheme.lower() / "no_burst_baseline.csv")[0]["sourceCsvAbsolutePath"])
+
+
+def performance_data(scheme, formal, metric, ratio):
+    burst = aggregate(formal, metric, ratio, source_path=FORMAL[scheme], source_stage=f"S7_stage{'10_bch' if scheme == 'BCH' else '11_cc'}_formal")
+    return no_burst_series(scheme, metric) + burst
+
+
+def targeted_no_burst_revision(scheme):
+    formal = read(FORMAL[scheme])
+    style_map = BCH_STYLE_MAP if scheme == "BCH" else CC_STYLE_MAP
+    generated = []
+    sources = [FORMAL[scheme], baseline_source(scheme)]
+
+    def add(plot_id, ratio, metric, title):
+        generated.append(emit(plot_id, scheme, title, "误帧率" if metric == "FER" else "误码率", performance_data(scheme, formal, metric, ratio), sources, log_y=True, style_map=style_map,
+                              note="黑色空心菱形为无突发 AWGN；其余曲线均含指定比例连续极性反转。"))
+
+    add("01_methods_fer", 0.05, "FER", f"{scheme} 5%突发下不同交织配置误帧率")
+    add("02_methods_ber", 0.05, "BER", f"{scheme} 5%突发下不同交织配置误码率")
+    add("03_burst_2_fer", 0.02, "FER", f"{scheme} 2%突发下不同交织配置误帧率")
+    add("04_burst_5_fer", 0.05, "FER", f"{scheme} 5%突发下不同交织配置误帧率")
+    add("05_burst_10_fer", 0.10, "FER", f"{scheme} 10%突发下不同交织配置误帧率")
+    if scheme == "BCH":
+        add("22_burst_5_ber", 0.05, "BER", "BCH 5%突发下不同交织配置误码率")
+        add("23_burst_10_ber", 0.10, "BER", "BCH 10%突发下不同交织配置误码率")
+
+    latency_source = ROOT / "stage13_latency_complexity" / "results" / "latency_complexity_summary.csv"
+    latency_rows = [row for row in read(latency_source) if row["scheme"] == scheme]
+    latency_data = [historical_latency_bar(scheme)]
+    for row in latency_rows:
+        latency_data.append({"series": CONFIG_LABELS[row["configurationId"]], "configurationId": row["configurationId"], "channelCondition": "BURST_POLARITY_REVERSAL_AWGN", "burstRatio": "2%,5%,10% weighted", "x": "", "EsN0Db": "", "rawY": float(row["decodeTimeMeanNsWeighted"]), "sourceType": "S7_DERIVED_VALIDATED", "sourceCsvAbsolutePath": str(latency_source.resolve()), "sourceStage": "S7_stage13_latency_complexity", "sourceRowKey": row["configurationId"], "interpolated": "false"})
+    generated.append(emit("16_decodeTimeMeanNsWeighted", scheme, f"{scheme} 纯译码 CPU 时间（含无突发 AWGN 基线）", "纯译码时间（ns）", latency_data, [latency_source, baseline_source(scheme)], kind="bar",
+                          note="无突发柱为历史 AWGN 各纳入 SNR 原始点的帧数加权平均；不包含交织、解交织或缓冲等待。"))
+    return generated
+
+
 def generate_bch_revision():
     formal = read(FORMAL["BCH"])
     improvement = read(ROOT / "stage14_fer_improvement" / "results" / "fer_improvement_summary.csv")
@@ -305,9 +385,13 @@ def generate_bch_revision():
 
 def main() -> int:
     existing = read(STAGE / "results" / "plot_inventory.csv")
-    replaced = {"01_methods_fer", "02_methods_ber", "04_burst_5_fer", "05_burst_10_fer", "07_mean_position_fer", "08_max_position_fer", "09_min_position_fer", "11_absoluteFerImprovement", "12_relativeFerReductionPercent", "21_all_start_heatmap", "21_all_start_heatmap_2_percent", "22_all_start_heatmap_5_percent", "22_burst_5_ber", "23_burst_10_ber", "24_mean_position_ber", "25_max_position_ber", "26_min_position_ber", "27_absoluteBerImprovement", "28_relativeBerReductionPercent"}
-    inventory = [row for row in existing if not (row["scheme"] == "BCH" and row["plotId"] in replaced)]
-    inventory += generate_bch_revision()
+    replaced = {
+        "BCH": {"01_methods_fer", "02_methods_ber", "03_burst_2_fer", "04_burst_5_fer", "05_burst_10_fer", "16_decodeTimeMeanNsWeighted", "22_burst_5_ber", "23_burst_10_ber"},
+        "CC": {"01_methods_fer", "02_methods_ber", "03_burst_2_fer", "04_burst_5_fer", "05_burst_10_fer", "16_decodeTimeMeanNsWeighted"},
+    }
+    inventory = [row for row in existing if row["plotId"] not in replaced.get(row["scheme"], set())]
+    inventory += targeted_no_burst_revision("BCH")
+    inventory += targeted_no_burst_revision("CC")
     inventory.sort(key=lambda row: (0 if row["scheme"] == "BCH" else 1, row["plotId"]))
     fields=["plotId","scheme","title","directory","status","sourceAbsolutePaths"]
     with (STAGE/"results"/"plot_inventory.csv").open("w",newline="",encoding="utf-8") as handle:

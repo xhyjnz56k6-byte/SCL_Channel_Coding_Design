@@ -1,1 +1,1 @@
-目录用途：每个子目录保存一张 BCH 科研图及其独立数据、manifest、validation、SHA 和 readme。
+目录用途：每个子目录保存一张 BCH 科研图及其独立数据、manifest、validation、SHA 和 readme。01～05、22～23 的适用 BER/FER 图及 16 纯译码时间图包含历史无突发 AWGN 基线；位置图不加入假基线。历史复杂度未记录受影响块数/单块最大错误数，14～15 不补画无突发值并在基线审计中明确为 N/A。

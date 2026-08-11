@@ -1,19 +1,39 @@
 {
   "plotId": "23_burst_10_ber",
   "scheme": "BCH",
-  "title": "BCH 10%突发误码率",
+  "title": "BCH 10%突发下不同交织配置误码率",
   "xAxis": "符号信噪比 Es/N0（dB）",
   "yAxis": "误码率",
   "logYAxis": true,
   "sourceAbsolutePaths": [
-    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv"
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage10_bch_formal\\results\\formal_results.csv",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\BCH\\simulation\\stages\\S1\\stage07_awgn_dense_formal\\published_results\\stage07_awgn_dense_formal_results.csv"
   ],
   "historicalReferenceAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S6\\results\\ldpc\\ldpc_n560_integrated_results.csv",
   "historicalReferenceUsedInFigure": false,
+  "containsNoBurstBaseline": true,
+  "noBurstBaselineSource": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\BCH\\simulation\\stages\\S1\\stage07_awgn_dense_formal\\published_results\\stage07_awgn_dense_formal_results.csv",
+  "noBurstBaselineHistorical": true,
+  "noBurstSimulationRerun": false,
+  "noInterpolation": true,
+  "originalSnrGridPreserved": true,
+  "interpolation": false,
+  "smoothing": false,
+  "syntheticData": false,
   "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation",
   "smoothingApplied": false,
   "forbiddenAnnotations": [],
   "configurationStyleMap": {
+    "NO_BURST_AWGN": {
+      "color": "#000000",
+      "linestyle": "-",
+      "marker": "D",
+      "markerfacecolor": "none",
+      "markeredgewidth": 1.4,
+      "linewidth": 2.0,
+      "zorder": 10,
+      "drawOrder": 0
+    },
     "BCH_NONE": {
       "linestyle": "-",
       "marker": "o",

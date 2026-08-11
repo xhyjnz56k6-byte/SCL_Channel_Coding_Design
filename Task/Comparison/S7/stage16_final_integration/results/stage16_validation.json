@@ -9,7 +9,7 @@
     "PASS_S7_STAGE14",
     "PASS_S7_STAGE15 plots=50"
   ],
-  "resultInventoryRows": 9,
+  "resultInventoryRows": 13,
   "plotCount": 50,
   "metricRows": 8,
   "ldpcReferenceRows": 62,
