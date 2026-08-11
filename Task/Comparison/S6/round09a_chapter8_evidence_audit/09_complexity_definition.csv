@@ -1,0 +1,6 @@
+codeFamily,decoder,operationMetric,definition,unit,source,limitations
+BCH,Syndrome lookup,syndrome/table/bitflip/postcheck,Segmented decoder events,events/frame,bch_case_adapter.cpp:127-166,no unified equivalent cost
+BCH,BM+Chien,BM/Chien/GF operations,Whole-block decoder events and GF operation counters,events/frame,bch_case_adapter.cpp:183-203,GF log tables not separately counted
+CC,Hard/float Viterbi,"ACSCount, tracebackOperations",Trellis operation counters,events/frame,stage14_runner.cpp,hard/soft branch metrics differ
+LDPC,Layered BP,"tanh, atanh, message updates",BP row/edge update events,events/frame,s4_ldpc.cpp:322-384,nonlinear ops not comparable to XOR
+LDPC,Layered NMS,"abs, comparisons, min1/min2, sign, alpha",NMS row/edge update events,events/frame,s4_ldpc.cpp:387-459,no weighted total defined

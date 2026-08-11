@@ -1,0 +1,25 @@
+module,figureId,series,targetFER,esN0Db,method,usableInChapter8,note
+BCH,bch_02_fer,分组 BCH-S200,0.1,4.667379511608076,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+BCH,bch_02_fer,分组 BCH-S200,0.01,6.040003705336809,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+BCH,bch_02_fer,整块 BCH-B200,0.1,3.6118192040603967,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+BCH,bch_02_fer,整块 BCH-B200,0.01,4.369326394940089,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_02_block_fer,整块浮点软判决,0.1,-0.7313629195817802,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_02_block_fer,整块浮点软判决,0.01,0.22884690465313087,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_02_block_fer,整块硬判决,0.1,1.3669523782519954,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_02_block_fer,整块硬判决,0.01,2.488851878798957,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,B_CONT_50x6 浮点软判决,0.1,-0.7313629195817802,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,B_CONT_50x6 浮点软判决,0.01,0.22884690465313087,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,B_CONT_50x6 硬判决,0.1,1.3669523782519954,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,B_CONT_50x6 硬判决,0.01,2.488851878798957,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,C_CONT_100x3 浮点软判决,0.1,-0.7313629195817802,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,C_CONT_100x3 浮点软判决,0.01,0.22884690465313087,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,C_CONT_100x3 硬判决,0.1,1.3669523782519954,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,C_CONT_100x3 硬判决,0.01,2.488851878798957,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,D_CONT_150x2 浮点软判决,0.1,-0.7313629195817802,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,D_CONT_150x2 浮点软判决,0.01,0.22884690465313087,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,D_CONT_150x2 硬判决,0.1,1.3669523782519954,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+CC,cc_03_slot_fer,D_CONT_150x2 硬判决,0.01,2.488851878798957,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+LDPC,ldpc_02_fer,BP,0.1,4.541396889125361,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+LDPC,ldpc_02_fer,BP,0.01,5.865832920136635,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+LDPC,ldpc_02_fer,NMS（α=0.95）,0.1,4.577197226174598,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
+LDPC,ldpc_02_fer,NMS（α=0.95）,0.01,5.875495495398213,log10_linear_adjacent_nonzero,YES,No extrapolation; adjacent nonzero log10 interpolation only
