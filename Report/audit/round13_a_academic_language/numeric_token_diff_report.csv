@@ -1,0 +1,12 @@
+chapter,status,scientificNumericTokenDiff,authorizedFigureWidthEdits,notes
+01,PASS,0,0,Scientific numeric tokens unchanged
+02,PASS,0,0,Scientific numeric tokens unchanged
+03,PASS,0,0,Scientific numeric tokens unchanged
+04,PASS,0,0,Scientific numeric tokens unchanged
+05,PASS,0,0,Scientific numeric tokens unchanged
+06,PASS,0,13,Display widths changed under explicit user authorization; figure paths and data unchanged
+07,PASS,0,0,Scientific numeric tokens unchanged
+08,PASS,0,16,Display widths changed under explicit user authorization; figure paths and data unchanged
+09,PASS,0,4,Display widths changed under explicit user authorization; figure paths and data unchanged
+10,PASS,0,0,Scientific numeric tokens unchanged
+TOTAL,PASS,0,33,Layout-only width values are excluded from the scientific numeric-token count

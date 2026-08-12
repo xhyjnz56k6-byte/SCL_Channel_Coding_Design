@@ -5,7 +5,7 @@
 
 \section{对比方案与系统级评价指标}
 
-本章面向300 bit高速二进制电文，比较前文确定的卷积码与LDPC工程候选。比较对象按实际码率组织为两组：近$2/3$码率组由卷积码R2/3与LDPC N480构成，实际码率分别为0.6536和0.6250；近$1/2$码率组由卷积码R1/2与LDPC N640构成，实际码率分别为0.4902和0.46875。这样的分组避免将冗余度差异过大的方案直接横向排序，使可靠性、发送开销和软件处理代价具有可解释的比较基础。
+本章面向300 bit高速二进制电文，比较已确定的卷积码与LDPC工程候选。比较对象按实际码率组织为两组：近$2/3$码率组由卷积码R2/3与LDPC N480构成，实际码率分别为0.6536和0.6250；近$1/2$码率组由卷积码R1/2与LDPC N640构成，实际码率分别为0.4902和0.46875。这样的分组避免将冗余度差异过大的方案直接横向排序，使可靠性、发送开销和软件处理代价具有可解释的比较基础。
 
 卷积码采用约束长度$K=7$、生成多项式$171/133$（八进制）和6 bit零尾终止。R2/3方案由母码输出按$1101$模式打孔，发送长度为459 bit；R1/2方案发送完整612 bit母码。接收端把信道LLR换算为BPSK软符号，R2/3方案先恢复母码域观测掩码，再以软符号与支路参考符号之间的欧氏距离构造整块浮点软判决Viterbi分支度量。LDPC采用BG2 Direct QC-LDPC短块构造和分层归一化最小和译码，N480与N640的归一化系数分别为0.95和0.80，最大迭代次数均为32。四种方案均不配置交织。
 
@@ -30,7 +30,7 @@
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.18\textheight][c]{0.88\textwidth}
-    \centering\bfseries Visio结构图占位\\[0.7em]
+    \centering\bfseries 高速电文多信道对比处理结构\\[0.7em]
     \normalfont 300 bit高速电文 $\rightarrow$ 卷积码/LDPC候选 $\rightarrow$ BPSK
     $\rightarrow$ 六类信道 $\rightarrow$ 接收处理与软信息
     $\rightarrow$ Viterbi/NMS $\rightarrow$ BER、FER、时延与迭代
@@ -81,7 +81,7 @@
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.18\textheight][c]{0.88\textwidth}
-    \centering\bfseries Visio结构图占位\\[0.7em]
+    \centering\bfseries 多信道模型与接收处理结构\\[0.7em]
     \normalfont 六类受控信道分为全帧连续作用与局部连续非理想条件：\\[0.4em]
     AWGN、固定多径、固定频偏、线性时变频偏
     $\quad\big|\quad$ 已知遮挡、未知突发\\[0.4em]
@@ -117,7 +117,7 @@
 
 \section{AWGN基准性能}
 
-AWGN是后续相对信道损失的基准。图\ref{fig:s5-awgn-fer}单独展示两组FER瀑布曲线。近$2/3$组中，卷积码R2/3达到FER$=0.1$和0.01所需的$E_s/N_0$门限估计分别为0.912 dB和1.857 dB，而LDPC N480分别为4.671 dB和6.027 dB，卷积码门限低3.759 dB和4.170 dB。该组的绝对可靠性由卷积码占优，且差异远大于同组0.0286的实际码率差。
+AWGN构成相对信道损失的基准。图\ref{fig:s5-awgn-fer}单独展示两组FER瀑布曲线。近$2/3$组中，卷积码R2/3达到FER$=0.1$和0.01所需的$E_s/N_0$门限估计分别为0.912 dB和1.857 dB，而LDPC N480分别为4.671 dB和6.027 dB，卷积码门限低3.759 dB和4.170 dB。该组的绝对可靠性由卷积码占优，且差异远大于同组0.0286的实际码率差。
 
 近$1/2$组呈现相反关系。卷积码R1/2达到FER$=0.1$和0.01分别需要$-0.724$ dB和0.244 dB，LDPC N640分别需要$-1.241$ dB和$-0.683$ dB。N640所需门限低0.517 dB和0.926 dB，说明在该组冻结的短块构造与译码配置下，增加到640 bit码长后，LDPC的分布式校验约束在AWGN中形成了更有利的瀑布区。上述门限均由夹住目标值的相邻非零FER实测点在FER对数域内插值得到，不是原始采样点。
 
@@ -497,7 +497,7 @@ LDPC迭代统计覆盖所有帧，不仅统计成功译码帧。表\ref{tab:s5-i
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.18\textheight][c]{0.88\textwidth}
-    \centering\bfseries Visio结构图占位\\[0.7em]
+    \centering\bfseries 高速电文编码方案选型逻辑\\[0.7em]
     \normalfont 目标码率 $+$ 主要信道 $+$ 绝对FER门限 $+$ 相对AWGN损失\\
     $+$ 软件译码/接收算法时间 $+$ LDPC迭代负担
     $\rightarrow$ 目标覆盖检查 $\rightarrow$ 场景化编码方案结论

@@ -23,12 +23,12 @@
 \end{equation}
 这里的171和133是八进制表示，不是普通十进制系数。每个多项式标明当前输入和哪些记忆单元参加模2加法，两个异或网络由此产生一对编码比特。$K=7$使网格规模仍可由64状态Viterbi稳定处理，同时保留足够的路径记忆，是本项目300 bit高速电文的统一母码结构。
 
-图\ref{fig:cc-encoder-placeholder}预留为编码器结构图。后续Visio绘制应完整表示当前输入、6级记忆单元、两组抽头和两个输出，不能只画抽象方框而省略多项式含义。
+图\ref{fig:cc-encoder-placeholder}给出编码器结构，标示当前输入、6级记忆单元、两组抽头和两个输出，并保留生成多项式对应关系。
 
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.21\textheight][c]{0.82\textwidth}
-    \centering\Large 待插入：Visio绘制的卷积编码器移位寄存器与生成多项式结构图\\[0.8em]
+    \centering\Large 卷积编码器移位寄存器与生成多项式结构\\[0.8em]
     \normalsize 输入信息比特 $\rightarrow$ 当前输入与6级记忆单元 $\rightarrow$ 两个异或网络 $\rightarrow$ 两路编码输出\\[0.4em]
     标注：$K=7$，$G_1=171$（八进制），$G_2=133$（八进制）
   \end{minipage}}
@@ -110,7 +110,7 @@ Viterbi算法并不逐个比特作孤立判决，而是比较完整状态约束�
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.21\textheight][c]{0.82\textwidth}
-    \centering\Large 待插入：Visio绘制的网格状态转移与Viterbi幸存路径示意图\\[0.8em]
+    \centering\Large 状态网格转移与Viterbi幸存路径示意\\[0.8em]
     \normalsize 少量状态仅用于说明分支、累计路径度量、路径竞争与回溯；实际译码器共有64状态
   \end{minipage}}
   \caption{网格状态转移与Viterbi幸存路径示意}
@@ -131,12 +131,12 @@ Viterbi算法并不逐个比特作孤立判决，而是比较完整状态约束�
 \begin{equation}
   W>D,\qquad S\leq W-D.
 \end{equation}
-最终窗口利用零终止状态完成剩余输出，并检查300 bit是否无遗漏、无重复。这一过程是真正的增量译码，不是先做整帧译码再人为截断结果。图\ref{fig:cc-block-sliding-placeholder}预留两条流程，后续应明确整块一次输出与滑窗分批提交的差别。
+最终窗口利用零终止状态完成剩余输出，并检查300 bit是否无遗漏、无重复。这一过程是真正的增量译码，不是先做整帧译码再人为截断结果。图\ref{fig:cc-block-sliding-placeholder}对照整块一次输出与滑窗分批提交两条流程。
 
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.23\textheight][c]{0.84\textwidth}
-    \centering\Large 待插入：Visio绘制的整块与滑窗Viterbi译码流程图\\[0.8em]
+    \centering\Large 整块与滑窗Viterbi译码流程\\[0.8em]
     \normalsize 整块：整帧接收 $\rightarrow$ 完整路径度量 $\rightarrow$ 完整幸存路径 $\rightarrow$ 终止状态回溯 $\rightarrow$ 一次输出300 bit\\[0.5em]
     滑窗：连续接收 $\rightarrow$ 缓存$W$ $\rightarrow$ 度量更新 $\rightarrow$ 回溯$D$ $\rightarrow$ 提交$S$个稳定比特 $\rightarrow$ 前移$S$
   \end{minipage}}
@@ -406,7 +406,7 @@ Q8在三码率上的损失分别为0.006214、0.008130和$-0.000741$ dB，已接
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.20\textheight][c]{0.86\textwidth}
-    \centering\Large 待插入：Visio绘制的高速电文按时隙连续编码与滑窗译码流程图\\[0.8em]
+    \centering\Large 高速电文按时隙连续编码与滑窗译码流程\\[0.8em]
     \small 300 bit高速电文 $\rightarrow$ 按时隙拆分 $\rightarrow$ 连续卷积编码 $\rightarrow$ BPSK $\rightarrow$ AWGN\\[0.4em]
     $\rightarrow$ 按时隙到达 $\rightarrow$ 接收缓存 $\rightarrow$ 滑窗Viterbi $\rightarrow$ 逐批恢复信息比特\\[0.5em]
     标注：编码器状态与打孔相位跨时隙保持，仅最后一个时隙执行零尾终止
@@ -482,7 +482,7 @@ Q8在三码率上的损失分别为0.006214、0.008130和$-0.000741$ dB，已接
 
 在三种连续组织可靠性完全相同的前提下，选择由到达节奏和时延分布决定。$50\times6$更频繁地向接收缓存提供新符号，在约$2/3$方案中保持223符号的最早首次输出，并把P95压缩到256符号，因此继续作为低时延推荐。该结论依赖跨时隙状态与打孔相位连续；若各时隙独立清零或重新起相位，必须重新评估。
 
-\section{卷积码方案阶段性结论}
+\section{卷积码方案选择结论}
 
 表\ref{tab:cc-main-conclusions}把本章各控制问题压缩为可执行选择。它们共同构成一条完整工程链：300 bit电文采用$K=7$、171/133母码和6 bit零尾；通过打孔获得612、459和408 bit三种发送长度；浮点软判决建立性能基准；有限回溯、量化和滑窗再按资源目标降维；连续时隙在保持可靠性的同时调整交付时延。
 
@@ -528,4 +528,4 @@ Q8在三码率上的损失分别为0.006214、0.008130和$-0.000741$ dB，已接
 
 工程部署时还应把这些推荐视为可复核的起点，而不是脱离链路条件的永久常数。若业务信噪比裕量降低，应优先检查高码率方案是否仍覆盖目标FER；若接收缓存成为主要约束，可在同一码率内选择较小窗口配置；若处理器或硬件采用并行回溯，软件测得的时间排序也需要重新验证。尽管绝对资源会随平台变化，本章冻结的码长、状态数、路径度量、FER工作点和符号时延仍提供了统一接口，使后续比较能够明确区分“编码方案差异”和“实现平台差异”。
 
-本章已经完成卷积码内部设计和筛选。后续横向比较将使用冻结的$1/2$母码612 bit与约$2/3$打孔459 bit整块浮点软判决候选，并采用完整306步终止回溯；复杂度分析和突发错误交织专题也分别沿用已冻结配置。此处只给出输入边界，不提前展开多信道结果、译码算法横向复杂度或交织收益。由此，第5章回答了“为什么这样设计、正式结果如何、差异为何出现以及不同工程目标如何选择”，并为后续系统级比较提供一致的高速卷积码基线。
+第5章确立的系统级比较配置采用$1/2$母码612 bit与约$2/3$打孔459 bit整块浮点软判决候选，并使用完整306步终止回溯；复杂度与突发错误交织分析沿用相同冻结配置。该配置在码率、可靠性、连续处理和实现代价之间建立了统一的高速卷积码比较基准。

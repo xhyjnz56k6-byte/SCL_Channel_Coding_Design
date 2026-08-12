@@ -1,0 +1,25 @@
+keyword,file,line,context,decision
+教师附件,,,No remaining occurrence,NO_HIT
+教师要求,Report/sections/01_编制目的与任务要求.tex,35,Table 1.1 frozen header text,KEEP_FROZEN_TABLE_TEXT
+老师要求,,,No remaining occurrence,NO_HIT
+Gate,,,No remaining occurrence,NO_HIT
+PASS_,,,No remaining occurrence,NO_HIT
+Stage10,,,No remaining occurrence,NO_HIT
+Stage11,,,No remaining occurrence,NO_HIT
+Stage15,Report/sections/09_交织抗突发错误分析.tex,"151;157;204;208;222;225;228;237;240;251;254;269;272;301;315;318;357;369;372;375;384;387;402;405;435;438;456;485",Only inside frozen historical figure paths,KEEP_FROZEN_FIGURE_PATH
+Smoke,,,No remaining visible-body occurrence,NO_HIT
+Formal,Report/sections/06_LDPC方案与仿真分析.tex,"196;200;238;242;252;256;292;296;305",Only inside frozen figure paths,KEEP_FROZEN_FIGURE_PATH
+Formal,Report/sections/07_多信道综合对比.tex,101,Only inside an existing LaTeX label,KEEP_FROZEN_LABEL
+runner,,,No remaining visible-body occurrence,NO_HIT
+branch,,,No remaining occurrence,NO_HIT
+commit,,,No remaining occurrence,NO_HIT
+push,,,No remaining occurrence,NO_HIT
+dirty,,,No remaining occurrence,NO_HIT
+staged,,,No remaining occurrence,NO_HIT
+TODO,,,No remaining occurrence,NO_HIT
+待补充,,,No remaining occurrence,NO_HIT
+后续绘制,,,No remaining occurrence,NO_HIT
+审稿,,,No remaining occurrence,NO_HIT
+作者,,,No remaining occurrence,NO_HIT
+读者,,,No remaining occurrence,NO_HIT
+将在第X章,Report/sections/04_BCH编码方案与仿真分析.tex,242,Legitimate scholarly cross-reference to the interleaving chapter,KEEP_CROSS_REFERENCE

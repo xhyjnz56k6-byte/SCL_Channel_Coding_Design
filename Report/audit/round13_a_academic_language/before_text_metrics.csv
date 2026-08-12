@@ -1,0 +1,12 @@
+chapter,file,beforeChineseChars
+01,Report/sections/01_编制目的与任务要求.tex,2666
+02,Report/sections/02_设计输入与总体方案.tex,2723
+03,Report/sections/03_统一仿真方法.tex,3922
+04,Report/sections/04_BCH编码方案与仿真分析.tex,5983
+05,Report/sections/05_卷积码方案与仿真分析.tex,7605
+06,Report/sections/06_LDPC方案与仿真分析.tex,4069
+07,Report/sections/07_多信道综合对比.tex,6213
+08,Report/sections/08_译码算法对比.tex,5796
+09,Report/sections/09_交织抗突发错误分析.tex,6601
+10,Report/sections/10_综合方案推荐.tex,5084
+TOTAL,,50662

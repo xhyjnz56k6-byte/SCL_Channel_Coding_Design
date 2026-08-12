@@ -3,7 +3,7 @@
 
 \section{Common公共仿真基础}
 
-Common 是三类编码共同使用的仿真与审计基础，不参与 BCH 生成多项式计算、卷积码状态转移或 LDPC 校验矩阵迭代。它提供统一类型和接口，固定实值 BPSK、基础 AWGN、硬判决和未量化 LLR 的定义，并通过 Frame Pool、Noise Pool、停止控制、checkpoint、分片合并和结果身份字段约束实验输入与输出。
+公共仿真模块（Common）为三类编码提供一致的仿真基础，不参与 BCH 生成多项式计算、卷积码状态转移或 LDPC 校验矩阵迭代。该模块提供统一类型和接口，固定实值 BPSK、基础 AWGN、硬判决和未量化 LLR 的定义，并通过帧样本池（Frame Pool）、噪声样本池（Noise Pool）、停止控制、断点状态保存（checkpoint）、分片合并和结果身份字段约束实验输入与输出。
 
 公共实现解决的是“相同环节如何用同一种方式执行和记录”，不能替代任务级说明。BCH、CC 和 LDPC 的 filler、CRC、tail、puncturing、shortening、量化、译码状态、复杂度字段及扩展信道仍由各任务负责；历史实验是否调用当前 Common 接口，也需要在对应章节逐项复核。
 
@@ -11,13 +11,13 @@ Common 是三类编码共同使用的仿真与审计基础，不参与 BCH 生�
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.15\textheight][c]{0.82\textwidth}
-    \centering 待插入：Common统一仿真与审计链路图
+    \centering 公共仿真模块的统一处理与数据核验链路
   \end{minipage}}
   \caption{Common统一仿真与审计链路图}
   \label{fig:unified-simulation-chain}
 \end{figure}
 
-图\ref{fig:unified-simulation-chain}的上层应展示 payload、编码、BPSK、信道、判决或 LLR、译码、恢复和统计；下层应展示 frame/noise pool、seed、stop、checkpoint、shard/merge、CSV 和 hash。两层以帧索引、pool ID、配置 hash 和结果行连接，使一个性能点能够追溯到确定的输入与执行范围。
+图\ref{fig:unified-simulation-chain}的上层对应 payload、编码、BPSK、信道、判决或 LLR、译码、恢复和统计；下层对应 frame/noise pool、seed、stop、checkpoint、shard/merge、CSV 和 hash。两层通过帧索引、pool ID、配置 hash 和结果行关联，使性能点能够追溯到确定的输入与执行范围。
 
 \section{帧结构与长度定义}
 
@@ -84,11 +84,11 @@ Common 的 BPSK 调制按逐比特实值映射：
 \end{equation}
 式~\eqref{eq:awgn-channel}由 \texttt{applyAwgn} 实现；该函数要求符号向量和标准高斯向量等长，并拒绝非有限或非正的 $\sigma$。这里的 $\sigma$ 是标准差而不是方差；Noise Pool 保存的是标准高斯 $z_i$，不是已经按某个 SNR 缩放的噪声。
 
-上述闭式只直接适用于确实调用 Common \texttt{computeAwgnSigma} 和 \texttt{applyAwgn} 的实值 BPSK--AWGN 任务。多径、频偏、遮挡、突发错误或历史 runner 可能采用不同的输入 SNR 和归一化方式，对应章节必须从源码和正式配置重新确认。
+上述闭式适用于调用 Common \texttt{computeAwgnSigma} 和 \texttt{applyAwgn} 的实值 BPSK--AWGN 处理链。多径、频偏、遮挡、突发错误或早期仿真实现可能采用不同的输入 SNR 和归一化方式，其适用关系以对应源码和正式配置为准。
 
 \section{Es/N0正式绘图口径}
 
-教师附件要求给出信噪比条件下的 BER、FER 曲线，没有强制横轴为 Eb/N0 或 Es/N0。本报告把正式主图横轴规定为符号信噪比 $E_s/N_0$，同时保留仿真输入 \texttt{ebN0Db}。在一编码比特对应一个 BPSK 符号且使用式~\eqref{eq:actual-code-rate}时，线性关系为
+信噪比条件下的 BER、FER 正式主图采用符号信噪比 $E_s/N_0$ 作为横轴，同时保留仿真输入 \texttt{ebN0Db}。在一编码比特对应一个 BPSK 符号且使用式~\eqref{eq:actual-code-rate}时，线性关系为
 \begin{equation}
   \gamma_s=R\gamma_b.
   \label{eq:es-eb-linear}
@@ -166,7 +166,7 @@ Common 的每个标准高斯样本由完整 NoiseKey 决定：
 
 \texttt{snrIndex} 和 Eb/N0 不直接进入 NoiseKey。不同 SNR 点通过式~\eqref{eq:awgn-sigma}改变 $\sigma$；是否跨 SNR 复用同一标准高斯底噪，取决于 \texttt{noiseGroupId} 及任务配置。不同 \texttt{frameIndex} 仍生成不同帧噪声，跨 SNR 复用不等于所有帧复用一条噪声。
 
-CC 硬、软 Viterbi 的公平比较应共享 payload、母码输出、打孔结果和 \texttt{receivedSymbols}，只替换译码输入和分支度量。LDPC BP/NMS 应共享 payload、码字、校验矩阵、噪声和 LLR，只替换校验节点更新规则。共享随机样本使结果差异不再同时混入另一组 Monte Carlo 噪声；具体任务是否完全遵守这些条件，仍由对应章节的配置和调用链审计。
+CC 硬、软 Viterbi 的公平比较应共享 payload、母码输出和打孔结果，并采用相同的接收符号（\texttt{receivedSymbols}）。两种方案仅替换译码输入和分支度量。LDPC BP/NMS 应共享 payload、码字、校验矩阵、噪声和 LLR，只替换校验节点更新规则。共享随机样本使结果差异不再同时混入另一组 Monte Carlo 噪声；具体任务是否完全遵守这些条件，仍由对应章节的配置和调用链审计。
 
 \section{帧池和噪声池}
 
@@ -178,7 +178,7 @@ Noise Pool 保存未缩放的标准高斯样本，格式为 float64 little-endia
 
 \section{仿真停止控制}
 
-Common 正式停止配置为 \texttt{minFrames=5000}、\texttt{targetFrameErrors=200}、\texttt{maxFrames=50000}。\texttt{evaluateStop} 的实际判断顺序如下：
+Common 的正式停止配置包含三项参数。最少帧数为 \texttt{minFrames=5000}，目标错误帧数为 \texttt{targetFrameErrors=200}，每点最大帧数为 \texttt{maxFrames=50000}。\texttt{evaluateStop} 的实际判断顺序如下：
 
 \begin{verbatim}
 if processedFrames >= maxFrames:
@@ -215,7 +215,7 @@ else:
   \end{tabular}
 \end{table}
 
-Common-01 文档把理想算法计时定义为不包含帧池和噪声文件读取；Common-04 identity pipeline 的函数边界实际上包含这些操作。正文按已执行源码边界解释现有基础字段，并把“排除 I/O 的纯算法计时”作为任务 runner 需要单独实现的扩展口径。P50/P95/P99、first-output、decision delay、structural delay、interleave time 也不是基础 SummaryRow 字段，只有任务实际输出时才报告。
+Common-01 将理想算法计时定义为不包含帧池和噪声文件读取；Common-04 identity pipeline 的实际函数边界包含这些操作。现有基础字段按已执行源码边界解释，“排除 I/O 的纯算法计时”属于需要单独实现的扩展口径。P50/P95/P99、first-output、decision delay、structural delay、interleave time 也不属于基础 SummaryRow 字段，仅在实际输出时报告。
 
 \section{Checkpoint与恢复}
 
@@ -242,7 +242,7 @@ Common-04 checkpoint JSON 保存 schema、实验和配置身份、frame/noise po
   \end{tabular}
 \end{table}
 
-记录结构和序列化格式已经包含扩展字段，但 Common-04 identity runner 创建 checkpoint 时未把所有噪声策略和分片字段显式赋为任务配置；这些字段可能保持默认值。报告因此只能说公共 Schema 支持并校验相应字段，不能据此断言所有历史 checkpoint 都已填充真实任务值。具体任务 runner 应在恢复测试中验证实际写入内容。
+记录结构和序列化格式已经包含扩展字段，但 Common-04 identity pipeline 创建 checkpoint 时未将所有噪声策略和分片字段显式赋为仿真配置，相关字段可能保持默认值。因此，公共数据结构仅能证明相应字段受到支持和校验，早期 checkpoint 的实际内容仍需通过恢复测试确认。
 
 写文件时先生成同目录临时文件，刷新成功后再替换目标。Windows 实现使用带替换和写穿语义的 \texttt{MoveFileExW}；这一平台细节放在附录\ref{app:reproducibility}，正文关注恢复身份和计数一致性。
 
@@ -278,7 +278,7 @@ Common-04 基础汇总使用 \texttt{common04.result\_summary.v1}。表~\ref{tab
 
 \section{零错误点与统计不确定性}
 
-Common-01 定义和 JSON 配置已经冻结 Wilson 95\% 区间、绘图专用 BER/FER 及零错误标志。Common-04 的 C++ 基础汇总结构和指标实现尚未输出这些字段。因此，现阶段把它们作为报告绘图规则和任务扩展要求，不写成公共 runner 已经生成的字段。
+Common-01 定义和 JSON 配置已经冻结 Wilson 95\% 区间、绘图专用 BER/FER 及零错误标志。Common-04 的 C++ 基础汇总结构和指标实现尚未输出这些字段。因此，它们作为绘图规则和扩展字段要求使用，不视为公共处理链已经生成的基础字段。
 
 原始 CSV 在未观测到错误时保留真实 0。对数坐标图可以使用空点、向下箭头或单独上界标记，不得把 0 静默替换为固定 $10^{-5}$、$10^{-6}$，也不得绘制人为 error floor。若采用零观测事件的三倍法则近似 95\% 上界，则
 \begin{align}
@@ -313,7 +313,7 @@ Common-01 定义和 JSON 配置已经冻结 Wilson 95\% 区间、绘图专用 BE
   \end{tabular}
 \end{table}
 
-后续章节引用本章定义时，应同时说明所用 runner、实际码率分母、SNR 输入类型、停止配置和扩展字段。尤其是历史任务不能因为字段名含 \texttt{ebn0} 或 \texttt{snr} 就自动认定与 Common 当前接口相同。
+各项结果使用本章定义时，同时明确实际处理链、码率分母、SNR 输入类型、停止配置和扩展字段。早期仿真结果中包含 \texttt{ebn0} 或 \texttt{snr} 的字段名，并不足以证明其定义与当前公共接口相同。
 
 在目标错误率 $p_0$ 上比较候选与参考曲线时，正式 Es/N0 编码增益定义为
 \begin{equation}
@@ -326,4 +326,4 @@ Common-01 定义和 JSON 配置已经冻结 Wilson 95\% 区间、绘图专用 BE
 
 \section{本章小结}
 
-Common 固定了 payload/encoded 码率、实值 BPSK、Eb/N0 驱动的 AWGN、硬判决、LLR、payload BER/FER、确定性随机样本、正式停止控制以及基础 checkpoint、分片和结果身份。正式图按每个点的实际码率把内部 Eb/N0 转换为 Es/N0，原始统计保持不变。任务仍需补充发送长度、附加位、扩展译码状态、量化、专用时延、复杂度和特殊信道；历史结果是否满足公共定义将在第4章以后逐章审计。
+公共仿真模块固定了 payload/encoded 码率、实值 BPSK、Eb/N0 驱动的 AWGN、硬判决、LLR、payload BER/FER、确定性随机样本、正式停止控制以及基础断点状态、分片和结果身份。正式图按每个点的实际码率将内部 Eb/N0 转换为 Es/N0，原始统计保持不变。第4章以后的各编码与专题分析补充发送长度、附加位、扩展译码状态、量化、专用时延、复杂度和特殊信道信息，并逐项说明与公共定义的对应关系。

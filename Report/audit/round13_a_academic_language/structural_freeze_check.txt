@@ -1,0 +1,18 @@
+ROUND13-A structural freeze check
+
+Comparison base: HEAD 6b56c1be933dd55efbd6fde54cb4ffb0e5a3fcee
+Scope: Report/sections/01_*.tex through Report/sections/10_*.tex
+
+figure environments: before=61 after=61 difference=0 PASS
+table environments: before=79 after=79 difference=0 PASS
+equation environments: before=32 after=32 difference=0 PASS
+align environments: before=2 after=2 difference=0 PASS
+labels: before=178 after=178 difference=0 PASS
+includegraphics commands: before=89 after=89 difference=0 PASS
+includegraphics paths: difference=0 PASS
+
+Authorized layout exception:
+- 33 includegraphics display-width values were increased in Chapters 6, 8, and 9 at the user's request.
+- No figure source file, figure path, table structure, equation, label, or scientific result asset changed.
+
+Result: PASS

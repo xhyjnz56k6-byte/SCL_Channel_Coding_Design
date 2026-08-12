@@ -10,7 +10,7 @@
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.11\textheight][c]{0.90\textwidth}
-    \centering\bfseries Visio结构图占位\\[0.7em]
+    \centering\bfseries 交织抗突发错误统一处理链路\\[0.7em]
     输入信息比特 $\rightarrow$ 信道编码 $\rightarrow$ 交织 $\rightarrow$ BPSK
     $\rightarrow$ 突发错误信道 $\rightarrow$ 硬/软判决\\[0.35em]
     $\rightarrow$ 去交织 $\rightarrow$ 信道译码
@@ -21,7 +21,7 @@
   \label{fig:s7-chain-visio}
 \end{figure}
 
-正式仿真采用成对比较。相同$E_s/N_0$、突发比例和突发位置构成一个公平性组，组内各交织配置共享输入信息、标准母噪声、突发起点和帧序列。BCH与卷积码合计1116个比较组的审计结果均为通过，因此组内性能差异可以主要归因于交织映射变化。停止条件同时受最少帧数、目标错误帧数和最大帧数约束，避免不同配置使用不一致的样本边界。
+正式仿真采用成对比较。相同$E_s/N_0$、突发比例和突发位置构成一个公平性组，组内各交织配置共享输入信息、标准母噪声、突发起点和帧序列。BCH与卷积码合计1116个比较组均通过一致性核验，因此组内性能差异可以主要归因于交织映射变化。停止条件同时受最少帧数、目标错误帧数和最大帧数约束，避免不同配置使用不一致的样本边界。
 
 \section{固定编码配置、突发错误信道与交织方法}
 
@@ -68,7 +68,7 @@
   \end{tabular}}
 \end{table}
 
-\subsection{突发错误信道模型与Formal条件}
+\subsection{突发错误信道模型与正式仿真条件}
 
 对编码比特$c_i$，BPSK映射定义为
 \begin{equation}
@@ -294,11 +294,11 @@
 
 \subsection{缓冲需求与软件处理时间}
 
-三种BCH交织配置均需285 bit结构缓存，见图\ref{fig:s7-bch-buffer}。仅按2\%和5\% Formal行进行帧数加权后，无交织、子块结构、行列和全帧伪随机配置的软件交织CPU时间分别为328.4、324.9、325.3和325.1 ns/帧；去交织时间分别为310.5、329.9、322.6和324.6 ns/帧。交织函数本身的时间差小于十纳秒量级，译码CPU时间约为$8.42\sim9.00~\mu$s/帧。上述数值是\texttt{steady\_clock}包围软件函数得到的处理时间，不包括编码、调制、信道，也不能直接换算为硬件时延。
+三种BCH交织配置均需285 bit结构缓存，见图\ref{fig:s7-bch-buffer}。仅按2\%和5\%正式仿真数据进行帧数加权后，无交织、子块结构、行列和全帧伪随机配置的软件交织CPU时间分别为328.4、324.9、325.3和325.1 ns/帧；去交织时间分别为310.5、329.9、322.6和324.6 ns/帧。交织函数本身的时间差小于十纳秒量级，译码CPU时间约为$8.42\sim9.00~\mu$s/帧。上述数值是\texttt{steady\_clock}包围软件函数得到的处理时间，不包括编码、调制、信道，也不能直接换算为硬件时延。
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.67\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/bch/19_bufferBits/figure.png}
+  \includegraphics[width=0.88\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/bch/19_bufferBits/figure.png}
   \caption{BCH交织配置的结构缓存量}
   \label{fig:s7-bch-buffer}
 \end{figure}
@@ -354,7 +354,7 @@ FER与BER反映的侧面并不完全相同。图\ref{fig:s7-cc-ber}显示5\%条�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.72\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/cc/02_methods_ber/figure.png}
+  \includegraphics[width=0.88\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/cc/02_methods_ber/figure.png}
   \caption{5\%突发条件下卷积码不同交织配置的误码率。LDPC曲线为无突发AWGN近码率基线}
   \label{fig:s7-cc-ber}
 \end{figure}
@@ -449,11 +449,11 @@ FER与BER反映的侧面并不完全相同。图\ref{fig:s7-cc-ber}显示5\%条�
 
 \subsection{缓冲需求与软件处理时间}
 
-卷积码缓存量见图\ref{fig:s7-cc-buffer}。$D=8$需要暂存128个编码比特；$D=16$和Pseudo128均需要256个编码比特。按2\%和5\% Formal行重新加权后，三种交织配置的交织CPU时间为737.4、742.7和751.8 ns/帧，去交织CPU时间为384.2、426.9和390.8 ns/帧，译码CPU时间约为$306.6\sim307.5~\mu$s/帧。与无交织配置相比，这些软件函数时间没有形成数量级增长；结构缓存则从0增加至128或256 bit。由于没有统一编码比特率或符号率，本章不把缓存量换算为微秒或毫秒。
+卷积码缓存量见图\ref{fig:s7-cc-buffer}。$D=8$需要暂存128个编码比特；$D=16$和Pseudo128均需要256个编码比特。按2\%和5\%正式仿真数据重新加权后，三种交织配置的交织CPU时间为737.4、742.7和751.8 ns/帧，去交织CPU时间为384.2、426.9和390.8 ns/帧，译码CPU时间约为$306.6\sim307.5~\mu$s/帧。与无交织配置相比，这些软件函数时间没有形成数量级增长；结构缓存则从0增加至128或256 bit。由于没有统一编码比特率或符号率，本章不把缓存量换算为微秒或毫秒。
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.67\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/cc/19_bufferBits/figure.png}
+  \includegraphics[width=0.88\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/cc/19_bufferBits/figure.png}
   \caption{卷积码交织配置的结构缓存量}
   \label{fig:s7-cc-buffer}
 \end{figure}
@@ -482,7 +482,7 @@ FER与BER反映的侧面并不完全相同。图\ref{fig:s7-cc-ber}显示5\%条�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.70\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/cc/22_cc_ldpc_no_burst_decode_latency/figure.png}
+  \includegraphics[width=0.88\textwidth]{../Task/Comparison/S7/stage15_scientific_plots/results/cc/22_cc_ldpc_no_burst_decode_latency/figure.png}
   \caption{卷积码与LDPC无交织、无突发AWGN软件译码CPU时间参考}
   \label{fig:s7-cc-ldpc-latency}
 \end{figure}
@@ -491,7 +491,7 @@ FER与BER反映的侧面并不完全相同。图\ref{fig:s7-cc-ber}显示5\%条�
 
 \section{交织收益与工程代价综合分析}
 
-表\ref{tab:s7-buffer-time}统一列出仅按2\%和5\% Formal行加权的软件时间。BCH三种交织方法均缓存285 bit，交织与去交织函数合计约$0.65~\mu$s/帧；卷积码$D=8$缓存128 bit，Pseudo128和$D=16$缓存256 bit，交织与去交织函数合计约$1.12\sim1.17~\mu$s/帧。软件CPU时间不等价于物理链路等待，缓存bit数也不等价于时延数值。工程实现仍需结合实际编码比特率、存储结构和硬件并行度换算。
+表\ref{tab:s7-buffer-time}统一列出仅按2\%和5\%正式仿真数据加权的软件时间。BCH三种交织方法均缓存285 bit，交织与去交织函数合计约$0.65~\mu$s/帧；卷积码$D=8$缓存128 bit，Pseudo128和$D=16$缓存256 bit，交织与去交织函数合计约$1.12\sim1.17~\mu$s/帧。软件CPU时间不等价于物理链路等待，缓存bit数也不等价于时延数值。工程实现仍需结合实际编码比特率、存储结构和硬件并行度换算。
 
 \begin{table}[htbp]
   \centering

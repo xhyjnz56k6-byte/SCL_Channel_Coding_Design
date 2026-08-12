@@ -1,9 +1,30 @@
 \documentclass[UTF8,zihao=-4,openany]{ctexrep}
 \input{config/packages}
+\usepackage[a4paper,left=2.5cm,right=2.3cm,top=2.4cm,bottom=2.4cm,headheight=15pt,headsep=0.6cm,footskip=1.0cm]{geometry}
+\usepackage{fancyhdr}
 \input{config/commands}
 \input{config/format}
 \input{config/metadata}
 \input{config/symbols}
+\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\renewcommand{\topfraction}{0.90}
+\renewcommand{\bottomfraction}{0.80}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.72}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
 \begin{document}
 \maketitle
 \tableofcontents

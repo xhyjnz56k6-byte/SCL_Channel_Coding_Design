@@ -2,9 +2,9 @@
 
 \section{对比目标与统一仿真条件}
 
-\subsection{S6任务目标}
+\subsection{译码算法对比目标}
 
-S6在前序编码方案已经确定的基础上，固定业务输入、编码配置和加性高斯白噪声（Additive White Gaussian Noise，AWGN）条件，在各编码族内部更换译码实现，比较译码器对可靠性与实现代价的共同影响。可靠性采用比特错误率（Bit Error Rate，BER）和帧错误率（Frame Error Rate，FER）表征；实现代价分为算法操作规模、译码器存储开销和当前软件平台上的实测译码时间。平均译码时间与最大观测译码时间是本章的主要时间指标，P95、P99、迭代次数、提前停止率、首输出时延和决策时延用于补充描述尾部波动、收敛行为与流式输出特性。
+在编码方案已经确定的基础上，固定业务输入、编码配置和加性高斯白噪声（Additive White Gaussian Noise，AWGN）条件，在各编码族内部更换译码实现，以比较译码器对可靠性与实现代价的共同影响。可靠性采用比特错误率（Bit Error Rate，BER）和帧错误率（Frame Error Rate，FER）表征；实现代价分为算法操作规模、译码器存储开销和当前软件平台上的实测译码时间。平均译码时间与最大观测译码时间是本章的主要时间指标，P95、P99、迭代次数、提前停止率、首输出时延和决策时延用于补充描述尾部波动、收敛行为与流式输出特性。
 
 表\ref{tab:s6-control-variables}给出三类比较的控制边界。卷积码硬、软判决是在编码器、码率和码长不变时更换分支度量输入，因而最接近单一译码因素对比；LDPC的BP与归一化最小和（Normalized Min-Sum，NMS）共享逐帧输入及噪声，实现了严格配对；BCH两条路线同时改变码型、发送长度、纠错能力、分块组织和译码器，因此只能解释为两套完整BCH实现方案的综合比较。
 
@@ -79,7 +79,7 @@ S6在前序编码方案已经确定的基础上，固定业务输入、编码配
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.18\textheight][c]{0.86\textwidth}
-    \centering\large 待插入：Visio绘制的S6译码算法比较统一仿真流程\\[0.8em]
+    \centering\large 译码算法比较的统一仿真流程\\[0.8em]
     \small 随机信息比特 $\rightarrow$ 冻结编码器 $\rightarrow$ BPSK $\rightarrow$ AWGN\\
     $\rightarrow$ 共享接收样本 $\rightarrow$ 译码算法A/译码算法B\\
     $\rightarrow$ BER、FER、操作规模、存储与软件译码时间
@@ -119,11 +119,11 @@ BCH-S200把200 bit载荷补入9个零后分为19组，每组采用BCH(15,11,1)�
 \begin{figure}[p]
   \centering
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.78\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_01_ber/figure.png}\\[-0.2em]
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_01_ber/figure.png}\\[-0.2em]
     \small（a）比特错误率
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.78\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_02_fer/figure.png}\\[-0.2em]
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_02_fer/figure.png}\\[-0.2em]
     \small（b）帧错误率
   \end{minipage}
   \caption{BCH两类实现的BER与FER}
@@ -137,15 +137,15 @@ BCH-S200对19个短子块计算综合征；综合征非零时执行位测试、�
 \begin{figure}[p]
   \centering
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.66\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_03_segmented_operations/figure.png}\\[-0.2em]
+    \includegraphics[width=0.72\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_03_segmented_operations/figure.png}\\[-0.2em]
     \small（a）分组查表译码操作
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.66\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_04_block_operations/figure.png}\\[-0.2em]
+    \includegraphics[width=0.72\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_04_block_operations/figure.png}\\[-0.2em]
     \small（b）整块代数译码操作
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.62\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_05_operation_structure/figure.png}\\[-0.2em]
+    \includegraphics[width=0.68\linewidth]{../Task/Comparison/S6/results/summary/figures/bch_05_operation_structure/figure.png}\\[-0.2em]
     \small（c）主要操作结构的网格均值
   \end{minipage}
   \caption{BCH译码计算结构与操作统计}
@@ -158,7 +158,7 @@ BCH-S200对19个短子块计算综合征；综合征非零时执行位测试、�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.76\textwidth]{../Task/Comparison/S6/results/summary/figures/bch_06_memory/figure.png}
+  \includegraphics[width=0.90\textwidth]{../Task/Comparison/S6/results/summary/figures/bch_06_memory/figure.png}
   \caption{BCH译码器存储开销}
   \label{fig:s6-bch-memory}
 \end{figure}
@@ -218,13 +218,13 @@ BCH-S200对19个短子块计算综合征；综合征非零时执行位测试、�
 \begin{figure}[p]
   \centering
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.64\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_01_block_ber/figure.png}\\[-0.2em]\small（a）整块译码BER
+    \includegraphics[width=0.70\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_01_block_ber/figure.png}\\[-0.2em]\small（a）整块译码BER
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.64\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_02_block_fer/figure.png}\\[-0.2em]\small（b）整块译码FER
+    \includegraphics[width=0.70\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_02_block_fer/figure.png}\\[-0.2em]\small（b）整块译码FER
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.64\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_03_slot_fer/figure.png}\\[-0.2em]\small（c）连续组织FER
+    \includegraphics[width=0.70\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_03_slot_fer/figure.png}\\[-0.2em]\small（c）连续组织FER
   \end{minipage}
   \caption{卷积码硬判决与浮点软判决的BER和FER}
   \label{fig:s6-cc-reliability}
@@ -253,10 +253,10 @@ BCH-S200对19个短子块计算综合征；综合征非零时执行位测试、�
 \begin{figure}[p]
   \centering
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.76\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_04_complexity/figure.png}\\[-0.2em]\small（a）ACS与回溯操作
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_04_complexity/figure.png}\\[-0.2em]\small（a）ACS与回溯操作
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.72\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_05_memory/figure.png}\\[-0.2em]\small（b）译码器内存
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_05_memory/figure.png}\\[-0.2em]\small（b）译码器内存
   \end{minipage}
   \caption{卷积码Viterbi译码的操作规模与存储开销}
   \label{fig:s6-cc-resource}
@@ -267,7 +267,7 @@ BCH-S200对19个短子块计算综合征；综合征非零时执行位测试、�
 \begin{figure}[p]
   \centering
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.78\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_06_avg_time/figure.png}\\[-0.2em]\small（a）平均CPU译码时间
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_06_avg_time/figure.png}\\[-0.2em]\small（a）平均CPU译码时间
   \end{minipage}\par\medskip
   \begin{minipage}{0.49\textwidth}\centering
     \includegraphics[width=0.98\linewidth]{../Task/Comparison/S6/results/summary/figures/cc_07_first_output/figure.png}\\[-0.2em]\small（b）首输出时延
@@ -333,10 +333,10 @@ BP和NMS共享同一载荷、码字、噪声、对数似然比（Log-Likelihood 
 \begin{figure}[p]
   \centering
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.78\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_01_ber/figure.png}\\[-0.2em]\small（a）比特错误率
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_01_ber/figure.png}\\[-0.2em]\small（a）比特错误率
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.78\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_02_fer/figure.png}\\[-0.2em]\small（b）帧错误率
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_02_fer/figure.png}\\[-0.2em]\small（b）帧错误率
   \end{minipage}
   \caption{LDPC BP与NMS译码的BER和FER}
   \label{fig:s6-ldpc-reliability}
@@ -349,10 +349,10 @@ BP和NMS共享同一载荷、码字、噪声、对数似然比（Log-Likelihood 
 \begin{figure}[p]
   \centering
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.78\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_03_iterations/figure.png}\\[-0.2em]\small（a）平均迭代次数
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_03_iterations/figure.png}\\[-0.2em]\small（a）平均迭代次数
   \end{minipage}\par\medskip
   \begin{minipage}{0.92\textwidth}\centering
-    \includegraphics[width=0.78\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_04_early_stop/figure.png}\\[-0.2em]\small（b）提前停止率
+    \includegraphics[width=0.90\linewidth]{../Task/Comparison/S6/results/summary/figures/ldpc_04_early_stop/figure.png}\\[-0.2em]\small（b）提前停止率
   \end{minipage}
   \caption{LDPC BP与NMS的迭代和提前停止行为}
   \label{fig:s6-ldpc-convergence}

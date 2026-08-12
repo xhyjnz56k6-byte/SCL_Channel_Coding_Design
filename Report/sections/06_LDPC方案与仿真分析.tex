@@ -18,7 +18,7 @@ N=n_bZ_c,\qquad R=\frac{300}{N}.
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.18\textheight][c]{0.86\textwidth}
-    \centering\Large 待插入Visio：300 bit高速电文BG2短块LDPC编码结构\\[0.7em]
+  \centering\Large 300 bit高速电文BG2短块LDPC编码结构\\[0.7em]
     \normalsize 300 bit输入信息 $\rightarrow$ BG2结构参数 $\rightarrow$ 提升因子$Z_c$
     $\rightarrow$ 信息容量与填充位 $\rightarrow$ 准循环校验矩阵
     $\rightarrow$ 系统编码 $\rightarrow$ 校验位 $\rightarrow$ 480/560/640 bit码字
@@ -42,7 +42,7 @@ N=n_bZ_c,\qquad R=\frac{300}{N}.
   \end{tabular}}
 \end{table}
 
-教师给出的中间目标码长为576 bit。BG2短块构造受到提升因子与校验矩阵可编码条件的共同约束，精确576 bit候选未满足本系统的编码条件，因此采用距离目标最近的560 bit合法方案。后续仿真、码率和性能比较均按560 bit实际发送长度计算。
+中间目标码长为576 bit。BG2短块构造受到提升因子与校验矩阵可编码条件的共同约束，精确576 bit候选未满足本系统的编码条件，因此采用距离目标最近的560 bit合法方案。仿真、码率和性能比较均按560 bit实际发送长度计算。
 
 三种构造的差异不仅体现为发送长度变化，还包括提升因子、基图截取范围、填充量和校验约束分布的同步变化。N640包含320个校验位且填充位仅20 bit；N560虽然发送长度居中，但信息容量达到448 bit，其中148 bit为填充位。完整校验图结构由此成为短块性能分析的重要基础。
 
@@ -58,7 +58,7 @@ L_{c\rightarrow v}^{\mathrm{NMS}}
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.20\textheight][c]{0.86\textwidth}
-    \centering\Large 待插入Visio：BP与NMS分层迭代译码流程\\[0.7em]
+  \centering\Large BP与NMS分层迭代译码流程\\[0.7em]
     \normalsize 接收LLR $\rightarrow$ 校验节点分层处理；
     BP：双曲正切/反双曲正切，NMS：绝对值/最小值/次小值/符号/缩放
     $\rightarrow$ 变量节点更新 $\rightarrow$ 硬判决 $\rightarrow$ 校验方程\\[0.4em]
@@ -116,7 +116,7 @@ NMS以$\alpha$修正最小和近似产生的消息幅度。较小的$\alpha$会�
   \end{tabular}}
 \end{table}
 
-N480在$\alpha=0.90$与0.95时的平均FER分别为0.4427和0.4273，绝对差为0.0154；N560对应差值为0.0080。0.95使两种码长的平均迭代和软件时间进一步下降，但错误合法码字率均比0.90增加3.17个百分点。因此，N480与N560在$0.90\sim0.95$附近形成可靠性、收敛速度与错误收敛风险之间的综合取舍区间，后续大规模性能比较采用$\alpha=0.95$。
+N480在$\alpha=0.90$与0.95时的平均FER分别为0.4427和0.4273，绝对差为0.0154；N560对应差值为0.0080。0.95使两种码长的平均迭代和软件时间进一步下降，但错误合法码字率均比0.90增加3.17个百分点。因此，N480与N560在$0.90\sim0.95$附近形成可靠性、收敛速度与错误收敛风险之间的综合取舍区间，正式性能比较采用$\alpha=0.95$。
 
 N640的变化方向不同：$\alpha=0.80$的平均FER为0.3653，低于0.90、0.95和1.00，对应较优区间向较小系数移动，性能比较采用$\alpha=0.80$。N480与N560在$\alpha=1.00$时表现出最低的表面平均FER和最短时间，同时错误合法码字率升至17.33\%和19.50\%。该现象说明较大的消息幅度会使部分错误帧快速进入错误但满足校验方程的码字，较短的迭代过程由此未必对应更可靠的恢复结果。
 
@@ -125,7 +125,7 @@ N640的变化方向不同：$\alpha=0.80$的平均FER为0.3653，低于0.90、0.
 \begin{figure}[htbp]
   \centering
   \fbox{\begin{minipage}[c][0.18\textheight][c]{0.86\textwidth}
-    \centering\Large 待插入Visio：LDPC仿真链路与软件译码时间统计位置\\[0.7em]
+  \centering\Large LDPC仿真链路与软件译码时间统计位置\\[0.7em]
     \normalsize 300 bit信息 $\rightarrow$ LDPC编码 $\rightarrow$ BPSK $\rightarrow$ AWGN
     $\rightarrow$ LLR $\rightarrow$【计时起点】BP/NMS【计时终点】
     $\rightarrow$ 信息恢复 $\rightarrow$ BER/FER/迭代/时间/复杂度
@@ -193,11 +193,11 @@ G=\left(E_b/N_0\right)_{\mathrm{reference}}
 \begin{figure}[htbp]
   \centering
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_ber.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_ber.png}\\[-0.3em]
     \small（a）BER
   \end{minipage}\\[0.3em]
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_fer.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_fer.png}\\[-0.3em]
     \small（b）FER
   \end{minipage}
   \caption{不同LDPC码长及BP/NMS译码的误码性能}
@@ -228,18 +228,18 @@ G=\left(E_b/N_0\right)_{\mathrm{reference}}
 
 N560在FER$=0.1$处相对N480仅降低0.146 dB（BP）和0.123 dB（NMS），FER$=0.01$处仅降低0.090 dB和0.100 dB，没有形成随发送长度增加而自然增长的中间可靠性收益。N560的$Z_c=56$、信息容量448 bit和填充位148 bit均与N480不同，截取矩阵结构与校验约束分布也同步改变。较大的填充量是影响短块结构与有效约束利用的重要差异之一，但性能变化由完整校验图共同决定。
 
-同一码长下，BP与NMS的FER目标点十分接近：FER$=0.1$时所需$E_s/N_0$差值为0.013～0.053 dB，FER$=0.01$时为0.009～0.019 dB。NMS在适当归一化系数下保持了接近BP的可靠性，为后续降低软件计算时间提供了基础。
+同一码长下，BP与NMS的FER目标点十分接近：FER$=0.1$时所需$E_s/N_0$差值为0.013～0.053 dB，FER$=0.01$时为0.009～0.019 dB。NMS在适当归一化系数下保持了接近BP的可靠性，并降低了软件计算时间。
 
 \section{迭代次数与软件译码时间}
 
 \begin{figure}[htbp]
   \centering
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_avg_iterations.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_avg_iterations.png}\\[-0.3em]
     \small（a）平均迭代次数
   \end{minipage}\\[0.3em]
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.74\textwidth]{figures/ldpc/formal_p95_iterations.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_p95_iterations.png}\\[-0.3em]
     \small（b）P95迭代次数
   \end{minipage}
   \caption{BP与NMS译码迭代特性}
@@ -249,11 +249,11 @@ N560在FER$=0.1$处相对N480仅降低0.146 dB（BP）和0.123 dB（NMS），FER
 \begin{figure}[!t]
   \centering
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_avg_delay.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_avg_delay.png}\\[-0.3em]
     \small（a）平均软件译码时间
   \end{minipage}\\[0.2em]
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_p95_delay.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_p95_delay.png}\\[-0.3em]
     \small（b）P95软件译码时间
   \end{minipage}
   \caption{BP与NMS软件译码时间}
@@ -289,11 +289,11 @@ N560在FER$=0.1$处相对N480仅降低0.146 dB（BP）和0.123 dB（NMS），FER
 \begin{figure}[!t]
   \centering
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_avg_edge_updates.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_avg_edge_updates.png}\\[-0.3em]
     \small（a）平均边消息更新次数
   \end{minipage}\\[0.2em]
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/formal_operation_count.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/formal_operation_count.png}\\[-0.3em]
     \small（b）基础运算事件数
   \end{minipage}
   \caption{BP与NMS译码计算规模}
@@ -302,7 +302,7 @@ N560在FER$=0.1$处相对N480仅降低0.146 dB（BP）和0.123 dB（NMS），FER
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.78\textwidth]{figures/ldpc/formal_wrong_valid_rate.png}
+  \includegraphics[width=0.90\textwidth]{figures/ldpc/formal_wrong_valid_rate.png}
   \caption{BP与NMS错误合法码字率}
   \label{fig:ldpc-wrong-valid}
 \end{figure}
@@ -336,11 +336,11 @@ N480的峰值为49.1\%（BP，2.5 dB）和64.5\%（NMS，2.0 dB），N560对应�
 \begin{figure}[!t]
   \centering
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/bp_ber_relative_coding_gain_25points.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/bp_ber_relative_coding_gain_25points.png}\\[-0.3em]
     \small（a）BER相对编码增益
   \end{minipage}\\[0.2em]
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/bp_fer_relative_coding_gain_25points.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/bp_fer_relative_coding_gain_25points.png}\\[-0.3em]
     \small（b）FER相对编码增益
   \end{minipage}
   \caption{BP译码下不同LDPC方案的相对编码增益}
@@ -350,11 +350,11 @@ N480的峰值为49.1\%（BP，2.5 dB）和64.5\%（NMS，2.0 dB），N560对应�
 \begin{figure}[!t]
   \centering
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/nms_ber_relative_coding_gain_25points.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/nms_ber_relative_coding_gain_25points.png}\\[-0.3em]
     \small（a）BER相对编码增益
   \end{minipage}\\[0.2em]
   \begin{minipage}{0.96\textwidth}\centering
-    \includegraphics[width=0.68\textwidth]{figures/ldpc/nms_fer_relative_coding_gain_25points.png}\\[-0.3em]
+    \includegraphics[width=0.86\textwidth]{figures/ldpc/nms_fer_relative_coding_gain_25points.png}\\[-0.3em]
     \small（b）FER相对编码增益
   \end{minipage}
   \caption{NMS译码下不同LDPC方案的相对编码增益}
