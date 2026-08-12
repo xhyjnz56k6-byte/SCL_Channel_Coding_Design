@@ -1,0 +1,9 @@
+scheme,burstRatio,burstLengthBits,EsN0Db,configuration,meanPositionFER,worstPositionFER,bestPositionFER,meanPositionBER,FERreductionVsNoInterleavingPercent,sourceCsv
+BCH,2%,6,10,无交织,0.829613,1,2e-05,0.0207859,0,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,2%,6,10,BCH子块结构交织 D=19,0.000376667,0.00044,0.00032,3.78333e-06,99.9546,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,2%,6,10,全帧行列交织 R=15,0.000333333,0.0005,0.00018,3.51667e-06,99.9598,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,2%,6,10,全帧伪随机交织,0.427587,0.99998,0.00026,0.00463267,48.4595,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,5%,14,10,无交织,1,1,1,0.0416582,0,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,5%,14,10,BCH子块结构交织 D=19,0.000896667,0.00102,0.00082,9.38333e-06,99.9103,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,5%,14,10,全帧行列交织 R=15,0.000763333,0.00088,0.00062,8.3e-06,99.9237,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,5%,14,10,全帧伪随机交织,0.998823,1,0.99296,0.0326278,0.117667,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv

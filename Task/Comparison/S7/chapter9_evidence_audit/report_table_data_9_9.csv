@@ -1,0 +1,9 @@
+scheme,configuration,includedBurstRatios,bufferBits,interleaveCpuNsPerFrame,deinterleaveCpuNsPerFrame,decodeCpuNsPerFrame,framesWeighted,sourceCsv
+BCH,无交织,2%;5%,0,328.423,310.518,8423.97,2630731,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,BCH子块结构交织 D=19,2%;5%,285,324.869,329.852,8997.82,2630731,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,全帧行列交织 R=15,2%;5%,285,325.346,322.57,8886.35,2630731,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,全帧伪随机交织,2%;5%,285,325.148,324.611,8754.99,2630731,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+CC,无交织,2%;5%,0,745.816,404.432,307767,564005,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,短深度块交织 D=8,2%;5%,128,737.438,384.182,307483,564005,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,局部伪随机交织 span=128,2%;5%,256,751.829,390.802,307488,564005,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,短深度块交织 D=16,2%;5%,256,742.696,426.894,306640,564005,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv

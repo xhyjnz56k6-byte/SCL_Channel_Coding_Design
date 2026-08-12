@@ -1,0 +1,5 @@
+configuration,method,parameter,spanBits,bufferBits,mapping
+BCH_NONE,无交织,0,1,0,恒等映射
+BCH_CODEBLOCK_D19,BCH子块结构交织,D=19,285,285,按19个15-bit子块组织并列读
+BCH_ROW_COLUMN_R15,全帧行列交织,R=15,285,285,全帧行写列读
+BCH_GLOBAL_PSEUDO_285,全帧伪随机交织,285,285,285,固定种子的全帧确定性置换

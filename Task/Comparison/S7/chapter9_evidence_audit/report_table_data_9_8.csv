@@ -1,0 +1,7 @@
+burstRatio,configuration,spanTrellisSteps,bufferBits,meanPositionFER,worstPositionFER,comparisonRole,sourceCsv
+2%,短深度块交织 D=8,64,128,0.552654,0.85,工程配置：低缓存,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+2%,短深度块交织 D=16,128,256,0.718629,1,等跨度受控：规则排列,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+2%,局部伪随机交织 span=128,128,256,0.448905,0.84,工程配置/等跨度受控：伪随机排列,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+5%,短深度块交织 D=8,64,128,1,1,工程配置：低缓存,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+5%,短深度块交织 D=16,128,256,0.9945,1,等跨度受控：规则排列,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+5%,局部伪随机交织 span=128,128,256,0.999667,1,工程配置/等跨度受控：伪随机排列,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
