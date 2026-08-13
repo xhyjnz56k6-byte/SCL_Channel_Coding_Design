@@ -1,0 +1,117 @@
+\chapter{完整参数表}\label{app:parameters}
+
+本附录列出已经由Common文档、源码和任务审计材料确认的公共参数。BCH参数已随第\ref{chap:bch}章冻结；CC、LDPC及后续任务仍在对应章节完成证据审计后补充，不用规划值代替正式配置。
+
+\section{Common长度与码率字段}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Common长度、附加位和码率参数}
+  \label{tab:app-common-lengths}
+  \begin{tabular}{p{0.27\textwidth}p{0.23\textwidth}p{0.40\textwidth}}
+    \toprule
+    字段 & 冻结值或类型 & 含义 \\
+    \midrule
+    payloadLength & 200或300 bit & 原始有效payload长度 \\
+    codecInputLength & 任务确定 & 编码器实际输入长度 \\
+    encodedLength & 正整数，不超过任务约束 & Common码率分母 \\
+    transmittedLength & 正整数，任务扩展输出 & 实际进入BPSK和信道的长度 \\
+    filler/crc/tailLength & 非负整数 & 不增加payload码率分子 \\
+    打孔/缩短长度 & 非负整数 & 分别记录打孔和缩短规模 \\
+    codeRate & $K_{\mathrm{payload}}/N_{\mathrm{encoded}}$ & 由\texttt{computeCodeRate}计算 \\
+    maxCodeBlockLength & 1000 bit & 教师要求和Common配置的单块上限 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Common调制、噪声与停止参数}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Common基础仿真参数}
+  \label{tab:app-common-simulation}
+  \begin{tabular}{p{0.29\textwidth}p{0.29\textwidth}p{0.32\textwidth}}
+    \toprule
+    参数 & 冻结值 & 说明 \\
+    \midrule
+    BPSK mapping & $0\mapsto+1,\ 1\mapsto-1$ & 实值离散符号模型 \\
+    SNR input & Eb/N0 in dB & \texttt{computeAwgnSigma}输入 \\
+    AWGN sigma & $\sqrt{1/(2R10^{\mathrm{EbN0dB}/10})}$ & 返回标准差 \\
+    hard decision & $y\ge0\mapsto0$；$y<0\mapsto1$ & 零点判0 \\
+    LLR & $2y/\sigma^2$ & 正值倾向bit 0 \\
+    masterNoiseSeed & uint64 & 标准高斯主种子 \\
+    noiseGroupId & uint64，默认0 & 公平对比组身份 \\
+    noisePolicyVersion & 1 & 当前噪声策略版本 \\
+    NoiseKey & seed、group、frame、symbol、version & 不包含snrIndex \\
+    formal minFrames & 5000 & 达到前不按目标错误数停止 \\
+    formal targetFrameErrors & 200 & 达到最小帧数后生效 \\
+    formal maxFrames & 50000 & 优先级最高的上限判断 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Pool、Schema和时延字段}
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Common pool及结果身份参数}
+  \label{tab:app-common-pool-schema}
+  \begin{tabular}{p{0.25\textwidth}p{0.29\textwidth}p{0.36\textwidth}}
+    \toprule
+    项目 & 冻结值 & 说明 \\
+    \midrule
+    Frame Pool schema & manifest v2 & 完整标识为common03 frame pool manifest v2；packed bits，LSB-first \\
+    Frame generator & splitmix64\_payload\_v2 & payloadPolicyVersion=1 \\
+    Frame shard size & 默认1000帧 & 单片SHA-256和overall hash \\
+    Noise Pool schema & manifest v1 & 完整标识为common04 noise pool manifest v1；float64 little-endian \\
+    Noise generator & splitmix64\_box\_muller\_v1 & 保存未缩放标准高斯样本 \\
+    Noise shard size & 默认1000帧 & 版本化头、分片SHA-256 \\
+    Checkpoint schema & common04.checkpoint.v1 & 保存身份、进度、计数和累计时间 \\
+    Result schema & common04.result\_summary.v1 & 基础SummaryRow \\
+    Metadata schema & common04.metadata.v1 & createdTime仅用于运行时元数据 \\
+    Config hash & SHA-256 canonical config & 排除时间和临时路径 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+基础结果字段包括实验身份、payload/encoded长度、codeRate、Eb/N0、SNR索引、处理帧数、payload总比特、错误计数、成功帧、BER、FER、successRate、基础时延、stopReason、pool ID和configHash。transmittedLength、误纠、声明成功率、置信区间、零错误标志、迭代次数、复杂度和交织参数由任务Schema扩展。
+
+Common基础时延覆盖encode、channel、decode、recovery和total阶段的平均时间，并保存decode与total的最大观测时间。identity pipeline 的前两项包含payload或噪声生成/池读取，不能直接解释为排除I/O的纯编码和纯信道算法时间。
+
+\section{BCH母码与长度适配参数}
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{BCH正式方案的完整长度参数}
+  \label{tab:app-bch-parameters}
+  \begin{tabular}{p{0.18\textwidth}rrrrrrp{0.18\textwidth}}
+    \toprule
+    方案 & $K_p$ & 母码$n$ & 母码$k$ & $t$ & 子块 & 填充/缩短 & 输出/说明 \\
+    \midrule
+    K200\_S15 & 200 & 15 & 11 & 1 & 19 & 填充9 & 285，逐块查表 \\
+    K200\_M255K207 & 200 & 255 & 207 & 6 & 1 & 缩短7 & 248，GF$(2^8)$ \\
+    K200\_M511K421 & 200 & 511 & 421 & 10 & 1 & 缩短221 & 290，GF$(2^9)$ \\
+    K200\_M511K385 & 200 & 511 & 385 & 14 & 1 & 缩短185 & 326，GF$(2^9)$ \\
+    K300\_S15 & 300 & 15 & 11 & 1 & 28 & 填充8 & 420，逐块查表 \\
+    K300\_M255K207 & 300 & 255 & 207 & 6 & 2 & 每块缩短57 & 396，每块150 bit \\
+    K300\_M511K421 & 300 & 511 & 421 & 10 & 1 & 缩短121 & 390，GF$(2^9)$ \\
+    K300\_M511K385 & 300 & 511 & 385 & 14 & 1 & 缩短85 & 426，GF$(2^9)$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+BCH(511,421)与BCH(511,385)使用本原多项式表示\texttt{0x211}；实际码率均按payload除以输出长度计算。300 bit的BCH(255,207)方案是两个独立缩短块，不应误写为一个396 bit母码。
+
+\section{LDPC正式参数}\label{app:ldpc-parameters}
+\begin{table}[htbp]\centering\scriptsize\caption{LDPC正式配置摘要}\label{tab:app-ldpc-parameters}
+\resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c c c c}\toprule
+输入 & BG & 实际码长 & $Z_c$ & $k_b/n_b/m_b$ & 填充位 & 码率 & 最大迭代 & NMS $\alpha$ & 信噪比\\\midrule
+300 bit & 2 & 480 & 48 & 8/10/2 & 84 & 0.6250 & 32 & 0.95 & $E_s/N_0=-5\sim10$ dB\\
+300 bit & 2 & 560（目标576） & 56 & 8/10/2 & 148 & 0.5357 & 32 & 0.95 & $E_s/N_0=-5\sim10$ dB\\
+300 bit & 2 & 640 & 40 & 8/16/8 & 20 & 0.4688 & 32 & 0.80 & $E_s/N_0=-5\sim10$ dB\\\bottomrule
+\end{tabular}}\end{table}
+表中$\alpha$为大规模性能仿真使用的归一化因子。归一化因子对FER、迭代次数、软件译码时间和错误合法码字率的影响见第\ref{chap:ldpc}章。

@@ -57,3 +57,13 @@ Task/BCH/simulation/stages/S1/stage07_awgn_dense_formal/
 Report/config/
 Task/BCH/simulation/stages/S1/readme.txt
 visio/C7/readme.txt
+# 报告
+Report/evidence/
+Report/data/
+Report/figures/
+Report/config/
+Task/BCH/simulation/stages/S1/
+Task/Comparison/S5/report_scan_round08A/*.csv
+Task/Comparison/S5/report_scan_round08A/*
+visio/
+注意/修改注意事项.txt

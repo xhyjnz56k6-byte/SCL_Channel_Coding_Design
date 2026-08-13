@@ -1,0 +1,5 @@
+configuration,affectedBlocksMean,maximumErrorsInBlock,correctedBlocksMean,meanPositionFER,sourceCsv
+无交织,1.47778,15,1.47778,1,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH子块结构交织 D=19,14.0003,2,14.0003,0.000896667,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+全帧行列交织 R=15,14.0003,2,14.0003,0.000763333,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+全帧伪随机交织,10.721,4,10.5401,0.998823,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv

@@ -48,7 +48,17 @@ def main() -> int:
         ("LATENCY",ROOT/"stage13_latency_complexity"/"results"/"latency_complexity_summary.csv","DERIVED_VALIDATED"),
         ("RECOMMENDATION",ROOT/"stage14_fer_improvement"/"results"/"recommendation_ranking.csv","DERIVED_VALIDATED"),
         ("PLOTS",ROOT/"stage15_scientific_plots"/"results"/"plot_inventory.csv","DERIVED_VALIDATED"),
-        ("LDPC_REFERENCE",ROOT/"results"/"ldpc_baseline"/"ldpc_baseline_reference.csv","INDEPENDENT_INCOMPATIBLE_REFERENCE")]
+        ("NO_BURST_BCH",ROOT/"stage15_scientific_plots"/"no_burst_baseline"/"bch"/"no_burst_baseline.csv","HISTORICAL_FORMAL_NORMALIZED_NO_INTERPOLATION"),
+        ("NO_BURST_CC",ROOT/"stage15_scientific_plots"/"no_burst_baseline"/"cc"/"no_burst_baseline.csv","HISTORICAL_FORMAL_EXACT_GRID"),
+        ("NO_BURST_AUDIT",ROOT/"stage15_scientific_plots"/"no_burst_baseline"/"baseline_source_audit.csv","AUDIT_EVIDENCE"),
+        ("NO_BURST_REVISION_REPORT",ROOT/"S7_no_burst_baseline_plot_revision_report.md","AUDIT_REPORT"),
+        ("LDPC_REFERENCE",ROOT/"results"/"ldpc_baseline"/"ldpc_baseline_reference.csv","INDEPENDENT_INCOMPATIBLE_REFERENCE"),
+        ("LDPC_SELECTED_BASELINE",ROOT/"stage15_scientific_plots"/"ldpc_baseline"/"selected_ldpc_baseline_points.csv","HISTORICAL_FORMAL_EXACT_GRID_NEAR_RATE_REFERENCE"),
+        ("LDPC_SOURCE_AUDIT",ROOT/"stage15_scientific_plots"/"ldpc_baseline"/"ldpc_baseline_source_audit.csv","AUDIT_EVIDENCE"),
+        ("CODING_BASELINE_COMPARISON",ROOT/"stage15_scientific_plots"/"results"/"cc"/"coding_baseline_comparison"/"coding_baseline_comparison.csv","DERIVED_VALIDATED"),
+        ("CODING_COMPLEXITY_REFERENCE",ROOT/"stage15_scientific_plots"/"results"/"cc"/"coding_baseline_comparison"/"coding_complexity_reference.csv","ALGORITHM_SPECIFIC_REFERENCE"),
+        ("CODING_REFERENCE_SUMMARY",ROOT/"S7_coding_reference_summary.csv","DERIVED_VALIDATED"),
+        ("LDPC_INTEGRATION_REPORT",ROOT/"S7_ldpc_baseline_integration_report.md","AUDIT_REPORT")]
     inventory=[]
     for name,path,role in important: inventory.append({"resultId":name,"role":role,"absolutePath":str(path.resolve()),"bytes":path.stat().st_size,"sha256":digest(path),"exists":"true"})
     write_csv(ROOT/"S7_result_inventory.csv",["resultId","role","absolutePath","bytes","sha256","exists"],inventory)
@@ -62,7 +72,7 @@ def main() -> int:
     excluded_roots={ROOT/"build"}
     files=[]
     for path in ROOT.rglob("*"):
-        if not path.is_file() or path==ROOT/"S7_sha256.txt": continue
+        if not path.is_file() or path in {ROOT/"S7_sha256.txt", ROOT/"stage16_final_integration"/"results"/"stage16_validation.json"} or "__pycache__" in path.parts or path.suffix==".pyc": continue
         if any(parent in path.parents or path==parent for parent in excluded_roots): continue
         files.append(path)
     (ROOT/"S7_sha256.txt").write_text("".join(f"{digest(path)}  {str(path.relative_to(ROOT)).replace(os.sep,'/')}\n" for path in sorted(files)),encoding="utf-8")

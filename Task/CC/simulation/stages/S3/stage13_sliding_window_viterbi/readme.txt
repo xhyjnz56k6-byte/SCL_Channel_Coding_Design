@@ -1,50 +1,13 @@
-一、阶段名称
-Stage13 真滑窗 W/S/D 控制变量正式实验
+阶段：Stage13 - 真滑窗 Viterbi 的 W/S/D 参数研究
 
-二、实验目的
-围绕 CC S3 300 bit 高速电文场景，给出可审计的 BER、FER、有效吞吐、译码时延、内存和复杂度数据。
+目的：实现真正受窗口 W 限制的 survivor 存储，并在固定其余参数时分别研究窗口长度 W、滑动步长 S、回溯深度 D 对 BER/FER、内存、运算量和输出时延的影响。
 
-三、实验背景和它在 S3 总任务中的作用
-本阶段属于 S3 正式实验链条的一部分。Stage09 提供整块基线，Stage10/11 提供回溯和量化补充，Stage13 提供真滑窗参数控制变量，Stage14 提供时隙连续组织比较，Stage15 汇总为最终方案矩阵。
+作用：这是老师所要求“滑窗译码参数与时延统计”的核心实验。译码器不会保存全帧后再伪装成滑窗，而是使用 W x 64 survivor 单元并在在线输入时稳定输出。
 
-四、实验输入
-payloadBits=300，SNR = Es/N0，范围 -5.0 dB 到 10.0 dB，步长 0.5 dB。
+得到的结果：无丢比特、无重复比特，算法单元和非法配置测试通过；正式 W/S/D 网格共 1,302 行，其中 CONTROL_W=372、CONTROL_S=372、CONTROL_D=558，Gate 为 PASS_STAGE13_FINAL_COMPARISON。
 
-五、编码参数
-卷积码 K=7，生成多项式 171/133 octal，母码率 1/2，打孔码率 R12/R23/R34。
+主要程序：src/true_sliding_window_viterbi.cpp 是最关键的滑窗实现；src/stage13_runner.cpp 运行正式实验；src/stage13_reference_runner.cpp 给出参考重放；scripts/process_stage13_full_wsd.py 生成完整 W/S/D 对比。
 
-六、译码方式
-整块实验使用完整 Viterbi；滑窗和时隙实验使用已修复的真滑窗/在线到达机制；量化实验比较 Float 与 Q 位宽软判决。
+主要结果：results/stage13_full_wsd_formal_results.csv 是正式数据；stage13_final_ber_comparison.png、final_fer_comparison.png、final_latency_comparison.png、final_memory_comparison.png、final_complexity_comparison.png 为核心图；stage13_final_recommendations.csv 是参数推荐。
 
-七、控制变量
-本阶段记录 36 个配置组合。Stage13 本轮严格区分 W、S、D 单变量变化，其它阶段保持各自冻结配置。
-
-八、SNR范围与停止条件
-正式网格使用 minFrames=1000、targetFrameErrors=200、maxFrames=50000；停止原因只允许达到目标误帧或最大帧数。
-
-九、随机性和公平性
-同一码率、SNR 和 frameIndex 共享 payload 与标准高斯母噪声；Hard/Soft 和候选参数只派生不同译码输入，不重新生成独立噪声。
-
-十、执行流程
-本轮先归档旧 results，再运行无噪声回归、Stage13 full W/S/D formal shard、后处理、Stage15 集成和 checker。
-
-十一、输出文件
-主要输出位于 results/，包括正式 CSV、figure-data CSV、PNG、plot manifest 和 Markdown 分析。
-
-十二、主要结果
-当前正式结果行数 1302，累计仿真帧数 36789382。
-
-十三、结果解释
-本轮新增 full W/S/D 正式网格：CONTROL_W=372 点、CONTROL_S=372 点、CONTROL_D=558 点。
-
-十四、与上一轮相比的修改
-20260730 本轮新增 archive/v02_20260730_before_cc_s3_formal_continuation，并把 Stage13 full W/S/D 正式网格纳入最终集成。
-
-十五、当前进展状态
-已完成本轮归档、Stage13 full W/S/D formal、Stage15 矩阵重建和基础 checker。
-
-十六、已知限制
-当前仿真是符号级离散 BPSK-AWGN；没有显式采样率、过采样、脉冲成形、匹配滤波、带宽和连续波形噪声建模。
-
-十七、是否通过 Gate
-本轮阶段级 checker 已通过；最终 Gate 仍需 Git 审计、提交和远程验证后确认。
+交付关系：这是最终上传的必选支撑结果，应与 Stage14 的时隙组织比较及 Stage15 的总表一起提供。

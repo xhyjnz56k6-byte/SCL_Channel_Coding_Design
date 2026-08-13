@@ -1,0 +1,75 @@
+{
+  "plotId": "02_methods_ber",
+  "scheme": "CC",
+  "title": "CC 5%突发下不同交织配置误码率",
+  "xAxis": "符号信噪比 Es/N0（dB）",
+  "yAxis": "误码率",
+  "logYAxis": true,
+  "sourceAbsolutePaths": [
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S7\\stage11_cc_formal\\results\\formal_results.csv",
+    "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\CC\\simulation\\stages\\S3\\stage09_awgn_formal\\results\\stage09_two_level_merged_point_results.csv"
+  ],
+  "historicalReferenceAbsolutePath": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\Comparison\\S6\\results\\ldpc\\ldpc_n560_integrated_results.csv",
+  "historicalReferenceUsedInFigure": false,
+  "containsNoBurstBaseline": true,
+  "noBurstBaselineSource": "C:\\Users\\V3169\\Desktop\\Project\\SCL_Channel_Coding_Design\\Task\\CC\\simulation\\stages\\S3\\stage09_awgn_formal\\results\\stage09_two_level_merged_point_results.csv",
+  "noBurstBaselineHistorical": true,
+  "noBurstSimulationRerun": false,
+  "noInterpolation": true,
+  "originalSnrGridPreserved": true,
+  "interpolation": false,
+  "smoothing": false,
+  "syntheticData": false,
+  "zeroPolicy": "raw zero retained in figure-data; excluded from log plot; no pseudovalue, horizontal extension, upper-bound or error-floor annotation",
+  "smoothingApplied": false,
+  "forbiddenAnnotations": [],
+  "configurationStyleMap": {
+    "NO_BURST_AWGN": {
+      "color": "#000000",
+      "linestyle": "-",
+      "marker": "D",
+      "markerfacecolor": "none",
+      "markeredgewidth": 1.4,
+      "linewidth": 2.0,
+      "zorder": 10,
+      "drawOrder": 0
+    },
+    "CC_NONE": {
+      "color": "#1f77b4",
+      "linestyle": "-",
+      "marker": "o",
+      "markerfacecolor": "#1f77b4",
+      "markeredgewidth": 1.0,
+      "zorder": 2,
+      "drawOrder": 1
+    },
+    "CC_PSEUDO_128_RECOMMENDED": {
+      "color": "#ff7f0e",
+      "linestyle": "--",
+      "marker": "^",
+      "markerfacecolor": "none",
+      "markeredgewidth": 1.3,
+      "zorder": 4,
+      "drawOrder": 2
+    },
+    "CC_SHORT_D8_RECOMMENDED": {
+      "color": "#d62728",
+      "linestyle": "-.",
+      "marker": "s",
+      "markerfacecolor": "#d62728",
+      "markeredgewidth": 1.0,
+      "zorder": 5,
+      "drawOrder": 3
+    },
+    "CC_SHORT_D16_CONTROL_128": {
+      "color": "#2ca02c",
+      "linestyle": ":",
+      "marker": "o",
+      "markerfacecolor": "none",
+      "markeredgewidth": 1.3,
+      "zorder": 3,
+      "drawOrder": 4
+    }
+  },
+  "mergeStatus": "NOT_MERGED"
+}

@@ -1,0 +1,5 @@
+configuration,method,parameter,spanTrellisSteps,spanBits,bufferBits,comparisonRole
+CC_NONE,无交织,0,1,2,0,基线
+CC_SHORT_D8_RECOMMENDED,短深度块交织,D=8,64,128,128,工程配置
+CC_SHORT_D16_CONTROL_128,短深度块交织,D=16,128,256,256,等跨度受控
+CC_PSEUDO_128_RECOMMENDED,局部伪随机交织,span=128,128,256,256,工程配置；等跨度受控

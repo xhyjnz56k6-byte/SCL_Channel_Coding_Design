@@ -1,8 +1,11 @@
-阶段名称：MATLAB 参考
-实验目的：支撑卷积码 CC S3 的 MATLAB 参考 验证。
-主要参数：payloadLength=300 bit；官方 trellis/convenc 对比。
-完成内容：保留既有实现，并按本轮要求补充审计、结果或图。
-主要输出：stage_plan.md、manifest.json、validation_report.md、known_issues.md 和 results。
-当前结论：以 validation_report.md 和本轮结果 CSV 为准，不使用未验证数据。
-已知问题：Stage09 完整 -5..10 dB 粗网格尚需继续正式补跑。
-阶段状态：PASS
+阶段：Stage05 - MATLAB 官方参考验证
+
+目的：以 MATLAB 的 poly2trellis、convenc、vitdec 对 C++ 卷积码链路作独立验证，防止仅靠同一实现自测造成系统性错误。
+
+作用：检查完整 64 状态 Trellis、300 bit 编码与零尾、Hard/Soft/LLR 输入约定和比特顺序，并为测试向量和哈希提供可追溯依据。
+
+得到的结果：128 条 Trellis 分支、16 个 300 bit 向量及 Hard/Soft/LLR 解码均无 mismatch，Gate 为 PASS_STAGE05_CC_MATLAB_REFERENCE。
+
+主要文件：matlab/stage05_matlab_reference.m 是 MATLAB 参考；scripts/run_and_check_stage05.py 是运行与检查入口；results/stage05_matlab_reference_comparison.csv、cpp_trellis.csv、cpp_vectors.csv 和 hashes.json 保存证据。
+
+交付关系：如老师要求“与 MATLAB 对比”，上传本目录的 comparison.csv 和 MATLAB 脚本；否则它属于支撑性验证材料。

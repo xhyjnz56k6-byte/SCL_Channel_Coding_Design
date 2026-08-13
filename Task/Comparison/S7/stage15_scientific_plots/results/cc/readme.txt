@@ -1,1 +1,1 @@
-目录用途：每个子目录保存一张 CC 科研图及其独立数据、manifest、validation、SHA 和 readme。
+目录用途：每个图子目录保存一张CC科研图及独立数据、manifest、validation、SHA和readme。01～05同时展示CC无突发AWGN、LDPC无交织近码率AWGN参考和CC指定突发配置；22为CC/LDPC无突发纯译码CPU时间参考。位置图、改善图和交织排名不加入LDPC。coding_baseline_comparison保存逐点编码参考与分算法复杂度表。

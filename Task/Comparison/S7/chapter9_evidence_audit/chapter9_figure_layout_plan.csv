@@ -1,0 +1,52 @@
+scheme,figureId,figureTitle,recommendedLayout,pairedWith,chapterSection,importanceLevel,coverageDecision,notes
+BCH,01_methods_fer,BCH 5%突发下不同交织配置误帧率,PAIR,02_methods_ber,9.3.1,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,02_methods_ber,BCH 5%突发下不同交织配置误码率,PAIR,01_methods_fer,9.3.1,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,03_burst_2_fer,BCH 2%突发下不同交织配置误帧率,SINGLE,N/A,9.3.2/9.3.2,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,04_burst_5_fer,BCH 5%突发下不同交织配置误帧率,SINGLE,N/A,9.3.2/9.3.2,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,05_burst_10_fer,BCH 10%突发下不同交织配置误帧率,SINGLE,N/A,9.3.2/9.3.2,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,06_six_positions_fer,BCH 六种突发位置误帧率,SINGLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,07_mean_position_fer,BCH 5%突发平均位置误帧率,TRIPLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,08_max_position_fer,BCH 5%突发最坏位置误帧率,TRIPLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,09_min_position_fer,BCH 5%突发最好位置误帧率,TRIPLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,10_position_sensitivity,BCH 位置敏感度,SINGLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,11_absoluteFerImprovement,BCH 5%突发FER绝对改善量,SINGLE,N/A,9.3.5/9.3.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,12_relativeFerReductionPercent,BCH 5%突发FER相对降低率,SINGLE,N/A,9.3.5/9.3.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,13_target_fer_esn0_gain,BCH 目标 FER 下 Es/N0 改善,SINGLE,N/A,9.3.5/9.3.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,14_affected_bch_blocks,BCH 受影响子块数,SINGLE,N/A,9.3.4/9.3.4/9.3.5,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,15_max_errors_per_block,BCH 单块最大错误数,SINGLE,N/A,9.3.4/9.3.4/9.3.5,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,16_decodeTimeMeanNsWeighted,BCH 纯译码 CPU 时间（含无突发 AWGN 基线）,TRIPLE,17_interleaveTimeMeanNsWeighted;18_deinterleaveTimeMeanNsWeighted,9.3.6/9.3.7/9.5,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,17_interleaveTimeMeanNsWeighted,BCH 交织 CPU 时间,TRIPLE,16_decodeTimeMeanNsWeighted;18_deinterleaveTimeMeanNsWeighted,9.3.6/9.3.7/9.5,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,18_deinterleaveTimeMeanNsWeighted,BCH 解交织 CPU 时间,TRIPLE,16_decodeTimeMeanNsWeighted;17_interleaveTimeMeanNsWeighted,9.3.6/9.3.7/9.5,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,19_bufferBits,BCH 交织缓冲量,TABLE_REPLACEMENT,N/A,9.3.6/9.3.7,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,20_burst_tolerance,BCH 高工作点突发容限,SINGLE,N/A,9.3.5/9.3.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,21_all_start_heatmap_2_percent,BCH 2%突发全起点热力图,SINGLE,N/A,9.3.3/9.3.3,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,22_all_start_heatmap_5_percent,BCH 5%突发全起点热力图,SINGLE,N/A,9.3.3/9.3.3,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,22_burst_5_ber,BCH 5%突发下不同交织配置误码率,SINGLE,N/A,9.3.2/9.3.2,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,23_burst_10_ber,BCH 10%突发下不同交织配置误码率,SINGLE,N/A,9.3.2/9.3.2,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,24_mean_position_ber,BCH 5%突发平均位置误码率,TRIPLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,25_max_position_ber,BCH 5%突发最坏位置误码率,TRIPLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,26_min_position_ber,BCH 5%突发最好位置误码率,TRIPLE,N/A,9.3.3/9.3.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,27_absoluteBerImprovement,BCH 5%突发BER绝对改善量,SINGLE,N/A,9.3.5/9.3.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+BCH,28_relativeBerReductionPercent,BCH 5%突发BER相对降低率,SINGLE,N/A,9.3.5/9.3.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,01_methods_fer,CC 5%突发下不同交织配置误帧率及近码率LDPC无突发基线,PAIR,02_methods_ber,9.3.1,A,main text or three-line table evidence; not appendix,LDPC is only a no-burst AWGN near-rate reference overlay; it does not represent the burst condition named by the CC plot.
+CC,02_methods_ber,CC 5%突发下不同交织配置误码率及近码率LDPC无突发基线,PAIR,01_methods_fer,9.3.1,A,main text or three-line table evidence; not appendix,LDPC is only a no-burst AWGN near-rate reference overlay; it does not represent the burst condition named by the CC plot.
+CC,03_burst_2_fer,CC 2%突发交织性能及近码率LDPC无突发基线,SINGLE,N/A,9.3.2/9.4.2,A,main text or three-line table evidence; not appendix,LDPC is only a no-burst AWGN near-rate reference overlay; it does not represent the burst condition named by the CC plot.
+CC,04_burst_5_fer,CC 5%突发交织性能及近码率LDPC无突发基线,SINGLE,N/A,9.3.2/9.4.2,A,main text or three-line table evidence; not appendix,LDPC is only a no-burst AWGN near-rate reference overlay; it does not represent the burst condition named by the CC plot.
+CC,05_burst_10_fer,CC 10%突发交织性能及近码率LDPC无突发基线,SINGLE,N/A,9.3.2/9.4.2,A,main text or three-line table evidence; not appendix,LDPC is only a no-burst AWGN near-rate reference overlay; it does not represent the burst condition named by the CC plot.
+CC,06_six_positions_fer,CC 六种突发位置误帧率,SINGLE,N/A,9.3.3/9.4.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,07_mean_position_fer,CC 平均位置误帧率,TRIPLE,N/A,9.3.3/9.4.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,08_max_position_fer,CC 最坏位置误帧率,TRIPLE,N/A,9.3.3/9.4.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,09_min_position_fer,CC 最好位置误帧率,TRIPLE,N/A,9.3.3/9.4.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,10_position_sensitivity,CC 位置敏感度,SINGLE,N/A,9.3.3/9.4.3,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,11_absoluteFerImprovement,CC FER绝对改善量,SINGLE,N/A,9.3.5/9.4.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,12_relativeFerReductionPercent,CC FER相对降低率,SINGLE,N/A,9.3.5/9.4.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,13_target_fer_esn0_gain,CC 目标 FER 下 Es/N0 改善,SINGLE,N/A,9.3.5/9.4.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,14_short_depth_parameters,卷积码短深度块交织参数对比,SINGLE,N/A,9.3.4/9.4.4/9.4.5,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,15_equal_span_128_controlled,卷积码等跨度128受控对比,SINGLE,N/A,9.3.4/9.4.4/9.4.5,A,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,16_decodeTimeMeanNsWeighted,CC 纯译码 CPU 时间（含无突发 AWGN 基线）,TRIPLE,17_interleaveTimeMeanNsWeighted;18_deinterleaveTimeMeanNsWeighted,9.3.6/9.4.7/9.5,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,17_interleaveTimeMeanNsWeighted,CC 交织 CPU 时间,TRIPLE,16_decodeTimeMeanNsWeighted;18_deinterleaveTimeMeanNsWeighted,9.3.6/9.4.7/9.5,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,18_deinterleaveTimeMeanNsWeighted,CC 解交织 CPU 时间,TRIPLE,16_decodeTimeMeanNsWeighted;17_interleaveTimeMeanNsWeighted,9.3.6/9.4.7/9.5,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,19_bufferBits,CC 交织缓冲量,TABLE_REPLACEMENT,N/A,9.3.6/9.4.7,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,20_burst_tolerance,CC 高工作点突发容限,SINGLE,N/A,9.3.5/9.4.6,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,21_all_start_heatmap,CC 10%突发全起点热力图,SINGLE,N/A,9.3.3/9.4.3,B,main text or three-line table evidence; not appendix,Evidence maps to existing Stage15 figure data and manifest.
+CC,22_cc_ldpc_no_burst_decode_latency,CC与近码率LDPC无突发译码CPU时间参考,REFERENCE_ONLY,N/A,9.3.6/9.4.7/9.5,B,main text or three-line table evidence; not appendix,LDPC is only a no-burst AWGN near-rate reference overlay; it does not represent the burst condition named by the CC plot.

@@ -1,0 +1,9 @@
+repositoryRoot: C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design
+branch: S8-PaperDocu
+HEAD: e378ffeb03427d2c261b136fe32ce8e42c1a25ee
+gitStatusShortBranch:
+## S8-PaperDocu...origin/S8-PaperDocu
+workingTreeCleanAtStart: true
+round: Round09-A
+scope: read-only S6 Chapter 8 evidence audit
+commitPush: prohibited and not performed

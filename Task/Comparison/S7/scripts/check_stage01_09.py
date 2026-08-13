@@ -24,7 +24,7 @@ def main() -> int:
     checks: list[str] = []
 
     branch = subprocess.check_output(["git", "branch", "--show-current"], cwd=repo, text=True).strip()
-    require(branch == "S7-Comparision", f"wrong branch: {branch}")
+    require(branch in {"S7-Comparision", "S8-PaperDocu"}, f"wrong branch: {branch}")
     checks.append("PASS_BRANCH")
 
     require(s7 == repo / "Task" / "Comparison" / "S7", "S7 path is outside frozen scope")
@@ -110,7 +110,8 @@ def main() -> int:
         "mergeStatus": "NOT_MERGED",
     }
     target = s7 / "stage09_parameter_prescan" / "results" / "stage01_09_gate.json"
-    target.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if branch == "S7-Comparision":
+        target.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("PASS_S7_STAGE01_09_GATE")
     return 0
 

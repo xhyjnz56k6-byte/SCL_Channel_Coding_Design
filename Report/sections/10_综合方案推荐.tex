@@ -1,0 +1,197 @@
+\chapter{综合方案推荐与结论}\label{chap:recommendation}
+
+\section{综合选型原则}
+
+信道编码方案应首先按业务类型分流。200 bit与300 bit低速电文采用BCH候选，300 bit高速电文采用卷积码或LDPC候选；三类编码承载的业务、发送长度和处理机制不同=。在业务边界确定后，系统依次检查目标FER覆盖、实际发送长度与码率、实时处理和实现资源、信道适应性，最后决定是否配置交织。该顺序延续表\ref{tab:bch-conclusions}、表\ref{tab:cc-main-conclusions}、表\ref{tab:cc-system-recommendations}、表\ref{tab:ldpc-length-tradeoff}和表\ref{tab:ldpc-decoder-tradeoff}已经冻结的码族内部结论。
+
+可靠性是进入后续比较的前置条件。方案若在规定信噪比范围内不能覆盖目标FER，或在目标场景中形成明显错误平台，则不能仅凭较高码率或较短软件CPU时间成为主推荐。可靠性满足后，再比较payload之外的tail、filler、shortening和puncturing所形成的实际发送长度。实时性评价同时考虑首次输出、P95、最大观测软件时间、迭代上限、回溯深度和结构缓存；其中CPU时间只描述当前处理器、编译器和计时边界，不能直接等同于硬件时延。
+
+信道适应性依据第7章的AWGN、固定多径、固定频偏、线性时变频偏、已知短时遮挡和未知突发结果，近码率横向选择以表\ref{tab:s5-recommendations}为最高优先级证据。交织不是常驻模块，只在连续错误集中出现且已有正式试验支持时启用。表\ref{tab:s7-engineering-recommendation}所支持的BCH与卷积码配置均受第9章具体码型和突发比例约束，LDPC则保持无交织。
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{综合选型判据与证据来源}
+  \label{tab:final-selection-criteria}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c l l l l}
+    \toprule
+    决策层级 & 工程问题 & 核心指标 & 主要证据章节 & 使用边界 \\
+    \midrule
+    业务 & 低速或高速、payload长度 & 200/300 bit、业务接口 & 第2、4--7章 & 禁止跨业务统一排名 \\
+    可靠性 & 是否覆盖目标工作点 & FER、BER、错误平台 & 表\ref{tab:bch-conclusions}、\ref{tab:s5-recommendations} & 未覆盖目标者不进入效率优选 \\
+    传输效率 & 每帧实际占用多少符号 & 发送长度、实际码率、填充与打孔 & 表\ref{tab:cc-main-conclusions}、\ref{tab:ldpc-length-tradeoff} & 固定$E_s/N_0$与固定$E_b/N_0$不可混用 \\
+    实时性 & 何时产生稳定输出 & 首输出、P95、最大观测、迭代与回溯 & 表\ref{tab:cc-system-recommendations}、\ref{tab:s6-engineering-summary} & 软件CPU时间不等于物理链路时延 \\
+    实现资源 & 译码与缓存是否可承受 & 状态数、图规模、存储、buffer & 表\ref{tab:s6-engineering-summary} & 不统一折算异构操作次数 \\
+    信道适应性 & 非理想信道下是否保持覆盖 & 六类信道FER门限与损失 & 表\ref{tab:s5-recommendations} & 仅适用于第7章规定模型 \\
+    突发与交织 & 是否需要重排错误位置 & 平均/最坏FER、跨度、缓存 & 表\ref{tab:s7-engineering-recommendation} & 仅外推到已验证码型与突发比例 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\section{低速电文BCH综合推荐}
+
+200 bit业务形成低复杂度、高可靠性和明显连续突发三条路线。资源受限且信道以分散错误为主时，推荐$19\times\mathrm{BCH}(15,11,1)$：200 bit payload补9 bit后形成19个11 bit子块，发送285 bit，实际码率为$200/285\approx0.701754$，采用综合校验查表译码。该路线结构短、查表路径直接，在当前软件实现中译码时间较低；代价是AWGN可靠性低于较长整块BCH。
+
+常规信道可靠性优先时，推荐缩短$\mathrm{BCH}(511,385)$，发送326 bit、$t=14$，实际码率为$200/326\approx0.613497$，采用BM与Chien搜索。该配置以更多发送冗余和较高代数译码开销换取第4章正式AWGN结果中的较高可靠性。对明显连续突发，结论只适用于上述200 bit分块方案：性能优先采用行列交织R15，结构组织优先可采用D19；两者均缓存完整285 coded bits。
+
+300 bit业务不新增交织路线。综合平衡主推荐缩短$\mathrm{BCH}(511,421)$，发送390 bit、$t=10$，实际码率$300/390\approx0.769231$；可靠性优先采用缩短$\mathrm{BCH}(511,385)$，发送426 bit、$t=14$，实际码率$300/426\approx0.704225$。两者均采用BM与Chien搜索，选择实质是90 bit与126 bit冗余之间的可靠性和发送占用取舍。
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{低速BCH最终推荐矩阵}
+  \label{tab:final-bch-matrix}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c l l l c c l l}
+    \toprule
+    信息长度 & 目标/场景 & 主推荐 & 译码器/交织 & 发送长度 & 实际码率 & 主要依据 & 主要代价或边界 \\
+    \midrule
+    200 & 低复杂度 & $19\times\mathrm{BCH}(15,11,1)$ & 查表/NONE & 285 & 0.701754 & 短码与最低软件译码时间 & AWGN可靠性低于长整块方案 \\
+    200 & 常规可靠性 & 缩短$\mathrm{BCH}(511,385)$，$t=14$ & BM+Chien/NONE & 326 & 0.613497 & 第4章AWGN可靠性优先 & 冗余与代数译码开销较高 \\
+    200 & 明显连续突发 & 分块BCH & 查表/R15，D19备选 & 285 & 0.701754 & 表\ref{tab:s7-engineering-recommendation} & 仅限200 bit分块方案，缓存285 bit \\
+    300 & 综合平衡 & 缩短$\mathrm{BCH}(511,421)$，$t=10$ & BM+Chien/NONE & 390 & 0.769231 & 表\ref{tab:bch-conclusions} & 不含正式交织验证 \\
+    300 & 可靠性优先 & 缩短$\mathrm{BCH}(511,385)$，$t=14$ & BM+Chien/NONE & 426 & 0.704225 & 更强纠错能力 & 发送占用与译码开销增加 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\section{高速电文卷积码推荐}
+
+高速卷积码统一采用300 bit 信息长度、约束长度$K=7$、八进制生成多项式171/133、6 bit零尾和64个状态。软判决Viterbi为性能主路线。表\ref{tab:cc-main-conclusions}显示，在FER$=0.1$处，浮点软判决相对硬判决的$E_s/N_0$收益为1.857--2.085 dB。
+
+可靠性优先采用$1/2$母码、612 bit发送和整块浮点软判决；吞吐优先采用约$3/4$打孔、408 bit发送及$W=160,S=25,D=126$；时延优先采用约$2/3$打孔、459 bit发送及$W=128,S=25,D=84$；存储优先和综合平衡均采用$1/2$母码与$W=96,S=16,D=70$。
+
+连续时隙需要分批交付时，优先采用$50\times6$组织。$50\times6$、$100\times3$和$150\times2$产生相同最终码流，FER与BER不因组织方式改变；选择$50\times6$依据的是等待分布和P95输出时间，而不是更高可靠性。定点软信息实现优先采用Q8，第5章在FER$=0.1$处给出的相对浮点损失处于约0.008 dB以内量级，但系统性能基准仍以浮点软判决为准。
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{卷积码系统级最终配置矩阵}
+  \label{tab:final-cc-matrix}
+  \resizebox{\textwidth}{!}{\begin{tabular}{l c c l c c c l l}
+    \toprule
+    工程目标 & 实际码率 & 发送长度 & 译码方式 & $W$ & $S$ & $D$ & 时隙/软信息 & 选择理由与边界 \\
+    \midrule
+    可靠性优先 & 0.4902 & 612 & 整块浮点软Viterbi & -- & -- & 306 & 整帧/浮点 & 冗余充分；等待完整码字 \\
+    吞吐优先 & 0.7353 & 408 & 滑窗软Viterbi & 160 & 25 & 126 & 连续/浮点 & 发送最短；仅在FER余量允许时使用 \\
+    时延优先 & 0.6536 & 459 & 滑窗软Viterbi & 128 & 25 & 84 & $50\times6$/浮点 & 较早分批输出；可靠性低于$1/2$母码 \\
+    存储优先 & 0.4902 & 612 & 滑窗软Viterbi & 96 & 16 & 70 & 连续/浮点 & 覆盖既定FER门限且译码存储较低 \\
+    综合平衡 & 0.4902 & 612 & 滑窗软Viterbi & 96 & 16 & 70 & $50\times6$/Q8优先 & Q8为实现配置，浮点仍是性能基准 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\section{高速电文LDPC综合推荐}
+
+三种BG2 QC-LDPC短块配置均承载300 bit payload，最大迭代次数为32。N480发送480 bit、实际码率0.6250，适用于传输效率优先；N560发送560 bit、实际码率0.5357，其价值是接近576 bit目标的接口适配；N640发送640 bit、实际码率0.46875，适用于可靠性和弱信号优先。归一化系数必须随码长配置：N480和N560取$\alpha=0.95$，N640取$\alpha=0.80$。
+
+工程译码优先采用layered NMS，BP保留为性能参考。在第8章统一的N560对比中，NMS相对BP的目标FER性能损失小于约0.04 dB，同时当前软件处理时间显著下降；更广的第6章结果亦表明两者目标FER门限接近。该结论只说明当前算法、数据结构和软件环境下NMS具有更合适的实现取舍。
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{LDPC最终推荐配置}
+  \label{tab:final-ldpc-matrix}
+  \resizebox{\textwidth}{!}{\begin{tabular}{l c c l c c l l}
+    \toprule
+    目标 & 码长 & 实际码率 & 译码器 & $\alpha$ & 最大迭代 & 主要优势 & 主要代价与定位 \\
+    \midrule
+    传输效率 & 480 & 0.6250 & layered NMS & 0.95 & 32 & LDPC候选中发送最短 & 可靠性低于N640 \\
+    接口适配 & 560 & 0.5357 & layered NMS & 0.95 & 32 & 接近576 bit接口目标 & 非默认性能折中 \\
+    可靠性/弱信号 & 640 & 0.46875 & layered NMS & 0.80 & 32 & 更完整的低FER覆盖 & 发送与校验图规模较大 \\
+    性能参考 & 480/560/640 & 对应码率 & layered BP & -- & 32 & 和积算法基准 & 当前软件时间明显高于NMS \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\section{高速电文卷积码与LDPC场景化选择}
+
+近$2/3$组比较卷积码 R2/3（实际码率约0.6536）与LDPC N480（0.6250），属于近码率而非完全同码率比较。表\ref{tab:s5-recommendations}表明，在AWGN、固定多径、固定频偏和线性时变频偏下，卷积码 R2/3的绝对FER门限均更低，因而成为常规全帧信道主推荐；在已知5\%短时遮挡下，N480保持FER$=0.1$目标覆盖，而CC未形成相同覆盖，N480转为该场景的主候选。未知5\%突发干扰下，两者均未形成稳定低FER结果，当前无已验证的稳定低FER主方案。
+
+近$1/2$组比较卷积码 R1/2（约0.4902）与LDPC N640（0.46875）。N640在AWGN、固定多径、固定频偏和线性时变频偏下具有更低绝对FER门限，并在已知5\%遮挡下形成更完整的目标覆盖，可靠性和弱信号优先时应采用N640。卷积码 R1/2仍具有固定64状态、无需迭代、可滑窗和可分批输出等实时实现优势，适用于连续处理或可预测等待优先的系统。未知5\%突发下，N640只表现出有限FER$=0.1$覆盖且明显退化，卷积码未形成相同低FER覆盖，因此不把任一方案写成稳定主推荐。
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{高速电文场景化方案选择矩阵}
+  \label{tab:final-highspeed-scenarios}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c l l l l l}
+    \toprule
+    目标码率组 & 信道场景 & 主推荐 & 备选 & 可靠性与实现依据 & 边界 \\
+    \midrule
+    近$2/3$ & AWGN/固定多径 & CC R2/3软Viterbi & N480 NMS & CC绝对FER门限更低，固定64状态 & 近码率比较 \\
+    近$2/3$ & 固定/时变频偏 & CC R2/3软Viterbi & N480 NMS & CC绝对FER门限更低 & 依赖规定帧内相位轨迹 \\
+    近$2/3$ & 已知5\%遮挡 & N480 NMS & -- & N480保持FER$=0.1$覆盖 & 受损位置已知 \\
+    近$2/3$ & 未知5\%突发 & 无已验证稳定低FER主方案 & -- & 两者均未形成稳定低FER结果 & 不能强行外推 \\
+    \midrule
+    近$1/2$ & AWGN/固定多径 & N640 NMS & CC R1/2软Viterbi & N640绝对FER门限更低 & CC适合实时连续处理 \\
+    近$1/2$ & 固定/时变频偏 & N640 NMS & CC R1/2软Viterbi & N640绝对FER门限更低 & 依赖规定帧内相位轨迹 \\
+    近$1/2$ & 已知5\%遮挡 & N640 NMS & -- & N640目标覆盖更完整 & 受损位置已知 \\
+    近$1/2$ & 未知5\%突发 & 无已验证稳定低FER主方案 & N640性能参考 & N640仅有限FER$=0.1$覆盖 & 两者均明显退化 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\section{译码、连续处理与交织配置}
+
+译码器与交织器必须同具体码型和业务条件联合选择。低复杂度200 bit分块BCH在分散错误下使用查表且不交织，明显连续突发时配置R15，D19作为结构清晰的备选；整块BCH采用BM与Chien搜索且不交织。卷积码常规链路采用软Viterbi并关闭交织，需要连续输出时按目标选取表\ref{tab:final-cc-matrix}中的滑窗和时隙参数。
+
+卷积码在2\%突发下可按资源切换：缓存优先采用D8，跨度64 trellis steps、缓存128 coded bits；FER优先采用伪随机交织，跨度128 trellis steps、缓存256 coded bits。D8与伪随机交织是不同资源规模的工程配置比较；只有D16与伪随机交织构成相同128 trellis-step跨度和256 coded-bit缓存下的受控排列比较。5\%突发下全部正式卷积码交织配置仍接近FER饱和，当前未形成满足低FER要求的稳定配置。LDPC始终采用NONE interleaver与NMS。
+
+\begin{table}[htbp]
+  \centering\scriptsize
+  \caption{译码与交织联合配置}
+  \label{tab:final-decoder-interleaver}
+  \resizebox{\textwidth}{!}{\begin{tabular}{l l l l c l l}
+    \toprule
+    编码方案 & 常规译码 & 连续处理 & 突发配置 & 结构缓存/bit & 适用条件 & 禁止外推范围 \\
+    \midrule
+    200 bit分块BCH & 查表 & 整帧 & R15主、D19备选 & 285 & 明显2\%/5\%连续突发 & 不扩展到整块或300 bit BCH \\
+    整块BCH & BM+Chien & 整帧 & NONE & 0 & 常规分散错误 & 无正式交织结论 \\
+    卷积码常规 & 浮点软Viterbi，硬判决备选 & 滑窗/$50\times6$ & NONE & 0 & 常规信道与连续输出 & 参数按具体码率选择 \\
+    卷积码 2\%突发 & 软Viterbi & 整帧 & D8/缓存优先 & 128 & 64 trellis-step跨度 & 与伪随机交织非等资源比较 \\
+    卷积码 2\%突发 & 软Viterbi & 整帧 & 伪随机交织/FER优先 & 256 & 128 trellis-step跨度 & 5\%下无稳定低FER恢复 \\
+    LDPC & layered NMS，BP参考 & 码块迭代 & NONE & 0 & 已验证无突发及第7章信道 & 第9章不支持突发性能推断 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\section{最终推荐方案}
+
+低速业务先按信息比特和复杂度、可靠性或突发目标选择BCH；高速业务先按目标码率组与信道场景选择CC或LDPC，再叠加译码、连续组织与交织配置。高速吞吐优先可采用CC约$3/4$与$W=160,S=25,D=126$。
+
+\begin{table}[htbp]
+  \centering\tiny
+  \caption{最终方案总表}
+  \label{tab:final-recommendations}
+  \resizebox{\textwidth}{!}{\begin{tabular}{c c l l l l l l l}
+    \toprule
+    业务 & 信息比特 & 主要目标/场景 & 推荐编码 & 码率/长度 & 译码与连续组织 & 交织 & 备选 & 适用边界 \\
+    \midrule
+    低速 & 200 & 低复杂度 & $19\times$BCH(15,11,1) & 0.701754/285 & 查表/整帧 & NONE & -- & 分散错误 \\
+    低速 & 200 & 常规可靠性 & BCH(511,385) & 0.613497/326 & BM+Chien/整帧 & NONE & -- & 发送与计算开销增加 \\
+    低速 & 200 & 明显连续突发 & 分块BCH & 0.701754/285 & 查表/整帧 & R15 & D19 & 仅限已验证分块码型 \\
+    低速 & 300 & 综合平衡 & BCH(511,421) & 0.769231/390 & BM+Chien/整帧 & NONE & -- & 无正式交织配置 \\
+    低速 & 300 & 可靠性优先 & BCH(511,385) & 0.704225/426 & BM+Chien/整帧 & NONE & BCH(511,421) & 更长发送占用 \\
+    高速 & 300 & 近$2/3$常规信道 & 卷积码 R2/3 & 0.6536/459 & 软Viterbi，$W128/S25/D84$ & NONE & N480 & 近码率比较 \\
+    高速 & 300 & 近$2/3$已知遮挡 & LDPC N480 & 0.6250/480 & NMS，$\alpha=0.95$ & NONE & -- & 受损位置已知 \\
+    高速 & 300 & 近$1/2$可靠性 & LDPC N640 & 0.46875/640 & NMS，$\alpha=0.80$ & NONE & 卷积码 R1/2 & 迭代与图规模较大 \\
+    高速 & 300 & 连续处理/等待可预测 & 卷积码 R1/2 & 0.4902/612 & 软Viterbi，$W96/S16/D70$，$50\times6$ & NONE & N640 & 可靠性边界需复核 \\
+    高速 & 300 & 吞吐优先 & 卷积码 R3/4 & 0.7353/408 & 软Viterbi，$W160/S25/D126$ & NONE & 卷积码 R2/3 & 仅在FER余量允许时 \\
+    高速 & 300 & 2\%突发 & 卷积码按既定码率 & 对应码率/长度 & 软Viterbi & Pseudo128或D8 & -- & FER优先或缓存优先 \\
+    高速 & 300 & 未知5\%强突发 & 无已验证稳定低FER主方案 & -- & -- & -- & -- & 需增强链路机制 \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\section{全文主要结论}
+
+本项目形成以下结论。
+
+第一，低速与高速业务不能使用统一编码方案。低速电文更适合按固定短消息组织BCH，高速电文则需要在连续处理卷积码和短块LDPC之间按目标码率与信道条件切换。
+
+第二，BCH形成两条互补路线：短分组方案以查表译码获得较低实现复杂度，较长整块缩短方案以BM和Chien搜索获得更高常规信道可靠性。对已验证的200 bit分块方案，规则结构交织能显著改善集中突发错误，但该结论不属于所有BCH结构的固有属性。
+
+第三，卷积码的核心工程价值是固定64状态、母码与打孔共用网格、可滑窗处理及按时隙分批输出。软判决应作为性能主路线，Q8(量化的值为8)可作为当前定点实现优先配置。
+
+第四，LDPC N640以较低实际码率和更大校验图换取更完整的低FER覆盖，适合近$1/2$可靠性和弱信号优先场景；N480侧重传输效率，N560主要承担特定长度接口适配。
+
+第五，NMS成为当前LDPC工程主译码器的原因，是在接近BP可靠性的同时显著降低当前软件处理时间；BP仍是必要的性能参考。
+
+第六，高速近$2/3$和近$1/2$不能统一采用同一码族。常规全帧信道的近$2/3$组偏向CC R2/3，已知短时遮挡可切换N480；近$1/2$可靠性优先偏向N640，连续输出与可预测等待优先可选择卷积码 R1/2。
+
+第七，交织改变的是错误在码字中的空间分布，不改变码本及其冗余。200 bit分块BCH在已验证突发条件下收益明确，卷积码在2\%突发下可按FER或缓存选择配置。

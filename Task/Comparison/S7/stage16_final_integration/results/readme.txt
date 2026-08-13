@@ -1,1 +1,1 @@
-目录用途：保存 Stage16 统一审计的机器可读 validation。
+目录用途：保存Stage16统一审计的机器可读validation；包含LDPC选中基线行数、重跑状态和排名隔离状态。

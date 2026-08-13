@@ -1,0 +1,4 @@
+scheme,payloadBits,fillerOrTailBits,structure,transmittedBits,actualRate,decoder
+分块BCH,200,9 filler,"19 x BCH(15,11,1)",285,0.701754,综合校验查表，硬判决
+卷积码,300,6 zero-tail,"K=7, G=(171,133)oct, 306 trellis steps",612,0.490196,terminated full-block floating soft Viterbi
+LDPC高速基线,300,20 filler in 320 information bits,"BG2, Z=40",640,0.46875,"layered NMS, alpha=0.80, maxIterations=32"

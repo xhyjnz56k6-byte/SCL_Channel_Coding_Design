@@ -1,8 +1,19 @@
 {
   "status": "PASS",
-  "plotCount": 50,
+  "plotCount": 51,
   "bchPlotCount": 29,
-  "ccPlotCount": 21,
+  "ccPlotCount": 22,
+  "noBurstBaselinePlots": 14,
+  "ldpcNearRateBaselinePlots": 6,
+  "ldpcSelectedPointCount": 31,
+  "ldpcFormalRerun": false,
+  "s7FormalRerun": false,
+  "ldpcProjectUnchangedDuringIntegration": true,
+  "archiveComplete": true,
+  "noSyntheticData": true,
+  "noInterpolation": true,
+  "noSmoothing": true,
+  "originalInputsUnchanged": true,
   "blockedPlots": [],
   "mergeStatus": "NOT_MERGED"
 }

@@ -1,0 +1,203 @@
+\chapter{统一仿真方法}\label{chap:simulation}
+% FORMULA-AUDIT: Report/evidence/round04/r3_formula_audit.csv
+
+\section{Common公共仿真基础}
+
+公共仿真模块（Common）为三类编码提供一致的仿真基础，不参与 BCH 生成多项式计算、卷积码状态转移或 LDPC 校验矩阵迭代。该模块提供统一类型和接口，固定实值 BPSK、基础 AWGN、硬判决和未量化 LLR 的定义，并通过帧样本池（Frame Pool）、噪声样本池（Noise Pool）、停止控制、断点状态保存（checkpoint）、分片合并和结果身份字段约束实验输入与输出。
+
+公共实现解决的是“相同环节如何用同一种方式执行和记录”，不替代任务级说明。BCH、卷积码和 LDPC 的 filler、CRC、tail、puncturing、shortening、量化、译码状态、复杂度字段及扩展信道仍由各任务实现。
+
+\section{帧结构与长度定义}
+
+$K_{\mathrm{payload}}$ 是原始有效信息长度，也是 BER 分母中每帧贡献的比特数。$K_{\mathrm{codec_input}}$ 是编码器实际输入，可在信息比特之外包含 filler、CRC 或其他适配位。$N_{\mathrm{encoded}}$ 是 Common中计算码率所使用的编码输出长度；具体任务需要说明该字段是否已经完成打孔或速率匹配。$N_{\mathrm{transmitted}}$ 是实际映射到 BPSK 并进入信道的比特数，$K_{\mathrm{recovered}}$ 是去除附加位后的恢复长度。
+
+Shortening 对应的已知位不进入发送序列；打孔位从母码输出中删除。
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{长度字段及附加位对各长度的影响}
+  \label{tab:length-field-effects}
+  \begin{tabular}{p{0.17\textwidth}p{0.16\textwidth}p{0.18\textwidth}p{0.18\textwidth}p{0.21\textwidth}}
+    \toprule
+    项目 & 是否属于 payload & 影响编码器输入 & 影响编码输出/发送 & 统计处理 \\
+    \midrule
+    filler & 否 & 增加 & 可能增加 & 恢复后删除 \\
+    CRC & 否 & 通常增加 & 增加 & 可用于状态判断，不计 BER \\
+    tail & 否 & 改变卷积码输入过程 & 增加输出 & 不计 payload BER \\
+    puncturing & 否 & 不改变 & 删除部分母码比特 & 记录打孔后长度 \\
+    shortening & 否 & 逻辑上补已知位 & 已知位不发送 & 译码前恢复约定位置 \\
+    parity & 否 & 不属于信息侧 & 构成编码冗余 & 不直接计 payload BER \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{实际码率定义}
+
+码率统一定义为：
+\begin{equation}
+  R=\frac{K_{\mathrm{payload}}}{N_{\mathrm{encoded}}}.
+  \label{eq:actual-code-rate}
+\end{equation}
+分子不包含 filler、CRC 或 tail；分块方案的分母使用所有子块最终编码长度之和；打孔后若任务把打孔结果记为编码后的长度，分母使用打孔后长度。
+
+
+\section{BPSK离散符号模型}
+
+Common 的 BPSK 调制按逐比特实值映射：
+\begin{equation}
+  x_i=1-2c_i,qquad c_i\in\{0,1\},\quad x_i\in\{+1,-1\}.
+  \label{eq:bpsk-mapping}
+\end{equation}
+式~\eqref{eq:bpsk-mapping}把比特 0 映射为 $+1$，把比特 1 映射为 $-1$，每个实际编码比特对应一个实值符号。
+
+\section{Eb/N0下的AWGN实现}
+
+\texttt{computeAwgnSigma} 的输入字段为 \texttt{ebN0\_dB}。函数先完成 dB 到线性量的转换：
+\begin{equation}
+  \gamma_b=10^{(E_b/N_0)_{\mathrm{dB}}/10}.
+  \label{eq:ebn0-linear}
+\end{equation}
+式~\eqref{eq:ebn0-linear}完成 dB 到线性量的转换；随后调用式~\eqref{eq:actual-code-rate}计算实际码率，并返回标准差
+\begin{equation}
+  \sigma=\sqrt{\frac{1}{2R\gamma_b}},
+  \qquad \sigma^2=\frac{1}{2R\gamma_b}.
+  \label{eq:awgn-sigma}
+\end{equation}
+式~\eqref{eq:awgn-sigma}中的 $\sigma$ 进入下列接收模型：
+\begin{equation}
+  y_i=x_i+\sigma z_i,qquad z_i\sim\mathcal{N}(0,1).
+  \label{eq:awgn-channel}
+\end{equation}
+式~\eqref{eq:awgn-channel}由 \texttt{applyAwgn} 实现；该函数要求符号向量和标准高斯向量等长，并拒绝非有限或非正的 $\sigma$。这里的 $\sigma$ 是标准差；Noise Pool 保存的是标准高斯 $z_i$，不是已经按某个 SNR 缩放的噪声。
+
+上述闭式适用于调用 Common \texttt{computeAwgnSigma} 和 \texttt{applyAwgn} 的实值 BPSK--AWGN 处理链。
+
+\section{Es/N0正式绘图口径}
+
+信噪比条件下的 BER、FER 正式主图采用符号信噪比 $E_s/N_0$ 作为横轴，同时保留仿真输入 \texttt{ebN0Db}。在一编码比特对应一个 BPSK 符号且使用式~\eqref{eq:actual-code-rate}时，线性关系为
+\begin{equation}
+  \gamma_s=R\gamma_b.
+  \label{eq:es-eb-linear}
+\end{equation}
+式~\eqref{eq:es-eb-linear}对应的 dB 换算为
+\begin{equation}
+  (E_s/N_0)_{\mathrm{dB}}
+  =(E_b/N_0)_{\mathrm{dB}}+10\log_{10}R.
+  \label{eq:es-eb-db}
+\end{equation}
+
+式~\eqref{eq:es-eb-db}的换算只增加 \texttt{esN0Db} 展示字段，原始 Eb/N0、噪声样本、$\sigma$、BER、FER、处理帧数和错误计数均保持不变。
+
+\section{硬判决与软信息}
+
+Common 的硬判决在零点明确归入 bit 0：
+\begin{equation}
+  \hat c_i=
+  \begin{cases}
+    0, & y_i\ge 0,\\
+    1, & y_i<0.
+  \end{cases}
+  \label{eq:hard-decision}
+\end{equation}
+式~\eqref{eq:hard-decision}给出硬判决；实值 BPSK--AWGN 的未量化对数似然比为
+\begin{equation}
+  L_i=\ln\frac{\Pr(c_i=0\mid y_i)}{\Pr(c_i=1\mid y_i)}
+     =\frac{2y_i}{\sigma^2}.
+  \label{eq:llr}
+\end{equation}
+由式~\eqref{eq:llr}可知，正 LLR 倾向 bit 0，负 LLR 倾向 bit 1，绝对值表示可靠性。Common 基础接口不执行裁剪、定点量化或饱和；CC 和 LDPC 对软值的位宽、缩放、裁剪和溢出处理必须在任务章节说明。BCH 使用硬判决输入。
+
+\section{BER、FER与译码状态}
+
+公共错误统计只比较原始的信息比特和恢复后的信息比特：
+\begin{align}
+  \mathrm{BER}&=\frac{N_{b,\mathrm{err}}}{N_{b,\mathrm{payload}}},
+  \label{eq:ber}\\
+  \mathrm{FER}&=\frac{N_{f,\mathrm{err}}}{N_{f,\mathrm{processed}}},
+  \label{eq:fer}\\
+  S_{\mathrm{payload}}&=\frac{N_{f,\mathrm{correct}}}{N_{f,\mathrm{processed}}}
+  =1-\mathrm{FER}.
+  \label{eq:payload-success}
+\end{align}
+式~\eqref{eq:ber}和式~\eqref{eq:fer}分别按信息比特比特与帧计数。Common-04 \texttt{SummaryRow} 中的 \texttt{successRate} 对应式~\eqref{eq:payload-success}，即信息比特无误帧比例，不是译码器声明成功率。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{译码器声明与payload结果的联合状态}
+  \label{tab:decoder-status}
+  \begin{tabular}{p{0.20\textwidth}p{0.20\textwidth}p{0.48\textwidth}}
+    \toprule
+    译码器声明 & 信息比特的结果 & 统计解释 \\
+    \midrule
+    成功 & 正确 & true success，同时可计入 declared success \\
+    成功 & 错误 & miscorrection 或 undetected error，不能计入 payload success \\
+    失败 & 错误 & decoder failure，同时是 frame error \\
+    失败 & 正确 & 需由任务状态字段解释，基础 SummaryRow 不单列 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{确定性随机噪声与公平比较}
+
+Common 的每个标准高斯样本由完整 NoiseKey 决定：
+\begin{equation}
+  \mathcal{K}_{\mathrm{noise}}=
+  (s_{\mathrm{master}},g_{\mathrm{noise}},f,i,v_{\mathrm{policy}}),
+  \label{eq:noise-key}
+\end{equation}
+式~\eqref{eq:noise-key}的五个分量依次表示主噪声种子、噪声组、帧索引、符号索引和策略版本，对应源码中的 NoiseKey 字段。固定完整键产生相同样本，不依赖随机函数调用顺序。源码使用 SplitMix64 派生均匀字，并用 Box--Muller 变换生成标准高斯值。
+
+\texttt{snrIndex} 和 Eb/N0 不直接进入 NoiseKey。不同 SNR 点通过式~\eqref{eq:awgn-sigma}改变 $\sigma$；是否跨 SNR 复用同一标准高斯底噪，取决于 \texttt{noiseGroupId} 及任务配置。不同 \texttt{frameIndex} 仍生成不同帧噪声，跨 SNR 复用不等于所有帧复用一条噪声。
+
+卷积码的硬、软 Viterbi 的比较共享信息比特、母码输出和打孔结果，并采用相同的接收符号（\texttt{receivedSymbols}）。两种方案仅替换译码输入和分支度量。LDPC BP/NMS 共同接入、码字、校验矩阵、噪声和 LLR，只替换校验节点更新规则。共享随机样本使结果差异不再同时混入另一组 Monte Carlo 噪声。
+
+\section{帧池和噪声池}
+
+Noise Pool 保存未缩放的标准高斯样本，格式为 float64 little-endian，生成算法标识为 \texttt{splitmix64\_box\_muller\_v1}。每个二进制分片含版本化头字段，包括首帧、帧数、每帧符号数、主种子、噪声组和策略版本。manifest 要求连续帧范围、分片 SHA-256 和 overall hash，\texttt{noisePoolId} 取 overall hash 的前16个十六进制字符；读取时同时复核文件 hash 和头字段。
+
+\section{仿真停止控制}
+
+Common 的正式停止配置包含三项参数。最少帧数为 \texttt{minFrames=1000}，目标错误帧数为 \texttt{targetFrameErrors=200}，每点最大帧数为 \texttt{maxFrames=50000}。\texttt{evaluateStop} 的实际判断顺序如下：
+
+\begin{verbatim}
+if processedFrames >= maxFrames:
+    MAX_FRAMES
+elif processedFrames < minFrames:
+    CONTINUE
+elif frameErrors >= targetFrameErrors:
+    TARGET_FRAME_ERRORS
+else:
+    CONTINUE
+\end{verbatim}
+
+最小帧数防止在错误较多的点过早停止；达到最小帧数后，目标错误帧数提供基本的错误事件数量；最大帧数限制高 SNR 点或低错误率点的计算量。
+
+\section{时延统计口径}
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \caption{Common基础时延字段、实际计时边界和限制}
+  \label{tab:common-latency-fields}
+  \begin{tabular}{p{0.24\textwidth}p{0.38\textwidth}p{0.10\textwidth}p{0.20\textwidth}}
+    \toprule
+    指标 & Common-04 identity pipeline实际边界 & 提供 & 限制 \\
+    \midrule
+    \texttt{avgEncodeTimeUs} & 信息比特生成/Frame Pool读取、编码、BPSK & 是 & 不是纯编码时间 \\
+    \texttt{avgChannelTimeUs} & 噪声生成/Noise Pool读取及 AWGN 叠加 & 是 & 包含池读取或生成 \\
+    \texttt{avgDecodeTimeUs} & 硬判决，或 LLR 计算后按符号判决 & 是 & identity 基线不是码译码器 \\
+    \texttt{maxDecodeTimeUs} & 单帧上述 decode 阶段最大观测值 & 是 & 软件观测最大值 \\
+    \texttt{avgRecoveryTimeUs} & 从 decoded 序列截取 payload & 是 & 具体码型恢复更复杂 \\
+    \texttt{avgTotalTimeUs} & 单帧主链路起点至恢复完成 & 是 & 受平台与调度影响 \\
+    \texttt{maxTotalTimeUs} & 单帧 total 最大观测值 & 是 & 不等于硬件确定上界 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Common-01 将理想算法计时定义为不包含帧池和噪声文件读取；Common-04 identity pipeline 的实际函数边界包含这些操作。
+
+\section{本章小结}
+
+公共仿真模块固定了 payload/encoded 码率、实值 BPSK、Eb/N0 驱动的 AWGN、硬判决、LLR、payload BER/FER、确定性随机样本、正式停止控制以及基础断点状态、分片和结果身份。正式图按每个点的实际码率将内部 Eb/N0 转换为 Es/N0，原始统计保持不变。第4章以后的各编码与专题分析补充发送长度、附加位、扩展译码状态、量化、专用时延、复杂度和特殊信道信息，并逐项说明与公共定义的对应关系。

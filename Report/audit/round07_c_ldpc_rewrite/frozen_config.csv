@@ -1,0 +1,19 @@
+item,value,unit_or_note
+payload_length,300,bit
+actual_lengths,480|560|640,bit
+modulation,BPSK,
+channel,AWGN,
+snr_definition,Es/N0,basic performance figures
+snr_range,-5:0.5:10,dB
+min_frames,1000,frame
+target_frame_errors,200,frame
+max_frames,50000,frame
+max_iterations,32,iteration
+early_stop,SYNDROME_AFTER_FULL_ITERATION,Chinese report term: 综合校验提前停止
+nms_alpha_n480,0.95,large-scale performance simulation
+nms_alpha_n560,0.95,large-scale performance simulation
+nms_alpha_n640,0.80,large-scale performance simulation
+fer_interpolation,linear in log10(FER),adjacent non-zero points only
+other_metric_interpolation,linear in Es/N0,same bracket and weight
+max_delay_policy,max of adjacent observed samples,conservative extreme observation
+

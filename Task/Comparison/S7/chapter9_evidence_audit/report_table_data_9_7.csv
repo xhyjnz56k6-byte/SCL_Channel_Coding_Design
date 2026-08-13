@@ -1,0 +1,9 @@
+scheme,burstRatio,burstLengthBits,EsN0Db,configuration,meanPositionFER,worstPositionFER,bestPositionFER,meanPositionBER,FERreductionVsNoInterleavingPercent,sourceCsv
+CC,2%,12,10,无交织,1,1,1,0.00710799,0,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,2%,12,10,短深度块交织 D=8,0.552654,0.85,0.0638051,0.0327193,44.7346,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,2%,12,10,局部伪随机交织 span=128,0.448905,0.84,0.00416545,0.00670137,55.1095,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,2%,12,10,短深度块交织 D=16,0.718629,1,0.498,0.0367629,28.1371,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,5%,31,10,无交织,1,1,1,0.0168644,0,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,5%,31,10,短深度块交织 D=8,1,1,1,0.08908,0,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,5%,31,10,局部伪随机交织 span=128,0.999667,1,0.998,0.0694133,0.0333333,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,5%,31,10,短深度块交织 D=16,0.9945,1,0.984,0.129994,0.55,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv

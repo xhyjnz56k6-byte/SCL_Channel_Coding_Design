@@ -1,0 +1,6 @@
+结论ID,场景,指标,正式数值,来源,限制
+S1-200-01,AWGN 200 bit,FER=1e-2插值,K200_M511K385=2.951227 dB; K200_M511K421=3.516024 dB; K200_M255K207=4.386791 dB; K200_S15=5.978051 dB,Report/data/chapter04/bch/numeric_thresholds.csv,仅在相邻非零点间按log10(FER)插值
+S1-300-01,AWGN 300 bit,FER=1e-2插值,K300_M511K385=3.458699 dB; K300_M511K421=4.030460 dB; K300_M255K207=4.267783 dB; K300_S15=6.181232 dB,Report/data/chapter04/bch/numeric_thresholds.csv,同上
+S1-LAT-01,AWGN,累计帧加权平均CPU译码时间,200 bit=12.73/20.54/43.66/63.67 us; 300 bit=18.52/28.60/39.00/50.96 us,S1正式results.csv,按S15/M255/M511K421/M511K385顺序且仅限本机软件
+S2-BLOCK-01,约10%遮挡,8 dB FER,200 bit=1.000/0.894/0.702/0.538; 300 bit=1.000/0.897/0.851/0.787,S2 blockage正式CSV,按S15/M255/M511K421/M511K385顺序
+S2-BURST-01,无AWGN连续翻转,50000帧零观测FER的最大突发长度,S15=1; M255=6; M511K421=10; M511K385=12 bit,S2 burst正式CSV,零观测不等于理论FER为0

@@ -1,0 +1,27 @@
+category,path,purpose,formal,recommendedForChapter8,note
+S6 summary,Task/Comparison/S6/S6_metric_summary.csv,cross-scheme summary,YES,YES,top-level S6 evidence
+S6 summary,Task/Comparison/S6/S6_plot_inventory.csv,plot inventory,YES,YES,top-level S6 evidence
+S6 summary,Task/Comparison/S6/S6_known_issues.md,known limits,YES,YES,top-level S6 evidence
+S6 summary,Task/Comparison/S6/S6_manifest.json,manifest,YES,YES,top-level S6 evidence
+S6 summary,Task/Comparison/S6/S6_validation_report.md,validation report,YES,YES,top-level S6 evidence
+formal/result,Task/Comparison/S6/results/summary/figures,26 final S6 figures,YES,YES,actual local file
+formal/result,Task/Comparison/S6/results/stage11_chinese/plots,historical 86 figures,NO,TRACE_ONLY,actual local file
+formal/result,Task/Comparison/S6/results/bch/formal_v02_20260804/bch_formal_results.csv,BCH reliability/time,YES,YES,actual local file
+formal/result,Task/Comparison/S6/results/bch/formal_v02_20260804/bch_complexity_results.csv,BCH counters,YES,YES,actual local file
+formal/result,Task/Comparison/S6/results/bch/formal_v02_20260804/bch_memory_results.csv,BCH memory,YES,YES,actual local file
+formal/result,Task/Comparison/S6/results/bch/formal_v02_20260804/execution_environment.json,BCH environment,YES,YES,actual local file
+formal/result,Task/Comparison/S6/results/cc/cc_integrated_results.csv,CC integrated formal,YES,YES,actual local file
+formal/result,Task/Comparison/S6/results/ldpc/ldpc_n560_integrated_results.csv,LDPC N560 integrated formal,YES,YES,actual local file
+source/layout,Task/Comparison/S6/stage07_s6_scientific_plots/plot_s6.py,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/Comparison/S6/stage08_s6_final_report/finalize_s6.py,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/Comparison/S6/stage05_cc_result_integration/integrate_cc.py,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/Comparison/S6/stage06_ldpc_result_integration/integrate_ldpc.py,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/Comparison/S6/stage03_bch_formal_rerun/run_bch_formal.ps1,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/BCH/simulation/current/src/bch_awgn_simulation.cpp,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/BCH/simulation/current/src/bch_case_adapter.cpp,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/CC/simulation/stages/S3/stage14_block_continuous_comparison/src/stage14_runner.cpp,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/LDPC/block/current/src/main.cpp,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Task/LDPC/block/current/src/s4_ldpc.cpp,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Report/main.tex,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Report/config/packages.tex,source/layout evidence,YES,YES,read-only evidence path
+source/layout,Report/config/format.tex,source/layout evidence,YES,YES,read-only evidence path

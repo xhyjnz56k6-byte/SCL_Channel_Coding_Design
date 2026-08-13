@@ -1,0 +1,125 @@
+series,x,rawY,plotted,exclusionReason,nonMonotonicHighSnrAnomaly
+BCH码块交织 D=19,-5.0,1.0,true,,false
+BCH码块交织 D=19,-4.5,1.0,true,,false
+BCH码块交织 D=19,-4.0,1.0,true,,false
+BCH码块交织 D=19,-3.5,1.0,true,,false
+BCH码块交织 D=19,-3.0,1.0,true,,false
+BCH码块交织 D=19,-2.5,1.0,true,,false
+BCH码块交织 D=19,-2.0,1.0,true,,false
+BCH码块交织 D=19,-1.5,1.0,true,,false
+BCH码块交织 D=19,-1.0,1.0,true,,false
+BCH码块交织 D=19,-0.5,1.0,true,,false
+BCH码块交织 D=19,0.0,1.0,true,,false
+BCH码块交织 D=19,0.5,1.0,true,,false
+BCH码块交织 D=19,1.0,1.0,true,,false
+BCH码块交织 D=19,1.5,1.0,true,,false
+BCH码块交织 D=19,2.0,1.0,true,,false
+BCH码块交织 D=19,2.5,1.0,true,,false
+BCH码块交织 D=19,3.0,1.0,true,,false
+BCH码块交织 D=19,3.5,1.0,true,,false
+BCH码块交织 D=19,4.0,1.0,true,,false
+BCH码块交织 D=19,4.5,1.0,true,,false
+BCH码块交织 D=19,5.0,1.0,true,,false
+BCH码块交织 D=19,5.5,1.0,true,,false
+BCH码块交织 D=19,6.0,1.0,true,,false
+BCH码块交织 D=19,6.5,1.0,true,,false
+BCH码块交织 D=19,7.0,1.0,true,,false
+BCH码块交织 D=19,7.5,1.0,true,,false
+BCH码块交织 D=19,8.0,1.0,true,,false
+BCH码块交织 D=19,8.5,1.0,true,,false
+BCH码块交织 D=19,9.0,1.0,true,,false
+BCH码块交织 D=19,9.5,1.0,true,,false
+BCH码块交织 D=19,10.0,1.0,true,,false
+全帧伪随机交织,-5.0,1.0,true,,false
+全帧伪随机交织,-4.5,1.0,true,,false
+全帧伪随机交织,-4.0,1.0,true,,false
+全帧伪随机交织,-3.5,1.0,true,,false
+全帧伪随机交织,-3.0,1.0,true,,false
+全帧伪随机交织,-2.5,1.0,true,,false
+全帧伪随机交织,-2.0,1.0,true,,false
+全帧伪随机交织,-1.5,1.0,true,,false
+全帧伪随机交织,-1.0,1.0,true,,false
+全帧伪随机交织,-0.5,1.0,true,,false
+全帧伪随机交织,0.0,1.0,true,,false
+全帧伪随机交织,0.5,1.0,true,,false
+全帧伪随机交织,1.0,1.0,true,,false
+全帧伪随机交织,1.5,1.0,true,,false
+全帧伪随机交织,2.0,1.0,true,,false
+全帧伪随机交织,2.5,1.0,true,,false
+全帧伪随机交织,3.0,1.0,true,,false
+全帧伪随机交织,3.5,1.0,true,,false
+全帧伪随机交织,4.0,1.0,true,,false
+全帧伪随机交织,4.5,1.0,true,,false
+全帧伪随机交织,5.0,1.0,true,,false
+全帧伪随机交织,5.5,1.0,true,,false
+全帧伪随机交织,6.0,1.0,true,,false
+全帧伪随机交织,6.5,1.0,true,,false
+全帧伪随机交织,7.0,1.0,true,,false
+全帧伪随机交织,7.5,1.0,true,,false
+全帧伪随机交织,8.0,1.0,true,,false
+全帧伪随机交织,8.5,1.0,true,,false
+全帧伪随机交织,9.0,1.0,true,,false
+全帧伪随机交织,9.5,1.0,true,,false
+全帧伪随机交织,10.0,1.0,true,,false
+无交织,-5.0,1.0,true,,false
+无交织,-4.5,1.0,true,,false
+无交织,-4.0,1.0,true,,false
+无交织,-3.5,1.0,true,,false
+无交织,-3.0,1.0,true,,false
+无交织,-2.5,1.0,true,,false
+无交织,-2.0,1.0,true,,false
+无交织,-1.5,1.0,true,,false
+无交织,-1.0,1.0,true,,false
+无交织,-0.5,1.0,true,,false
+无交织,0.0,1.0,true,,false
+无交织,0.5,1.0,true,,false
+无交织,1.0,1.0,true,,false
+无交织,1.5,1.0,true,,false
+无交织,2.0,1.0,true,,false
+无交织,2.5,1.0,true,,false
+无交织,3.0,1.0,true,,false
+无交织,3.5,1.0,true,,false
+无交织,4.0,1.0,true,,false
+无交织,4.5,1.0,true,,false
+无交织,5.0,1.0,true,,false
+无交织,5.5,1.0,true,,false
+无交织,6.0,1.0,true,,false
+无交织,6.5,1.0,true,,false
+无交织,7.0,1.0,true,,false
+无交织,7.5,1.0,true,,false
+无交织,8.0,1.0,true,,false
+无交织,8.5,1.0,true,,false
+无交织,9.0,1.0,true,,false
+无交织,9.5,1.0,true,,false
+无交织,10.0,1.0,true,,false
+行列交织 rows=15,-5.0,1.0,true,,false
+行列交织 rows=15,-4.5,1.0,true,,false
+行列交织 rows=15,-4.0,1.0,true,,false
+行列交织 rows=15,-3.5,1.0,true,,false
+行列交织 rows=15,-3.0,1.0,true,,false
+行列交织 rows=15,-2.5,1.0,true,,false
+行列交织 rows=15,-2.0,1.0,true,,false
+行列交织 rows=15,-1.5,1.0,true,,false
+行列交织 rows=15,-1.0,1.0,true,,false
+行列交织 rows=15,-0.5,1.0,true,,false
+行列交织 rows=15,0.0,1.0,true,,false
+行列交织 rows=15,0.5,1.0,true,,false
+行列交织 rows=15,1.0,1.0,true,,false
+行列交织 rows=15,1.5,1.0,true,,false
+行列交织 rows=15,2.0,1.0,true,,false
+行列交织 rows=15,2.5,1.0,true,,false
+行列交织 rows=15,3.0,1.0,true,,false
+行列交织 rows=15,3.5,1.0,true,,false
+行列交织 rows=15,4.0,1.0,true,,false
+行列交织 rows=15,4.5,1.0,true,,false
+行列交织 rows=15,5.0,1.0,true,,false
+行列交织 rows=15,5.5,1.0,true,,false
+行列交织 rows=15,6.0,1.0,true,,false
+行列交织 rows=15,6.5,1.0,true,,false
+行列交织 rows=15,7.0,1.0,true,,false
+行列交织 rows=15,7.5,1.0,true,,false
+行列交织 rows=15,8.0,1.0,true,,false
+行列交织 rows=15,8.5,1.0,true,,false
+行列交织 rows=15,9.0,1.0,true,,false
+行列交织 rows=15,9.5,1.0,true,,false
+行列交织 rows=15,10.0,1.0,true,,false

@@ -1,0 +1,28 @@
+{
+  "round": "Round05-B",
+  "branch": "S8-PaperDocu",
+  "baseHead": "c1a8238aea2b14335b97cfa12ecf52f232a1eb87",
+  "mergeStatus": "NOT_MERGED",
+  "commitCreated": false,
+  "pushPerformed": false,
+  "authoritativeS1": "Task/BCH/simulation/stages/S1/stage07_awgn_dense_formal",
+  "authoritativeS2": [
+    "Task/BCH/simulation/stages/S2/stage08_multipath_formal_common_snr",
+    "Task/BCH/simulation/stages/S2/stage10_cfo_formal",
+    "Task/BCH/simulation/stages/S2/stage12_blockage_formal",
+    "Task/BCH/simulation/stages/S2/stage14_burst_formal"
+  ],
+  "formalRerun": false,
+  "taskDirectoriesModified": false,
+  "generatedAssetsIgnoredByExistingGitRules": true,
+  "reportFigures": 9,
+  "mainTextFigures": 7,
+  "appendixFigures": 2,
+  "chapterPages": 12,
+  "pdfPages": 63,
+  "latexGate": "PASS",
+  "visualGate": "PASS",
+  "dataGate": "PASS",
+  "newDirectories": 4,
+  "readmeGate": "PASS"
+}

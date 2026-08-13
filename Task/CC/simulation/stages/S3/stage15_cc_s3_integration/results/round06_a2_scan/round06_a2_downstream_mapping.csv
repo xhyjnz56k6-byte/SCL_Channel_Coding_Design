@@ -1,0 +1,12 @@
+downstreamTask,S3Config,rate,decision,quant,dtb,window,slide,organization,sourceEvidence,confidence
+S5,CC_R23_BLOCK_FLOAT,R23,"Soft Float",Float,306,306,300,A_BLOCK_300,"Task/Comparison/S5/current/config/s5_formal_frozen_config.json; S5 current src/s5.cpp",HIGH
+S5,CC_R12_BLOCK_FLOAT,R12,"Soft Float",Float,306,306,300,A_BLOCK_300,"Task/Comparison/S5/current/config/s5_formal_frozen_config.json; S5 current src/s5.cpp",HIGH
+S6,BLOCK_HARD,R12,Hard,1-bit,306,306,300,A_BLOCK_300,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S6,BLOCK_FLOAT_SOFT,R12,"Soft Float",Float,306,306,300,A_BLOCK_300,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S6,B_CONT_50x6_HARD,R12,Hard,1-bit,70,128,25,B_CONT_50x6,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S6,B_CONT_50x6_FLOAT_SOFT,R12,"Soft Float",Float,70,128,25,B_CONT_50x6,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S6,C_CONT_100x3_HARD,R12,Hard,1-bit,70,128,25,C_CONT_100x3,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S6,C_CONT_100x3_FLOAT_SOFT,R12,"Soft Float",Float,70,128,25,C_CONT_100x3,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S6,D_CONT_150x2_HARD,R12,Hard,1-bit,70,128,25,D_CONT_150x2,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S6,D_CONT_150x2_FLOAT_SOFT,R12,"Soft Float",Float,70,128,25,D_CONT_150x2,"Task/Comparison/S6/S6_final_report.md; S6_metric_summary.csv",HIGH
+S7,CC_PSEUDO_128_RECOMMENDED,R12,"Soft Float",Float,306,306,300,A_BLOCK_300,"Task/Comparison/S7/configs/s7_formal_frozen_config.json; S7_final_report.md",HIGH

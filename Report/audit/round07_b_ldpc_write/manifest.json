@@ -1,0 +1,20 @@
+{
+  "stage": "round07_b_ldpc_write",
+  "branch": "S8-PaperDocu",
+  "status": "PASS_ROUND07_B_CHAPTER6_DRAFT",
+  "mergeStatus": "NOT_MERGED",
+  "functionalRanges": [],
+  "note": "User prohibited commit; this manifest records working-tree document changes only.",
+  "files": [
+    "Report/sections/06_LDPC方案与仿真分析.tex",
+    "Report/appendices/A_完整参数表.tex",
+    "Report/figures/ldpc/readme.txt",
+    "Report/audit/round07_b_ldpc_write/"
+  ],
+  "pending": [
+    "PENDING_ALPHA_FINAL_ADJUDICATION",
+    "PENDING_PLOT_MANIFEST_REPAIR"
+  ],
+  "commit": null,
+  "pushed": false
+}

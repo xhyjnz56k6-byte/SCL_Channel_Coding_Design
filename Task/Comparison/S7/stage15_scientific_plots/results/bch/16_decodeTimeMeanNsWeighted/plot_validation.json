@@ -1,7 +1,7 @@
 {
   "status": "PASS",
-  "rowCount": 4,
-  "plottedRows": 4,
+  "rowCount": 5,
+  "plottedRows": 5,
   "zeroExcludedRows": 0,
   "nonMonotonicHighSnrAnomaly": false,
   "sourcePathsExist": true,

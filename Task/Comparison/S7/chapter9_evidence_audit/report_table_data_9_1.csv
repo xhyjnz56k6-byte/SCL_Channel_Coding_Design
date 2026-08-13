@@ -1,0 +1,8 @@
+parameter,value,notes
+调制,BPSK,0映射为+1，1映射为-1
+信道,突发错误信道+AWGN,连续区间极性反转，全帧叠加AWGN
+Es/N0,-5至10 dB，步长0.5 dB,31个正式点
+正式展示突发比例,2%、5%,BCH为6、14 bit；CC为12、31 bit
+突发位置,帧首、1/4、帧中、3/4、帧尾、随机,交织后的发送符号序列
+停止规则,minFrames=1000；targetFrameErrors=200；maxFrames=50000,paired=true
+公平性,1116组，0 FAIL,同组共享payload、noise、burst start和frame sequence

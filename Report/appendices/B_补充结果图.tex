@@ -1,0 +1,25 @@
+\chapter{补充结果图}\label{app:figures}
+
+本附录补充正文未采用、但能提供独立信息的BER曲线。所有曲线均来自正式CSV，横轴采用$E_s/N_0$；零观测错误不替换为人为非零值。
+
+\section{BCH在AWGN下的BER}
+
+\reportfigure[0.88\textwidth]{figures/bch/s1_awgn_k200_ber.png}
+  {200 bit电文的AWGN比特错误率}{fig:app-bch-k200-ber}
+  {报告版数据见\texttt{Report/data/chapter04/bch/s1\_awgn\_report\_data.csv}。}
+
+\reportfigure[0.88\textwidth]{figures/bch/s1_awgn_k300_ber.png}
+  {300 bit电文的AWGN比特错误率}{fig:app-bch-k300-ber}
+  {报告版数据保留原始SNR、Eb/N0、实际码率与处理帧数。}
+
+\section{卷积码时隙组织的BER}
+
+第\ref{chap:cc}章正文以300 bit电文是否完整交付为主，保留硬、软判决FER图；对应BER组合图置于本附录，用于观察错误比特密度而不重复扩张正文。
+
+\reportfigure[0.99\textwidth]{figures/cc/round06_d/cc_slot_hard_ber_cn.png}
+  {不同电文组织的硬判决比特错误率}{fig:app-cc-slot-hard-ber}
+  {三幅子图分别对应三码率；零错误观测点未在对数坐标中绘制。}
+
+\reportfigure[0.99\textwidth]{figures/cc/round06_d/cc_slot_soft_ber_cn.png}
+  {不同电文组织的浮点软判决比特错误率}{fig:app-cc-slot-soft-ber}
+  {三种连续组织逐点重合，原因与正文FER结果相同。}

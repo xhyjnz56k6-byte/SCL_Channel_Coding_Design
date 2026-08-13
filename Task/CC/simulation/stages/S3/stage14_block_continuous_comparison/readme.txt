@@ -1,13 +1,13 @@
-Stage14：整块与真实在线时隙组织对比
+阶段：Stage14 - 整块与真实在线连续时隙对比
 
-正式统一结果：results/stage14_online_slot_formal_results_all_decisions.csv
-Hard 结果：results/stage14_online_slot_formal_results_hard.csv
-Soft 结果：results/stage14_online_slot_formal_results_soft.csv
+目的：在真实逐 slot 到达和在线滑窗触发条件下，比较 300 bit 整块与 50x6、100x3、150x2 连续分块组织的 BER、FER、有效吞吐和首输出/平均/P95 决策时延。
 
-组织方式：A_BLOCK_300、B_CONT_50x6、C_CONT_100x3、D_CONT_150x2。
-判决方式：Hard、Soft Float。码率：R12、R23、R34。
-SNR = Es/N0：-5.0 至 10.0 dB，步长 0.5 dB。
-停止条件：至少 1000 帧且达到 200 个帧错误，否则最多 50000 帧。
+作用：这是老师所要求“整块编码和按时隙比特长度分块”的直接对照实验。连续方案保持编码状态和打孔相位，收到每个时隙后更新缓存并触发真滑窗，最后统一终止。
 
-Block300 使用完整 Viterbi。连续方案保持编码器状态和打孔相位跨 slot 连续，
-由 slot 到达更新接收缓存并触发真滑窗译码，最后统一终止。
+得到的结果：Hard 与 Soft 各 372 行、合计 744 行正式数据，覆盖三种码率、四种组织和每 Case 31 个 SNR 点；26 张核心图和一致性检查通过，Gate 为 PASS_STAGE14_FINAL_DELIVERY。
+
+主要程序：src/stage14_runner.cpp 执行在线时隙仿真；scripts/run_stage14.py 调度；scripts/process_stage14_revision.py 处理常规结果；scripts/process_final_delivery.py 生成最终交付图；check_stage14.py 做检查。
+
+主要结果：results/stage14_online_slot_formal_results_all_decisions.csv 为总数据，hard.csv 和 soft.csv 可分别使用；stage14_*_ber_by_organization.png、*_fer_by_organization.png、*_goodput_by_rate_and_organization.png、*_first_output_latency.png、*_avg_p95_decision_latency.png 是主图。
+
+交付关系：这是最终上传的必选支撑结果，直接证明时隙分块与整块的性能和时延差异。

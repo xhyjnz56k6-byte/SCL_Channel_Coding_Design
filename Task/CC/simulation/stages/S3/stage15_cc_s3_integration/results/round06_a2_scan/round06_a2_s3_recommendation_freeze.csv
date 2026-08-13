@@ -1,0 +1,6 @@
+recommendationType,rate,actualRate,decisionMode,quantMode,quantBits,dtb,window,slide,organization,comparisonBasis,reason,source
+reliability_first,R12,0.4901960784313725,"Soft Float",Float,Float,306,306,300,A_BLOCK_300,"fixed_snr Es/N0=2.0 dB","在共同Es/N0下最小化实测FER；R12为有限样本零误帧观测，不代表理论FER=0","stage15_final_recommendations.csv + stage15_final_scheme_matrix.csv"
+throughput_first,R34,0.7352941176470588,"Soft Float",Float,Float,126,160,25,Continuous300,"fixed_snr Es/N0=2.0 dB","在共同Es/N0下最大化normalizedGoodput；对应R34_SLIDING_BALANCED","stage15_final_recommendations.csv + stage15_final_scheme_matrix.csv"
+latency_first,R23,0.6535947712418301,"Soft Float",Float,Float,84,128,25,Continuous300,"fixed_target_fer FER=0.1","在覆盖FER=0.1的候选中最小化首输出符号时延","stage15_final_recommendations.csv + stage15_final_scheme_matrix.csv"
+memory_first,R12,0.4901960784313725,"Soft Float",Float,Float,70,96,16,Continuous300,"fixed_target_fer FER=0.1","在覆盖FER=0.1的候选中最小化译码器总内存","stage15_final_recommendations.csv + stage15_final_scheme_matrix.csv"
+balanced,R12,0.4901960784313725,"Soft Float",Float,Float,70,96,16,Continuous300,"fixed_target_fer FER=0.1","按所需SNR、首输出、内存和CPU固定加权评分最小；与memory_first同一方案","stage15_final_recommendations.csv + stage15_final_scheme_matrix.csv"

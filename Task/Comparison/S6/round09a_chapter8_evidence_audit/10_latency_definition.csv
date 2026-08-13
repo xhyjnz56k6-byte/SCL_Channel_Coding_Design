@@ -1,0 +1,4 @@
+codeFamily,decoder,timerStart,timerEnd,includedOperations,excludedOperations,unit,avgDefinition,p95Definition,p99Definition,maxDefinition,warmup,environment
+BCH,S200/B200,after hard decision ready,decodeBchFrame returns,decoder only,"encode,BPSK,AWGN,hard decision,CSV",us,sum/frames,per-point percentile,per-point percentile,max observed,100 frames,BCH execution_environment.json
+CC,hard/float Viterbi,after depuncture/prep,decoder returns,Viterbi decode,"encode,BPSK,AWGN,depuncture/prep,CSV",us,source avgDecodeTimeUs; S6 summary frame-weighted,source p95DecodeTimeUs,not in integrated CSV,source maxDecodeTimeUs,not evidenced,S3 Stage14
+LDPC,BP/NMS,before decodeLayered*,after decodeLayered*,layered decoder only,"payload,encode,channel,LLR,CSV",us,mean per point; summary frame-weighted,source p95DecodeTimeUs,not in integrated CSV,max observed,not evidenced,Stage23/S4

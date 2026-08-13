@@ -1,0 +1,17 @@
+scheme,configuration,EsN0Db,burstRatio,burstLengthBits,worstPositionFER,meetsFerLe0p1,sourceCsv
+BCH,无交织,10,2%,6,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,BCH子块结构交织 D=19,10,2%,6,0.00044,true,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,全帧行列交织 R=15,10,2%,6,0.0005,true,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,全帧伪随机交织,10,2%,6,0.99998,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,无交织,10,5%,14,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,BCH子块结构交织 D=19,10,5%,14,0.00102,true,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,全帧行列交织 R=15,10,5%,14,0.00088,true,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+BCH,全帧伪随机交织,10,5%,14,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage10_bch_formal\results\formal_results.csv
+CC,无交织,10,2%,12,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,短深度块交织 D=8,10,2%,12,0.85,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,局部伪随机交织 span=128,10,2%,12,0.84,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,短深度块交织 D=16,10,2%,12,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,无交织,10,5%,31,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,短深度块交织 D=8,10,5%,31,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,局部伪随机交织 span=128,10,5%,31,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv
+CC,短深度块交织 D=16,10,5%,31,1,false,C:\Users\V3169\Desktop\Project\SCL_Channel_Coding_Design\Task\Comparison\S7\stage11_cc_formal\results\formal_results.csv

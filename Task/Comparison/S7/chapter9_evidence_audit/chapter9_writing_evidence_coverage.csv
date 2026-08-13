@@ -1,0 +1,22 @@
+section,claim,figure,table,sourceCsv,status
+9.1,交织改变连续信道异常经逆置换后的空间分布，不改变码本,图9.1,表9.1,chapter9_fairness_audit.csv; s7_formal_frozen_config.json,PASS
+9.2,突发错误信道为连续BPSK极性反转并叠加AWGN,N/A,表9.1,chapter9_burst_channel_definition.md,PASS
+9.2,"BCH固定为200 bit分块BCH(15,11,1)方案",N/A,表9.2;表9.3,s7_formal_frozen_config.json; formal_results.csv,PASS
+9.2,卷积码固定为300 bit终止整帧浮点软Viterbi,N/A,表9.2;表9.4,s7_formal_frozen_config.json; formal_results.csv,PASS
+9.3,BCH规则结构交织在2%和5%高工作点显著降低FER,图9.2;图9.3,表9.5,report_table_data_9_5.csv,PASS
+9.3,BCH全帧伪随机配置具有较强位置依赖,图9.4;图9.5;图9.6,表9.5,formal_results.csv; all_start_results.csv,PASS
+9.3,规则交织把错误扩展到约14个子块并降低单块最大错误数,图9.7,表9.6,report_table_data_9_6.csv,PASS
+9.3,BCH三种正式交织配置均需285 bit结构缓存,图9.8,表9.9,report_table_data_9_9.csv,PASS
+9.4,卷积码2%条件下D8与Pseudo128降低平均FER,图9.9,表9.7,report_table_data_9_7.csv,PASS
+9.4,卷积码5%条件下各配置FER接近饱和,图9.9;图9.10,表9.7,report_table_data_9_7.csv,PASS
+9.4,卷积码突发位置会改变局部路径度量竞争,图9.11;图9.12,表9.7,formal_results.csv,PASS
+9.4,D8与Pseudo128是工程配置比较,图9.13,表9.8,report_table_data_9_8.csv,PASS
+9.4,D16与Pseudo128构成128 trellis step等跨度受控比较,图9.13,表9.8,report_table_data_9_8.csv,PASS
+9.4,D增大没有形成单调FER收益,图9.13;图9.14,表9.8,formal_results.csv,PASS
+9.4,D8与Pseudo128分别需要128 bit和256 bit缓存,图9.15,表9.9,report_table_data_9_9.csv,PASS
+9.5,LDPC N640仅为无交织、无突发AWGN近码率基线,图9.16,表9.11,report_table_data_9_11.csv,PASS
+9.6,CPU时间为软件函数时间，bufferBits不是物理时延,图9.8;图9.15,表9.9,chapter9_timing_definition_audit.csv; report_table_data_9_9.csv,PASS
+9.6,BCH规则结构配置通过两档高工作点最坏FER门限,图9.2;图9.6,表9.10,report_table_data_9_10.csv,PASS
+9.6,卷积码配置未通过两档最坏FER门限,图9.9,表9.10,report_table_data_9_10.csv,PASS
+9.6,工程建议按性能与缓存目标分别给出,图9.8;图9.15,表9.12,report_table_data_9_12.csv,PASS
+9.7,所有结论限定在2%与5%正式展示范围,图9.2-图9.16,表9.1-表9.12,chapter9_report_2_5_percent_filter.csv,PASS

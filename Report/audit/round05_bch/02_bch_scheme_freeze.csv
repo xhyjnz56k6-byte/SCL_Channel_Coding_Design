@@ -1,0 +1,6 @@
+schemeId,caseName,payloadLength,organization,motherCode,motherN,motherK,blockCount,payloadPerBlock,fillerLength,shorteningLength,encodedLength,transmittedLength,actualRate,correctionCapability,decoderType,formalStatus,sourceFile,sourceLineOrSymbol,notes
+S200,BCH-S200,200,SEGMENTED,BCH(15|11|1),15,11,19,11,9,0,285,285,0.7017543859649123,1,SYNDROME_LOOKUP,MASTER,Task/BCH/simulation/current/src/bch_case_adapter.cpp,kS200,末块仅含2个payload位和9个零filler
+B200,BCH-B200,200,WHOLE_BLOCK_SHORTENED,BCH(255|207|6),255,207,1,200,0,7,248,248,0.8064516129032258,6,BERLEKAMP_MASSEY_CHIEN,MASTER,Task/BCH/simulation/current/src/bch_case_adapter.cpp,kB200,GF(2^8) primitive polynomial 0x11D
+S300,BCH-S300,300,SEGMENTED,BCH(15|11|1),15,11,28,11,8,0,420,420,0.7142857142857143,1,SYNDROME_LOOKUP,MASTER,Task/BCH/simulation/current/src/bch_case_adapter.cpp,kS300,末块仅含3个payload位和8个零filler
+B300,BCH-B300,300,WHOLE_BLOCK_SHORTENED,BCH(511|421|10),511,421,1,300,0,121,390,390,0.7692307692307693,10,BERLEKAMP_MASSEY_CHIEN,MASTER_BASELINE,Task/BCH/simulation/current/src/bch_case_adapter.cpp,kB300,300 bit主基线；GF(2^9) primitive polynomial 0x211
+B300_426,BCH-B300-426,300,WHOLE_BLOCK_SHORTENED,BCH(511|385|14),511,385,1,300,0,85,426,426,0.7042253521126760,14,BERLEKAMP_MASSEY_CHIEN,ENHANCED_FORMAL_CANDIDATE,Task/BCH/simulation/current/src/bch_case_adapter.cpp,kB300426,增强候选；S1与S2均有正式比较数据
