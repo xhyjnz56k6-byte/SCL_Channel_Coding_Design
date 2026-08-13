@@ -17,12 +17,8 @@ N=n_bZ_c,\qquad R=\frac{300}{N}.
 
 \begin{figure}[htbp]
   \centering
-  \fbox{\begin{minipage}[c][0.18\textheight][c]{0.86\textwidth}
-  \centering\Large 300 bit高速电文BG2短块LDPC编码结构\\[0.7em]
-    \normalsize 300 bit输入信息 $\rightarrow$ BG2结构参数 $\rightarrow$ 提升因子$Z_c$
-    $\rightarrow$ 信息容量与填充位 $\rightarrow$ 准循环校验矩阵
-    $\rightarrow$ 系统编码 $\rightarrow$ 校验位 $\rightarrow$ 480/560/640 bit码字
-  \end{minipage}}
+\includegraphics[width=0.82\textwidth]
+  {figures/ldpc/ldpc-encoder-placeholder.pdf}
   \caption{300 bit高速电文BG2短块LDPC编码结构}
   \label{fig:ldpc-encoder-placeholder}
 \end{figure}
@@ -42,7 +38,7 @@ N=n_bZ_c,\qquad R=\frac{300}{N}.
   \end{tabular}}
 \end{table}
 
-中间目标码长为576 bit。BG2短块构造受到提升因子与校验矩阵可编码条件的共同约束，精确576 bit候选未满足本系统的编码条件，因此采用距离目标最近的560 bit合法方案。仿真、码率和性能比较均按560 bit实际发送长度计算。
+中间目标码长为576 bit。BG2短块构造受到提升因子与校验矩阵可编码条件的共同约束，576 bit候选未满足本系统的编码条件，因此采用距离目标最近的560 bit方案。仿真、码率和性能比较均按560 bit实际发送长度计算。
 
 三种构造的差异不仅体现为发送长度变化，还包括提升因子、基图截取范围、填充量和校验约束分布的同步变化。N640包含320个校验位且填充位仅20 bit；N560虽然发送长度居中，但信息容量达到448 bit，其中148 bit为填充位。完整校验图结构由此成为短块性能分析的重要基础。
 
@@ -57,13 +53,8 @@ L_{c\rightarrow v}^{\mathrm{NMS}}
 
 \begin{figure}[htbp]
   \centering
-  \fbox{\begin{minipage}[c][0.20\textheight][c]{0.86\textwidth}
-  \centering\Large BP与NMS分层迭代译码流程\\[0.7em]
-    \normalsize 接收LLR $\rightarrow$ 校验节点分层处理；
-    BP：双曲正切/反双曲正切，NMS：绝对值/最小值/次小值/符号/缩放
-    $\rightarrow$ 变量节点更新 $\rightarrow$ 硬判决 $\rightarrow$ 校验方程\\[0.4em]
-    通过 $\rightarrow$ 输出；未通过 $\rightarrow$ 下一迭代
-  \end{minipage}}
+\includegraphics[width=0.82\textwidth]
+  {figures/ldpc/ldpc-decoder-placeholder.pdf}
   \caption{BP与NMS分层迭代译码流程}
   \label{fig:ldpc-decoder-placeholder}
 \end{figure}
@@ -96,7 +87,7 @@ NMS以$\alpha$修正最小和近似产生的消息幅度。较小的$\alpha$会�
   \label{tab:ldpc-alpha}
   \resizebox{\textwidth}{!}{\begin{tabular}{c c c c c c c}
     \toprule
-    码长 & $\alpha$ & 扫描$E_s/N_0$/dB & 平均FER & 平均迭代 & 平均时间/$\mu$s & 错误合法码字率\\
+    码长 & $\alpha$ & 扫描$E_s/N_0$/dB & 平均FER & 平均迭代 & 平均时间/$\mu$s & 错误码字率\\
     \midrule
     480 & 0.80 & $2.5\sim4.5$ & 0.4707 & 11.437 & 90.65 & 7.33\%\\
     480 & 0.90 & $2.5\sim4.5$ & 0.4427 & 7.187 & 58.10 & 11.00\%\\
@@ -124,12 +115,8 @@ N640的变化方向不同：$\alpha=0.80$的平均FER为0.3653，低于0.90、0.
 
 \begin{figure}[htbp]
   \centering
-  \fbox{\begin{minipage}[c][0.18\textheight][c]{0.86\textwidth}
-  \centering\Large LDPC仿真链路与软件译码时间统计位置\\[0.7em]
-    \normalsize 300 bit信息 $\rightarrow$ LDPC编码 $\rightarrow$ BPSK $\rightarrow$ AWGN
-    $\rightarrow$ LLR $\rightarrow$【计时起点】BP/NMS【计时终点】
-    $\rightarrow$ 信息恢复 $\rightarrow$ BER/FER/迭代/时间/复杂度
-  \end{minipage}}
+\includegraphics[width=0.82\textwidth]
+  {figures/ldpc/ldpc-chain-placeholder.pdf}
   \caption{LDPC仿真链路与软件译码时间统计位置}
   \label{fig:ldpc-chain-placeholder}
 \end{figure}
@@ -152,7 +139,7 @@ N640的变化方向不同：$\alpha=0.80$的平均FER为0.3653，低于0.90、0.
   \end{tabular}
 \end{table}
 
-运行记录保存了处理器架构信息，未包含完整商品型号，因此软件译码时间用于同一实现环境中的相对比较。计时边界位于译码函数入口和返回位置，反映软件译码内核时间，而非端到端通信时延。
+运行记录保存了处理器架构信息。
 
 \begin{table}[htbp]
   \centering\small
@@ -329,7 +316,7 @@ N560在FER$=0.1$处相对N480仅降低0.146 dB（BP）和0.123 dB（NMS），FER
 
 错误合法码字表示译码输出满足全部校验方程，但恢复的300 bit信息仍然错误。图\ref{fig:ldpc-wrong-valid}呈现出明显的信噪比分区：低信噪比下，大量帧无法进入任何合法码字，错误合法码字比例处于低位；中等信噪比下，部分错误帧能够收敛到错误但合法的码字，N480与N560形成峰值；高信噪比下，正确码字成为主要收敛结果，错误合法码字率随总错误数共同下降。
 
-N480的峰值为49.1\%（BP，2.5 dB）和64.5\%（NMS，2.0 dB），N560对应为44.9\%和60.8\%（均在2.5 dB）。N640仅在$-0.5$ dB附近出现约$2.41\times10^{-5}$的极低观测值。归一化因子分析中N480与N560在$\alpha=1.00$时错误合法码字增多，与中等信噪比下较强消息幅度引起的错误收敛相吻合。工程接收机因而同时利用信息正确性统计与综合校验结果评价译码质量。
+N480的峰值为49.1\%（BP，2.5 dB）和64.5\%（NMS，2.0 dB），N560对应为44.9\%和60.8\%（均在2.5 dB）。N640仅在$-0.5$ dB附近出现约$2.41\times10^{-5}$的极低观测值。归一化因子分析中N480与N560在$\alpha=1.00$时错误合法码字增多，与中等信噪比下较强消息幅度引起的错误收敛相吻合。
 
 \section{不同码长及编码增益分析}
 
