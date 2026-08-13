@@ -45,3 +45,15 @@ Task/Comparison/**/build/
 *.xdv
 _build/
 
+#报告
+Report/data/
+Report/evidence/
+注意/修改注意事项.txt
+Task/Comparison/S5/report_scan_round08A/
+Task/BCH/simulation/stages/S1/stage07_awgn_dense_formal/results/
+Task/BCH/simulation/stages/S1/stage07_awgn_dense_formal/results/
+Report/figures/
+Task/BCH/simulation/stages/S1/stage07_awgn_dense_formal/
+Report/config/
+Task/BCH/simulation/stages/S1/readme.txt
+visio/C7/readme.txt
